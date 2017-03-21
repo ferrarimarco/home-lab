@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Add Vagrant artifacts to .gitignore [\#4](https://github.com/ferrarimarco/home-lab/issues/4)
 - Create an inventory to list the hosts to manage [\#1](https://github.com/ferrarimarco/home-lab/issues/1)
 
 
