@@ -1,11 +1,11 @@
 [cloud-backup-devices]
 europa
 
-[torrentboxes]
-pluto
-
 [nas-devices]
 saturn
+
+[torrentboxes]
+pluto
 
 [workstations]
 deimos
