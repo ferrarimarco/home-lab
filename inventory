@@ -1,4 +1,13 @@
-pluto
+[cloud-backup-devices]
 europa
-phobos
+
+[torrentboxes]
+pluto
+
+[nas-devices]
+saturn
+
+[workstations]
 mars
+deimos
+phobos
