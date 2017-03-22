@@ -4,6 +4,9 @@ europa
 [nas-devices]
 saturn
 
+[pxe-servers]
+europa
+
 [torrentboxes]
 pluto
 
