@@ -4,6 +4,8 @@
 
 **Implemented enhancements:**
 
+- Use pluto as a control-machine [\#9](https://github.com/ferrarimarco/home-lab/issues/9)
+- Use europa instead of pluto as a torrentbox [\#8](https://github.com/ferrarimarco/home-lab/issues/8)
 - Add pluto machine to Vagrantfile [\#7](https://github.com/ferrarimarco/home-lab/issues/7)
 - Write a multi-machine ready Vagrantfile [\#6](https://github.com/ferrarimarco/home-lab/issues/6)
 - Add a pxe-servers group to inventory [\#5](https://github.com/ferrarimarco/home-lab/issues/5)
