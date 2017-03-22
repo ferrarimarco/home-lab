@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Add pluto machine to Vagrantfile [\#7](https://github.com/ferrarimarco/home-lab/issues/7)
 - Write a multi-machine ready Vagrantfile [\#6](https://github.com/ferrarimarco/home-lab/issues/6)
 - Add a pxe-servers group to inventory [\#5](https://github.com/ferrarimarco/home-lab/issues/5)
 - Add Vagrant artifacts to .gitignore [\#4](https://github.com/ferrarimarco/home-lab/issues/4)
