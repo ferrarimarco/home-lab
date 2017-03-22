@@ -1,10 +1,10 @@
 home_lab = {
-  # "pluto" => {
-  #   :box => "boxcutter/ubuntu1604-i386",
-  #   :cpus => 1,
-  #   :ip => "192.168.33.13",
-  #   :mem => 512
-  # }
+  "pluto" => {
+    :box => "boxcutter/ubuntu1604-i386",
+    :cpus => 1,
+    :ip => "192.168.33.13",
+    :mem => 512
+  }
 }
 
 VAGRANTFILE_API_VERSION = "2"
