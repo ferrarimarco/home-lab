@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Add ganymede to the inventory [\#10](https://github.com/ferrarimarco/home-lab/issues/10)
 - Use pluto as a control-machine [\#9](https://github.com/ferrarimarco/home-lab/issues/9)
 - Use europa instead of pluto as a torrentbox [\#8](https://github.com/ferrarimarco/home-lab/issues/8)
 - Add pluto machine to Vagrantfile [\#7](https://github.com/ferrarimarco/home-lab/issues/7)
