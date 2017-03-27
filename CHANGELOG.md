@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Fix syntax in Vagrantfile [\#11](https://github.com/ferrarimarco/home-lab/issues/11)
 - Add ganymede to the inventory [\#10](https://github.com/ferrarimarco/home-lab/issues/10)
 - Use pluto as a control-machine [\#9](https://github.com/ferrarimarco/home-lab/issues/9)
 - Use europa instead of pluto as a torrentbox [\#8](https://github.com/ferrarimarco/home-lab/issues/8)

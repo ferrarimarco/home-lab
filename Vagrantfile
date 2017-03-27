@@ -17,13 +17,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         override.vm.hostname = hostname
         override.vm.network :private_network, ip: "#{info[:ip]}"
         vb.name = hostname
-        vb.customize ["modifyvm", :id,
-          "--cableconnected1", "on",
-          "--cpus", info[:cpus],
-          "--hwvirtex", "on",
-          "--name", hostname,
-          "--memory", info[:mem]
-        ]
+        vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
+        vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
+        vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
+        vb.customize ["modifyvm", :id, "--name", hostname]
+        vb.customize ["modifyvm", :id, "--memory", info[:mem]]
       end
     end
   end
