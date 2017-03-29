@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Use deimos as a control-machine [\#13](https://github.com/ferrarimarco/home-lab/issues/13)
 - Disable /vagrant shared directory [\#12](https://github.com/ferrarimarco/home-lab/issues/12)
 - Fix syntax in Vagrantfile [\#11](https://github.com/ferrarimarco/home-lab/issues/11)
 - Add ganymede to the inventory [\#10](https://github.com/ferrarimarco/home-lab/issues/10)
