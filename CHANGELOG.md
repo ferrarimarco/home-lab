@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Add europa to the development environment [\#16](https://github.com/ferrarimarco/home-lab/issues/16)
 - Use deimos as a control-machine [\#13](https://github.com/ferrarimarco/home-lab/issues/13)
 - Disable /vagrant shared directory [\#12](https://github.com/ferrarimarco/home-lab/issues/12)
 - Fix syntax in Vagrantfile [\#11](https://github.com/ferrarimarco/home-lab/issues/11)
