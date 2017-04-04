@@ -1,0 +1,4 @@
+---
+- src: ferrarimarco.bash-aliases
+- src: ferrarimarco.docker
+- src: stevenharradine.locale
