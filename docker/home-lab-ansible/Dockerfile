@@ -5,3 +5,5 @@ LABEL maintainer "ferrari.marco@gmail.com"
 ADD requirements.yml /tmp/requirements.yml
 RUN ansible-galaxy install -r /tmp/requirements.yml \
   && rm /tmp/requirements.yml
+
+ADD inventory /etc/ansible/hosts
