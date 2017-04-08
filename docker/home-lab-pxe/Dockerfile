@@ -16,4 +16,4 @@ RUN mkdir ubuntu \
 RUN 7z x ubuntu-$UBUNTU_SERVER_VERSION-server-amd64.iso \
 RUN rm ubuntu-$UBUNTU_SERVER_VERSION-server-amd64.iso
 
-RUN apt-get remove --purge p7zip-full
+RUN apt-get remove -y --purge p7zip-full
