@@ -13,7 +13,7 @@ ENV UBUNTU_SERVER_VERSION $UBUNTU_SERVER_MAJOR_MINOR_VERSION.$UBUNTU_SERVER_POIN
 RUN mkdir ubuntu \
   && wget http://releases.ubuntu.com/$UBUNTU_SERVER_MAJOR_MINOR_VERSION/ubuntu-$UBUNTU_SERVER_VERSION-server-amd64.iso
 
-RUN 7z x ubuntu-$UBUNTU_SERVER_VERSION-server-amd64.iso \
+RUN 7z x ubuntu-$UBUNTU_SERVER_VERSION-server-amd64.iso
 RUN rm ubuntu-$UBUNTU_SERVER_VERSION-server-amd64.iso
 
 RUN apt-get remove -y --purge p7zip-full
