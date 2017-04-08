@@ -18,3 +18,7 @@ deimos
 ganymede
 mars
 phobos
+
+[evaluation-boards]
+metis # raspi-v1
+adrastea # beaglebone black
