@@ -1,4 +1,4 @@
-FROM ferrarimarco/pxe:dev-latest
+FROM ferrarimarco/pxe:1.1.0
 
 LABEL maintainer "ferrari.marco@gmail.com"
 
