@@ -7,6 +7,9 @@ europa
 [nas-devices]
 saturn
 
+[dhcp-servers]
+europa
+
 [pxe-servers]
 europa
 
