@@ -1,0 +1,33 @@
+DEFAULT ubuntu-16-04-amd64
+  SAY Now booting the kernel from Ubuntu 16.04 (64-bit)...
+
+LABEL memtest86
+  MENU LABEL Memtest86+
+  KERNEL /memtest/memtest86+
+LABEL ubuntu-16-04-amd64
+  MENU LABEL Ubuntu 16.04 amd64
+  KERNEL /ubuntu/16.04/16.04.2-server-amd64/install/netboot/ubuntu-installer/amd64/linux
+  APPEND /install/vmlinuz auto=true interface=eth0 hostname=cluster domain=home url=tftp://192.168.56.2/preseed/16.04/preseed.cfg initrd=ubuntu/16.04/16.04.2-server-amd64/install/netboot/ubuntu-installer/amd64/initrd.gz debian-installer=en_US locale=en_US kbd-chooser/method=us keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false --
+
+MENU CMDLINEROW 15
+MENU COLOR title 1;34;49 #eea0a0ff #cc333355 std
+MENU COLOR sel 7;37;40 #ff000000 #bb9999aa all
+MENU COLOR border 30;44 #ffffffff #00000000 std
+MENU COLOR pwdheader 31;47 #eeff1010 #20ffffff std
+MENU COLOR hotkey 35;40 #90ffff00 #00000000 std
+MENU COLOR hotsel 35;40 #90000000 #bb9999aa all
+MENU COLOR timeout_msg 35;40 #90ffffff #00000000 none
+MENU COLOR timeout 31;47 #eeff1010 #00000000 none
+MENU ENDROW 24
+MENU MARGIN 10
+MENU PASSWORDMARGIN 3
+MENU PASSWORDROW 11
+MENU ROWS 10
+MENU TABMSGROW 15
+MENU TIMEOUTROW 16
+MENU TITLE PXE Boot MENU
+MENU WIDTH 80
+
+PROMPT 1
+TIMEOUT 50
+UI menu.c32

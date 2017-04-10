@@ -5,6 +5,7 @@
 **Implemented enhancements:**
 
 - Provide a Dockerfile for Ansible [\#20](https://github.com/ferrarimarco/home-lab/issues/20)
+- Implement a PXE with Memtest86+ and Ubuntu 16.04 boot options [\#19](https://github.com/ferrarimarco/home-lab/issues/19)
 - Add Raspi and the Beaglebone to the inventory [\#18](https://github.com/ferrarimarco/home-lab/issues/18)
 - Add europa to the development environment [\#16](https://github.com/ferrarimarco/home-lab/issues/16)
 - Implement a playbook for all hosts to use as a baseline [\#15](https://github.com/ferrarimarco/home-lab/issues/15)
