@@ -1,0 +1,17 @@
+[docker-engine-hosts]
+deimos
+europa
+pluto
+
+[evaluation-boards]
+adrastea # beaglebone black
+metis # raspi-v1
+
+[nas-devices]
+saturn
+
+[workstations]
+deimos
+ganymede
+mars
+phobos
