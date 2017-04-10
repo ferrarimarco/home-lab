@@ -3,6 +3,10 @@ deimos
 europa
 pluto
 
+[evaluation-boards]
+adrastea # beaglebone black
+metis # raspi-v1
+
 [nas-devices]
 saturn
 
@@ -11,7 +15,3 @@ deimos
 ganymede
 mars
 phobos
-
-[evaluation-boards]
-metis # raspi-v1
-adrastea # beaglebone black
