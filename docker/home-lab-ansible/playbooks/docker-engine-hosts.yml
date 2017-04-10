@@ -1,5 +1,5 @@
 ---
-- hosts: dhcp-servers
+- hosts: docker-engine-hosts
   gather_facts: yes
   roles:
     - role: ferrarimarco.docker

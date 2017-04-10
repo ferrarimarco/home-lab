@@ -1,9 +1,0 @@
----
-- hosts: pxe-servers
-  gather_facts: yes
-    - role: ferrarimarco.docker
-      become: yes
-    - role: ferrarimarco.bash-aliases
-      bash_aliases:
-        - { alias: "docker-clean", command: 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock zzrot/docker-clean' }
-      become: yes

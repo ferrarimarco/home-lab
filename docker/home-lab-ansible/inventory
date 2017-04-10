@@ -1,20 +1,10 @@
-[control-machines]
+[docker-engine-hosts]
 deimos
-
-[cloud-backup-devices]
 europa
+pluto
 
 [nas-devices]
 saturn
-
-[dhcp-servers]
-europa
-
-[pxe-servers]
-europa
-
-[torrentboxes]
-europa
 
 [workstations]
 deimos
