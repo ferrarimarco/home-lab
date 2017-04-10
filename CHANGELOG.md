@@ -4,14 +4,14 @@
 
 **Implemented enhancements:**
 
+- Configure a DHCP server [\#22](https://github.com/ferrarimarco/home-lab/issues/22)
 - Provide a Dockerfile for Ansible [\#20](https://github.com/ferrarimarco/home-lab/issues/20)
 - Implement a PXE with Memtest86+ and Ubuntu 16.04 boot options [\#19](https://github.com/ferrarimarco/home-lab/issues/19)
 - Add Raspi and the Beaglebone to the inventory [\#18](https://github.com/ferrarimarco/home-lab/issues/18)
 - Add europa to the development environment [\#16](https://github.com/ferrarimarco/home-lab/issues/16)
 - Implement a playbook for all hosts to use as a baseline [\#15](https://github.com/ferrarimarco/home-lab/issues/15)
-- Use deimos as a control-machine [\#13](https://github.com/ferrarimarco/home-lab/issues/13)
+- Use deimos as control machine [\#13](https://github.com/ferrarimarco/home-lab/issues/13)
 - Disable /vagrant shared directory [\#12](https://github.com/ferrarimarco/home-lab/issues/12)
-- Fix syntax in Vagrantfile [\#11](https://github.com/ferrarimarco/home-lab/issues/11)
 - Add ganymede to the inventory [\#10](https://github.com/ferrarimarco/home-lab/issues/10)
 - Use pluto as a control-machine [\#9](https://github.com/ferrarimarco/home-lab/issues/9)
 - Use europa instead of pluto as a torrentbox [\#8](https://github.com/ferrarimarco/home-lab/issues/8)
@@ -20,6 +20,10 @@
 - Add a pxe-servers group to inventory [\#5](https://github.com/ferrarimarco/home-lab/issues/5)
 - Add Vagrant artifacts to .gitignore [\#4](https://github.com/ferrarimarco/home-lab/issues/4)
 - Create an inventory to list the hosts to manage [\#1](https://github.com/ferrarimarco/home-lab/issues/1)
+
+**Fixed bugs:**
+
+- Fix syntax in Vagrantfile [\#11](https://github.com/ferrarimarco/home-lab/issues/11)
 
 
 
