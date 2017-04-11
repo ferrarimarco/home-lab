@@ -39,6 +39,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--name", hostname]
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
       end
+      if(hostname.include? ANSIBLE_CONTROL_MACHINE_NAME) then
+        host.vm.provision "shell", path: "scripts/install_docker.sh"
+      end
     end
   end
 end
