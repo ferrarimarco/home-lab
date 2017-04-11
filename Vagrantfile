@@ -1,14 +1,20 @@
 home_lab = {
-  "europa" => {
+  "deimos.ferrari.home-dev" => {
     :box => "boxcutter/ubuntu1604",
-    :cpus => 1,
-    :ip => "192.168.33.14",
+    :cpus => 2,
+    :ip => "192.168.33.10",
     :mem => 512
   },
-  "pluto" => {
+  "europa.ferrari.home-dev" => {
+    :box => "boxcutter/ubuntu1604",
+    :cpus => 1,
+    :ip => "192.168.33.11",
+    :mem => 512
+  },
+  "pluto.ferrari.home-dev" => {
     :box => "boxcutter/ubuntu1604-i386",
     :cpus => 1,
-    :ip => "192.168.33.13",
+    :ip => "192.168.33.12",
     :mem => 512
   }
 }
