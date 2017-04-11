@@ -26,6 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define hostname do |cfg|
       cfg.vm.provider :virtualbox do |vb, override|
         config.vm.box = "#{info[:box]}"
+        config.vm.synced_folder '.', '/vagrant', disabled: true
         override.vm.hostname = hostname
         override.vm.network :private_network, ip: "#{info[:ip]}"
         vb.name = hostname
@@ -34,7 +35,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vb.customize ["modifyvm", :id, "--name", hostname]
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
-        config.vm.synced_folder '.', '/vagrant', disabled: true
       end
     end
   end
