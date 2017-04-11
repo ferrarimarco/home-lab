@@ -12,6 +12,7 @@
       become: yes
       with_items:
         - curl
+        - wget
   roles:
     - role: stevenharradine.locale
       locale_locales:
