@@ -1,5 +1,5 @@
 ---
-- hosts: control-machines:cloud-backup-devices:pxe-servers:torrentboxes
+- hosts: docker-engine-hosts
   gather_facts: yes
   tasks:
     - name: Ensure required apt packages are installed
@@ -11,11 +11,7 @@
         update_cache: yes
       become: yes
       with_items:
-        - apt-transport-https
-        - bzip2
-        - ca-certificates
         - curl
-        - language-pack-en
   roles:
     - role: stevenharradine.locale
       locale_locales:
