@@ -13,6 +13,11 @@
       with_items:
         - curl
         - wget
+    - name: Ensure SSH keys are installed
+      authorized_key: user=root key=https://github.com/{{ item }}.keys
+      become: yes
+      with_items:
+        - ferrarimarco
   roles:
     - role: stevenharradine.locale
       locale_locales:

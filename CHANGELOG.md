@@ -20,6 +20,7 @@
 - Write a multi-machine ready Vagrantfile [\#6](https://github.com/ferrarimarco/home-lab/issues/6)
 - Add a pxe-servers group to inventory [\#5](https://github.com/ferrarimarco/home-lab/issues/5)
 - Add Vagrant artifacts to .gitignore [\#4](https://github.com/ferrarimarco/home-lab/issues/4)
+- Deploy public SSH keys in managed hosts [\#2](https://github.com/ferrarimarco/home-lab/issues/2)
 - Create an inventory to list the hosts to manage [\#1](https://github.com/ferrarimarco/home-lab/issues/1)
 
 **Fixed bugs:**
