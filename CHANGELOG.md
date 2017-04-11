@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Raise DHCP server range start from .10 to .50 [\#26](https://github.com/ferrarimarco/home-lab/issues/26)
 - Configure a virtualized development environment [\#24](https://github.com/ferrarimarco/home-lab/issues/24)
 - Configure a DHCP server [\#22](https://github.com/ferrarimarco/home-lab/issues/22)
 - Provide a Dockerfile for Ansible [\#20](https://github.com/ferrarimarco/home-lab/issues/20)
