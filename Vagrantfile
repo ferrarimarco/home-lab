@@ -22,13 +22,13 @@ home_lab = {
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  home_lab.each_with_index do |(hostname, info), index|
-    config.vm.define hostname do |cfg|
-      cfg.vm.provider :virtualbox do |vb, override|
-        config.vm.box = "#{info[:box]}"
-        config.vm.synced_folder '.', '/vagrant', disabled: true
-        override.vm.hostname = hostname
-        override.vm.network :private_network, ip: "#{info[:ip]}"
+  home_lab.each do |(hostname, info)|
+    config.vm.define hostname do |host|
+      host.vm.box = "#{info[:box]}"
+      host.vm.synced_folder '.', '/vagrant', disabled: true
+      host.vm.hostname = hostname
+      host.vm.network :private_network, ip: "#{info[:ip]}"
+      host.vm.provider :virtualbox do |vb|
         vb.name = hostname
         vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
         vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
