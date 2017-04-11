@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Configure a virtualized development environment [\#24](https://github.com/ferrarimarco/home-lab/issues/24)
 - Configure a DHCP server [\#22](https://github.com/ferrarimarco/home-lab/issues/22)
 - Provide a Dockerfile for Ansible [\#20](https://github.com/ferrarimarco/home-lab/issues/20)
 - Implement a PXE with Memtest86+ and Ubuntu 16.04 boot options [\#19](https://github.com/ferrarimarco/home-lab/issues/19)
