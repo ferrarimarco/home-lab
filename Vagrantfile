@@ -33,7 +33,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       host.vm.network :private_network, ip: "#{info[:ip]}"
       host.vm.provider :virtualbox do |vb|
         vb.name = hostname
-        vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
         vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vb.customize ["modifyvm", :id, "--name", hostname]
