@@ -1,17 +1,20 @@
+ANSIBLE_CONTROL_MACHINE_NAME = "deimos"
+DOMAIN = ".ferrari.home-dev"
+
 home_lab = {
-  "deimos.ferrari.home-dev" => {
+  ANSIBLE_CONTROL_MACHINE_NAME + DOMAIN => {
     :box => "boxcutter/ubuntu1604",
     :cpus => 2,
     :ip => "192.168.0.10",
     :mem => 512
   },
-  "europa.ferrari.home-dev" => {
+  "europa" + DOMAIN => {
     :box => "boxcutter/ubuntu1604",
     :cpus => 1,
     :ip => "192.168.0.11",
     :mem => 512
   },
-  "pluto.ferrari.home-dev" => {
+  "pluto" + DOMAIN => {
     :box => "boxcutter/ubuntu1604-i386",
     :cpus => 1,
     :ip => "192.168.0.12",
