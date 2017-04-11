@@ -18,5 +18,5 @@ else
     $(lsb_release -cs) \
     stable"
   apt-get update
-  apt-get install docker-ce==17.03.1~ce-0~ubuntu-trusty
+  apt-get install -y docker-ce=17.03.1~ce-0~ubuntu-xenial
 fi
