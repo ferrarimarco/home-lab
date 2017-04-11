@@ -1,5 +1,12 @@
 [docker-engine-hosts]
+deimos
 europa
+pluto
+
+[docker-swarm-managers]
+europa
+
+[docker-swarm-workers]
 pluto
 
 [evaluation-boards]
