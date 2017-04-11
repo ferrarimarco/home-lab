@@ -28,7 +28,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   home_lab.each do |(hostname, info)|
     config.vm.define hostname do |host|
       host.vm.box = "#{info[:box]}"
-      host.vm.synced_folder '.', '/vagrant', disabled: true
+
       host.vm.hostname = hostname
       host.vm.network :private_network, ip: "#{info[:ip]}"
       host.vm.provider :virtualbox do |vb|
@@ -41,6 +41,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
       if(hostname.include? ANSIBLE_CONTROL_MACHINE_NAME) then
         host.vm.provision "shell", path: "scripts/install_docker.sh"
+      else
+        # Disable the /vagrant shared directory if not on the Ansible control VM
+        host.vm.synced_folder '.', '/vagrant', disabled: true
       end
     end
   end
