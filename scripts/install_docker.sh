@@ -19,4 +19,11 @@ else
     stable"
   apt-get update
   apt-get install -y docker-ce=17.03.1~ce-0~ubuntu-xenial
+
+  # add the vagrant user to the docker group if necessary
+  VAGRANT_USERNAME="vagrant"
+  if getent passwd $VAGRANT_USERNAME > /dev/null 2>&1; then
+    echo "Adding vagrant user to the docker group"
+    usermod -aG docker $VAGRANT_USERNAME
+  fi
 fi

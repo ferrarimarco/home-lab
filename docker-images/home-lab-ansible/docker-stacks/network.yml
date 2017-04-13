@@ -6,8 +6,4 @@ services:
       replicas: 1
     image: ferrarimarco/home-lab-dnsmasq:dev-latest
     network_mode: "host"
-  pxe:
-    deploy:
-      replicas: 1
-    image: ferrarimarco/home-lab-pxe:dev-latest
-    network_mode: "host"
+    privileged: true
