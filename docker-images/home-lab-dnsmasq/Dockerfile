@@ -30,9 +30,7 @@ RUN wget http://releases.ubuntu.com/$UBUNTU_SERVER_MAJOR_MINOR_VERSION/ubuntu-$U
   && rm ubuntu-$UBUNTU_SERVER_VERSION-server-i386.iso
 
 COPY tftpboot/ /var/lib/tftpboot
-
-# Add DHCP range to dnsmasq.config
-RUN echo "\n#DHCP Range for ferrari.home.network\ndhcp-range=192.168.0.50,192.168.255.254,255.255.0.0,2h\n" >> /etc/dnsmasq.conf
+COPY etc/dnsmasq.conf /etc/dnsmasq.conf
 
 # Cleanup
 RUN apt-get remove -y --purge \
