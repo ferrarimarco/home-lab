@@ -7,6 +7,7 @@ SUBNET_MASK = "255.255.0.0"
 
 home_lab = {
   ANSIBLE_CONTROL_MACHINE_NAME + DOMAIN => {
+    :autostart => false,
     :box => "boxcutter/ubuntu1604",
     :cpus => 2,
     :mem => 512,
@@ -14,6 +15,7 @@ home_lab = {
     :net_type => NETWORK_TYPE_DHCP
   },
   "europa" + DOMAIN => {
+    :autostart => true,
     :box => "boxcutter/ubuntu1604",
     :cpus => 1,
     :mem => 512,
@@ -23,6 +25,7 @@ home_lab = {
     :subnet_mask => SUBNET_MASK
   },
   "pluto" + DOMAIN => {
+    :autostart => false,
     :box => "boxcutter/ubuntu1604-i386",
     :cpus => 1,
     :mem => 512,
@@ -35,7 +38,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   home_lab.each do |(hostname, info)|
-    config.vm.define hostname do |host|
+    config.vm.define hostname, autostart: info[:autostart] do |host|
       host.vm.box = "#{info[:box]}"
       host.vm.hostname = hostname
       if(NETWORK_TYPE_DHCP == info[:net_type]) then
