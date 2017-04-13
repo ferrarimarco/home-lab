@@ -29,14 +29,13 @@ RUN wget http://releases.ubuntu.com/$UBUNTU_SERVER_MAJOR_MINOR_VERSION/ubuntu-$U
   && 7z x ubuntu-$UBUNTU_SERVER_VERSION-server-i386.iso \
   && rm ubuntu-$UBUNTU_SERVER_VERSION-server-i386.iso
 
-COPY tftpboot/ /var/lib/tftpboot
-COPY etc/dnsmasq.conf /etc/dnsmasq.conf
-
 # Cleanup
 RUN apt-get remove -y --purge \
     p7zip-full \
   && rm -rf /var/lib/apt/lists/*
 
+COPY tftpboot/ /var/lib/tftpboot
+COPY etc/ /etc/
 
 # Start dnsmasq. It picks up default configuration from /etc/dnsmasq.conf and
 # /etc/default/dnsmasq plus any command line switch
