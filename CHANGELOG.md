@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Serve Ubuntu Server 16.04 i386 boot option [\#31](https://github.com/ferrarimarco/home-lab/issues/31)
 - Use a single dnsmasq instance [\#29](https://github.com/ferrarimarco/home-lab/issues/29)
 - Raise DHCP server range start from .10 to .50 [\#26](https://github.com/ferrarimarco/home-lab/issues/26)
 - Configure a virtualized development environment [\#24](https://github.com/ferrarimarco/home-lab/issues/24)
