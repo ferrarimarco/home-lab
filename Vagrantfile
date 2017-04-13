@@ -12,7 +12,8 @@ home_lab = {
     :cpus => 2,
     :mem => 512,
     :net_auto_config => false,
-    :net_type => NETWORK_TYPE_DHCP
+    :net_type => NETWORK_TYPE_DHCP,
+    :show_gui => true
   },
   "europa" + DOMAIN => {
     :autostart => true,
@@ -22,15 +23,17 @@ home_lab = {
     :ip => "192.168.0.5",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
-    :subnet_mask => SUBNET_MASK
+    :subnet_mask => SUBNET_MASK,
+    :show_gui => false
   },
   "pluto" + DOMAIN => {
     :autostart => false,
-    :box => "boxcutter/ubuntu1604-i386",
+    :box => "clink15/pxe",
     :cpus => 1,
     :mem => 512,
     :net_auto_config => false,
     :net_type => NETWORK_TYPE_DHCP,
+    :show_gui => true
   }
 }
 
@@ -47,11 +50,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.network :private_network, auto_config: info[:net_auto_config], ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}", virtualbox__intnet: INTNET_NAME
       end
       host.vm.provider :virtualbox do |vb|
-        vb.name = hostname
         vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
         vb.customize ["modifyvm", :id, "--name", hostname]
+        vb.customize ["modifyvm", :id, "--nicbootprio2", "1"]
+        vb.customize ["modifyvm", :id, "--nic1", "none"]
+        vb.gui = info[:show_gui]
+        vb.name = hostname
       end
       if(hostname.include? ANSIBLE_CONTROL_MACHINE_NAME) then
         host.vm.provision "shell", path: "scripts/install_docker.sh"
