@@ -4,7 +4,6 @@
   tasks:
     - name: Ensure required apt packages are installed
       apt:
-        autoremove: yes
         cache_valid_time: 3600
         pkg: "{{ item }}"
         state: present

@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Do not remove APT packages with autoremove if not asked [\#33](https://github.com/ferrarimarco/home-lab/issues/33)
 - Add a group containing all the hosts managed by Ansible in inventory [\#32](https://github.com/ferrarimarco/home-lab/issues/32)
 - Serve Ubuntu Server 16.04 i386 boot option [\#31](https://github.com/ferrarimarco/home-lab/issues/31)
 - Use a single dnsmasq instance [\#29](https://github.com/ferrarimarco/home-lab/issues/29)
