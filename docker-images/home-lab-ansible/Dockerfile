@@ -8,6 +8,6 @@ RUN ansible-galaxy install -r /tmp/requirements.yml \
 
 ADD inventory /etc/ansible/hosts
 
-RUN mkdir /opt/provisioning
+RUN mkdir -p /opt/provisioning
 WORKDIR /opt/provisioning
-ADD playbooks/ playbooks/
+ADD opt/provisioning/ /opt/provisioning/
