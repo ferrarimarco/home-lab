@@ -24,7 +24,7 @@ home_lab = {
     :mac_address => "0800271F9D44",
     :mem => 512,
     :ip => "192.168.0.5",
-    :net_auto_config => true,
+    :net_auto_config => false,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
     :show_gui => false
@@ -65,6 +65,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.gui = info[:show_gui]
         vb.name = hostname
       end
+
+      if(hostname.include? DNSMASQ_MACHINE_NAME) then
+        host.vm.provision "shell", path: "scripts/configure_dnsmasq_machine_network.sh"
+      end
+
       if(hostname.include? ANSIBLE_CONTROL_MACHINE_NAME) then
         host.vm.provision "shell", path: "scripts/install_docker.sh"
       end
