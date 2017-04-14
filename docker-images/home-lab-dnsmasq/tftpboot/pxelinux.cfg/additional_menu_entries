@@ -5,7 +5,7 @@ LABEL ubuntu-16-04-amd64
 LABEL ubuntu-16-04-i386
   MENU LABEL Ubuntu 16.04 i386
   KERNEL /ubuntu/16.04/16.04.2-server-i386/install/netboot/ubuntu-installer/i386/linux
-  APPEND /install/vmlinuz auto=true interface=eth0 hostname=cluster domain=home url=tftp://192.168.56.2/preseed/16.04/preseed.cfg initrd=ubuntu/16.04/16.04.2-server-i386/install/netboot/ubuntu-installer/i386/initrd.gz debian-installer=en_US locale=en_US kbd-chooser/method=us keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false --
+  APPEND /install/vmlinuz auto=true interface=eth0 hostname=unassigned-hostname domain=ferrari.home url=tftp://192.168.56.2/preseed/16.04/preseed.cfg initrd=ubuntu/16.04/16.04.2-server-i386/install/netboot/ubuntu-installer/i386/initrd.gz debian-installer=en_US locale=en_US kbd-chooser/method=us keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false --
 
 # This overrides the DEFAULT directive specified in the default configuration
 DEFAULT ubuntu-16-04-amd64
