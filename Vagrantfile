@@ -1,4 +1,5 @@
 ANSIBLE_CONTROL_MACHINE_NAME = "deimos"
+DNSMASQ_MACHINE_NAME = "europa"
 DOMAIN = ".ferrari.home"
 INTNET_NAME = "ferrari.home.network"
 NETWORK_TYPE_DHCP = "dhcp"
@@ -15,7 +16,7 @@ home_lab = {
     :net_type => NETWORK_TYPE_DHCP,
     :show_gui => true
   },
-  "europa" + DOMAIN => {
+  DNSMASQ_MACHINE_NAME + DOMAIN => {
     :autostart => true,
     :box => "boxcutter/ubuntu1604",
     :cpus => 1,
@@ -55,7 +56,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
         vb.customize ["modifyvm", :id, "--name", hostname]
         vb.customize ["modifyvm", :id, "--nicbootprio2", "1"]
-        vb.customize ["modifyvm", :id, "--nic1", "none"]
+        if(!hostname.include? DNSMASQ_MACHINE_NAME) then
+          vb.customize ["modifyvm", :id, "--nic1", "none"]
+        end
         vb.gui = info[:show_gui]
         vb.name = hostname
       end
