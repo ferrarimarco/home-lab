@@ -1,23 +1,23 @@
 [docker-engine-hosts]
-deimos
-europa
-pluto
+deimos.ferrari.home
+europa.ferrari.home
+pluto.ferrari.home
 
 [docker-swarm-managers]
-europa
+europa.ferrari.home
 
 [docker-swarm-workers]
-pluto
+pluto.ferrari.home
 
 [evaluation-boards]
-adrastea # beaglebone black
-metis # raspi-v1
+adrastea.ferrari.home # beaglebone black
+metis.ferrari.home # raspi-v1
 
 [nas-devices]
-saturn
+saturn.ferrari.home
 
 [workstations]
-deimos
-ganymede
-mars
-phobos
+deimos.ferrari.home
+ganymede.ferrari.home
+mars.ferrari.home
+phobos.ferrari.home
