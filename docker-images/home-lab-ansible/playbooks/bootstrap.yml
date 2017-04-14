@@ -1,5 +1,5 @@
 ---
-- hosts: docker-engine-hosts
+- hosts: ansible-managed-hosts
   gather_facts: yes
   tasks:
     - name: Ensure required apt packages are installed

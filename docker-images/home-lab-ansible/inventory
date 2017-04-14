@@ -1,3 +1,6 @@
+[ansible-managed-hosts:children]
+docker-engine-hosts
+
 [docker-engine-hosts]
 deimos.ferrari.home
 europa.ferrari.home
