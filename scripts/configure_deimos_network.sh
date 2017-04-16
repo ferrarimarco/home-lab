@@ -14,3 +14,7 @@ ifdown $interface
 
 echo "Bringing $interface back up"
 ifup $interface
+
+echo "Add default route via sun.ferrari.home"
+ip route del default
+ip route add default via 192.168.0.1 dev $interface
