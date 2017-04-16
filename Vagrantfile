@@ -15,7 +15,7 @@ home_lab = {
     :mem => 512,
     :net_auto_config => false,
     :net_type => NETWORK_TYPE_DHCP,
-    :show_gui => true
+    :show_gui => false
   },
   DNSMASQ_MACHINE_NAME + DOMAIN => {
     :autostart => true,
@@ -37,7 +37,7 @@ home_lab = {
     :mem => 512,
     :net_auto_config => false,
     :net_type => NETWORK_TYPE_DHCP,
-    :show_gui => true
+    :show_gui => false
   }
 }
 
