@@ -59,18 +59,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
         vb.customize ["modifyvm", :id, "--name", hostname]
         vb.customize ["modifyvm", :id, "--nicbootprio2", "1"]
-        if(!hostname.include? DNSMASQ_MACHINE_NAME) then
-          vb.customize ["modifyvm", :id, "--nic1", "none"]
-        end
         vb.gui = info[:show_gui]
         vb.name = hostname
       end
 
       if(hostname.include? DNSMASQ_MACHINE_NAME) then
-        host.vm.provision "shell", path: "scripts/configure_dnsmasq_machine_network.sh"
+        host.vm.provision "shell", path: "scripts/configure_europa_network.sh"
       end
 
       if(hostname.include? ANSIBLE_CONTROL_MACHINE_NAME) then
+        host.vm.provision "shell", path: "scripts/configure_deimos_network.sh"
         host.vm.provision "shell", path: "scripts/install_docker.sh"
       end
     end
