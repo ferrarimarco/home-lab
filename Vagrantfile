@@ -7,14 +7,16 @@ NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.0.0"
 
 home_lab = {
-  "deimos" + DOMAIN => {
-    :autostart => false,
+  GATEWAY_MACHINE_NAME + DOMAIN => {
+    :autostart => true,
     :box => "boxcutter/ubuntu1604",
-    :cpus => 2,
-    :mac_address => "0800271F9D43",
+    :cpus => 1,
+    :mac_address => "0800271F9D46",
     :mem => 512,
+    :ip => "192.168.0.1",
     :net_auto_config => false,
-    :net_type => NETWORK_TYPE_DHCP,
+    :net_type => NETWORK_TYPE_STATIC_IP,
+    :subnet_mask => SUBNET_MASK,
     :show_gui => false
   },
   DNSMASQ_MACHINE_NAME + DOMAIN => {
@@ -29,20 +31,18 @@ home_lab = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false
   },
-  GATEWAY_MACHINE_NAME + DOMAIN => {
+  "deimos" + DOMAIN => {
     :autostart => true,
     :box => "boxcutter/ubuntu1604",
-    :cpus => 1,
-    :mac_address => "0800271F9D46",
+    :cpus => 2,
+    :mac_address => "0800271F9D43",
     :mem => 512,
-    :ip => "192.168.0.1",
     :net_auto_config => false,
-    :net_type => NETWORK_TYPE_STATIC_IP,
-    :subnet_mask => SUBNET_MASK,
+    :net_type => NETWORK_TYPE_DHCP,
     :show_gui => false
   },
   "pluto" + DOMAIN => {
-    :autostart => false,
+    :autostart => true,
     :box => "boxcutter/ubuntu1604-i386",
     :cpus => 1,
     :mac_address => "0800271F9D45",
