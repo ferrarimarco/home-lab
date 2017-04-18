@@ -37,6 +37,7 @@
 
 **Fixed bugs:**
 
+- Fix name resolution for DHCP clients [\#36](https://github.com/ferrarimarco/home-lab/issues/36)
 - Configure nameservers for DHCP clients in the dev environment [\#35](https://github.com/ferrarimarco/home-lab/issues/35)
 - Use a single dnsmasq instance [\#29](https://github.com/ferrarimarco/home-lab/issues/29)
 - Fix syntax in Vagrantfile [\#11](https://github.com/ferrarimarco/home-lab/issues/11)
