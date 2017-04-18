@@ -43,7 +43,7 @@ home_lab = {
   },
   "pluto" + DOMAIN => {
     :autostart => false,
-    :box => "clink15/pxe",
+    :box => "boxcutter/ubuntu1604-i386",
     :cpus => 1,
     :mac_address => "0800271F9D45",
     :mem => 512,
