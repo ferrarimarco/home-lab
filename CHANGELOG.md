@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Build Dnsmasq image and run it on boot when starting the dev environment [\#38](https://github.com/ferrarimarco/home-lab/issues/38)
 - Configure nameservers for DHCP clients in the dev environment [\#35](https://github.com/ferrarimarco/home-lab/issues/35)
 - Configure a default gateway sitting on 192.168.0.1 [\#34](https://github.com/ferrarimarco/home-lab/issues/34)
 - Do not remove APT packages with autoremove if not asked [\#33](https://github.com/ferrarimarco/home-lab/issues/33)
