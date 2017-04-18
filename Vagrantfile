@@ -1,4 +1,3 @@
-DEIMOS_MACHINE_NAME = "deimos"
 DNSMASQ_MACHINE_NAME = "europa"
 DOMAIN = ".ferrari.home"
 GATEWAY_MACHINE_NAME = "sun"
@@ -8,7 +7,7 @@ NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.0.0"
 
 home_lab = {
-  DEIMOS_MACHINE_NAME + DOMAIN => {
+  "deimos" + DOMAIN => {
     :autostart => false,
     :box => "boxcutter/ubuntu1604",
     :cpus => 2,
@@ -81,8 +80,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.provision "shell", path: "scripts/build_ansible_image.sh"
       end
 
-      if(hostname.include? DEIMOS_MACHINE_NAME) then
-        host.vm.provision "shell", path: "scripts/configure_deimos_network.sh"
+      if(NETWORK_TYPE_DHCP == info[:net_type]) then
+        host.vm.provision "shell", path: "scripts/configure_dhcp_network.sh"
       end
 
       if(hostname.include? GATEWAY_MACHINE_NAME) then
