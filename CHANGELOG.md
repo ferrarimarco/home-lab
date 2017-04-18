@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Configure a default gateway sitting on 192.168.0.1 [\#34](https://github.com/ferrarimarco/home-lab/issues/34)
 - Do not remove APT packages with autoremove if not asked [\#33](https://github.com/ferrarimarco/home-lab/issues/33)
 - Add a group containing all the hosts managed by Ansible in inventory [\#32](https://github.com/ferrarimarco/home-lab/issues/32)
 - Serve Ubuntu Server 16.04 i386 boot option [\#31](https://github.com/ferrarimarco/home-lab/issues/31)
@@ -16,6 +17,7 @@
 - Provide a Dockerfile for Ansible [\#20](https://github.com/ferrarimarco/home-lab/issues/20)
 - Implement a PXE with Memtest86+ and Ubuntu 16.04 boot options [\#19](https://github.com/ferrarimarco/home-lab/issues/19)
 - Add Raspi and the Beaglebone to the inventory [\#18](https://github.com/ferrarimarco/home-lab/issues/18)
+- Assign host names via DHCP [\#17](https://github.com/ferrarimarco/home-lab/issues/17)
 - Add europa to the development environment [\#16](https://github.com/ferrarimarco/home-lab/issues/16)
 - Implement a playbook for all hosts to use as a baseline [\#15](https://github.com/ferrarimarco/home-lab/issues/15)
 - Use deimos as control machine [\#13](https://github.com/ferrarimarco/home-lab/issues/13)
@@ -32,6 +34,7 @@
 
 **Fixed bugs:**
 
+- Use a single dnsmasq instance [\#29](https://github.com/ferrarimarco/home-lab/issues/29)
 - Fix syntax in Vagrantfile [\#11](https://github.com/ferrarimarco/home-lab/issues/11)
 
 
