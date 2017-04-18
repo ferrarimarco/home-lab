@@ -22,6 +22,9 @@ nameserver_line="nameserver 192.168.0.5"
 sed -i "/$nameserver_line/d" /etc/resolv.conf
 sed -i "0,/nameserver/c\\$nameserver_line" /etc/resolv.conf
 
+echo "Configure local domain"
+sed -i "/search/c\search ferrari.home" /etc/resolv.conf
+
 echo "Add default route via sun.ferrari.home"
 ip route del default
 ip route add default via 192.168.0.1 dev $interface

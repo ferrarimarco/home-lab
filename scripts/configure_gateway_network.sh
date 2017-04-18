@@ -29,6 +29,9 @@ nameserver_line="nameserver 192.168.0.5"
 sed -i "/$nameserver_line/d" /etc/resolv.conf
 sed -i "/nameserver/c\\$nameserver_line" /etc/resolv.conf
 
+echo "Configure local domain"
+sed -i "/search/c\search ferrari.home" /etc/resolv.conf
+
 echo 1 > /proc/sys/net/ipv4/ip_forward
 iptables --table nat --append POSTROUTING --out-interface enp0s3 -j MASQUERADE
 # Add a line like this for each eth* LAN
