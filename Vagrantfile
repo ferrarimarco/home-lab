@@ -79,6 +79,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.provision "shell", path: "scripts/install_docker.sh"
         host.vm.provision "shell", path: "scripts/build_ansible_image.sh"
         host.vm.provision "shell", path: "scripts/build_start_dnsmasq.sh"
+        host.vm.provision "shell", path: "scripts/configure_europa_network_finalization.sh"
       end
 
       if(NETWORK_TYPE_DHCP == info[:net_type]) then
