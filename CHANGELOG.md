@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Configure nameservers for DHCP clients in the dev environment [\#35](https://github.com/ferrarimarco/home-lab/issues/35)
 - Configure a default gateway sitting on 192.168.0.1 [\#34](https://github.com/ferrarimarco/home-lab/issues/34)
 - Do not remove APT packages with autoremove if not asked [\#33](https://github.com/ferrarimarco/home-lab/issues/33)
 - Add a group containing all the hosts managed by Ansible in inventory [\#32](https://github.com/ferrarimarco/home-lab/issues/32)
@@ -34,6 +35,7 @@
 
 **Fixed bugs:**
 
+- Configure nameservers for DHCP clients in the dev environment [\#35](https://github.com/ferrarimarco/home-lab/issues/35)
 - Use a single dnsmasq instance [\#29](https://github.com/ferrarimarco/home-lab/issues/29)
 - Fix syntax in Vagrantfile [\#11](https://github.com/ferrarimarco/home-lab/issues/11)
 
