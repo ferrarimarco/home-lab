@@ -1,19 +1,25 @@
 DNSMASQ_MACHINE_NAME = "europa"
-DOMAIN = ".ferrari.home"
+DNSMASQ_MACHINE_IP = "192.168.0.5"
+DOMAIN_SUFFIX = "ferrari.home"
+DOMAIN = "." + DOMAIN_SUFFIX
+GATEWAY_IP_ADDRESS = "192.168.0.1"
 GATEWAY_MACHINE_NAME = "sun"
 INTNET_NAME = "ferrari.home.network"
+NETWORK_INTERFACE_NAME = "enp0s8"
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.0.0"
+UPSTREAM_DNS_SERVER = "8.8.8.8"
 
 home_lab = {
   GATEWAY_MACHINE_NAME + DOMAIN => {
     :autostart => true,
     :box => "boxcutter/ubuntu1604",
     :cpus => 1,
+    :dns_server_address => DNSMASQ_MACHINE_IP,
     :mac_address => "0800271F9D46",
     :mem => 512,
-    :ip => "192.168.0.1",
+    :ip => GATEWAY_IP_ADDRESS,
     :net_auto_config => false,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
@@ -23,9 +29,10 @@ home_lab = {
     :autostart => true,
     :box => "boxcutter/ubuntu1604",
     :cpus => 1,
+    :dns_server_address => UPSTREAM_DNS_SERVER,
     :mac_address => "0800271F9D44",
     :mem => 512,
-    :ip => "192.168.0.5",
+    :ip => DNSMASQ_MACHINE_IP,
     :net_auto_config => false,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
@@ -74,20 +81,44 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.name = hostname
       end
 
-      if(hostname.include? DNSMASQ_MACHINE_NAME) then
-        host.vm.provision "shell", path: "scripts/configure_europa_network.sh"
-        host.vm.provision "shell", path: "scripts/install_docker.sh"
-        host.vm.provision "shell", path: "scripts/build_ansible_image.sh"
-        host.vm.provision "shell", path: "scripts/start_dnsmasq.sh"
-        host.vm.provision "shell", path: "scripts/configure_europa_network_finalization.sh"
-      end
-
-      if(NETWORK_TYPE_DHCP == info[:net_type]) then
-        host.vm.provision "shell", path: "scripts/configure_dhcp_network.sh"
+      # Configure network for hosts with static IPs
+      if(NETWORK_TYPE_STATIC_IP == info[:net_type]) then
+        host.vm.provision "shell" do |s|
+          s.path = "scripts/configure_network.sh"
+          s.args = [NETWORK_INTERFACE_NAME, "#{info[:ip]}", "#{info[:dns_server_address]}", GATEWAY_IP_ADDRESS, SUBNET_MASK, DOMAIN_SUFFIX]
+        end
+      elsif(NETWORK_TYPE_DHCP == info[:net_type])
+        host.vm.provision "shell" do |s|
+          s.path = "scripts/configure_network.sh"
+          s.args = [NETWORK_INTERFACE_NAME, NETWORK_TYPE_DHCP, GATEWAY_IP_ADDRESS]
+        end
       end
 
       if(hostname.include? GATEWAY_MACHINE_NAME) then
-        host.vm.provision "shell", path: "scripts/configure_gateway_network.sh"
+        host.vm.provision "shell" do |s|
+          s.path = "scripts/configure_gateway_iptables.sh"
+          s.args = [NETWORK_INTERFACE_NAME]
+        end
+      end
+
+      if(hostname.include? DNSMASQ_MACHINE_NAME) then
+        # Let's use the upstream server for now because we cannot start
+        # the Dnsmasq container (with the integrated DNS server) if we don't
+        # first install Docker and run a ferrarimarco/home-lab-dnsmasq container
+        # The name resolution will be reconfigured after the container starts
+        host.vm.provision "shell" do |s|
+          s.path = "scripts/configure_name_resolution.sh"
+          s.args   = [UPSTREAM_DNS_SERVER, DOMAIN_SUFFIX]
+        end
+        host.vm.provision "shell", path: "scripts/install_docker.sh"
+        host.vm.provision "shell", path: "scripts/build_ansible_image.sh"
+        host.vm.provision "shell", path: "scripts/start_dnsmasq.sh"
+      end
+
+      # Configure network name resolution for all hosts
+      host.vm.provision "shell" do |s|
+        s.path = "scripts/configure_name_resolution.sh"
+        s.args = [DNSMASQ_MACHINE_IP, DOMAIN_SUFFIX]
       end
     end
   end
