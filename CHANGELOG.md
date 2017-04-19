@@ -12,6 +12,7 @@
 - Do not remove APT packages with autoremove if not asked [\#33](https://github.com/ferrarimarco/home-lab/issues/33)
 - Add a group containing all the hosts managed by Ansible in inventory [\#32](https://github.com/ferrarimarco/home-lab/issues/32)
 - Serve Ubuntu Server 16.04 i386 boot option [\#31](https://github.com/ferrarimarco/home-lab/issues/31)
+- Base home-lab-dnsmasq docker image on ferrarimarco/pxe:1.2.0 when available [\#30](https://github.com/ferrarimarco/home-lab/issues/30)
 - Use a single dnsmasq instance [\#29](https://github.com/ferrarimarco/home-lab/issues/29)
 - Enable query logging in dnsmasq [\#28](https://github.com/ferrarimarco/home-lab/issues/28)
 - Raise DHCP server range start from .10 to .50 [\#26](https://github.com/ferrarimarco/home-lab/issues/26)
