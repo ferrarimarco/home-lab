@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Move home-lab-dnsmasq to a dedicated project [\#41](https://github.com/ferrarimarco/home-lab/issues/41)
 - Configure DNS services on Europa after starting the DNS server [\#40](https://github.com/ferrarimarco/home-lab/issues/40)
 - Automatically start all instances of the development environment [\#39](https://github.com/ferrarimarco/home-lab/issues/39)
 - Build Dnsmasq image and run it on boot when starting the dev environment [\#38](https://github.com/ferrarimarco/home-lab/issues/38)
