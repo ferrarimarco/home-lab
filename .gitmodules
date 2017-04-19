@@ -1,3 +1,0 @@
-[submodule "docker-images/home-lab-dnsmasq"]
-	path = docker-images/home-lab-dnsmasq
-	url = git@github.com:ferrarimarco/home-lab-dnsmasq.git
