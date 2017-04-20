@@ -5,7 +5,7 @@
   tasks:
     - name: Add SSH keys to known hosts
       known_hosts:
-        key: "{{ lookup('pipe', 'ssh-keyscan -H -T 10 ' + item) }}"
+        key: "{{ lookup('pipe', 'ssh-keyscan -T 10 ' + item) }}"
         name: "{{item}}"
         path: /etc/ssh/ssh_known_hosts
       with_items:
