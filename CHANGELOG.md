@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Create an administrative user [\#42](https://github.com/ferrarimarco/home-lab/issues/42)
 - Move home-lab-dnsmasq to a dedicated project [\#41](https://github.com/ferrarimarco/home-lab/issues/41)
 - Configure DNS services on Europa after starting the DNS server [\#40](https://github.com/ferrarimarco/home-lab/issues/40)
 - Automatically start all instances of the development environment [\#39](https://github.com/ferrarimarco/home-lab/issues/39)
