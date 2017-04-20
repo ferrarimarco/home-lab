@@ -1,5 +1,6 @@
 [ansible-managed-hosts:children]
 docker-engine-hosts
+ungrouped
 
 [docker-engine-hosts]
 deimos.ferrari.home
