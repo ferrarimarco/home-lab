@@ -1,0 +1,14 @@
+---
+# This playbook should be run the first time a control machine is started
+- hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Add SSH keys to known hosts
+      known_hosts:
+        key: "{{ lookup('pipe', 'ssh-keyscan -H -T 10 ' + item) }}"
+        name: "{{item}}"
+        path: /etc/ssh/ssh_known_hosts
+      with_items:
+        - deimos.ferrari.home
+        - europa.ferrari.home
+        - pluto.ferrari.home
