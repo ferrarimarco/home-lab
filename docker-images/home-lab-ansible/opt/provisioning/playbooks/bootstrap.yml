@@ -33,6 +33,12 @@
       become: yes
       with_items:
         - ferrarimarco
+    - name: Remove the default user
+      become: yes
+      user:
+        name: ubuntu
+        remove: yes
+        state: absent
   roles:
     - role: stevenharradine.locale
       locale_locales:
