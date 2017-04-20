@@ -4,13 +4,6 @@ docker-engine-hosts
 [docker-engine-hosts]
 deimos.ferrari.home
 europa.ferrari.home
-pluto.ferrari.home
-
-[docker-swarm-managers]
-europa.ferrari.home
-
-[docker-swarm-workers]
-pluto.ferrari.home
 
 [evaluation-boards]
 adrastea.ferrari.home # beaglebone black
@@ -18,6 +11,9 @@ metis.ferrari.home # raspi-v1
 
 [nas-devices]
 saturn.ferrari.home
+
+[ungrouped]
+pluto.ferrari.home
 
 [workstations]
 deimos.ferrari.home
