@@ -1,0 +1,32 @@
+---
+- name: Ensure required apt packages are installed
+  apt:
+    cache_valid_time: 3600
+    pkg: "{{ item }}"
+    state: present
+    update_cache: yes
+  become: yes
+  with_items:
+    - curl
+    - wget
+- name: Ensure hostname is correct
+  hostname:
+    name: "{{inventory_hostname.split('.')[0]}}"
+  become: yes
+- name: Create the default administrative user
+  become: yes
+  user:
+    name: ferrarimarco
+    comment: "Marco Ferrari"
+    # generated with mkpasswd --method=sha-512
+    password: "$6$.d2as860Kt2/p6qm$81wkGEi3EEG6Sjz0vSWpQDAgsRNAtEHa4Uh9Iuxf43QTVDIc3Tqhj2Rjvpn/24g62uwspOyE68KR/3nVM2laL0"
+- name: Give the administrative user sudo privileges
+  become: yes
+  user:
+    name: ferrarimarco
+    groups: sudo
+- name: Ensure SSH keys are installed for the administrative user
+  authorized_key: user=ferrarimarco key=https://github.com/{{ item }}.keys
+  become: yes
+  with_items:
+    - ferrarimarco
