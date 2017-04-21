@@ -15,3 +15,4 @@ ADD inventory /etc/ansible/hosts
 RUN mkdir -p /opt/provisioning
 WORKDIR /opt/provisioning
 ADD opt/provisioning/ /opt/provisioning/
+WORKDIR /opt/provisioning/playbooks
