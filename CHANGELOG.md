@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Update to ferrarimarco.docker 1.4.1 ansible role [\#45](https://github.com/ferrarimarco/home-lab/issues/45)
 - Don't use pluto as a docker engine host [\#43](https://github.com/ferrarimarco/home-lab/issues/43)
 - Create an administrative user [\#42](https://github.com/ferrarimarco/home-lab/issues/42)
 - Move home-lab-dnsmasq to a dedicated project [\#41](https://github.com/ferrarimarco/home-lab/issues/41)

@@ -1,4 +1,5 @@
 ---
 - src: ferrarimarco.bash-aliases
 - src: ferrarimarco.docker
+  version: 1.4.1
 - src: stevenharradine.locale
