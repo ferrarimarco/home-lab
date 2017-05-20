@@ -57,6 +57,16 @@ home_lab = {
     :net_auto_config => false,
     :net_type => NETWORK_TYPE_DHCP,
     :show_gui => false
+  },
+  "mars" + DOMAIN => {
+    :autostart => true,
+    :box => "senglin/win-10-enterprise-vs2015community",
+    :cpus => 1,
+    :mac_address => "0800271F9D47",
+    :mem => 1024,
+    :net_auto_config => false,
+    :net_type => NETWORK_TYPE_DHCP,
+    :show_gui => true
   }
 }
 
@@ -66,12 +76,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   home_lab.each do |(hostname, info)|
     config.vm.define hostname, autostart: info[:autostart] do |host|
       host.vm.box = "#{info[:box]}"
-      host.vm.hostname = hostname
-      if(NETWORK_TYPE_DHCP == info[:net_type]) then
+      if(NETWORK_TYPE_DHCP == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: NETWORK_TYPE_DHCP, virtualbox__intnet: INTNET_NAME
       elsif(NETWORK_TYPE_STATIC_IP == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}", virtualbox__intnet: INTNET_NAME
       end
+
       host.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
@@ -81,44 +91,46 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.name = hostname
       end
 
-      # Configure network for hosts with static IPs
-      if(NETWORK_TYPE_STATIC_IP == info[:net_type]) then
-        host.vm.provision "shell" do |s|
-          s.path = "scripts/configure_network.sh"
-          s.args = [NETWORK_INTERFACE_NAME, "#{info[:ip]}", "#{info[:dns_server_address]}", GATEWAY_IP_ADDRESS, SUBNET_MASK, DOMAIN_SUFFIX]
+      if(host.vm.box.downcase.include? "win")
+        host.vm.hostname = hostname.sub DOMAIN, ''
+      else
+        host.vm.hostname = hostname
+        # Configure network for hosts with static IPs
+        if(NETWORK_TYPE_STATIC_IP == info[:net_type])
+          host.vm.provision "shell" do |s|
+            s.path = "scripts/configure_network.sh"
+            s.args = [NETWORK_INTERFACE_NAME, "#{info[:ip]}", "#{info[:dns_server_address]}", GATEWAY_IP_ADDRESS, SUBNET_MASK, DOMAIN_SUFFIX]
+          end
+        elsif(NETWORK_TYPE_DHCP == info[:net_type])
+          host.vm.provision "shell" do |s|
+            s.path = "scripts/configure_network.sh"
+            s.args = [NETWORK_INTERFACE_NAME, NETWORK_TYPE_DHCP, GATEWAY_IP_ADDRESS]
+          end
         end
-      elsif(NETWORK_TYPE_DHCP == info[:net_type])
-        host.vm.provision "shell" do |s|
-          s.path = "scripts/configure_network.sh"
-          s.args = [NETWORK_INTERFACE_NAME, NETWORK_TYPE_DHCP, GATEWAY_IP_ADDRESS]
+        if(hostname.include? GATEWAY_MACHINE_NAME)
+          host.vm.provision "shell" do |s|
+            s.path = "scripts/configure_gateway_iptables.sh"
+            s.args = [NETWORK_INTERFACE_NAME]
+          end
         end
-      end
-
-      if(hostname.include? GATEWAY_MACHINE_NAME) then
-        host.vm.provision "shell" do |s|
-          s.path = "scripts/configure_gateway_iptables.sh"
-          s.args = [NETWORK_INTERFACE_NAME]
+        if(hostname.include? DNSMASQ_MACHINE_NAME)
+          # Let's use the upstream server for now because we cannot start
+          # the Dnsmasq container (with the integrated DNS server) if we don't
+          # first install Docker and run a ferrarimarco/home-lab-dnsmasq container
+          # The name resolution will be reconfigured after the container starts
+          host.vm.provision "shell" do |s|
+            s.path = "scripts/configure_name_resolution.sh"
+            s.args   = [UPSTREAM_DNS_SERVER, DOMAIN_SUFFIX]
+          end
+          host.vm.provision "shell", path: "scripts/install_docker.sh"
+          host.vm.provision "shell", path: "scripts/build_ansible_image.sh"
+          host.vm.provision "shell", path: "scripts/start_dnsmasq.sh"
         end
-      end
-
-      if(hostname.include? DNSMASQ_MACHINE_NAME) then
-        # Let's use the upstream server for now because we cannot start
-        # the Dnsmasq container (with the integrated DNS server) if we don't
-        # first install Docker and run a ferrarimarco/home-lab-dnsmasq container
-        # The name resolution will be reconfigured after the container starts
+        # Configure network name resolution for all hosts
         host.vm.provision "shell" do |s|
           s.path = "scripts/configure_name_resolution.sh"
-          s.args   = [UPSTREAM_DNS_SERVER, DOMAIN_SUFFIX]
+          s.args = [DNSMASQ_MACHINE_IP, DOMAIN_SUFFIX]
         end
-        host.vm.provision "shell", path: "scripts/install_docker.sh"
-        host.vm.provision "shell", path: "scripts/build_ansible_image.sh"
-        host.vm.provision "shell", path: "scripts/start_dnsmasq.sh"
-      end
-
-      # Configure network name resolution for all hosts
-      host.vm.provision "shell" do |s|
-        s.path = "scripts/configure_name_resolution.sh"
-        s.args = [DNSMASQ_MACHINE_IP, DOMAIN_SUFFIX]
       end
     end
   end
