@@ -38,7 +38,7 @@ else
   # instead of relying on the builtin way.
   echo "Configuring the default route"
   default_gateway_config="      pre-up sleep 5\n\
-    post-up ip route del default && ip route add default via $gateway_ip_address dev $interface\n"
+      post-up ip route del default && ip route add default via $gateway_ip_address dev $interface\n"
 fi;
 
 echo "Network configuration for $interface interface:$common_network_config $default_gateway_config"
