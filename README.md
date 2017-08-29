@@ -18,10 +18,8 @@ The inventory is saved in the default path: `/etc/ansible/hosts`
 #### Available Playbooks
 
 1. `bootstrap-control-machine.yml`: bootstraps the Ansible control machine
-1. Bootstrap node (common steps valid for every node)
-    1. `bootstrap-managed-nodes.yml`: node initialization. Use a default user (`ubuntu, pw:insecure` or `vagrant, pw: vagrant` for hosts in the development environment) to access freshly deployed nodes
-    1. `bootstrap-remove-default-users.yml`: remove user account created during the initial provisioning of managed nodes
-    1. `bootstrap-docker-engine-hosts.yml`: install Docker engine
+1. `bootstrap-managed-nodes.yml`: node initialization. Use a default user (`ubuntu, pw:insecure` or `vagrant, pw: vagrant` for hosts in the development environment) to access freshly deployed nodes
+1. `bootstrap-docker-engine-hosts.yml`: install Docker engine
 
 ## Development Environment
 
