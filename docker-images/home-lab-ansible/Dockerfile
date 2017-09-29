@@ -1,10 +1,6 @@
-FROM ferrarimarco/open-development-environment-ansible:pip-alpine-1.0.14
+FROM ferrarimarco/open-development-environment-ansible:pip-alpine-1.0.15
 
 LABEL maintainer "ferrari.marco@gmail.com"
-
-RUN apk add --update \
-  sshpass \
-  && rm /var/cache/apk/*
 
 ADD requirements.yml /tmp/requirements.yml
 RUN ansible-galaxy install -r /tmp/requirements.yml \
