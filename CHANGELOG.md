@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Set network name prefix using the DOMAIN variable in Vagrantfile [\#56](https://github.com/ferrarimarco/home-lab/issues/56)
 - Move "Remove default users" task in ferrarimarco.home-lab-node Ansible role [\#55](https://github.com/ferrarimarco/home-lab/issues/55)
 - Configure a Windows 10 Vagrant VM [\#51](https://github.com/ferrarimarco/home-lab/issues/51)
 - Create a user to run docker containers [\#46](https://github.com/ferrarimarco/home-lab/issues/46)
