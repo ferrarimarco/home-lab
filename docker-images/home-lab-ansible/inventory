@@ -8,10 +8,15 @@ europa.ferrari.home
 
 [evaluation-boards]
 adrastea.ferrari.home # beaglebone black
+amalthea.ferrari.home # arduino mega adk
 metis.ferrari.home # raspi-v1
 
 [nas-devices]
 saturn.ferrari.home
+
+[smart-home]
+indoor.ferrari.home
+outdoor.ferrari.home
 
 [ungrouped]
 pluto.ferrari.home
