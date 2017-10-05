@@ -1,9 +1,0 @@
----
-- hosts: ansible-managed-hosts
-  gather_facts: yes
-  roles:
-    - role: ferrarimarco.home-lab-node
-      become: yes
-    - role: stevenharradine.locale
-      locale_locales:
-        - en_US.UTF-8

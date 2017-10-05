@@ -1,7 +1,0 @@
----
-# This playbook should be run the first time a control machine is started
-- hosts: localhost
-  gather_facts: yes
-  roles:
-    - role: ferrarimarco.home-lab-control-machine
-      become: yes

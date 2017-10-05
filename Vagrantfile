@@ -123,7 +123,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             s.args   = [UPSTREAM_DNS_SERVER, DOMAIN_SUFFIX]
           end
           host.vm.provision "shell", path: "scripts/install_docker.sh"
-          host.vm.provision "shell", path: "scripts/build_ansible_image.sh"
           host.vm.provision "shell", path: "scripts/start_dnsmasq.sh"
         end
         # Configure network name resolution for all hosts
