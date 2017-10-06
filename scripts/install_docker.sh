@@ -18,7 +18,7 @@ else
     $(lsb_release -cs) \
     stable"
   apt-get update
-  apt-get install -y docker-ce=17.03.1~ce-0~ubuntu-xenial
+  apt-get install -y docker-ce=17.09.0~ce-0~ubuntu
 
   # add the vagrant user to the docker group if necessary
   VAGRANT_USERNAME="vagrant"
