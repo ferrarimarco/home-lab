@@ -51,6 +51,7 @@
 **Fixed bugs:**
 
 - Default route is not persisted after a reboot [\#53](https://github.com/ferrarimarco/home-lab/issues/53)
+- Autostart containers when needed [\#52](https://github.com/ferrarimarco/home-lab/issues/52)
 - Fix name resolution for DHCP clients [\#36](https://github.com/ferrarimarco/home-lab/issues/36)
 - Configure nameservers for DHCP clients in the dev environment [\#35](https://github.com/ferrarimarco/home-lab/issues/35)
 - Use a single dnsmasq instance [\#29](https://github.com/ferrarimarco/home-lab/issues/29)
