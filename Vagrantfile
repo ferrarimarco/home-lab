@@ -59,7 +59,7 @@ home_lab = {
     :show_gui => false
   },
   "mars" + DOMAIN => {
-    :autostart => true,
+    :autostart => false,
     :box => "senglin/win-10-enterprise-vs2015community",
     :cpus => 1,
     :mac_address => "0800271F9D47",
