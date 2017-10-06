@@ -107,12 +107,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             s.args = [NETWORK_INTERFACE_NAME, NETWORK_TYPE_DHCP, GATEWAY_IP_ADDRESS]
           end
         end
-        if(hostname.include? GATEWAY_MACHINE_NAME)
-          host.vm.provision "shell" do |s|
-            s.path = "scripts/configure_gateway_iptables.sh"
-            s.args = [NETWORK_INTERFACE_NAME]
-          end
-        end
         if(hostname.include? DNSMASQ_MACHINE_NAME)
           # Let's use the upstream server for now because we cannot start
           # the Dnsmasq container (with the integrated DNS server) if we don't

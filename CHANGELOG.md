@@ -50,6 +50,7 @@
 
 **Fixed bugs:**
 
+- Make gateway routing configuration permament [\#58](https://github.com/ferrarimarco/home-lab/issues/58)
 - Default route is not persisted after a reboot [\#53](https://github.com/ferrarimarco/home-lab/issues/53)
 - Autostart containers when needed [\#52](https://github.com/ferrarimarco/home-lab/issues/52)
 - Fix name resolution for DHCP clients [\#36](https://github.com/ferrarimarco/home-lab/issues/36)

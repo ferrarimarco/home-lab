@@ -27,9 +27,25 @@ fi;
 if [ ! -z "$host_ip_address" ] && [ ! -z "$gateway_ip_address" ] && [ "$host_ip_address" = "$gateway_ip_address" ]; then
   # We are configuring the gateway network interface
   # so don't add the default route via the gateway itself, otherwise we lose
-  # internet connettivity
-  echo "Skipped default route configuration (not necessary on the gateway)"
-  default_gateway_config="\n"
+  # internet connettivity.
+
+  # We need to configure IP forwarding and iptables
+  echo "Enable IPv4 forwarding"
+  sed -i '/ipv4.ip_forward/s/^#//g' /etc/sysctl.conf
+  sysctl -p /etc/sysctl.conf
+
+  echo "Configuring iptables"
+  iptables --table nat --append POSTROUTING --out-interface enp0s3 -j MASQUERADE
+  # Add a line like this for each eth* LAN
+  iptables --append FORWARD --in-interface $interface -j ACCEPT
+
+  echo "Saving iptables rules"
+  mkdir -p /etc/iptables
+  iptables-save > /etc/iptables/rules.v4
+
+  echo "Configuring post-up hook to restore iptables configuration for the gateway"
+  default_gateway_config="      pre-up sleep 5\n\
+      post-up iptables-restore < /etc/iptables/rules.v4\n"
 else
   # We cannot use "gateway $gateway_ip_address" because Vagrant configures
   # a (required) NATed interface via the DHCP server provided by the
