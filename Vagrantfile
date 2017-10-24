@@ -12,6 +12,7 @@ SUBNET_MASK = "255.255.0.0"
 UPSTREAM_DNS_SERVER = "8.8.8.8"
 VAGRANT_X64_LINUX_BOX_ID = "bento/ubuntu-16.04"
 VAGRANT_X86_LINUX_BOX_ID = "bento/ubuntu-16.04-i386"
+VAGRANT_X64_WINDOWS_BOX_ID = "ferrarimarco/windows-10-x64-enterprise"
 
 home_lab = {
   GATEWAY_MACHINE_NAME + DOMAIN => {
@@ -52,13 +53,23 @@ home_lab = {
   },
   "mars" + DOMAIN => {
     :autostart => false,
-    :box => "senglin/win-10-enterprise-vs2015community",
+    :box => VAGRANT_X64_WINDOWS_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D47",
-    :mem => 1024,
+    :mem => 2048,
     :net_auto_config => false,
     :net_type => NETWORK_TYPE_DHCP,
     :show_gui => true
+  },
+  "phobos" + DOMAIN => {
+    :autostart => false,
+    :box => VAGRANT_X64_WINDOWS_BOX_ID,
+    :cpus => 1,
+    :mac_address => "0800271F9D48",
+    :mem => 2048,
+    :net_auto_config => false,
+    :net_type => NETWORK_TYPE_DHCP,
+    :show_gui => false
   }
 }
 
@@ -79,12 +90,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
         vb.customize ["modifyvm", :id, "--name", hostname]
+        vb.customize ["modifyvm", :id, "--vram", "128"] # 10 MB is the minimum to enable Virtualbox seamless mode
         vb.gui = info[:show_gui]
         vb.name = hostname
+
+        if(host.vm.box == VAGRANT_X64_WINDOWS_BOX_ID)
+          vb.customize ["setextradata", "global", "GUI/MaxGuestResolution", "any"]
+          vb.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
+          vb.customize ["setextradata", :id, "CustomVideoMode1", "1024x768x32"]
+        end
       end
 
-      if(host.vm.box.downcase.include? "win")
+      if(host.vm.box == VAGRANT_X64_WINDOWS_BOX_ID)
+        host.ssh.insert_key = false
+        host.vm.communicator = "winrm"
+        host.vm.guest = :windows
         host.vm.hostname = hostname.sub DOMAIN, ''
+        host.windows.halt_timeout = 15
+
+
       else
         host.vm.hostname = hostname
         # Configure network for hosts with static IPs
