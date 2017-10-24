@@ -10,13 +10,13 @@ NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.0.0"
 UPSTREAM_DNS_SERVER = "8.8.8.8"
-VAGRANT_BOX_ID = "boxcutter/ubuntu1604"
-VAGRANT_BOX_X86_ID = "boxcutter/ubuntu1604-i386"
+VAGRANT_X64_LINUX_BOX_ID = "bento/ubuntu-16.04"
+VAGRANT_X86_LINUX_BOX_ID = "bento/ubuntu-16.04-i386"
 
 home_lab = {
   GATEWAY_MACHINE_NAME + DOMAIN => {
     :autostart => true,
-    :box => VAGRANT_BOX_ID,
+    :box => VAGRANT_X64_LINUX_BOX_ID,
     :cpus => 1,
     :dns_server_address => DNSMASQ_MACHINE_IP,
     :mac_address => "0800271F9D46",
@@ -29,7 +29,7 @@ home_lab = {
   },
   DNSMASQ_MACHINE_NAME + DOMAIN => {
     :autostart => true,
-    :box => VAGRANT_BOX_ID,
+    :box => VAGRANT_X64_LINUX_BOX_ID,
     :cpus => 1,
     :dns_server_address => UPSTREAM_DNS_SERVER,
     :mac_address => "0800271F9D44",
@@ -42,7 +42,7 @@ home_lab = {
   },
   "deimos" + DOMAIN => {
     :autostart => true,
-    :box => VAGRANT_BOX_ID,
+    :box => VAGRANT_X64_LINUX_BOX_ID,
     :cpus => 2,
     :mac_address => "0800271F9D43",
     :mem => 512,
@@ -52,7 +52,7 @@ home_lab = {
   },
   "pluto" + DOMAIN => {
     :autostart => true,
-    :box => VAGRANT_BOX_X86_ID,
+    :box => VAGRANT_X86_LINUX_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D45",
     :mem => 512,
