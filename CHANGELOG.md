@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Remove pluto VM as it has been retired [\#61](https://github.com/ferrarimarco/home-lab/issues/61)
 - Switch to bento Vagrant boxes [\#60](https://github.com/ferrarimarco/home-lab/issues/60)
 - Upgrade Docker to 17.09 [\#59](https://github.com/ferrarimarco/home-lab/issues/59)
 - Set network name prefix using the DOMAIN variable in Vagrantfile [\#56](https://github.com/ferrarimarco/home-lab/issues/56)

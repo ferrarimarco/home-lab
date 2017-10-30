@@ -50,16 +50,6 @@ home_lab = {
     :net_type => NETWORK_TYPE_DHCP,
     :show_gui => false
   },
-  "pluto" + DOMAIN => {
-    :autostart => true,
-    :box => VAGRANT_X86_LINUX_BOX_ID,
-    :cpus => 1,
-    :mac_address => "0800271F9D45",
-    :mem => 512,
-    :net_auto_config => false,
-    :net_type => NETWORK_TYPE_DHCP,
-    :show_gui => false
-  },
   "mars" + DOMAIN => {
     :autostart => false,
     :box => "senglin/win-10-enterprise-vs2015community",
