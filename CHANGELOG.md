@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Configure Windows network zones [\#64](https://github.com/ferrarimarco/home-lab/issues/64)
 - Autostart Windows boxes [\#63](https://github.com/ferrarimarco/home-lab/issues/63)
 - Set bidirectional clipboard sharing for Virtualbox VMs [\#62](https://github.com/ferrarimarco/home-lab/issues/62)
 - Remove pluto VM as it has been retired [\#61](https://github.com/ferrarimarco/home-lab/issues/61)
