@@ -52,7 +52,7 @@ home_lab = {
     :show_gui => false
   },
   "mars" + DOMAIN => {
-    :autostart => false,
+    :autostart => true,
     :box => VAGRANT_X64_WINDOWS_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D47",
@@ -62,7 +62,7 @@ home_lab = {
     :show_gui => true
   },
   "phobos" + DOMAIN => {
-    :autostart => false,
+    :autostart => true,
     :box => VAGRANT_X64_WINDOWS_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D48",
