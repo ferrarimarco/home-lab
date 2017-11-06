@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Autostart Windows boxes [\#63](https://github.com/ferrarimarco/home-lab/issues/63)
 - Set bidirectional clipboard sharing for Virtualbox VMs [\#62](https://github.com/ferrarimarco/home-lab/issues/62)
 - Remove pluto VM as it has been retired [\#61](https://github.com/ferrarimarco/home-lab/issues/61)
 - Switch to bento Vagrant boxes [\#60](https://github.com/ferrarimarco/home-lab/issues/60)
