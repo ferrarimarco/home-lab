@@ -109,7 +109,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.hostname = hostname.sub DOMAIN, ''
         host.windows.halt_timeout = 15
 
-
+        host.vm.provision "shell", path: "scripts/windows/configure-network-zone.ps1"
       else
         host.vm.hostname = hostname
         # Configure network for hosts with static IPs
