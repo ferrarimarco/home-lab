@@ -86,6 +86,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
 
       host.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
         vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
