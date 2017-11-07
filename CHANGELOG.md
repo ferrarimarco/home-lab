@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Upgrade to docker-home-lab-dnsmasq:1.0.0 [\#66](https://github.com/ferrarimarco/home-lab/issues/66)
 - Configure Windows network zones [\#64](https://github.com/ferrarimarco/home-lab/issues/64)
 - Autostart Windows boxes [\#63](https://github.com/ferrarimarco/home-lab/issues/63)
 - Set bidirectional clipboard sharing for Virtualbox VMs [\#62](https://github.com/ferrarimarco/home-lab/issues/62)
