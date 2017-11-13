@@ -2,12 +2,12 @@
 
 set -e
 
-TEMP=`getopt -o vdm: --long ip-v4-host-address:,ip-v4-host-cidr:,network-interface:,network-type: -n 'configure-volatile-network-interface' -- "$@"`
+TEMP=`getopt -o vdm: --long ip-v4-host-address:,ip-v4-host-cidr:,network-type: -n 'configure-volatile-network-interface' -- "$@"`
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
 
-interface=
+interface="$(ls --ignore="lo" /sys/class/net/ | sed -n '2p')"
 ip_v4_host_address=
 ip_v4_host_cidr=
 network_type=
@@ -15,7 +15,6 @@ network_type=
 while true; do
   case "$1" in
     -h | --ip-v4-host-address ) ip_v4_host_address="$2"; shift 2 ;;
-    -i | --network-interface ) interface="$2"; shift 2 ;;
     -j | --ip-v4-host-cidr ) ip_v4_host_cidr="$2"; shift 2 ;;
     -t | --network-type ) network_type="$2"; shift 2 ;;
     -- ) shift; break ;;

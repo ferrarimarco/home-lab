@@ -7,7 +7,6 @@ DOMAIN = "." + DOMAIN_SUFFIX
 GATEWAY_IP_ADDRESS = "192.168.0.1"
 GATEWAY_MACHINE_NAME = "sun"
 INTNET_NAME = DOMAIN_SUFFIX + ".network"
-NETWORK_INTERFACE_NAME = "enp0s8"
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.0.0"
@@ -118,7 +117,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         if(hostname.include? GATEWAY_MACHINE_NAME)
           host.vm.provision "shell" do |s|
             s.path = "scripts/ubuntu/configure-gateway-network.sh"
-            s.args = [NETWORK_INTERFACE_NAME, "#{info[:ip]}", "#{info[:dns_server_address]}", GATEWAY_IP_ADDRESS, SUBNET_MASK, DOMAIN_SUFFIX]
+            s.args = ["#{info[:ip]}", "#{info[:dns_server_address]}", SUBNET_MASK, DOMAIN_SUFFIX]
           end
         else
           host.vm.provision "shell" do |s|
@@ -126,15 +125,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             s.args = [
               "--ip-v4-host-address", "#{info[:ip]}",
               "--ip-v4-host-cidr", IP_V4_CIDR,
-              "--network-interface", NETWORK_INTERFACE_NAME,
               "--network-type", "#{info[:net_type]}"
               ]
           end
           host.vm.provision "shell", run: "always" do |s|
             s.path = "scripts/ubuntu/configure-volatile-default-route.sh"
             s.args = [
-              "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS,
-              "--network-interface", NETWORK_INTERFACE_NAME
+              "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS
               ]
           end
 
@@ -161,7 +158,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS,
                 "--ip-v4-host-cidr", IP_V4_CIDR,
                 "--ip-v4-host-address", "#{info[:ip]}",
-                "--network-interface", NETWORK_INTERFACE_NAME,
                 "--network-type", "#{info[:net_type]}"
               ]
             end
@@ -169,7 +165,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             host.vm.provision "shell", run: "always" do |s|
               s.path = "scripts/ubuntu/configure-network-manager.sh"
               s.args = [
-                "--network-interface", NETWORK_INTERFACE_NAME,
                 "--network-type", "#{info[:net_type]}"
               ]
             end

@@ -2,18 +2,17 @@
 
 set -e
 
-interface=$1
+interface="$(ls --ignore="lo" /sys/class/net/ | sed -n '2p')"
 
-dns_nameserver=$3
-domain=$6
-gateway_ip_address=$4
-host_ip_address=$2
-subnet_mask=$5
+dns_nameserver=$2
+domain=$4
+gateway_ip_address=$1
+subnet_mask=$3
 echo "Configuring $interface interface with static IP address"
 common_network_config="\n\
 auto $interface\n\
 iface $interface inet static\n\
-      address $host_ip_address\n\
+      address $gateway_ip_address\n\
       netmask $subnet_mask\n\
       dns-nameservers $dns_nameserver\n\
       search $domain\n"

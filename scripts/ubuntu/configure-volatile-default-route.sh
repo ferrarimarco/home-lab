@@ -2,18 +2,17 @@
 
 set -e
 
-TEMP=`getopt -o vdm: --long ip-v4-gateway-ip-address:,network-interface: -n 'configure-volatile-default-route' -- "$@"`
+TEMP=`getopt -o vdm: --long ip-v4-gateway-ip-address: -n 'configure-volatile-default-route' -- "$@"`
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
 
-interface=
+interface="$(ls --ignore="lo" /sys/class/net/ | sed -n '2p')"
 ip_v4_gateway_ip_address=
 
 while true; do
   case "$1" in
     -g | --ip-v4-gateway-ip-address ) ip_v4_gateway_ip_address="$2"; shift 2 ;;
-    -i | --network-interface ) interface="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac

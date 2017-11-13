@@ -2,13 +2,13 @@
 
 set -e
 
-TEMP=`getopt -o vdm: --long domain:,ip-v4-dns-nameserver:,ip-v4-gateway-ip-address:,ip-v4-host-address:,ip-v4-host-cidr:,network-interface:,network-type: -n 'configure-network-manager' -- "$@"`
+TEMP=`getopt -o vdm: --long domain:,ip-v4-dns-nameserver:,ip-v4-gateway-ip-address:,ip-v4-host-address:,ip-v4-host-cidr:,network-type: -n 'configure-network-manager' -- "$@"`
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
 
 domain=
-interface=
+interface="$(ls --ignore="lo" /sys/class/net/ | sed -n '2p')"
 ip_v4_dns_nameserver=
 ip_v4_gateway_ip_address=
 ip_v4_host_address=
@@ -20,7 +20,6 @@ while true; do
     -d | --ip-v4-dns-nameserver ) ip_v4_dns_nameserver="$2"; shift 2 ;;
     -g | --ip-v4-gateway-ip-address ) ip_v4_gateway_ip_address="$2"; shift 2 ;;
     -h | --ip-v4-host-address ) ip_v4_host_address="$2"; shift 2 ;;
-    -i | --network-interface ) interface="$2"; shift 2 ;;
     -j | --ip-v4-host-cidr ) ip_v4_host_cidr="$2"; shift 2 ;;
     -s | --domain ) domain="$2"; shift 2 ;;
     -t | --network-type ) network_type="$2"; shift 2 ;;
