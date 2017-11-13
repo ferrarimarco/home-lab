@@ -1,3 +1,5 @@
+require 'ipaddr'
+
 DNSMASQ_MACHINE_NAME = "europa"
 DNSMASQ_MACHINE_IP = "192.168.0.5"
 DOMAIN_SUFFIX = "ferrari.home"
@@ -5,10 +7,10 @@ DOMAIN = "." + DOMAIN_SUFFIX
 GATEWAY_IP_ADDRESS = "192.168.0.1"
 GATEWAY_MACHINE_NAME = "sun"
 INTNET_NAME = DOMAIN_SUFFIX + ".network"
-NETWORK_INTERFACE_NAME = "enp0s8"
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.0.0"
+IP_V4_CIDR = IPAddr.new(SUBNET_MASK).to_i.to_s(2).count("1")
 UPSTREAM_DNS_SERVER = "8.8.8.8"
 VAGRANT_X64_LINUX_BOX_ID = "bento/ubuntu-16.04"
 VAGRANT_X86_LINUX_BOX_ID = "bento/ubuntu-16.04-i386"
@@ -80,7 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define hostname, autostart: info[:autostart] do |host|
       host.vm.box = "#{info[:box]}"
       if(NETWORK_TYPE_DHCP == info[:net_type])
-        host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: NETWORK_TYPE_DHCP, virtualbox__intnet: INTNET_NAME
+        host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type], virtualbox__intnet: INTNET_NAME
       elsif(NETWORK_TYPE_STATIC_IP == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}", virtualbox__intnet: INTNET_NAME
       end
@@ -108,38 +110,78 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.guest = :windows
         host.vm.hostname = hostname.sub DOMAIN, ''
         host.windows.halt_timeout = 15
-
         host.vm.provision "shell", path: "scripts/windows/configure-network-zone.ps1"
       else
         host.vm.hostname = hostname
-        # Configure network for hosts with static IPs
-        if(NETWORK_TYPE_STATIC_IP == info[:net_type])
+
+        if(hostname.include? GATEWAY_MACHINE_NAME)
           host.vm.provision "shell" do |s|
-            s.path = "scripts/configure_network.sh"
-            s.args = [NETWORK_INTERFACE_NAME, "#{info[:ip]}", "#{info[:dns_server_address]}", GATEWAY_IP_ADDRESS, SUBNET_MASK, DOMAIN_SUFFIX]
+            s.path = "scripts/ubuntu/configure-gateway-network.sh"
+            s.args = ["#{info[:ip]}", "#{info[:dns_server_address]}", SUBNET_MASK, DOMAIN_SUFFIX]
           end
-        elsif(NETWORK_TYPE_DHCP == info[:net_type])
+        else
           host.vm.provision "shell" do |s|
-            s.path = "scripts/configure_network.sh"
-            s.args = [NETWORK_INTERFACE_NAME, NETWORK_TYPE_DHCP, GATEWAY_IP_ADDRESS]
+            s.path = "scripts/ubuntu/configure-volatile-network-interface.sh"
+            s.args = [
+              "--ip-v4-host-address", "#{info[:ip]}",
+              "--ip-v4-host-cidr", IP_V4_CIDR,
+              "--network-type", "#{info[:net_type]}"
+              ]
           end
-        end
-        if(hostname.include? DNSMASQ_MACHINE_NAME)
-          # Let's use the upstream server for now because we cannot start
-          # the Dnsmasq container (with the integrated DNS server) if we don't
-          # first install Docker and run a ferrarimarco/home-lab-dnsmasq container
-          # The name resolution will be reconfigured after the container starts
+          host.vm.provision "shell", run: "always" do |s|
+            s.path = "scripts/ubuntu/configure-volatile-default-route.sh"
+            s.args = [
+              "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS
+              ]
+          end
+
+          # Let's use the upstream server in the machine that will host our DNS
+          # server because we cannot start the Dnsmasq container (with the
+          # integrated DNS server) if we don't first install Docker and run a
+          # ferrarimarco/home-lab-dnsmasq container. The name resolution will be
+          # reconfigured to use our DNS server after such server is available
+          ip_v4_dns_server_address = (hostname.include? DNSMASQ_MACHINE_NAME) ? UPSTREAM_DNS_SERVER : DNSMASQ_MACHINE_IP
+
           host.vm.provision "shell" do |s|
-            s.path = "scripts/configure_name_resolution.sh"
-            s.args   = [UPSTREAM_DNS_SERVER, DOMAIN_SUFFIX]
+            s.path = "scripts/ubuntu/configure-name-resolution.sh"
+            s.args = [
+              "--ip-v4-dns-nameserver", ip_v4_dns_server_address
+              ]
           end
-          host.vm.provision "shell", path: "scripts/install_docker.sh"
-          host.vm.provision "shell", path: "scripts/start_dnsmasq.sh"
-        end
-        # Configure network name resolution for all hosts
-        host.vm.provision "shell" do |s|
-          s.path = "scripts/configure_name_resolution.sh"
-          s.args = [DNSMASQ_MACHINE_IP, DOMAIN_SUFFIX]
+          host.vm.provision "shell", path: "scripts/ubuntu/install-network-manager.sh"
+          if(NETWORK_TYPE_STATIC_IP == info[:net_type])
+            host.vm.provision "shell", run: "always" do |s|
+              s.path = "scripts/ubuntu/configure-network-manager.sh"
+              s.args = [
+                "--domain", DOMAIN_SUFFIX,
+                "--ip-v4-dns-nameserver", ip_v4_dns_server_address,
+                "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS,
+                "--ip-v4-host-cidr", IP_V4_CIDR,
+                "--ip-v4-host-address", "#{info[:ip]}",
+                "--network-type", "#{info[:net_type]}"
+              ]
+            end
+          elsif(NETWORK_TYPE_DHCP == info[:net_type])
+            host.vm.provision "shell", run: "always" do |s|
+              s.path = "scripts/ubuntu/configure-network-manager.sh"
+              s.args = [
+                "--network-type", "#{info[:net_type]}"
+              ]
+            end
+          end
+
+          if(hostname.include? DNSMASQ_MACHINE_NAME)
+            host.vm.provision "shell", path: "scripts/ubuntu/install_docker.sh"
+            host.vm.provision "shell", path: "scripts/ubuntu/start_dnsmasq.sh"
+
+            # Reconfigure name resolution to use our DNS server
+            host.vm.provision "shell" do |s|
+              s.path = "scripts/ubuntu/configure-name-resolution.sh"
+              s.args = [
+                "--ip-v4-dns-nameserver", DNSMASQ_MACHINE_IP
+                ]
+            end
+          end
         end
       end
     end
