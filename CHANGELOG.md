@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Move Gateway configuration in a separate script [\#68](https://github.com/ferrarimarco/home-lab/issues/68)
 - Upgrade to docker-home-lab-dnsmasq:1.0.0 [\#66](https://github.com/ferrarimarco/home-lab/issues/66)
 - Configure Windows network zones [\#64](https://github.com/ferrarimarco/home-lab/issues/64)
 - Autostart Windows boxes [\#63](https://github.com/ferrarimarco/home-lab/issues/63)
@@ -18,7 +19,7 @@
 - Manage Windows hosts with Vagrant [\#50](https://github.com/ferrarimarco/home-lab/issues/50)
 - Create a user to run docker containers [\#46](https://github.com/ferrarimarco/home-lab/issues/46)
 - Update to ferrarimarco.docker 1.4.1 ansible role [\#45](https://github.com/ferrarimarco/home-lab/issues/45)
-- Do not install sshpass package (it's already available in the base image) [\#44](https://github.com/ferrarimarco/home-lab/issues/44)
+- Do not install sshpass package \(it's already available in the base image\) [\#44](https://github.com/ferrarimarco/home-lab/issues/44)
 - Don't use pluto as a docker engine host [\#43](https://github.com/ferrarimarco/home-lab/issues/43)
 - Create an administrative user [\#42](https://github.com/ferrarimarco/home-lab/issues/42)
 - Move home-lab-dnsmasq to a dedicated project [\#41](https://github.com/ferrarimarco/home-lab/issues/41)
@@ -58,6 +59,7 @@
 
 **Fixed bugs:**
 
+- Networking configuration is not portable [\#67](https://github.com/ferrarimarco/home-lab/issues/67)
 - Make gateway routing configuration permament [\#58](https://github.com/ferrarimarco/home-lab/issues/58)
 - Default route is not persisted after a reboot [\#53](https://github.com/ferrarimarco/home-lab/issues/53)
 - Autostart containers when needed [\#52](https://github.com/ferrarimarco/home-lab/issues/52)
