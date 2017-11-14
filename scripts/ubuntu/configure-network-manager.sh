@@ -2,13 +2,11 @@
 
 set -e
 
-TEMP=`getopt -o vdm: --long domain:,ip-v4-dns-nameserver:,ip-v4-gateway-ip-address:,ip-v4-host-address:,ip-v4-host-cidr:,network-type: -n 'configure-network-manager' -- "$@"`
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
-
+if ! TEMP="$(getopt -o vdm: --long domain:,ip-v4-dns-nameserver:,ip-v4-gateway-ip-address:,ip-v4-host-address:,ip-v4-host-cidr:,network-type: -n 'configure-network-manager' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
 
 domain=
-interface="$(ls --ignore="lo" --ignore="docker*" /sys/class/net/ | sed -n '2p')"
+interface="$(find /sys/class/net \( -not -name lo -and -not -name 'docker*' -and -not -type d \) -printf "%f\\n" | sort | sed -n '2p')"
 ip_v4_dns_nameserver=
 ip_v4_gateway_ip_address=
 ip_v4_host_address=
@@ -35,15 +33,15 @@ if [ "$network_type" = "dhcp" ]; then
 elif [ "$network_type" = "static_ip" ]; then
   echo "Configuring $network_type on $interface interface with $ip_v4_host_address/$ip_v4_host_cidr IPv4 address, $ip_v4_dns_nameserver IPv4 DNS, $domain IPv4 Domain, $ip_v4_gateway_ip_address IPv4 Gateway"
   nmcli connection add \
-    con-name $interface \
-    ifname $interface \
+    con-name "$interface" \
+    ifname "$interface" \
     type ethernet \
     ip4 "$ip_v4_host_address/$ip_v4_host_cidr" \
-    gw4 $ip_v4_gateway_ip_address
+    gw4 "$ip_v4_gateway_ip_address"
 
-  nmcli connection modify $interface ipv4.dns "$ip_v4_dns_nameserver"
-  nmcli connection modify $interface ipv4.dns-search "$domain"
-  nmcli connection up $interface
+  nmcli connection modify "$interface" ipv4.dns "$ip_v4_dns_nameserver"
+  nmcli connection modify "$interface" ipv4.dns-search "$domain"
+  nmcli connection up "$interface"
 else
   (>&2 echo "No compatible network configuration found")
   exit 1

@@ -9,7 +9,7 @@ else
     apt-transport-https \
     ca-certificates \
     curl \
-    linux-image-extra-$(uname -r) \
+    linux-image-extra-"$(uname -r)" \
     linux-image-extra-virtual \
     software-properties-common
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -

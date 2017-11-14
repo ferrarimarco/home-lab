@@ -2,9 +2,7 @@
 
 set -e
 
-TEMP=`getopt -o vdm: --long ip-v4-dns-nameserver: -n 'configure-name-resolution' -- "$@"`
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
-
+if ! TEMP="$(getopt -o vdm: --long ip-v4-dns-nameserver: -n 'configure-name-resolution' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
 
 ip_v4_dns_nameserver=

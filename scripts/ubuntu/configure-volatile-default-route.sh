@@ -2,12 +2,10 @@
 
 set -e
 
-TEMP=`getopt -o vdm: --long ip-v4-gateway-ip-address: -n 'configure-volatile-default-route' -- "$@"`
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
-
+if ! TEMP="$(getopt -o vdm: --long ip-v4-gateway-ip-address: -n 'configure-volatile-default-route' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
 
-interface="$(ls --ignore="lo" --ignore="docker*" /sys/class/net/ | sed -n '2p')"
+interface="$(find /sys/class/net \( -not -name lo -and -not -name 'docker*' -and -not -type d \) -printf "%f\\n" | sort | sed -n '2p')"
 ip_v4_gateway_ip_address=
 
 while true; do
@@ -26,7 +24,7 @@ if [ "$current_default_gateway" != "$ip_v4_gateway_ip_address" ]; then
     ip route del default
   fi
   echo "Configuring the default route for $interface interface via $ip_v4_gateway_ip_address gateway"
-  ip route add default via $ip_v4_gateway_ip_address dev $interface
+  ip route add default via "$ip_v4_gateway_ip_address" dev "$interface"
 fi
 
 current_default_gateway="$(ip route | awk '/default/ { print $3 }')"
