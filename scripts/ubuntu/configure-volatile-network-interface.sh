@@ -7,7 +7,7 @@ if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
 
-interface="$(ls --ignore="lo" /sys/class/net/ | sed -n '2p')"
+interface="$(ls --ignore="lo" --ignore="docker*" /sys/class/net/ | sed -n '2p')"
 ip_v4_host_address=
 ip_v4_host_cidr=
 network_type=

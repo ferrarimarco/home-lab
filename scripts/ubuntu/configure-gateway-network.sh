@@ -2,7 +2,7 @@
 
 set -e
 
-interface="$(ls --ignore="lo" /sys/class/net/ | sed -n '2p')"
+interface="$(ls --ignore="lo" --ignore="docker*" /sys/class/net/ | sed -n '2p')"
 
 dns_nameserver=$2
 domain=$4
