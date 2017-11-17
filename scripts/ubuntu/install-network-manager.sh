@@ -11,7 +11,6 @@ then
   echo "Disabling dnsmasq used by NetworkManager"
   sed -i '/dnsmasq/d' /etc/NetworkManager/NetworkManager.conf
 
-
   echo "Reconfigure resolvconf to fix missing symbolic links"
   dpkg-reconfigure -f noninteractive resolvconf
 fi
