@@ -20,8 +20,11 @@ current_default_gateway="$(ip route | awk '/default/ { print $3 }')"
 echo "Current default gateway for $interface interface: $current_default_gateway. Desired default gateway: $ip_v4_gateway_ip_address"
 if [ "$current_default_gateway" != "$ip_v4_gateway_ip_address" ]; then
   if [ -n "$current_default_gateway" ]; then
-    echo "Removing default route from $interface interface"
-    ip route del default
+    echo "Removing default routes from $interface interface"
+    while default_route="$(ip route | grep "default")"; do
+      echo "Removing $default_route"
+      ip route del default
+    done
   fi
   echo "Configuring the default route for $interface interface via $ip_v4_gateway_ip_address gateway"
   ip route add default via "$ip_v4_gateway_ip_address" dev "$interface"
