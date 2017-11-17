@@ -64,6 +64,7 @@
 **Fixed bugs:**
 
 - Ignore docker network interface when running provisioning scripts [\#72](https://github.com/ferrarimarco/home-lab/issues/72)
+- Do not start the dnsmasq container if it's already running [\#70](https://github.com/ferrarimarco/home-lab/issues/70)
 - Networking configuration is not portable [\#67](https://github.com/ferrarimarco/home-lab/issues/67)
 - Make gateway routing configuration permament [\#58](https://github.com/ferrarimarco/home-lab/issues/58)
 - Default route is not persisted after a reboot [\#53](https://github.com/ferrarimarco/home-lab/issues/53)
