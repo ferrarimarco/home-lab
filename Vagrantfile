@@ -114,6 +114,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       else
         host.vm.hostname = hostname
 
+        # Let's use the upstream server in the machine that will host our DNS
+        # server because we cannot start the Dnsmasq container (with the
+        # integrated DNS server) if we don't first install Docker and run a
+        # ferrarimarco/home-lab-dnsmasq container. The name resolution will be
+        # reconfigured to use our DNS server after such server is available
+        ip_v4_dns_server_address = (hostname.include? DNSMASQ_MACHINE_NAME) ? UPSTREAM_DNS_SERVER : DNSMASQ_MACHINE_IP
+
+        host.vm.provision "shell" do |s|
+          s.path = "scripts/ubuntu/configure-name-resolution.sh"
+          s.args = [
+            "--ip-v4-dns-nameserver", ip_v4_dns_server_address
+            ]
+        end
+
         if(hostname.include? GATEWAY_MACHINE_NAME)
           host.vm.provision "shell" do |s|
             s.path = "scripts/ubuntu/configure-gateway-network.sh"
@@ -128,29 +142,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               "--network-type", "#{info[:net_type]}"
               ]
           end
-          host.vm.provision "shell", run: "always" do |s|
+          # Ensure we are temporarily going through the gateway
+          host.vm.provision "shell" do |s|
             s.path = "scripts/ubuntu/configure-volatile-default-route.sh"
             s.args = [
               "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS
               ]
           end
 
-          # Let's use the upstream server in the machine that will host our DNS
-          # server because we cannot start the Dnsmasq container (with the
-          # integrated DNS server) if we don't first install Docker and run a
-          # ferrarimarco/home-lab-dnsmasq container. The name resolution will be
-          # reconfigured to use our DNS server after such server is available
-          ip_v4_dns_server_address = (hostname.include? DNSMASQ_MACHINE_NAME) ? UPSTREAM_DNS_SERVER : DNSMASQ_MACHINE_IP
+          host.vm.provision "shell", path: "scripts/ubuntu/install-network-manager.sh"
 
+          # Ensure we are going through the gateway
           host.vm.provision "shell" do |s|
-            s.path = "scripts/ubuntu/configure-name-resolution.sh"
+            s.path = "provisioning/networking/configure-default-route.sh"
             s.args = [
-              "--ip-v4-dns-nameserver", ip_v4_dns_server_address
+              "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS
               ]
           end
-          host.vm.provision "shell", path: "scripts/ubuntu/install-network-manager.sh"
+
           if(NETWORK_TYPE_STATIC_IP == info[:net_type])
-            host.vm.provision "shell", run: "always" do |s|
+            host.vm.provision "shell" do |s|
               s.path = "scripts/ubuntu/configure-network-manager.sh"
               s.args = [
                 "--domain", DOMAIN_SUFFIX,
@@ -162,7 +173,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               ]
             end
           elsif(NETWORK_TYPE_DHCP == info[:net_type])
-            host.vm.provision "shell", run: "always" do |s|
+            host.vm.provision "shell" do |s|
               s.path = "scripts/ubuntu/configure-network-manager.sh"
               s.args = [
                 "--network-type", "#{info[:net_type]}"
