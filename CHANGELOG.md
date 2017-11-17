@@ -4,9 +4,12 @@
 
 **Implemented enhancements:**
 
-- Ignore docker network interface when running provisioning scripts [\#72](https://github.com/ferrarimarco/home-lab/issues/72)
+- Add Travis CI badges to README [\#73](https://github.com/ferrarimarco/home-lab/issues/73)
+- Configure Travis CI to run shellcheck [\#71](https://github.com/ferrarimarco/home-lab/issues/71)
+- Set a name for the dnsmasq container [\#69](https://github.com/ferrarimarco/home-lab/issues/69)
 - Move Gateway configuration in a separate script [\#68](https://github.com/ferrarimarco/home-lab/issues/68)
 - Upgrade to docker-home-lab-dnsmasq:1.0.0 [\#66](https://github.com/ferrarimarco/home-lab/issues/66)
+- Use the Docker convenience script to install Docker [\#65](https://github.com/ferrarimarco/home-lab/issues/65)
 - Configure Windows network zones [\#64](https://github.com/ferrarimarco/home-lab/issues/64)
 - Autostart Windows boxes [\#63](https://github.com/ferrarimarco/home-lab/issues/63)
 - Set bidirectional clipboard sharing for Virtualbox VMs [\#62](https://github.com/ferrarimarco/home-lab/issues/62)
@@ -60,6 +63,7 @@
 
 **Fixed bugs:**
 
+- Ignore docker network interface when running provisioning scripts [\#72](https://github.com/ferrarimarco/home-lab/issues/72)
 - Networking configuration is not portable [\#67](https://github.com/ferrarimarco/home-lab/issues/67)
 - Make gateway routing configuration permament [\#58](https://github.com/ferrarimarco/home-lab/issues/58)
 - Default route is not persisted after a reboot [\#53](https://github.com/ferrarimarco/home-lab/issues/53)
