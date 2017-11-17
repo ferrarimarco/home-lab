@@ -33,7 +33,7 @@ sed -i '/^nameserver/d' $resolvconf_path
 echo "Setting $ip_v4_dns_nameserver as the preferred DNS server"
 echo "nameserver $ip_v4_dns_nameserver" >> "$resolvconf_path"
 
-if which resolvconf 2>/dev/null; then
+if which resolvconf >/dev/null 2>&1; then
   echo "Refreshing $resolvconf_path"
   resolvconf -u
 fi
