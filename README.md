@@ -17,3 +17,22 @@ The development environment is currently managed with Vagrant. Run `vagrant up` 
 
 - Vagrant 1.9.3+
 - Virtualbox 5.1.16+
+
+## Manual Steps
+
+There are a number of manual steps to follow in order to bootstrap this Lab
+
+### DNS/DHCP Server
+
+1. Install Ubuntu server
+1. Configure administrative user
+1. Deploy public SSH key
+1. Install git
+1. Install NetworkManager
+1. Disable the DHCP server running on the network gateway
+1. Configure network interface with NetworkManager
+1. Install Docker
+1. Mount a static host names file considering the real MAC addresses in the DNSMasq container
+1. Start (and configure autostart) the DNSMasq container
+1. Bootstrap nodes
+1. Run infrastructure test
