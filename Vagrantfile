@@ -154,7 +154,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
           # Ensure we are going through the gateway
           host.vm.provision "shell" do |s|
-            s.path = "provisioning/networking/configure-default-route.sh"
+            s.path = "scripts/ubuntu/configure-default-route.sh"
             s.args = [
               "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS
               ]
