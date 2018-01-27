@@ -31,6 +31,7 @@ There are a number of manual steps to follow in order to bootstrap this Lab
 1. Install OpenSSH Server and start the related service: `apt install openssh-server ; service ssh restart`
 1. Install git: `apt install git`
 1. Install NetworkManager
+1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`
 1. Disable the DHCP server running on the network gateway
 1. Configure network interface with NetworkManager
 1. Install Docker
