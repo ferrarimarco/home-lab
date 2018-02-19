@@ -22,7 +22,7 @@ The development environment is currently managed with Vagrant. Run `vagrant up` 
 
 There are a number of manual steps to follow in order to bootstrap this Lab
 
-### DNS/DHCP Server
+### DNS/DHCP/PXE Server
 
 1. Install Ubuntu server
 1. Configure administrative user
@@ -30,7 +30,7 @@ There are a number of manual steps to follow in order to bootstrap this Lab
 1. Deploy public SSH key: `mkdir $HOME/.ssh ; curl -l http://github.com/ferrarimarco.keys`
 1. Install OpenSSH Server and start the related service: `apt install openssh-server ; service ssh restart`
 1. Install git: `apt install git`
-1. Install NetworkManager
+1. Install NetworkManager: `scripts/ubuntu/install-network-manager.sh`
 1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`
 1. Disable the DHCP server running on the network gateway
 1. Configure network interface with NetworkManager
