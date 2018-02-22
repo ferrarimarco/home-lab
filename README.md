@@ -15,8 +15,8 @@ The development environment is currently managed with Vagrant. Run `vagrant up` 
 
 ### Dependencies
 
-- Vagrant 1.9.3+
-- Virtualbox 5.1.16+
+- Vagrant 2.0.2+
+- Virtualbox 5.2.6+
 
 ## Manual Steps
 
