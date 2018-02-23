@@ -2,7 +2,7 @@ require 'ipaddr'
 
 DNSMASQ_MACHINE_NAME = "europa"
 DNSMASQ_MACHINE_IP = "192.168.0.5"
-DOMAIN_SUFFIX = "ferrari.home"
+DOMAIN_SUFFIX = "lab.ferrarimarco.info"
 DOMAIN = "." + DOMAIN_SUFFIX
 GATEWAY_IP_ADDRESS = "192.168.0.1"
 GATEWAY_MACHINE_NAME = "sun"
