@@ -13,7 +13,6 @@ SUBNET_MASK = "255.255.0.0"
 IP_V4_CIDR = IPAddr.new(SUBNET_MASK).to_i.to_s(2).count("1")
 UPSTREAM_DNS_SERVER = "8.8.8.8"
 VAGRANT_X64_LINUX_BOX_ID = "bento/ubuntu-16.04"
-VAGRANT_X86_LINUX_BOX_ID = "bento/ubuntu-16.04-i386"
 VAGRANT_X64_WINDOWS_BOX_ID = "ferrarimarco/windows-10-x64-enterprise"
 
 home_lab = {
