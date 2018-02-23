@@ -113,6 +113,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       else
         host.vm.hostname = hostname
 
+        # Remove all the interfaces in /etc/network/interfaces as a workaround for:
+        # https://github.com/hashicorp/vagrant/issues/9222
+        # https://github.com/chef/bento/issues/1003
+        host.vm.provision "shell", path: "scripts/ubuntu/cleanup-network-interfaces.sh"
+
         # Let's use the upstream server in the machine that will host our DNS
         # server because we cannot start the Dnsmasq container (with the
         # integrated DNS server) if we don't first install Docker and run a

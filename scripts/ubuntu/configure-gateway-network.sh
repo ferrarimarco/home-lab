@@ -29,25 +29,28 @@ iptables-save > /etc/iptables/rules.v4
 # We are configuring the gateway network interface
 # so don't add the default route via the gateway itself, otherwise we lose
 # internet connettivity.
-grep -q -F "auto $interface" /etc/network/interfaces \
-|| printf "\\n\
+interface_file_name="/etc/network/interfaces.d/$interface.cfg"
+if [ ! -f "$interface_file_name" ]; then
+  echo "Configuring $interface using $interface_file_name"
+  printf "\\n\
 auto %s\\n\
 iface %s inet static\\n\
-      address %s\\n\
-      netmask %s\\n\
-      dns-nameservers %s\\n\
-      search %s\\n\
-      pre-up sleep 5\\n\
-      post-up iptables-restore < /etc/iptables/rules.v4\\n" \
-      "$interface" \
-      "$interface" \
-      "$gateway_ip_address" \
-      "$subnet_mask" \
-      "$dns_nameserver" \
-      "$domain" >> /etc/network/interfaces
+    address %s\\n\
+    netmask %s\\n\
+    dns-nameservers %s\\n\
+    search %s\\n\
+    pre-up sleep 5\\n\
+    post-up iptables-restore < /etc/iptables/rules.v4\\n" \
+    "$interface" \
+    "$interface" \
+    "$gateway_ip_address" \
+    "$subnet_mask" \
+    "$dns_nameserver" \
+    "$domain" > "$interface_file_name"
 
-printf "/etc/network/interfaces contents:\\n\
-%s\\n\\n" "$(cat /etc/network/interfaces)"
+    printf "$interface_file_name contents:\\n\
+    %s\\n\\n" "$(cat "$interface_file_name")"
+fi
 
 echo "Restarting the networking service"
 /etc/init.d/networking restart
