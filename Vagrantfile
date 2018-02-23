@@ -187,7 +187,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
           if(hostname.include? DNSMASQ_MACHINE_NAME)
             host.vm.provision "shell", path: "scripts/ubuntu/install-docker.sh"
-            host.vm.provision "shell", path: "scripts/ubuntu/start-dnsmasq.sh"
+
+            # Reconfigure name resolution to use our DNS server
+            host.vm.provision "shell" do |s|
+              s.path = "scripts/ubuntu/start-network-stack.sh"
+              s.args = [
+                "--docker-compose-path", "/vagrant/docker/stacks/docker-compose-network.yml"
+                ]
+            end
 
             # Reconfigure name resolution to use our DNS server
             host.vm.provision "shell" do |s|

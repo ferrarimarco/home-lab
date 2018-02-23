@@ -1,0 +1,14 @@
+version: '3.5'
+
+services:
+  dnsmasq:
+    deploy:
+      restart_policy:
+        condition: any
+    image: "ferrarimarco/home-lab-dnsmasq:dev-latest"
+    networks:
+      - outside
+networks:
+  outside:
+    external:
+      name: "host"
