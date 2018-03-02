@@ -5,7 +5,7 @@ set -e
 if ! TEMP="$(getopt -o vdm: --long docker-compose-path: -n 'start-network-stack' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
 
-ip_v4_dns_nameserver=
+docker_compose_path=
 
 while true; do
   case "$1" in
