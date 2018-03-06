@@ -32,7 +32,7 @@ There are a number of manual steps to follow in order to bootstrap this Lab
 1. Install git: `apt install git`
 1. Install NetworkManager: `scripts/ubuntu/install-network-manager.sh`
 1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/ubuntu/cleanup-network-interfaces.sh`
-1. Install Docker: `scripts/ubuntu/install-docker.sh`
+1. Install Docker: `scripts/ubuntu/install-docker.sh --user username`
 1. Configure network interface with NetworkManager
 1. Disable the DHCP server running on the network gateway
 1. Mount a static host names file considering the real MAC addresses in the DNSMasq container
