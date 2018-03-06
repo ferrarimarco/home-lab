@@ -18,7 +18,7 @@ while true; do
 done
 
 if [ ! -d "$swarm_token_path" ]; then
-  if [ ! $(docker info | grep "Swarm: active") ]; then
+  if [ ! "$(docker info | grep -q "Swarm: active")" ]; then
     echo "Initializing Swarm as manager on $interface interface"
     docker swarm init --advertise-addr "$interface:2377"
   fi
