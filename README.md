@@ -36,6 +36,6 @@ There are a number of manual steps to follow in order to bootstrap this Lab
 1. Configure network interface with NetworkManager
 1. Disable the DHCP server running on the network gateway
 1. Mount a static host names file considering the real MAC addresses in the DNSMasq container
-1. Start the network stack: `scripts/ubuntu/start-network-stack.sh --docker-compose-path /vagrant/docker/stacks/docker-compose-network.yml`
+1. Start DNSMASQ: `scripts/ubuntu/start-dnsmasq.sh`
 1. Bootstrap nodes
 1. Run infrastructure test

@@ -201,6 +201,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 ]
             end
 
+            # Start DNSMASQ
+            host.vm.provision "shell", path: "scripts/ubuntu/start-dnsmasq.sh"
+
             # Reconfigure name resolution to use our DNS server
             host.vm.provision "shell" do |s|
               s.path = "scripts/ubuntu/configure-name-resolution.sh"
