@@ -193,11 +193,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 ]
             end
 
-            # Reconfigure name resolution to use our DNS server
+            # Initialize Docker Swarm Manager
             host.vm.provision "shell" do |s|
-              s.path = "scripts/ubuntu/start-network-stack.sh"
+              s.path = "scripts/ubuntu/initialize-docker-swarm-manager.sh"
               s.args = [
-                "--docker-compose-path", "/vagrant/docker/stacks/docker-compose-network.yml"
+                "--manager-ip", DNSMASQ_MACHINE_IP
                 ]
             end
 
