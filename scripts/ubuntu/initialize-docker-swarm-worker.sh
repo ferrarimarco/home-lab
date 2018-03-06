@@ -15,7 +15,7 @@ while true; do
   esac
 done
 
-if [ ! "$(docker info | grep -q "Swarm: active")" ]; then
+if [ ! docker info | grep -q 'Swarm: active' ]; then
   docker swarm join \
   --token "$(cat  "$swarm_worker_token_path")" \
   "$manager_ip:2377":2377
