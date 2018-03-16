@@ -37,6 +37,6 @@ There are a number of manual steps to follow in order to bootstrap this Lab
 1. Disable other DHCP servers, if any
 1. Start DNSMASQ mounting a static host names file considering the real MAC addresses in the DNSMasq container: `scripts/ubuntu/start-dnsmasq.sh`
 
-### DNS/DHCP/PXE Server (Debian armhf)
+### DNS/DHCP/PXE Server (Debian ARM)
 
 1. Download Raspbian Lite: `wget --content-disposition https://downloads.raspberrypi.org/raspbian_lite_latest`
