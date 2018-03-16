@@ -22,7 +22,7 @@ The development environment is currently managed with Vagrant. Run `vagrant up` 
 
 There are a number of manual steps to follow in order to bootstrap this Lab
 
-### DNS/DHCP/PXE Server
+### DNS/DHCP/PXE Server (Ubuntu Server x86)
 
 1. Install Ubuntu server
 1. Configure administrative user
