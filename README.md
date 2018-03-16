@@ -36,3 +36,7 @@ There are a number of manual steps to follow in order to bootstrap this Lab
 1. Configure network interface with NetworkManager: `scripts/ubuntu/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
 1. Disable other DHCP servers, if any
 1. Start DNSMASQ mounting a static host names file considering the real MAC addresses in the DNSMasq container: `scripts/ubuntu/start-dnsmasq.sh`
+
+### DNS/DHCP/PXE Server (Debian armhf)
+
+1. Download Raspbian Lite: `wget --content-disposition https://downloads.raspberrypi.org/raspbian_lite_latest`
