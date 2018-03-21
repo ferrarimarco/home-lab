@@ -6,7 +6,7 @@ if [ "$(dpkg-query -W -f='${Status}' network-manager 2>/dev/null | grep -c 'ok i
 then
   echo "Installing NetworkManager"
   apt-get update
-  apt-get install -y network-manager
+  apt-get install -y network-manager resolvconf
 
   echo "Disabling dnsmasq used by NetworkManager"
   sed -i '/dnsmasq/d' /etc/NetworkManager/NetworkManager.conf
