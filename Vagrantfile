@@ -116,7 +116,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         # Remove all the interfaces in /etc/network/interfaces as a workaround for:
         # https://github.com/hashicorp/vagrant/issues/9222
         # https://github.com/chef/bento/issues/1003
-        host.vm.provision "shell", path: "scripts/ubuntu/cleanup-network-interfaces.sh"
+        host.vm.provision "shell", path: "scripts/linux/cleanup-network-interfaces.sh"
 
         # Let's use the upstream server in the machine that will host our DNS
         # server because we cannot start the Dnsmasq container (with the
@@ -126,7 +126,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ip_v4_dns_server_address = (hostname.include? DNSMASQ_MACHINE_NAME) ? UPSTREAM_DNS_SERVER : DNSMASQ_MACHINE_IP
 
         host.vm.provision "shell" do |s|
-          s.path = "scripts/ubuntu/configure-name-resolution.sh"
+          s.path = "scripts/linux/configure-name-resolution.sh"
           s.args = [
             "--ip-v4-dns-nameserver", ip_v4_dns_server_address
             ]
@@ -134,12 +134,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
         if(hostname.include? GATEWAY_MACHINE_NAME)
           host.vm.provision "shell" do |s|
-            s.path = "scripts/ubuntu/configure-gateway-network.sh"
+            s.path = "scripts/linux/configure-gateway-network.sh"
             s.args = ["#{info[:ip]}", "#{info[:dns_server_address]}", SUBNET_MASK, DOMAIN_SUFFIX]
           end
         else
           host.vm.provision "shell" do |s|
-            s.path = "scripts/ubuntu/configure-volatile-network-interface.sh"
+            s.path = "scripts/linux/configure-volatile-network-interface.sh"
             s.args = [
               "--ip-v4-host-address", "#{info[:ip]}",
               "--ip-v4-host-cidr", IP_V4_CIDR,
@@ -148,17 +148,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           end
           # Ensure we are temporarily going through the gateway
           host.vm.provision "shell" do |s|
-            s.path = "scripts/ubuntu/configure-volatile-default-route.sh"
+            s.path = "scripts/linux/configure-volatile-default-route.sh"
             s.args = [
               "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS
               ]
           end
 
-          host.vm.provision "shell", path: "scripts/ubuntu/install-network-manager.sh"
+          host.vm.provision "shell", path: "scripts/linux/ubuntu/install-network-manager.sh"
 
           # Ensure we are going through the gateway
           host.vm.provision "shell" do |s|
-            s.path = "scripts/ubuntu/configure-default-route.sh"
+            s.path = "scripts/linux/configure-default-route.sh"
             s.args = [
               "--ip-v4-gateway-ip-address", GATEWAY_IP_ADDRESS
               ]
@@ -166,7 +166,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
           if(NETWORK_TYPE_STATIC_IP == info[:net_type])
             host.vm.provision "shell" do |s|
-              s.path = "scripts/ubuntu/configure-network-manager.sh"
+              s.path = "scripts/linux/configure-network-manager.sh"
               s.args = [
                 "--domain", DOMAIN_SUFFIX,
                 "--ip-v4-dns-nameserver", ip_v4_dns_server_address,
@@ -178,7 +178,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             end
           elsif(NETWORK_TYPE_DHCP == info[:net_type])
             host.vm.provision "shell" do |s|
-              s.path = "scripts/ubuntu/configure-network-manager.sh"
+              s.path = "scripts/linux/configure-network-manager.sh"
               s.args = [
                 "--network-type", "#{info[:net_type]}"
               ]
@@ -187,7 +187,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
           if(hostname.include? DNSMASQ_MACHINE_NAME)
             host.vm.provision "shell" do |s|
-              s.path = "scripts/ubuntu/install-docker.sh"
+              s.path = "scripts/linux/install-docker.sh"
               s.args = [
                 "--user", "vagrant"
                 ]
@@ -195,23 +195,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
             # Initialize Docker Swarm Manager
             host.vm.provision "shell" do |s|
-              s.path = "scripts/ubuntu/initialize-docker-swarm-manager.sh"
+              s.path = "scripts/linux/initialize-docker-swarm-manager.sh"
               s.args = [
                 "--manager-ip", DNSMASQ_MACHINE_IP
                 ]
             end
 
             # Start DNSMASQ
-            host.vm.provision "shell", path: "scripts/ubuntu/start-dnsmasq.sh"
+            host.vm.provision "shell", path: "scripts/linux/docker/start-dnsmasq.sh"
 
             # Init and start ddclient
             host.vm.provision "file", source: "configuration/ddclient", destination: "/tmp/ddclient"
-            host.vm.provision "shell", path: "scripts/ubuntu/init-ddclient-configuration.sh"
-            host.vm.provision "shell", path: "scripts/docker/start-ddclient.sh"
+            host.vm.provision "shell", path: "scripts/linux/init-ddclient-configuration.sh"
+            host.vm.provision "shell", path: "scripts/linux/docker/start-ddclient.sh"
 
             # Reconfigure name resolution to use our DNS server
             host.vm.provision "shell" do |s|
-              s.path = "scripts/ubuntu/configure-name-resolution.sh"
+              s.path = "scripts/linux/configure-name-resolution.sh"
               s.args = [
                 "--ip-v4-dns-nameserver", DNSMASQ_MACHINE_IP
                 ]
