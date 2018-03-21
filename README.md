@@ -54,6 +54,8 @@ has to be bootstrapped manually.
 1. Deploy public SSH keys: `mkdir -p $HOME/.ssh ; chmod 700 $HOME/.ssh ; curl -l http://github.com/ferrarimarco.keys > $HOME/.ssh/authorized_keys ; chmod 600 $HOME/.ssh/authorized_keys`
 1. Install OpenSSH Server and start the related service: `apt install openssh-server ; service ssh restart`
 1. Install git: `apt install git`
+1. Clone this repository in `/opt`: `cd /opt ; git clone https://github.com/ferrarimarco/home-lab.git`
+1. Grant executable permission to scripts: `find scripts/linux -type f -iname "*.sh" -exec chmod +x {} \;`
 1. Install NetworkManager: `scripts/linux/debian/install-network-manager.sh`
 1. Install Docker: `scripts/linux/install-docker.sh --user username`
 1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/linux/cleanup-network-interfaces.sh`
