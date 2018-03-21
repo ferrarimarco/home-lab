@@ -32,8 +32,12 @@ if [ ! -d "$swarm_token_path" ]; then
   docker swarm join-token -q worker > "$swarm_worker_token_path"
   echo "Swarm Worker Token: $(cat "$swarm_worker_token_path")"
 else
-  echo "Joining existing swarm as manager. Swarm IP: $manager_ip"
-  docker swarm join \
-  --token "$(cat  "$swarm_manager_token_path")" \
-  "$manager_ip:2377"
+  if docker node ls > /dev/null 2>&1; then
+    echo "This node is already a swarm member (manager)"
+  else
+    echo "Joining existing swarm as manager. Swarm IP: $manager_ip"
+    docker swarm join \
+    --token "$(cat  "$swarm_manager_token_path")" \
+    "$manager_ip:2377"
+  fi
 fi
