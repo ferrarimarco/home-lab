@@ -154,7 +154,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               ]
           end
 
-          host.vm.provision "shell", path: "scripts/linux/ubuntu/install-network-manager.sh"
+          host.vm.provision "shell", path: "scripts/linux/debian/install-network-manager.sh"
 
           # Ensure we are going through the gateway
           host.vm.provision "shell" do |s|
