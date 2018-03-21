@@ -204,6 +204,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             # Start DNSMASQ
             host.vm.provision "shell", path: "scripts/ubuntu/start-dnsmasq.sh"
 
+            # Init and start ddclient
+            host.vm.provision "file", source: "configuration/ddclient", destination: "/tmp/ddclient"
+            host.vm.provision "shell", path: "scripts/ubuntu/init-ddclient-configuration.sh"
+            host.vm.provision "shell", path: "scripts/docker/start-ddclient.sh"
+
             # Reconfigure name resolution to use our DNS server
             host.vm.provision "shell" do |s|
               s.path = "scripts/ubuntu/configure-name-resolution.sh"
