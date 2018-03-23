@@ -50,6 +50,7 @@ has to be bootstrapped manually.
 
 1. Configure administrative user
 1. Login as the administrative user
+1. Remove the predefined user: `userdel -r -f debian`
 1. Install cURL: `apt install curl`
 1. Deploy public SSH keys: `mkdir -p $HOME/.ssh ; chmod 700 $HOME/.ssh ; curl -l http://github.com/ferrarimarco.keys > $HOME/.ssh/authorized_keys ; chmod 600 $HOME/.ssh/authorized_keys`
 1. Install OpenSSH Server and start the related service: `apt install openssh-server ; service ssh restart`
