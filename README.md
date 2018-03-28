@@ -60,9 +60,9 @@ has to be bootstrapped manually.
 1. Install NetworkManager: `scripts/linux/debian/install-network-manager.sh`
 1. Install Docker: `scripts/linux/install-docker.sh --user username`
 1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/linux/cleanup-network-interfaces.sh`
+1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
+1. Start DNSMASQ mounting a static host names file considering the real MAC addresses in the DNSMasq container: `scripts/linux/start-dnsmasq.sh`
 1. Configure network interface with NetworkManager: `scripts/linux/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
 1. Copy the credentials file to `/etc/ddclient/ddclient.conf`
 1. Update the credentials in `scripts/linux/docker/ddclient/config/ddclient.conf`
 1. Start ddclient: `scripts/linux/docker/ddclient/start-ddclient.sh`
-1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
-1. Start DNSMASQ mounting a static host names file considering the real MAC addresses in the DNSMasq container: `scripts/linux/start-dnsmasq.sh`
