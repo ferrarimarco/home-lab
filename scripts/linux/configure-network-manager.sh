@@ -2,7 +2,7 @@
 
 set -e
 
-if ! TEMP="$(getopt -o vdm: --long domain:,--interface:,ip-v4-dns-nameserver:,ip-v4-gateway-ip-address:,ip-v4-host-address:,ip-v4-host-cidr:,network-type: -n 'configure-network-manager' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
+if ! TEMP="$(getopt -o vdm: --long domain:,interface:,ip-v4-dns-nameserver:,ip-v4-gateway-ip-address:,ip-v4-host-address:,ip-v4-host-cidr:,network-type: -n 'configure-network-manager' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
 
 domain=
