@@ -12,4 +12,4 @@ services:
         target: /etc/ddclient/ddclient.conf
 secrets:
   ddclient_configuration:
-    file: ./configuration/ddclient/ddclient.conf
+    file: ./configuration/ddclient/ddclient.conf.local

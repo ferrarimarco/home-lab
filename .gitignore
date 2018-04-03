@@ -3,3 +3,5 @@
 *.retry
 
 *.log
+
+*.conf.local
