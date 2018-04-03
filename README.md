@@ -57,12 +57,21 @@ has to be bootstrapped manually.
 1. Install git: `apt install git`
 1. Clone this repository in `/opt`: `cd /opt ; git clone https://github.com/ferrarimarco/home-lab.git`
 1. Grant executable permission to scripts: `find scripts/linux -type f -iname "*.sh" -exec chmod a+x {} \;`
-1. Install NetworkManager: `scripts/linux/debian/install-network-manager.sh`
-1. Install Docker: `scripts/linux/install-docker.sh --user username`
-1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/linux/cleanup-network-interfaces.sh`
-1. Configure network interface with NetworkManager: `scripts/linux/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
+1. Install NetworkManager: `scripts/ubuntu/install-network-manager.sh`
+1. Install Docker: `scripts/ubuntu/install-docker.sh --user username`
+1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/ubuntu/cleanup-network-interfaces.sh`
+1. Configure network interface with NetworkManager: `scripts/ubuntu/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
 1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
-1. Start DNSMASQ mounting a static host names file considering the real MAC addresses in the DNSMasq container: `scripts/linux/start-dnsmasq.sh`
-1. Copy the credentials file to `/etc/ddclient/ddclient.conf`
-1. Update the credentials in `scripts/linux/docker/ddclient/config/ddclient.conf`
-1. Start ddclient: `scripts/linux/docker/ddclient/start-ddclient.sh`
+1. (only on ARM) build the DNSMasq image: `docker build -t ferrarimarco/home-lab-dnsmasq:<tag>`
+1. Start DNSMASQ mounting a static host names file considering the real MAC addresses in the DNSMasq container: `scripts/ubuntu/start-dnsmasq.sh`
+
+### Docker Swarm Manager
+
+1. Initialize the Swarm Manager: `docker swarm init` OR join the existing swarm as a manager
+
+### DDClient Server
+
+1. Update the credentials in `swarm/configuration/ddclient/ddclient.conf`
+1. (only on ARM) clone [ferrarimarco/docker-ddclient](https://github.com/ferrarimarco/docker-ddclient.git)
+1. (only on ARM) build the ddclient image: `docker build -t ferrarimarco/ddclient:<tag>`
+1. Deploy ddclient stack: `docker stack deploy --compose-file swarm/ddclient.yml ddclient`
