@@ -67,7 +67,7 @@ has to be bootstrapped manually.
 1. (only on ARM) build the DNSMasq image: `docker build -t ferrarimarco/home-lab-dnsmasq:<tag>`
 1. Configure network interface with NetworkManager: `scripts/ubuntu/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
 1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
-1. (only on ARM) Start DNSMASQ: `scripts/ubuntu/start-dnsmasq.sh`
+1. Start DNSMASQ: `scripts/ubuntu/start-dnsmasq.sh`
 
 ### Docker Swarm Manager
 
