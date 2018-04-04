@@ -6,6 +6,7 @@ All the necessary to provision, configure and manage my home lab.
 
 ## Components
 
+- A [dockerized ddclient instance (ferrarimarco/docker-ddclient)](https://github.com/ferrarimarco/docker-ddclient)
 - A [dockerized Dnsmasq instance (ferrarimarco/home-lab-dnsmasq)](https://github.com/ferrarimarco/home-lab-dnsmasq)
 - A [dockerized Ansible instance (ferrarimarco/docker-home-lab-ansible)](https://github.com/ferrarimarco/docker-home-lab-ansible)
 
@@ -15,8 +16,8 @@ The development environment is currently managed with Vagrant. Run `vagrant up` 
 
 ### Dependencies
 
-- Vagrant 2.0.2+
-- Virtualbox 5.2.6+
+- Vagrant 2.0.3+
+- Virtualbox 5.2.8+
 
 ## Manual Steps
 
