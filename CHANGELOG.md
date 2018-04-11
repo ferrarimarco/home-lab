@@ -1,9 +1,17 @@
 # Change Log
 
-## [Unreleased](https://github.com/ferrarimarco/home-lab/tree/HEAD)
-
+## [1.0.0](https://github.com/ferrarimarco/home-lab/tree/1.0.0) (2018-04-11)
 **Implemented enhancements:**
 
+- Manage Windows hosts with Vagrant [\#50](https://github.com/ferrarimarco/home-lab/issues/50)
+- Configure OpenVPN [\#87](https://github.com/ferrarimarco/home-lab/issues/87)
+- Configure ddclient autostart [\#86](https://github.com/ferrarimarco/home-lab/issues/86)
+- Configure dnsmasq autostart [\#85](https://github.com/ferrarimarco/home-lab/issues/85)
+- Upgrade to ferrarimarco/home-lab-dnsmasq:1.2.0 [\#84](https://github.com/ferrarimarco/home-lab/issues/84)
+- Configure ddclient to update Google Dyndns [\#83](https://github.com/ferrarimarco/home-lab/issues/83)
+- Do not try to join to the Docker Swarm if already a member [\#82](https://github.com/ferrarimarco/home-lab/issues/82)
+- Initialize a docker swarm with only one node \(the manager\) [\#79](https://github.com/ferrarimarco/home-lab/issues/79)
+- Parametrize the user in install-docker.sh [\#78](https://github.com/ferrarimarco/home-lab/issues/78)
 - Add Travis CI badges to README [\#73](https://github.com/ferrarimarco/home-lab/issues/73)
 - Configure Travis CI to run shellcheck [\#71](https://github.com/ferrarimarco/home-lab/issues/71)
 - Set a name for the dnsmasq container [\#69](https://github.com/ferrarimarco/home-lab/issues/69)
@@ -20,7 +28,6 @@
 - Move "Remove default users" task in ferrarimarco.home-lab-node Ansible role [\#55](https://github.com/ferrarimarco/home-lab/issues/55)
 - Move home-lab-ansible Docker image to a dedicated repository [\#54](https://github.com/ferrarimarco/home-lab/issues/54)
 - Configure a Windows 10 Vagrant VM [\#51](https://github.com/ferrarimarco/home-lab/issues/51)
-- Manage Windows hosts with Vagrant [\#50](https://github.com/ferrarimarco/home-lab/issues/50)
 - Create a user to run docker containers [\#46](https://github.com/ferrarimarco/home-lab/issues/46)
 - Update to ferrarimarco.docker 1.4.1 ansible role [\#45](https://github.com/ferrarimarco/home-lab/issues/45)
 - Do not install sshpass package \(it's already available in the base image\) [\#44](https://github.com/ferrarimarco/home-lab/issues/44)
@@ -41,6 +48,7 @@
 - Enable query logging in dnsmasq [\#28](https://github.com/ferrarimarco/home-lab/issues/28)
 - Raise DHCP server range start from .10 to .50 [\#26](https://github.com/ferrarimarco/home-lab/issues/26)
 - Configure a virtualized development environment [\#24](https://github.com/ferrarimarco/home-lab/issues/24)
+- Implement a compose file for the network stack [\#23](https://github.com/ferrarimarco/home-lab/issues/23)
 - Configure a DHCP server [\#22](https://github.com/ferrarimarco/home-lab/issues/22)
 - Configure a DNS server for local queries [\#21](https://github.com/ferrarimarco/home-lab/issues/21)
 - Provide a Dockerfile for Ansible [\#20](https://github.com/ferrarimarco/home-lab/issues/20)
@@ -63,6 +71,8 @@
 
 **Fixed bugs:**
 
+- Do not use docker swarm to deploy network stack [\#80](https://github.com/ferrarimarco/home-lab/issues/80)
+- Remove misconfigured interfaces from /etc/network/interfaces [\#77](https://github.com/ferrarimarco/home-lab/issues/77)
 - Ignore docker network interface when running provisioning scripts [\#72](https://github.com/ferrarimarco/home-lab/issues/72)
 - Do not start the dnsmasq container if it's already running [\#70](https://github.com/ferrarimarco/home-lab/issues/70)
 - Networking configuration is not portable [\#67](https://github.com/ferrarimarco/home-lab/issues/67)
