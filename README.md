@@ -7,7 +7,7 @@ All the necessary to provision, configure and manage my home lab.
 ## Components
 
 - A [dockerized ddclient instance (ferrarimarco/docker-ddclient)](https://github.com/ferrarimarco/docker-ddclient)
-- A [dockerized Dnsmasq instance (ferrarimarco/home-lab-dnsmasq)](https://github.com/ferrarimarco/home-lab-dnsmasq)
+- A [dockerized Dnsmasq instance (ferrarimarco/docker-home-lab-dnsmasq)](https://github.com/ferrarimarco/docker-home-lab-dnsmasq)
 - A [dockerized Ansible instance (ferrarimarco/docker-home-lab-ansible)](https://github.com/ferrarimarco/docker-home-lab-ansible)
 
 ## Development Environment
