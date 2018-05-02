@@ -9,6 +9,7 @@ All the necessary to provision, configure and manage my home lab.
 - A [dockerized ddclient instance (ferrarimarco/docker-ddclient)](https://github.com/ferrarimarco/docker-ddclient)
 - A [dockerized Dnsmasq instance (ferrarimarco/docker-home-lab-dnsmasq)](https://github.com/ferrarimarco/docker-home-lab-dnsmasq)
 - A [dockerized Ansible instance (ferrarimarco/docker-home-lab-ansible)](https://github.com/ferrarimarco/docker-home-lab-ansible)
+- A [dockerized OpenVPN instance (kylemanna/docker-openvpn)](https://github.com/kylemanna/docker-openvpn)
 
 ## Development Environment
 
