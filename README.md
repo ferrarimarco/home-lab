@@ -43,10 +43,6 @@ has to be bootstrapped manually.
 1. Reboot the board to flash the internal eMMC
 1. Repartition the SD card (if necessary) to be used as an external disk
 
-#### Debian ARM - Raspberry Pi
-
-1. Download Raspbian Lite: `wget --content-disposition https://downloads.raspberrypi.org/raspbian_lite_latest`
-
 ### DNS/DHCP/PXE Server Configuration (Debian and derivatives)
 
 1. Configure administrative user
