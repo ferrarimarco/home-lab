@@ -61,12 +61,13 @@ has to be bootstrapped manually.
 1. Install NetworkManager: `scripts/ubuntu/install-network-manager.sh`
 1. Install Docker: `scripts/ubuntu/install-docker.sh --user username`
 1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/ubuntu/cleanup-network-interfaces.sh`
-1. (only on ARM) Build `ferrarimarco/pxe`
-1. (only on ARM) Build `ferrarimarco/home-lab-dnsmasq`
-1. (only on ARM) update host configuration file: `etc/dhcp-hosts/host-configuration.conf`
-1. (only on ARM) build the DNSMasq image: `docker build -t ferrarimarco/home-lab-dnsmasq:<tag>`
+1. (only on ARM) `Clone ferrarimarco/pxe` in `/opt`: `cd /opt ; git clone https://github.com/ferrarimarco/pxe.git`
+1. (only on ARM) Build `ferrarimarco/pxe`: `docker build -t ferrarimarco/pxe:<tag> .`
+1. (only on ARM) `Clone ferrarimarco/home-lab-dnsmasq` in `/opt`: `cd /opt ; git clone https://github.com/ferrarimarco/home-lab-dnsmasq.git`
+1. (only on ARM) Build the DNSMasq image: `docker build -t ferrarimarco/home-lab-dnsmasq:<tag> .`
 1. Configure network interface with NetworkManager: `scripts/ubuntu/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
 1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
+1. Create and update host configuration file (see the one bundled with `ferrarimarco/home-lab-dnsmasq` for an example): `/etc/dnsmasq-home-lab/dhcp-hosts/host-configuration.conf`
 1. Start DNSMASQ: `scripts/ubuntu/start-dnsmasq.sh`
 
 ### Docker Swarm Manager
