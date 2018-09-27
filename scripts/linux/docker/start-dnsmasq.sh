@@ -11,6 +11,7 @@ if [ ! "$(docker ps -q -f name=$name)" ]; then
     --net=host \
     --privileged \
     --restart=always \
+    -v /etc/dnsmasq-home-lab/dhcp-hosts/host-configuration.conf:/etc/dhcp-hosts/host-configuration.conf
     ferrarimarco/home-lab-dnsmasq:1.2.1
 else
   echo "$name container is already running"
