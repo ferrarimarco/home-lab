@@ -11,8 +11,16 @@ then
   echo "Disabling dnsmasq used by NetworkManager"
   sed -i '/dnsmasq/d' /etc/NetworkManager/NetworkManager.conf
 
+  echo "Stop avahi"
+  systemctl stop avahi-daemon.socket
+  systemctl stop avahi-daemon.service
+
+  echo "Remove connman"
+  apt-get remove -y connman
+
   echo "Reconfigure resolvconf to fix missing symbolic links"
   dpkg-reconfigure -f noninteractive resolvconf
+  ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
 fi
 
 ENABLED=$(systemctl status NetworkManager.service | grep -c 'enabled;' || true)
