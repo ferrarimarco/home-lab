@@ -34,7 +34,7 @@ has to be bootstrapped manually.
 
 #### Debian ARM - BeagleBone Black
 
-1. Download latest debian from : `http://beagleboard.org/latest-images`
+1. Download latest Debian image from : `http://beagleboard.org/latest-images`
 1. Write the image on a SD card
 1. Ensure the board is powered off
 1. Insert the microSD
@@ -43,7 +43,7 @@ has to be bootstrapped manually.
 1. Reboot the board to flash the internal eMMC
 1. Repartition the SD card (if necessary) to be used as an external disk
 
-### DNS/DHCP/PXE Server Configuration (Debian and derivatives)
+#### OS configuration - Debian and derivatives
 
 1. Configure administrative user
 1. Login as the administrative user
@@ -54,6 +54,9 @@ has to be bootstrapped manually.
 1. Install git: `apt install git`
 1. Clone this repository in `/opt`: `cd /opt ; git clone https://github.com/ferrarimarco/home-lab.git`
 1. Grant executable permission to scripts: `find scripts/linux -type f -iname "*.sh" -exec chmod a+x {} \;`
+
+### DNS/DHCP/PXE Server Configuration - Debian and derivatives
+
 1. Install NetworkManager: `scripts/ubuntu/install-network-manager.sh`
 1. Install Docker: `scripts/ubuntu/install-docker.sh --user username`
 1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/ubuntu/cleanup-network-interfaces.sh`
@@ -68,7 +71,7 @@ has to be bootstrapped manually.
 
 ### Docker Swarm Manager
 
-1. Initialize the Swarm Manager: `docker swarm init` OR join the existing swarm as a manager
+1. Initialize the Swarm Manager: `docker swarm init` or join the existing swarm as a manager
 
 ### DDClient Server
 
