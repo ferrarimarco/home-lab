@@ -42,10 +42,10 @@ has to be bootstrapped manually.
 1. Edit `uEnv.txt` to allow flashing the internal eMMC: edit the `/boot/uEnv.txt` file on the Linux partition on the microSD card and uncomment the line with `cmdline=init=/opt/scripts/tools/eMMC/init-eMMC-flasher-v3.sh`. Note that the `/uEnv.txt` is there for backward compatibility reasons, don't touch it
 1. Update the flasher script:
 
-  ```
-  cd /opt/scripts/
-  git pull
-  ```
+    ```
+    cd /opt/scripts/
+    git pull
+    ```
 
 1. Reboot the board to flash the internal eMMC
 1. Repartition the SD card (if necessary) to be used as an external disk
