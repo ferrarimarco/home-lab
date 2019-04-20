@@ -39,28 +39,19 @@ has to be bootstrapped manually.
 1. Ensure the board is powered off
 1. Insert the microSD
 1. Boot the board using the SD card. Note that it may be necessary to press the Boot button (near the microSD slot) until the user LEDs turn on (necessary for old uBoot versions)
-1. Edit `uEnv.txt` to allow flashing the internal eMMC: edit the `/boot/uEnv.txt` file on the Linux partition on the microSD card and uncomment the line with `cmdline=init=/opt/scripts/tools/eMMC/init-eMMC-flasher-v3.sh`. Note that the `/uEnv.txt` is there for backward compatibility reasons, don't touch it
-1. Update the flasher script:
+1. Open a new SSH connection. User: `debian`, password: `temppwd`
+1. Run the setup script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/setup-beaglebone-black.sh)"`
+1. Reboot the board to flash the internal eMMC: `sudo reboot`
+1. Remove the microSD after flashing is complete, otherwise it'll just keep on re-flashing the eMMC
 
-    ```
-    cd /opt/scripts/
-    git pull
-    ```
+### OS configuration - Debian and derivatives
 
-1. Reboot the board to flash the internal eMMC
-1. Repartition the SD card (if necessary) to be used as an external disk
-
-#### OS configuration - Debian and derivatives
-
+1. Run the package installation script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/debian/install-packages.sh)"`
+1. Run the OS bootstrap script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/os-bootstrap.sh)"`
 1. Configure administrative user
 1. Login as the administrative user
 1. Remove the predefined user: `userdel -r -f debian`
-1. Install cURL: `apt install curl`
-1. Deploy public SSH keys: `mkdir -p $HOME/.ssh ; chmod 700 $HOME/.ssh ; curl -l http://github.com/ferrarimarco.keys > $HOME/.ssh/authorized_keys ; chmod 600 $HOME/.ssh/authorized_keys`
-1. Install OpenSSH Server and start the related service: `apt install openssh-server ; service ssh restart`
-1. Install git: `apt install git`
-1. Clone this repository in `/opt`: `cd /opt ; git clone https://github.com/ferrarimarco/home-lab.git`
-1. Grant executable permission to scripts: `find scripts/linux -type f -iname "*.sh" -exec chmod a+x {} \;`
+#TODO: run the OS bootstrap script
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 
