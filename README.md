@@ -51,7 +51,6 @@ has to be bootstrapped manually.
 1. Configure administrative user
 1. Login as the administrative user
 1. Remove the predefined user: `userdel -r -f debian`
-#TODO: run the OS bootstrap script
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 
