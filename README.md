@@ -10,15 +10,6 @@ All the necessary to provision, configure and manage my home lab.
 - A [dockerized Ansible instance (ferrarimarco/docker-home-lab-ansible)](https://github.com/ferrarimarco/docker-home-lab-ansible)
 - A [dockerized OpenVPN instance (kylemanna/docker-openvpn)](https://github.com/kylemanna/docker-openvpn)
 
-## Development Environment
-
-The development environment is currently managed with Vagrant. Run `vagrant up` from the root directory of this repository to start the environment.
-
-### Dependencies
-
-- Vagrant 2.0.3+
-- Virtualbox 5.2.8+
-
 ## Manual Steps
 
 There are a number of manual steps to follow in order to bootstrap this Lab. The first machine (likely the DHCP/DNS/PXE server) in this lab
@@ -44,7 +35,7 @@ has to be bootstrapped manually.
 1. Reboot the board to flash the internal eMMC: `sudo reboot`. While flashing the image, the leds will blink with a "cylon-style" pattern (in sequence)
 1. Remove the microSD after flashing is complete, otherwise it'll just keep on re-flashing the eMMC
 
-### OS configuration - Debian and derivatives
+### OS configuration - Linux
 
 1. Run the package installation script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/debian/install-packages.sh)"`
 1. Run the OS bootstrap script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/os-bootstrap.sh)"`
@@ -54,17 +45,13 @@ has to be bootstrapped manually.
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 
-1. Install NetworkManager: `scripts/ubuntu/install-network-manager.sh`
-1. Install Docker: `scripts/ubuntu/install-docker.sh --user username`
-1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/ubuntu/cleanup-network-interfaces.sh`
-1. (only on ARM) `Clone ferrarimarco/pxe` in `/opt`: `cd /opt ; git clone https://github.com/ferrarimarco/pxe.git`
-1. (only on ARM) Build `ferrarimarco/pxe`: `docker build -t ferrarimarco/pxe:<tag> .`
-1. (only on ARM) `Clone ferrarimarco/home-lab-dnsmasq` in `/opt`: `cd /opt ; git clone https://github.com/ferrarimarco/home-lab-dnsmasq.git`
-1. (only on ARM) Build the DNSMasq image: `docker build -t ferrarimarco/home-lab-dnsmasq:<tag> .`
-1. Configure network interface with NetworkManager: `scripts/ubuntu/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
+1. Install NetworkManager: `scripts/linux/debian/install-network-manager.sh`
+1. Install Docker: `scripts/linux/install-docker.sh --user "$(whoami)"`
+1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/linux/cleanup-network-interfaces.sh`
+1. Configure network interface with NetworkManager: `scripts/linux/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
 1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
 1. Create and update host configuration file (see the one bundled with `ferrarimarco/home-lab-dnsmasq` for an example): `/etc/dnsmasq-home-lab/dhcp-hosts/host-configuration.conf`
-1. Start DNSMASQ: `scripts/ubuntu/start-dnsmasq.sh`
+1. Start DNSMASQ: `scripts/linux/docker/start-dnsmasq.sh`
 
 ### Docker Swarm Manager
 
