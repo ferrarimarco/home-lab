@@ -12,7 +12,7 @@ echo "Updating Kernel..."
 echo "Updating bootloader..."
 /opt/scripts/tools/developers/update_bootloader.sh
 
-# uENV_path="/boot/uEnv.txt"
+uENV_path="/boot/uEnv.txt"
 if [ -e "$uENV_path" ]
 then
   echo "Enabling eMMC flashing..."
