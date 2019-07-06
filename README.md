@@ -31,9 +31,9 @@ has to be bootstrapped manually.
 1. Insert the microSD
 1. Boot the board using the SD card. Note that it may be necessary to press the Boot button (near the microSD slot) until the user LEDs turn on (necessary for old uBoot versions)
 1. Open a new SSH connection. User: `debian`, password: `temppwd`
-1. Run the setup script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/setup-beaglebone-black.sh)"`
-1. Reboot the board to flash the internal eMMC: `sudo reboot`. While flashing the image, the leds will blink with a "cylon-style" pattern (in sequence)
-1. Remove the microSD after flashing is complete, otherwise it'll just keep on re-flashing the eMMC
+1. Run the setup script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/setup-beaglebone-black.sh)"`. This will also reboot the board to flash the internal eMMC (up to 45 mins). While flashing the image, the leds will blink with a "cylon-style" pattern (in sequence). The leds will turn off when flashing is complete.
+1. Remove the microSD, otherwise it'll just keep on re-flashing the eMMC
+1. Unplug the board and plug it back in
 
 ### OS configuration - Linux
 
