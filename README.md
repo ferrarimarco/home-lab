@@ -37,10 +37,9 @@ has to be bootstrapped manually.
 
 ### OS configuration - Linux
 
-1. Run the package installation script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/debian/install-packages.sh)"`
 1. Run the OS bootstrap script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/os-bootstrap.sh)"`
-1. Configure administrative user
-1. Login as the administrative user
+1. Logout the predefined user
+1. Login again with the administrative user
 1. Remove the predefined user: `userdel -r -f debian`
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives

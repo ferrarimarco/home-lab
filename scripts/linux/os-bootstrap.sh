@@ -2,6 +2,14 @@
 
 set -e
 
+# This is currently Debian-specific
+echo "Installing packages"
+apt-get update
+apt-get install -y \
+  curl \
+  git \
+  openssh-server
+
 echo "Configuring SSH directory"
 mkdir -p "$HOME"/.ssh
 chmod 700 "$HOME"/.ssh
