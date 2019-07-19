@@ -1,4 +1,5 @@
-# home-lab
+# ferrarimarco's Home Lab
+
 All the necessary to provision, configure and manage my home lab.
 
 [![Build Status](https://travis-ci.org/ferrarimarco/home-lab.svg?branch=master)](https://travis-ci.org/ferrarimarco/home-lab)
