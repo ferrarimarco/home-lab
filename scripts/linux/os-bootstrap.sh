@@ -25,3 +25,13 @@ systemctl restart ssh
 echo "Cloning repository"
 cd /opt
 git clone https://github.com/ferrarimarco/home-lab.git
+
+echo "Installing Docker"
+if which docker >/dev/null 2>&1 ; then
+  echo "Docker is already installed"
+else
+  curl -sSL https://get.docker.com | sh
+
+  echo "Adding $(whoami) to the docker group"
+  usermod -aG docker "$(whoami)"
+fi

@@ -45,7 +45,6 @@ has to be bootstrapped manually.
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 
 1. Install NetworkManager: `scripts/linux/debian/install-network-manager.sh`
-1. Install Docker: `scripts/linux/install-docker.sh --user "$(whoami)"`
 1. Remove network interfaces (except for `lo`) from `/etc/network/interfaces`: `scripts/linux/cleanup-network-interfaces.sh`
 1. Configure network interface with NetworkManager: `scripts/linux/configure-network-manager.sh --domain lab.ferrarimarco.info --ip-v4-dns-nameserver 192.168.0.5 --ip-v4-gateway-ip-address 192.168.0.1 --ip-v4-host-cidr 16 --ip-v4-host-address 192.168.0.5 --network-type static_ip`
 1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
