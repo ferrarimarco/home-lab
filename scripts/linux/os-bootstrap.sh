@@ -22,9 +22,12 @@ echo "Starting SSH server"
 systemctl enable ssh
 systemctl restart ssh
 
-echo "Cloning repository"
-cd /opt
-git clone https://github.com/ferrarimarco/home-lab.git
+HOME_LAB_REPO_PATH="/opt/home-lab"
+if [ ! -d "$HOME_LAB_REPO_PATH" ] ; then
+  echo "Cloning home lab repository"
+  cd "$(dirname "$HOME_LAB_REPO_PATH")"
+  git clone "https://github.com/ferrarimarco/home-lab.git" "$HOME_LAB_REPO_PATH"
+fi
 
 echo "Installing Docker"
 if which docker >/dev/null 2>&1 ; then
