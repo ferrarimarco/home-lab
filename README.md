@@ -49,10 +49,6 @@ has to be bootstrapped manually.
 1. Create and update host configuration file (see the one bundled with `ferrarimarco/home-lab-dnsmasq` for an example): `/etc/dnsmasq-home-lab/dhcp-hosts/host-configuration.conf`
 1. Start DNSMASQ: `scripts/linux/docker/start-dnsmasq.sh`
 
-### Docker Swarm Manager
-
-1. Initialize the Swarm Manager: `docker swarm init` or join the existing swarm as a manager
-
 ### DDClient Server
 
 1. Copy credentials file to a local version: `cp swarm/configuration/ddclient/ddclient.conf swarm/configuration/ddclient/ddclient.conf.local`
