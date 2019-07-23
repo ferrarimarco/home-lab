@@ -59,7 +59,7 @@ iface lo inet loopback
 " > /etc/network/interfaces
 
 NETWORK_INTERFACE=eth0
-read MAC_ADDRESS </sys/class/net/$NETWORK_INTERFACE/address
+read -r MAC_ADDRESS </sys/class/net/$NETWORK_INTERFACE/address
 echo "Configuring $NETWORK_INTERFACE ($MAC_ADDRESS) network interface"
 
 CONNMAN_SERVICE_NAME="ethernet_$(echo "$MAC_ADDRESS" | tr -d :)_cable"
