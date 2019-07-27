@@ -7,7 +7,7 @@ services:
   - docker
 
 script:
- - docker run --rm -i --name df-shellcheck -v .:/usr/src:ro ferrarimarco/shellcheck
+ - docker run --rm -i --name df-shellcheck -v "$(pwd)":/usr/src:ro ferrarimarco/shellcheck
 
 matrix:
   fast_finish: true
