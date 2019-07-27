@@ -77,10 +77,10 @@ echo "Configuring $NETWORK_INTERFACE ($MAC_ADDRESS) network interface"
 CONNMAN_SERVICE_NAME="ethernet_$(echo "$MAC_ADDRESS" | tr -d :)_cable"
 echo "Connman service name for $NETWORK_INTERFACE: $CONNMAN_SERVICE_NAME"
 
-IPv4_ADDRESS=
-SUBNET_MASK=
-DEFAULT_GATEWAY=
-DNS_SERVER=
+# IPv4_ADDRESS=
+# SUBNET_MASK=
+# DEFAULT_GATEWAY=
+# DNS_SERVER=
 
 # echo "Configuration for $CONNMAN_SERVICE_NAME. IPv4: $IPv4_ADDRESS, subnet mask: $SUBNET_MASK, default gateway: $DEFAULT_GATEWAY, DNS server: $DNS_SERVER"
 # connmanctl config "$CONNMAN_SERVICE_NAME" --ipv4 manual "$IPv4_ADDRESS" "$SUBNET_MASK" "$DEFAULT_GATEWAY" --nameservers "$DNS_SERVER"
