@@ -7,7 +7,7 @@ services:
   - docker
 
 script:
- - find . -type f -iname "*.sh" | while read -r line; do echo "Linting $line"; docker run -v "$(pwd)":/mnt --rm koalaman/shellcheck:v0.4.7 "$line"; done
+ - docker run --rm -i --name df-shellcheck -v .:/usr/src:ro ferrarimarco/shellcheck
 
 matrix:
   fast_finish: true
