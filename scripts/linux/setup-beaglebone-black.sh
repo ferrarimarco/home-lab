@@ -13,7 +13,8 @@ echo "Updating bootloader..."
 /opt/scripts/tools/developers/update_bootloader.sh
 
 while true; do
-  read -pr "Do you wish to enable eMMC flashing? (y/n)" yn
+  echo -n "Do you wish to enable eMMC flashing? (y/n) "
+  read -r yn
   case "$yn" in
       [Yy]* )
         uENV_path="/boot/uEnv.txt"
