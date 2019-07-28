@@ -35,9 +35,6 @@ done
 
 echo "Configuring network interfaces"
 
-printf "/etc/network/interfaces contents (before any edit):\\n\
-%s\\n\\n" "$(cat /etc/network/interfaces)"
-
 echo "Removing faulty network interfaces from /etc/network/interfaces. Let's start from a clean situation"
 echo "
 # This file describes the network interfaces available on your system
@@ -70,19 +67,39 @@ iface lo inet loopback
 
 " > /etc/network/interfaces
 
-NETWORK_INTERFACE=eth0
-read -r MAC_ADDRESS </sys/class/net/"$NETWORK_INTERFACE"/address
-echo "Configuring $NETWORK_INTERFACE ($MAC_ADDRESS) network interface"
+while true; do
+  echo "Do you wish to statically configure the network interface? (y/n) "
+  read -r yn
+  case "$yn" in
+      [Yy]* )
+        NETWORK_INTERFACE=eth0
+        read -r MAC_ADDRESS </sys/class/net/"$NETWORK_INTERFACE"/address
+        echo "Configuring $NETWORK_INTERFACE ($MAC_ADDRESS) network interface"
 
-CONNMAN_SERVICE_NAME="ethernet_$(echo "$MAC_ADDRESS" | tr -d :)_cable"
-echo "Connman service name for $NETWORK_INTERFACE: $CONNMAN_SERVICE_NAME"
+        CONNMAN_SERVICE_NAME="ethernet_$(echo "$MAC_ADDRESS" | tr -d :)_cable"
+        echo "Connman service name for $NETWORK_INTERFACE: $CONNMAN_SERVICE_NAME"
 
-# IPv4_ADDRESS=
-# SUBNET_MASK=
-# DEFAULT_GATEWAY=
-# DNS_SERVER=
+        echo "Enter the IPv4 address"
+        read -r IPv4_ADDRESS
 
-# echo "Configuration for $CONNMAN_SERVICE_NAME. IPv4: $IPv4_ADDRESS, subnet mask: $SUBNET_MASK, default gateway: $DEFAULT_GATEWAY, DNS server: $DNS_SERVER"
-# connmanctl config "$CONNMAN_SERVICE_NAME" --ipv4 manual "$IPv4_ADDRESS" "$SUBNET_MASK" "$DEFAULT_GATEWAY" --nameservers "$DNS_SERVER"
+        echo "Enter the subnet mask"
+        read -r SUBNET_MASK
 
+        echo "Enter the default gateway"
+        read -r DEFAULT_GATEWAY
+
+        echo "Enter the DNS server"
+        read -r DNS_SERVER
+
+        echo "Configuration for $CONNMAN_SERVICE_NAME. IPv4: $IPv4_ADDRESS, subnet mask: $SUBNET_MASK, default gateway: $DEFAULT_GATEWAY, DNS server: $DNS_SERVER"
+        connmanctl config "$CONNMAN_SERVICE_NAME" --ipv4 manual "$IPv4_ADDRESS" "$SUBNET_MASK" "$DEFAULT_GATEWAY" --nameservers "$DNS_SERVER"
+        break;;
+      [Nn]* )
+        echo "Skipping manual network configuration..."
+        break;;
+      * ) echo "Please answer yes or no.";;
+  esac
+done
+
+echo "The system will be rebooted"
 reboot now
