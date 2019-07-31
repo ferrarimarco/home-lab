@@ -1,7 +1,7 @@
 ---
 sudo: required
 
-language: shell
+language: node_js
 
 install:
   - sudo pip install -r requirements.txt
