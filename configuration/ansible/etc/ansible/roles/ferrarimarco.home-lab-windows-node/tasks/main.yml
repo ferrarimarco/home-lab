@@ -1,0 +1,7 @@
+---
+- name: Run OS-family specific tasks
+  include_tasks: "{{ ferrarimarco_home_lab_node_os_item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yaml"
+  loop_control:
+    loop_var: ferrarimarco_home_lab_node_os_item

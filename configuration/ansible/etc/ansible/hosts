@@ -1,0 +1,26 @@
+all:
+  children:
+    home_lab:
+      children:
+        linux:
+          children:
+            control-machines:
+              hosts:
+                "deimos.lab.ferrarimarco.info"
+            docker-hosts:
+              hosts:
+                "europa.lab.ferrarimarco.info":
+                "prism.ferrarimarco.info":
+            nas:
+              hosts:
+                "saturn.lab.ferrarimarco.info":
+            public_endpoints:
+              hosts:
+                "prism.ferrarimarco.info":
+                "vpn.ferrarimarco.info":
+        windows:
+          children:
+            windows-workstations:
+              hosts:
+                "mars.ferrari.home":
+                "phobos.ferrari.home":

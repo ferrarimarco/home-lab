@@ -1,0 +1,95 @@
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+
+# Only allow system admins to login via SSH
+AllowGroups sad
+
+# Disable ChallengeResponseAuthentication for PAM
+ChallengeResponseAuthentication no
+
+# Disable host-based authentication (for protocol version 2)
+HostbasedAuthentication no
+
+# HostKeys for protocol version 2
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_dsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
+# Don't read the user's ~/.rhosts and ~/.shosts files
+IgnoreRhosts yes
+
+# Lifetime of ephemeral version 1 server key
+KeyRegenerationInterval 3600
+
+# The server disconnects after this time if the user has not successfully
+# logged in
+LoginGraceTime 120
+
+# Verbosity level that is used when logging messages
+LogLevel INFO
+
+# Disable root login via SSH
+PermitRootLogin no
+
+# Disable password authentication
+PasswordAuthentication no
+
+# Disable empty passwords
+PermitEmptyPasswords no
+
+# Port to listen on
+Port 22
+
+# Print last login time
+PrintLastLog yes
+
+# Do not print MOTD
+PrintMotd no
+
+# SSH Protocol Version
+Protocol 2
+
+# Enable key authentication
+PubkeyAuthentication yes
+
+# Disable rhosts and /etc/hosts.equiv authentication
+RhostsRSAAuthentication no
+
+# Size of ephemeral version 1 server key
+ServerKeyBits 1024
+
+# Check file modes and ownership of the user's files and home directory
+# before accepting login
+StrictModes yes
+
+# Configure SFTP subsystem
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+# Facility code that is used when logging messages
+SyslogFacility AUTH
+
+# Send TCP keepalive messages to the other side
+TCPKeepAlive yes
+
+# Do not lookup remote hosts
+# See https://unix.stackexchange.com/questions/56941/what-is-the-point-of-sshd-usedns-option
+UseDNS no
+
+# Set this to 'yes' to enable PAM authentication, account processing,
+# and session processing. If this is enabled, PAM authentication will
+# be allowed through the ChallengeResponseAuthentication and
+# PasswordAuthentication.  Depending on your PAM configuration,
+# PAM authentication via ChallengeResponseAuthentication may bypass
+# the setting of "PermitRootLogin without-password".
+# If you just want the PAM account and session checks to run without
+# PAM authentication, then enable this but set PasswordAuthentication
+# and ChallengeResponseAuthentication to 'no'.
+UsePAM yes
+
+# Privilege Separation is turned on for security
+UsePrivilegeSeparation yes
+
+# Enable X11 forwarding
+X11Forwarding yes
+X11DisplayOffset 10

@@ -1,0 +1,30 @@
+---
+- win_ping:
+
+- name: Show File Extension in Explorer
+  win_regedit:
+    data: 0
+    name: HideFileExt
+    path: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    type: dword
+
+- name: Show Run command in Start Menu
+  win_regedit:
+    data: 1
+    name: Start_ShowRun
+    path: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    type: dword
+
+- name: Show Administrative Tools in Start Menu
+  win_regedit:
+    data: 1
+    name: StartMenuAdminTools
+    path: HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    type: dword
+
+- name: Configure Microsoft Update to automatically install all updates
+  win_regedit:
+    data: 4
+    name: AUOptions
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update
+    type: dword

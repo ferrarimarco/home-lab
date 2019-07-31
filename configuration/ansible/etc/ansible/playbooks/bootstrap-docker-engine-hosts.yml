@@ -1,0 +1,6 @@
+---
+- hosts: docker-hosts
+  gather_facts: yes
+  roles:
+    - role: ferrarimarco.docker
+      become: yes

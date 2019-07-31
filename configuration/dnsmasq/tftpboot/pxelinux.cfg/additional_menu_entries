@@ -1,0 +1,7 @@
+LABEL ubuntu-xenial-amd64
+  MENU LABEL Ubuntu 16.04 (Xenial) amd64
+  KERNEL /ubuntu/xenial-server-amd64/ubuntu-installer/amd64/linux
+  APPEND /install/vmlinuz auto=true url=tftp://pxe.lab.ferrarimarco.info/preseed/xenial/preseed.cfg initrd=ubuntu/xenial-server-amd64/ubuntu-installer/amd64/initrd.gz priority=critical  --
+
+# This overrides the DEFAULT directive specified in the default configuration
+DEFAULT ubuntu-xenial-amd64

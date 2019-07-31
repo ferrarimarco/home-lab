@@ -1,0 +1,71 @@
+---
+- name: Run Distribution-specific tasks
+  include_tasks: "{{ ferrarimarco_home_lab_node_distribution_item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yaml"
+    - "{{ ansible_distribution }}.yaml"
+  loop_control:
+    loop_var: ferrarimarco_home_lab_node_distribution_item
+
+- name: Ensure hostname is correct
+  hostname:
+    name: "{{inventory_hostname.split('.')[0]}}"
+
+- name: Create the administrative user group
+  group:
+    name: sad
+    state: present
+
+- name: Create the default administrative user
+  user:
+    name: ferrarimarco
+    comment: "Marco Ferrari"
+    # generated with mkpasswd --method=sha-512
+    password: "$6$.d2as860Kt2/p6qm$81wkGEi3EEG6Sjz0vSWpQDAgsRNAtEHa4Uh9Iuxf43QTVDIc3Tqhj2Rjvpn/24g62uwspOyE68KR/3nVM2laL0"
+    shell: /bin/bash
+
+- name: Make the administrative user member of sad and sudo groups
+  user:
+    name: ferrarimarco
+    groups:
+      - sad
+      - sudo
+
+- name: Ensure SSH keys are installed for the administrative user
+  authorized_key: user=ferrarimarco key=https://github.com/{{ item }}.keys
+  with_items:
+    - ferrarimarco
+
+- name: Remove pre-configured users
+  user:
+    name: "{{item}}"
+    remove: yes
+    state: absent
+  with_items:
+    - ubuntu
+
+- name: Configure SSH Daemon
+  copy:
+    src: etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart SSH Daemon
+  service:
+    name: sshd
+    state: restarted
+
+- name: Ensure required apt packages are installed
+  apt:
+    cache_valid_time: 3600
+    pkg: "{{ ferrarimarco_home_lab_node_apt_package_item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - curl
+    - nethogs
+    - wget
+  loop_control:
+    loop_var: ferrarimarco_home_lab_node_apt_package_item
