@@ -5,12 +5,14 @@ language: shell
 
 install:
   - pip install -r requirements.txt
+  - npm install
 
 services:
   - docker
 
 script:
   - yamllint --strict "$(git ls-files '*.yaml' '*.yml')"
+  - markdownlint ./**/*.md
   - docker run --rm -i --name df-shellcheck -v "$(pwd)":/usr/src:ro ferrarimarco/shellcheck
 
 matrix:
