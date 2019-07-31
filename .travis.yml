@@ -3,11 +3,15 @@ sudo: required
 
 language: shell
 
+install:
+  - pip install -r requirements.txt
+
 services:
   - docker
 
 script:
- - docker run --rm -i --name df-shellcheck -v "$(pwd)":/usr/src:ro ferrarimarco/shellcheck
+  - yamllint --strict "$(git ls-files '*.yaml' '*.yml')"
+  - docker run --rm -i --name df-shellcheck -v "$(pwd)":/usr/src:ro ferrarimarco/shellcheck
 
 matrix:
   fast_finish: true
