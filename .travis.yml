@@ -15,6 +15,7 @@ services:
 
 script:
   - yamllint --strict $(git ls-files '*.yaml' '*.yml')
+  - find . -name "*md" ! -name "*node_modules*" | xargs echo
   - find . -name "*md" ! -name "*node_modules*" | xargs markdownlint
   - docker run --rm -i --name df-shellcheck -v "$(pwd)":/usr/src:ro ferrarimarco/shellcheck
 
