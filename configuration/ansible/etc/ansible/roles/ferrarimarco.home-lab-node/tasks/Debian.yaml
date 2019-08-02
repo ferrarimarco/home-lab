@@ -39,7 +39,7 @@
 - name: Remove pre-configured users
   user:
     name: "{{item}}"
-    remove: yes
+    remove: true
     state: absent
   with_items:
     - ubuntu
@@ -62,7 +62,7 @@
     cache_valid_time: 3600
     pkg: "{{ ferrarimarco_home_lab_node_apt_package_item }}"
     state: present
-    update_cache: yes
+    update_cache: true
   with_items:
     - curl
     - nethogs

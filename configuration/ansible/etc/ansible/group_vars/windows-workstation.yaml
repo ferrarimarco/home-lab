@@ -1,3 +1,4 @@
+---
 ansible_connection: winrm
 ansible_port: 5986
 
