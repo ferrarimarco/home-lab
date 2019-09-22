@@ -6,8 +6,8 @@ All the necessary to provision, configure and manage my home lab.
 
 ## Manual Steps
 
-There are a number of manual steps to follow in order to bootstrap this Lab. The first machine (likely the DHCP/DNS/PXE server) in this lab
-has to be bootstrapped manually.
+There are a number of manual steps to follow in order to bootstrap this Lab.
+The first machine (likely the DHCP/DNS/PXE server) in this lab has to be bootstrapped manually.
 
 ### OS Installation
 
