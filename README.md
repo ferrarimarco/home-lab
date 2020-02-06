@@ -19,12 +19,15 @@ The first machine (likely the DHCP/DNS/PXE server) in this lab has to be bootstr
 
 #### Debian ARM - BeagleBone Black
 
-1. Download latest Debian image from : `http://beagleboard.org/latest-images`
-1. Write the image on a SD card
-1. Ensure the board is powered off
-1. Insert the microSD
-1. Boot the board using the SD card. Note that it may be necessary to press the Boot button (near the microSD slot) until the user LEDs turn on (necessary for old uBoot versions)
-1. Open a new SSH connection. User: `debian`, password: `temppwd`
+1. Download latest Debian image from : [Latest official Debian images](http://beagleboard.org/latest-images) or [Weekly Debian builds for the BeagleBone Black](https://elinux.org/Beagleboard:BeagleBoneBlack_Debian#Debian_Releases) and the relevant `sha256sum` files.
+1. Prepare the image (checksum, extract from the archive): `scripts/linux/prepare-beaglebone-black-os-image.sh path/to/img.xz`
+1. Write the image on a SD card. If using `dd`: `dd bs=1m if=/path/to/image.img of=/dev/XXXX`, where `XXXX` is the SD card device identifier.
+1. Ensure the board is powered off.
+1. Insert the microSD.
+1. Boot the board using the SD card. Note that it may be necessary to press the Boot button (near the microSD slot) until the user LEDs turn on (necessary for old uBoot versions).
+   If you downloaded a flasher version of the image, it will boot and then start flashing the eMMC. When flashing is completed, the board will power off. Remember to remove the microSD
+   otherwise the board will keep flashing the microSD over and over.
+1. Open a new SSH connection. User: `debian`, password: `temppwd`.
 1. Run the setup script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/setup-beaglebone-black.sh)"`. If you enabled eMMC flashing, this will also reboot the board to flash the internal eMMC (takes up to 45 mins). While flashing the image, the leds will blink in sequence. The leds will turn off when flashing is complete.
 1. Remove the microSD, otherwise it'll just keep on re-flashing the eMMC.
 1. Unplug the board and plug it back in.
