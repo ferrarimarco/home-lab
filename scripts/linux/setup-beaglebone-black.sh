@@ -65,13 +65,13 @@ iface lo inet loopback
 #    network 192.168.7.0
 #    gateway 192.168.7.1
 
-" > /etc/network/interfaces
+" >/etc/network/interfaces
 
 while true; do
-  echo "Do you wish to statically configure the network interface? (y/n) "
-  read -r yn
-  case "$yn" in
-      [Yy]* )
+    echo "Do you wish to statically configure the network interface? (y/n) "
+    read -r yn
+    case "$yn" in
+    [Yy]*)
         NETWORK_INTERFACE=eth0
         read -r MAC_ADDRESS </sys/class/net/"$NETWORK_INTERFACE"/address
         echo "Configuring $NETWORK_INTERFACE ($MAC_ADDRESS) network interface"
@@ -93,12 +93,14 @@ while true; do
 
         echo "Configuration for $CONNMAN_SERVICE_NAME. IPv4: $IPv4_ADDRESS, subnet mask: $SUBNET_MASK, default gateway: $DEFAULT_GATEWAY, DNS server: $DNS_SERVER"
         connmanctl config "$CONNMAN_SERVICE_NAME" --ipv4 manual "$IPv4_ADDRESS" "$SUBNET_MASK" "$DEFAULT_GATEWAY" --nameservers "$DNS_SERVER"
-        break;;
-      [Nn]* )
+        break
+        ;;
+    [Nn]*)
         echo "Skipping manual network configuration..."
-        break;;
-      * ) echo "Please answer yes or no.";;
-  esac
+        break
+        ;;
+    *) echo "Please answer yes or no." ;;
+    esac
 done
 
 echo "The system will be rebooted"
