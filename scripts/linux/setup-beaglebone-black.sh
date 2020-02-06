@@ -7,7 +7,7 @@ cd /opt/scripts/
 git pull
 
 echo "Updating Kernel..."
-/opt/scripts/tools/update_kernel.sh --lts-4_19
+/opt/scripts/tools/update_kernel.sh --lts-5_4
 
 echo "Updating bootloader..."
 /opt/scripts/tools/developers/update_bootloader.sh
