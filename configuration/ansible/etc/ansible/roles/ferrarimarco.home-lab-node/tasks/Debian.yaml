@@ -11,11 +11,6 @@
   hostname:
     name: "{{inventory_hostname.split('.')[0]}}"
 
-- name: Create the administrative user group
-  group:
-    name: sad
-    state: present
-
 - name: Create the default administrative user
   user:
     name: ferrarimarco
@@ -28,7 +23,6 @@
   user:
     name: ferrarimarco
     groups:
-      - sad
       - sudo
 
 - name: Ensure SSH keys are installed for the administrative user
@@ -43,6 +37,7 @@
     state: absent
   with_items:
     - ubuntu
+    - debian
 
 - name: Configure SSH Daemon
   copy:
