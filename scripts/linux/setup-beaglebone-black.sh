@@ -2,39 +2,6 @@
 
 set -e
 
-echo "Updating scripts and tools..."
-cd /opt/scripts/
-git pull
-
-echo "Updating Kernel..."
-/opt/scripts/tools/update_kernel.sh --lts-5_4
-
-echo "Updating bootloader..."
-/opt/scripts/tools/developers/update_bootloader.sh
-
-uENV_path="/boot/uEnv.txt"
-if ! [ -e "$uENV_path" ]; then
-    echo "$uENV_path does not exist"
-fi
-
-while true; do
-    echo "Do you wish to enable eMMC flashing? (y/n) "
-    read -r yn
-    case "$yn" in
-    [Yy]*)
-        echo "Enabling eMMC flashing..."
-        sed -i '/init-eMMC-flasher-v3.sh/s/^#*//g' "$uENV_path"
-        break
-        ;;
-    [Nn]*)
-        echo "Disabling eMMC flashing..."
-        sed -i '/init-eMMC-flasher-v3.sh/s/^#*/#/' "$uENV_path"
-        break
-        ;;
-    *) echo "Please answer yes or no." ;;
-    esac
-done
-
 echo "Configuring network interfaces"
 
 echo "Removing faulty network interfaces from /etc/network/interfaces. Let's start from a clean situation"
@@ -42,7 +9,7 @@ echo "
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
 
-source /etc/network/interfaces.d/*
+. /etc/network/interfaces.d/*
 
 # The loopback network interface
 auto lo

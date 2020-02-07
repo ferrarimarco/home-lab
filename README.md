@@ -27,17 +27,26 @@ The first machine (likely the DHCP/DNS/PXE server) in this lab has to be bootstr
 1. Boot the board using the SD card. Note that it may be necessary to press the Boot button (near the microSD slot) until the user LEDs turn on (necessary for old uBoot versions).
    If you downloaded a flasher version of the image, it will boot and then start flashing the eMMC. When flashing is completed, the board will power off. Remember to remove the microSD
    otherwise the board will keep flashing the microSD over and over.
-1. Open a new SSH connection. User: `debian`, password: `temppwd`.
-1. Run the setup script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/setup-beaglebone-black.sh)"`. If you enabled eMMC flashing, this will also reboot the board to flash the internal eMMC (takes up to 45 mins). While flashing the image, the leds will blink in sequence. The leds will turn off when flashing is complete.
-1. Remove the microSD, otherwise it'll just keep on re-flashing the eMMC.
 1. Unplug the board and plug it back in.
+1. Open a new SSH connection. User: `debian`, password: `temppwd`.
+1. Run the setup script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/setup-beaglebone-black.sh)"`.
+
+##### Updating the kernel and bootloader
+
+If you want to update the BeagleBone Black kernel and bootloader, use the scripts in `/opt/scripts/`:
+
+First, update the scripts to the latest version:
+
+1. `cd /opt/scripts/`
+1. `git pull`
+
+Then, from the `/opt/scripts/` directory, run `tools/update_kernel.sh` to update the kernel and `tools/developers/update_bootloader.sh` to update the bootloader.
 
 ### OS configuration - Linux
 
 1. Run the OS bootstrap script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/os-bootstrap.sh)"`
 1. Logout the predefined user
 1. Login again with the administrative user
-1. Remove the predefined user: `userdel -r -f debian`
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 
