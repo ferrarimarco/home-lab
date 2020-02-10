@@ -94,12 +94,25 @@ bootloader.
    1. Generate OpenVPN config:
 
    ```shell
-   docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -u udp://vpn.ferrarimarco.info  -e "max-clients 5" -s 10.45.89.0/24 -n 192.168.0.5 -p "dhcp-option DOMAIN lab.ferrarimarco.info" -p "dhcp-option DOMAIN-SEARCH lab.ferrarimarco.info" -p "route 192.168.0.0 255.255.0.0" -e "explicit-exit-notify 1" -e "ifconfig-pool-persist ipp.txt"`
-   1. `docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki
+   docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig \
+    -u udp://vpn.ferrarimarco.info  -e "max-clients 5" -s 10.45.89.0/24 \
+    -n 192.168.0.5 -p "dhcp-option DOMAIN lab.ferrarimarco.info" \
+    -p "dhcp-option DOMAIN-SEARCH lab.ferrarimarco.info" \
+    -p "route 192.168.0.0 255.255.0.0" -e "explicit-exit-notify 1" \
+    -e "ifconfig-pool-persist ipp.txt"
+   ```
+
+   1. Initialize the PKI:
+
+   ```shell
+   docker run -v $OVPN_DATA:/etc/openvpn --rm -it \
+   kylemanna/openvpn ovpn_initpki
    ```
 
 1. Start OpenVPN:
 
 ```shell
-docker run -d --hostname=openvpn --name=openvpn --cap-add=NET_ADMIN --restart=always -p 1194:1194/udp -v $OVPN_DATA:/etc/openvpn kylemanna/openvpn:latest
+docker run -d --hostname=openvpn --name=openvpn --cap-add=NET_ADMIN \
+  --restart=always -p 1194:1194/udp -v $OVPN_DATA:/etc/openvpn \
+  kylemanna/openvpn:latest
 ```
