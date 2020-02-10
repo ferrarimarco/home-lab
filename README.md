@@ -7,7 +7,8 @@ All the necessary to provision, configure and manage my home lab.
 ## Manual Steps
 
 There are a number of manual steps to follow in order to bootstrap this Lab.
-The first machine (likely the DHCP/DNS/PXE server) in this lab has to be bootstrapped manually.
+The first machine (likely the DHCP/DNS/PXE server) in this lab has to be
+bootstrapped manually.
 
 ### OS Installation
 
@@ -19,7 +20,9 @@ The first machine (likely the DHCP/DNS/PXE server) in this lab has to be bootstr
 
 #### Debian ARM - BeagleBone Black
 
-1. Download latest Debian image from : [Latest official Debian images](http://beagleboard.org/latest-images) or [Weekly Debian builds for the BeagleBone Black](https://elinux.org/Beagleboard:BeagleBoneBlack_Debian#Debian_Releases) and the relevant `sha256sum` files.
+1. Download latest Debian image from:
+[Latest official Debian images](http://beagleboard.org/latest-images)
+or [Weekly Debian builds for the BeagleBone Black](https://elinux.org/Beagleboard:BeagleBoneBlack_Debian#Debian_Releases) and the relevant `sha256sum` files.
 1. Prepare the image (checksum, extract from the archive): `scripts/linux/prepare-beaglebone-black-os-image.sh path/to/img.xz`
 1. Write the image on a SD card. If using `dd`: `dd bs=1m if=/path/to/image.img of=/dev/XXXX`, where `XXXX` is the SD card device identifier.
 1. Ensure the board is powered off.
