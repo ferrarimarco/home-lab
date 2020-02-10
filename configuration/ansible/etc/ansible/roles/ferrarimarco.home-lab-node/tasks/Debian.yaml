@@ -16,7 +16,8 @@
     name: ferrarimarco
     comment: "Marco Ferrari"
     # generated with mkpasswd --method=sha-512
-    password: "$6$.d2as860Kt2/p6qm$81wkGEi3EEG6Sjz0vSWpQDAgsRNAtEHa4Uh9Iuxf43QTVDIc3Tqhj2Rjvpn/24g62uwspOyE68KR/3nVM2laL0"
+    password: "$6$.d2as860Kt2/p6qm$81wkGEi3EEG6Sjz0vSWpQDAgsRNAtEHa4Uh9Iuxf43QT\
+              VDIc3Tqhj2Rjvpn/24g62uwspOyE68KR/3nVM2laL0"
     shell: /bin/bash
 
 - name: Make the administrative user member of sad and sudo groups

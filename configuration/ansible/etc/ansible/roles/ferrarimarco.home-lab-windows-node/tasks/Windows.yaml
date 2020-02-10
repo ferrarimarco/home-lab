@@ -26,5 +26,7 @@
   win_regedit:
     data: 4
     name: AUOptions
-    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update
+    path: >
+        HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto
+        Update
     type: dword
