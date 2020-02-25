@@ -4,6 +4,33 @@ All the necessary to provision, configure and manage my home lab.
 
 [![Build Status](https://travis-ci.org/ferrarimarco/home-lab.svg?branch=master)](https://travis-ci.org/ferrarimarco/home-lab)
 
+## Provisioning the environment
+
+### Dependencies
+
+- [Git](https://git-scm.com/) (tested with version `2.25.0`).
+- [Terraform](https://www.terraform.io/) (tested with version `v0.12.20`).
+- [Google Cloud SDK](https://cloud.google.com/sdk) (tested with version `271.0.0`).
+
+### Set the environment variables
+
+To provision the necessary infrastructure, you need to initialize and export the following environment variables:
+
+- `TF_SERVICE_ACCOUNT_NAME`: [Google Cloud service account](https://cloud.google.com/iam/docs/understanding-service-accounts)
+  name that Terraform will use to provision resources.
+- `TF_STATE_PROJECT`: Google Cloud project ID that Terraform will use to store the [state](https://www.terraform.io/docs/state/index.html).
+- `TF_STATE_BUCKET`: Google Cloud Storage bucket that Terraform will use to save the state files.
+- `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID that will contain the resources for the container image building pipeline.
+- `GOOGLE_APPLICATION_CREDENTIALS`: path to the default Google Cloud credentials.
+
+### Provision the resources
+
+1. Change your working directory to the root of this repo.
+1. Generate the Terraform backend configuration: `./generate-tf-backend.sh`
+1. Change your working directory: `cd terraform`
+1. Inspect the changes that Terraform will apply: `terraform plan`
+1. Apply the changes: `terraform apply`
+
 ## Manual Steps
 
 There are a number of manual steps to follow in order to bootstrap this Lab.
