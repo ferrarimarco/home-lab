@@ -11,11 +11,6 @@ if [ -z "${ORGANIZATION_ID}" ]; then
     exit 1
 fi
 
-if [ -z "${TF_SERVICE_ACCOUNT_NAME}" ]; then
-    echo 'The TF_SERVICE_ACCOUNT_NAME environment variable that points to the Google Cloud service account that Terraform will use is not defined. Terminating...'
-    exit 1
-fi
-
 if [ -z "${TF_STATE_PROJECT}" ]; then
     echo 'The TF_STATE_PROJECT environment variable that points to the Google Cloud project to store the Terraform state is not defined. Terminating...'
     exit 1
@@ -23,11 +18,6 @@ fi
 
 if [ -z "${TF_STATE_BUCKET}" ]; then
     echo 'The TF_STATE_BUCKET environment variable that points to the Google Cloud Storage bucket to store the Terraform state is not defined. Terminating...'
-    exit 1
-fi
-
-if [ -z "${GOOGLE_CLOUD_PROJECT}" ]; then
-    echo 'The GOOGLE_CLOUD_PROJECT environment variable that points to the default Google Cloud project that Terraform will provision the resources in is not defined. Terminating...'
     exit 1
 fi
 
@@ -51,26 +41,17 @@ fi
 echo "Setting the default Google Cloud project to ${TF_STATE_PROJECT}"
 gcloud config set project "${TF_STATE_PROJECT}"
 
-if gcloud iam service-accounts describe "${TF_SERVICE_ACCOUNT_NAME}"@"${TF_STATE_PROJECT}".iam.gserviceaccount.com >/dev/null 2>&1; then
-    echo "The ${TF_SERVICE_ACCOUNT_NAME} service account already exists."
-else
-    echo "Creating the service account for Terraform"
-    gcloud iam service-accounts create "${TF_SERVICE_ACCOUNT_NAME}" \
-        --display-name "Terraform admin account"
-fi
-
-echo "Granting the service account permission to view the Admin Project"
-gcloud projects add-iam-policy-binding "${TF_STATE_PROJECT}" \
-    --member serviceAccount:"${TF_SERVICE_ACCOUNT_NAME}"@"${TF_STATE_PROJECT}".iam.gserviceaccount.com \
-    --role roles/viewer
-
-echo "Granting the service account permission to manage Cloud Storage"
-gcloud projects add-iam-policy-binding "${TF_STATE_PROJECT}" \
-    --member serviceAccount:"${TF_SERVICE_ACCOUNT_NAME}"@"${TF_STATE_PROJECT}".iam.gserviceaccount.com \
-    --role roles/storage.admin
-
 echo "Linking ${TF_STATE_PROJECT} to the ${GOOGLE_CLOUD_BILLING_ACCOUNT_ID} billing ID"
 gcloud beta billing projects link "${TF_STATE_PROJECT}" --billing-account="${GOOGLE_CLOUD_BILLING_ACCOUNT_ID}"
+
+echo "Enabling Cloud Build APIs in the ${TF_STATE_PROJECT} project"
+gcloud services enable cloudbuild.googleapis.com
+
+CLOUDBUILD_SA_STATE="$(gcloud projects describe "${TF_STATE_PROJECT}" --format 'value(projectNumber)')@cloudbuild.gserviceaccount.com"
+echo "Granting the ${CLOUDBUILD_SA_STATE} service account permission to edit the ${TF_STATE_PROJECT} project"
+gcloud projects add-iam-policy-binding "${TF_STATE_PROJECT}" \
+    --member serviceAccount:"${CLOUDBUILD_SA_STATE}" \
+    --role roles/editor
 
 echo "Creating a new Google Cloud Storage bucket to store the Terraform state in ${TF_STATE_PROJECT} project, bucket: ${TF_STATE_BUCKET}"
 if gsutil ls -b -p "${TF_STATE_PROJECT}" gs://"${TF_STATE_BUCKET}" >/dev/null 2>&1; then
