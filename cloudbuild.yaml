@@ -33,10 +33,9 @@ steps:
       args:
       - '-c'
       - |
-        if [ -d "${BRANCH_NAME}" = "master" ]; then
+        if [ "${BRANCH_NAME}" = "master" ]; then
             cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             echo $BRANCH_NAME
-            exit 0
             terraform apply -auto-approve || exit 1
         else
             echo "***************************** SKIPPING APPLYING *******************************"
