@@ -31,8 +31,8 @@ the following environment variables:
 ### Provision the resources
 
 1. Change your working directory to the root of this repo.
-1. Generate the Terraform backend configuration: `./generate-tf-backend.sh`
-1. Change your working directory: `cd terraform`
+1. Generate the Terraform backend configuration: `scripts/linux/generate-tf-backend.sh`
+1. Change your working directory: `cd provisioning/terraform/environments/prod`
 1. Inspect the changes that Terraform will apply: `terraform plan`
 1. Apply the changes: `terraform apply`
 
