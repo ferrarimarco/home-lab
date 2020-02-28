@@ -1,6 +1,3 @@
-options:
-    env:
-        - "TERRAFORM_ENVIRONMENT_PATH=environments/prod"
 steps:
     - id: 'branch name'
       name: 'alpine'
@@ -18,7 +15,7 @@ steps:
       args:
       - '-c'
       - |
-        cd "${TERRAFORM_ENVIRONMENT_PATH}"
+        cd $_TERRAFORM_ENVIRONMENT_PATH
         terraform init || exit 1
         cd ../../
     - id: 'tf plan'
@@ -27,7 +24,7 @@ steps:
       args:
       - '-c'
       - |
-        cd "${TERRAFORM_ENVIRONMENT_PATH}"
+        cd $_TERRAFORM_ENVIRONMENT_PATH
         terraform plan || exit 1
         cd ../../
     - id: 'tf apply'
@@ -37,7 +34,7 @@ steps:
       - '-c'
       - |
         if [ -d "${BRANCH_NAME}" = "master" ]; then
-            cd "${TERRAFORM_ENVIRONMENT_PATH}"
+            cd $_TERRAFORM_ENVIRONMENT_PATH
             echo $BRANCH_NAME
             exit 0
             terraform apply -auto-approve || exit 1
@@ -46,3 +43,5 @@ steps:
             echo "Not on master branch. Current branch is: $BRANCH_NAME"
             echo "*******************************************************************************"
         fi
+substitutions:
+    _TERRAFORM_ENVIRONMENT_PATH: 'environments/prod'
