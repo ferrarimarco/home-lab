@@ -14,13 +14,18 @@ All the necessary to provision, configure and manage my home lab.
 
 ### Set the environment variables
 
-To provision the necessary infrastructure, you need to initialize and export the following environment variables:
+To provision the necessary infrastructure, you need to initialize and export
+the following environment variables:
 
-- `TF_SERVICE_ACCOUNT_NAME`: [Google Cloud service account](https://cloud.google.com/iam/docs/understanding-service-accounts)
+- `TF_SERVICE_ACCOUNT_NAME`:
+  [Google Cloud service account](https://cloud.google.com/iam/docs/understanding-service-accounts)
   name that Terraform will use to provision resources.
-- `TF_STATE_PROJECT`: Google Cloud project ID that Terraform will use to store the [state](https://www.terraform.io/docs/state/index.html).
-- `TF_STATE_BUCKET`: Google Cloud Storage bucket that Terraform will use to save the state files.
-- `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID that will contain the resources for the container image building pipeline.
+- `TF_STATE_PROJECT`: Google Cloud project ID that Terraform will use to store
+  the [state](https://www.terraform.io/docs/state/index.html).
+- `TF_STATE_BUCKET`: Google Cloud Storage bucket that Terraform will use to
+  save the state files.
+- `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID that will contain the
+  resources for the container image building pipeline.
 - `GOOGLE_APPLICATION_CREDENTIALS`: path to the default Google Cloud credentials.
 
 ### Provision the resources
