@@ -3,7 +3,7 @@
 before_install:
     - curl -sLo /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     - unzip /tmp/terraform.zip -d /tmp
-    - mkdir "${HOME}"/bin
+    - mkdir -p "${HOME}"/bin
     - mv /tmp/terraform "${HOME}"/bin
     - export PATH="${HOME}/bin:$PATH"
 
