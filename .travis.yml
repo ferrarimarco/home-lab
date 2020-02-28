@@ -1,47 +1,49 @@
 ---
 # Install terraform
 before_install:
-    - curl -sLo /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+    - >
+      curl -sLo /tmp/terraform.zip
+      https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
     - unzip /tmp/terraform.zip -d /tmp
     - mkdir -p "${HOME}"/bin
     - mv /tmp/terraform "${HOME}"/bin
     - export PATH="${HOME}/bin:$PATH"
 
 env:
-  global:
-    - TF_INPUT=false
-    - TERRAFORM_VERSION=0.12.20
+    global:
+        - TF_INPUT=false
+        - TERRAFORM_VERSION=0.12.20
 
 language: node_js
 
 install:
-  - sudo pip install -r requirements.txt
-  - npm install
+    - sudo pip install -r requirements.txt
+    - npm install
 
 node_js:
-  - node
+    - node
 
 os: linux
 
 services:
-  - docker
+    - docker
 
 script:
-  - yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
-  - >
-    find -name "*.md" -not -path "*/node_modules/*"
-    | xargs markdownlint
-    || exit 1
-  - >
-    find . -type f -iname "*.sh"
-    | while read -r line; do
-    echo "Linting $line";
-    docker run -v "$(pwd)":/mnt --rm koalaman/shellcheck:v0.7.0 "$line"
-    || exit 1;
-    done;
-  - >
-    cd provisioning/terraform
-    && terraform validate
+    - yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
+    - >
+        find -name "*.md" -not -path "*/node_modules/*"
+        | xargs markdownlint
+        || exit 1
+    - >
+        find . -type f -iname "*.sh"
+        | while read -r line; do
+        echo "Linting $line";
+        docker run -v "$(pwd)":/mnt --rm koalaman/shellcheck:v0.7.0 "$line"
+        || exit 1;
+        done;
+    - >
+        cd provisioning/terraform
+        && terraform validate
 
 jobs:
-  fast_finish: true
+    fast_finish: true
