@@ -8,6 +8,6 @@ module "iac-pipeline" {
   source = "../../modules/iac-pipeline"
 }
 
-module "iac-pipeline" {
+module "iot" {
   source = "../../modules/iot"
 }
