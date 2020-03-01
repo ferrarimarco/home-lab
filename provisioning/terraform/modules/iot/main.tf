@@ -5,7 +5,7 @@ resource "google_project" "ferrarimarco-iot-project" {
 }
 
 resource "google_project_service" "cloud-iot-apis" {
-  project = google_project.ferrarimarco-iot-project
+  project = google_project.ferrarimarco-iot-project.project_id
   service = "cloudiot.googleapis.com"
 
   disable_dependent_services = true
@@ -16,7 +16,7 @@ resource "google_project_service" "cloud-iot-apis" {
 }
 
 resource "google_project_service" "pubsub-apis" {
-  project = google_project.ferrarimarco-iot-project
+  project = google_project.ferrarimarco-iot-project.project_id
   service = "pubsub.googleapis.com"
 
   disable_dependent_services = true
@@ -28,7 +28,7 @@ resource "google_project_service" "pubsub-apis" {
 
 resource "google_pubsub_topic" "default-devicestatus" {
   name    = "default-devicestatus"
-  project = google_project.ferrarimarco-iot-project
+  project = google_project.ferrarimarco-iot-project.project_id
 
   depends_on = [
     google_project.ferrarimarco-iot-project,
@@ -38,7 +38,7 @@ resource "google_pubsub_topic" "default-devicestatus" {
 
 resource "google_pubsub_topic" "default-telemetry" {
   name    = "default-telemetry"
-  project = google_project.ferrarimarco-iot-project
+  project = google_project.ferrarimarco-iot-project.project_id
 
   depends_on = [
     google_project.ferrarimarco-iot-project,
@@ -48,7 +48,7 @@ resource "google_pubsub_topic" "default-telemetry" {
 
 resource "google_cloudiot_registry" "home-registry" {
   name    = "home-registry"
-  project = google_project.ferrarimarco-iot-project
+  project = google_project.ferrarimarco-iot-project.project_id
 
   depends_on = [
     google_project.ferrarimarco-iot-project,
