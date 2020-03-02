@@ -30,3 +30,15 @@ resource "google_cloudbuild_trigger" "cloudbuild-trigger" {
     google_project_service.cloudbuild-apis
   ]
 }
+
+resource "google_organization_iam_member" "binding" {
+  org_id = var.organization_id
+  role   = "roles/viewer"
+  member = "serviceAccount:${var.iac_project_id}@cloudbuild.gserviceaccount.com"
+}
+
+resource "google_organization_iam_member" "binding" {
+  org_id = var.organization_id
+  role   = "roles/resourcemanager.projectCreator"
+  member = "serviceAccount:${var.iac_project_id}@cloudbuild.gserviceaccount.com"
+}
