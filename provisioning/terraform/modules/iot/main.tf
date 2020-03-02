@@ -1,7 +1,7 @@
 resource "google_project" "ferrarimarco-iot-project" {
   name       = "ferrarimarco-iot"
   project_id = "ferrarimarco-iot"
-  org_id     = "${var.organization_id}"
+  org_id     = var.organization_id
 }
 
 resource "google_project_service" "cloud-iot-apis" {
