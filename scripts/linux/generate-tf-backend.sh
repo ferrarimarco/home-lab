@@ -11,16 +11,6 @@ if [ -z "${ORGANIZATION_ID}" ]; then
     exit 1
 fi
 
-if [ -z "${TF_STATE_PROJECT}" ]; then
-    echo 'The TF_STATE_PROJECT environment variable that points to the Google Cloud project to store the Terraform state is not defined. Terminating...'
-    exit 1
-fi
-
-if [ -z "${TF_STATE_BUCKET}" ]; then
-    echo 'The TF_STATE_BUCKET environment variable that points to the Google Cloud Storage bucket to store the Terraform state is not defined. Terminating...'
-    exit 1
-fi
-
 if [ -z "${GOOGLE_APPLICATION_CREDENTIALS}" ]; then
     echo 'The GOOGLE_APPLICATION_CREDENTIALS environment variable that points to the default Google Cloud application credentials that Terraform will use is not defined. Terminating...'
     exit 1
@@ -30,6 +20,9 @@ if [ -z "${GOOGLE_CLOUD_BILLING_ACCOUNT_ID}" ]; then
     echo 'The GOOGLE_CLOUD_BILLING_ACCOUNT_ID environment variable that points to the default Google Cloud billing account is not defined. Terminating...'
     exit 1
 fi
+
+TF_STATE_PROJECT="ferrarimarco-iac"
+TF_STATE_BUCKET="ferrarim-iac-terraform-state"
 
 if gcloud projects describe "${TF_STATE_PROJECT}" >/dev/null 2>&1; then
     echo "The ${TF_STATE_PROJECT} project already exists."
@@ -61,8 +54,9 @@ else
     gsutil versioning set on gs://"${TF_STATE_BUCKET}"
 fi
 
-TERRAFORM_BACKEND_DESCRIPTOR_PATH=../../provisioning/terraform/backend.tf
-mkdir -p "${TERRAFORM_BACKEND_DESCRIPTOR_PATH}"
+TERRAFORM_BACKEND_DESCRIPTOR_DIR=../../provisioning/terraform
+TERRAFORM_BACKEND_DESCRIPTOR_PATH="${TERRAFORM_BACKEND_DESCRIPTOR_DIR}/backend.tf"
+mkdir -p "${TERRAFORM_BACKEND_DESCRIPTOR_DIR}"
 echo "Generating the descriptor to hold backend data in ${TERRAFORM_BACKEND_DESCRIPTOR_PATH}"
 if [ -f "${TERRAFORM_BACKEND_DESCRIPTOR_PATH}" ]; then
     echo "The ${TERRAFORM_BACKEND_DESCRIPTOR_PATH} file already exists."
