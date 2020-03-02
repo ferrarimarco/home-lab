@@ -1,11 +1,7 @@
-data "google_organization" "org" {
-  domain = "ferrari.how"
-}
-
 resource "google_project" "ferrarimarco-iot-project" {
   name       = "ferrarimarco-iot"
   project_id = "ferrarimarco-iot"
-  org_id     = data.google_organization.org.id
+  org_id     = "${var.organization_id}"
 }
 
 resource "google_project_service" "cloud-iot-apis" {
