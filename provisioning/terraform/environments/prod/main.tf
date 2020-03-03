@@ -5,16 +5,20 @@ locals {
 provider "google" {}
 
 data "google_organization" "ferrari_how" {
-  domain = "ferrari.how"
+  domain = var.google_organization_domain
 }
 
-data "google_client_config" "current" {
+resource "google_project" "ferrarimarco_iac" {
+  billing_account = var.google_billing_account_id
+  name            = var.google_iac_project_id
+  project_id      = var.google_iac_project_id
+  org_id          = data.google_organization.ferrari_how.org_id
 }
 
 module "iac-pipeline" {
-  source          = "../../modules/iac-pipeline"
-  iac_project_id  = data.google_client_config.current.project
-  organization_id = data.google_organization.ferrari_how.id
+  source                 = "../../modules/iac-pipeline"
+  google_project_id      = var.google_iac_project_id
+  google_organization_id = data.google_organization.ferrari_how.org_id
 }
 
 # module "iot" {

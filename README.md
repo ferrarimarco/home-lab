@@ -27,6 +27,13 @@ the following environment variables:
 1. Change your working directory to the root of this repo.
 1. Generate the Terraform backend configuration: `scripts/linux/generate-tf-backend.sh`
 1. Change your working directory: `cd provisioning/terraform/environments/prod`
+1. Init the Terraform state: `terraform init`
+1. Import the resources that the backend configuration script created:
+
+    ```shell
+    terraform import google_project.ferrarimarco_iac ferrarimarco-iac
+    ```
+
 1. Inspect the changes that Terraform will apply: `terraform plan`
 1. Apply the changes: `terraform apply`
 
