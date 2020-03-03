@@ -1,4 +1,6 @@
 ---
+env:
+    TF_INPUT=false
 steps:
     - id: 'branch name'
       name: 'alpine'
