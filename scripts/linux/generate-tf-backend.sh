@@ -49,7 +49,7 @@ gcloud projects add-iam-policy-binding "${TF_STATE_PROJECT}" \
 echo "Granting the ${CLOUDBUILD_SA_STATE} service account permission to view the ${ORGANIZATION_ID} organization"
 gcloud organizations add-iam-policy-binding "${ORGANIZATION_ID}" \
     --member serviceAccount:"${CLOUDBUILD_SA_STATE}" \
-    --role roles/editor
+    --role roles/viewer
 
 echo "Creating a new Google Cloud Storage bucket to store the Terraform state in ${TF_STATE_PROJECT} project, bucket: ${TF_STATE_BUCKET}"
 if gsutil ls -b -p "${TF_STATE_PROJECT}" gs://"${TF_STATE_BUCKET}" >/dev/null 2>&1; then
