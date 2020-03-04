@@ -16,6 +16,7 @@ steps:
       entrypoint: 'sh'
       args:
           - |
+            gcloud
             kms
             decrypt
             --ciphertext-file=terraform.tfvars.enc
