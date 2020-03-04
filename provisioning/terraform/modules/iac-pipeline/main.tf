@@ -77,15 +77,15 @@ resource "google_cloudbuild_trigger" "cloudbuild-trigger" {
   ]
 }
 
-# resource "google_project_iam_member" "cloudbuild_iam_memeber_project_editor" {
-#   project = var.google_project_id
-#   role    = "roles/editor"
-#   member  = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
+resource "google_organization_iam_member" "cloudbuild_iam_member_organization_viewer" {
+  org_id = var.google_organization_id
+  role   = "roles/resourcemanager.organizationViewer"
+  member = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
 
-#   depends_on = [
-#     google_project_service.cloudbuild-apis
-#   ]
-# }
+  depends_on = [
+    google_project_service.cloudbuild-apis
+  ]
+}
 
 resource "google_organization_iam_member" "cloudbuild_iam_member_organization_browser" {
   org_id = var.google_organization_id
@@ -96,13 +96,3 @@ resource "google_organization_iam_member" "cloudbuild_iam_member_organization_br
     google_project_service.cloudbuild-apis
   ]
 }
-
-# resource "google_organization_iam_member" "cloudbuild_iam_member_project_creator" {
-#   org_id = var.google_organization_id
-#   role   = "roles/resourcemanager.projectCreator"
-#   member = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
-
-#   depends_on = [
-#     google_project_service.cloudbuild-apis
-#   ]
-# }
