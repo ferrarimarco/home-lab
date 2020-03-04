@@ -16,7 +16,7 @@ steps:
       entrypoint: 'sh'
       args:
           - |
-            gcloud
+            /builder/google-cloud-sdk/bin/gcloud
             kms
             decrypt
             --ciphertext-file=terraform.tfvars.enc
