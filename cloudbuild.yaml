@@ -15,6 +15,7 @@ steps:
     - name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
       args:
+          - '-c'
           - |
             cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             /builder/google-cloud-sdk/bin/gcloud
