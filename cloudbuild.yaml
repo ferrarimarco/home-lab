@@ -26,15 +26,6 @@ steps:
                 --location=global \
                 --keyring=cloud-build-keyring \
                 --key=cloudbuild-crypto-key
-    - id: 'tf validate'
-      name: 'hashicorp/terraform:0.12.20'
-      entrypoint: 'sh'
-      args:
-          - '-c'
-          - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
-            terraform validate
-            cd ../../
     - id: 'tf init'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
@@ -43,6 +34,15 @@ steps:
           - |
             cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             terraform init || exit 1
+            cd ../../
+    - id: 'tf validate'
+      name: 'hashicorp/terraform:0.12.20'
+      entrypoint: 'sh'
+      args:
+          - '-c'
+          - |
+            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
+            terraform validate || exit 1
             cd ../../
     - id: 'tf plan'
       name: 'hashicorp/terraform:0.12.20'
