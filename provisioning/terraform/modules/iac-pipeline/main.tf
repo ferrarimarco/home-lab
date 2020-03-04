@@ -87,15 +87,15 @@ resource "google_cloudbuild_trigger" "cloudbuild-trigger" {
 #   ]
 # }
 
-# resource "google_organization_iam_member" "cloudbuild_iam_member_organization_viewer" {
-#   org_id = var.google_organization_id
-#   role   = "roles/viewer"
-#   member = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
+resource "google_organization_iam_member" "cloudbuild_iam_member_organization_browser" {
+  org_id = var.google_organization_id
+  role   = "roles/browser"
+  member = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
 
-#   depends_on = [
-#     google_project_service.cloudbuild-apis
-#   ]
-# }
+  depends_on = [
+    google_project_service.cloudbuild-apis
+  ]
+}
 
 # resource "google_organization_iam_member" "cloudbuild_iam_member_project_creator" {
 #   org_id = var.google_organization_id
