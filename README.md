@@ -38,6 +38,32 @@ the following environment variables:
 1. Inspect the changes that Terraform will apply: `terraform plan`
 1. Apply the changes: `terraform apply`
 
+#### Terraform variables
+
+For each environment, you can provide an encrypted
+[`tfvars` file](https://www.terraform.io/docs/configuration/variables.html#assigning-values-to-root-module-variables).
+
+Example:
+
+```terraform
+google_billing_account_id        = "1234567-ABCD"
+google_iac_project_id            = "ferrarimarco-iac"
+google_organization_domain       = "ferrari.how"
+google_terraform_state_bucket_id = "ferrarim-iac-terraform-state"
+```
+
+You can then encrypt it with the Google Cloud SDK
+(using the keyring and key we created for Cloud Build):
+
+```shell
+gcloud kms encrypt \
+  --plaintext-file=terraform.tfvars \
+  --ciphertext-file=terraform.tfvars.enc \
+  --location=global \
+  --keyring=cloud-build-keyring \
+  --key=cloudbuild-crypto-key
+```
+
 ## Manual Steps
 
 There are a number of manual steps to follow in order to bootstrap this Lab.

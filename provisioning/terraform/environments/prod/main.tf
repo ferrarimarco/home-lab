@@ -25,9 +25,11 @@ resource "google_storage_bucket" "terraform_state" {
 }
 
 module "iac-pipeline" {
-  source                 = "../../modules/iac-pipeline"
-  google_project_id      = var.google_iac_project_id
-  google_organization_id = data.google_organization.ferrari_how.org_id
+  source                                = "../../modules/iac-pipeline"
+  google_project_id                     = var.google_iac_project_id
+  google_project_number                 = google_project.ferrarimarco_iac.number
+  google_organization_id                = data.google_organization.ferrari_how.org_id
+  google_cloudbuild_key_rotation_period = var.google_cloudbuild_key_rotation_period
 }
 
 # module "iot" {

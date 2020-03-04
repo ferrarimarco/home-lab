@@ -8,3 +8,6 @@
 
 # Ignore the Terraform state directory
 */**/.terraform
+
+# Ignore the tfvars files because we want to commit only the encrypted version
+**/environments/**/*.tfvars

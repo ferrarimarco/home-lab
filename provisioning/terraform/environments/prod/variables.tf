@@ -1,10 +1,13 @@
+variable "google_cloudbuild_key_rotation_period" {
+  default     = "864000s"
+  description = "The rotation period for the Cloud Build encryption key"
+}
+
 variable "google_organization_domain" {
-  default     = "ferrari.how"
   description = "The default organization domain for Google Cloud projects"
 }
 
 variable "google_iac_project_id" {
-  default     = "ferrarimarco-iac"
   description = "Google Cloud project ID for the IaC pipeline"
 }
 
@@ -13,6 +16,5 @@ variable "google_billing_account_id" {
 }
 
 variable "google_terraform_state_bucket_id" {
-  default     = "ferrarim-iac-terraform-state"
   description = "The Terraform state bucket it"
 }
