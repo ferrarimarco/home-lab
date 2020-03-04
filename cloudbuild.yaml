@@ -18,7 +18,7 @@ steps:
           - '-c'
           - |
             cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
-            /builder/google-cloud-sdk/bin/gcloud
+            /builder/google-cloud-sdk/bin/gcloud \
                 kms decrypt \
                 --ciphertext-file=terraform.tfvars.enc \
                 --plaintext-file=terraform.tfvars \
