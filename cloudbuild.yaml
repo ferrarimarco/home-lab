@@ -13,14 +13,17 @@ steps:
             echo "Branch: $BRANCH_NAME"
             echo "***********************"
     - name: gcr.io/cloud-builders/gcloud
+      entrypoint: 'sh'
       args:
-          - kms
-          - decrypt
-          - --ciphertext-file=terraform.tfvars.enc
-          - --plaintext-file=terraform.tfvars
-          - --location=global
-          - --keyring=cloud-build-keyring
-          - --key=cloudbuild-crypto-key
+          - |
+            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
+            /builder/google-cloud-sdk/bin/gcloud
+                kms decrypt \
+                --ciphertext-file=terraform.tfvars.enc \
+                --plaintext-file=terraform.tfvars \
+                --location=global \
+                --keyring=cloud-build-keyring \
+                --key=cloudbuild-crypto-key
     - id: 'tf init'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
