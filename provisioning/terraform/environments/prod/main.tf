@@ -15,6 +15,15 @@ resource "google_project" "ferrarimarco_iac" {
   org_id          = data.google_organization.ferrari_how.org_id
 }
 
+resource "google_storage_bucket" "terraform_state" {
+  name     = var.google_terraform_state_bucket_id
+  location = "US"
+
+  versioning {
+    enabled = true
+  }
+}
+
 module "iac-pipeline" {
   source                 = "../../modules/iac-pipeline"
   google_project_id      = var.google_iac_project_id

@@ -32,6 +32,7 @@ the following environment variables:
 
     ```shell
     terraform import google_project.ferrarimarco_iac ferrarimarco-iac
+    terraform import google_storage_bucket.terraform_state ferrarimarco-iac/ferrarim-iac-terraform-state
     ```
 
 1. Inspect the changes that Terraform will apply: `terraform plan`

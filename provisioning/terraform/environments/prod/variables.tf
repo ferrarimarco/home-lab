@@ -11,3 +11,8 @@ variable "google_iac_project_id" {
 variable "google_billing_account_id" {
   description = "The default billing account for Google Cloud projects"
 }
+
+variable "google_terraform_state_bucket_id" {
+  default     = "ferrarim-iac-terraform-state"
+  description = "The Terraform state bucket it"
+}
