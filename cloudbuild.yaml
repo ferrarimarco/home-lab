@@ -12,7 +12,8 @@ steps:
             echo "***********************"
             echo "Branch: $BRANCH_NAME"
             echo "***********************"
-    - name: gcr.io/cloud-builders/gcloud
+    - id: 'decrypt secrets'
+      name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
       args:
           - '-c'
@@ -25,6 +26,15 @@ steps:
                 --location=global \
                 --keyring=cloud-build-keyring \
                 --key=cloudbuild-crypto-key
+    - id: 'tf validate'
+      name: 'hashicorp/terraform:0.12.20'
+      entrypoint: 'sh'
+      args:
+          - '-c'
+          - |
+            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
+            terraform validate
+            cd ../../
     - id: 'tf init'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
