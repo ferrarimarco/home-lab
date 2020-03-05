@@ -77,6 +77,16 @@ resource "google_cloudbuild_trigger" "cloudbuild-trigger" {
   ]
 }
 
+resource "google_project_service" "iam-apis" {
+  project = var.google_project_id
+  service = "iam.googleapis.com"
+
+  disable_dependent_services = true
+  disable_on_destroy         = true
+}
+
+
+
 resource "google_organization_iam_custom_role" "iac-admin-role" {
   role_id     = "iac.pipelineRunner"
   org_id      = var.google_organization_id
@@ -86,6 +96,10 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
     "resourcemanager.organizations.getIamPolicy"
     , "resourcemanager.organizations.get"
   ]
+
+  depends_on = [
+    google_project_service.iam-apis
+  ]
 }
 
 resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
@@ -94,6 +108,7 @@ resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
   member = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
 
   depends_on = [
-    google_project_service.cloudbuild-apis
+    google_project_service.cloudbuild-apis,
+    google_organization_iam_custom_role.iac-admin-role
   ]
 }
