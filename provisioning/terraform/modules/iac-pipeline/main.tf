@@ -85,8 +85,6 @@ resource "google_project_service" "iam-apis" {
   disable_on_destroy         = true
 }
 
-
-
 resource "google_organization_iam_custom_role" "iac-admin-role" {
   role_id     = "iac.pipelineRunner"
   org_id      = var.google_organization_id
