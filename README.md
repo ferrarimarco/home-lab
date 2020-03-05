@@ -48,6 +48,7 @@ Example:
 ```terraform
 google_billing_account_id        = "1234567-ABCD"
 google_iac_project_id            = "ferrarimarco-iac"
+google_iot_project_id            = "ferrarimarco-iot"
 google_organization_domain       = "ferrari.how"
 google_terraform_state_bucket_id = "ferrarim-iac-terraform-state"
 ```

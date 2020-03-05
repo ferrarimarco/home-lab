@@ -11,6 +11,10 @@ variable "google_iac_project_id" {
   description = "Google Cloud project ID for the IaC pipeline"
 }
 
+variable "google_iot_project_id" {
+  description = "Google Cloud project ID for the IoT environment"
+}
+
 variable "google_billing_account_id" {
   description = "The default billing account for Google Cloud projects"
 }
