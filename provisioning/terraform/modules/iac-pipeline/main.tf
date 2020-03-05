@@ -77,19 +77,20 @@ resource "google_cloudbuild_trigger" "cloudbuild-trigger" {
   ]
 }
 
-resource "google_organization_iam_member" "cloudbuild_iam_member_organization_viewer" {
-  org_id = var.google_organization_id
-  role   = "roles/resourcemanager.organizationViewer"
-  member = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
-
-  depends_on = [
-    google_project_service.cloudbuild-apis
+resource "google_organization_iam_custom_role" "iac-admin-role" {
+  role_id     = "iac.pipelineRunner"
+  org_id      = var.google_organization_id
+  title       = "IaC Pipeline Runner"
+  description = "This role gives the necessary permissions to the user that runs the IaC pipeline"
+  permissions = [
+    "resourcemanager.organizations.getIamPolicy"
+    , "resourcemanager.organizations.get"
   ]
 }
 
-resource "google_organization_iam_member" "cloudbuild_iam_member_organization_browser" {
+resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
   org_id = var.google_organization_id
-  role   = "roles/browser"
+  role   = google_organization_iam_custom_role.iac-admin-role.id
   member = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
 
   depends_on = [
