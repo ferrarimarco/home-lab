@@ -37,20 +37,6 @@ gcloud config set project "${TF_STATE_PROJECT}"
 echo "Linking ${TF_STATE_PROJECT} to the ${GOOGLE_CLOUD_BILLING_ACCOUNT_ID} billing ID"
 gcloud beta billing projects link "${TF_STATE_PROJECT}" --billing-account="${GOOGLE_CLOUD_BILLING_ACCOUNT_ID}"
 
-echo "Enabling Cloud Build APIs in the ${TF_STATE_PROJECT} project"
-gcloud services enable cloudbuild.googleapis.com
-
-CLOUDBUILD_SA_STATE="$(gcloud projects describe "${TF_STATE_PROJECT}" --format 'value(projectNumber)')@cloudbuild.gserviceaccount.com"
-echo "Granting the ${CLOUDBUILD_SA_STATE} service account permission to edit the ${TF_STATE_PROJECT} project"
-gcloud projects add-iam-policy-binding "${TF_STATE_PROJECT}" \
-    --member serviceAccount:"${CLOUDBUILD_SA_STATE}" \
-    --role roles/editor
-
-echo "Granting the ${CLOUDBUILD_SA_STATE} service account permission to view the ${ORGANIZATION_ID} organization"
-gcloud organizations add-iam-policy-binding "${ORGANIZATION_ID}" \
-    --member serviceAccount:"${CLOUDBUILD_SA_STATE}" \
-    --role roles/viewer
-
 echo "Creating a new Google Cloud Storage bucket to store the Terraform state in ${TF_STATE_PROJECT} project, bucket: ${TF_STATE_BUCKET}"
 if gsutil ls -b -p "${TF_STATE_PROJECT}" gs://"${TF_STATE_BUCKET}" >/dev/null 2>&1; then
     echo "The ${TF_STATE_BUCKET} Google Cloud Storage bucket already exists."
