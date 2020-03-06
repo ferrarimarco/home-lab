@@ -35,6 +35,7 @@ the following environment variables:
     terraform import google_storage_bucket.terraform_state ferrarimarco-iac/ferrarim-iac-terraform-state
     ```
 
+1. Ensure the configuration is valid: `terraform validate`
 1. Inspect the changes that Terraform will apply: `terraform plan`
 1. Apply the changes: `terraform apply`
 

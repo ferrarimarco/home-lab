@@ -42,7 +42,11 @@ script:
         || exit 1;
         done;
     - >
-        cd provisioning/terraform
+        cd provisioning/terraform/environments/prod
+        && terraform validate
+        || exit 1
+    - >
+        cd provisioning/terraform/iac
         && terraform validate
         || exit 1
 
