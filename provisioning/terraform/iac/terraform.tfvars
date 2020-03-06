@@ -1,0 +1,7 @@
+google_billing_account_id             = "01FAE2-E4E286-9B001E"
+google_cloudbuild_key_rotation_period = "864000s"
+google_default_region                 = "us-central1"
+google_default_zone                   = "us-central1-a"
+google_iac_project_id                 = "ferrarimarco-iac"
+google_organization_domain            = "ferrari.how"
+google_terraform_state_bucket_id      = "ferrarim-iac-terraform-state"

@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
     bucket = "ferrarim-iac-terraform-state"
-    prefix = "terraform/state/environments/prod"
+    prefix = "terraform/state/iac"
   }
 }
