@@ -54,7 +54,6 @@ google_iac_project_id                 = "ferrarimarco-iac"
 google_iot_project_id                 = "ferrarimarco-iot"
 google_organization_domain            = "ferrari.how"
 google_terraform_state_bucket_id      = "ferrarim-iac-terraform-state"
-
 ```
 
 You can then encrypt it with the Google Cloud SDK
