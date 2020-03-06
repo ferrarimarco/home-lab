@@ -2,7 +2,10 @@ locals {
   env = "prod"
 }
 
-provider "google" {}
+provider "google" {
+  region = var.google_default_region
+  zone   = var.google_default_zone
+}
 
 data "google_organization" "ferrari_how" {
   domain = var.google_organization_domain

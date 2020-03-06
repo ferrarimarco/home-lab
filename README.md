@@ -46,11 +46,15 @@ For each environment, you can provide an encrypted
 Example:
 
 ```terraform
-google_billing_account_id        = "1234567-ABCD"
-google_iac_project_id            = "ferrarimarco-iac"
-google_iot_project_id            = "ferrarimarco-iot"
-google_organization_domain       = "ferrari.how"
-google_terraform_state_bucket_id = "ferrarim-iac-terraform-state"
+google_billing_account_id             = "1234567-ABCD"
+google_cloudbuild_key_rotation_period = "864000s"
+google_default_region                 = "us-east1"
+google_default_zone                   = "us-east1-b"
+google_iac_project_id                 = "ferrarimarco-iac"
+google_iot_project_id                 = "ferrarimarco-iot"
+google_organization_domain            = "ferrari.how"
+google_terraform_state_bucket_id      = "ferrarim-iac-terraform-state"
+
 ```
 
 You can then encrypt it with the Google Cloud SDK

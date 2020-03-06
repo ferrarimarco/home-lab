@@ -1,6 +1,13 @@
 variable "google_cloudbuild_key_rotation_period" {
-  default     = "864000s"
   description = "The rotation period for the Cloud Build encryption key"
+}
+
+variable "google_default_region" {
+  description = "The default Google Cloud region"
+}
+
+variable "google_default_zone" {
+  description = "The default Google Cloud zone"
 }
 
 variable "google_organization_domain" {
