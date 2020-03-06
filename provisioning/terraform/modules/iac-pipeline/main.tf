@@ -95,6 +95,7 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
     , "iam.roles.list"
     , "resourcemanager.organizations.getIamPolicy"
     , "resourcemanager.organizations.get"
+    , "resourcemanager.projects.create"
   ]
 
   depends_on = [
