@@ -20,6 +20,10 @@ resource "google_project_service" "cloudbuild-apis" {
 
   disable_dependent_services = true
   disable_on_destroy         = true
+
+  depends_on = [
+    google_project_service.cloudbilling-apis
+  ]
 }
 
 resource "google_project_service" "cloudkms-apis" {
