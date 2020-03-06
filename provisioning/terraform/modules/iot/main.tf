@@ -1,5 +1,5 @@
 resource "google_project" "ferrarimarco-iot-project" {
-  billing_account = var.google_billing_account_id
+  billing_account = var.google_project_billing_account_id
   name            = var.google_project_id
   project_id      = var.google_project_id
   org_id          = var.google_organization_id
