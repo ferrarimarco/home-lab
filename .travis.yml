@@ -41,14 +41,6 @@ script:
         docker run -v "$(pwd)":/mnt --rm koalaman/shellcheck:v0.7.0 "$line"
         || exit 1;
         done;
-    - >
-        cd provisioning/terraform/environments/prod
-        && terraform validate
-        || exit 1
-    - >
-        cd provisioning/terraform/iac
-        && terraform validate
-        || exit 1
 
 jobs:
     fast_finish: true
