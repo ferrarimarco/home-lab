@@ -6,6 +6,14 @@ resource "google_project_service" "cloudresourcemanager-apis" {
   disable_on_destroy         = true
 }
 
+resource "google_project_service" "cloudbilling-apis" {
+  project = var.google_project_id
+  service = "cloudbilling.googleapis.com"
+
+  disable_dependent_services = true
+  disable_on_destroy         = true
+}
+
 resource "google_project_service" "cloudbuild-apis" {
   project = var.google_project_id
   service = "cloudbuild.googleapis.com"
