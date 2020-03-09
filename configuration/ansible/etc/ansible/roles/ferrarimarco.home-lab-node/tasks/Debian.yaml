@@ -20,7 +20,7 @@
               VDIc3Tqhj2Rjvpn/24g62uwspOyE68KR/3nVM2laL0"
     shell: /bin/bash
 
-- name: Make the administrative user member of sad and sudo groups
+- name: Make the administrative user member of the sudo group
   user:
     name: ferrarimarco
     groups:
