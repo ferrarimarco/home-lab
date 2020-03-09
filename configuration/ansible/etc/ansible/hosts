@@ -1,6 +1,6 @@
 all:
   children:
-    home_lab:
+    home-lab:
       children:
         linux:
           children:
