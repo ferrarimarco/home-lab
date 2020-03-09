@@ -61,7 +61,6 @@
     update_cache: true
   with_items:
     - curl
-    - nethogs
     - wget
   loop_control:
     loop_var: ferrarimarco_home_lab_node_apt_package_item
