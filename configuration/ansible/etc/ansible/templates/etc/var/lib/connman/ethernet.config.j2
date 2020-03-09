@@ -1,0 +1,9 @@
+[service_ethernet]
+DeviceName={{ beaglebone-black.network_interface_name }}
+Type=ethernet
+IPv4 = {{ beaglebone-black.ipv4_address }}/{{ beaglebone-black.ipv4_subnet_mask }}/{{ beaglebone-black.ipv4_gateway }}
+IPv6 = auto
+IPv6.Privacy = false
+Nameservers = {{ beaglebone-black.name_server }}
+SearchDomains={{ beaglebone-black.search_domain }}
+Domain={{ beaglebone-black.domain }}

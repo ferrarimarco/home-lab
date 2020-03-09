@@ -1,0 +1,68 @@
+- name: Ensure required apt packages are installed
+  apt:
+    cache_valid_time: 3600
+    pkg: "{{ ferrarimarco_home_lab_node_bbb_apt_package_item }}"
+    state: present
+    update_cache: true
+  with_items:
+    - connman
+  loop_control:
+    loop_var: ferrarimarco_home_lab_node_bbb_apt_package_item
+
+- name: Enable the connman service
+  service:
+    name: connman
+    state: enabled
+
+- name: Configure network interfaces with /etc/network/interfaces
+  become: yes
+  template:
+    backup: no
+    dest: /etc/network/interfaces
+    group: root
+    mode: 0644
+    owner: root
+    src: templates/etc/network/interfaces.j2
+
+- name: Create the connman configuration directory
+  become: yes
+  file:
+    group: root
+    mode: 0755
+    owner: root
+    path: /etc/connman
+    state: directory
+
+- name: Generate the main connman configuration file
+  become: yes
+  template:
+    backup: no
+    dest: /etc/connman/main.cfg
+    group: root
+    mode: 0644
+    owner: root
+    src: templates/etc/connman/main.cfg.j2
+
+- name: Create the connman service configuration directory
+  become: yes
+  file:
+    group: root
+    mode: 0755
+    owner: root
+    path: /var/lib/connman
+    state: directory
+
+  - name: Generate connman service configuration files
+    become: yes
+    template:
+      backup: no
+      dest: /var/lib/connman/ethernet.config
+      group: root
+      mode: 0644
+      owner: root
+      src: templates/var/lib/connman/ethernet.config.j2
+
+- name: Restart the connman service
+  service:
+    name: connman
+    state: restarted

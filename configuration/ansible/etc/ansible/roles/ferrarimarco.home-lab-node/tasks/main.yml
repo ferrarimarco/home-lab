@@ -5,3 +5,7 @@
     - "{{ ansible_os_family }}.yaml"
   loop_control:
     loop_var: ferrarimarco_home_lab_node_os_item
+
+- name: Configure the BeagleBone Black (if applicable)
+  include_tasks: "beaglebone-black.yaml"
+  when: beaglebone-black is defined

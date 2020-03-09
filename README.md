@@ -106,9 +106,6 @@ versions).
    Remember to remove the microSD otherwise the board will keep flashing the
    microSD over and over.
 1. Unplug the board and plug it back in.
-1. Open a new SSH connection. User: `debian`, password: `temppwd`.
-1. Run the setup script:
-`sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/setup-beaglebone-black.sh)"`.
 
 ##### Updating the kernel and bootloader
 
@@ -126,9 +123,7 @@ bootloader.
 
 ### OS configuration - Linux
 
-1. Run the OS bootstrap script: `sudo sh -c "$(curl -sSL https://raw.githubusercontent.com/ferrarimarco/home-lab/master/scripts/linux/os-bootstrap.sh)"`
-1. Logout the predefined user
-1. Login again with the administrative user
+TODO: describe Ansible steps
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 
