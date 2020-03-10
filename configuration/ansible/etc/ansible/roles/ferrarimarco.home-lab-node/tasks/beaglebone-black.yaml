@@ -15,7 +15,6 @@
     state: enabled
 
 - name: Configure network interfaces with /etc/network/interfaces
-  become: yes
   template:
     backup: no
     dest: /etc/network/interfaces
@@ -25,7 +24,6 @@
     src: templates/etc/network/interfaces.j2
 
 - name: Create the connman configuration directory
-  become: yes
   file:
     group: root
     mode: 0755
@@ -34,7 +32,6 @@
     state: directory
 
 - name: Generate the main connman configuration file
-  become: yes
   template:
     backup: no
     dest: /etc/connman/main.cfg
@@ -44,7 +41,6 @@
     src: templates/etc/connman/main.cfg.j2
 
 - name: Create the connman service configuration directory
-  become: yes
   file:
     group: root
     mode: 0755
@@ -53,7 +49,6 @@
     state: directory
 
   - name: Generate connman service configuration files
-    become: yes
     template:
       backup: no
       dest: /var/lib/connman/ethernet.config
