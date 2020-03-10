@@ -8,15 +8,10 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-#auto eth0
-#iface eth0 inet dhcp
+#auto {{ beaglebone-black.network_interface_name }}
+#iface {{ beaglebone-black.network_interface_name }} inet dhcp
 # Example to keep MAC address between reboots
 #hwaddress ether DE:AD:BE:EF:CA:FE
-
-##connman: ethX static config
-#connmanctl services
-#Using the appropriate ethernet service, tell connman to setup a static IP address for that service:
-#sudo connmanctl config <service> --ipv4 manual <ip_addr> <netmask> <gateway> --nameservers <dns_server>
 
 # Ethernet/RNDIS gadget (g_ether)
 # Used by: /opt/scripts/boot/autoconfigure_usb0.sh
