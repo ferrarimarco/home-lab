@@ -123,7 +123,16 @@ bootloader.
 
 ### OS configuration - Linux
 
-TODO: describe Ansible steps
+#### First-time BeagleBone Black provisioning and configuration
+
+From `configuration/ansible/etc/ansible`, run the Ansible playbook:
+
+```shell
+ansible-playbook -i <BBB-IP-ADDRESS>, --user debian --ask-pass bootstrap-managed-linux-nodes.yml
+```
+
+where `<BBB-IP-ADDRESS>` is the IPv4 address assigned to
+the BeagleBone Black by the DHCP server.
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 

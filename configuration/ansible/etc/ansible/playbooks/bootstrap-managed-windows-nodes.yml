@@ -1,5 +1,0 @@
----
-- hosts: windows
-  gather_facts: true
-  roles:
-    - role: ferrarimarco.home-lab-windows-node
