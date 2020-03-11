@@ -2,7 +2,7 @@
 AcceptEnv LANG LC_*
 
 # Only allow system admins to login via SSH
-AllowGroups sad
+AllowGroups sudo
 
 # Disable ChallengeResponseAuthentication for PAM
 ChallengeResponseAuthentication no
