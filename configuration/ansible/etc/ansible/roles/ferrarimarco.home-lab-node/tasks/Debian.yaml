@@ -1,11 +1,13 @@
 ---
 - name: Run Distribution-specific tasks
-  include_tasks: "{{ ferrarimarco_home_lab_node_distribution_item }}"
-  with_first_found:
-    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yaml"
-    - "{{ ansible_distribution }}.yaml"
+  include_tasks: "{{ ferrarimarco_home_lab_node_distro_item }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yaml"
+  loop: "{{ q('first_found', params, errors='ignore') }}"
   loop_control:
-    loop_var: ferrarimarco_home_lab_node_distribution_item
+    loop_var: ferrarimarco_home_lab_node_distro_item
 
 - name: Ensure hostname is correct
   hostname:
@@ -56,11 +58,6 @@
 - name: Ensure required apt packages are installed
   apt:
     cache_valid_time: 3600
-    pkg: "{{ ferrarimarco_home_lab_node_apt_package_item }}"
+    pkg: ['curl', 'python3', 'python3-apt', 'wget']
     state: present
     update_cache: true
-  with_items:
-    - curl
-    - wget
-  loop_control:
-    loop_var: ferrarimarco_home_lab_node_apt_package_item
