@@ -134,7 +134,7 @@ From `configuration/ansible/etc/ansible`, run the Ansible playbook:
 ```shell
 ansible -i <BBB-IP-ADDRESS>, --user debian --ask-pass --ask-become-pass --become -m raw -a "apt-get update && apt-get -y install python3"
 ansible-playbook -i <BBB-IP-ADDRESS>, --user debian --ask-pass --ask-become-pass --skip-tags "ssh_configuration,user_configuration" bootstrap-managed-nodes.yml
-ansible-playbook -i <BBB-IP-ADDRESS>, --user ferrarimarco --ask-pass --ask-become-pass bootstrap-managed-nodes.yml
+ansible-playbook -i <BBB-IP-ADDRESS>, --user ferrarimarco --ask-become-pass bootstrap-managed-nodes.yml
 ```
 
 where `<BBB-IP-ADDRESS>` is the IPv4 address assigned to
