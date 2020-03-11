@@ -145,6 +145,9 @@ In this section, you bootstrap nodes that need a first time initialization.
     ansible-playbook -i europa.lab.ferrari.how, --ask-become-pass bootstrap-managed-nodes.yml
     ```
 
+1. (if needed) Upadate the IP address associated with the BeagleBone Black
+    in the hosts file, until you have a local DNS server.
+
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 
 1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
