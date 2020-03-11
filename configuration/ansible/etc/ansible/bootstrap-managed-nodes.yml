@@ -4,6 +4,3 @@
   roles:
     - role: ferrarimarco.home-lab-node
       become: true
-    # TODO: use variables to enable or disable these playbooks
-    # - role: ferrarimarco.docker
-    #   become: true

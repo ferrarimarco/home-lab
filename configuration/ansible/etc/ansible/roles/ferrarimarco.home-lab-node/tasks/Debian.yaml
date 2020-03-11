@@ -4,7 +4,8 @@
   vars:
     params:
       files:
-        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yaml"
+        - |
+          "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yaml"
   loop: "{{ q('first_found', params, errors='ignore') }}"
   loop_control:
     loop_var: ferrarimarco_home_lab_node_distro_item

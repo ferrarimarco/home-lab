@@ -1,3 +1,4 @@
+---
 - name: Ensure required apt packages are installed
   apt:
     cache_valid_time: 3600
@@ -8,11 +9,11 @@
 - name: Enable the connman service
   service:
     name: connman
-    enabled: yes
+    enabled: true
 
 - name: Configure network interfaces with /etc/network/interfaces
   template:
-    backup: no
+    backup: false
     dest: /etc/network/interfaces
     group: root
     mode: 0644
@@ -29,7 +30,7 @@
 
 - name: Generate the main connman configuration file
   template:
-    backup: no
+    backup: false
     dest: /etc/connman/main.cfg
     group: root
     mode: 0644
@@ -46,7 +47,7 @@
 
 - name: Generate connman service configuration files
   template:
-    backup: no
+    backup: false
     dest: /var/lib/connman/ethernet.config
     group: root
     mode: 0644
