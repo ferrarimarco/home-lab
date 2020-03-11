@@ -5,6 +5,5 @@
     - role: ferrarimarco.home-lab-node
       become: true
     # TODO: use variables to enable or disable these playbooks
-    # - role: ferrarimarco.home-lab-windows-node
     # - role: ferrarimarco.docker
     #   become: true
