@@ -1,14 +1,14 @@
 all:
   children:
-    home-lab:
+    home_lab:
       children:
         linux:
           children:
-            docker-hosts:
+            docker_hosts:
               hosts:
                 "europa.lab.ferrari.how":
         windows:
           children:
-            windows-workstations:
+            windows_workstations:
               hosts:
                 "mars.lab.ferrari.how":
