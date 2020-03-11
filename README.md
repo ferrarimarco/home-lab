@@ -11,6 +11,8 @@ All the necessary to provision, configure and manage my home lab.
 - [Git](https://git-scm.com/) (tested with version `2.25.0`).
 - [Terraform](https://www.terraform.io/) (tested with version `v0.12.20`).
 - [Google Cloud SDK](https://cloud.google.com/sdk) (tested with version `271.0.0`).
+- [Ansible](https://www.ansible.com/) (tested with version `2.9.6`).
+- [sshpass](https://linux.die.net/man/1/sshpass) (tested with version `1.06`).
 
 ### Set the environment variables
 
@@ -123,16 +125,23 @@ bootloader.
 
 ### OS configuration - Linux
 
+In this section, you bootstrap nodes that need a first time initialization.
+
 #### First-time BeagleBone Black provisioning and configuration
 
 From `configuration/ansible/etc/ansible`, run the Ansible playbook:
 
 ```shell
-ansible-playbook -i <BBB-IP-ADDRESS>, --user debian --ask-pass bootstrap-managed-linux-nodes.yml
+ansible -i <BBB-IP-ADDRESS>, --user debian --ask-pass --ask-become-pass --become -m raw -a "apt-get update && apt-get -y install python3"
+ansible-playbook -i <BBB-IP-ADDRESS>, --user debian --ask-pass --ask-become-pass --skip-tags "ssh_configuration,user_configuration" bootstrap-managed-nodes.yml
+ansible-playbook -i <BBB-IP-ADDRESS>, --user ferrarimarco --ask-pass --ask-become-pass bootstrap-managed-nodes.yml
 ```
 
 where `<BBB-IP-ADDRESS>` is the IPv4 address assigned to
 the BeagleBone Black by the DHCP server.
+
+NOTE: the `,` after the host makes Ansible interpret `<BBB-IP-ADDRESS>` as an IP address,
+rather than a path to the inventory file.
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 

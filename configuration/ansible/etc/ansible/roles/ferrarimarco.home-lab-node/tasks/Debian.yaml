@@ -38,6 +38,8 @@
     name: "{{item}}"
     remove: true
     state: absent
+  tags:
+    - user_configuration
   with_items:
     - ubuntu
     - debian
@@ -49,11 +51,9 @@
     owner: root
     group: root
     mode: 0644
-
-- name: Restart SSH Daemon
-  service:
-    name: sshd
-    state: restarted
+  notify: "restart_sshd"
+  tags:
+    - ssh_configuration
 
 - name: Ensure required apt packages are installed
   apt:
