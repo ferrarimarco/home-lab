@@ -1,4 +1,4 @@
-beaglebone-black:
+beaglebone_black:
     domain: "lab.ferrari.how"
     ipv4_address: "192.168.0.5"
     ipv4_gateway: "192.168.0.1"

@@ -8,4 +8,4 @@
 
 - name: Configure the BeagleBone Black (if applicable)
   include_tasks: "beaglebone-black.yaml"
-  when: beaglebone-black is defined
+  when: beaglebone_black is defined
