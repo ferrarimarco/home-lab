@@ -1,18 +1,14 @@
 - name: Ensure required apt packages are installed
   apt:
     cache_valid_time: 3600
-    pkg: "{{ ferrarimarco_home_lab_node_bbb_apt_package_item }}"
+    pkg: ['connman']
     state: present
     update_cache: true
-  with_items:
-    - connman
-  loop_control:
-    loop_var: ferrarimarco_home_lab_node_bbb_apt_package_item
 
 - name: Enable the connman service
   service:
     name: connman
-    state: enabled
+    enabled: yes
 
 - name: Configure network interfaces with /etc/network/interfaces
   template:
@@ -56,4 +52,4 @@
     mode: 0644
     owner: root
     src: templates/var/lib/connman/ethernet.config.j2
-  notify: restart_systemd_modules_load
+  notify: restart_connman
