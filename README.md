@@ -127,21 +127,23 @@ bootloader.
 
 In this section, you bootstrap nodes that need a first time initialization.
 
-#### First-time BeagleBone Black provisioning and configuration
+1. (if needed) Add the BeagleBone Black to the hosts file if a local DNS server
+    is not yet available:
 
-From `configuration/ansible/etc/ansible`, run the Ansible playbook:
+    ```shell
+    echo "<BBB-IP-ADDRESS>\teuropa.lab.ferrari.how" | sudo tee -a /etc/hosts
+    ```
 
-```shell
-ansible -i <BBB-IP-ADDRESS>, --user debian --ask-pass --ask-become-pass --become -m raw -a "apt-get update && apt-get -y install python3"
-ansible-playbook -i <BBB-IP-ADDRESS>, --user debian --ask-pass --ask-become-pass --skip-tags "ssh_configuration,user_configuration" bootstrap-managed-nodes.yml
-ansible-playbook -i <BBB-IP-ADDRESS>, --user ferrarimarco --ask-become-pass bootstrap-managed-nodes.yml
-```
+    where `<BBB-IP-ADDRESS>` is the IPv4 address assigned to
+    the BeagleBone Black by the DHCP server.
 
-where `<BBB-IP-ADDRESS>` is the IPv4 address assigned to
-the BeagleBone Black by the DHCP server.
+1. From `configuration/ansible/etc/ansible`, run the Ansible playbook:
 
-NOTE: the `,` after the host makes Ansible interpret `<BBB-IP-ADDRESS>` as an IP address,
-rather than a path to the inventory file.
+    ```shell
+    ansible -i europa.lab.ferrari.how, --user debian --ask-pass --ask-become-pass --become -m raw -a "apt-get update && apt-get -y install python3"
+    ansible-playbook -i europa.lab.ferrari.how, hosts --user debian --ask-pass --ask-become-pass --skip-tags "ssh_configuration,user_configuration" bootstrap-managed-nodes.yml
+    ansible-playbook -i europa.lab.ferrari.how, --ask-become-pass bootstrap-managed-nodes.yml
+    ```
 
 ### DNS/DHCP/PXE Server Configuration - Debian and derivatives
 
