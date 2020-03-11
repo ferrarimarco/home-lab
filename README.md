@@ -140,9 +140,15 @@ In this section, you bootstrap nodes that need a first time initialization.
 1. From `configuration/ansible/etc/ansible`, run the Ansible playbook:
 
     ```shell
-    ansible -i europa.lab.ferrari.how, --user debian --ask-pass --ask-become-pass --become -m raw -a "apt-get update && apt-get -y install python3"
-    ansible-playbook -i europa.lab.ferrari.how, hosts --user debian --ask-pass --ask-become-pass --skip-tags "ssh_configuration,user_configuration" bootstrap-managed-nodes.yml
-    ansible-playbook -i europa.lab.ferrari.how, --ask-become-pass bootstrap-managed-nodes.yml
+    ansible -i europa.lab.ferrari.how, --user debian --ask-pass \
+        --ask-become-pass --become -m raw \
+        -a "apt-get update && apt-get -y install python3"
+    ansible-playbook -i europa.lab.ferrari.how, hosts \
+        --user debian --ask-pass --ask-become-pass \
+        --skip-tags "ssh_configuration,user_configuration" \
+        bootstrap-managed-nodes.yml
+    ansible-playbook -i europa.lab.ferrari.how, \
+        --ask-become-pass bootstrap-managed-nodes.yml
     ```
 
 1. (if needed) Upadate the IP address associated with the BeagleBone Black
