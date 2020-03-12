@@ -143,11 +143,11 @@ In this section, you bootstrap nodes that need a first time initialization.
     ansible -i europa.lab.ferrari.how, --user debian --ask-pass \
         --ask-become-pass --become -m raw \
         -a "apt-get update && apt-get -y install python3"
-    ansible-playbook -i europa.lab.ferrari.how, hosts \
+    ansible-playbook -i hosts \
         --user debian --ask-pass --ask-become-pass \
         --skip-tags "ssh_configuration,user_configuration" \
         bootstrap-managed-nodes.yml
-    ansible-playbook -i europa.lab.ferrari.how, \
+    ansible-playbook -i hosts \
         --ask-become-pass bootstrap-managed-nodes.yml
     ```
 
