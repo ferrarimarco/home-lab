@@ -137,7 +137,7 @@ In this section, you bootstrap nodes that need a first time initialization.
     where `<BBB-IP-ADDRESS>` is the IPv4 address assigned to
     the BeagleBone Black by the DHCP server.
 
-1. From `configuration/ansible/etc/ansible`, run the Ansible playbook:
+1. From `configuration/ansible/`, run the Ansible playbook:
 
     ```shell
     ansible -i europa.lab.ferrari.how, --user debian --ask-pass \
