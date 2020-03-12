@@ -7,3 +7,5 @@ beaglebone_black:
     name_server: "8.8.8.8"
     network_interface_name: "eth0"
     search_domain: "lab.ferrari.how"
+
+google_cloud_iot_core_device: true
