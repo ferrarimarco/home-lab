@@ -8,6 +8,7 @@ before_install:
     - mkdir -p "${HOME}"/bin
     - mv /tmp/terraform "${HOME}"/bin
     - export PATH="${HOME}/bin:$PATH"
+    - gem install travis --no-document
 
 env:
     global:
@@ -31,14 +32,18 @@ services:
 jobs:
   fast_finish: true
   include:
-    - stage: linting
-      script: travis lint
-    - script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
-    - script: >
+    - name: "Travis lint"
+      stage: linting
+      script: echo "n" | travis lint
+    - name: "YAMLlint"
+      script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
+    - name: "Markdown lint"
+      script: >
               find -name "*.md" -not -path "*/node_modules/*"
               | xargs markdownlint
               || exit 1
-    - script: >
+    - name: "Shellcheck"
+      script: >
               find . -type f -iname "*.sh"
               | while read -r line; do
               echo "Linting $line";
