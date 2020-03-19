@@ -31,11 +31,6 @@ jobs:
       script: |
         find -name "*.md" -not -path "*/node_modules/*" \
         | xargs markdownlint || exit 1
-    - name: "Markdownlint"
-      install: npm install
-      script: |
-        find -name "*.md" -not -path "*/node_modules/*" \
-        | xargs markdownlint || exit 1
     - name: "Whitespace error check"
       language: shell
       script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
