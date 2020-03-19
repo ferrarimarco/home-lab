@@ -1,55 +1,61 @@
 ---
-# Install terraform
-before_install:
-    - >
-      curl -sLo /tmp/terraform.zip
-      https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-    - unzip /tmp/terraform.zip -d /tmp
-    - mkdir -p "${HOME}"/bin
-    - mv /tmp/terraform "${HOME}"/bin
-    - export PATH="${HOME}/bin:$PATH"
-    - gem install travis --no-document
-
-env:
-    global:
-        - TF_INPUT=false
-        - TERRAFORM_VERSION=0.12.20
-
-language: node_js
-
-install:
-    - sudo pip install -r requirements.txt
-    - npm install
-
-node_js:
-    - node
-
-os: linux
-
-services:
-    - docker
-
 jobs:
   fast_finish: true
   include:
-    - name: "Travis lint"
+    - before_install: gem install travis --no-document
+      name: "Travis lint"
       stage: linting
       script: echo "n" | travis lint
-    - name: "YAMLlint"
-      script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
-    - name: "Markdown lint"
-      script: >
-              find -name "*.md" -not -path "*/node_modules/*"
-              | xargs markdownlint
-              || exit 1
     - name: "Shellcheck"
-      script: >
-              find . -type f -iname "*.sh"
-              | while read -r line; do
-              echo "Linting $line";
-              docker run -v "$(pwd)":/mnt --rm koalaman/shellcheck:v0.7.0 "$line"
-              || exit 1;
-              done;
-
+      language: shell
+      script: |
+        for file in $(find "$(pwd)" \
+          -type f \
+          -not -path "*/\.git/*" \
+          -not -name "*.md" \
+          -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print); do \
+            f="${file#$(pwd)}"; \
+            f="${f/\//}"; \
+            echo "Linting $f"; \
+            docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.0 \
+              "$f" || exit 1; \
+        done;
+    - name: "YAMLlint"
+      language: shell
+      install: sudo pip install -r requirements.txt
+      script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
+    - name: "Markdownlint"
+      install: npm install
+      language: node_js
+      node_js: node
+      script: |
+        find -name "*.md" -not -path "*/node_modules/*" \
+        | xargs markdownlint || exit 1
+    - name: "Markdownlint"
+      install: npm install
+      script: |
+        find -name "*.md" -not -path "*/node_modules/*" \
+        | xargs markdownlint || exit 1
+    - name: "Whitespace error check"
+      language: shell
+      script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
+    - name: "Missing EOF newlines check"
+      language: shell
+      script: |
+        find "$(pwd)" -type f -not -path "*/\.git/*" >tmp; \
+        while IFS= read -r file; do \
+          case "$(git diff --no-index --numstat /dev/null "$file")" in \
+            "$(printf '%s\t-\t' -)"*) echo "skipping newline check for $file because it's a binary"; continue ;; \
+            *) echo "Checking $file"; [ -z "$(tail -c1 "$file")" ] || exit 1 ;; \
+          esac; \
+        done <tmp; \
+        rm tmp;
+    - name: "shfmt"
+      language: go
+      before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
+      script: shfmt -d . || exit 1;
+os: linux
+services:
+  - docker
 stages:
   - linting
