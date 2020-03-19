@@ -1,0 +1,7 @@
+---
+extends: default
+
+rules:
+  # 120 chars should be enough, we've got good monitors :)
+  line-length:
+    max: 120
