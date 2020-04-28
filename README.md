@@ -26,6 +26,9 @@ the following environment variables:
 
 ### Provision the infrastructure-as-code pipeline
 
+You now provision and configure a pipeline that automatically applies changes to
+the configuration of your infrastructure.
+
 1. Change your working directory to the root of this repo.
 1. Generate the Terraform backend configuration: `scripts/linux/generate-tf-backend.sh`
 1. Change your working directory: `cd provisioning/terraform/iac`
