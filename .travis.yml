@@ -2,24 +2,31 @@
 jobs:
   fast_finish: true
   include:
-    - before_install: gem install travis --no-document
-      name: "Travis lint"
+    - name: "Whitespace error check"
+      language: shell
+      script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
       stage: linting
-      script: echo "n" | travis lint
-    - name: "Shellcheck"
+    - name: "Missing EOF newlines check"
       language: shell
       script: |
-        for file in $(find "$(pwd)" \
-          -type f \
-          -not -path "*/\.git/*" \
-          -not -name "*.md" \
-          -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print); do \
-            f="${file#$(pwd)}"; \
-            f="${f/\//}"; \
-            echo "Linting $f"; \
-            docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.0 \
-              "$f" || exit 1; \
-        done;
+        find "$(pwd)" -type f -not -path "*/\.git/*" >tmp; \
+        while IFS= read -r file; do \
+          case "$(git diff --no-index --numstat /dev/null "$file")" in \
+            "$(printf '%s\t-\t' -)"*) \
+            echo "skipping newline check for $file because it's a binary"; \
+            continue ;; \
+            *) echo "Checking $file"; \
+            [ -z "$(tail -c1 "$file")" ] || exit 1 ;; \
+          esac; \
+        done <tmp; \
+        rm tmp;
+    - before_install: gem install travis --no-document
+      install: |
+        echo "Overriding the default install, to avoid installing gems from \
+        the Gemfile"
+      language: shell
+      name: "Travis lint"
+      script: travis lint --skip-completion-check -x
     - name: "YAMLlint"
       language: shell
       install: sudo pip install -r requirements.txt
@@ -31,24 +38,25 @@ jobs:
       script: |
         find -name "*.md" -not -path "*/node_modules/*" \
         | xargs markdownlint || exit 1
-    - name: "Whitespace error check"
-      language: shell
-      script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
-    - name: "Missing EOF newlines check"
-      language: shell
-      script: |
-        find "$(pwd)" -type f -not -path "*/\.git/*" >tmp; \
-        while IFS= read -r file; do \
-          case "$(git diff --no-index --numstat /dev/null "$file")" in \
-            "$(printf '%s\t-\t' -)"*) echo "skipping newline check for $file because it's a binary"; continue ;; \
-            *) echo "Checking $file"; [ -z "$(tail -c1 "$file")" ] || exit 1 ;; \
-          esac; \
-        done <tmp; \
-        rm tmp;
     - name: "shfmt"
       language: go
       before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
-      script: shfmt -d . || exit 1;
+      go: "1.14.1"
+      script: make shfmt || exit 1;
+    - name: "Shellcheck"
+      language: shell
+      script: |
+        for file in $(find "$(pwd)" \
+          -type f \
+          -not -path "*/\.git/*" \
+          -not -name "*.md" \
+          -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print); do \
+            f="${file#$(pwd)}"; \
+            f="${f/\//}"; \
+            echo "Linting $f"; \
+            docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.1 \
+              "$f" || exit 1; \
+        done;
 os: linux
 services:
   - docker
