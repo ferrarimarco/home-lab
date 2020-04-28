@@ -42,7 +42,7 @@ jobs:
       language: go
       before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
       go: "1.14.1"
-      script: make shfmt || exit 1;
+      script: shfmt -d . || exit 1;
     - name: "Shellcheck"
       language: shell
       script: |
