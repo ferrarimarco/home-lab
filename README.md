@@ -172,39 +172,3 @@ In this section, you bootstrap nodes that need a first time initialization.
 1. Update the credentials in `swarm/configuration/ddclient/ddclient.conf.local`
 1. Deploy ddclient stack:
 `docker stack deploy --compose-file swarm/ddclient.yml ddclient`
-
-### OpenVPN Server
-
-1. (only on ARMv7) Clone
-[kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn.git):
-`git clone https://github.com/kylemanna/docker-openvpn.git`
-1. (only on ARMv7) Build `kylemanna/docker-openvpn`:
-`docker build -t kylemanna/openvpn:latest .`
-1. Initialize credentials:
-   1. `export OVPN_DATA="ovpn-data-vpn-ferrarimarco-info"`
-   1. `docker volume create --name $OVPN_DATA`
-   1. Generate OpenVPN config:
-
-   ```shell
-   docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig \
-    -u udp://vpn.ferrarimarco.info  -e "max-clients 5" -s 10.45.89.0/24 \
-    -n 192.168.0.5 -p "dhcp-option DOMAIN lab.ferrarimarco.info" \
-    -p "dhcp-option DOMAIN-SEARCH lab.ferrarimarco.info" \
-    -p "route 192.168.0.0 255.255.0.0" -e "explicit-exit-notify 1" \
-    -e "ifconfig-pool-persist ipp.txt"
-   ```
-
-   1. Initialize the PKI:
-
-   ```shell
-   docker run -v $OVPN_DATA:/etc/openvpn --rm -it \
-   kylemanna/openvpn ovpn_initpki
-   ```
-
-1. Start OpenVPN:
-
-```shell
-docker run -d --hostname=openvpn --name=openvpn --cap-add=NET_ADMIN \
-  --restart=always -p 1194:1194/udp -v $OVPN_DATA:/etc/openvpn \
-  kylemanna/openvpn:latest
-```
