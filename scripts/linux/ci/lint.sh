@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -o pipefail
+
 INITIAL_PWD="$(pwd)"
 echo "Current working directory: $INITIAL_PWD"
 
@@ -29,7 +32,10 @@ while IFS= read -r -d '' file; do
     f="${file#$(pwd)}"
     f="${f/\//}"
     echo "Linting $f"
-    if [ ! -x "$f" ]; then echo "Error: $f is not executable!" || exit 1; fi
+    if [ ! -x "$f" ]; then
+        echo "Error: $f is not executable!"
+        exit 1
+    fi
     docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.1 "$f" || exit 1
 done < <(find "$(pwd)" -type f -not -path "*/\.git/*" -not -name "*.md" -not -path "*/\node_modules/*" -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print0)
 
@@ -51,7 +57,7 @@ rm tmp
 
 shfmt -d . || exit 1
 
-cd configration/ansible || exit 1
+cd configuration/ansible || exit 1
 ansible-lint -v bootstrap-managed-nodes.yml || exit 1
 echo "Setting the working directory back to $INITIAL_PWD"
 cd "$INITIAL_PWD" || exit 1
