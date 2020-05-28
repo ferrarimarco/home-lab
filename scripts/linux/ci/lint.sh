@@ -25,11 +25,6 @@ while IFS= read -r -d '' file; do
     docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine <"$file" || exit 1
 done < <(find "$(pwd)" -type f -not -path "*/\.git/*" -not -name "*.md" -not -path "*/\node_modules/*" -name "Dockerfile" -print0)
 
-docker run -t \
-    -v "$(pwd)":/kubernetes-playground:ro \
-    garethr/kubeval:0.14.0 \
-    --strict -d /kubernetes-playground/kubernetes || exit 1
-
 while IFS= read -r -d '' file; do
     f="${file#$(pwd)}"
     f="${f/\//}"
