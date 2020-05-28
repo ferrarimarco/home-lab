@@ -5,6 +5,7 @@ jobs:
   include:
     - name: "Linting"
       stage: linting
+      language: shell
       cache:
         directories:
           - $HOME/.cache/pip
@@ -12,11 +13,9 @@ jobs:
           - vendor/bundle
           - $GOPATH/pkg/mod
           - $HOME/.nvm/versions
-      language: shell
-      before_install:
+      install:
         - sudo scripts/linux/ci/install-dependencies.sh
         - scripts/linux/ci/install-node.sh
-      install:
         - nvm use
         - scripts/linux/ci/install-linting-tools.sh
       script: |

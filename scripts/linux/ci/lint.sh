@@ -20,8 +20,10 @@ while IFS= read -r file; do
 done <tmp
 rm tmp
 
-find . -name "Dockerfile" -type f -print0 |
-    xargs -0 -I file sh -c 'docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine < "file"' || exit 1
+while IFS= read -r -d '' file; do
+    echo "Linting $file"
+    docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine <"$file" || exit 1
+done < <(find "$(pwd)" -type f -not -path "*/\.git/*" -not -name "*.md" -not -path "*/\node_modules/*" -name "Dockerfile" -print0)
 
 docker run -t \
     -v "$(pwd)":/kubernetes-playground:ro \
@@ -54,7 +56,7 @@ rm tmp
 
 shfmt -d . || exit 1
 
-cd ansible || exit 1
-ansible-lint -v kubernetes.yml openssl-self-signed-certificate.yml || exit 1
+cd configration/ansible || exit 1
+ansible-lint -v bootstrap-managed-nodes.yml || exit 1
 echo "Setting the working directory back to $INITIAL_PWD"
 cd "$INITIAL_PWD" || exit 1
