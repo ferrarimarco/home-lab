@@ -23,9 +23,20 @@ jobs:
     - name: "Build Smart Desk"
       stage: build
       language: shell
-      install:
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $GEM_HOME
+          - vendor/bundle
+          - $GOPATH/pkg/mod
+          - $HOME/.nvm/versions
+          - ./esp-idf
+      before_install:
         - sudo scripts/linux/ci/install-dependencies.sh
-      script: echo "build"
+      install:
+        - sudo scripts/linux/ci/initialize-es-idf.sh
+      script: |
+        echo "build"
 os: linux
 services:
   - docker
