@@ -23,7 +23,8 @@ jobs:
     - name: "Build Smart Desk"
       stage: build
       language: shell
-      before_install:
+      install:
+        - sudo scripts/linux/ci/install-dependencies.sh
       script: echo "build"
 os: linux
 services:
