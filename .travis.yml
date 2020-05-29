@@ -34,7 +34,7 @@ jobs:
       before_install:
         - sudo scripts/linux/ci/install-dependencies.sh
       install:
-        - sudo scripts/linux/ci/initialize-es-idf.sh
+        - sudo scripts/linux/ci/initialize-esp-idf.sh
       script: |
         echo "build"
 os: linux
