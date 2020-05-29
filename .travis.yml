@@ -13,8 +13,11 @@ jobs:
           - vendor/bundle
           - $GOPATH/pkg/mod
           - $HOME/.nvm/versions
+          - $HOME/.espressif/dist
+          - $HOME/.espressif/tools
       install:
         - sudo scripts/linux/ci/install-dependencies.sh
+        - sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
         - scripts/linux/ci/install-node.sh
         - nvm use
         - scripts/linux/ci/install-linting-tools.sh
@@ -31,6 +34,8 @@ jobs:
           - $GOPATH/pkg/mod
           - $HOME/.nvm/versions
           - ./esp-idf
+          - $HOME/.espressif/dist
+          - $HOME/.espressif/tools
       before_install:
         - sudo scripts/linux/ci/install-dependencies.sh
       install:
