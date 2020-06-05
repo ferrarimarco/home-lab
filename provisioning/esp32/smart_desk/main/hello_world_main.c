@@ -5,7 +5,7 @@
 #include "esp_system.h"
 #include "esp_spi_flash.h"
 
-#include "print_utils.h"
+#include "board_info.h"
 
 void app_main(void)
 {
@@ -15,7 +15,8 @@ void app_main(void)
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
 
-    print_board_info(chip_info);
+    char *board_info_sz = get_board_info(chip_info);
+    printf(board_info_sz);
 
     for (int i = 10; i >= 0; i--)
     {

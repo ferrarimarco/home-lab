@@ -13,8 +13,6 @@ jobs:
           - vendor/bundle
           - $GOPATH/pkg/mod
           - $HOME/.nvm/versions
-          - $HOME/.espressif/dist
-          - $HOME/.espressif/tools
       install:
         - sudo scripts/linux/ci/install-dependencies.sh
         - sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
