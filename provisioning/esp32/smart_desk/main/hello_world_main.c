@@ -15,8 +15,8 @@ void app_main(void)
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
 
-    char *board_info_sz = get_board_info(chip_info);
-    printf(board_info_sz);
+    const char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
+    printf(board_info);
 
     for (int i = 10; i >= 0; i--)
     {
