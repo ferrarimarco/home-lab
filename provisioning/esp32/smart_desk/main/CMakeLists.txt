@@ -1,3 +1,3 @@
-idf_component_register(SRCS "hello_world_main.c"
+idf_component_register(SRCS "smart_desk_main.c"
     INCLUDE_DIRS ""
     REQUIRES debug_utils)
