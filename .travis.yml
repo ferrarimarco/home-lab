@@ -39,7 +39,7 @@ jobs:
       install:
         - sudo scripts/linux/ci/initialize-esp-idf.sh
       script: |
-        echo $PATH;
+        . /esp-idf/export.sh;
         idf.py build
 os: linux
 services:
