@@ -39,6 +39,7 @@ jobs:
       install:
         - sudo scripts/linux/ci/initialize-esp-idf.sh
       script: |
+        echo $PATH;
         idf.py build
 os: linux
 services:
