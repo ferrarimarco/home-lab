@@ -24,6 +24,8 @@ jobs:
     - name: "Build Smart Desk"
       stage: build
       language: shell
+      env:
+        - CMAKE_VERSION="3.17.3"
       cache:
         directories:
           - $HOME/.cache/pip
