@@ -12,8 +12,8 @@ clone_git_repository_if_not_cloned_already() {
         exit 1
     fi
 
-    if [ -d "$destination_dir" ]; then
-        echo "$destination_dir already exists. Pulling the latest changes..."
+    if [ -d "$destination_dir/.git" ]; then
+        echo "$destination_dir already exists and is a Git repository. Pulling the latest changes..."
 
         echo "Updating $git_repository_url in $destination_dir"
         git -C "$destination_dir" pull --ff-only
