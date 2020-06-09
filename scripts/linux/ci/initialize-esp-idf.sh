@@ -31,5 +31,8 @@ echo "Setting up ESP-IDF in $ESP_IDF_PATH..."
 
 clone_git_repository_if_not_cloned_already "$ESP_IDF_PATH" "https://github.com/espressif/esp-idf.git"
 
+echo "$ESP_IDF_PATH contents:"
+ls -al "$ESP_IDF_PATH"
+
 echo "Running the ESP-IDF installation script..."
 "$ESP_IDF_PATH"/install.sh

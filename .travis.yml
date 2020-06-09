@@ -38,7 +38,6 @@ jobs:
         - sudo scripts/linux/ci/install-dependencies.sh
       install:
         - sudo scripts/linux/ci/initialize-esp-idf.sh
-        - scripts/linux/ci/diagnostics.sh --host
       script: |
         . esp-idf/export.sh;
         idf.py build
