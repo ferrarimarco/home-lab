@@ -1,1 +1,2 @@
-yamllint
+ansible-lint==4.2.0
+yamllint==1.23.0

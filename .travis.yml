@@ -1,64 +1,63 @@
 ---
-jobs:
-  fast_finish: true
-  include:
-    - name: "Whitespace error check"
-      language: shell
-      script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
-      stage: linting
-    - name: "Missing EOF newlines check"
-      language: shell
-      script: |
-        find "$(pwd)" -type f -not -path "*/\.git/*" >tmp; \
-        while IFS= read -r file; do \
-          case "$(git diff --no-index --numstat /dev/null "$file")" in \
-            "$(printf '%s\t-\t' -)"*) \
-            echo "skipping newline check for $file because it's a binary"; \
-            continue ;; \
-            *) echo "Checking $file"; \
-            [ -z "$(tail -c1 "$file")" ] || exit 1 ;; \
-          esac; \
-        done <tmp; \
-        rm tmp;
-    - before_install: gem install travis --no-document
-      install: |
-        echo "Overriding the default install, to avoid installing gems from \
-        the Gemfile"
-      language: shell
-      name: "Travis lint"
-      script: travis lint --skip-completion-check -x
-    - name: "YAMLlint"
-      language: shell
-      install: sudo pip install -r requirements.txt
-      script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
-    - name: "Markdownlint"
-      install: npm install
-      language: node_js
-      node_js: node
-      script: |
-        find -name "*.md" -not -path "*/node_modules/*" \
-        | xargs markdownlint || exit 1
-    - name: "shfmt"
-      language: go
-      before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
-      go: "1.14.1"
-      script: shfmt -d . || exit 1;
-    - name: "Shellcheck"
-      language: shell
-      script: |
-        for file in $(find "$(pwd)" \
-          -type f \
-          -not -path "*/\.git/*" \
-          -not -name "*.md" \
-          -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print); do \
-            f="${file#$(pwd)}"; \
-            f="${f/\//}"; \
-            echo "Linting $f"; \
-            docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.1 \
-              "$f" || exit 1; \
-        done;
+dist: bionic
+language: shell
 os: linux
 services:
   - docker
 stages:
   - linting
+env:
+  global:
+    - CMAKE_VERSION="3.17.3"
+jobs:
+  fast_finish: true
+  include:
+    - name: "Linting"
+      stage: linting
+      language: shell
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $GEM_HOME
+          - vendor/bundle
+          - $GOPATH/pkg/mod
+          - $HOME/.nvm/versions
+      install:
+        - sudo scripts/linux/ci/install-dependencies.sh "$CMAKE_VERSION"
+        - sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+        - scripts/linux/ci/install-node.sh
+        - nvm use
+        - scripts/linux/ci/install-linting-tools.sh
+      script: |
+        scripts/linux/ci/lint.sh || exit 1
+    - name: "Build Smart Desk"
+      stage: build
+      language: shell
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $GEM_HOME
+          - vendor/bundle
+          - $GOPATH/pkg/mod
+          - $HOME/.nvm/versions
+          - $HOME/.esp-idf
+          - $HOME/.espressif/dist
+          - $HOME/.espressif/tools
+      before_install:
+        - |
+          sudo \
+          PATH="$HOME/cmake-$CMAKE_VERSION-Linux-x86_64/bin:$PATH" \
+          scripts/linux/ci/install-dependencies.sh "$CMAKE_VERSION"
+      install:
+        - |
+          sudo \
+          PATH="$HOME/cmake-$CMAKE_VERSION-Linux-x86_64/bin:$PATH" \
+          scripts/linux/ci/initialize-esp-idf.sh "$HOME/.esp-idf"
+      script: |
+        PATH="$HOME/cmake-$CMAKE_VERSION-Linux-x86_64/bin:$PATH";
+        . "$HOME"/.esp-idf/export.sh;
+        cd provisioning/esp32/smart_desk;
+        idf.py build
+      after_failure:
+        - |
+          scripts/linux/ci/diagnostics.sh --host

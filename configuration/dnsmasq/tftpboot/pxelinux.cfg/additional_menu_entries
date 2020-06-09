@@ -1,7 +1,0 @@
-LABEL ubuntu-eoan-amd64
-  MENU LABEL Ubuntu 19.10 (Eoan Ermine) amd64
-  KERNEL /ubuntu/eoan-server-amd64/ubuntu-installer/amd64/linux
-  APPEND /install/vmlinuz auto=true url=tftp://pxe.lab.ferrari.how/preseed/ubuntu/preseed.cfg initrd=ubuntu/eoan-server-amd64/ubuntu-installer/amd64/initrd.gz priority=critical  --
-
-# This overrides the DEFAULT directive specified in the default configuration
-DEFAULT ubuntu-eoan-amd64
