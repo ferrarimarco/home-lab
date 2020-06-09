@@ -43,9 +43,6 @@ jobs:
         idf.py build
       after_script:
         - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh --host
 os: linux
 services:
