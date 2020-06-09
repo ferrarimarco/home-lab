@@ -26,7 +26,7 @@ clone_git_repository_if_not_cloned_already() {
     unset git_repository_url
 }
 
-ESP_IDF_PATH="$(pwd)/esp-idf"
+ESP_IDF_PATH="$1"
 echo "Setting up ESP-IDF in $ESP_IDF_PATH..."
 
 clone_git_repository_if_not_cloned_already "$ESP_IDF_PATH" "https://github.com/espressif/esp-idf.git"

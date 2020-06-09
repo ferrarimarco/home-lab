@@ -21,7 +21,7 @@ jobs:
         - scripts/linux/ci/install-linting-tools.sh
       script: |
         scripts/linux/ci/lint.sh || exit 1
-    - name: "Build Smart Desk"
+    - name: "Build Smartt Desk"
       stage: build
       language: shell
       cache:
@@ -31,13 +31,13 @@ jobs:
           - vendor/bundle
           - $GOPATH/pkg/mod
           - $HOME/.nvm/versions
-          - ./esp-idf
+          - $HOME/.esp-idf
           - $HOME/.espressif/dist
           - $HOME/.espressif/tools
       before_install:
         - sudo scripts/linux/ci/install-dependencies.sh
       install:
-        - sudo scripts/linux/ci/initialize-esp-idf.sh
+        - sudo scripts/linux/ci/initialize-esp-idf.sh "$HOME/.esp-idf"
       script: |
         . esp-idf/export.sh;
         idf.py build
