@@ -106,6 +106,7 @@ host_diagnostics() {
     run_diagnostic_command "env" "env | sort"
 
     run_diagnostic_command "bundle" "bundle list"
+    run_diagnostic_command "cmake" "cmake --version"
     run_diagnostic_command "gem" "gem environment"
     run_diagnostic_command "gem" "gem query --local"
 

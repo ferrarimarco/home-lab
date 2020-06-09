@@ -42,12 +42,18 @@ jobs:
           - $HOME/.esp-idf
           - $HOME/.espressif/dist
           - $HOME/.espressif/tools
-          - $HOME/cmake-$CMAKE_VERSION
       before_install:
-        - sudo scripts/linux/ci/install-dependencies.sh "$CMAKE_VERSION"
+        - |
+          sudo \
+          PATH="$HOME/cmake-$CMAKE_VERSION-Linux-x86_64/bin:$PATH" \
+          scripts/linux/ci/install-dependencies.sh "$CMAKE_VERSION"
       install:
-        - sudo scripts/linux/ci/initialize-esp-idf.sh "$HOME/.esp-idf"
+        - |
+          sudo \
+          PATH="$HOME/cmake-$CMAKE_VERSION-Linux-x86_64/bin:$PATH" \
+          scripts/linux/ci/initialize-esp-idf.sh "$HOME/.esp-idf"
       script: |
+        PATH="$HOME/cmake-$CMAKE_VERSION-Linux-x86_64/bin:$PATH";
         . "$HOME"/.esp-idf/export.sh;
         cd provisioning/esp32/smart_desk;
         idf.py build

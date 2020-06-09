@@ -34,5 +34,7 @@ clone_git_repository_if_not_cloned_already "$ESP_IDF_PATH" "https://github.com/e
 echo "$ESP_IDF_PATH contents:"
 ls -al "$ESP_IDF_PATH"
 
+cmake --version
+
 echo "Running the ESP-IDF installation script..."
 "$ESP_IDF_PATH"/install.sh
