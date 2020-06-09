@@ -18,7 +18,11 @@ apt-get install \
     python3-setuptools \
     wget
 
-CMAKE_VERSION="3.17.3"
+CURRENT_PWD="$(pwd)"
+
+cd "$HOME" || exit 1
+
+CMAKE_VERSION="$1"
 echo "Installing CMake $CMAKE_VERSION..."
 
 CMAKE_ARCHIVE_NAME=cmake-"$CMAKE_VERSION".tar.gz
@@ -32,3 +36,5 @@ make
 make install
 
 cmake --version
+
+cd "$CURRENT_PWD" || exit 1

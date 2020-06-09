@@ -30,6 +30,8 @@ jobs:
     - name: "Build Smart Desk"
       stage: build
       language: shell
+      env:
+        - CMAKE_VERSION="3.17.3"
       cache:
         directories:
           - $HOME/.cache/pip
@@ -40,8 +42,9 @@ jobs:
           - $HOME/.esp-idf
           - $HOME/.espressif/dist
           - $HOME/.espressif/tools
+          - $HOME/cmake-$CMAKE_VERSION
       before_install:
-        - sudo scripts/linux/ci/install-dependencies.sh
+        - sudo scripts/linux/ci/install-dependencies.sh "$CMAKE_VERSION"
       install:
         - sudo scripts/linux/ci/initialize-esp-idf.sh "$HOME/.esp-idf"
       script: |
