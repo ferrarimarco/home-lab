@@ -3,15 +3,32 @@
 set -e
 set -o pipefail
 
-INITIAL_PWD="$(pwd)"
+clone_git_repository_if_not_cloned_already() {
+    destination_dir="$1"
+    git_repository_url="$2"
 
-git clone --recursive https://github.com/espressif/esp-idf.git
+    if [ -z "$destination_dir" ]; then
+        echo "ERROR while cloning the $git_repository_url git repository: The destination_dir variable is not set, or set to an empty string"
+        exit 1
+    fi
 
-cd esp-idf || exit 1
-./install.sh
+    if [ -d "$destination_dir" ]; then
+        echo "$destination_dir already exists. Pulling the latest changes..."
+        echo "Updating $git_repository_url in $destination_dir"
+        git -C "$destination_dir" pull
+    else
+        mkdir -p "$destination_dir"
+        echo "Cloning $git_repository_url in $destination_dir"
+        git clone --recursive "$git_repository_url" "$destination_dir"
+    fi
+    unset destination_dir
+    unset git_repository_url
+}
 
-# shellcheck disable=SC1091
-. ./export.sh
+ESP_IDF_PATH="$(pwd)/esp-idf"
+echo "Setting up ESP-IDF in $ESP_IDF_PATH..."
 
-echo "Changing directory back to $INITIAL_PWD"
-cd "$INITIAL_PWD"
+clone_git_repository_if_not_cloned_already "$ESP_IDF_PATH" "https://github.com/espressif/esp-idf.git"
+
+echo "Running the ESP-IDF installation script..."
+"$ESP_IDF_PATH"/install.sh
