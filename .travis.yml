@@ -23,7 +23,7 @@ jobs:
           - $GOPATH/pkg/mod
           - $HOME/.nvm/versions
       install:
-        - sudo scripts/linux/ci/install-dependencies.sh
+        - sudo scripts/linux/ci/install-dependencies.sh "$CMAKE_VERSION"
         - sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
         - scripts/linux/ci/install-node.sh
         - nvm use
