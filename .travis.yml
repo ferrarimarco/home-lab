@@ -56,8 +56,8 @@ jobs:
       script: |
         PATH="$HOME/cmake-$CMAKE_VERSION-Linux-x86_64/bin:$PATH";
         . "$HOME"/.esp-idf/export.sh;
-        cd provisioning/esp32/smart_desk;
-        idf.py build
+        cd "$TRAVIS_BUILD_DIR"/provisioning/esp32/smart_desk && idf.py build;
+        cd "$TRAVIS_BUILD_DIR"/provisioning/esp32/smart_desk/test && idf.py build;
       after_failure:
         - |
           scripts/linux/ci/diagnostics.sh --host
