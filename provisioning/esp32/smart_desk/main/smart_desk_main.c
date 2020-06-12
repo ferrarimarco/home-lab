@@ -6,6 +6,7 @@
 #include "esp_spi_flash.h"
 
 #include "board_info.h"
+#include "nvs_manager.h"
 
 void app_main(void)
 {
@@ -17,6 +18,8 @@ void app_main(void)
 
     const char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
     printf(board_info);
+
+    initialize_nvs_flash();
 
     for (int i = 10; i >= 0; i--)
     {
