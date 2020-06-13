@@ -22,7 +22,7 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Connecting to the WiFi station mode...");
     ESP_LOGI(TAG, "Connecting to WiFi access point with SSID: %s", CONFIG_ESP_WIFI_SSID);
-    connect_to_wifi_network(CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD);
+    connect_to_wifi_network(CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD, 10);
 
     for (int i = 10; i >= 0; i--)
     {

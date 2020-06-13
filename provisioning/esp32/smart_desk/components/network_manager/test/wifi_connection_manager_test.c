@@ -9,7 +9,7 @@ TEST_CASE("Should connect to the specified wifi network as a client", "[wifi_con
 {
     initialize_nvs_flash();
     esp_err_t expected = ESP_OK;
-    esp_err_t actual = connect_to_wifi_network("ssid", "password", 10);
+    esp_err_t actual = connect_to_wifi_network(CONFIG_ESP_WIFI_SSID, CONFIG_ESP_WIFI_PASSWORD, 10);
 
     TEST_ASSERT_EQUAL(expected, actual);
 }
