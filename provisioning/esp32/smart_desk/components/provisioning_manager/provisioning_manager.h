@@ -1,0 +1,1 @@
+void register_provisioning_manager_event_handlers();
