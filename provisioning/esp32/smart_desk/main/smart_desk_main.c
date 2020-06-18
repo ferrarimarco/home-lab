@@ -21,14 +21,18 @@ void app_main(void)
     const char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
     printf(board_info);
 
+    // Initialize the non-volatile storage flash
+    ESP_ERROR_CHECK(initialize_nvs_flash());
+
+    // Initialize the network stack
+    ESP_ERROR_CHECK(esp_netif_init());
+
     ESP_LOGI(TAG, "Creating the default loop...");
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     ESP_LOGI(TAG, "Registering event handlers...");
     register_wifi_manager_event_handlers();
     register_ip_address_manager_event_handlers();
-
-    initialize_nvs_flash();
 
     ESP_LOGI(TAG, "Connecting to WiFi access point...");
     connect_to_wifi_network("ssid", "password", 10);

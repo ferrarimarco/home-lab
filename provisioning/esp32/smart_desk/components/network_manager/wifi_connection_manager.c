@@ -44,8 +44,6 @@ void connect_to_wifi_network(char *ssid, char *password, int max_retries)
     ESP_LOGI(TAG, "Connecting to %s WiFi network...", ssid);
     s_max_retries = max_retries;
 
-    ESP_ERROR_CHECK(esp_netif_init());
-
     esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
