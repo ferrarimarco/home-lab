@@ -6,6 +6,37 @@
 
 static const char *TAG = "provisioning_manager";
 
+static void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    wifi_prov_mgr_config_t wifi_provisioning_manager_config = {
+        .scheme =,
+        .scheme_event_handler =,
+    };
+
+    ESP_ERROR_CHECK(wifi_prov_mgr_init(wifi_provisioning_manager_config));
+
+    bool provisioned = false;
+    ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
+
+    if (!provisioned)
+    {
+        ESP_LOGI(TAG, "Starting provisioning");
+        char service_name[12];
+        get_device_service_name(service_name, sizeof(service_name));
+        wifi_prov_security_t security = WIFI_PROV_SECURITY_1;
+        const char *pop = "abcd1234";
+
+        const char *service_key = NULL;
+
+        ESP_ERROR_CHECK(wifi_prov_mgr_start_provisioning(security, pop, service_name, service_key));
+    }
+    else
+    {
+        ESP_LOGI(TAG, "The WiFi is already provisioned. Firing a WIFI_PROV_END event...");
+        ESP_ERROR_CHECK(esp_event_post(WIFI_PROV_EVENT, WIFI_PROV_END, NULL, 0, NULL));
+    }
+}
+
 static void handle_wifi_prov_start_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Provisioning started");
@@ -37,10 +68,18 @@ static void handle_wifi_prov_end_event(void *arg, esp_event_base_t event_base, i
 {
     ESP_LOGI(TAG, "Provisioning completed");
     wifi_prov_mgr_deinit();
+
+    ESP_ERROR_CHECK(esp_event_post(WIFI_EVENT, WIFI_PROV_END, NULL, 0, NULL));
+
+    // TODO: fire a handle_wifi_sta_mode_init_event event
 }
 
 void register_provisioning_manager_event_handlers()
 {
+
+    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_XXXXXXXX event...");
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_XXXXXXXX, handle_wifi_prov_init_event, NULL, NULL));
+
     ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_START event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_START, handle_wifi_prov_start_event, NULL, NULL));
 

@@ -33,9 +33,9 @@ void app_main(void)
     ESP_LOGI(TAG, "Registering event handlers...");
     register_wifi_manager_event_handlers();
     register_ip_address_manager_event_handlers();
+    register_wifi_manager_event_handlers();
 
-    ESP_LOGI(TAG, "Connecting to WiFi access point...");
-    connect_to_wifi_network("ssid", "password", 10);
+    // TODO: fire a handle_wifi_prov_init_event event
 
     for (int i = 10; i >= 0; i--)
     {
