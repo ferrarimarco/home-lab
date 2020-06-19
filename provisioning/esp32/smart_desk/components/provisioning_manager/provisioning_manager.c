@@ -9,6 +9,8 @@
 
 static const char *TAG = "provisioning_manager";
 
+ESP_EVENT_DEFINE_BASE(PROVISIONING_MANAGER_EVENTS);
+
 void handle_prov_manager_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Initializing provisioning manager...");
@@ -39,7 +41,7 @@ void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, int32_t
         char service_name[12];
         uint8_t eth_mac[6];
         const char *ssid_prefix = "PROV_";
-        esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
+        ESP_ERROR_CHECK(esp_wifi_get_mac(WIFI_IF_STA, eth_mac));
         snprintf(service_name, sizeof(service_name), "%s%02X%02X%02X", ssid_prefix, eth_mac[3], eth_mac[4], eth_mac[5]);
         ESP_LOGI(TAG, "Setting service name to %s...", service_name);
 
@@ -119,8 +121,8 @@ void handle_wifi_prov_deinit_event(void *arg, esp_event_base_t event_base, int32
 
 void register_provisioning_manager_event_handlers()
 {
-    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_MANAGER_INIT event...");
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_MANAGER_INIT, handle_prov_manager_init_event, NULL, NULL));
+    ESP_LOGI(TAG, "Registering the handler for PROVISIONING_MANAGER_INIT event...");
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(PROVISIONING_MANAGER_EVENTS, PROVISIONING_MANAGER_INIT, handle_prov_manager_init_event, NULL, NULL));
 
     ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_INIT event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_INIT, handle_wifi_prov_init_event, NULL, NULL));
@@ -147,5 +149,5 @@ void register_provisioning_manager_event_handlers()
 void start_wifi_provisioning()
 {
     ESP_LOGI(TAG, "Starting WiFi provisioning...");
-    ESP_ERROR_CHECK(esp_event_post(WIFI_PROV_EVENT, WIFI_PROV_MANAGER_INIT, NULL, 0, portMAX_DELAY));
+    ESP_ERROR_CHECK(esp_event_post(PROVISIONING_MANAGER_EVENTS, PROVISIONING_MANAGER_INIT, NULL, 0, portMAX_DELAY));
 }
