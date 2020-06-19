@@ -1,6 +1,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
-#include "wifi_provisioning/manager.h"
+#include "esp_wifi.h"
+#include "wifi_provisioning/scheme_ble.h"
 
 #include "provisioning_manager.h"
 #include "wifi_connection_manager.h"
@@ -14,8 +15,8 @@ static void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, 
     ESP_ERROR_CHECK(esp_event_post(WIFI_EVENT, WIFI_EVENT_STA_INIT, NULL, 0, portMAX_DELAY));
 
     wifi_prov_mgr_config_t wifi_provisioning_manager_config = {
-        .scheme =,
-        .scheme_event_handler =,
+        .scheme = wifi_prov_scheme_ble,
+        .scheme_event_handler = WIFI_PROV_SCHEME_BLE_EVENT_HANDLER_FREE_BTDM,
     };
 
     ESP_ERROR_CHECK(wifi_prov_mgr_init(wifi_provisioning_manager_config));
@@ -26,14 +27,41 @@ static void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, 
     if (!provisioned)
     {
         ESP_LOGI(TAG, "Starting WiFi provisioning...");
+
         char service_name[12];
-        get_device_service_name(service_name, sizeof(service_name));
+        uint8_t eth_mac[6];
+        const char *ssid_prefix = "PROV_";
+        esp_wifi_get_mac(WIFI_IF_STA, eth_mac);
+        snprintf(service_name, sizeof(service_name), "%s%02X%02X%02X", ssid_prefix, eth_mac[3], eth_mac[4], eth_mac[5]);
+        ESP_LOGI(TAG, "Setting service name to %s...", service_name);
+
         wifi_prov_security_t security = WIFI_PROV_SECURITY_1;
+
         const char *pop = "abcd1234";
 
-        const char *service_key = NULL;
+        uint8_t custom_service_uuid[] = {
+            /* LSB <---------------------------------------
+             * ---------------------------------------> MSB */
+            0xb4,
+            0xdf,
+            0x5a,
+            0x1c,
+            0x3f,
+            0x6b,
+            0xf4,
+            0xbf,
+            0xea,
+            0x4a,
+            0x82,
+            0x03,
+            0x04,
+            0x90,
+            0x1a,
+            0x02,
+        };
+        ESP_ERROR_CHECK(wifi_prov_scheme_ble_set_service_uuid(custom_service_uuid));
 
-        ESP_ERROR_CHECK(wifi_prov_mgr_start_provisioning(security, pop, service_name, service_key));
+        ESP_ERROR_CHECK(wifi_prov_mgr_start_provisioning(security, pop, service_name, NULL));
     }
     else
     {
