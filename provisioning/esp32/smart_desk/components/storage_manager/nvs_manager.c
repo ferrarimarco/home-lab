@@ -8,7 +8,6 @@ static const char *TAG = "nvs_manager";
 
 esp_err_t initialize_nvs_flash()
 {
-    ESP_LOGI(TAG, "Initializing the non-volatile storage flash...");
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {

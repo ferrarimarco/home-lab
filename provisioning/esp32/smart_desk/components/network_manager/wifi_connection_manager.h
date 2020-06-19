@@ -6,4 +6,6 @@ enum
     WIFI_EVENT_STA_MODE_INIT // raised when the wifi station manager needs to be enabled
 };
 
+void initialize_wifi_station();
+
 void register_wifi_manager_event_handlers();

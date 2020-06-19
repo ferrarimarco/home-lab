@@ -9,8 +9,11 @@
 
 static const char *TAG = "wifi_connection_manager";
 
-static void handle_wifi_sta_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_sta_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
+    ESP_LOGI(TAG, "Initializing WiFi...");
+
+    ESP_LOGI(TAG, "Initializing the non-volatile storage flash...");
     ESP_ERROR_CHECK(initialize_nvs_flash());
 
     ESP_LOGI(TAG, "Initializing the network stack...");
@@ -24,7 +27,7 @@ static void handle_wifi_sta_init_event(void *arg, esp_event_base_t event_base, i
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 }
 
-static void handle_wifi_sta_mode_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_sta_mode_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Initializing the WiFi station mode...");
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -33,16 +36,22 @@ static void handle_wifi_sta_mode_init_event(void *arg, esp_event_base_t event_ba
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-static void handle_wifi_sta_start_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_sta_start_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Connecting to the access point...");
     ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
-static void handle_wifi_sta_disconnected_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_sta_disconnected_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Retry connecting to the access point...");
     ESP_ERROR_CHECK(esp_wifi_connect());
+}
+
+void initialize_wifi_station()
+{
+    ESP_LOGI(TAG, "Initializing WiFi station...");
+    handle_wifi_sta_init_event(NULL, WIFI_EVENT, WIFI_EVENT_STA_INIT, NULL);
 }
 
 void register_wifi_manager_event_handlers()

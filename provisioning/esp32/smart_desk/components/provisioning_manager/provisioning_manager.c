@@ -9,11 +9,11 @@
 
 static const char *TAG = "provisioning_manager";
 
-static void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_prov_manager_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ESP_LOGI(TAG, "Initializing WiFi provisioning...");
+    ESP_LOGI(TAG, "Initializing provisioning manager...");
 
-    ESP_ERROR_CHECK(esp_event_post(WIFI_EVENT, WIFI_EVENT_STA_INIT, NULL, 0, portMAX_DELAY));
+    initialize_wifi_station();
 
     wifi_prov_mgr_config_t wifi_provisioning_manager_config = {
         .scheme = wifi_prov_scheme_ble,
@@ -22,6 +22,11 @@ static void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, 
 
     ESP_LOGI(TAG, "Initializing WiFi provisioning manager...");
     ESP_ERROR_CHECK(wifi_prov_mgr_init(wifi_provisioning_manager_config));
+}
+
+void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    ESP_LOGI(TAG, "WiFi provisioning manager initialization completed.");
 
     ESP_LOGI(TAG, "Checking if WiFi is already provisioned...");
     bool provisioned = false;
@@ -29,7 +34,7 @@ static void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, 
 
     if (!provisioned)
     {
-        ESP_LOGI(TAG, "Starting WiFi provisioning...");
+        ESP_LOGI(TAG, "WiFi is not already provisioned. Starting WiFi provisioning...");
 
         char service_name[12];
         uint8_t eth_mac[6];
@@ -68,17 +73,17 @@ static void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, 
     }
     else
     {
-        ESP_LOGI(TAG, "The WiFi is already provisioned...");
+        ESP_LOGI(TAG, "The WiFi is already provisioned. Completing the provisioning process...");
         ESP_ERROR_CHECK(esp_event_post(WIFI_PROV_EVENT, WIFI_PROV_END, NULL, 0, portMAX_DELAY));
     }
 }
 
-static void handle_wifi_prov_start_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_prov_start_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Provisioning started");
 }
 
-static void handle_wifi_prov_cred_recv_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_prov_cred_recv_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t *)event_data;
     ESP_LOGI(TAG, "Received Wi-Fi credentials"
@@ -87,7 +92,7 @@ static void handle_wifi_prov_cred_recv_event(void *arg, esp_event_base_t event_b
              (const char *)wifi_sta_cfg->password);
 }
 
-static void handle_wifi_prov_cred_fail_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_prov_cred_fail_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     wifi_prov_sta_fail_reason_t *reason = (wifi_prov_sta_fail_reason_t *)event_data;
     ESP_LOGE(TAG, "Provisioning failed!\n\tReason : %s"
@@ -95,23 +100,30 @@ static void handle_wifi_prov_cred_fail_event(void *arg, esp_event_base_t event_b
              (*reason == WIFI_PROV_STA_AUTH_ERROR) ? "Wi-Fi station authentication failed" : "Wi-Fi access-point not found");
 }
 
-static void handle_wifi_prov_cred_success_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_prov_cred_success_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Provisioning successful");
 }
 
-static void handle_wifi_prov_end_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+void handle_wifi_prov_end_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ESP_LOGI(TAG, "WiFi provisioning completed");
+    ESP_LOGI(TAG, "WiFi provisioning completed. De-initializing the WiFi provisioning manager...");
     wifi_prov_mgr_deinit();
+}
 
+void handle_wifi_prov_deinit_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    ESP_LOGI(TAG, "WiFi provisioning manager de-initialization completed. Initializing WiFi station mode...");
     ESP_ERROR_CHECK(esp_event_post(WIFI_EVENT, WIFI_EVENT_STA_MODE_INIT, NULL, 0, portMAX_DELAY));
 }
 
 void register_provisioning_manager_event_handlers()
 {
     ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_MANAGER_INIT event...");
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_MANAGER_INIT, handle_wifi_prov_init_event, NULL, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_MANAGER_INIT, handle_prov_manager_init_event, NULL, NULL));
+
+    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_INIT event...");
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_INIT, handle_wifi_prov_init_event, NULL, NULL));
 
     ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_START event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_START, handle_wifi_prov_start_event, NULL, NULL));
@@ -127,9 +139,13 @@ void register_provisioning_manager_event_handlers()
 
     ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_END event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_END, handle_wifi_prov_end_event, NULL, NULL));
+
+    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_DEINIT event...");
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_DEINIT, handle_wifi_prov_deinit_event, NULL, NULL));
 }
 
 void start_wifi_provisioning()
 {
+    ESP_LOGI(TAG, "Starting WiFi provisioning...");
     ESP_ERROR_CHECK(esp_event_post(WIFI_PROV_EVENT, WIFI_PROV_MANAGER_INIT, NULL, 0, portMAX_DELAY));
 }
