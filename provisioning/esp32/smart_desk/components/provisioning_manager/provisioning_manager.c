@@ -1,6 +1,7 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
+#include "wifi_provisioning/manager.h"
 #include "wifi_provisioning/scheme_ble.h"
 
 #include "provisioning_manager.h"
@@ -19,8 +20,10 @@ static void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, 
         .scheme_event_handler = WIFI_PROV_SCHEME_BLE_EVENT_HANDLER_FREE_BTDM,
     };
 
+    ESP_LOGI(TAG, "Initializing WiFi provisioning manager...");
     ESP_ERROR_CHECK(wifi_prov_mgr_init(wifi_provisioning_manager_config));
 
+    ESP_LOGI(TAG, "Checking if WiFi is already provisioned...");
     bool provisioned = false;
     ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
 
