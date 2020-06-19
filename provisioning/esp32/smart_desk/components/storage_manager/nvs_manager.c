@@ -1,11 +1,14 @@
 #include "esp_system.h"
+#include "esp_log.h"
 
 #include "nvs_flash.h"
 #include "nvs_manager.h"
 
+static const char *TAG = "nvs_manager";
+
 esp_err_t initialize_nvs_flash()
 {
-    //Initialize NVS
+    ESP_LOGI(TAG, "Initializing the non-volatile storage flash...");
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
