@@ -9,6 +9,8 @@
 
 static const char *TAG = "wifi_connection_manager";
 
+ESP_EVENT_DEFINE_BASE(WIFI_CONNECTION_MANAGER_EVENTS);
+
 void handle_wifi_sta_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Initializing WiFi...");
@@ -39,7 +41,11 @@ void handle_wifi_sta_mode_init_event(void *arg, esp_event_base_t event_base, int
 void handle_wifi_sta_start_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Connecting to the access point...");
-    ESP_ERROR_CHECK(esp_wifi_connect());
+    esp_err_t err = esp_wifi_connect();
+    if (err == ESP_ERR_WIFI_SSID)
+    {
+        ESP_LOGW(TAG, "The specified SSID is not valid. If the device was not provisioned, this warning can safely be ignored...");
+    }
 }
 
 void handle_wifi_sta_disconnected_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -51,16 +57,16 @@ void handle_wifi_sta_disconnected_event(void *arg, esp_event_base_t event_base, 
 void initialize_wifi_station()
 {
     ESP_LOGI(TAG, "Initializing WiFi station...");
-    handle_wifi_sta_init_event(NULL, WIFI_EVENT, WIFI_EVENT_STA_INIT, NULL);
+    handle_wifi_sta_init_event(NULL, WIFI_CONNECTION_MANAGER_EVENTS, WIFI_CONNECTION_MANAGER_EVENT_STA_INIT, NULL);
 }
 
 void register_wifi_manager_event_handlers()
 {
-    ESP_LOGI(TAG, "Registering the handler for WIFI_EVENT_STA_INIT event...");
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, WIFI_EVENT_STA_INIT, handle_wifi_sta_init_event, NULL, NULL));
+    ESP_LOGI(TAG, "Registering the handler for WIFI_CONNECTION_MANAGER_EVENT_STA_INIT event...");
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_CONNECTION_MANAGER_EVENTS, WIFI_CONNECTION_MANAGER_EVENT_STA_INIT, handle_wifi_sta_init_event, NULL, NULL));
 
-    ESP_LOGI(TAG, "Registering the handler for WIFI_EVENT_STA_MODE_INIT event...");
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, WIFI_EVENT_STA_MODE_INIT, handle_wifi_sta_mode_init_event, NULL, NULL));
+    ESP_LOGI(TAG, "Registering the handler for WIFI_CONNECTION_MANAGER_EVENT_STA_MODE_INIT event...");
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_CONNECTION_MANAGER_EVENTS, WIFI_CONNECTION_MANAGER_EVENT_STA_MODE_INIT, handle_wifi_sta_mode_init_event, NULL, NULL));
 
     ESP_LOGI(TAG, "Registering the handler for WIFI_EVENT_STA_START event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, WIFI_EVENT_STA_START, handle_wifi_sta_start_event, NULL, NULL));

@@ -1,9 +1,9 @@
-#include "esp_system.h"
+ESP_EVENT_DECLARE_BASE(WIFI_CONNECTION_MANAGER_EVENTS);
 
 enum
 {
-    WIFI_EVENT_STA_INIT,     // raised when the wifi station manager needs to be initialized
-    WIFI_EVENT_STA_MODE_INIT // raised when the wifi station manager needs to be enabled
+    WIFI_CONNECTION_MANAGER_EVENT_STA_INIT,     // raised when the wifi station manager needs to be initialized
+    WIFI_CONNECTION_MANAGER_EVENT_STA_MODE_INIT // raised when the wifi station manager needs to be enabled
 };
 
 void initialize_wifi_station();

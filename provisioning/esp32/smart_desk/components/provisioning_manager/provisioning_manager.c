@@ -116,7 +116,7 @@ void handle_wifi_prov_end_event(void *arg, esp_event_base_t event_base, int32_t 
 void handle_wifi_prov_deinit_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "WiFi provisioning manager de-initialization completed. Initializing WiFi station mode...");
-    ESP_ERROR_CHECK(esp_event_post(WIFI_EVENT, WIFI_EVENT_STA_MODE_INIT, NULL, 0, portMAX_DELAY));
+    ESP_ERROR_CHECK(esp_event_post(WIFI_CONNECTION_MANAGER_EVENTS, WIFI_CONNECTION_MANAGER_EVENT_STA_MODE_INIT, NULL, 0, portMAX_DELAY));
 }
 
 void register_provisioning_manager_event_handlers()
