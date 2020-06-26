@@ -51,8 +51,7 @@ steps:
           - '-c'
           - |
             cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
-            terraform plan || exit 1
-            cd ../../
+            terraform plan
     - id: 'tf apply'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
