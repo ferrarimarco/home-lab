@@ -21,3 +21,5 @@ echo "Downloading $CMAKE_ARCHIVE_NAME"
 wget https://github.com/Kitware/CMake/releases/download/v"$CMAKE_VERSION"/"$CMAKE_ARCHIVE_NAME"
 tar xf "$CMAKE_ARCHIVE_NAME"
 rm "$CMAKE_ARCHIVE_NAME"
+
+echo "PWD: $(pwd)"
