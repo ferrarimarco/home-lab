@@ -71,9 +71,13 @@ steps:
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       dir: "$_ESP_SMART_DESK_PATH"
       args:
+          - pwd;
+          - /workspaces/scripts/linux/ci/install-dependencies.sh;
           - idf.py
           - build
 substitutions:
+    # Use the latest tag because we are currently developing the ESP32 stuff.
+    # Will switch to a more repeatable tag when we stabilize.
     _ESP_IDF_VERSION_IMAGE_TAG: 'latest'
     _ESP_SMART_DESK_PATH: 'provisioning/esp32/smart_desk'
     _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
