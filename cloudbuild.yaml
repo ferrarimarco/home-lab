@@ -72,8 +72,7 @@ steps:
       args:
           - '-c'
           - |
-            scripts/linux/ci/install-dependencies.sh
-            $_CMAKE_VERSION
+            scripts/linux/ci/install-dependencies.sh $_CMAKE_VERSION
     - id: 'esp-idf build'
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       dir: "$_ESP_SMART_DESK_PATH"
