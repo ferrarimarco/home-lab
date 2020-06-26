@@ -71,7 +71,7 @@ steps:
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       dir: "$_ESP_SMART_DESK_PATH"
       args:
-          - /workspace/scripts/linux/ci/install-dependencies.sh;
+          - ../../scripts/linux/ci/install-dependencies.sh;
           - idf.py
           - build
 substitutions:
