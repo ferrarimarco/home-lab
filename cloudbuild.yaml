@@ -15,10 +15,10 @@ steps:
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             /builder/google-cloud-sdk/bin/gcloud \
                 kms decrypt \
                 --ciphertext-file=terraform.tfvars.enc \
@@ -29,37 +29,37 @@ steps:
     - id: 'tf init'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             terraform init || exit 1
             cd ../../
     - id: 'tf validate'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             terraform validate || exit 1
             cd ../../
     - id: 'tf plan'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             terraform plan
     - id: 'tf apply'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
             if [ "${BRANCH_NAME}" = "master" ]; then
-                cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
                 echo $BRANCH_NAME
                 terraform apply -auto-approve || exit 1
             else
@@ -68,10 +68,11 @@ steps:
             fi
     - id: 'esp-idf build'
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
+      dir: "$_ESP_SMART_DESK_PATH"
       args:
           - |
-            cd $_ESP_SMART_DESK_PATH && idf.py build
+            idf.py build
 substitutions:
     _ESP_IDF_VERSION_IMAGE_TAG: 'release-v4.2'
-    _ESP_SMART_DESK_PATH: '/workspace/provisioning/esp32/smart_desk'
-    _TERRAFORM_ENVIRONMENT_PATH: '/workspace/provisioning/terraform/environments/prod'
+    _ESP_SMART_DESK_PATH: 'provisioning/esp32/smart_desk'
+    _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
