@@ -67,5 +67,13 @@ steps:
                 echo "Not applying any Terraform change. Not on master branch."
                 echo "Current branch: $BRANCH_NAME"
             fi
+    - id: 'esp-idf build'
+      name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
+      args:
+          - |
+            cd $_ESP_SMART_DESK_PATH || exit 1
+            idf.py build
 substitutions:
-    _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
+    _ESP_IDF_VERSION_IMAGE_TAG: 'release-v4.2'
+    _ESP_SMART_DESK_PATH: '/workspace/provisioning/esp32/smart_desk'
+    _TERRAFORM_ENVIRONMENT_PATH: '/workspace/provisioning/terraform/environments/prod'
