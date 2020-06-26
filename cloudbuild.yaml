@@ -72,6 +72,9 @@ steps:
       args:
           - ../../../scripts/linux/ci/install-dependencies.sh
           - $_CMAKE_VERSION
+          - ;
+          - idf.py
+          - build
 substitutions:
     # Use the latest tag because we are currently developing the ESP32 stuff.
     # Will switch to a more repeatable tag when we stabilize.
