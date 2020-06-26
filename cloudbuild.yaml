@@ -2,7 +2,6 @@
 options:
     env:
         - TF_INPUT=false
-        - CMAKE_VERSION="3.17.3"
 steps:
     - id: 'branch name'
       name: 'alpine'
@@ -71,11 +70,12 @@ steps:
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       dir: "$_ESP_SMART_DESK_PATH"
       args:
-          - CMAKE_VERSION=$CMAKE_VERSION
+          - CMAKE_VERSION=$_CMAKE_VERSION
           - ../../../scripts/linux/ci/install-dependencies.sh
 substitutions:
     # Use the latest tag because we are currently developing the ESP32 stuff.
     # Will switch to a more repeatable tag when we stabilize.
+    _CMAKE_VERSION: '3.17.3'
     _ESP_IDF_VERSION_IMAGE_TAG: 'latest'
     _ESP_SMART_DESK_PATH: 'provisioning/esp32/smart_desk'
     _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
