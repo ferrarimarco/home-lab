@@ -70,8 +70,7 @@ steps:
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       args:
           - |
-            cd $_ESP_SMART_DESK_PATH || exit 1
-            idf.py build
+            cd $_ESP_SMART_DESK_PATH && idf.py build
 substitutions:
     _ESP_IDF_VERSION_IMAGE_TAG: 'release-v4.2'
     _ESP_SMART_DESK_PATH: '/workspace/provisioning/esp32/smart_desk'
