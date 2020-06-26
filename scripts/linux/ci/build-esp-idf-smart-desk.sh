@@ -9,7 +9,7 @@ if [ -z "${CMAKE_VERSION}" ]; then
     exit 1
 fi
 
-CMAKE_BIN_DIR_PATH="$(pwd)/cmake-$CMAKE_VERSION-Linux-x86_64/bin"
+CMAKE_BIN_DIR_PATH="/workspace/cmake-$CMAKE_VERSION-Linux-x86_64/bin"
 echo "Adding $CMAKE_BIN_DIR_PATH to PATH..."
 PATH="$CMAKE_BIN_DIR_PATH:$PATH"
 export PATH
