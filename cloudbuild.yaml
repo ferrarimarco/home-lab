@@ -72,6 +72,7 @@ steps:
       dir: "$_ESP_SMART_DESK_PATH"
       args:
           - pwd;
+          - ls -al /workspaces/scripts/linux/ci;
           - /workspaces/scripts/linux/ci/install-dependencies.sh;
           - idf.py
           - build
