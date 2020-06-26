@@ -2,10 +2,6 @@
 
 set -e
 
-apt-get install -y \
-    ca-certificates \
-    wget
-
 CMAKE_VERSION="$1"
 
 if [ -z "${CMAKE_VERSION}" ]; then
@@ -13,22 +9,15 @@ if [ -z "${CMAKE_VERSION}" ]; then
     exit 1
 fi
 
+apt-get install -y \
+    ca-certificates \
+    wget
+
 echo "Installing CMake $CMAKE_VERSION..."
-
-CURRENT_PWD="$(pwd)"
-echo "PWD: $CURRENT_PWD"
-
-cd "$HOME" || exit 1
 
 CMAKE_ARCHIVE_NAME=cmake-"$CMAKE_VERSION"-Linux-x86_64.tar.gz
 echo "Downloading $CMAKE_ARCHIVE_NAME"
 
 wget https://github.com/Kitware/CMake/releases/download/v"$CMAKE_VERSION"/"$CMAKE_ARCHIVE_NAME"
 tar xf "$CMAKE_ARCHIVE_NAME"
-
-PATH="$(pwd)/cmake-$CMAKE_VERSION-Linux-x86_64/bin:$PATH"
-export PATH
-
-cmake --version
-
-cd "$CURRENT_PWD" || exit 1
+rm "$CMAKE_ARCHIVE_NAME"

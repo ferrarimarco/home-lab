@@ -66,15 +66,20 @@ steps:
                 echo "Not applying any Terraform change. Not on master branch."
                 echo "Current branch: $BRANCH_NAME"
             fi
+    - id: 'Install CMake'
+      name: 'alpine'
+      entrypoint: 'sh'
+      args:
+          - '-c'
+          - |
+            scripts/linux/ci/install-dependencies.sh
+            $_CMAKE_VERSION
     - id: 'esp-idf build'
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       dir: "$_ESP_SMART_DESK_PATH"
       args:
-          - ../../../scripts/linux/ci/install-dependencies.sh
+          - ../../../scripts/linux/ci/build-esp-idf-smart-desk.sh
           - $_CMAKE_VERSION
-          - ;
-          - idf.py
-          - build
 substitutions:
     # Use the latest tag because we are currently developing the ESP32 stuff.
     # Will switch to a more repeatable tag when we stabilize.
