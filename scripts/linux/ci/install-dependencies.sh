@@ -2,6 +2,10 @@
 
 set -e
 
+apt-get install -y \
+    ca-certificates \
+    wget
+
 CMAKE_VERSION="$1"
 
 if [ -z "${CMAKE_VERSION}" ]; then
