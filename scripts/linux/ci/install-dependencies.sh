@@ -9,7 +9,7 @@ if [ -z "${CMAKE_VERSION}" ]; then
     exit 1
 fi
 
-apk install --no-cache \
+apk add --no-cache \
     ca-certificates \
     wget
 
