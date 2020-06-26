@@ -71,6 +71,7 @@ steps:
       dir: "$_ESP_SMART_DESK_PATH"
       args:
           - CMAKE_VERSION=$_CMAKE_VERSION
+          - "&&"
           - ../../../scripts/linux/ci/install-dependencies.sh
 substitutions:
     # Use the latest tag because we are currently developing the ESP32 stuff.
