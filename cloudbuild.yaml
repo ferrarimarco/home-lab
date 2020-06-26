@@ -71,6 +71,7 @@ steps:
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       dir: "$_ESP_SMART_DESK_PATH"
       args:
+          - CMAKE_VERSION=$CMAKE_VERSION
           - ../../../scripts/linux/ci/install-dependencies.sh
 substitutions:
     # Use the latest tag because we are currently developing the ESP32 stuff.
