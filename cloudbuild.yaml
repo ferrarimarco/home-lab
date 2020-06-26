@@ -2,6 +2,7 @@
 options:
     env:
         - TF_INPUT=false
+        - CMAKE_VERSION="3.17.3"
 steps:
     - id: 'branch name'
       name: 'alpine'
@@ -70,6 +71,7 @@ steps:
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       dir: "$_ESP_SMART_DESK_PATH"
       args:
+          - scripts/linux/ci/install-dependencies.sh;
           - idf.py
           - build
 substitutions:
