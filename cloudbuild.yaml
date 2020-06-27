@@ -3,14 +3,11 @@ options:
     env:
         - TF_INPUT=false
 steps:
-    - id: 'Check whitespaces'
-      name: "gcr.io/cloud-builders/git"
-      entrypoint: '/bin/sh'
+    - id: 'shfmt'
+      name: "mvdan/shfmt:v3.1.2-alpine"
       args:
-        - -c
-        - |
-          ls -al;
-          git diff-tree --check "$(git hash-object -t tree /dev/null)" HEAD
+        - -d
+        - '.'
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
