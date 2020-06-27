@@ -3,11 +3,8 @@ options:
     env:
         - TF_INPUT=false
 steps:
-    - id: 'shfmt'
-      name: "mvdan/shfmt:v3.1.2-alpine"
-      args:
-        - -d
-        - '.'
+    - id: 'super-linter'
+      name: "github/super-linter:v2.2.2"
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
