@@ -4,7 +4,7 @@ options:
         - TF_INPUT=false
 steps:
     - id: 'Check whitespaces'
-      name: "git"
+      name: "gcr.io/cloud-builders/git"
       entrypoint: '/bin/sh'
       args:
         - -c
