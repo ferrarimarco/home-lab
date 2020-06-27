@@ -3,17 +3,13 @@ options:
     env:
         - TF_INPUT=false
 steps:
-    - id: 'Lint Dockerfiles'
-      name: 'hadolint/hadolint:v1.17.5-8-gc8bf307-alpine'
+    - id: 'Check whitespaces'
+      name: "git"
       entrypoint: '/bin/sh'
       args:
         - -c
         - |
-          find "$(pwd)" -type f -not -path "*/\.git/*" -not -name "*.md" -not -path "*/\node_modules/*" -name "Dockerfile" \
-            -exec hadolint {} \; \
-            | tee /dev/stdout \
-            | grep -q 'Dockerfile'
-          if [[ $? -eq 0 ]] ; then exit 1 ; fi
+          git diff-tree --check "$(git hash-object -t tree /dev/null)" HEAD
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
