@@ -81,9 +81,9 @@ steps:
           - $_CMAKE_VERSION
     - id: 'Prepare smart_desk binary'
       name: 'alpine'
-      entrypoint: '/workspace/scripts/linux/ci/prepare-smart-desk-binary.sh'
+      entrypoint: 'scripts/linux/ci/prepare-smart-desk-binary.sh'
       args:
-        - /workspace/provisioning/esp32/smart_desk/build/smart-desk.bin
+        - "$_ESP_SMART_DESK_PATH/build/smart-desk.bin"
         - "$COMMIT_SHA"
         - "$BRANCH_NAME"
         - "$TAG_NAME"
