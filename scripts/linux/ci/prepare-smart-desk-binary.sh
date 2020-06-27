@@ -12,6 +12,8 @@ if [ -z "${BINARY_FILE_PATH}" ]; then
     exit 1
 fi
 
+echo "Preparing $BINARY_FILE_PATH..."
+
 echo "Binary file path: ${BINARY_FILE_PATH}"
 
 BINARY_FILE_NAME="$(basename "${BINARY_FILE_PATH}")"
@@ -35,9 +37,10 @@ if [ -z "${TAG_NAME}" ]; then
 fi
 
 NEW_BINARY_FILE_NAME="${BINARY_FILE_NAME_NO_EXT}-${BRANCH_NAME}-${COMMIT_SHA}.bin"
-NEW_BINARY_FILE_PATH="$(dirname "${BINARY_FILE_PATH}")/${NEW_BINARY_FILE_NAME}"
+echo "New binary file name: ${NEW_BINARY_FILE_NAME}"
 
-echo "Preparing $BINARY_FILE_PATH..."
+NEW_BINARY_FILE_PATH="$(dirname "${BINARY_FILE_PATH}")/${NEW_BINARY_FILE_NAME}"
+echo "New binary file path: ${NEW_BINARY_FILE_PATH}"
 
 echo "Moving $BINARY_FILE_PATH to $NEW_BINARY_FILE_PATH..."
 mv "$BINARY_FILE_PATH" "$NEW_BINARY_FILE_PATH"
