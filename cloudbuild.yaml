@@ -6,6 +6,7 @@ steps:
     - id: 'super-linter'
       name: "github/super-linter:v2.2.2"
       env:
+        - DEFAULT_WORKSPACE=/workspace
         - RUN_LOCAL=true
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
