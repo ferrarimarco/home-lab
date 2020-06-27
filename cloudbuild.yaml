@@ -9,6 +9,7 @@ steps:
       args:
         - -c
         - |
+          ls -al;
           git diff-tree --check "$(git hash-object -t tree /dev/null)" HEAD
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
