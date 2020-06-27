@@ -6,6 +6,7 @@ steps:
     - id: 'super-linter'
       name: "github/super-linter:v2.2.2"
       env:
+        - ANSIBLE_DIRECTORY=/workspace/configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - RUN_LOCAL=true
         # Disable tflint. Not configured yet.
