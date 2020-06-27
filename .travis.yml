@@ -20,7 +20,6 @@ jobs:
           - $GOPATH/pkg/mod
           - $HOME/.nvm/versions
       install:
-        - sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
         - scripts/linux/ci/install-node.sh
         - nvm use
         - scripts/linux/ci/install-linting-tools.sh

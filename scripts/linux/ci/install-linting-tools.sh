@@ -3,6 +3,13 @@
 set -e
 set -o pipefail
 
+apt-get update
+
+apt-get install \
+    python3 \
+    python3-pip \
+    python3-setuptools
+
 pip3 install \
     setuptools \
     wheel
