@@ -9,8 +9,6 @@ steps:
         - ANSIBLE_DIRECTORY=/workspace/configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - RUN_LOCAL=true
-        # Disable tflint. Not configured yet.
-        - VALIDATE_TERRAFORM=false
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
