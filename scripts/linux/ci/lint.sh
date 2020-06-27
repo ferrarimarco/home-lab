@@ -55,8 +55,6 @@ while IFS= read -r file; do
 done <tmp
 rm tmp
 
-shfmt -d . || exit 1
-
 cd configuration/ansible || exit 1
 ansible-lint -v bootstrap-managed-nodes.yml || exit 1
 echo "Setting the working directory back to $INITIAL_PWD"
