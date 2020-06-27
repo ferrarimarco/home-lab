@@ -24,6 +24,11 @@ done <tmp
 rm tmp
 
 while IFS= read -r -d '' file; do
+    echo "Linting $file"
+    docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine <"$file" || exit 1
+done < <(find "$(pwd)" -type f -not -path "*/\.git/*" -not -name "*.md" -not -path "*/\node_modules/*" -name "Dockerfile" -print0)
+
+while IFS= read -r -d '' file; do
     f="${file#$(pwd)}"
     f="${f/\//}"
     echo "Linting $f"

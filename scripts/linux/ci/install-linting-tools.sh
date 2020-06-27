@@ -3,9 +3,9 @@
 set -e
 set -o pipefail
 
-apt-get update
+sudo apt-get update
 
-apt-get install \
+sudo apt-get install \
     python3 \
     python3-pip \
     python3-setuptools
