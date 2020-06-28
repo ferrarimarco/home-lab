@@ -3,22 +3,25 @@ options:
     env:
         - TF_INPUT=false
 steps:
-    - id: 'branch name'
-      name: 'alpine'
-      entrypoint: 'sh'
-      args:
-          - '-c'
-          - |
-            echo "***********************"
-            echo "Branch: $BRANCH_NAME"
-            echo "***********************"
+    - id: 'super-linter'
+      name: "github/super-linter:v2.2.2"
+      env:
+        - ANSIBLE_DIRECTORY=/workspace/configuration/ansible
+        - DEFAULT_WORKSPACE=/workspace
+        - RUN_LOCAL=true
+        - VALIDATE_JSON=true
+        - VALIDATE_YAML=true
+        - VALIDATE_MD=true
+        - VALIDATE_BASH=true
+        - VALIDATE_ANSIBLE=true
+        - VALIDATE_DOCKER=true
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             /builder/google-cloud-sdk/bin/gcloud \
                 kms decrypt \
                 --ciphertext-file=terraform.tfvars.enc \
@@ -29,43 +32,68 @@ steps:
     - id: 'tf init'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             terraform init || exit 1
             cd ../../
     - id: 'tf validate'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
             terraform validate || exit 1
             cd ../../
     - id: 'tf plan'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
-            cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
-            terraform plan || exit 1
-            cd ../../
+            terraform plan
     - id: 'tf apply'
       name: 'hashicorp/terraform:0.12.20'
       entrypoint: 'sh'
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
       args:
           - '-c'
           - |
             if [ "${BRANCH_NAME}" = "master" ]; then
-                cd $_TERRAFORM_ENVIRONMENT_PATH || exit 1
                 echo $BRANCH_NAME
                 terraform apply -auto-approve || exit 1
             else
                 echo "Not applying any Terraform change. Not on master branch."
                 echo "Current branch: $BRANCH_NAME"
             fi
+    - id: 'Install CMake'
+      name: 'alpine'
+      entrypoint: 'sh'
+      args:
+          - '-c'
+          - |
+            scripts/linux/ci/install-dependencies.sh $_CMAKE_VERSION
+    - id: 'esp-idf build'
+      name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
+      dir: "$_ESP_SMART_DESK_PATH"
+      args:
+          - ../../../scripts/linux/ci/build-esp-idf-smart-desk.sh
+          - $_CMAKE_VERSION
+    - id: 'Prepare smart_desk binary'
+      name: 'alpine'
+      entrypoint: 'scripts/linux/ci/prepare-smart-desk-binary.sh'
+      args:
+        - "$_ESP_SMART_DESK_PATH/build/smart-desk.bin"
+        - "$COMMIT_SHA"
+        - "$BRANCH_NAME"
+        - "$TAG_NAME"
 substitutions:
+    # Use the latest tag because we are currently developing the ESP32 stuff.
+    # Will switch to a more repeatable tag when we stabilize.
+    _CMAKE_VERSION: '3.17.3'
+    _ESP_IDF_VERSION_IMAGE_TAG: 'latest'
+    _ESP_SMART_DESK_PATH: 'provisioning/esp32/smart_desk'
     _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
