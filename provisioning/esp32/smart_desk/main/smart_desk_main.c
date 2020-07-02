@@ -31,8 +31,6 @@ void app_main(void)
     do_i2cdetect();
 
     LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS);
-
-    ESP_LOGI(TAG, "Showing LCD demo...");
     LCD_Demo();
 
     esp_chip_info_t chip_info;
