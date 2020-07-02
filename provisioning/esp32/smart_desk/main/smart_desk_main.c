@@ -30,7 +30,16 @@ void app_main(void)
     i2c_master_driver_initialize(SDA_PIN, SCL_PIN, I2C_FREQUENCY);
     do_i2cdetect();
 
-    LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS);
+    // i2c expander - LCD Pin mappings
+    // P0 -> RS
+    // P1 -> RW
+    // P2 -> E
+    // P3 -> Backlight (b) <- not sure about this
+    // P4 -> D4
+    // P5 -> D5
+    // P6 -> D6
+    // P7 -> D7
+    LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3);
     LCD_Demo();
 
     esp_chip_info_t chip_info;
