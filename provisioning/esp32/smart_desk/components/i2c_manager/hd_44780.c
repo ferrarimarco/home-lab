@@ -3,6 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "esp_event.h"
 #include "driver/i2c.h"
 #include "esp32/rom/ets_sys.h"
 
@@ -297,4 +298,25 @@ void LCD_Demo()
             vTaskDelay(50 / portTICK_RATE_MS);
         }
     }
+}
+
+static void sta_got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    ESP_LOGI(TAG, "%s: %u sta_got_ip_event_handler", event_base, event_id);
+    ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+    esp_ip4_addr_t ip_address = event->ip_info.ip;
+
+    int ip_info_size = 20 * sizeof(char);
+    char *ip_info = (char *)malloc(ip_info_size);
+    sprintf(ip_info, "IP: " IPSTR, IP2STR(&ip_address));
+
+    ESP_LOGI(TAG, "Got IP address: %s", ip_info);
+    ESP_LOGI(TAG, "Writing %s to the LCD display...", ip_info);
+    LCD_writeStr(ip_info);
+}
+
+void register_lcd_events()
+{
+    ESP_LOGI(TAG, "Registering the handler for IP_EVENT_STA_GOT_IP event...");
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, sta_got_ip_event_handler, NULL, NULL));
 }
