@@ -74,3 +74,5 @@ void LCD_writeChar(char c);
 void LCD_writeStr(const char *str);
 
 void LCD_Demo();
+
+void register_lcd_events();

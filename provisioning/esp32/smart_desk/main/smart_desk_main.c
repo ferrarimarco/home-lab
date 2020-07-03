@@ -62,6 +62,10 @@ void app_main(void)
     register_wifi_manager_event_handlers();
     register_ip_address_manager_event_handlers();
     register_provisioning_manager_event_handlers();
+    register_lcd_events();
+
+    LCD_clearScreen();
+    LCD_home();
 
     start_wifi_provisioning();
 }
