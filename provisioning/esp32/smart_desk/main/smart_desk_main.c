@@ -8,15 +8,45 @@
 
 #include "app_info.h"
 #include "board_info.h"
+#include "i2c_utils.h"
+#include "hd_44780.h"
 
 #include "ip_address_manager.h"
 #include "wifi_connection_manager.h"
 #include "provisioning_manager.h"
 
+#define SDA_PIN 23
+#define SCL_PIN 22
+#define I2C_FREQUENCY ((uint8_t)100000)
+
+#define LCD_ADDR 0x27
+#define LCD_COLS 20
+#define LCD_ROWS 4
+
 static const char *TAG = "smart_desk";
 
 void app_main(void)
 {
+    i2c_master_driver_initialize(SDA_PIN, SCL_PIN, I2C_FREQUENCY);
+    do_i2cdetect();
+
+    // i2c expander - LCD Pin mappings
+    // P0 -> RS
+    // P1 -> RW
+    // P2 -> E
+    // P3 -> Backlight (b) <- not sure about this
+    // P4 -> D4
+    // P5 -> D5
+    // P6 -> D6
+    // P7 -> D7
+    LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3);
+    LCD_clearScreen();
+    LCD_home();
+    LCD_turnDisplayOn();
+    LCD_switchBacklightOn();
+
+    LCD_writeStr("Initializing...");
+
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
     const char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
