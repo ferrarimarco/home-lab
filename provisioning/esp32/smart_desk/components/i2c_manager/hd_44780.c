@@ -312,6 +312,9 @@ static void sta_got_ip_event_handler(void *arg, esp_event_base_t event_base, int
 
     ESP_LOGI(TAG, "Got IP address: %s", ip_info);
     ESP_LOGI(TAG, "Writing %s to the LCD display...", ip_info);
+
+    LCD_clearScreen();
+    LCD_home();
     LCD_writeStr(ip_info);
 }
 
