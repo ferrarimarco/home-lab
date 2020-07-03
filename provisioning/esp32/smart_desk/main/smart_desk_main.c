@@ -10,6 +10,7 @@
 #include "board_info.h"
 #include "i2c_utils.h"
 #include "hd_44780.h"
+#include "ultrasonic.h"
 
 #include "ip_address_manager.h"
 #include "wifi_connection_manager.h"
@@ -22,6 +23,10 @@
 #define LCD_ADDR 0x27
 #define LCD_COLS 20
 #define LCD_ROWS 4
+
+#define ULTRASONIC_MAX_DISTANCE_CM 400 // 5m max
+#define ULTRASONIC_TRIGGER_GPIO 27
+#define ULTRASONIC_ECHO_GPIO 15
 
 static const char *TAG = "smart_desk";
 
@@ -40,12 +45,17 @@ void app_main(void)
     // P6 -> D6
     // P7 -> D7
     LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
     LCD_clearScreen();
     LCD_home();
     LCD_turnDisplayOn();
     LCD_switchBacklightOn();
 
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
     LCD_writeStr("Initializing...");
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
@@ -64,8 +74,26 @@ void app_main(void)
     register_provisioning_manager_event_handlers();
     register_lcd_events();
 
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
     LCD_clearScreen();
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
     LCD_home();
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    LCD_writeStr("IP: ");
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    LCD_setCursor(0, 1);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    LCD_writeStr("Distance:     cm");
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     start_wifi_provisioning();
+
+    ultrasonic_sensor_t ultrasonic_sensor = {
+        .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
+        .echo_pin = ULTRASONIC_ECHO_GPIO};
+
+    ultrasonic_init(&ultrasonic_sensor);
+    ultrasonic_sensor_demo(&ultrasonic_sensor, ULTRASONIC_MAX_DISTANCE_CM);
 }

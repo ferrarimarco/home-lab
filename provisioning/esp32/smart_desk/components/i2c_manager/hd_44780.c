@@ -12,6 +12,8 @@
 
 #include "print_utils.h"
 
+#include "ultrasonic.h"
+
 static const char *TAG = "hd_44780";
 
 static uint8_t LCD_addr;
@@ -219,7 +221,6 @@ void LCD_clearScreen(void)
 {
     ESP_LOGI(TAG, "Clearing the LCD...");
     send(LCD_CLEAR_DISPLAY, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
-    vTaskDelay(2 / portTICK_RATE_MS); // This command takes a while to complete
 }
 
 void LCD_turnDisplayOff(void)
@@ -306,20 +307,30 @@ static void sta_got_ip_event_handler(void *arg, esp_event_base_t event_base, int
     ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
     esp_ip4_addr_t ip_address = event->ip_info.ip;
 
-    int ip_info_size = 20 * sizeof(char);
-    char *ip_info = (char *)malloc(ip_info_size);
-    sprintf(ip_info, "IP: " IPSTR, IP2STR(&ip_address));
+    char txtBuf[16];
+    sprintf(txtBuf, IPSTR, IP2STR(&ip_address));
+    ESP_LOGI(TAG, "Got IP address: %s", txtBuf);
+    LCD_setCursor(4, 0);
+    LCD_writeStr(txtBuf);
+}
 
-    ESP_LOGI(TAG, "Got IP address: %s", ip_info);
-    ESP_LOGI(TAG, "Writing %s to the LCD display...", ip_info);
+static void sta_ultrasonic_sensor_measure_available_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    ESP_LOGI(TAG, "%s: %u sta_ultrasonic_sensor_measure_available_handler", event_base, event_id);
+    uint32_t distance = *((uint32_t *)event_data);
+    ESP_LOGI(TAG, "Measured distance: %d cm", distance);
 
-    LCD_clearScreen();
-    LCD_home();
-    LCD_writeStr(ip_info);
+    char txtBuf[11];
+    sprintf(txtBuf, "%03u", distance);
+    LCD_setCursor(10, 1);
+    LCD_writeStr(txtBuf);
 }
 
 void register_lcd_events()
 {
     ESP_LOGI(TAG, "Registering the handler for IP_EVENT_STA_GOT_IP event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, sta_got_ip_event_handler, NULL, NULL));
+
+    ESP_LOGI(TAG, "Registering the handler for IP_EVENT_STA_GOT_IP event...");
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(ULTRASONIC_EVENTS, ULTRASONIC_EVENT_MEASURE_AVAILABLE, sta_ultrasonic_sensor_measure_available_handler, NULL, NULL));
 }
