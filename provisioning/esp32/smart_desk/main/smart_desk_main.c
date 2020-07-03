@@ -40,7 +40,12 @@ void app_main(void)
     // P6 -> D6
     // P7 -> D7
     LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3);
-    LCD_Demo();
+    LCD_clearScreen();
+    LCD_home();
+    LCD_turnDisplayOn();
+    LCD_switchBacklightOn();
+
+    LCD_writeStr("Initializing...");
 
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);

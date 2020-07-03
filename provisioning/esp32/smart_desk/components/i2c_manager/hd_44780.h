@@ -71,6 +71,6 @@ void LCD_switchBacklightOn(void);
 void LCD_turnDisplayOff(void);
 void LCD_turnDisplayOn(void);
 void LCD_writeChar(char c);
-void LCD_writeStr(char *str);
+void LCD_writeStr(const char *str);
 
 void LCD_Demo();

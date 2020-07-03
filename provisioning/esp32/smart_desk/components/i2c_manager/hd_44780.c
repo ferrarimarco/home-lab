@@ -24,7 +24,7 @@ static uint8_t _Rw;                  // LCD expander word for R/W pin
 static uint8_t _Rs;                  // LCD expander word for Register Select pin
 static uint8_t _data_pins[4];        // LCD data lines
 
-void LCD_write_4_bits(uint8_t nibble, uint8_t reg)
+static void LCD_write_4_bits(uint8_t nibble, uint8_t reg)
 {
     ESP_LOGI(TAG, "Sending 4 bits to LCD: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(nibble));
 
@@ -61,7 +61,7 @@ void LCD_write_4_bits(uint8_t nibble, uint8_t reg)
     ets_delay_us(500);
 }
 
-void send(uint8_t value, uint8_t mode, uint8_t reg)
+static void send(uint8_t value, uint8_t mode, uint8_t reg)
 {
     // No need to use the delay routines since the time taken to write takes
     // longer that what is needed both for toggling and enable pin an to execute
@@ -80,7 +80,7 @@ void send(uint8_t value, uint8_t mode, uint8_t reg)
     }
 }
 
-void setBacklight(uint8_t value)
+static void setBacklight(uint8_t value)
 {
     // Check if backlight is available
     // ----------------------------------------------------
@@ -186,7 +186,7 @@ void LCD_writeChar(char c)
     send(c, LCD_SEND_8_BITS, LCD_DATA_REGISTER);
 }
 
-void LCD_writeStr(char *str)
+void LCD_writeStr(const char *str)
 {
     ESP_LOGI(TAG, "Write string: %s", str);
     while (*str)
@@ -233,7 +233,7 @@ void LCD_turnDisplayOff(void)
 void LCD_turnDisplayOn(void)
 {
     ESP_LOGI(TAG, "Turning the Display ON...");
-    send(LCD_DISPLAY_ON_OFF | LCD_DISPLAY_ON_OFF_DISPLAY_ON | LCD_DISPLAY_ON_OFF_CURSOR_ON | LCD_DISPLAY_ON_OFF_BLINK_ON, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
+    send(LCD_DISPLAY_ON_OFF | LCD_DISPLAY_ON_OFF_DISPLAY_ON | LCD_DISPLAY_ON_OFF_CURSOR_OFF | LCD_DISPLAY_ON_OFF_BLINK_OFF, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
     ets_delay_us(80);
 
     LCD_switchBacklightOn();
@@ -242,7 +242,8 @@ void LCD_turnDisplayOn(void)
 void LCD_Demo()
 {
     ESP_LOGI(TAG, "Starting the LCD demo...");
-
+    LCD_clearScreen();
+    LCD_home();
     LCD_turnDisplayOn();
     LCD_switchBacklightOn();
 
@@ -253,11 +254,21 @@ void LCD_Demo()
 
         LCD_home();
         LCD_clearScreen();
+
+        LCD_switchBacklightOn();
         vTaskDelay(1000 / portTICK_RATE_MS);
+        LCD_switchBacklightOff();
+        vTaskDelay(1000 / portTICK_RATE_MS);
+        LCD_switchBacklightOn();
+        vTaskDelay(1000 / portTICK_RATE_MS);
+        LCD_switchBacklightOff();
+        vTaskDelay(1000 / portTICK_RATE_MS);
+        LCD_switchBacklightOn();
+
         LCD_writeStr("----- 20x4 LCD -----");
         vTaskDelay(1000 / portTICK_RATE_MS);
         LCD_setCursor(0, 1);
-        LCD_writeStr("LCD Library Demo");
+        LCD_writeStr("LCD Demo");
         LCD_setCursor(12, 3);
         LCD_writeStr("Time: ");
         for (int i = 10; i >= 0; i--)
