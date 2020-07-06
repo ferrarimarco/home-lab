@@ -104,7 +104,7 @@ static void setBacklight(uint8_t value)
     }
 }
 
-void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backlighPin)
+void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backligh_pin)
 {
     ESP_LOGI(TAG, "Initializing the LCD screen...");
 
@@ -123,7 +123,7 @@ void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, 
     _data_pins[1] = (1 << d5);
     _data_pins[2] = (1 << d6);
     _data_pins[3] = (1 << d7);
-    _backlightPinMask = (1 << backlighPin);
+    _backlightPinMask = (1 << backligh_pin);
 
     ESP_LOGI(TAG, "RS pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_Rs));
     ESP_LOGI(TAG, "R/W pin mask:       " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_Rw));
@@ -169,6 +169,11 @@ void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, 
     ESP_LOGI(TAG, "Setting LCD entry mode...");
     send(LCD_ENTRY_MODE_SET | LCD_ENTRY_MODE_SET_INCREMENT_DDRAM_ADDRESS, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
     ets_delay_us(80);
+
+    LCD_clearScreen();
+    LCD_home();
+    LCD_turnDisplayOn();
+    LCD_switchBacklightOn();
 }
 
 void LCD_setCursor(uint8_t col, uint8_t row)
@@ -241,13 +246,10 @@ void LCD_turnDisplayOn(void)
     LCD_switchBacklightOn();
 }
 
-void LCD_Demo()
+void LCD_Demo(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backligh_pin)
 {
     ESP_LOGI(TAG, "Starting the LCD demo...");
-    LCD_clearScreen();
-    LCD_home();
-    LCD_turnDisplayOn();
-    LCD_switchBacklightOn();
+    LCD_init(addr, cols, rows, En, Rw, Rs, d4, d5, d6, d7, backligh_pin);
 
     char txtBuf[11];
     while (true)

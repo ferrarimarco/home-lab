@@ -53,15 +53,8 @@ void app_main(void)
     // P7 -> D7
     LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    LCD_clearScreen();
-    LCD_home();
-    LCD_turnDisplayOn();
-    LCD_switchBacklightOn();
-
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     LCD_writeStr("Initializing...");
-
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     esp_chip_info_t chip_info;

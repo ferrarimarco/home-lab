@@ -73,6 +73,6 @@ void LCD_turnDisplayOn(void);
 void LCD_writeChar(char c);
 void LCD_writeStr(const char *str);
 
-void LCD_Demo();
+void LCD_Demo(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backligh_pin);
 
 void register_lcd_events();
