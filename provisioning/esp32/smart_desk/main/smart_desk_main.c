@@ -105,5 +105,5 @@ void app_main(void)
         .echo_pin = ULTRASONIC_ECHO_GPIO};
 
     ultrasonic_init(&ultrasonic_sensor);
-    //ultrasonic_sensor_demo(&ultrasonic_sensor, ULTRASONIC_MAX_DISTANCE_CM);
+    ultrasonic_sensor_demo(&ultrasonic_sensor, ULTRASONIC_MAX_DISTANCE_CM);
 }
