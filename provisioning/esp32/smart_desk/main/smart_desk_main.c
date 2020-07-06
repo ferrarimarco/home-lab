@@ -101,10 +101,12 @@ void app_main(void)
     struct Relay relay_2 = {RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
     struct Relay relay_3 = {RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
     struct Relay relay_4 = {RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    init_relay(relay_1);
+    init_relay(relay_2);
+    init_relay(relay_3);
+    init_relay(relay_4);
 
     relay_board_demo(relay_1, relay_2, relay_3, relay_4);
-
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     ultrasonic_sensor_t ultrasonic_sensor = {
         .trigger_pin = ULTRASONIC_TRIGGER_GPIO,

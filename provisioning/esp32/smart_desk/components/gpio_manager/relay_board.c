@@ -31,11 +31,6 @@ void turn_relay_off(struct Relay relay)
 
 void relay_board_demo(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
 {
-    init_relay(relay_1);
-    init_relay(relay_2);
-    init_relay(relay_3);
-    init_relay(relay_4);
-
     turn_relay_on(relay_1);
     turn_relay_on(relay_2);
     turn_relay_on(relay_3);
