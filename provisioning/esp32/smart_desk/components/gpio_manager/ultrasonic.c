@@ -50,7 +50,7 @@ esp_err_t ultrasonic_init(const ultrasonic_sensor_t *dev)
     return gpio_set_level(dev->trigger_pin, 0);
 }
 
-esp_err_t ultrasonic_measure_cm(const ultrasonic_sensor_t *dev, uint32_t max_distance, uint32_t *distance)
+esp_err_t ultrasonic_measure_cm(const ultrasonic_sensor_t *dev, uint32_t *distance)
 {
     CHECK_ARG(dev && distance);
 
@@ -78,7 +78,7 @@ esp_err_t ultrasonic_measure_cm(const ultrasonic_sensor_t *dev, uint32_t max_dis
     // got echo, measuring
     int64_t echo_start = esp_timer_get_time();
     int64_t time = echo_start;
-    int64_t meas_timeout = echo_start + max_distance * ROUNDTRIP;
+    int64_t meas_timeout = echo_start + dev->max_distance * ROUNDTRIP;
     while (gpio_get_level(dev->echo_pin))
     {
         time = esp_timer_get_time();
@@ -89,16 +89,21 @@ esp_err_t ultrasonic_measure_cm(const ultrasonic_sensor_t *dev, uint32_t max_dis
 
     *distance = (time - echo_start) / ROUNDTRIP;
 
-    ESP_ERROR_CHECK(esp_event_post(ULTRASONIC_EVENTS, ULTRASONIC_EVENT_MEASURE_AVAILABLE, distance, sizeof(distance), portMAX_DELAY));
+    struct DistanceMeasure distance_measure = {
+        *distance,
+        dev->min_distance,
+        dev->max_distance};
+
+    ESP_ERROR_CHECK(esp_event_post(ULTRASONIC_EVENTS, ULTRASONIC_EVENT_MEASURE_AVAILABLE, &distance_measure, sizeof(distance_measure), portMAX_DELAY));
 
     return ESP_OK;
 }
-void ultrasonic_sensor_demo(const ultrasonic_sensor_t *dev, uint32_t max_distance)
+void ultrasonic_sensor_demo(const ultrasonic_sensor_t *dev)
 {
     while (true)
     {
         uint32_t distance;
-        esp_err_t res = ultrasonic_measure_cm(dev, max_distance, &distance);
+        esp_err_t res = ultrasonic_measure_cm(dev, &distance);
         if (res != ESP_OK)
         {
             switch (res)

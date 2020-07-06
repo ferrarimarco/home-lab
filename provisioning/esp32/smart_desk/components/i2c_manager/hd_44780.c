@@ -324,11 +324,22 @@ static void sta_got_ip_event_handler(void *arg, esp_event_base_t event_base, int
 static void sta_ultrasonic_sensor_measure_available_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "%s: %u sta_ultrasonic_sensor_measure_available_handler", event_base, event_id);
-    uint32_t distance = *((uint32_t *)event_data);
-    ESP_LOGI(TAG, "Measured distance: %d cm", distance);
+    struct DistanceMeasure distance_measure = *((struct DistanceMeasure *)event_data);
+    uint32_t measured_distance = distance_measure.distance;
 
     char txtBuf[11];
-    sprintf(txtBuf, "%03u", distance);
+
+    if (measured_distance >= distance_measure.min_valid_distance && measured_distance <= distance_measure.max_valid_distance)
+    {
+        ESP_LOGI(TAG, "Measured distance: %d cm", measured_distance);
+        sprintf(txtBuf, "%03u", measured_distance);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Measured distance (%d) is not in a valid range", measured_distance);
+        sprintf(txtBuf, "N/A");
+    }
+
     LCD_setCursor(10, 1);
     LCD_writeStr(txtBuf);
 }

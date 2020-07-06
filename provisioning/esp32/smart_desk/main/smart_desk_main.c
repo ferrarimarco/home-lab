@@ -26,7 +26,8 @@
 #define LCD_COLS 20
 #define LCD_ROWS 4
 
-#define ULTRASONIC_MAX_DISTANCE_CM 400 // 5m max
+#define ULTRASONIC_MAX_DISTANCE_CM 400 // 4m max
+#define ULTRASONIC_MIN_DISTANCE_CM 2   // 2cm min
 #define ULTRASONIC_TRIGGER_GPIO GPIO_NUM_27
 #define ULTRASONIC_ECHO_GPIO GPIO_NUM_15
 
@@ -52,10 +53,8 @@ void app_main(void)
     // P6 -> D6
     // P7 -> D7
     LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     LCD_writeStr("Initializing...");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
@@ -63,6 +62,12 @@ void app_main(void)
     ESP_LOGI(TAG, "%s", board_info);
 
     ESP_LOGI(TAG, "%s", get_app_info());
+
+    LCD_clearScreen();
+    LCD_home();
+    LCD_writeStr("IP: ");
+    LCD_setCursor(0, 1);
+    LCD_writeStr("Distance:     cm");
 
     ESP_LOGI(TAG, "Creating the default loop...");
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -72,20 +77,6 @@ void app_main(void)
     register_ip_address_manager_event_handlers();
     register_provisioning_manager_event_handlers();
     register_lcd_events();
-
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    LCD_clearScreen();
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    LCD_home();
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    LCD_writeStr("IP: ");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    LCD_setCursor(0, 1);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    LCD_writeStr("Distance:     cm");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     start_wifi_provisioning();
 
@@ -102,8 +93,10 @@ void app_main(void)
 
     ultrasonic_sensor_t ultrasonic_sensor = {
         .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
-        .echo_pin = ULTRASONIC_ECHO_GPIO};
+        .echo_pin = ULTRASONIC_ECHO_GPIO,
+        .min_distance = ULTRASONIC_MIN_DISTANCE_CM,
+        .max_distance = ULTRASONIC_MAX_DISTANCE_CM};
 
     ultrasonic_init(&ultrasonic_sensor);
-    ultrasonic_sensor_demo(&ultrasonic_sensor, ULTRASONIC_MAX_DISTANCE_CM);
+    ultrasonic_sensor_demo(&ultrasonic_sensor);
 }
