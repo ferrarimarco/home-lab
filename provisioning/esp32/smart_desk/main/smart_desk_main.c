@@ -40,6 +40,15 @@ static const char *TAG = "smart_desk";
 
 void app_main(void)
 {
+    struct Relay relay_1 = {RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_2 = {RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_3 = {RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_4 = {RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    init_relay(relay_1);
+    init_relay(relay_2);
+    init_relay(relay_3);
+    init_relay(relay_4);
+
     i2c_master_driver_initialize(SDA_PIN, SCL_PIN, I2C_FREQUENCY);
     do_i2cdetect();
 
@@ -47,7 +56,7 @@ void app_main(void)
     // P0 -> RS
     // P1 -> RW
     // P2 -> E
-    // P3 -> Backlight (b) <- not sure about this
+    // P3 -> Backlight (b)
     // P4 -> D4
     // P5 -> D5
     // P6 -> D6
@@ -79,15 +88,6 @@ void app_main(void)
     register_lcd_events();
 
     start_wifi_provisioning();
-
-    struct Relay relay_1 = {RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_2 = {RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_3 = {RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_4 = {RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    init_relay(relay_1);
-    init_relay(relay_2);
-    init_relay(relay_3);
-    init_relay(relay_4);
 
     relay_board_demo(relay_1, relay_2, relay_3, relay_4);
 
