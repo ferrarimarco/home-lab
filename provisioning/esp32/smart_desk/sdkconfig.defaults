@@ -13,6 +13,3 @@ CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
 
 # Configure the partition scheme to hold a factory app, and two OTA definitions
 CONFIG_PARTITION_TABLE_TWO_OTA=y
-
-# Set default log level (Error (lowest), Warning, Info, Debug, Verbose (highest))
-CONFIG_LOG_DEFAULT_LEVEL=5
