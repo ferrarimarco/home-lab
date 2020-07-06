@@ -1,0 +1,18 @@
+# Store the current time/date timestamp in the app description structure
+CONFIG_APP_COMPILE_TIME_DATE=y
+
+# Enable Bluetooth and show the submenu with Bluetooth configuration choices.
+CONFIG_BT_ENABLED=y
+CONFIG_BT_NIMBLE_ENABLED=y
+
+# Detect flash size when flashing bootloader
+CONFIG_ESPTOOLPY_FLASHSIZE_DETECT=y
+
+# Set flash size to 4MB
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+
+# Configure the partition scheme to hold a factory app, and two OTA definitions
+CONFIG_PARTITION_TABLE_TWO_OTA=y
+
+# Set default log level (Error (lowest), Warning, Info, Debug, Verbose (highest))
+CONFIG_LOG_DEFAULT_LEVEL=5
