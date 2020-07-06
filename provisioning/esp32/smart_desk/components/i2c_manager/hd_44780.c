@@ -130,10 +130,10 @@ void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, 
     ESP_LOGI(TAG, "R/W pin mask:       " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_Rw));
     ESP_LOGI(TAG, "E pin mask:         " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_En));
     ESP_LOGI(TAG, "Backlight pin mask: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_backlightPinMask));
-    ESP_LOGI(TAG, "D7 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[3]));
-    ESP_LOGI(TAG, "D6 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[2]));
-    ESP_LOGI(TAG, "D5 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[1]));
     ESP_LOGI(TAG, "D4 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[0]));
+    ESP_LOGI(TAG, "D5 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[1]));
+    ESP_LOGI(TAG, "D6 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[2]));
+    ESP_LOGI(TAG, "D7 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[3]));
 
     // SEE PAGE 45/46 of the Hitachi HD44780 datasheet FOR INITIALIZATION SPECIFICATION!
     // according to datasheet, we need at least 40ms after power rises above 2.7V
