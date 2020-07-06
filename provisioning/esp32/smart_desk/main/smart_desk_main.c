@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_event.h"
 #include "esp_system.h"
@@ -11,6 +12,7 @@
 #include "i2c_utils.h"
 #include "hd_44780.h"
 #include "ultrasonic.h"
+#include "relay_board.h"
 
 #include "ip_address_manager.h"
 #include "wifi_connection_manager.h"
@@ -25,8 +27,13 @@
 #define LCD_ROWS 4
 
 #define ULTRASONIC_MAX_DISTANCE_CM 400 // 5m max
-#define ULTRASONIC_TRIGGER_GPIO 27
-#define ULTRASONIC_ECHO_GPIO 15
+#define ULTRASONIC_TRIGGER_GPIO GPIO_NUM_27
+#define ULTRASONIC_ECHO_GPIO GPIO_NUM_15
+
+#define RELAY_1_GPIO GPIO_NUM_33
+#define RELAY_2_GPIO GPIO_NUM_32
+#define RELAY_3_GPIO GPIO_NUM_14
+#define RELAY_4_GPIO GPIO_NUM_12
 
 static const char *TAG = "smart_desk";
 
@@ -90,10 +97,19 @@ void app_main(void)
 
     start_wifi_provisioning();
 
+    struct Relay relay_1 = {RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_2 = {RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_3 = {RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_4 = {RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+
+    relay_board_demo(relay_1, relay_2, relay_3, relay_4);
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
     ultrasonic_sensor_t ultrasonic_sensor = {
         .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
         .echo_pin = ULTRASONIC_ECHO_GPIO};
 
     ultrasonic_init(&ultrasonic_sensor);
-    ultrasonic_sensor_demo(&ultrasonic_sensor, ULTRASONIC_MAX_DISTANCE_CM);
+    //ultrasonic_sensor_demo(&ultrasonic_sensor, ULTRASONIC_MAX_DISTANCE_CM);
 }
