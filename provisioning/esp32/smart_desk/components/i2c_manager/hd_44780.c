@@ -79,6 +79,7 @@ static void send(uint8_t value, uint8_t mode, uint8_t reg)
     {
         ESP_LOGI(TAG, "Sending 8 bits: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(value));
         LCD_write_4_bits((value >> 4), reg);
+        ets_delay_us(1);
         LCD_write_4_bits((value & 0x0F), reg);
     }
 }
@@ -152,10 +153,11 @@ void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, 
     ets_delay_us(200);
     ESP_LOGI(TAG, "Sending the third command of the initialization sequence....");
     send(LCD_FUNCTION_RESET, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
+    ets_delay_us(80);
 
     ESP_LOGI(TAG, "Setting LCD function - Enabling 4-bit mode...");
     send(LCD_FUNCTION_SET | LCD_FUNCTION_SET_4_BIT, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
-    ets_delay_us(80);
+    vTaskDelay(5 / portTICK_RATE_MS);
 
     ESP_LOGI(TAG, "Setting LCD function...");
     send(LCD_FUNCTION_SET | LCD_FUNCTION_SET_4_BIT | LCD_FUNCTION_SET_2_LINES | LCD_FUNCTION_SET_5X8, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
@@ -186,12 +188,14 @@ void LCD_setCursor(uint8_t col, uint8_t row)
     }
     uint8_t row_offsets[] = {LCD_LINEONE, LCD_LINETWO, LCD_LINETHREE, LCD_LINEFOUR};
     send(LCD_SET_DDRAM_ADDRESS | (col + row_offsets[row]), LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
+    ets_delay_us(80);
 }
 
 void LCD_writeChar(char c)
 {
     ESP_LOGI(TAG, "Write char: %c", c);
     send(c, LCD_SEND_8_BITS, LCD_DATA_REGISTER);
+    ets_delay_us(80);
 }
 
 void LCD_writeStr(const char *str)
@@ -226,6 +230,7 @@ void LCD_clearScreen(void)
 {
     ESP_LOGI(TAG, "Clearing the LCD...");
     send(LCD_CLEAR_DISPLAY, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
+    vTaskDelay(3 / portTICK_RATE_MS);
 }
 
 void LCD_turnDisplayOff(void)
