@@ -61,7 +61,8 @@ void app_main(void)
     // P5 -> D5
     // P6 -> D6
     // P7 -> D7
-    LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3);
+
+    LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3, LCD_FUNCTION_SET_4_BIT);
 
     LCD_writeStr("Initializing...");
 
@@ -72,14 +73,15 @@ void app_main(void)
 
     ESP_LOGI(TAG, "%s", get_app_info());
 
+    ESP_LOGI(TAG, "Creating the default loop...");
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    ESP_LOGI(TAG, "Preparing the default LCD visualization...");
     LCD_clearScreen();
     LCD_home();
     LCD_writeStr("IP: ");
     LCD_setCursor(0, 1);
     LCD_writeStr("Distance:     cm");
-
-    ESP_LOGI(TAG, "Creating the default loop...");
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     ESP_LOGI(TAG, "Registering event handlers...");
     register_wifi_manager_event_handlers();

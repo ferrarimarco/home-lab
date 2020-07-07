@@ -32,7 +32,8 @@
 #define LCD_SET_DDRAM_ADDRESS 0x80       // Set DDRAM address (cursor position) - binary: 10000000
 
 // LCD reset command
-#define LCD_FUNCTION_RESET 0x30 // Reset the LCD controller - binary: 110000
+#define LCD_FUNCTION_RESET 0x03            // Reset the LCD controller when in 4-bits mode
+#define LCD_FUNCTION_SET_4_BITS_RESET 0x02 // Set 4-bits mode during initialization when in 4-bits mode
 
 // LCD entry mode command parameters
 #define LCD_ENTRY_MODE_SET_INCREMENT_DDRAM_ADDRESS 0x02 // Cursor moves to right and DDRAM address is increased by 1
@@ -62,7 +63,7 @@
 #define LCD_FUNCTION_SET_5X8 0x00     // Enable 5x8 font mode
 #define LCD_FUNCTION_SET_5X11 0x04    // Enable 5x11 font mode
 
-void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backlighPin);
+void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backlighPin, uint8_t initial_bit_mode);
 void LCD_setCursor(uint8_t col, uint8_t row);
 void LCD_home(void);
 void LCD_clearScreen(void);
@@ -73,6 +74,6 @@ void LCD_turnDisplayOn(void);
 void LCD_writeChar(char c);
 void LCD_writeStr(const char *str);
 
-void LCD_Demo(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backligh_pin);
+void LCD_Demo();
 
 void register_lcd_events();

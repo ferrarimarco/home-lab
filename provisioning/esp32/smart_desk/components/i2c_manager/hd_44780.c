@@ -27,9 +27,12 @@ static uint8_t _Rw;                  // LCD expander word for R/W pin
 static uint8_t _Rs;                  // LCD expander word for Register Select pin
 static uint8_t _data_pins[4];        // LCD data lines
 
-static void LCD_write_4_bits(uint8_t nibble, uint8_t reg)
+static uint8_t _displayfunction;
+
+static void
+LCD_write_4_bits(uint8_t nibble, uint8_t reg)
 {
-    ESP_LOGI(TAG, "Sending 4 bits to LCD: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(nibble));
+    ESP_LOGI(TAG, "Preparing 4 bits to send to the LCD: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(nibble));
 
     uint8_t data = 0;
 
@@ -58,9 +61,14 @@ static void LCD_write_4_bits(uint8_t nibble, uint8_t reg)
     ESP_LOGI(TAG, "Mapped the data to send to backlight, and RS pins: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data));
 
     // Clock data into LCD
-    i2c_master_write_byte_to_client_ack(LCD_addr, data | _En);
+    uint8_t data_enable = data | _En;
+    ESP_LOGI(TAG, "Mapped the data to send to Enable pin: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data_enable));
+    i2c_master_write_byte_to_client_ack(LCD_addr, data_enable);
     ets_delay_us(1);
-    i2c_master_write_byte_to_client_ack(LCD_addr, data & ~_En);
+
+    uint8_t data_not_enable = data & ~_En;
+    ESP_LOGI(TAG, "Mapped the data to send to NOT Enable pin: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data_not_enable));
+    i2c_master_write_byte_to_client_ack(LCD_addr, data_not_enable);
     ets_delay_us(500);
 }
 
@@ -105,7 +113,7 @@ static void setBacklight(uint8_t value)
     }
 }
 
-void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backligh_pin)
+void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backligh_pin, uint8_t initial_bit_mode)
 {
     ESP_LOGI(TAG, "Initializing the LCD screen...");
 
@@ -135,6 +143,20 @@ void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, 
     ESP_LOGI(TAG, "D6 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[2]));
     ESP_LOGI(TAG, "D7 pin mask:        " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_data_pins[3]));
 
+    ESP_LOGI(TAG, "Initializing the display function...");
+    _displayfunction = LCD_FUNCTION_SET;
+    if (rows > 1)
+    {
+        ESP_LOGI(TAG, "Enabling 2-lines mode...");
+        _displayfunction |= LCD_FUNCTION_SET_2_LINES;
+    }
+
+    ESP_LOGI(TAG, "Enabling 5x8 (or x7) font...");
+    _displayfunction |= LCD_FUNCTION_SET_5X8;
+
+    ESP_LOGI(TAG, "Setting interface mode (4-bits or 8-bits)...");
+    _displayfunction |= initial_bit_mode;
+
     // SEE PAGE 45/46 of the Hitachi HD44780 datasheet FOR INITIALIZATION SPECIFICATION!
     // according to datasheet, we need at least 40ms after power rises above 2.7V
     // before sending commands.
@@ -143,36 +165,58 @@ void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, 
     ESP_LOGI(TAG, "Waiting for the Vcc to raise to 4.5V (this needs at least 40 ms)...");
     vTaskDelay(100 / portTICK_RATE_MS);
 
-    ESP_LOGI(TAG, "Sending the first command of the initialization sequence....");
-    send(LCD_FUNCTION_RESET, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
-    ESP_LOGI(TAG, "Waiting 5ms (at least 4.1ms wait is needed at this point)...");
-    vTaskDelay(10 / portTICK_RATE_MS);
-    ESP_LOGI(TAG, "Sending the second command of the initialization sequence....");
-    send(LCD_FUNCTION_RESET, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
-    ESP_LOGI(TAG, "Waiting 200us (at least 100us wait is needed at this point)...");
-    ets_delay_us(200);
-    ESP_LOGI(TAG, "Sending the third command of the initialization sequence....");
-    send(LCD_FUNCTION_RESET, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
-    ets_delay_us(80);
+    if (!(_displayfunction & LCD_FUNCTION_SET_8_BIT))
+    {
+        ESP_LOGI(TAG, "Initializing the display assuming a 4-bits interface...");
 
-    ESP_LOGI(TAG, "Setting LCD function - Enabling 4-bit mode...");
-    send(LCD_FUNCTION_SET | LCD_FUNCTION_SET_4_BIT, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
-    vTaskDelay(5 / portTICK_RATE_MS);
+        ESP_LOGI(TAG, "Sending the first command of the initialization sequence....");
+        send(LCD_FUNCTION_RESET, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
+        ESP_LOGI(TAG, "Waiting 5ms (at least 4.1ms wait is needed at this point)...");
+        vTaskDelay(10 / portTICK_RATE_MS);
+        ESP_LOGI(TAG, "Sending the second command of the initialization sequence....");
+        send(LCD_FUNCTION_RESET, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
+        ESP_LOGI(TAG, "Waiting 200us (at least 100us wait is needed at this point)...");
+        ets_delay_us(200);
+        ESP_LOGI(TAG, "Sending the third command of the initialization sequence....");
+        send(LCD_FUNCTION_RESET, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
+        ets_delay_us(150);
 
-    ESP_LOGI(TAG, "Setting LCD function...");
-    send(LCD_FUNCTION_SET | LCD_FUNCTION_SET_4_BIT | LCD_FUNCTION_SET_2_LINES | LCD_FUNCTION_SET_5X8, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
+        ESP_LOGI(TAG, "Setting LCD function - Enabling 4-bit mode...");
+        send(LCD_FUNCTION_SET_4_BITS_RESET, LCD_SEND_4_BITS, LCD_INSTRUCTION_REGISTER);
+        vTaskDelay(5 / portTICK_RATE_MS);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Initializing the display assuming a 8-bits interface...");
+
+        ESP_LOGI(TAG, "Sending the first command of the initialization sequence....");
+        send(_displayfunction, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
+        ESP_LOGI(TAG, "Waiting 5ms (at least 4.1ms wait is needed at this point)...");
+        vTaskDelay(10 / portTICK_RATE_MS);
+        ESP_LOGI(TAG, "Sending the second command of the initialization sequence....");
+        send(_displayfunction, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
+        ESP_LOGI(TAG, "Waiting 200us (at least 100us wait is needed at this point)...");
+        ets_delay_us(200);
+        ESP_LOGI(TAG, "Sending the third command of the initialization sequence....");
+        send(_displayfunction, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
+        ets_delay_us(150);
+    }
+
+    ESP_LOGI(TAG, "Setting LCD function to 4-bit mode...");
+    _displayfunction |= LCD_FUNCTION_SET_4_BIT;
+    ESP_LOGI(TAG, "Display function value: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(_displayfunction));
+
+    ESP_LOGI(TAG, "Sending the Function Set command...");
+    send(_displayfunction, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
     ets_delay_us(80);
 
     LCD_turnDisplayOff();
-    LCD_switchBacklightOff();
-
     LCD_clearScreen();
 
     ESP_LOGI(TAG, "Setting LCD entry mode...");
     send(LCD_ENTRY_MODE_SET | LCD_ENTRY_MODE_SET_INCREMENT_DDRAM_ADDRESS, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
     ets_delay_us(80);
 
-    LCD_clearScreen();
     LCD_home();
     LCD_turnDisplayOn();
     LCD_switchBacklightOn();
@@ -238,8 +282,6 @@ void LCD_turnDisplayOff(void)
     ESP_LOGI(TAG, "Turning the Display OFF...");
     send(LCD_DISPLAY_ON_OFF | LCD_DISPLAY_ON_OFF_DISPLAY_OFF, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
     ets_delay_us(80);
-
-    LCD_switchBacklightOff();
 }
 
 void LCD_turnDisplayOn(void)
@@ -247,14 +289,11 @@ void LCD_turnDisplayOn(void)
     ESP_LOGI(TAG, "Turning the Display ON...");
     send(LCD_DISPLAY_ON_OFF | LCD_DISPLAY_ON_OFF_DISPLAY_ON | LCD_DISPLAY_ON_OFF_CURSOR_OFF | LCD_DISPLAY_ON_OFF_BLINK_OFF, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
     ets_delay_us(80);
-
-    LCD_switchBacklightOn();
 }
 
-void LCD_Demo(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backligh_pin)
+void LCD_Demo()
 {
     ESP_LOGI(TAG, "Starting the LCD demo...");
-    LCD_init(addr, cols, rows, En, Rw, Rs, d4, d5, d6, d7, backligh_pin);
 
     char txtBuf[11];
     while (true)
