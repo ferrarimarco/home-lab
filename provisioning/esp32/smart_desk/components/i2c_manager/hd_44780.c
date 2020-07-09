@@ -32,7 +32,7 @@ static uint8_t _displayfunction;
 static void
 LCD_write_4_bits(uint8_t nibble, uint8_t reg)
 {
-    ESP_LOGI(TAG, "Preparing 4 bits to send to the LCD: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(nibble));
+    ESP_LOGD(TAG, "Preparing 4 bits to send to the LCD: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(nibble));
 
     uint8_t data = 0;
 
@@ -47,7 +47,7 @@ LCD_write_4_bits(uint8_t nibble, uint8_t reg)
         nibble = (nibble >> 1);
     }
 
-    ESP_LOGI(TAG, "Mapped the data to send to LCD data pins: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data));
+    ESP_LOGD(TAG, "Mapped the data to send to LCD data pins: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data));
 
     // Is it a command or data
     // -----------------------
@@ -58,16 +58,16 @@ LCD_write_4_bits(uint8_t nibble, uint8_t reg)
 
     data |= reg | _backlightStatusMask;
 
-    ESP_LOGI(TAG, "Mapped the data to send to backlight, and RS pins: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data));
+    ESP_LOGD(TAG, "Mapped the data to send to backlight, and RS pins: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data));
 
     // Clock data into LCD
     uint8_t data_enable = data | _En;
-    ESP_LOGI(TAG, "Mapped the data to send to Enable pin: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data_enable));
+    ESP_LOGD(TAG, "Mapped the data to send to Enable pin: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data_enable));
     i2c_master_write_byte_to_client_ack(LCD_addr, data_enable);
     ets_delay_us(1);
 
     uint8_t data_not_enable = data & ~_En;
-    ESP_LOGI(TAG, "Mapped the data to send to NOT Enable pin: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data_not_enable));
+    ESP_LOGD(TAG, "Mapped the data to send to NOT Enable pin: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(data_not_enable));
     i2c_master_write_byte_to_client_ack(LCD_addr, data_not_enable);
     ets_delay_us(500);
 }
@@ -80,12 +80,12 @@ static void send(uint8_t value, uint8_t mode, uint8_t reg)
 
     if (mode == LCD_SEND_4_BITS)
     {
-        ESP_LOGI(TAG, "Sending 4 bits: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(value));
+        ESP_LOGD(TAG, "Sending 4 bits: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(value));
         LCD_write_4_bits((value & 0x0F), reg);
     }
     else
     {
-        ESP_LOGI(TAG, "Sending 8 bits: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(value));
+        ESP_LOGD(TAG, "Sending 8 bits: " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(value));
         LCD_write_4_bits((value >> 4), reg);
         ets_delay_us(1);
         LCD_write_4_bits((value & 0x0F), reg);
@@ -237,7 +237,7 @@ void LCD_setCursor(uint8_t col, uint8_t row)
 
 void LCD_writeChar(char c)
 {
-    ESP_LOGI(TAG, "Write char: %c", c);
+    ESP_LOGD(TAG, "Write char: %c", c);
     send(c, LCD_SEND_8_BITS, LCD_DATA_REGISTER);
     ets_delay_us(80);
 }
@@ -362,7 +362,7 @@ static void sta_got_ip_event_handler(void *arg, esp_event_base_t event_base, int
 
 static void sta_ultrasonic_sensor_measure_available_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ESP_LOGI(TAG, "%s: %u sta_ultrasonic_sensor_measure_available_handler", event_base, event_id);
+    ESP_LOGD(TAG, "%s: %u sta_ultrasonic_sensor_measure_available_handler", event_base, event_id);
     struct DistanceMeasure distance_measure = *((struct DistanceMeasure *)event_data);
     uint32_t measured_distance = distance_measure.distance;
 
@@ -370,12 +370,12 @@ static void sta_ultrasonic_sensor_measure_available_handler(void *arg, esp_event
 
     if (measured_distance >= distance_measure.min_valid_distance && measured_distance <= distance_measure.max_valid_distance)
     {
-        ESP_LOGI(TAG, "Measured distance: %d cm", measured_distance);
+        ESP_LOGD(TAG, "Measured distance: %d cm", measured_distance);
         sprintf(txtBuf, "%03u", measured_distance);
     }
     else
     {
-        ESP_LOGI(TAG, "Measured distance (%d) is not in a valid range", measured_distance);
+        ESP_LOGD(TAG, "Measured distance (%d) is not in a valid range", measured_distance);
         sprintf(txtBuf, "N/A");
     }
 

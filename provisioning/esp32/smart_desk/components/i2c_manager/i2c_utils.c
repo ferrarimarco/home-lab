@@ -27,7 +27,7 @@ void i2c_master_driver_initialize(uint8_t sda_pin, uint8_t scl_pin, uint8_t i2c_
 
 void i2c_master_write_byte_to_client_ack(uint8_t client_address, uint8_t data)
 {
-    ESP_LOGI(TAG, "Writing to client 0x%02x. Sending byte: " BYTE_TO_BINARY_PATTERN, client_address, BYTE_TO_BINARY(data));
+    ESP_LOGD(TAG, "Writing to client 0x%02x. Sending byte: " BYTE_TO_BINARY_PATTERN, client_address, BYTE_TO_BINARY(data));
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     ESP_ERROR_CHECK(i2c_master_start(cmd));
     ESP_ERROR_CHECK(i2c_master_write_byte(cmd, (client_address << 1) | I2C_MASTER_WRITE, 1));
