@@ -38,6 +38,32 @@
 
 static const char *TAG = "smart_desk";
 
+void init_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
+{
+    turn_relay_off(relay_1);
+    turn_relay_off(relay_2);
+    turn_relay_off(relay_3);
+    turn_relay_off(relay_4);
+}
+
+void extend_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
+{
+    turn_relay_off(relay_1);
+    turn_relay_off(relay_3);
+
+    turn_relay_on(relay_2);
+    turn_relay_on(relay_4);
+}
+
+void retract_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
+{
+    turn_relay_off(relay_2);
+    turn_relay_off(relay_4);
+
+    turn_relay_on(relay_1);
+    turn_relay_on(relay_3);
+}
+
 void app_main(void)
 {
     struct Relay relay_1 = {RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
@@ -91,7 +117,15 @@ void app_main(void)
 
     start_wifi_provisioning();
 
-    relay_board_demo(relay_1, relay_2, relay_3, relay_4);
+    init_actuators(relay_1, relay_2, relay_3, relay_4);
+
+    extend_actuators(relay_1, relay_2, relay_3, relay_4);
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+    retract_actuators(relay_1, relay_2, relay_3, relay_4);
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+    init_actuators(relay_1, relay_2, relay_3, relay_4);
 
     ultrasonic_sensor_t ultrasonic_sensor = {
         .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
