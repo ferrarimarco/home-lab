@@ -11,6 +11,9 @@ steps:
         - DEFAULT_WORKSPACE=/workspace
         - DISABLE_ERRORS=false
         - LINTER_RULES_PATH=/workspace
+        # Disable multiple status reporting to avoid reporting any status
+        # (see the if condition in super-linter/lib/linter.sh)
+        - MULTI_STATUS=false
         - RUN_LOCAL=true
         - VALIDATE_ALL_CODEBASE=true
         - VALIDATE_ANSIBLE=true
