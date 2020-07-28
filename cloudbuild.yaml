@@ -6,6 +6,7 @@ steps:
     - id: 'super-linter'
       name: "github/super-linter:v3.4.0"
       env:
+        - ACTIONS_RUNNER_DEBUG=true
         - ANSIBLE_DIRECTORY=/workspace/configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - DISABLE_ERRORS=false
