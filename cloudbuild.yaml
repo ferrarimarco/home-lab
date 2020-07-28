@@ -10,6 +10,7 @@ steps:
         - ANSIBLE_DIRECTORY=/workspace/configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - DISABLE_ERRORS=false
+        - LINTER_RULES_PATH=/workspace
         - RUN_LOCAL=true
         - VALIDATE_ALL_CODEBASE=true
         - VALIDATE_ANSIBLE=true
