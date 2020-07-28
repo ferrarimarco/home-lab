@@ -8,6 +8,7 @@ steps:
       env:
         - ANSIBLE_DIRECTORY=/workspace/configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
+        - DISABLE_ERRORS=false
         - RUN_LOCAL=true
         - VALIDATE_ALL_CODEBASE=true
         - VALIDATE_ANSIBLE=true
