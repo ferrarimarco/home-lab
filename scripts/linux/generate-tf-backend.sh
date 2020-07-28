@@ -45,9 +45,8 @@ else
     gsutil versioning set on gs://"${TF_STATE_BUCKET}"
 fi
 
-TERRAFORM_BACKEND_DESCRIPTOR_DIR=../../provisioning/terraform
+TERRAFORM_BACKEND_DESCRIPTOR_DIR=.
 TERRAFORM_BACKEND_DESCRIPTOR_PATH="${TERRAFORM_BACKEND_DESCRIPTOR_DIR}/backend.tf"
-mkdir -p "${TERRAFORM_BACKEND_DESCRIPTOR_DIR}"
 echo "Generating the descriptor to hold backend data in ${TERRAFORM_BACKEND_DESCRIPTOR_PATH}"
 if [ -f "${TERRAFORM_BACKEND_DESCRIPTOR_PATH}" ]; then
     echo "The ${TERRAFORM_BACKEND_DESCRIPTOR_PATH} file already exists."
