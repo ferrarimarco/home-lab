@@ -7,7 +7,7 @@ steps:
       name: "github/super-linter:v3.4.0"
       env:
         - ACTIONS_RUNNER_DEBUG=true
-        - ANSIBLE_DIRECTORY=/workspace/configuration/ansible
+        - ANSIBLE_DIRECTORY=configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - DISABLE_ERRORS=false
         - LINTER_RULES_PATH=/workspace
