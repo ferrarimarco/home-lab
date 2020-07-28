@@ -4,17 +4,21 @@ options:
         - TF_INPUT=false
 steps:
     - id: 'super-linter'
-      name: "github/super-linter:v2.2.2"
+      name: "github/super-linter:v3.4.0"
       env:
         - ANSIBLE_DIRECTORY=/workspace/configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - RUN_LOCAL=true
-        - VALIDATE_JSON=true
-        - VALIDATE_YAML=true
-        - VALIDATE_MD=true
-        - VALIDATE_BASH=true
+        - VALIDATE_ALL_CODEBASE=true
         - VALIDATE_ANSIBLE=true
+        - VALIDATE_BASH=true
         - VALIDATE_DOCKER=true
+        - VALIDATE_EDITORCONFIG=true
+        - VALIDATE_JSON=true
+        - VALIDATE_MD=true
+        - VALIDATE_TERRAFORM=true
+        - VALIDATE_TERRAFORM_TERRASCAN=true
+        - VALIDATE_YAML=true
     - id: 'decrypt secrets'
       name: gcr.io/cloud-builders/gcloud
       entrypoint: 'sh'
