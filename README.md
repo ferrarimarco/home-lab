@@ -30,7 +30,7 @@ You now provision and configure the cloud infrastructure:
 
 1. Change your working directory to the root of this repo.
 1. Change your working directory: `cd provisioning/terraform/environments/prod`
-1. Generate the Terraform backend configuration: `../../../../scripts/linux/generate-tf-backend.sh`
+1. Generate the Terraform backend configuration: `../../generate-tf-backend.sh`
 1. Init the Terraform state: `terraform init`
 1. Import the resources that the backend configuration script created:
 
@@ -61,7 +61,7 @@ google_cloudbuild_key_rotation_period = "864000s"
 google_default_region                 = "us-central1"
 google_default_zone                   = "us-central1-a"
 google_iac_project_id                 = "ferrarimarco-iac"
-google_iot_project_id                 = "ferrarimarco-iot"
+google_iot_project_id                 = "ferrarimarco-iac"
 google_organization_domain            = "ferrari.how"
 google_terraform_state_bucket_id      = "ferrarim-iac-terraform-state"
 ```
@@ -85,12 +85,6 @@ The first machine (likely the DHCP/DNS/PXE server) in this lab has to be
 bootstrapped manually.
 
 ### OS Installation
-
-#### Ubuntu Server - x86
-
-1. Download Ubuntu from: `https://www.ubuntu.com/download/server`
-1. Load Ubuntu Server on a USB flash drive
-1. Install Ubuntu server
 
 #### Debian ARM - BeagleBone Black
 
