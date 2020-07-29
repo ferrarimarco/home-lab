@@ -30,4 +30,3 @@ substitutions:
     _CMAKE_VERSION: '3.17.3'
     _ESP_IDF_VERSION_IMAGE_TAG: 'latest'
     _ESP_SMART_DESK_PATH: 'provisioning/esp32/smart_desk'
-tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$BRANCH_NAME', '$TAG_NAME']
