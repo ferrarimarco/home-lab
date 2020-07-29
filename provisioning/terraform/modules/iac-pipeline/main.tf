@@ -71,6 +71,7 @@ resource "google_kms_crypto_key_iam_member" "cloudbuild-crypto-key-iam-member" {
 resource "google_cloudbuild_trigger" "cloudbuild-trigger" {
   project  = var.google_project_id
   provider = google-beta
+  name     = "infrastructure-provisioning"
 
   github {
     owner = "ferrarimarco"
