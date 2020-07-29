@@ -128,3 +128,8 @@ resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
     google_organization_iam_custom_role.iac-admin-role
   ]
 }
+
+resource "google_storage_bucket" "cloudbuild-source" {
+  name     = "${var.google_project_id}_cloudbuild"
+  location = "US"
+}
