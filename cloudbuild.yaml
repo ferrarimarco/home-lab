@@ -108,3 +108,4 @@ substitutions:
     _ESP_SMART_DESK_PATH: 'provisioning/esp32/smart_desk'
     _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
     _TERRAFORM_IMAGE_TAG: '0.12.29'
+tags: ['$_PR_NUMBER', '$_REPO_OWNER', '$_REPO', '$_SHA', 'home-lab']
