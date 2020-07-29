@@ -21,9 +21,9 @@ steps:
       entrypoint: '$_ESP_SMART_DESK_PATH/scripts/prepare-smart-desk-binary.sh'
       args:
         - "$_ESP_SMART_DESK_PATH/build/smart-desk.bin"
-        - "$_COMMIT_SHA"
-        - "$_BRANCH_NAME"
-        - "$_TAG_NAME"
+        - "$COMMIT_SHA"
+        - "$BRANCH_NAME"
+        - "$TAG_NAME"
 substitutions:
     # Use the latest tag because we are currently developing the ESP32 stuff.
     # Will switch to a more repeatable tag when we stabilize.
