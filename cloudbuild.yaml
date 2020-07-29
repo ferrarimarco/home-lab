@@ -98,8 +98,8 @@ steps:
 
         echo "Building $smart_desk_dir ... "
         (
-          logfile="${smart_desk_dir::-1}.log" # Logfile for "foo/" builder is "foo.log".
-          gcloud builds submit $smart_desk_dir --config=${config} > ${logfile} 2>&1
+          logfile="${smart_desk_dir::-1}.log"
+          gcloud builds submit --config=${config} $smart_desk_dir > ${logfile} 2>&1
           if [[ $? -ne 0 ]]; then
             echo "$smart_desk_dir failed" | tee -a ${failure_file}
             cat ${logfile}
