@@ -97,16 +97,12 @@ steps:
         fi
 
         echo "Building $smart_desk_dir ... "
-        (
-          logfile="${smart_desk_dir::-1}.log"
-          gcloud builds submit --config=${config} $smart_desk_dir > ${logfile} 2>&1
-          if [[ $? -ne 0 ]]; then
-            echo "$smart_desk_dir failed" | tee -a ${failure_file}
-            cat ${logfile}
-          fi
-        ) &
-
-        wait
+        logfile="${smart_desk_dir::-1}.log"
+        gcloud builds submit --config=${config} $smart_desk_dir > ${logfile} 2>&1
+        if [[ $? -ne 0 ]]; then
+          echo "$smart_desk_dir failed" | tee -a ${failure_file}
+          cat ${logfile}
+        fi
 
         # Check if there is any failure.
         if [[ -s ${failure_file} ]]; then
