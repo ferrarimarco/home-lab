@@ -100,7 +100,7 @@ or
 [Weekly Debian builds for the BeagleBone Black](https://elinux.org/Beagleboard:BeagleBoneBlack_Debian#Debian_Releases)
 and the relevant `sha256sum` files.
 1. Prepare the image (checksum, extract from the archive):
-`scripts/linux/prepare-beaglebone-black-os-image.sh path/to/img.xz`
+`provisioning/arm/beaglebone-black/prepare-os-image.sh path/to/img.xz`
 1. Write the image on a SD card. If using `dd`:
 `dd bs=1m if=/path/to/image.img of=/dev/XXXX`,
 where `XXXX` is the SD card device identifier.
