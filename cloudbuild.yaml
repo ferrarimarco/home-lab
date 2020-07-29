@@ -79,33 +79,45 @@ steps:
                 echo "Not applying any Terraform change. Not on master branch."
                 echo "Current branch: $BRANCH_NAME"
             fi
-    - id: 'Install CMake'
-      name: 'alpine'
-      entrypoint: 'sh'
+    - id: 'build smart-desk'
+      name: 'gcr.io/cloud-builders/gcloud'
+      entrypoint: 'bash'
       args:
-          - '-c'
-          - |
-            "$_ESP_SMART_DESK_PATH"/scripts/install-dependencies.sh $_CMAKE_VERSION
-    - id: 'esp-idf build'
-      name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
-      dir: "$_ESP_SMART_DESK_PATH"
-      args:
-          - scripts/build-esp-idf-smart-desk.sh
-          - $_CMAKE_VERSION
-    - id: 'Prepare smart_desk binary'
-      name: 'alpine'
-      entrypoint: '$_ESP_SMART_DESK_PATH/scripts/prepare-smart-desk-binary.sh'
-      args:
-        - "$_ESP_SMART_DESK_PATH/build/smart-desk.bin"
-        - "$COMMIT_SHA"
-        - "$BRANCH_NAME"
-        - "$TAG_NAME"
+      - '-c'
+      - |
+        # File that contains failures.
+        failure_file=failure.log
+        touch ${failure_file}
+
+        smart_desk_dir="provisioning/esp32/smart_desk"
+        config="${smart_desk_dir}/cloudbuild.yaml"
+        if [[ ! -f "${config}" ]]; then
+          echo "${d} failed: ${config} not found." | tee -a ${failure_file}
+          continue
+        fi
+
+        echo "Building $smart_desk_dir ... "
+        (
+          logfile="${smart_desk_dir::-1}.log" # Logfile for "foo/" builder is "foo.log".
+          gcloud builds submit $smart_desk_dir --config=${config} > ${logfile} 2>&1
+          if [[ $? -ne 0 ]]; then
+            echo "$smart_desk_dir failed" | tee -a ${failure_file}
+            cat ${logfile}
+          fi
+        ) &
+
+        wait
+
+        # Check if there is any failure.
+        if [[ -s ${failure_file} ]]; then
+          echo
+          echo "Some builds failed:"
+          cat ${failure_file}
+          echo "Exiting."
+          exit 1
+        fi
+        echo "All builds succeeded."
 substitutions:
-    # Use the latest tag because we are currently developing the ESP32 stuff.
-    # Will switch to a more repeatable tag when we stabilize.
-    _CMAKE_VERSION: '3.17.3'
-    _ESP_IDF_VERSION_IMAGE_TAG: 'latest'
-    _ESP_SMART_DESK_PATH: 'provisioning/esp32/smart_desk'
     _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
     _TERRAFORM_IMAGE_TAG: '0.12.29'
 tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$BRANCH_NAME', '$TAG_NAME']
