@@ -58,5 +58,5 @@ steps:
                 echo "Current branch: $BRANCH_NAME"
             fi
 substitutions:
-    _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
+    _TERRAFORM_ENVIRONMENT_PATH: 'environments/prod'
     _TERRAFORM_IMAGE_TAG: '0.12.29'
