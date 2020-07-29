@@ -1,4 +1,8 @@
 ---
+artifacts:
+  objects:
+    location: 'gs://ferrarimarco-smart-desk/esp32/builds'
+    paths: [ "provisioning/esp32/smart_desk/build/smart-desk-*.bin" ]
 options:
     env:
         - TF_INPUT=false
