@@ -29,4 +29,4 @@ substitutions:
     # Will switch to a more repeatable tag when we stabilize.
     _CMAKE_VERSION: '3.17.3'
     _ESP_IDF_VERSION_IMAGE_TAG: 'latest'
-    _ESP_SMART_DESK_PATH: 'provisioning/esp32/smart_desk'
+    _ESP_SMART_DESK_PATH: '.'
