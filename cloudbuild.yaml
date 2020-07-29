@@ -85,16 +85,16 @@ steps:
       args:
           - '-c'
           - |
-            scripts/linux/ci/install-dependencies.sh $_CMAKE_VERSION
+            "$_ESP_SMART_DESK_PATH"/scripts/install-dependencies.sh $_CMAKE_VERSION
     - id: 'esp-idf build'
       name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
       dir: "$_ESP_SMART_DESK_PATH"
       args:
-          - ../../../scripts/linux/ci/build-esp-idf-smart-desk.sh
+          - scripts/build-esp-idf-smart-desk.sh
           - $_CMAKE_VERSION
     - id: 'Prepare smart_desk binary'
       name: 'alpine'
-      entrypoint: 'scripts/linux/ci/prepare-smart-desk-binary.sh'
+      entrypoint: '$_ESP_SMART_DESK_PATH/scripts/prepare-smart-desk-binary.sh'
       args:
         - "$_ESP_SMART_DESK_PATH/build/smart-desk.bin"
         - "$COMMIT_SHA"
