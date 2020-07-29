@@ -25,61 +25,7 @@ steps:
         - VALIDATE_TERRAFORM=true
         - VALIDATE_TERRAFORM_TERRASCAN=true
         - VALIDATE_YAML=true
-    - id: 'decrypt secrets'
-      name: gcr.io/cloud-builders/gcloud
-      entrypoint: 'sh'
-      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
-      args:
-          - '-c'
-          - |
-            /builder/google-cloud-sdk/bin/gcloud \
-                kms decrypt \
-                --ciphertext-file=terraform.tfvars.enc \
-                --plaintext-file=terraform.tfvars \
-                --location=global \
-                --keyring=cloud-build-keyring \
-                --key=cloudbuild-crypto-key
-    - id: 'tf init'
-      name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
-      entrypoint: 'sh'
-      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
-      args:
-          - '-c'
-          - |
-            terraform init || exit 1
-            cd ../../
-    - id: 'tf validate'
-      name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
-      entrypoint: 'sh'
-      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
-      args:
-          - '-c'
-          - |
-            terraform validate || exit 1
-            cd ../../
-    - id: 'tf plan'
-      name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
-      entrypoint: 'sh'
-      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
-      args:
-          - '-c'
-          - |
-            terraform plan
-    - id: 'tf apply'
-      name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
-      entrypoint: 'sh'
-      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
-      args:
-          - '-c'
-          - |
-            if [ "${BRANCH_NAME}" = "master" ]; then
-                echo $BRANCH_NAME
-                terraform apply -auto-approve || exit 1
-            else
-                echo "Not applying any Terraform change. Not on master branch."
-                echo "Current branch: $BRANCH_NAME"
-            fi
-    - id: 'build smart-desk'
+    - id: 'provision infrastructure'
       name: 'gcr.io/cloud-builders/gcloud'
       entrypoint: 'bash'
       args:
@@ -89,18 +35,18 @@ steps:
         failure_file=failure.log
         touch ${failure_file}
 
-        smart_desk_dir="provisioning/esp32/smart_desk"
-        config="${smart_desk_dir}/cloudbuild.yaml"
+        build_dir="provisioning/terraform"
+        config="${build_dir}/cloudbuild.yaml"
         if [[ ! -f "${config}" ]]; then
           echo "${d} failed: ${config} not found." | tee -a ${failure_file}
           continue
         fi
 
-        echo "Building $smart_desk_dir ... "
-        logfile="${smart_desk_dir::-1}.log"
-        gcloud builds submit --config=${config} $smart_desk_dir > ${logfile} 2>&1
+        echo "Building $build_dir ... "
+        logfile="${build_dir::-1}.log"
+        gcloud builds submit --config=${config} $build_dir > ${logfile} 2>&1
         if [[ $? -ne 0 ]]; then
-          echo "$smart_desk_dir failed" | tee -a ${failure_file}
+          echo "$build_dir failed" | tee -a ${failure_file}
           cat ${logfile}
         fi
 
@@ -112,8 +58,39 @@ steps:
           echo "Exiting."
           exit 1
         fi
-        echo "All builds succeeded."
-substitutions:
-    _TERRAFORM_ENVIRONMENT_PATH: 'provisioning/terraform/environments/prod'
-    _TERRAFORM_IMAGE_TAG: '0.12.29'
+        echo "Build succeeded."
+    - id: 'build smart-desk'
+      name: 'gcr.io/cloud-builders/gcloud'
+      entrypoint: 'bash'
+      args:
+      - '-c'
+      - |
+        # File that contains failures.
+        failure_file=failure.log
+        touch ${failure_file}
+
+        build_dir="provisioning/esp32/smart_desk"
+        config="${build_dir}/cloudbuild.yaml"
+        if [[ ! -f "${config}" ]]; then
+          echo "${d} failed: ${config} not found." | tee -a ${failure_file}
+          continue
+        fi
+
+        echo "Building $build_dir ... "
+        logfile="${build_dir::-1}.log"
+        gcloud builds submit --config=${config} $build_dir > ${logfile} 2>&1
+        if [[ $? -ne 0 ]]; then
+          echo "$build_dir failed" | tee -a ${failure_file}
+          cat ${logfile}
+        fi
+
+        # Check if there is any failure.
+        if [[ -s ${failure_file} ]]; then
+          echo
+          echo "Some builds failed:"
+          cat ${failure_file}
+          echo "Exiting."
+          exit 1
+        fi
+        echo "Build succeeded."
 tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$BRANCH_NAME', '$TAG_NAME']
