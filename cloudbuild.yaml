@@ -45,6 +45,7 @@ steps:
         echo "Building $build_dir ... "
         logfile="${build_dir::-1}.log"
         gcloud builds submit $build_dir --config=${config} > ${logfile} 2>&1
+
         if [[ $? -ne 0 ]]; then
           echo "$build_dir failed" | tee -a ${failure_file}
           cat ${logfile}
@@ -79,10 +80,7 @@ steps:
         echo "Building $build_dir ... "
         logfile="${build_dir::-1}.log"
         gcloud builds submit $build_dir --config=${config} \
-        --substitutions \
-          COMMIT_SHA="$COMMIT_SHA" \
-          BRANCH_NAME="$BRANCH_NAME" \
-          TAG_NAME="$TAG_NAME" \
+        --substitutions COMMIT_SHA="$COMMIT_SHA" BRANCH_NAME="$BRANCH_NAME" TAG_NAME="$TAG_NAME" \
         > ${logfile} 2>&1
 
         if [[ $? -ne 0 ]]; then
