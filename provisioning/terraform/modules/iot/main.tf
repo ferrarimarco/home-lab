@@ -65,3 +65,14 @@ resource "google_storage_bucket" "smart_desk" {
     enabled = true
   }
 }
+
+resource "google_cloudiot_device" "smart-desk" {
+  name     = "smart-desk"
+  registry = google_cloudiot_registry.home-registry.id
+
+  log_level = "INFO"
+
+  gateway_config {
+    gateway_type = "NON_GATEWAY"
+  }
+}
