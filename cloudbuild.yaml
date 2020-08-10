@@ -4,7 +4,7 @@ options:
         - TF_INPUT=false
 steps:
     - id: 'super-linter'
-      name: "github/super-linter:v3.4.0"
+      name: "github/super-linter:v3.5.1"
       env:
         - ACTIONS_RUNNER_DEBUG=true
         - ANSIBLE_DIRECTORY=configuration/ansible
