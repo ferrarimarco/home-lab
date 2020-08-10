@@ -19,6 +19,7 @@ steps:
         - VALIDATE_ANSIBLE=true
         - VALIDATE_BASH=true
         - VALIDATE_DOCKER=true
+        - VALIDATE_DOCKER_HADOLINT=true
         - VALIDATE_EDITORCONFIG=true
         - VALIDATE_JSON=true
         - VALIDATE_MD=true
