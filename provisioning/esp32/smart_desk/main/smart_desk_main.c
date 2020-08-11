@@ -6,6 +6,7 @@
 #include "esp_event.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
+#include "esp_task_wdt.h"
 
 #include "app_info.h"
 #include "board_info.h"
@@ -47,6 +48,13 @@ void vCpu1Task(void * pvParameters)
 {
     struct RsaKeyGenerationOptions * rsa_key_gen_parameters = (struct RsaKeyGenerationOptions *)pvParameters;
     generate_rsa_keypair(*rsa_key_gen_parameters);
+
+    esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(1));
+
+    // FreeRTOS tasks must not terminate
+    while (1) {
+        vTaskDelay(100 / portTICK_RATE_MS);
+    }
 }
 
 void app_main(void)
