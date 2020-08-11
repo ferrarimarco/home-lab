@@ -35,16 +35,16 @@ static int write_key_pair(mbedtls_pk_context *key, const char *private_key_file_
         ESP_LOGE(TAG, "mbedtls_pk_write_key_pem returned %d", ret);
         return ret;
     }
-    ESP_LOGI(TAG, "Private key output: %s", output_buf);
+    ESP_LOGI(TAG, "Private key output:\n%s", output_buf);
 
     ESP_LOGI(TAG, "Writing public key...");
     memset(output_buf, 0, output_buf_size);
-    if ((ret = mbedtls_pk_write_pubkey_der(key, output_buf, output_buf_size)) != 0) {
+    if ((ret = mbedtls_pk_write_pubkey_pem(key, output_buf, output_buf_size)) != 0) {
         memset(output_buf, 0, output_buf_size);
-        ESP_LOGE(TAG, "mbedtls_pk_write_key_pem returned %d", ret);
+        ESP_LOGE(TAG, "mbedtls_pk_write_pubkey_pem returned %d", ret);
         return ret;
     }
-    ESP_LOGI(TAG, "Public key output: %s", output_buf);
+    ESP_LOGI(TAG, "Public key output:\n%s", output_buf);
 
     memset(output_buf, 0, output_buf_size);
     return 0;

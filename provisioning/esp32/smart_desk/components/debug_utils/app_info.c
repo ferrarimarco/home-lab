@@ -43,7 +43,7 @@ char *get_tasks_info()
     char *task_info = (char *)malloc(task_info_size);
     vTaskList(task_list_buffer);
 
-    sprintf(task_info, "Task Name\tStatus\tPrio\tHWM\tTask#\tAffinity\n%s", task_list_buffer);
+    sprintf(task_info, "\nTask Name\tStatus\tPrio\tHWM\tTask#\tAffinity\n%s", task_list_buffer);
     free(task_list_buffer);
 
     return task_info;
