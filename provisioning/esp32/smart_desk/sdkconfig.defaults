@@ -13,3 +13,7 @@ CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
 
 # Configure the partition scheme to hold a factory app, and two OTA definitions
 CONFIG_PARTITION_TABLE_TWO_OTA=y
+
+# Enable FreeRTOS tracing and formatting functions
+CONFIG_FREERTOS_USE_TRACE_FACILITY=y
+CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS=y
