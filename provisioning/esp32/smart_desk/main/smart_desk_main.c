@@ -13,6 +13,7 @@
 #include "hd_44780.h"
 #include "ultrasonic.h"
 #include "relay_board.h"
+#include "rsa_utils.h"
 
 #include "ip_address_manager.h"
 #include "wifi_connection_manager.h"
@@ -121,6 +122,13 @@ void app_main(void)
     char* tasks_info = get_tasks_info();
     ESP_LOGI(TAG, "%s", tasks_info);
     free(tasks_info);
+
+    struct RsaKeyGenerationOptions rsa_key_generation_options ={
+        DEFAULT_RSA_KEY_SIZE,
+        DEFAULT_RSA_PRIVATE_KEY_FILENAME,
+        DEFAULT_RSA_PUBLIC_KEY_FILENAME };
+
+    generate_rsa_keypair(rsa_key_generation_options);
 
     start_wifi_provisioning();
 
