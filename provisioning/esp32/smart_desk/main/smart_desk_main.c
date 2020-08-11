@@ -37,6 +37,10 @@
 #define RELAY_3_GPIO GPIO_NUM_14
 #define RELAY_4_GPIO GPIO_NUM_12
 
+#define RSA_KEY_GEN_STACK_SIZE 8192
+#define RSA_KEY_GEN_TASK_PRIORITY 2
+#define RSA_KEY_SIZE DEFAULT_RSA_KEY_SIZE
+
 static const char *TAG = "smart_desk";
 
 void init_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
@@ -63,6 +67,12 @@ void retract_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay 
 
     turn_relay_on(relay_1);
     turn_relay_on(relay_3);
+}
+
+void vRsaKeyGenerationTask(void * pvParameters)
+{
+    struct RsaKeyGenerationOptions * rsa_key_gen_parameters = (struct RsaKeyGenerationOptions *)pvParameters;
+    generate_rsa_keypair(*rsa_key_gen_parameters);
 }
 
 void app_main(void)
@@ -124,11 +134,10 @@ void app_main(void)
     free(tasks_info);
 
     struct RsaKeyGenerationOptions rsa_key_generation_options ={
-        DEFAULT_RSA_KEY_SIZE,
+        RSA_KEY_SIZE,
         DEFAULT_RSA_PRIVATE_KEY_FILENAME,
         DEFAULT_RSA_PUBLIC_KEY_FILENAME };
-
-    generate_rsa_keypair(rsa_key_generation_options);
+    xTaskCreatePinnedToCore(vRsaKeyGenerationTask, "rsa_key_gen", RSA_KEY_GEN_STACK_SIZE, &rsa_key_generation_options, RSA_KEY_GEN_TASK_PRIORITY, NULL, 1);
 
     start_wifi_provisioning();
 
