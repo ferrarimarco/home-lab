@@ -118,6 +118,10 @@ void app_main(void)
     register_provisioning_manager_event_handlers();
     register_lcd_events();
 
+    char* tasks_info = get_tasks_info();
+    ESP_LOGI(TAG, "%s", tasks_info);
+    free(tasks_info);
+
     start_wifi_provisioning();
 
     init_actuators(relay_1, relay_2, relay_3, relay_4);
