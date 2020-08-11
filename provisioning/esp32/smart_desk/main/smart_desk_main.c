@@ -130,11 +130,11 @@ void app_main(void)
 
     init_actuators(relay_1, relay_2, relay_3, relay_4);
 
-    ultrasonic_sensor_t ultrasonic_sensor = {
+    ultrasonic_sensor_t ultrasonic_sensor ={
         .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
         .echo_pin = ULTRASONIC_ECHO_GPIO,
         .min_distance = ULTRASONIC_MIN_DISTANCE_CM,
-        .max_distance = ULTRASONIC_MAX_DISTANCE_CM};
+        .max_distance = ULTRASONIC_MAX_DISTANCE_CM };
 
     ultrasonic_init(&ultrasonic_sensor);
     ultrasonic_sensor_demo(&ultrasonic_sensor);
