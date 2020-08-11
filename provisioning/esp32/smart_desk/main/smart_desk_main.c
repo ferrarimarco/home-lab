@@ -43,33 +43,7 @@
 
 static const char *TAG = "smart_desk";
 
-void init_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
-{
-    turn_relay_off(relay_1);
-    turn_relay_off(relay_2);
-    turn_relay_off(relay_3);
-    turn_relay_off(relay_4);
-}
-
-void extend_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
-{
-    turn_relay_off(relay_1);
-    turn_relay_off(relay_3);
-
-    turn_relay_on(relay_2);
-    turn_relay_on(relay_4);
-}
-
-void retract_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
-{
-    turn_relay_off(relay_2);
-    turn_relay_off(relay_4);
-
-    turn_relay_on(relay_1);
-    turn_relay_on(relay_3);
-}
-
-void vRsaKeyGenerationTask(void * pvParameters)
+void vCpu1Task(void * pvParameters)
 {
     struct RsaKeyGenerationOptions * rsa_key_gen_parameters = (struct RsaKeyGenerationOptions *)pvParameters;
     generate_rsa_keypair(*rsa_key_gen_parameters);
@@ -77,15 +51,6 @@ void vRsaKeyGenerationTask(void * pvParameters)
 
 void app_main(void)
 {
-    struct Relay relay_1 ={ RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
-    struct Relay relay_2 ={ RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
-    struct Relay relay_3 ={ RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
-    struct Relay relay_4 ={ RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
-    init_relay(relay_1);
-    init_relay(relay_2);
-    init_relay(relay_3);
-    init_relay(relay_4);
-
     i2c_master_driver_initialize(SDA_PIN, SCL_PIN, I2C_FREQUENCY);
     do_i2cdetect();
 
@@ -137,26 +102,28 @@ void app_main(void)
         RSA_KEY_SIZE,
         DEFAULT_RSA_PRIVATE_KEY_FILENAME,
         DEFAULT_RSA_PUBLIC_KEY_FILENAME };
-    xTaskCreatePinnedToCore(vRsaKeyGenerationTask, "rsa_key_gen", RSA_KEY_GEN_STACK_SIZE, &rsa_key_generation_options, RSA_KEY_GEN_TASK_PRIORITY, NULL, 1);
+    xTaskCreatePinnedToCore(vCpu1Task, "cpu1_heavy", RSA_KEY_GEN_STACK_SIZE, &rsa_key_generation_options, RSA_KEY_GEN_TASK_PRIORITY, NULL, 1);
 
     start_wifi_provisioning();
 
-    init_actuators(relay_1, relay_2, relay_3, relay_4);
+    ESP_LOGI(TAG, "Starting the actuators demo...");
+    struct Relay relay_1 ={ RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    struct Relay relay_2 ={ RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    struct Relay relay_3 ={ RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    struct Relay relay_4 ={ RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    init_relay(relay_1);
+    init_relay(relay_2);
+    init_relay(relay_3);
+    init_relay(relay_4);
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    actuators_demo(relay_1, relay_2, relay_3, relay_4);
 
-    extend_actuators(relay_1, relay_2, relay_3, relay_4);
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-    retract_actuators(relay_1, relay_2, relay_3, relay_4);
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-    init_actuators(relay_1, relay_2, relay_3, relay_4);
-
+    ESP_LOGI(TAG, "Starting the distance sensor demo...");
     ultrasonic_sensor_t ultrasonic_sensor ={
         .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
         .echo_pin = ULTRASONIC_ECHO_GPIO,
         .min_distance = ULTRASONIC_MIN_DISTANCE_CM,
         .max_distance = ULTRASONIC_MAX_DISTANCE_CM };
-
     ultrasonic_init(&ultrasonic_sensor);
     ultrasonic_sensor_demo(&ultrasonic_sensor);
 }

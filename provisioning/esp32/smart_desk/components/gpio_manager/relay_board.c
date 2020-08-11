@@ -29,6 +29,32 @@ void turn_relay_off(struct Relay relay)
     ESP_ERROR_CHECK(gpio_set_level(gpio_num, relay.inactive_level));
 }
 
+void init_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
+{
+    turn_relay_off(relay_1);
+    turn_relay_off(relay_2);
+    turn_relay_off(relay_3);
+    turn_relay_off(relay_4);
+}
+
+void extend_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
+{
+    turn_relay_off(relay_1);
+    turn_relay_off(relay_3);
+
+    turn_relay_on(relay_2);
+    turn_relay_on(relay_4);
+}
+
+void retract_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
+{
+    turn_relay_off(relay_2);
+    turn_relay_off(relay_4);
+
+    turn_relay_on(relay_1);
+    turn_relay_on(relay_3);
+}
+
 void relay_board_demo(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
 {
     turn_relay_on(relay_1);
@@ -42,4 +68,16 @@ void relay_board_demo(struct Relay relay_1, struct Relay relay_2, struct Relay r
     turn_relay_off(relay_2);
     turn_relay_off(relay_3);
     turn_relay_off(relay_4);
+}
+
+void actuators_demo(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4) {
+    init_actuators(relay_1, relay_2, relay_3, relay_4);
+
+    extend_actuators(relay_1, relay_2, relay_3, relay_4);
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+    retract_actuators(relay_1, relay_2, relay_3, relay_4);
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+    init_actuators(relay_1, relay_2, relay_3, relay_4);
 }

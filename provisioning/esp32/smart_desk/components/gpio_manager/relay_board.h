@@ -20,4 +20,6 @@ void turn_relay_off(struct Relay relay);
 
 void relay_board_demo();
 
+void actuators_demo(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4);
+
 #endif
