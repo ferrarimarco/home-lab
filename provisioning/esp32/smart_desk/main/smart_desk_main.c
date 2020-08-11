@@ -94,10 +94,13 @@ void app_main(void)
 
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
-    const char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
+    char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
     ESP_LOGI(TAG, "%s", board_info);
+    free(board_info);
 
-    ESP_LOGI(TAG, "%s", get_app_info());
+    char* app_info = get_app_info();
+    ESP_LOGI(TAG, "%s", app_info);
+    free(app_info);
 
     ESP_LOGI(TAG, "Creating the default loop...");
     ESP_ERROR_CHECK(esp_event_loop_create_default());
