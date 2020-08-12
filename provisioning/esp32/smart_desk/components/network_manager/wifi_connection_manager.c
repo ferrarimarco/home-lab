@@ -5,7 +5,6 @@
 #include "esp_log.h"
 
 #include "wifi_connection_manager.h"
-#include "nvs_manager.h"
 
 static const char *TAG = "wifi_connection_manager";
 
@@ -14,9 +13,6 @@ ESP_EVENT_DEFINE_BASE(WIFI_CONNECTION_MANAGER_EVENTS);
 void handle_wifi_sta_init_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(TAG, "Initializing WiFi...");
-
-    ESP_LOGI(TAG, "Initializing the non-volatile storage flash...");
-    ESP_ERROR_CHECK(initialize_nvs_flash());
 
     ESP_LOGI(TAG, "Initializing the network stack...");
     ESP_ERROR_CHECK(esp_netif_init());

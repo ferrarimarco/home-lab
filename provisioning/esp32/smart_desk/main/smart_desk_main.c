@@ -19,6 +19,7 @@
 #include "ip_address_manager.h"
 #include "wifi_connection_manager.h"
 #include "provisioning_manager.h"
+#include "nvs_manager.h"
 
 #define SDA_PIN 23
 #define SCL_PIN 22
@@ -88,6 +89,9 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Creating the default loop...");
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    ESP_LOGI(TAG, "Initializing the non-volatile storage flash...");
+    ESP_ERROR_CHECK(initialize_nvs_flash());
 
     ESP_LOGI(TAG, "Preparing the default LCD visualization...");
     LCD_clearScreen();
