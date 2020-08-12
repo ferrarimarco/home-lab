@@ -16,6 +16,8 @@ static const char *TAG = "rsa_utils";
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 
+#include "nvs_manager.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +37,7 @@ static int write_key_pair(mbedtls_pk_context *key, const char *private_key_file_
         ESP_LOGE(TAG, "mbedtls_pk_write_key_pem returned %d", ret);
         return ret;
     }
-    ESP_LOGI(TAG, "Private key output:\n%s", output_buf);
+    ESP_LOGI(TAG, "Private key output (length: %u):\n%s", strlen((char*)output_buf), output_buf);
 
     ESP_LOGI(TAG, "Writing public key...");
     memset(output_buf, 0, output_buf_size);
@@ -44,7 +46,7 @@ static int write_key_pair(mbedtls_pk_context *key, const char *private_key_file_
         ESP_LOGE(TAG, "mbedtls_pk_write_pubkey_pem returned %d", ret);
         return ret;
     }
-    ESP_LOGI(TAG, "Public key output:\n%s", output_buf);
+    ESP_LOGI(TAG, "Public key output (length: %u):\n%s", strlen((char*)output_buf), output_buf);
 
     memset(output_buf, 0, output_buf_size);
     return 0;

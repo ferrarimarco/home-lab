@@ -25,8 +25,10 @@ bool blob_exists(const char * namespace, const char * key) {
     ESP_LOGI(TAG, "Checking if the %s namespace contains %s key...", namespace, key);
     size_t required_size = 0;
     err = nvs_get_blob(nvs_handle, key, NULL, &required_size);
-    if (err == ESP_ERR_NVS_NOT_FOUND)
+    if (err == ESP_ERR_NVS_NOT_FOUND) {
         result = false;
+        ESP_LOGI(TAG, "%s key not found in %s namespace.", key, namespace);
+    }
     else if (err == ESP_OK) {
         result = true;
         ESP_LOGI(TAG, "Found %s key in %s namespace. Value size: %u.", key, namespace, required_size);

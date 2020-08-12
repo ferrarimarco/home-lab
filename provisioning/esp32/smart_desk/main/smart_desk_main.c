@@ -42,13 +42,19 @@
 #define RSA_KEY_GEN_STACK_SIZE 25000
 #define RSA_KEY_GEN_TASK_PRIORITY 2
 #define RSA_KEY_SIZE DEFAULT_RSA_KEY_SIZE
+#define RSA_KEY_STORAGE_NAMESPACE DEFAULT_RSA_KEY_STORAGE_NAMESPACE
 
 static const char *TAG = "smart_desk";
 
 void vCpu1Task(void * pvParameters)
 {
     struct RsaKeyGenerationOptions * rsa_key_gen_parameters = (struct RsaKeyGenerationOptions *)pvParameters;
-    generate_rsa_keypair(*rsa_key_gen_parameters);
+    if (!blob_exists(rsa_key_gen_parameters->storage_namespace, rsa_key_gen_parameters->public_key_filename)
+        || !blob_exists(rsa_key_gen_parameters->storage_namespace, rsa_key_gen_parameters->private_key_filename)
+        ) {
+        ESP_LOGI(TAG, "Generating RSA keypair...");
+        generate_rsa_keypair(*rsa_key_gen_parameters);
+    }
 
     esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(1));
 
@@ -113,7 +119,8 @@ void app_main(void)
     struct RsaKeyGenerationOptions rsa_key_generation_options ={
         RSA_KEY_SIZE,
         DEFAULT_RSA_PRIVATE_KEY_FILENAME,
-        DEFAULT_RSA_PUBLIC_KEY_FILENAME };
+        DEFAULT_RSA_PUBLIC_KEY_FILENAME,
+        RSA_KEY_STORAGE_NAMESPACE };
     xTaskCreatePinnedToCore(vCpu1Task, "cpu1_heavy", RSA_KEY_GEN_STACK_SIZE, &rsa_key_generation_options, RSA_KEY_GEN_TASK_PRIORITY, NULL, 1);
 
     start_wifi_provisioning();
