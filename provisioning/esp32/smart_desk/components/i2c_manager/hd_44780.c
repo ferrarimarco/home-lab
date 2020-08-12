@@ -224,13 +224,13 @@ void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, 
 
 void LCD_setCursor(uint8_t col, uint8_t row)
 {
-    ESP_LOGI(TAG, "Set cursor to col %d, row %d", col, row);
+    ESP_LOGD(TAG, "Set cursor to col %d, row %d", col, row);
     if (row > LCD_rows - 1)
     {
         ESP_LOGE(TAG, "Cannot write to row %d. Please select a row in the range (0, %d)", row, LCD_rows - 1);
         row = LCD_rows - 1;
     }
-    uint8_t row_offsets[] = {LCD_LINEONE, LCD_LINETWO, LCD_LINETHREE, LCD_LINEFOUR};
+    uint8_t row_offsets[] ={ LCD_LINEONE, LCD_LINETWO, LCD_LINETHREE, LCD_LINEFOUR };
     send(LCD_SET_DDRAM_ADDRESS | (col + row_offsets[row]), LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER);
     ets_delay_us(80);
 }
@@ -244,7 +244,7 @@ void LCD_writeChar(char c)
 
 void LCD_writeStr(const char *str)
 {
-    ESP_LOGI(TAG, "Write string: %s", str);
+    ESP_LOGD(TAG, "Write string: %s", str);
     while (*str)
     {
         LCD_writeChar(*str++);

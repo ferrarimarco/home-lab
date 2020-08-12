@@ -6,6 +6,7 @@
 #include "esp_event.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
+#include "esp_task_wdt.h"
 
 #include "app_info.h"
 #include "board_info.h"
@@ -13,6 +14,7 @@
 #include "hd_44780.h"
 #include "ultrasonic.h"
 #include "relay_board.h"
+#include "rsa_utils.h"
 
 #include "ip_address_manager.h"
 #include "wifi_connection_manager.h"
@@ -36,45 +38,27 @@
 #define RELAY_3_GPIO GPIO_NUM_14
 #define RELAY_4_GPIO GPIO_NUM_12
 
+#define RSA_KEY_GEN_STACK_SIZE 25000
+#define RSA_KEY_GEN_TASK_PRIORITY 2
+#define RSA_KEY_SIZE DEFAULT_RSA_KEY_SIZE
+
 static const char *TAG = "smart_desk";
 
-void init_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
+void vCpu1Task(void * pvParameters)
 {
-    turn_relay_off(relay_1);
-    turn_relay_off(relay_2);
-    turn_relay_off(relay_3);
-    turn_relay_off(relay_4);
-}
+    struct RsaKeyGenerationOptions * rsa_key_gen_parameters = (struct RsaKeyGenerationOptions *)pvParameters;
+    generate_rsa_keypair(*rsa_key_gen_parameters);
 
-void extend_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
-{
-    turn_relay_off(relay_1);
-    turn_relay_off(relay_3);
+    esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(1));
 
-    turn_relay_on(relay_2);
-    turn_relay_on(relay_4);
-}
-
-void retract_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4)
-{
-    turn_relay_off(relay_2);
-    turn_relay_off(relay_4);
-
-    turn_relay_on(relay_1);
-    turn_relay_on(relay_3);
+    // FreeRTOS tasks must not terminate
+    while (1) {
+        vTaskDelay(100 / portTICK_RATE_MS);
+    }
 }
 
 void app_main(void)
 {
-    struct Relay relay_1 = {RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_2 = {RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_3 = {RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_4 = {RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    init_relay(relay_1);
-    init_relay(relay_2);
-    init_relay(relay_3);
-    init_relay(relay_4);
-
     i2c_master_driver_initialize(SDA_PIN, SCL_PIN, I2C_FREQUENCY);
     do_i2cdetect();
 
@@ -94,10 +78,13 @@ void app_main(void)
 
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
-    const char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
+    char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
     ESP_LOGI(TAG, "%s", board_info);
+    free(board_info);
 
-    ESP_LOGI(TAG, "%s", get_app_info());
+    char* app_info = get_app_info();
+    ESP_LOGI(TAG, "%s", app_info);
+    free(app_info);
 
     ESP_LOGI(TAG, "Creating the default loop...");
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -115,24 +102,36 @@ void app_main(void)
     register_provisioning_manager_event_handlers();
     register_lcd_events();
 
+    char* tasks_info = get_tasks_info();
+    ESP_LOGI(TAG, "%s", tasks_info);
+    free(tasks_info);
+
+    struct RsaKeyGenerationOptions rsa_key_generation_options ={
+        RSA_KEY_SIZE,
+        DEFAULT_RSA_PRIVATE_KEY_FILENAME,
+        DEFAULT_RSA_PUBLIC_KEY_FILENAME };
+    xTaskCreatePinnedToCore(vCpu1Task, "cpu1_heavy", RSA_KEY_GEN_STACK_SIZE, &rsa_key_generation_options, RSA_KEY_GEN_TASK_PRIORITY, NULL, 1);
+
     start_wifi_provisioning();
 
-    init_actuators(relay_1, relay_2, relay_3, relay_4);
+    ESP_LOGI(TAG, "Starting the actuators demo...");
+    struct Relay relay_1 ={ RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    struct Relay relay_2 ={ RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    struct Relay relay_3 ={ RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    struct Relay relay_4 ={ RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    init_relay(relay_1);
+    init_relay(relay_2);
+    init_relay(relay_3);
+    init_relay(relay_4);
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    actuators_demo(relay_1, relay_2, relay_3, relay_4);
 
-    extend_actuators(relay_1, relay_2, relay_3, relay_4);
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-    retract_actuators(relay_1, relay_2, relay_3, relay_4);
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-    init_actuators(relay_1, relay_2, relay_3, relay_4);
-
-    ultrasonic_sensor_t ultrasonic_sensor = {
+    ESP_LOGI(TAG, "Starting the distance sensor demo...");
+    ultrasonic_sensor_t ultrasonic_sensor ={
         .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
         .echo_pin = ULTRASONIC_ECHO_GPIO,
         .min_distance = ULTRASONIC_MIN_DISTANCE_CM,
-        .max_distance = ULTRASONIC_MAX_DISTANCE_CM};
-
+        .max_distance = ULTRASONIC_MAX_DISTANCE_CM };
     ultrasonic_init(&ultrasonic_sensor);
     ultrasonic_sensor_demo(&ultrasonic_sensor);
 }
