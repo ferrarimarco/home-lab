@@ -100,14 +100,12 @@ and the relevant `sha256sum` files.
 where `XXXX` is the SD card device identifier.
 1. Ensure the board is powered off.
 1. Insert the microSD.
-1. Boot the board using the SD card.
-Note that it may be necessary to press the Boot button
-(near the microSD slot) until the user LEDs turn on (necessary for old uBoot
-versions).
-     If you downloaded a flasher version of the image, it will boot and then
-     start flashing the eMMC. When flashing is completed, the board will power off.
-     Remember to remove the microSD otherwise the board will keep flashing the
-     microSD over and over.
+1. Boot the board using the SD card. Note that it may be necessary to press the
+    Boot button (near the microSD slot) until the user LEDs turn on (necessary
+    for old uBoot versions). If you downloaded a flasher version of the image,
+    it will boot and then start flashing the eMMC. When flashing is completed,
+    the board will power off. Remember to remove the microSD otherwise the board
+    will keep flashing the microSD over and over.
 1. Unplug the board and plug it back in.
 
 ##### Updating the kernel and bootloader
