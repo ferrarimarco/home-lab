@@ -18,7 +18,7 @@ To provision the necessary infrastructure, you need to initialize and export
 the following environment variables:
 
 - `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID that will contain the
-  resources for the container image building pipeline.
+    resources for the container image building pipeline.
 - `GOOGLE_APPLICATION_CREDENTIALS`: path to the default Google Cloud credentials.
 - `ORGANIZATION_ID`: Google Cloud organization ID at the root of the hierarchy.
 
@@ -71,11 +71,11 @@ You can then encrypt it with the Google Cloud SDK
 
 ```shell
 gcloud kms encrypt \
-  --plaintext-file=terraform.tfvars \
-  --ciphertext-file=terraform.tfvars.enc \
-  --location=global \
-  --keyring=cloud-build-keyring \
-  --key=cloudbuild-crypto-key
+    --plaintext-file=terraform.tfvars \
+    --ciphertext-file=terraform.tfvars.enc \
+    --location=global \
+    --keyring=cloud-build-keyring \
+    --key=cloudbuild-crypto-key
 ```
 
 ## Manual Steps
@@ -104,10 +104,10 @@ where `XXXX` is the SD card device identifier.
 Note that it may be necessary to press the Boot button
 (near the microSD slot) until the user LEDs turn on (necessary for old uBoot
 versions).
-   If you downloaded a flasher version of the image, it will boot and then
-   start flashing the eMMC. When flashing is completed, the board will power off.
-   Remember to remove the microSD otherwise the board will keep flashing the
-   microSD over and over.
+     If you downloaded a flasher version of the image, it will boot and then
+     start flashing the eMMC. When flashing is completed, the board will power off.
+     Remember to remove the microSD otherwise the board will keep flashing the
+     microSD over and over.
 1. Unplug the board and plug it back in.
 
 ##### Updating the kernel and bootloader
