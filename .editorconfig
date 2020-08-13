@@ -24,6 +24,11 @@ spaces_around_brackets = false
 indent_style = space
 indent_size = 2
 
+# Treat the Ansible hosts file as YAML
+[hosts]
+indent_style = space
+indent_size = 2
+
 [*.{tf,tfvars}]
 indent_size = 2
 indent_style = space
