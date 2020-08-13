@@ -24,7 +24,7 @@ static const char *TAG = "rsa_utils";
 
 #include <unistd.h>
 
-static int write_key_pair(mbedtls_pk_context *key, const char *private_key_file_path, const char *public_key_file_path)
+static int write_key_pair(mbedtls_pk_context *key, const char *storage_namespace, const char *private_key_file_path, const char *public_key_file_path)
 {
     int ret;
     int output_buf_size = 16000;
@@ -32,21 +32,28 @@ static int write_key_pair(mbedtls_pk_context *key, const char *private_key_file_
 
     ESP_LOGI(TAG, "Writing private key...");
     memset(output_buf, 0, output_buf_size);
-    if ((ret = mbedtls_pk_write_key_pem(key, output_buf, output_buf_size)) != 0) {
+    if ((ret = mbedtls_pk_write_key_pem(key, output_buf, output_buf_size)) != 0)
+    {
         memset(output_buf, 0, output_buf_size);
         ESP_LOGE(TAG, "mbedtls_pk_write_key_pem returned %d", ret);
         return ret;
     }
-    ESP_LOGI(TAG, "Private key output (length: %u):\n%s", strlen((char*)output_buf), output_buf);
+    // Add 1 to hold the null-termination character
+    size_t key_size = strlen((char *)output_buf) + 1;
+    ESP_LOGI(TAG, "Saving private key to non-volatile storage...");
+    ESP_ERROR_CHECK(save_blob(storage_namespace, private_key_file_path, output_buf, key_size));
 
     ESP_LOGI(TAG, "Writing public key...");
     memset(output_buf, 0, output_buf_size);
-    if ((ret = mbedtls_pk_write_pubkey_pem(key, output_buf, output_buf_size)) != 0) {
+    if ((ret = mbedtls_pk_write_pubkey_pem(key, output_buf, output_buf_size)) != 0)
+    {
         memset(output_buf, 0, output_buf_size);
         ESP_LOGE(TAG, "mbedtls_pk_write_pubkey_pem returned %d", ret);
         return ret;
     }
-    ESP_LOGI(TAG, "Public key output (length: %u):\n%s", strlen((char*)output_buf), output_buf);
+    key_size = strlen((char *)output_buf) + 1;
+    ESP_LOGI(TAG, "Saving public key to non-volatile storage...");
+    ESP_ERROR_CHECK(save_blob(storage_namespace, public_key_file_path, output_buf, key_size));
 
     memset(output_buf, 0, output_buf_size);
     return 0;
@@ -114,7 +121,7 @@ int generate_rsa_keypair(struct RsaKeyGenerationOptions rsa_key_generation_optio
     }
 
     ESP_LOGI(TAG, "Writing key pair to file...");
-    if ((ret = write_key_pair(&key, rsa_key_generation_options.private_key_filename, rsa_key_generation_options.public_key_filename)) != 0)
+    if ((ret = write_key_pair(&key, rsa_key_generation_options.storage_namespace, rsa_key_generation_options.private_key_filename, rsa_key_generation_options.public_key_filename)) != 0)
     {
         ESP_LOGE(TAG, "write_private_key returned %d", ret);
         goto exit;
@@ -122,7 +129,7 @@ int generate_rsa_keypair(struct RsaKeyGenerationOptions rsa_key_generation_optio
 
     ESP_LOGI(TAG, "Key generated successfully.");
     exit_code = MBEDTLS_EXIT_SUCCESS;
-    exit:
+exit:
     mbedtls_mpi_free(&N);
     mbedtls_mpi_free(&P);
     mbedtls_mpi_free(&Q);

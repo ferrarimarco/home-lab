@@ -122,7 +122,7 @@ void ultrasonic_sensor_demo(const ultrasonic_sensor_t *dev)
             }
         }
         else
-            ESP_LOGI(TAG, "Measured distance: %d cm", distance);
+            ESP_LOGD(TAG, "Measured distance: %d cm", distance);
 
         vTaskDelay(500 / portTICK_PERIOD_MS);
     }

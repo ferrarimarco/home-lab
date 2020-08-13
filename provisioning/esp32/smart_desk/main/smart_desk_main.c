@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -46,20 +48,29 @@
 
 static const char *TAG = "smart_desk";
 
-void vCpu1Task(void * pvParameters)
+void vCpu1Task(void *pvParameters)
 {
-    struct RsaKeyGenerationOptions * rsa_key_gen_parameters = (struct RsaKeyGenerationOptions *)pvParameters;
-    if (!blob_exists(rsa_key_gen_parameters->storage_namespace, rsa_key_gen_parameters->public_key_filename)
-        || !blob_exists(rsa_key_gen_parameters->storage_namespace, rsa_key_gen_parameters->private_key_filename)
-        ) {
+    struct RsaKeyGenerationOptions *rsa_key_gen_parameters = (struct RsaKeyGenerationOptions *)pvParameters;
+    const char *rsa_storage_namespace = rsa_key_gen_parameters->storage_namespace;
+    const char *rsa_public_key_filename = rsa_key_gen_parameters->public_key_filename;
+    if (!blob_exists(rsa_storage_namespace, rsa_public_key_filename) || !blob_exists(rsa_storage_namespace, rsa_key_gen_parameters->private_key_filename))
+    {
         ESP_LOGI(TAG, "Generating RSA keypair...");
         generate_rsa_keypair(*rsa_key_gen_parameters);
     }
 
+    size_t public_key_length = 0;
+    ESP_ERROR_CHECK(get_blob_length(rsa_storage_namespace, rsa_public_key_filename, &public_key_length));
+    char *rsa_public_key = malloc(public_key_length + 1);
+    ESP_ERROR_CHECK(load_blob(rsa_storage_namespace, rsa_public_key_filename, (void *)rsa_public_key, public_key_length));
+    ESP_LOGI(TAG, "RSA Public key (length: %u):\n%s", public_key_length, rsa_public_key);
+    free(rsa_public_key);
+
     esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(1));
 
     // FreeRTOS tasks must not terminate
-    while (1) {
+    while (1)
+    {
         vTaskDelay(100 / portTICK_RATE_MS);
     }
 }
@@ -89,7 +100,7 @@ void app_main(void)
     ESP_LOGI(TAG, "%s", board_info);
     free(board_info);
 
-    char* app_info = get_app_info();
+    char *app_info = get_app_info();
     ESP_LOGI(TAG, "%s", app_info);
     free(app_info);
 
@@ -112,24 +123,24 @@ void app_main(void)
     register_provisioning_manager_event_handlers();
     register_lcd_events();
 
-    char* tasks_info = get_tasks_info();
+    char *tasks_info = get_tasks_info();
     ESP_LOGI(TAG, "%s", tasks_info);
     free(tasks_info);
 
-    struct RsaKeyGenerationOptions rsa_key_generation_options ={
+    struct RsaKeyGenerationOptions rsa_key_generation_options = {
         RSA_KEY_SIZE,
         DEFAULT_RSA_PRIVATE_KEY_FILENAME,
         DEFAULT_RSA_PUBLIC_KEY_FILENAME,
-        RSA_KEY_STORAGE_NAMESPACE };
+        RSA_KEY_STORAGE_NAMESPACE};
     xTaskCreatePinnedToCore(vCpu1Task, "cpu1_heavy", RSA_KEY_GEN_STACK_SIZE, &rsa_key_generation_options, RSA_KEY_GEN_TASK_PRIORITY, NULL, 1);
 
     start_wifi_provisioning();
 
     ESP_LOGI(TAG, "Starting the actuators demo...");
-    struct Relay relay_1 ={ RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
-    struct Relay relay_2 ={ RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
-    struct Relay relay_3 ={ RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
-    struct Relay relay_4 ={ RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1 };
+    struct Relay relay_1 = {RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_2 = {RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_3 = {RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
+    struct Relay relay_4 = {RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
     init_relay(relay_1);
     init_relay(relay_2);
     init_relay(relay_3);
@@ -138,11 +149,11 @@ void app_main(void)
     actuators_demo(relay_1, relay_2, relay_3, relay_4);
 
     ESP_LOGI(TAG, "Starting the distance sensor demo...");
-    ultrasonic_sensor_t ultrasonic_sensor ={
+    ultrasonic_sensor_t ultrasonic_sensor = {
         .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
         .echo_pin = ULTRASONIC_ECHO_GPIO,
         .min_distance = ULTRASONIC_MIN_DISTANCE_CM,
-        .max_distance = ULTRASONIC_MAX_DISTANCE_CM };
+        .max_distance = ULTRASONIC_MAX_DISTANCE_CM};
     ultrasonic_init(&ultrasonic_sensor);
     ultrasonic_sensor_demo(&ultrasonic_sensor);
 }
