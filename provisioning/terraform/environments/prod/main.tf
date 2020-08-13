@@ -36,8 +36,9 @@ module "iac-pipeline" {
 }
 
 module "iot" {
-  source                            = "../../modules/iot"
-  google_organization_id            = data.google_organization.ferrari_how.org_id
-  google_project_billing_account_id = var.google_billing_account_id
-  google_project_id                 = var.google_iot_project_id
+  source                              = "../../modules/iot"
+  google_organization_id              = data.google_organization.ferrari_how.org_id
+  google_project_billing_account_id   = var.google_billing_account_id
+  google_project_id                   = var.google_iot_project_id
+  smart_desk_public_key_pem_file_path = "iot-core/public-keys/smart_desk.pem"
 }
