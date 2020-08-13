@@ -134,8 +134,7 @@ int do_i2cdump(uint8_t chip_address, uint8_t read_size)
     uint8_t data_addr;
     uint8_t data[4];
     int32_t block[16];
-    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f"
-           "    0123456789abcdef\r\n");
+    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\r\n    0123456789abcdef\r\n");
     for (int i = 0; i < 128; i += 16)
     {
         printf("%02x: ", i);

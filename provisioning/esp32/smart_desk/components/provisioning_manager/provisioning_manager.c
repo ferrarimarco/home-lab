@@ -94,8 +94,7 @@ void handle_wifi_prov_cred_recv_event(void *arg, esp_event_base_t event_base, in
 void handle_wifi_prov_cred_fail_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     wifi_prov_sta_fail_reason_t *reason = (wifi_prov_sta_fail_reason_t *)event_data;
-    ESP_LOGE(TAG, "Provisioning failed! Reason : %s. Please reset to factory and retry provisioning",
-             (*reason == WIFI_PROV_STA_AUTH_ERROR) ? "Wi-Fi station authentication failed" : "Wi-Fi access-point not found");
+    ESP_LOGE(TAG, "Provisioning failed! Reason : %s. Please reset to factory and retry provisioning", (*reason == WIFI_PROV_STA_AUTH_ERROR) ? "Wi-Fi station authentication failed" : "Wi-Fi access-point not found");
 }
 
 void handle_wifi_prov_cred_success_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
