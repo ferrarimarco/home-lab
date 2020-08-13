@@ -23,3 +23,7 @@ spaces_around_brackets = false
 [*.{yml,yaml}]
 indent_style = space
 indent_size = 2
+
+[*.{tf,tfvars}]
+indent_size = 2
+indent_style = space
