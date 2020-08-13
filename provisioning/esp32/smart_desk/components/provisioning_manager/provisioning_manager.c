@@ -88,17 +88,13 @@ void handle_wifi_prov_start_event(void *arg, esp_event_base_t event_base, int32_
 void handle_wifi_prov_cred_recv_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t *)event_data;
-    ESP_LOGI(TAG, "Received Wi-Fi credentials"
-                  "\n\tSSID     : %s\n\tPassword : %s",
-             (const char *)wifi_sta_cfg->ssid,
-             (const char *)wifi_sta_cfg->password);
+    ESP_LOGI(TAG, "Received Wi-Fi credentials. SSID: %s. Password : %s", (const char *)wifi_sta_cfg->ssid, (const char *)wifi_sta_cfg->password);
 }
 
 void handle_wifi_prov_cred_fail_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     wifi_prov_sta_fail_reason_t *reason = (wifi_prov_sta_fail_reason_t *)event_data;
-    ESP_LOGE(TAG, "Provisioning failed!\n\tReason : %s"
-                  "\n\tPlease reset to factory and retry provisioning",
+    ESP_LOGE(TAG, "Provisioning failed! Reason : %s. Please reset to factory and retry provisioning",
              (*reason == WIFI_PROV_STA_AUTH_ERROR) ? "Wi-Fi station authentication failed" : "Wi-Fi access-point not found");
 }
 
