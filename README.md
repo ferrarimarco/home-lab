@@ -152,19 +152,3 @@ In this section, you bootstrap nodes that need a first time initialization.
 
 1. (if needed) Upadate the IP address associated with the BeagleBone Black
     in the hosts file, until you have a local DNS server.
-
-### DNS/DHCP/PXE Server Configuration - Debian and derivatives
-
-1. Disable other DHCP servers for the subnets managed by DNSMASQ, if any
-1. Create and update host configuration file (see the one bundled with
-`ferrarimarco/home-lab-dnsmasq` for an example):
-`/etc/dnsmasq-home-lab/dhcp-hosts/host-configuration.conf`
-1. Start DNSMASQ: `scripts/linux/docker/start-dnsmasq.sh`
-
-### DDClient Server
-
-1. Copy credentials file to a local version:
-`cp swarm/configuration/ddclient/ddclient.conf swarm/configuration/ddclient/ddclient.conf.local`
-1. Update the credentials in `swarm/configuration/ddclient/ddclient.conf.local`
-1. Deploy ddclient stack:
-`docker stack deploy --compose-file swarm/ddclient.yml ddclient`
