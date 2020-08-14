@@ -26,6 +26,9 @@ steps:
         - VALIDATE_TERRAFORM=true
         - VALIDATE_TERRAFORM_TERRASCAN=true
         - VALIDATE_YAML=true
+    - id: 'clone repository'
+      name: gcr.io/cloud-builders/git
+      args: ['clone', 'https://github.com/ferrarimarco/home-lab.git']
     - id: 'provision infrastructure'
       name: 'gcr.io/cloud-builders/gcloud'
       entrypoint: 'bash'
@@ -41,6 +44,11 @@ steps:
         if [[ ! -f "${config}" ]]; then
           echo "${d} failed: ${config} not found." | tee -a ${failure_file}
           continue
+        fi
+
+        if ! git -C home-lab diff-tree --name-only --no-commit-id -r "$COMMIT_SHA" | grep -q "$build_dir"; then
+          echo "$COMMIT_SHA revision doesn't contain any modification to files in $build_dir. Skipping the relevant build job..."
+          exit 0
         fi
 
         echo "Building $build_dir ... "
@@ -78,6 +86,11 @@ steps:
         if [[ ! -f "${config}" ]]; then
           echo "${d} failed: ${config} not found." | tee -a ${failure_file}
           continue
+        fi
+
+        if ! git -C home-lab diff-tree --name-only --no-commit-id -r "$COMMIT_SHA" | grep -q "$build_dir"; then
+          echo "$COMMIT_SHA revision doesn't contain any modification to files in $build_dir. Skipping the relevant build job..."
+          exit 0
         fi
 
         echo "Building $build_dir ... "
