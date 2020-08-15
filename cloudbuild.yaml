@@ -3,29 +3,29 @@ options:
     env:
         - TF_INPUT=false
 steps:
-    - id: 'super-linter'
-      name: "github/super-linter:v3.6.0"
-      env:
-        - ACTIONS_RUNNER_DEBUG=true
-        - ANSIBLE_DIRECTORY=configuration/ansible
-        - DEFAULT_WORKSPACE=/workspace
-        - DISABLE_ERRORS=false
-        - LINTER_RULES_PATH=/workspace
-        # Disable multiple status reporting to avoid reporting any status
-        # (see the if condition in super-linter/lib/linter.sh)
-        - MULTI_STATUS=false
-        - RUN_LOCAL=true
-        - VALIDATE_ALL_CODEBASE=true
-        - VALIDATE_ANSIBLE=true
-        - VALIDATE_BASH=true
-        - VALIDATE_DOCKER=true
-        - VALIDATE_DOCKER_HADOLINT=true
-        - VALIDATE_EDITORCONFIG=true
-        - VALIDATE_JSON=true
-        - VALIDATE_MD=true
-        - VALIDATE_TERRAFORM=true
-        - VALIDATE_TERRAFORM_TERRASCAN=true
-        - VALIDATE_YAML=true
+    # - id: 'super-linter'
+    #   name: "github/super-linter:v3.6.0"
+    #   env:
+    #     - ACTIONS_RUNNER_DEBUG=true
+    #     - ANSIBLE_DIRECTORY=configuration/ansible
+    #     - DEFAULT_WORKSPACE=/workspace
+    #     - DISABLE_ERRORS=false
+    #     - LINTER_RULES_PATH=/workspace
+    #     # Disable multiple status reporting to avoid reporting any status
+    #     # (see the if condition in super-linter/lib/linter.sh)
+    #     - MULTI_STATUS=false
+    #     - RUN_LOCAL=true
+    #     - VALIDATE_ALL_CODEBASE=true
+    #     - VALIDATE_ANSIBLE=true
+    #     - VALIDATE_BASH=true
+    #     - VALIDATE_DOCKER=true
+    #     - VALIDATE_DOCKER_HADOLINT=true
+    #     - VALIDATE_EDITORCONFIG=true
+    #     - VALIDATE_JSON=true
+    #     - VALIDATE_MD=true
+    #     - VALIDATE_TERRAFORM=true
+    #     - VALIDATE_TERRAFORM_TERRASCAN=true
+    #     - VALIDATE_YAML=true
     - id: 'clone repository'
       name: gcr.io/cloud-builders/git
       args: ['clone', 'https://github.com/ferrarimarco/home-lab.git']
@@ -35,82 +35,68 @@ steps:
       args:
       - '-c'
       - |
-        # File that contains failures.
-        failure_file=failure.log
-        touch ${failure_file}
+        echo "Saving eventual failures log to: ${_FAILURE_FILE_PATH}"
 
-        build_dir="provisioning/terraform"
-        config="${build_dir}/cloudbuild.yaml"
-        if [[ ! -f "${config}" ]]; then
-          echo "${d} failed: ${config} not found." | tee -a ${failure_file}
-          continue
-        fi
-
-        if ! git -C home-lab diff-tree --name-only --no-commit-id -r "$COMMIT_SHA" | grep -q "$build_dir"; then
-          echo "$COMMIT_SHA revision doesn't contain any modification to files in $build_dir. Skipping the relevant build job..."
-          exit 0
-        fi
-
-        echo "Building $build_dir ... "
-        logfile="${build_dir::-1}.log"
-        gcloud builds submit $build_dir --config=${config} \
-        --substitutions BRANCH_NAME="$BRANCH_NAME" \
-        > ${logfile} 2>&1
-
-        if [[ $? -ne 0 ]]; then
-          echo "$build_dir failed" | tee -a ${failure_file}
-          cat ${logfile}
-        fi
+        scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "BRANCH_NAME=$BRANCH_NAME" \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/terraform" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab"
 
         # Check if there is any failure.
-        if [[ -s ${failure_file} ]]; then
-          echo
-          echo "Some builds failed:"
-          cat ${failure_file}
-          echo "Exiting."
-          exit 1
+        if [ -s "${_FAILURE_FILE_PATH}" ]; then
+            echo
+            echo "Some builds failed:"
+            cat "${_FAILURE_FILE_PATH}"
+            echo "Exiting."
+            exit 1
+        else
+            echo "Build succeeded."
         fi
-        echo "Build succeeded."
-    - id: 'build smart-desk'
+    - id: 'start other build jobs'
       name: 'gcr.io/cloud-builders/gcloud'
       entrypoint: 'bash'
       args:
       - '-c'
       - |
-        # File that contains failures.
-        failure_file=failure.log
-        touch ${failure_file}
+        echo "Saving eventual failures log to: ${_FAILURE_FILE_PATH}"
 
-        build_dir="provisioning/esp32/smart_desk"
-        config="${build_dir}/cloudbuild.yaml"
-        if [[ ! -f "${config}" ]]; then
-          echo "${d} failed: ${config} not found." | tee -a ${failure_file}
-          continue
-        fi
+        scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "COMMIT_SHA=$COMMIT_SHA,BRANCH_NAME=$BRANCH_NAME,TAG_NAME=$TAG_NAME" \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/esp32/smart_desk" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab" \
+          &
 
-        if ! git -C home-lab diff-tree --name-only --no-commit-id -r "$COMMIT_SHA" | grep -q "$build_dir"; then
-          echo "$COMMIT_SHA revision doesn't contain any modification to files in $build_dir. Skipping the relevant build job..."
-          exit 0
-        fi
+        scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "_DOCKER_IMAGE_ID=arm-image-builder,_DOCKER_IMAGE_TAG=$SHORT_SHA" \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/docker/arm-image-builder" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab" \
+          &
 
-        echo "Building $build_dir ... "
-        logfile="${build_dir::-1}.log"
-        gcloud builds submit $build_dir --config=${config} \
-        --substitutions COMMIT_SHA="$COMMIT_SHA",BRANCH_NAME="$BRANCH_NAME",TAG_NAME="$TAG_NAME" \
-        > ${logfile} 2>&1
+        scripts/submit-cloud-build.sh \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/arm/beaglebone-black" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab" \
+          &
 
-        if [[ $? -ne 0 ]]; then
-          echo "$build_dir failed" | tee -a ${failure_file}
-          cat ${logfile}
-        fi
+        wait
 
         # Check if there is any failure.
-        if [[ -s ${failure_file} ]]; then
-          echo
-          echo "Some builds failed:"
-          cat ${failure_file}
-          echo "Exiting."
-          exit 1
+        if [ -s "${_FAILURE_FILE_PATH}" ]; then
+            echo
+            echo "Some builds failed:"
+            cat "${_FAILURE_FILE_PATH}"
+            echo "Exiting."
+            exit 1
+        else
+            echo "Build succeeded."
         fi
-        echo "Build succeeded."
+substitutions:
+  _FAILURE_FILE_PATH: './failure.log'
 tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$BRANCH_NAME', '$TAG_NAME']
