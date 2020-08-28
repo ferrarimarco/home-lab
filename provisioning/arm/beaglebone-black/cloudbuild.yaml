@@ -9,6 +9,6 @@ steps:
       - "$_OS_IMAGE_BASE_URL"
       - "$_OS_IMAGE_BASE_NAME"
 substitutions:
-  _ARM_BUILDER_IMAGE_TAG: '15c7548'
+  _ARM_BUILDER_IMAGE_TAG: '27d10ef'
   _OS_IMAGE_BASE_URL: 'https://rcn-ee.com/rootfs/bb.org/testing/2020-08-12/buster-console'
   _OS_IMAGE_BASE_NAME: 'bone-eMMC-flasher-debian-10.5-console-armhf-2020-08-25-1gb'
