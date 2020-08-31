@@ -66,16 +66,6 @@ resource "google_storage_bucket" "smart_desk" {
   }
 }
 
-resource "google_storage_bucket" "arm-os-images" {
-  name     = "ferrarimarco-arm-os-images"
-  project  = var.google_project_id
-  location = "US"
-
-  versioning {
-    enabled = true
-  }
-}
-
 resource "google_cloudiot_device" "smart-desk" {
   name     = "smart-desk"
   registry = google_cloudiot_registry.home-registry.id

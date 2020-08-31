@@ -133,3 +133,12 @@ resource "google_storage_bucket" "cloudbuild-source" {
   name     = "${var.google_project_id}_cloudbuild"
   location = "US"
 }
+
+resource "google_storage_bucket" "os-images" {
+  name     = "${var.google_project_id}_os_images"
+  location = "US"
+
+  versioning {
+    enabled = true
+  }
+}
