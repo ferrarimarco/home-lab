@@ -3,29 +3,19 @@ options:
     env:
         - TF_INPUT=false
 steps:
-    # - id: 'super-linter'
-    #   name: "github/super-linter:v3.6.0"
-    #   env:
-    #     - ACTIONS_RUNNER_DEBUG=true
-    #     - ANSIBLE_DIRECTORY=configuration/ansible
-    #     - DEFAULT_WORKSPACE=/workspace
-    #     - DISABLE_ERRORS=false
-    #     - LINTER_RULES_PATH=/workspace
-    #     # Disable multiple status reporting to avoid reporting any status
-    #     # (see the if condition in super-linter/lib/linter.sh)
-    #     - MULTI_STATUS=false
-    #     - RUN_LOCAL=true
-    #     - VALIDATE_ALL_CODEBASE=true
-    #     - VALIDATE_ANSIBLE=true
-    #     - VALIDATE_BASH=true
-    #     - VALIDATE_DOCKER=true
-    #     - VALIDATE_DOCKER_HADOLINT=true
-    #     - VALIDATE_EDITORCONFIG=true
-    #     - VALIDATE_JSON=true
-    #     - VALIDATE_MD=true
-    #     - VALIDATE_TERRAFORM=true
-    #     - VALIDATE_TERRAFORM_TERRASCAN=true
-    #     - VALIDATE_YAML=true
+    - id: 'super-linter'
+      name: "github/super-linter:v3.9.3"
+      env:
+        - ACTIONS_RUNNER_DEBUG=true
+        - ANSIBLE_DIRECTORY=configuration/ansible
+        - DEFAULT_WORKSPACE=/workspace
+        - DISABLE_ERRORS=false
+        - LINTER_RULES_PATH=/workspace
+        # Disable multiple status reporting to avoid reporting any status
+        # (see the if condition in super-linter/lib/linter.sh)
+        - MULTI_STATUS=false
+        - RUN_LOCAL=true
+        - VALIDATE_ALL_CODEBASE=true
     - id: 'clone repository'
       name: gcr.io/cloud-builders/git
       args: ['clone', 'https://github.com/ferrarimarco/home-lab.git']
@@ -79,8 +69,16 @@ steps:
           &
 
         scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "COMMIT_SHA=$COMMIT_SHA,BRANCH_NAME=$BRANCH_NAME" \
           --commit-sha "$COMMIT_SHA" \
-          --destination-directory-path "provisioning/arm/beaglebone-black" \
+          --destination-directory-path "provisioning/arm/beaglebone-black/rootfs" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab" \
+          &
+
+        scripts/submit-cloud-build.sh \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/arm/beaglebone-black/image" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
           --git-repository-path "home-lab" \
           &
@@ -100,3 +98,5 @@ steps:
 substitutions:
   _FAILURE_FILE_PATH: './failure.log'
 tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$BRANCH_NAME', '$TAG_NAME']
+# Set a high timeout because some jobs launched by this job require it
+timeout: 37000s

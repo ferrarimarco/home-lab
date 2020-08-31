@@ -84,19 +84,15 @@ There are a number of manual steps to follow in order to bootstrap this Lab.
 The first machine (likely the DHCP/DNS/PXE server) in this lab has to be
 bootstrapped manually.
 
-### OS Installation
+### Provisioning
+
+To bootstrap the home lab, follow the instructions in this section.
 
 #### Debian ARM - BeagleBone Black
 
-1. Download latest Debian image from:
-[Latest official Debian images](http://beagleboard.org/latest-images)
-or
-[Weekly Debian builds for the BeagleBone Black](https://elinux.org/Beagleboard:BeagleBoneBlack_Debian#Debian_Releases)
-and the relevant `sha256sum` files.
+1. Download latest OS image and checksum from the Storage bucket.
 1. Prepare the image (checksum, extract from the archive):
-`provisioning/arm/beaglebone-black/prepare-os-image.sh path/to/img.xz`
-1. Write the image on a SD card. If using `dd`:
-`dd bs=1m if=/path/to/image.img of=/dev/XXXX`,
+`provisioning/arm/beaglebone-black/check-image-and-flash.sh path/to/img.xz /dev/XXXX`
 where `XXXX` is the SD card device identifier.
 1. Ensure the board is powered off.
 1. Insert the microSD.
@@ -107,20 +103,6 @@ where `XXXX` is the SD card device identifier.
     the board will power off. Remember to remove the microSD otherwise the board
     will keep flashing the microSD over and over.
 1. Unplug the board and plug it back in.
-
-##### Updating the kernel and bootloader
-
-If you want to update the BeagleBone Black kernel and bootloader, use the
-scripts in `/opt/scripts/`:
-
-First, update the scripts to the latest version:
-
-1. `cd /opt/scripts/`
-1. `git pull`
-
-Then, from the `/opt/scripts/` directory, run `tools/update_kernel.sh` to
-update the kernel and `tools/developers/update_bootloader.sh` to update the
-bootloader.
 
 ### OS configuration - Linux
 

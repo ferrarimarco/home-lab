@@ -1,0 +1,24 @@
+---
+artifacts:
+  objects:
+    location: 'gs://${PROJECT_ID}-os-images/$_ROOTFS_ARCHIVE_PATH'
+    paths:
+      - '**/dist/*.xz'
+      - '**/dist/*.sha256sum'
+options:
+  machineType: 'N1_HIGHCPU_8'
+steps:
+  - id: 'Build BeagleBone Black rootfs'
+    name: 'gcr.io/$PROJECT_ID/arm-image-builder:$_ARM_BUILDER_IMAGE_TAG'
+    args:
+      - "--entrypoint"
+      - "$$(pwd)/build.sh"
+      - "--options"
+      - "--branch-name $BRANCH_NAME --commit-sha $COMMIT_SHA --build-configuration-name $_BUILD_CONFIGURATION_NAME --build-script-revision $_BUILD_SCRIPT_REVISION --build-script-url $_BUILD_SCRIPT_URL"
+substitutions:
+  _ARM_BUILDER_IMAGE_TAG: 'cb47005'
+  _BUILD_CONFIGURATION_NAME: 'rcn-ee_console_ubuntu_focal_armhf'
+  _BUILD_SCRIPT_REVISION: '442ff4a'
+  _BUILD_SCRIPT_URL: 'https://github.com/RobertCNelson/omap-image-builder.git'
+# Set a high timeout because the default is too low
+timeout: 36000s
