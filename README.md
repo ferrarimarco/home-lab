@@ -90,6 +90,8 @@ To bootstrap the home lab, follow the instructions in this section.
 
 #### Debian ARM - BeagleBone Black
 
+In this section, you provision BeagleBone Black microcomputers.
+
 1. Download latest OS image and checksum from the Storage bucket.
 1. Prepare the image (checksum, extract from the archive):
 `provisioning/arm/beaglebone-black/check-image-and-flash.sh path/to/img.xz /dev/XXXX`

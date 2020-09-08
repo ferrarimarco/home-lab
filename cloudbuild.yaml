@@ -10,7 +10,7 @@ steps:
         - ANSIBLE_DIRECTORY=configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - DISABLE_ERRORS=false
-        - LINTER_RULES_PATH=/workspace
+        - LINTER_RULES_PATH=.
         # Disable multiple status reporting to avoid reporting any status
         # (see the if condition in super-linter/lib/linter.sh)
         - MULTI_STATUS=false
