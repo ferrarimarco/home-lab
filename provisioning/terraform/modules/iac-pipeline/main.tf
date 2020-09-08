@@ -47,7 +47,7 @@ resource "google_kms_key_ring" "cloudbuild-keyring" {
 resource "google_kms_crypto_key" "cloudbuild-crypto-key" {
   name            = "cloudbuild-crypto-key"
   key_ring        = google_kms_key_ring.cloudbuild-keyring.self_link
-  rotation_period = var.google_cloudbuild_key_rotation_period
+  rotation_period = "864000s"
 
   lifecycle {
     prevent_destroy = true

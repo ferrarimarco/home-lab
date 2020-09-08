@@ -18,10 +18,6 @@ variable "google_billing_account_id" {
   description = "The default billing account for Google Cloud projects"
 }
 
-variable "google_cloudbuild_key_rotation_period" {
-  description = "The rotation period for the Cloud Build encryption key"
-}
-
 variable "google_iac_project_id" {
   description = "Google Cloud project ID for the IaC pipeline"
 }
