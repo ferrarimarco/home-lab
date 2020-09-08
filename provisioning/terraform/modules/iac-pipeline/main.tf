@@ -130,15 +130,17 @@ resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
 }
 
 resource "google_storage_bucket" "cloudbuild-source" {
-  name     = "${var.google_project_id}_cloudbuild"
-  project  = var.google_project_id
-  location = "US"
+  name               = "${var.google_project_id}_cloudbuild"
+  project            = var.google_project_id
+  location           = "US"
+  bucket_policy_only = true
 }
 
 resource "google_storage_bucket" "os-images" {
-  name     = "${var.google_project_id}-os-images"
-  project  = var.google_project_id
-  location = "US"
+  name               = "${var.google_project_id}-os-images"
+  project            = var.google_project_id
+  location           = "US"
+  bucket_policy_only = true
 
   versioning {
     enabled = true

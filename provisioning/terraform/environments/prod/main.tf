@@ -16,11 +16,14 @@ resource "google_project" "ferrarimarco_iac" {
   name            = var.google_iac_project_id
   project_id      = var.google_iac_project_id
   org_id          = data.google_organization.ferrari_how.org_id
+
+  auto_create_network = false
 }
 
 resource "google_storage_bucket" "terraform_state" {
-  name     = var.google_terraform_state_bucket_id
-  location = "US"
+  name               = var.google_terraform_state_bucket_id
+  location           = "US"
+  bucket_policy_only = true
 
   versioning {
     enabled = true

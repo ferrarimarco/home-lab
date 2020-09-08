@@ -57,9 +57,10 @@ resource "google_cloudiot_registry" "home-registry" {
 }
 
 resource "google_storage_bucket" "smart_desk" {
-  name     = "ferrarimarco-smart-desk"
-  project  = var.google_project_id
-  location = "US"
+  name               = "ferrarimarco-smart-desk"
+  project            = var.google_project_id
+  location           = "US"
+  bucket_policy_only = true
 
   versioning {
     enabled = true
