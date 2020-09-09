@@ -17,7 +17,7 @@ steps:
       - "--branch-name $BRANCH_NAME --commit-sha $COMMIT_SHA --build-configuration-name $_BUILD_CONFIGURATION_NAME --build-script-revision $_BUILD_SCRIPT_REVISION --build-script-url $_BUILD_SCRIPT_URL"
 substitutions:
   _ARM_BUILDER_IMAGE_TAG: '4a17db0'
-  _BUILD_CONFIGURATION_NAME: 'rcn-ee_console_ubuntu_focal_armhf'
+  _BUILD_CONFIGURATION_NAME: 'console_ubuntu_focal_armhf'
   _BUILD_SCRIPT_REVISION: '5f3d49b'
   _BUILD_SCRIPT_URL: 'https://github.com/RobertCNelson/omap-image-builder.git'
   _ROOTFS_ARCHIVE_PATH: 'arm/armhf/beaglebone-black'

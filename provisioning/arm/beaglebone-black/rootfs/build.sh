@@ -50,7 +50,19 @@ done
 
 echo "Cloning the ${build_script_url:?} Git repository..."
 git clone "$build_script_url"
-cd "$(basename "$build_script_url" .git)" || exit 1
+BUILD_SCRIPT_DIRECTORY_PATH="$(basename "$build_script_url" .git)"
+CONFIGURATION_FILES_DESTINATION_PATH="${BUILD_SCRIPT_DIRECTORY_PATH}"/configs
+SCRIPTS_DESTIONATION_PATH="${BUILD_SCRIPT_DIRECTORY_PATH}"/target/chroot
+
+echo "Copying configuration files to ${CONFIGURATION_FILES_DESTINATION_PATH}..."
+cp configs/* "${CONFIGURATION_FILES_DESTINATION_PATH}/"
+echo "${CONFIGURATION_FILES_DESTINATION_PATH} contents: $(ls -alh "${CONFIGURATION_FILES_DESTINATION_PATH}")"
+
+echo "Copying scripts to ${SCRIPTS_DESTIONATION_PATH}..."
+cp chroot-scripts/* "${SCRIPTS_DESTIONATION_PATH}/"
+echo "${SCRIPTS_DESTIONATION_PATH} contents: $(ls -alh "${SCRIPTS_DESTIONATION_PATH}")"
+
+cd "${BUILD_SCRIPT_DIRECTORY_PATH}" || exit 1
 
 echo "Checking out the ${build_script_revision:?} Git revision..."
 # Disable the "detached HEAD" warning before checking out the revision
@@ -83,7 +95,7 @@ mkdir -p "${destination_directory_name}"
 
 ROOTFS_ARCHIVE_FILE_PATH="${destination_directory_name}/$(basename "$ROOTFS_SOURCE_PATH")-${BRANCH_NAME:?}-${COMMIT_SHA:?}.tar.xz"
 echo "Compressing ${ROOTFS_SOURCE_PATH} to ${ROOTFS_ARCHIVE_FILE_PATH}..."
-XZ_OPT="-9 -T0" tar -cJf "${ROOTFS_ARCHIVE_FILE_PATH}" -C "${ROOTFS_SOURCE_PATH}" .
+XZ_OPT="-9 -T6" tar -cJf "${ROOTFS_ARCHIVE_FILE_PATH}" -C "${ROOTFS_SOURCE_PATH}" .
 
 ROOTFS_CHECKSUM_FILE_PATH="${ROOTFS_ARCHIVE_FILE_PATH}.sha256sum"
 echo "Calculating integrity hash of ${ROOTFS_ARCHIVE_FILE_PATH} and saving it to ${ROOTFS_CHECKSUM_FILE_PATH}..."
