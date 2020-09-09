@@ -28,11 +28,11 @@ steps:
       - "--options"
       - "--rootfs-archive-name $_ROOTFS_ARCHIVE_NAME --flasher"
 substitutions:
-  _ARM_BUILDER_IMAGE_TAG: 'dcdbe7b'
+  _ARM_BUILDER_IMAGE_TAG: '4a17db0'
   _BUILD_SCRIPT_REVISION: '442ff4a'
   _BUILD_SCRIPT_URL: 'https://github.com/RobertCNelson/omap-image-builder.git'
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
-  _ROOTFS_ARCHIVE_NAME: 'ubuntu-20.04.1-console-armhf-2020-09-07-build-bbb-os-image-d628c451d94cda119956ebb84288d088ed4e6021.tar.xz'
+  _ROOTFS_ARCHIVE_NAME: 'ubuntu-20.04.1-console-armhf-2020-09-08-master-fefb111feba8153971234b4a2105f06c988eb3e3.tar.xz'
   _ROOTFS_ARCHIVE_PATH: 'arm/armhf/beaglebone-black'
 # Set a high timeout because the default is too low
 timeout: 36000s
