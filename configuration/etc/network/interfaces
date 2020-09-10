@@ -8,8 +8,8 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-#auto {{ beaglebone_black.network_interface_name }}
-#iface {{ beaglebone_black.network_interface_name }} inet dhcp
+#auto eth0
+#iface eth0 inet dhcp
 # Example to keep MAC address between reboots
 #hwaddress ether DE:AD:BE:EF:CA:FE
 

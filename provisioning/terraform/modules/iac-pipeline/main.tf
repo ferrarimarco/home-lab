@@ -130,17 +130,17 @@ resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
 }
 
 resource "google_storage_bucket" "cloudbuild-source" {
-  name               = "${var.google_project_id}_cloudbuild"
-  project            = var.google_project_id
-  location           = "US"
-  bucket_policy_only = true
+  name                        = "${var.google_project_id}_cloudbuild"
+  project                     = var.google_project_id
+  location                    = "US"
+  uniform_bucket_level_access = true
 }
 
 resource "google_storage_bucket" "os-images" {
-  name               = "${var.google_project_id}-os-images"
-  project            = var.google_project_id
-  location           = "US"
-  bucket_policy_only = true
+  name                        = "${var.google_project_id}-os-images"
+  project                     = var.google_project_id
+  location                    = "US"
+  uniform_bucket_level_access = true
 
   versioning {
     enabled = true
@@ -148,10 +148,10 @@ resource "google_storage_bucket" "os-images" {
 }
 
 resource "google_storage_bucket" "configuration" {
-  name               = "${var.google_project_id}-configuration"
-  project            = var.google_project_id
-  location           = "US"
-  bucket_policy_only = true
+  name                        = "${var.google_project_id}-configuration"
+  project                     = var.google_project_id
+  location                    = "US"
+  uniform_bucket_level_access = true
 
   versioning {
     enabled = true

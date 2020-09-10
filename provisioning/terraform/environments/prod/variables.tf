@@ -8,6 +8,16 @@ variable "configuration_compute_engine_keys_directory_name" {
   description = "Name of the Compute Engine public keys directory"
 }
 
+variable "configuration_gke_cluster_node_pool_size" {
+  default     = 1
+  description = "Number of nodes of the node pool used in the configuration GKE cluster"
+}
+
+variable "configuration_gke_cluster_subnet_ip_cidr_range" {
+  default     = "10.10.0.0/24"
+  description = "IP CIDR for the Configuration GKE cluster"
+}
+
 variable "configuration_iot_core_keys_directory_name" {
   default     = "iot-core"
   description = "Name of the IoT Core public keys directory"
@@ -48,6 +58,10 @@ variable "google_default_region" {
 
 variable "google_default_zone" {
   description = "The default Google Cloud zone"
+}
+
+variable "google_default_project_id" {
+  description = "Google Cloud default project ID"
 }
 
 variable "google_organization_domain" {

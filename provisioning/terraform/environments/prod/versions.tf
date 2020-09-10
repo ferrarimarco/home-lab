@@ -4,5 +4,6 @@ terraform {
   required_providers {
     google      = "~> 3.39.0"
     google-beta = "~> 3.39.0"
+    kubernetes  = "~> 1.13.2"
   }
 }

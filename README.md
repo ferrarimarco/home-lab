@@ -4,13 +4,13 @@ All the necessary to provision, configure and manage my home lab.
 
 ## Provisioning the environment
 
+To bootstrap the home lab, follow the instructions in this section.
+
 ### Dependencies
 
 - [Git](https://git-scm.com/) (tested with version `2.25.0`).
 - [Terraform](https://www.terraform.io/) (tested with version `v0.12.20`).
 - [Google Cloud SDK](https://cloud.google.com/sdk) (tested with version `271.0.0`).
-- [Ansible](https://www.ansible.com/) (tested with version `2.9.6`).
-- [sshpass](https://linux.die.net/man/1/sshpass) (tested with version `1.06`).
 
 ### Set the environment variables
 
@@ -24,7 +24,7 @@ the following environment variables:
 
 Note: Initialize the default Google Cloud with `gcloud auth application-default login`
 
-### Provision the environment
+### Provision the cloud infrastructure
 
 You now provision and configure the cloud infrastructure:
 
@@ -81,17 +81,16 @@ not met:
 1. The development workstation Compute Engine virtual machine needs at least one
     public key to set up SSH access.
 
-## Manual Steps
+All the configuration files that the provisioning pipeline needs are in the
+`${GOOGLE_CLOUD_PROJECT}-configuration` Cloud Storage bucket.
 
-There are a number of manual steps to follow in order to bootstrap this Lab.
-The first machine (likely the DHCP/DNS/PXE server) in this lab has to be
-bootstrapped manually.
+### Provision edge devices
 
-### Provisioning
+There are edge devices, such as sensors, microcontrollers and microcomputers to provision.
 
-To bootstrap the home lab, follow the instructions in this section.
+Edge devices auto-configure themselves during their first start.
 
-#### Debian ARM - BeagleBone Black
+#### BeagleBone Black
 
 In this section, you provision BeagleBone Black microcomputers.
 
@@ -108,34 +107,3 @@ where `XXXX` is the SD card device identifier.
     the board will power off. Remember to remove the microSD otherwise the board
     will keep flashing the microSD over and over.
 1. Unplug the board and plug it back in.
-
-### OS configuration - Linux
-
-In this section, you bootstrap nodes that need a first time initialization.
-
-1. (if needed) Add the BeagleBone Black to the hosts file if a local DNS server
-    is not yet available:
-
-    ```shell
-    echo "<BBB-IP-ADDRESS>\teuropa.lab.ferrari.how" | sudo tee -a /etc/hosts
-    ```
-
-    where `<BBB-IP-ADDRESS>` is the IPv4 address assigned to
-    the BeagleBone Black by the DHCP server.
-
-1. From `configuration/ansible/`, run the Ansible playbook:
-
-    ```shell
-    ansible -i europa.lab.ferrari.how, --user debian --ask-pass \
-        --ask-become-pass --become -m raw \
-        -a "apt-get update && apt-get -y install python3"
-    ansible-playbook -i hosts \
-        --user debian --ask-pass --ask-become-pass \
-        --skip-tags "ssh_configuration,user_configuration" \
-        bootstrap-managed-nodes.yml
-    ansible-playbook -i hosts \
-        --ask-become-pass bootstrap-managed-nodes.yml
-    ```
-
-1. (if needed) Upadate the IP address associated with the BeagleBone Black
-    in the hosts file, until you have a local DNS server.
