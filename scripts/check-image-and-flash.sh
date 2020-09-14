@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 OS_IMAGE_ARCHIVE_PATH="$1"
 if [ -z "${OS_IMAGE_ARCHIVE_PATH}" ]; then
     echo "Pass the OS image archive path as the first option. Terminating..."
@@ -28,11 +30,21 @@ if ! [ -f "${OS_IMAGE_ARCHIVE_SUM_PATH}" ]; then
     exit 1
 fi
 
+OS_IMAGE_FILE_PATH="$(basename "${OS_IMAGE_ARCHIVE_PATH}" .xz)"
+echo "Deleting leftovers..."
+rm -f "${OS_IMAGE_FILE_PATH}"
+
 echo "Checking hashes..."
 cd "$(dirname "${OS_IMAGE_ARCHIVE_SUM_PATH}")" || exit 1
 sha256sum -c "${OS_IMAGE_ARCHIVE_SUM_PATH}"
 
-echo "Unzipping the image archive"
+echo "Unzipping the ${OS_IMAGE_ARCHIVE_PATH} image archive"
 xz -vkd "${OS_IMAGE_ARCHIVE_PATH}"
 
-dd bs=1m if="${OS_IMAGE_ARCHIVE_PATH}" of="${DEVICE_TO_FLASH}"
+echo "Erasing all contents on ${DEVICE_TO_FLASH}"
+sudo dd bs=1m if=/dev/zero of="${DEVICE_TO_FLASH}" count=10
+sudo sync
+
+echo "Flashing ${OS_IMAGE_FILE_PATH} to ${DEVICE_TO_FLASH}..."
+sudo dd bs=1m if="${OS_IMAGE_FILE_PATH}" of="${DEVICE_TO_FLASH}"
+sudo sync
