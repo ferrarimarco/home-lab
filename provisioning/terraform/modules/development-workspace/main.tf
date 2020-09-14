@@ -24,6 +24,7 @@ resource "google_compute_image" "dev-workstation-image-ubuntu-2004" {
 }
 
 resource "google_compute_instance" "development-workstation" {
+  project          = var.google_project_id
   name             = var.development_workstation_name
   machine_type     = var.development_workstation_machine_type
   min_cpu_platform = var.development_workstation_min_cpu_platform
