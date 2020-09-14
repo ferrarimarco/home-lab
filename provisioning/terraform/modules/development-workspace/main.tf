@@ -12,6 +12,7 @@ data "google_compute_image" "ubuntu-2004" {
 }
 
 resource "google_compute_image" "dev-workstation-image-ubuntu-2004" {
+  project      = var.google_project_id
   name         = "dev-workstation-ubuntu-2004"
   description  = "OS image for the development workstation. Base: Ubuntu 20.04"
   family       = "dev-workstation"
