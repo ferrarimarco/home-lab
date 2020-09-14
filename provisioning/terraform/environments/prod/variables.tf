@@ -25,3 +25,27 @@ variable "google_iac_project_id" {
 variable "google_terraform_state_bucket_id" {
   description = "The Terraform state bucket it"
 }
+
+variable "development_workstation_machine_type" {
+  description = "Machine type for development workstations"
+}
+
+variable "development_workstation_min_cpu_platform" {
+  description = "Minimum CPU platform required for development workstations"
+}
+
+variable "development_workstation_name" {
+  description = "Name of the development workstation"
+}
+
+variable "development_workstation_ssh_public_key_file_path" {
+  description = "Path to the file that contains the public key to connect to the development workstation via SSH"
+}
+
+variable "development_workstation_ssh_user" {
+  description = "Username of the user to connect to the development workstation via SSH"
+}
+
+variable "smart_desk_public_key_pem_file_path" {
+  description = "Path to the public key to use to register the Smart Desk to IoT Core"
+}

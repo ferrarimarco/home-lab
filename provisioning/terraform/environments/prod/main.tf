@@ -31,11 +31,10 @@ resource "google_storage_bucket" "terraform_state" {
 }
 
 module "iac-pipeline" {
-  source                                = "../../modules/iac-pipeline"
-  google_project_id                     = var.google_iac_project_id
-  google_project_number                 = google_project.ferrarimarco_iac.number
-  google_organization_id                = data.google_organization.ferrari_how.org_id
-  google_cloudbuild_key_rotation_period = var.google_cloudbuild_key_rotation_period
+  source                 = "../../modules/iac-pipeline"
+  google_project_id      = var.google_iac_project_id
+  google_project_number  = google_project.ferrarimarco_iac.number
+  google_organization_id = data.google_organization.ferrari_how.org_id
 }
 
 module "iot" {
@@ -43,5 +42,16 @@ module "iot" {
   google_organization_id              = data.google_organization.ferrari_how.org_id
   google_project_billing_account_id   = var.google_billing_account_id
   google_project_id                   = var.google_iot_project_id
-  smart_desk_public_key_pem_file_path = "iot-core/public-keys/smart_desk.pem"
+  smart_desk_public_key_pem_file_path = var.smart_desk_public_key_pem_file_path
+}
+
+module "development-workspace" {
+  source                                           = "../../modules/development-workspace"
+  google_organization_id                           = data.google_organization.ferrari_how.org_id
+  google_project_id                                = var.google_iot_project_id
+  development_workstation_name                     = var.development_workstation_name
+  development_workstation_machine_type             = var.development_workstation_machine_type
+  development_workstation_min_cpu_platform         = var.development_workstation_min_cpu_platform
+  development_workstation_ssh_public_key_file_path = var.development_workstation_ssh_public_key_file_path
+  development_workstation_ssh_user                 = var.development_workstation_ssh_user
 }

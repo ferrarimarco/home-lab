@@ -146,3 +146,14 @@ resource "google_storage_bucket" "os-images" {
     enabled = true
   }
 }
+
+resource "google_storage_bucket" "configuration" {
+  name               = "${var.google_project_id}-configuration"
+  project            = var.google_project_id
+  location           = "US"
+  bucket_policy_only = true
+
+  versioning {
+    enabled = true
+  }
+}

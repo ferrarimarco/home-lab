@@ -16,6 +16,8 @@ steps:
         - MULTI_STATUS=false
         - RUN_LOCAL=true
         - VALIDATE_ALL_CODEBASE=true
+        # Temporary workaround for https://github.com/accurics/terrascan/issues/320
+        - VALIDATE_TERRAFORM_TERRASCAN=false
     - id: 'clone repository'
       name: gcr.io/cloud-builders/git
       args: ['clone', 'https://github.com/ferrarimarco/home-lab.git']

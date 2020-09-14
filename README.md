@@ -56,14 +56,19 @@ The CI/CD pipeline decrypts this file as part of the build process.
 Example:
 
 ```terraform
-google_billing_account_id             = "1234567-ABCD"
-google_cloudbuild_key_rotation_period = "864000s"
-google_default_region                 = "us-central1"
-google_default_zone                   = "us-central1-a"
-google_iac_project_id                 = "ferrarimarco-iac"
-google_iot_project_id                 = "ferrarimarco-iac"
-google_organization_domain            = "ferrari.how"
-google_terraform_state_bucket_id      = "ferrarim-iac-terraform-state"
+development_workstation_machine_type             = "n2-standard-8"
+development_workstation_min_cpu_platform         = "Intel Cascade Lake"
+development_workstation_name                     = "dev-linux-1"
+development_workstation_ssh_public_key_file_path = "development-workstation-ssh-user.pub"
+development_workstation_ssh_user                 = "ferrarimarco"
+google_billing_account_id                        = "1234567-ABCD"
+google_default_region                            = "us-central1"
+google_default_zone                              = "us-central1-a"
+google_iac_project_id                            = "ferrarimarco-iac"
+google_iot_project_id                            = "ferrarimarco-iac"
+google_organization_domain                       = "ferrari.how"
+google_terraform_state_bucket_id                 = "ferrarim-iac-terraform-state"
+smart_desk_public_key_pem_file_path              = "iot-core/public-keys/smart_desk.pem"
 ```
 
 You can then encrypt it with the Google Cloud SDK
