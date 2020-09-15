@@ -51,9 +51,9 @@ resource "google_compute_instance" "development-workstation" {
     }
   }
 
-  metadata = {
-    ssh-keys = "${var.development_workstation_ssh_user}:${file(var.compute_engine_development_workstation_ssh_public_key_file_path)}"
-  }
+  # metadata = {
+  #   ssh-keys = "${var.development_workstation_ssh_user}:${file(var.compute_engine_development_workstation_ssh_public_key_file_path)}"
+  # }
 
   metadata_startup_script = file("${path.module}/development-workstation-startup-script.sh")
 

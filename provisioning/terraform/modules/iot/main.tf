@@ -77,10 +77,10 @@ resource "google_cloudiot_device" "smart-desk" {
     gateway_type = "NON_GATEWAY"
   }
 
-  credentials {
-    public_key {
-      format = "RSA_PEM"
-      key    = file(var.iot_core_smart_desk_public_key_file_path)
-    }
-  }
+  # credentials {
+  #   public_key {
+  #     format = "RSA_PEM"
+  #     key    = file(var.iot_core_smart_desk_public_key_file_path)
+  #   }
+  # }
 }
