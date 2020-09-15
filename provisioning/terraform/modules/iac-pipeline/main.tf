@@ -161,5 +161,5 @@ resource "google_storage_bucket" "configuration" {
 resource "google_storage_bucket_object" "terraform-configuration" {
   name    = "terraform/"
   content = "Terraform configuration directory."
-  bucket  = "${google_storage_bucket.configuration.name}"
+  bucket  = google_storage_bucket.configuration.name
 }
