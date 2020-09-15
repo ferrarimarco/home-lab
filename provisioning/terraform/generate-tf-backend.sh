@@ -11,6 +11,11 @@ if [ -z "${ORGANIZATION_ID}" ]; then
     exit 1
 fi
 
+if [ -z "${GOOGLE_CLOUD_PROJECT}" ]; then
+    echo 'The GOOGLE_CLOUD_PROJECT environment variable that points to the default Google Cloud project that Terraform will use is not defined. Terminating...'
+    exit 1
+fi
+
 if [ -z "${GOOGLE_APPLICATION_CREDENTIALS}" ]; then
     echo 'The GOOGLE_APPLICATION_CREDENTIALS environment variable that points to the default Google Cloud application credentials that Terraform will use is not defined. Terminating...'
     exit 1
@@ -21,8 +26,8 @@ if [ -z "${GOOGLE_CLOUD_BILLING_ACCOUNT_ID}" ]; then
     exit 1
 fi
 
-TF_STATE_PROJECT="ferrarimarco-iac"
-TF_STATE_BUCKET="ferrarim-iac-terraform-state"
+TF_STATE_PROJECT="${GOOGLE_CLOUD_PROJECT}"
+TF_STATE_BUCKET="${TF_STATE_PROJECT}-terraform-state"
 
 if gcloud projects describe "${TF_STATE_PROJECT}" >/dev/null 2>&1; then
     echo "The ${TF_STATE_PROJECT} project already exists."

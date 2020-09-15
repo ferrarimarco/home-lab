@@ -18,7 +18,7 @@ To provision the necessary infrastructure, you need to initialize and export
 the following environment variables:
 
 - `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID that will contain the
-    resources for the container image building pipeline.
+    resources for the provisioning pipeline.
 - `GOOGLE_APPLICATION_CREDENTIALS`: path to the default Google Cloud credentials.
 - `ORGANIZATION_ID`: Google Cloud organization ID at the root of the hierarchy.
 
@@ -35,8 +35,8 @@ You now provision and configure the cloud infrastructure:
 1. Import the resources that the backend configuration script created:
 
     ```shell
-    terraform import google_project.ferrarimarco_iac ferrarimarco-iac
-    terraform import google_storage_bucket.terraform_state ferrarimarco-iac/ferrarim-iac-terraform-state
+    terraform import google_project.ferrarimarco_iac "${GOOGLE_CLOUD_PROJECT}"
+    terraform import google_storage_bucket.terraform_state "${GOOGLE_CLOUD_PROJECT}"/"${GOOGLE_CLOUD_PROJECT}"-terraform-state
     ```
 
 1. Ensure the configuration is valid: `terraform validate`
