@@ -67,10 +67,6 @@ variable "development_workstation_name" {
   description = "Name of the development workstation"
 }
 
-variable "development_workstation_ssh_public_key_file_path" {
-  description = "Path to the file that contains the public key to connect to the development workstation via SSH"
-}
-
 variable "development_workstation_ssh_user" {
   description = "Username of the user to connect to the development workstation via SSH"
 }
