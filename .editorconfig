@@ -20,19 +20,11 @@ trim_trailing_whitespace = true
 spaces_around_operators = true
 spaces_around_brackets = false
 
-[*.{dockerfilelintrc,yml,yaml}]
+[*.{dockerfilelintrc,tf,tfvars,yml,yaml}]
 indent_style = space
 indent_size = 2
 
-# Treat the Ansible hosts file as YAML
-[hosts]
-indent_style = space
-indent_size = 2
-
-[*.{tf,tfvars}]
-indent_size = 2
-indent_style = space
-
+# Don't try to format binary files
 [*.tfvars.enc]
 charset = unset
 end_of_line = unset
