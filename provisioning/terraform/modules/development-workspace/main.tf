@@ -33,7 +33,7 @@ resource "google_compute_instance" "development-workstation" {
 
   boot_disk {
     initialize_params {
-      image = "${google_compute_image.dev-workstation-image-ubuntu-2004.family}/${google_compute_image.dev-workstation-image-ubuntu-2004.name}"
+      image = google_compute_image.dev-workstation-image-ubuntu-2004.self_link
       type  = "pd-ssd"
     }
   }
