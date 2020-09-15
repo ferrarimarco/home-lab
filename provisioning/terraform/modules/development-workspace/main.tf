@@ -19,8 +19,21 @@ resource "google_compute_image" "dev-workstation-image-ubuntu-2004" {
   source_image = data.google_compute_image.ubuntu-2004.self_link
 
   licenses = [
+    "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/licenses/ubuntu-2004-lts",
     "https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx",
   ]
+
+  guest_os_features {
+    type = "MULTI_IP_SUBNET"
+  }
+
+  guest_os_features {
+    type = "UEFI_COMPATIBLE"
+  }
+
+  guest_os_features {
+    type = "VIRTIO_SCSI_MULTIQUEUE"
+  }
 }
 
 resource "google_compute_instance" "development-workstation" {
