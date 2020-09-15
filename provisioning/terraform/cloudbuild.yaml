@@ -20,7 +20,8 @@ steps:
     - id: 'Download additional configuration for Terraform'
       name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
       entrypoint: gsutil
-      args: ['cp', 'gs://${PROJECT_ID}-configuration/terraform/*', '.']
+      dir: "$_TERRAFORM_ENVIRONMENT_PATH"
+      args: ['-m', 'cp', '-r', 'gs://${PROJECT_ID}-configuration/terraform', '.']
     - id: 'tf init'
       name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
       entrypoint: 'sh'
@@ -28,8 +29,8 @@ steps:
       args:
           - '-c'
           - |
-            terraform init || exit 1
-            cd ../../
+            echo "Contents of $(pwd): $(ls -al)"
+            terraform init
     - id: 'tf validate'
       name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
       entrypoint: 'sh'
@@ -37,8 +38,7 @@ steps:
       args:
           - '-c'
           - |
-            terraform validate || exit 1
-            cd ../../
+            terraform validate
     - id: 'tf plan'
       name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
       entrypoint: 'sh'
@@ -56,11 +56,12 @@ steps:
           - |
             if [ "${BRANCH_NAME}" = "master" ]; then
                 echo $BRANCH_NAME
-                terraform apply -auto-approve || exit 1
+                terraform apply -auto-approve
             else
                 echo "Not applying any Terraform change. Not on master branch."
                 echo "Current branch: $BRANCH_NAME"
             fi
 substitutions:
-    _TERRAFORM_ENVIRONMENT_PATH: 'environments/prod'
-    _TERRAFORM_IMAGE_TAG: '0.12.29'
+  _CLOUD_SDK_IMAGE_TAG: 'alpine'
+  _TERRAFORM_ENVIRONMENT_PATH: 'environments/prod'
+  _TERRAFORM_IMAGE_TAG: '0.12.29'
