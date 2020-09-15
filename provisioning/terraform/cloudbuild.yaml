@@ -17,10 +17,10 @@ steps:
                 --location=global \
                 --keyring=cloud-build-keyring \
                 --key=cloudbuild-crypto-key
-    # - id: 'Download additional configuration for Terraform'
-    #   name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
-    #   entrypoint: gsutil
-    #   args: ['cp', 'gs://${PROJECT_ID}-configuration/terraform/*', '.']
+    - id: 'Download additional configuration for Terraform'
+      name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
+      entrypoint: gsutil
+      args: ['cp', 'gs://${PROJECT_ID}-configuration/terraform/*', '.']
     - id: 'tf init'
       name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
       entrypoint: 'sh'
