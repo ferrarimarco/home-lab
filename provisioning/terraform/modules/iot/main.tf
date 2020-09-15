@@ -80,7 +80,7 @@ resource "google_cloudiot_device" "smart-desk" {
   credentials {
     public_key {
       format = "RSA_PEM"
-      key    = file(var.smart_desk_public_key_pem_file_path)
+      key    = file(var.iot_core_smart_desk_public_key_file_path)
     }
   }
 }
