@@ -83,6 +83,11 @@ gcloud kms encrypt \
     --key=cloudbuild-crypto-key
 ```
 
+#### Configuration
+
+All the configuration files that the provisioning pipeline needs are in the
+`${PROJECT_ID}-configuration` Cloud Storage bucket.
+
 ## Manual Steps
 
 There are a number of manual steps to follow in order to bootstrap this Lab.
