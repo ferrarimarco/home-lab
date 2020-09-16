@@ -4,20 +4,17 @@ options:
         - TF_INPUT=false
 steps:
     - id: 'super-linter'
-      name: "ghcr.io/github/super-linter:v3.10.0"
+      name: "ghcr.io/github/super-linter:v3.10.2"
       env:
         - ACTIONS_RUNNER_DEBUG=true
         - ANSIBLE_DIRECTORY=configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - DISABLE_ERRORS=false
+        - ERROR_ON_MISSING_EXEC_BIT=true \
         - LINTER_RULES_PATH=.
-        # Disable multiple status reporting to avoid reporting any status
-        # (see the if condition in super-linter/lib/linter.sh)
         - MULTI_STATUS=false
         - RUN_LOCAL=true
         - VALIDATE_ALL_CODEBASE=true
-        # Temporary workaround for https://github.com/accurics/terrascan/issues/320
-        - VALIDATE_TERRAFORM_TERRASCAN=false
     - id: 'clone repository'
       name: gcr.io/cloud-builders/git
       args: ['clone', 'https://github.com/ferrarimarco/home-lab.git']
