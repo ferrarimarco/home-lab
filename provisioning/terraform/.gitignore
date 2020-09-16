@@ -3,3 +3,6 @@
 
 # Ignore the tfvars files because we want to commit only the encrypted version
 **/environments/**/*.tfvars
+
+# Ignore public keys
+**/environments/**/public-keys/**/*
