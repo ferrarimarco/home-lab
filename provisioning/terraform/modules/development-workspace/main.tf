@@ -34,9 +34,32 @@ resource "google_compute_image" "dev-workstation-image-ubuntu-2004" {
   guest_os_features {
     type = "VIRTIO_SCSI_MULTIQUEUE"
   }
+
+  # Workaround for https://github.com/hashicorp/terraform-provider-google/issues/7273
+  lifecycle {
+    ignore_changes = [
+      guest_os_features
+    ]
+  }
+}
+
+locals {
+  development_workstation_ssh_public_key_content = fileexists(var.compute_engine_development_workstation_ssh_public_key_file_path) ? file(var.compute_engine_development_workstation_ssh_public_key_file_path) : ""
+}
+
+resource "google_storage_bucket_object" "development-workstations-public-key-file" {
+  # Only create this resource if the source file is available
+  count = local.development_workstation_ssh_public_key_content != "" ? 1 : 0
+
+  name    = "${var.terraform_environment_configuration_directory_path}/${var.compute_engine_development_workstation_ssh_public_key_file_path}"
+  bucket  = var.configuration_bucket_name
+  content = local.development_workstation_ssh_public_key_content
 }
 
 resource "google_compute_instance" "development-workstation" {
+  # Only create this resource if a public key is available
+  count = local.development_workstation_ssh_public_key_content != "" ? 1 : 0
+
   project          = var.google_project_id
   name             = var.development_workstation_name
   machine_type     = var.development_workstation_machine_type
@@ -52,7 +75,7 @@ resource "google_compute_instance" "development-workstation" {
   }
 
   metadata = {
-    ssh-keys = "${var.development_workstation_ssh_user}:${file(var.compute_engine_development_workstation_ssh_public_key_file_path)}"
+    ssh-keys = "${var.development_workstation_ssh_user}:${local.development_workstation_ssh_public_key_content}"
   }
 
   metadata_startup_script = file("${path.module}/development-workstation-startup-script.sh")

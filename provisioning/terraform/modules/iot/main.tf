@@ -67,7 +67,23 @@ resource "google_storage_bucket" "smart_desk" {
   }
 }
 
+locals {
+  smart_desk_public_key_file_content = fileexists(var.iot_core_smart_desk_public_key_file_path) ? file(var.iot_core_smart_desk_public_key_file_path) : ""
+}
+
+resource "google_storage_bucket_object" "smart-desk-public-key-file" {
+  # Only create this resource if the source file is available
+  count = local.smart_desk_public_key_file_content != "" ? 1 : 0
+
+  name    = "${var.terraform_environment_configuration_directory_path}/${var.iot_core_smart_desk_public_key_file_path}"
+  bucket  = var.configuration_bucket_name
+  content = local.smart_desk_public_key_file_content
+}
+
 resource "google_cloudiot_device" "smart-desk" {
+  # Only create this resource if a public key is available
+  count = local.smart_desk_public_key_file_content != "" ? 1 : 0
+
   name     = "smart-desk"
   registry = google_cloudiot_registry.home-registry.id
 
@@ -80,7 +96,7 @@ resource "google_cloudiot_device" "smart-desk" {
   credentials {
     public_key {
       format = "RSA_PEM"
-      key    = file(var.iot_core_smart_desk_public_key_file_path)
+      key    = local.smart_desk_public_key_file_content
     }
   }
 }

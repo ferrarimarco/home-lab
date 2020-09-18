@@ -158,14 +158,43 @@ resource "google_storage_bucket" "configuration" {
   }
 }
 
+# Upload environment-specific configuration files
+
+locals {
+  terraform_backend_file_name   = "backend.tf"
+  terraform_variables_file_name = "terraform.tfvars"
+}
+
+resource "google_storage_bucket_object" "terraform-environment-configuration-directory" {
+  name    = "${var.terraform_environment_configuration_directory_path}/"
+  content = "Terraform environment configuration directory"
+  bucket  = google_storage_bucket.configuration.name
+}
+
+resource "google_storage_bucket_object" "terraform-environment-backend-configuration" {
+  name   = "${var.terraform_environment_configuration_directory_path}/${local.terraform_backend_file_name}"
+  bucket = google_storage_bucket.configuration.name
+  source = local.terraform_backend_file_name
+}
+
+resource "google_storage_bucket_object" "terraform-environment-variables-file" {
+  name   = "${var.terraform_environment_configuration_directory_path}/${local.terraform_variables_file_name}"
+  bucket = google_storage_bucket.configuration.name
+  source = local.terraform_variables_file_name
+}
+
 resource "google_storage_bucket_object" "terraform-configuration-iot-core-public-keys-directory" {
-  name    = "${var.compute_engine_keys_directory_path}/"
+  name    = "${var.terraform_environment_configuration_directory_path}/${var.compute_engine_keys_directory_path}/"
   content = "Terraform configuration IoT Core public keys directory"
   bucket  = google_storage_bucket.configuration.name
 }
 
 resource "google_storage_bucket_object" "terraform-configuration-compute-engine-public-keys-directory" {
-  name    = "${var.iot_core_keys_directory_path}/"
+  name    = "${var.terraform_environment_configuration_directory_path}/${var.iot_core_keys_directory_path}/"
   content = "Terraform configuration Compute Engine public keys directory"
   bucket  = google_storage_bucket.configuration.name
+}
+
+output "configuration_bucket_name" {
+  value = google_storage_bucket.configuration.name
 }

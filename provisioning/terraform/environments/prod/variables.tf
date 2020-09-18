@@ -28,6 +28,20 @@ variable "configuration_directory_name" {
   description = "Name of the Terraform configuration directory"
 }
 
+variable "configuration_terraform_environments_directory_name" {
+  default     = "environments"
+  description = "Name of the Terraform configuration directory"
+}
+
+variable "configuration_terraform_environment_name" {
+  default     = "prod"
+  description = "Name of the Terraform configuration directory"
+}
+
+variable "google_configuration_project_id" {
+  description = "Google Cloud project ID for the configuration environment"
+}
+
 variable "google_default_region" {
   description = "The default Google Cloud region"
 }

@@ -30,6 +30,7 @@ You now provision and configure the cloud infrastructure:
 
 1. Change your working directory to the root of this repo.
 1. Change your working directory: `cd provisioning/terraform/environments/prod`
+1. Populate the Terraform variables files (see below for an example).
 1. Generate the Terraform backend configuration: `../../generate-tf-backend.sh`
 1. Init the Terraform state: `terraform init`
 1. Import the resources that the backend configuration script created:
@@ -46,14 +47,20 @@ You now provision and configure the cloud infrastructure:
 A CI/CD pipeline will then be responsible to apply future changes to the infrastructure.
 The pipeline applies any change only for commits pushed to the `master` branch.
 
-#### Terraform variables file
+#### Configuration
 
-For each environment, you can provide an encrypted
-[`tfvars` file](https://www.terraform.io/docs/configuration/variables.html#assigning-values-to-root-module-variables).
+All the configuration files that the provisioning pipeline needs are in the
+`${PROJECT_ID}-configuration` Cloud Storage bucket.
 
-The CI/CD pipeline decrypts this file as part of the build process.
+##### Terraform variable files
 
-Example:
+For each environment, you can provide
+[`tfvars` files](https://www.terraform.io/docs/configuration/variables.html#assigning-values-to-root-module-variables)
+in that environment directory, such as
+`provisioning/terraform/environments/prod`, to pass sensitive values to the
+provisioning pipeline.
+
+These are necessary variables for which you need to provides values:
 
 ```terraform
 development_workstation_ssh_user                 = "ferrarimarco"
@@ -65,22 +72,18 @@ google_iot_project_id                            = "ferrarimarco-iac"
 google_organization_domain                       = "ferrari.how"
 ```
 
-You can then encrypt it with the Google Cloud SDK
-(using the keyring and key we created for Cloud Build):
+Terraform uploads these files a in a private area in provisioned in the cloud
+environment. For example, it uses a Cloud Storage bucket on Google Cloud. This
+is needed to allow the pipeline to automatically run.
 
-```shell
-gcloud kms encrypt \
-    --plaintext-file=terraform.tfvars \
-    --ciphertext-file=terraform.tfvars.enc \
-    --location=global \
-    --keyring=cloud-build-keyring \
-    --key=cloudbuild-crypto-key
-```
+##### Conditional provisioning
 
-#### Configuration
+Some resources will not be provisioned by Terraform if certain conditions are
+not met:
 
-All the configuration files that the provisioning pipeline needs are in the
-`${PROJECT_ID}-configuration` Cloud Storage bucket.
+1. IoT Core devices must have at least one key file on the local file system.
+1. The development workstation Compute Engine virtual machine needs at least one
+    public key to set up SSH access.
 
 ## Manual Steps
 

@@ -1,0 +1,3 @@
+# Ignore public keys in this directory
+*.pem
+*.pub

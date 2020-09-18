@@ -1,8 +1,8 @@
 # Ignore the Terraform state directory
 */**/.terraform
 
-# Ignore the tfvars files because we want to commit only the encrypted version
+# Ignore the tfvars files because it might contain sensitive information
 **/environments/**/*.tfvars
 
-# Ignore public keys
-**/environments/**/public-keys/**/*
+# Ignore the backend file because it's dynamically generated
+**/environments/**/backend.tf
