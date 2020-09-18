@@ -37,7 +37,7 @@ locals {
 
 # Main configuration paths
 locals {
-  public_keys_directory_path = "${var.configuration_public_keys_directory_name}"
+  public_keys_directory_path = var.configuration_public_keys_directory_name
 }
 
 # IoT Core paths
