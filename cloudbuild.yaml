@@ -17,7 +17,7 @@ steps:
         - VALIDATE_ALL_CODEBASE=true
     - id: 'clone repository'
       name: gcr.io/cloud-builders/git
-      args: ['clone', 'https://github.com/ferrarimarco/home-lab.git']
+      args: ['clone', 'https://github.com/ferrarimarco/${REPO_NAME}.git']
     - id: 'provision infrastructure'
       name: 'gcr.io/cloud-builders/gcloud'
       entrypoint: 'bash'
