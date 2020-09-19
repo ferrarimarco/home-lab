@@ -10,7 +10,7 @@ steps:
         - ANSIBLE_DIRECTORY=configuration/ansible
         - DEFAULT_WORKSPACE=/workspace
         - DISABLE_ERRORS=false
-        - ERROR_ON_MISSING_EXEC_BIT=true \
+        - ERROR_ON_MISSING_EXEC_BIT=true
         - LINTER_RULES_PATH=.
         - MULTI_STATUS=false
         - RUN_LOCAL=true
