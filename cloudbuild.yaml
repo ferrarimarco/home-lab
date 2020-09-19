@@ -17,7 +17,7 @@ steps:
         - VALIDATE_ALL_CODEBASE=true
     - id: 'clone repository'
       name: gcr.io/cloud-builders/git
-      args: ['clone', 'https://github.com/ferrarimarco/${REPO_NAME}.git']
+      args: ['clone', '${_URL}.git']
     - id: 'provision infrastructure'
       name: 'gcr.io/cloud-builders/gcloud'
       entrypoint: 'bash'
@@ -96,6 +96,7 @@ steps:
         fi
 substitutions:
   _FAILURE_FILE_PATH: './failure.log'
+  _URL: '$(push.repository.html_url)'
 tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$BRANCH_NAME', '$TAG_NAME']
 # Set a high timeout because some jobs launched by this job require it
 timeout: 37000s
