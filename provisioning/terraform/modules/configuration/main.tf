@@ -11,6 +11,7 @@ resource "google_compute_subnetwork" "subnet" {
   region        = var.google_region
   network       = var.google_compute_network_vpc_name
   ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
+  project       = var.google_project_id
 }
 
 resource "google_container_cluster" "configuration-gke-cluster" {
