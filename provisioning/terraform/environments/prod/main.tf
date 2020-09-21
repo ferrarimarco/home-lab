@@ -57,6 +57,7 @@ locals {
 resource "google_compute_network" "default-vpc" {
   name                    = local.default_project_vpc_name
   auto_create_subnetworks = "false"
+  project                 = var.google_default_project_id
 }
 
 module "iac-pipeline" {
