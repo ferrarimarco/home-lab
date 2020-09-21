@@ -21,6 +21,10 @@ resource "google_container_cluster" "configuration-gke-cluster" {
   network                     = var.google_compute_network_vpc_name
   subnetwork                  = var.google_compute_subnetwork_vpc_name
 
+  ip_allocation_policy {
+
+  }
+
   master_auth {
     client_certificate_config {
       issue_client_certificate = false
