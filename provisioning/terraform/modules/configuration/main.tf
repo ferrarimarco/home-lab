@@ -6,14 +6,6 @@ resource "google_project_service" "kubernetes-engine-apis" {
   disable_on_destroy         = true
 }
 
-resource "google_compute_subnetwork" "subnet" {
-  name          = "${var.google_project_id}-subnet"
-  region        = var.google_region
-  network       = var.google_compute_network_vpc_name
-  ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
-  project       = var.google_project_id
-}
-
 resource "google_container_cluster" "configuration-gke-cluster" {
   name     = "${var.google_project_id}-configuration"
   provider = google-beta
@@ -26,7 +18,7 @@ resource "google_container_cluster" "configuration-gke-cluster" {
 
   enable_intranode_visibility = true
   network                     = var.google_compute_network_vpc_name
-  subnetwork                  = google_compute_subnetwork.subnet.name
+  subnetwork                  = var.google_compute_subnetwork_vpc_name
 
   master_auth {
     client_certificate_config {

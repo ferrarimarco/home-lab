@@ -4,3 +4,4 @@ variable "google_organization_id" {}
 variable "google_project_id" {}
 variable "google_region" {}
 variable "google_compute_network_vpc_name" {}
+variable "google_compute_subnetwork_vpc_name" {}

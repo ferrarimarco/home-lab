@@ -60,6 +60,14 @@ resource "google_compute_network" "default-vpc" {
   project                 = var.google_default_project_id
 }
 
+resource "google_compute_subnetwork" "default-subnet" {
+  name          = "${var.google_default_project_id}-subnet"
+  region        = var.google_default_region
+  network       = google_compute_network.default-vpc.name
+  ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
+  project       = var.google_default_project_id
+}
+
 module "iac-pipeline" {
   source                                             = "../../modules/iac-pipeline"
   compute_engine_keys_directory_path                 = local.compute_engine_public_keys_directory_path
@@ -83,11 +91,11 @@ module "development-workspace" {
   source                                                          = "../../modules/development-workspace"
   compute_engine_development_workstation_ssh_public_key_file_path = local.compute_engine_development_workstation_ssh_public_key_file_path
   configuration_bucket_name                                       = module.iac-pipeline.configuration_bucket_name
+  development_workstation_google_compute_subnetwork_name          = google_compute_subnetwork.default-subnet.name
   development_workstation_machine_type                            = var.development_workstation_machine_type
   development_workstation_min_cpu_platform                        = var.development_workstation_min_cpu_platform
   development_workstation_name                                    = var.development_workstation_name
   development_workstation_ssh_user                                = var.development_workstation_ssh_user
-  development_workstation_vpc_name                                = google_compute_network.default-vpc.name
   google_organization_id                                          = data.google_organization.ferrari_how.org_id
   google_project_id                                               = var.google_iot_project_id
   terraform_environment_configuration_directory_path              = local.terraform_environment_configuration_directory_path
@@ -98,6 +106,7 @@ module "configuration" {
   configuration_gke_cluster_node_pool_size       = var.configuration_gke_cluster_node_pool_size
   configuration_gke_cluster_subnet_ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
   google_compute_network_vpc_name                = google_compute_network.default-vpc.name
+  google_compute_subnetwork_vpc_name             = google_compute_subnetwork.default-subnet.name
   google_organization_id                         = data.google_organization.ferrari_how.org_id
   google_project_id                              = var.google_configuration_project_id
   google_region                                  = var.google_default_region
