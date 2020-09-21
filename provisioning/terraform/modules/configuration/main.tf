@@ -39,6 +39,7 @@ resource "google_container_node_pool" "configuration-gke-cluster-node-pool" {
   location   = var.google_region
   cluster    = google_container_cluster.configuration-gke-cluster.name
   node_count = var.configuration_gke_cluster_node_pool_size
+  project    = var.google_project_id
 
   node_config {
     oauth_scopes = [
