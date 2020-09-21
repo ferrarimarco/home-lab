@@ -81,7 +81,7 @@ resource "google_compute_instance" "development-workstation" {
   metadata_startup_script = file("${path.module}/development-workstation-startup-script.sh")
 
   network_interface {
-    subnetwork = var.development_workstation_google_compute_subnetwork_name
+    subnetwork = var.development_workstation_google_compute_subnetwork_self_link
 
     access_config {
       network_tier = "PREMIUM"

@@ -8,6 +8,7 @@ resource "google_project_service" "kubernetes-engine-apis" {
 
 resource "google_container_cluster" "configuration-gke-cluster" {
   name     = "${var.google_project_id}-configuration"
+  project  = var.google_project_id
   provider = google-beta
   location = var.google_region
 
