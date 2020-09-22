@@ -53,9 +53,9 @@ variable "configuration_consul_datacenter_name" {
   description = "Name of the configuration Consul datacenter"
 }
 
-variable "configuration_consul_version" {
+variable "configuration_consul_chart_version" {
   default     = "0.24.1"
-  description = "Consul version to install in the configuration environment"
+  description = "Version of the Consul Helm chart to install Consul in the configuration environment"
 }
 
 variable "google_configuration_project_id" {

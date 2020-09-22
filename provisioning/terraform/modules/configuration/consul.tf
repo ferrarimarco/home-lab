@@ -113,7 +113,7 @@ resource "helm_release" "configuration-consul" {
   provider   = helm.configuration-gke-cluster
   repository = "https://helm.releases.hashicorp.com"
   chart      = "consul"
-  version    = var.consul_version
+  version    = var.consul_chart_version
 
   values = [
     file("${path.module}/helm/configuration-consul-values.yaml")
