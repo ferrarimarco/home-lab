@@ -1,0 +1,27 @@
+---
+global:
+  acls:
+    manageSystemACLs: true
+  datacenter: configuration-datacenter
+  enabled: true
+  enablePodSecurityPolicies: true
+  gossipEncryption:
+    secretName: consul-gossip-encryption-key
+    secretKey: key
+  tls:
+    enabled: true
+    enableAutoEncrypt: true
+    httpsOnly: true
+    verify: true
+
+ui:
+  service:
+    type: 'LoadBalancer'
+
+server:
+  bootstrapExpect: 3
+  replicas: 3
+  storage: "1Gi"
+
+syncCatalog:
+  enabled: true

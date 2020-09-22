@@ -105,6 +105,7 @@ module "configuration" {
   source                                         = "../../modules/configuration"
   configuration_gke_cluster_node_pool_size       = var.configuration_gke_cluster_node_pool_size
   configuration_gke_cluster_subnet_ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
+  consul_version                                 = var.configuration_consul_version
   google_compute_network_vpc_name                = google_compute_network.default-vpc.name
   google_compute_subnetwork_vpc_name             = google_compute_subnetwork.default-subnet.name
   google_organization_id                         = data.google_organization.ferrari_how.org_id

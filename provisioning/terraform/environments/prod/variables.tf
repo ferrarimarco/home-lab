@@ -48,6 +48,11 @@ variable "configuration_terraform_environment_name" {
   description = "Name of the Terraform configuration directory"
 }
 
+variable "configuration_consul_version" {
+  default     = "0.24.1"
+  description = "Consul version to install in the configuration environment"
+}
+
 variable "google_configuration_project_id" {
   description = "Google Cloud project ID for the configuration environment"
 }
