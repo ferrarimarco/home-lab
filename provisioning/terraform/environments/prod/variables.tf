@@ -48,6 +48,11 @@ variable "configuration_terraform_environment_name" {
   description = "Name of the Terraform configuration directory"
 }
 
+variable "configuration_consul_datacenter_name" {
+  default     = "configuration-datacenter"
+  description = "Name of the configuration Consul datacenter"
+}
+
 variable "configuration_consul_version" {
   default     = "0.24.1"
   description = "Consul version to install in the configuration environment"

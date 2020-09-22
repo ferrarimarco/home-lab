@@ -1,5 +1,6 @@
 variable "configuration_gke_cluster_node_pool_size" {}
 variable "configuration_gke_cluster_subnet_ip_cidr_range" {}
+variable "consul_datacenter_name" {}
 variable "consul_version" {}
 variable "google_organization_id" {}
 variable "google_project_id" {}

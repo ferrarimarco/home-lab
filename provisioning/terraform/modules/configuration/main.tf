@@ -1,3 +1,6 @@
+data "google_client_config" "google-provider-configuration" {
+}
+
 resource "google_project_service" "kubernetes-engine-apis" {
   project = var.google_project_id
   service = "container.googleapis.com"
