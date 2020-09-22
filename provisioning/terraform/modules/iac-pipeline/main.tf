@@ -105,13 +105,18 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
   description = "This role gives the necessary permissions to the user that runs the IaC pipeline"
   permissions = [
     "billing.resourceAssociations.create"
-    , "container.roles.delete"
+    , "iam.roles.create"
+    , "iam.roles.delete"
     , "iam.roles.get"
     , "iam.roles.list"
+    , "iam.roles.undelete"
+    , "iam.roles.update"
     , "resourcemanager.organizations.getIamPolicy"
     , "resourcemanager.organizations.get"
     , "resourcemanager.projects.create"
     , "resourcemanager.projects.createBillingAssignment"
+    , "resourcemanager.projects.get"
+    , "resourcemanager.projects.list"
   ]
 
   depends_on = [
