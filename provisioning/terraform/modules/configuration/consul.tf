@@ -64,6 +64,8 @@ resource "tls_locally_signed_cert" "consul-signed-cert" {
 }
 
 resource "kubernetes_namespace" "consul" {
+  provider = kubernetes.configuration-gke-cluster
+
   metadata {
     name = "consul"
   }
