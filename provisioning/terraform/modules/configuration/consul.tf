@@ -93,6 +93,8 @@ resource "random_id" "consul_encrypt" {
 }
 
 resource "kubernetes_secret" "consul-gossip-key" {
+  provider = kubernetes.configuration-gke-cluster
+
   metadata {
     name      = "consul-gossip-key"
     namespace = kubernetes_namespace.consul.metadata.0.name
