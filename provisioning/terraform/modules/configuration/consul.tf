@@ -1,6 +1,6 @@
 resource "tls_private_key" "consul-ca-private-key" {
-  algorithm = "RSA"
-  rsa_bits  = "4096"
+  algorithm   = "ECDSA"
+  ecdsa_curve = "P384"
 }
 
 resource "tls_self_signed_cert" "consul-ca" {
@@ -24,8 +24,8 @@ resource "tls_self_signed_cert" "consul-ca" {
 }
 
 resource "tls_private_key" "consul-private-key" {
-  algorithm = "RSA"
-  rsa_bits  = "4096"
+  algorithm   = "ECDSA"
+  ecdsa_curve = "P384"
 }
 
 resource "tls_cert_request" "consul-req" {
