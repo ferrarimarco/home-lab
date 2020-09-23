@@ -9,7 +9,7 @@ provider "kubernetes" {
   )
 }
 
-resource "kubernetes_cluster_role_binding" "cloud-build-rbac-role-binding" {
+resource "kubernetes_cluster_role_binding" "cloud-build-cluster-admin-binding" {
   provider = kubernetes.configuration-gke-cluster
 
   metadata {
