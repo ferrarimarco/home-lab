@@ -98,46 +98,27 @@ resource "google_project_service" "iam-apis" {
   disable_on_destroy         = true
 }
 
-resource "google_organization_iam_custom_role" "iac-admin-role" {
-  role_id     = "iac.pipelineRunner"
-  org_id      = var.google_organization_id
-  title       = "IaC Pipeline Runner"
-  description = "This role gives the necessary permissions to the user that runs the IaC pipeline"
-  permissions = [
-    "billing.resourceAssociations.create"
-    , "iam.roles.create"
-    , "iam.roles.delete"
-    , "iam.roles.get"
-    , "iam.roles.list"
-    , "iam.roles.undelete"
-    , "iam.roles.update"
-    , "resourcemanager.organizations.getIamPolicy"
-    , "resourcemanager.organizations.get"
-    , "resourcemanager.projects.create"
-    , "resourcemanager.projects.createBillingAssignment"
-    , "resourcemanager.projects.get"
-    , "resourcemanager.projects.list"
-  ]
-
-  depends_on = [
-    google_project_service.iam-apis
-  ]
-}
-
 locals {
   cloud_build_service_account_email = "${var.google_project_number}@cloudbuild.gserviceaccount.com"
   cloud_build_service_account_id    = "serviceAccount:${local.cloud_build_service_account_email}"
 }
 
-resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
+resource "google_organization_iam_member" "organization-admin-cloud-build-memeber" {
   org_id = var.google_organization_id
-  role   = google_organization_iam_custom_role.iac-admin-role.id
+  role   = "roles/resourcemanager.organizationAdmin"
   member = local.cloud_build_service_account_id
+}
 
-  depends_on = [
-    google_project_service.cloudbuild-apis,
-    google_organization_iam_custom_role.iac-admin-role
-  ]
+resource "google_organization_iam_member" "organization-role-admin-cloud-build-memeber" {
+  org_id = var.google_organization_id
+  role   = "roles/iam.organizationRoleAdmin"
+  member = local.cloud_build_service_account_id
+}
+
+resource "google_organization_iam_member" "billing-admin-cloud-build-memeber" {
+  org_id = var.google_organization_id
+  role   = "roles/billing.admin"
+  member = local.cloud_build_service_account_id
 }
 
 resource "google_organization_iam_binding" "container-admin-cloud-build-binding" {
@@ -152,6 +133,15 @@ resource "google_organization_iam_binding" "container-admin-cloud-build-binding"
 resource "google_organization_iam_binding" "container-cluster-admin-cloud-build-binding" {
   org_id = var.google_organization_id
   role   = "roles/container.clusterAdmin"
+
+  members = [
+    local.cloud_build_service_account_id
+  ]
+}
+
+resource "google_organization_iam_binding" "project-creator-cloud-build-binding" {
+  org_id = var.google_organization_id
+  role   = "roles/resourcemanager.projectCreator"
 
   members = [
     local.cloud_build_service_account_id
