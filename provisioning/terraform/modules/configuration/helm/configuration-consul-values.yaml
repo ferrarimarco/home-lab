@@ -2,9 +2,6 @@
 client:
   extraConfig: |
     {
-        "ca_file": "/consul/userconfig/consul-certs/ca.pem",
-        "cert_file": "/consul/userconfig/consul-certs/consul.pem",
-        "key_file": "/consul/userconfig/consul-certs/consul-key.pem",
         "ports": {
           "https": 8501
         },
@@ -12,13 +9,6 @@ client:
         "disable_keyring_file": true,
         "disable_host_node_id": true
     }
-  extraVolumes:
-    - type: secret
-      name: consul-certs
-      load: false
-    - type: secret
-      name: consul-gossip-key
-      load: false
   grpc: true
 dns:
   enabled: true
@@ -39,9 +29,6 @@ server:
   bootstrapExpect: 3
   extraConfig: |
     {
-        "ca_file": "/consul/userconfig/consul-certs/ca.pem",
-        "cert_file": "/consul/userconfig/consul-certs/consul.pem",
-        "key_file": "/consul/userconfig/consul-certs/consul-key.pem",
         "ports": {
           "https": 8501
         },
@@ -52,13 +39,6 @@ server:
         "disable_keyring_file": true,
         "disable_host_node_id": true
     }
-  extraVolumes:
-    - type: secret
-      name: consul-certs
-      load: false
-    - type: secret
-      name: consul-gossip-key
-      load: false
   replicas: 3
   storage: "1Gi"
   storageClass: "standard"

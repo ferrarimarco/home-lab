@@ -1,11 +1,11 @@
-resource "tls_private_key" "consul-ca" {
+resource "tls_private_key" "consul-ca-private-key" {
   algorithm = "RSA"
   rsa_bits  = "4096"
 }
 
 resource "tls_self_signed_cert" "consul-ca" {
-  key_algorithm   = tls_private_key.consul-ca.algorithm
-  private_key_pem = tls_private_key.consul-ca.private_key_pem
+  key_algorithm   = tls_private_key.consul-ca-private-key.algorithm
+  private_key_pem = tls_private_key.consul-ca-private-key.private_key_pem
 
   subject {
     common_name    = var.tls_self_signed_cert_subject_common_name
@@ -28,7 +28,6 @@ resource "tls_private_key" "consul-private-key" {
   rsa_bits  = "4096"
 }
 
-# Create the request to sign the cert with the CA
 resource "tls_cert_request" "consul-req" {
   key_algorithm   = tls_private_key.consul-private-key.algorithm
   private_key_pem = tls_private_key.consul-private-key.private_key_pem
@@ -54,8 +53,8 @@ resource "tls_cert_request" "consul-req" {
 resource "tls_locally_signed_cert" "consul-signed-cert" {
   cert_request_pem = tls_cert_request.consul-req.cert_request_pem
 
-  ca_key_algorithm   = tls_private_key.consul-ca.algorithm
-  ca_private_key_pem = tls_private_key.consul-ca.private_key_pem
+  ca_key_algorithm   = tls_private_key.consul-ca-private-key.algorithm
+  ca_private_key_pem = tls_private_key.consul-ca-private-key.private_key_pem
   ca_cert_pem        = tls_self_signed_cert.consul-ca.cert_pem
 
   validity_period_hours = 8760
@@ -77,18 +76,50 @@ resource "kubernetes_namespace" "consul" {
   }
 }
 
-resource "kubernetes_secret" "consul-certs" {
+locals {
+  consul_namespace_name = "consul"
+
+  consul_release_name = "configuration-consul"
+
+  consul_gossip_key_secret_name = "consul-gossip-key"
+  consul_gossip_key_secret_key  = "gossipkey"
+
+  consul_ca_certs_secret_name     = "consul-ca-cert"
+  consul_ca_certs_certificate_key = "tls.crt" # (ca_file in Consul configuration) PEM-encoded certificate authority (CA)
+  consul_ca_certs_private_key_key = "tls.key" # private key of the CA certificate
+
+  consul_server_certs_secret_name     = "${local.consul_release_name}-server-cert"
+  consul_server_certs_certificate_key = "tls.crt" # (cert_file in Consul configuration) PEM-encoded server certificate
+  consul_server_certs_private_key_key = "tls.key" # (key_file in Consul configuration) PEM-encoded private key of the server certificate
+}
+
+resource "kubernetes_secret" "consul-ca-cert" {
   provider = kubernetes.configuration-gke-cluster
 
   metadata {
-    name      = "consul-certs"
-    namespace = kubernetes_namespace.consul.metadata.0.name
+    name      = local.consul_ca_certs_secret_name
+    namespace = local.consul_namespace_name
   }
 
   data = {
-    "ca.pem"         = tls_self_signed_cert.consul-ca.cert_pem
-    "consul.pem"     = tls_locally_signed_cert.consul-signed-cert.cert_pem
-    "consul-key.pem" = tls_private_key.consul-private-key.private_key_pem
+    (local.consul_ca_certs_certificate_key) = tls_self_signed_cert.consul-ca.cert_pem
+    (local.consul_ca_certs_private_key_key) = tls_private_key.consul-ca-private-key.private_key_pem
+  }
+
+  type = "Opaque"
+}
+
+resource "kubernetes_secret" "consul-server-cert" {
+  provider = kubernetes.configuration-gke-cluster
+
+  metadata {
+    name      = local.consul_server_certs_secret_name
+    namespace = local.consul_namespace_name
+  }
+
+  data = {
+    (local.consul_server_certs_certificate_key) = tls_locally_signed_cert.consul-signed-cert.cert_pem
+    (local.consul_server_certs_private_key_key) = tls_private_key.consul-private-key.private_key_pem
   }
 
   type = "Opaque"
@@ -103,7 +134,7 @@ resource "kubernetes_secret" "consul-gossip-key" {
 
   metadata {
     name      = local.consul_gossip_key_secret_name
-    namespace = kubernetes_namespace.consul.metadata.0.name
+    namespace = local.consul_namespace_name
   }
 
   data = {
@@ -111,13 +142,10 @@ resource "kubernetes_secret" "consul-gossip-key" {
   }
 
   type = "Opaque"
-}
 
-locals {
-  consul_namespace_name         = "consul"
-  consul_release_name           = "configuration-consul"
-  consul_gossip_key_secret_name = "consul-gossip-key"
-  consul_gossip_key_secret_key  = "gossipkey"
+  depends_on = [
+    kubernetes_namespace.consul
+  ]
 }
 
 resource "helm_release" "configuration-consul" {
@@ -156,9 +184,34 @@ resource "helm_release" "configuration-consul" {
     value = local.consul_gossip_key_secret_key
   }
 
+  set {
+    name  = "global.tls.caCert.secretName"
+    type  = "string"
+    value = local.consul_ca_certs_secret_name
+  }
+
+  set {
+    name  = "global.tls.caCert.secretKey"
+    type  = "string"
+    value = local.consul_ca_certs_certificate_key
+  }
+
+  set {
+    name  = "global.tls.caKey.secretName"
+    type  = "string"
+    value = local.consul_ca_certs_secret_name
+  }
+
+  set {
+    name  = "global.tls.caKey.secretKey"
+    type  = "string"
+    value = local.consul_ca_certs_certificate_key
+  }
+
   depends_on = [
     kubernetes_secret.consul-gossip-key,
-    kubernetes_secret.consul-certs
+    kubernetes_secret.consul-ca-cert,
+    kubernetes_secret.consul-server-cert
   ]
 }
 
