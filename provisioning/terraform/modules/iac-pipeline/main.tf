@@ -105,6 +105,7 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
   description = "This role gives the necessary permissions to the user that runs the IaC pipeline"
   permissions = [
     "billing.resourceAssociations.create"
+    , "container.clusters.get"
     , "container.roles.create"
     , "container.roles.delete"
     , "iam.roles.create"
@@ -126,10 +127,14 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
   ]
 }
 
+locals {
+  cloud_build_service_account_email = "${var.google_project_number}@cloudbuild.gserviceaccount.com"
+}
+
 resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
   org_id = var.google_organization_id
   role   = google_organization_iam_custom_role.iac-admin-role.id
-  member = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
+  member = "serviceAccount:${local.cloud_build_service_account_email}"
 
   depends_on = [
     google_project_service.cloudbuild-apis,
@@ -201,6 +206,10 @@ resource "google_storage_bucket_object" "terraform-configuration-compute-engine-
   name    = "${var.terraform_environment_configuration_directory_path}/${var.iot_core_keys_directory_path}/"
   content = "Terraform configuration Compute Engine public keys directory"
   bucket  = google_storage_bucket.configuration.name
+}
+
+output "cloud_build_service_account_id" {
+  value = local.cloud_build_service_account_email
 }
 
 output "configuration_bucket_name" {

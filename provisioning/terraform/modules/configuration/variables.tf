@@ -1,3 +1,4 @@
+variable "cloud_build_service_account_id" {}
 variable "configuration_gke_cluster_node_pool_size" {}
 variable "configuration_gke_cluster_subnet_ip_cidr_range" {}
 variable "consul_chart_version" {}

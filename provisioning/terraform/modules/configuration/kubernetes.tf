@@ -8,3 +8,23 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(google_container_cluster.configuration-gke-cluster.master_auth[0].cluster_ca_certificate,
   )
 }
+
+resource "kubernetes_cluster_role_binding" "cloud-build-rbac-role-binding" {
+  metadata {
+    annotations = {
+      "rbac.authorization.kubernetes.io/autoupdate" = "true"
+    }
+    name = "cloud-build-cluster-admin-binding"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+  }
+
+  subject {
+    kind = "User"
+    name = var.cloud_build_service_account_id
+  }
+}

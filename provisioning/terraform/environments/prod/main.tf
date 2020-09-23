@@ -103,6 +103,7 @@ module "development-workspace" {
 
 module "configuration" {
   source                                         = "../../modules/configuration"
+  cloud_build_service_account_id                 = module.iac-pipeline.cloud_build_service_account_id
   configuration_gke_cluster_node_pool_size       = var.configuration_gke_cluster_node_pool_size
   configuration_gke_cluster_subnet_ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
   consul_chart_version                           = var.configuration_consul_chart_version
