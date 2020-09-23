@@ -10,6 +10,8 @@ provider "kubernetes" {
 }
 
 resource "kubernetes_cluster_role_binding" "cloud-build-rbac-role-binding" {
+  provider = kubernetes.configuration-gke-cluster
+
   metadata {
     annotations = {
       "rbac.authorization.kubernetes.io/autoupdate" = "true"
