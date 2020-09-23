@@ -81,10 +81,10 @@ locals {
 
   consul_release_name = "configuration-consul"
 
-  consul_gossip_key_secret_name = "consul-gossip-key"
+  consul_gossip_key_secret_name = "${local.consul_release_name}-gossip-key"
   consul_gossip_key_secret_key  = "gossipkey"
 
-  consul_ca_certs_secret_name     = "consul-ca-cert"
+  consul_ca_certs_secret_name     = "${local.consul_release_name}-ca-cert"
   consul_ca_certs_certificate_key = "tls.crt" # (ca_file in Consul configuration) PEM-encoded certificate authority (CA)
   consul_ca_certs_private_key_key = "tls.key" # private key of the CA certificate
 
@@ -205,7 +205,7 @@ resource "helm_release" "configuration-consul" {
   set {
     name  = "global.tls.caKey.secretKey"
     type  = "string"
-    value = local.consul_ca_certs_certificate_key
+    value = local.consul_ca_certs_private_key_key
   }
 
   depends_on = [
