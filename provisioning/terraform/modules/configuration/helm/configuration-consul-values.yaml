@@ -37,7 +37,7 @@ global:
     verify: true
 ui:
   service:
-    type: 'LoadBalancer'
+    type: 'ClusterIP'
 server:
   bootstrapExpect: 3
   extraConfig: |

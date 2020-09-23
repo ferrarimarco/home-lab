@@ -107,21 +107,54 @@ resource "kubernetes_secret" "consul-gossip-key" {
   type = "Opaque"
 }
 
-# resource "helm_release" "configuration-consul" {
-#   name       = "configuration"
-#   namespace  = kubernetes_namespace.consul.metadata.0.name
-#   provider   = helm.configuration-gke-cluster
-#   repository = "https://helm.releases.hashicorp.com"
-#   chart      = "consul"
-#   version    = var.consul_chart_version
+locals {
+  consul_release_name = "configuration-consul"
+}
 
-#   values = [
-#     file("${path.module}/helm/configuration-consul-values.yaml")
-#   ]
+resource "helm_release" "configuration-consul" {
+  name       = local.consul_release_name
+  namespace  = kubernetes_namespace.consul.metadata.0.name
+  provider   = helm.configuration-gke-cluster
+  repository = "https://helm.releases.hashicorp.com"
+  chart      = "consul"
+  version    = var.consul_chart_version
 
-#   set {
-#     name  = "global.datacenter"
-#     type  = "string"
-#     value = var.consul_datacenter_name
-#   }
-# }
+  values = [
+    file("${path.module}/helm/configuration-consul-values.yaml")
+  ]
+
+  set {
+    name  = "global.datacenter"
+    type  = "string"
+    value = var.consul_datacenter_name
+  }
+
+  set {
+    name  = "global.name"
+    type  = "string"
+    value = local.consul_release_name
+  }
+}
+
+# Workaround for https://github.com/hashicorp/consul-helm/issues/88
+# The consul helm chart doesn't yet provide an Ingress
+resource "kubernetes_ingress" "consul-ui-ingress" {
+  metadata {
+    name = "${local.consul_release_name}-ui-ingress"
+  }
+
+  spec {
+    rule {
+      http {
+        path {
+          backend {
+            service_name = "${local.consul_release_name}-ui"
+            service_port = 80
+          }
+
+          path = "/"
+        }
+      }
+    }
+  }
+}
