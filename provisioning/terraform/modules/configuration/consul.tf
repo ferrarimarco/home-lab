@@ -35,6 +35,7 @@ resource "tls_cert_request" "consul-req" {
   dns_names = [
     "consul",
     var.tls_self_signed_cert_subject_common_name,
+    "${local.consul_release_name}-server",
     "consul.default.svc.cluster.local",
     "server.${var.consul_datacenter_name}.consul",
   ]
