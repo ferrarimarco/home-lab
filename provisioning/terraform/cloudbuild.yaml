@@ -40,12 +40,11 @@ steps:
       args:
           - '-c'
           - |
+            echo "Current branch: $BRANCH_NAME"
             if [ "${BRANCH_NAME}" = "master" ]; then
-                echo $BRANCH_NAME
                 terraform apply -auto-approve
             else
                 echo "Not applying any Terraform change. Not on master branch."
-                echo "Current branch: $BRANCH_NAME"
             fi
 substitutions:
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
