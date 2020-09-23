@@ -10,6 +10,8 @@ client:
         "disable_host_node_id": true
     }
   grpc: true
+connectInject:
+  enabled: false
 dns:
   enabled: true
 global:
@@ -22,11 +24,16 @@ global:
     enableAutoEncrypt: true
     httpsOnly: true
     verify: true
+ingressGateways:
+  enabled: false
+meshGateway:
+  enabled: false
 ui:
   service:
     type: 'ClusterIP'
 server:
   bootstrapExpect: 3
+  connect: false
   extraConfig: |
     {
         "ports": {
@@ -44,3 +51,5 @@ server:
   storageClass: "standard"
 syncCatalog:
   enabled: true
+terminatingGateways:
+  enabled: false

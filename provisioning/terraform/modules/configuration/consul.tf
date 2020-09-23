@@ -36,7 +36,8 @@ resource "tls_cert_request" "consul-req" {
     "consul",
     var.tls_self_signed_cert_subject_common_name,
     "${local.consul_release_name}-server",
-    "consul.default.svc.cluster.local",
+    "${local.consul_release_name}-server.${local.consul_namespace_name}.svc",
+    "consul.${local.consul_namespace_name}.svc.cluster.local",
     "server.${var.consul_datacenter_name}.consul",
   ]
 
