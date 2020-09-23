@@ -105,9 +105,11 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
   description = "This role gives the necessary permissions to the user that runs the IaC pipeline"
   permissions = [
     "billing.resourceAssociations.create"
+    , "container.clusterRoles.bind"
     , "container.clusterRoleBindings.create"
     , "container.clusters.get"
     , "container.clusters.list"
+    , "container.roles.bind"
     , "container.roles.create"
     , "container.roles.delete"
     , "iam.roles.create"

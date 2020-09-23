@@ -107,21 +107,21 @@ resource "kubernetes_secret" "consul-gossip-key" {
   type = "Opaque"
 }
 
-resource "helm_release" "configuration-consul" {
-  name       = "configuration"
-  namespace  = kubernetes_namespace.consul.metadata.0.name
-  provider   = helm.configuration-gke-cluster
-  repository = "https://helm.releases.hashicorp.com"
-  chart      = "consul"
-  version    = var.consul_chart_version
+# resource "helm_release" "configuration-consul" {
+#   name       = "configuration"
+#   namespace  = kubernetes_namespace.consul.metadata.0.name
+#   provider   = helm.configuration-gke-cluster
+#   repository = "https://helm.releases.hashicorp.com"
+#   chart      = "consul"
+#   version    = var.consul_chart_version
 
-  values = [
-    file("${path.module}/helm/configuration-consul-values.yaml")
-  ]
+#   values = [
+#     file("${path.module}/helm/configuration-consul-values.yaml")
+#   ]
 
-  set {
-    name  = "global.datacenter"
-    type  = "string"
-    value = var.consul_datacenter_name
-  }
-}
+#   set {
+#     name  = "global.datacenter"
+#     type  = "string"
+#     value = var.consul_datacenter_name
+#   }
+# }
