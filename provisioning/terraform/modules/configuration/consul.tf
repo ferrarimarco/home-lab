@@ -8,8 +8,9 @@ resource "tls_self_signed_cert" "consul-ca" {
   private_key_pem = tls_private_key.consul-ca.private_key_pem
 
   subject {
-    common_name  = "consul-ca.local"
-    organization = "ferrari.how"
+    common_name    = var.tls_self_signed_cert_subject_common_name
+    organization   = var.tls_self_signed_cert_subject_organization
+    street_address = []
   }
 
   validity_period_hours = 8760
@@ -34,7 +35,7 @@ resource "tls_cert_request" "consul-req" {
 
   dns_names = [
     "consul",
-    "consul.local",
+    var.tls_self_signed_cert_subject_common_name,
     "consul.default.svc.cluster.local",
     "server.${var.consul_datacenter_name}.consul",
   ]
@@ -45,8 +46,9 @@ resource "tls_cert_request" "consul-req" {
   ]
 
   subject {
-    common_name  = "consul.local"
-    organization = "ferrari.how"
+    common_name    = var.tls_self_signed_cert_subject_common_name
+    organization   = var.tls_self_signed_cert_subject_organization
+    street_address = []
   }
 }
 
@@ -154,6 +156,11 @@ resource "helm_release" "configuration-consul" {
     type  = "string"
     value = local.consul_gossip_key_secret_key
   }
+
+  depends_on = [
+    kubernetes_secret.consul-gossip-key,
+    kubernetes_secret.consul-certs
+  ]
 }
 
 # Workaround for https://github.com/hashicorp/consul-helm/issues/88
@@ -184,4 +191,8 @@ resource "kubernetes_ingress" "consul-ui-ingress" {
       }
     }
   }
+
+  depends_on = [
+    helm_release.configuration-consul
+  ]
 }

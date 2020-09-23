@@ -58,6 +58,11 @@ variable "configuration_consul_chart_version" {
   description = "Version of the Consul Helm chart to install Consul in the configuration environment"
 }
 
+variable "configuration_consul_certificate_subject_common_name" {
+  default     = "consul.local"
+  description = "Common name of the TLS certificate for the Consul instance in the configuration environment"
+}
+
 variable "google_configuration_project_id" {
   description = "Google Cloud project ID for the configuration environment"
 }

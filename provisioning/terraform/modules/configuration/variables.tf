@@ -8,3 +8,5 @@ variable "google_project_id" {}
 variable "google_region" {}
 variable "google_compute_network_vpc_name" {}
 variable "google_compute_subnetwork_vpc_name" {}
+variable "tls_self_signed_cert_subject_common_name" {}
+variable "tls_self_signed_cert_subject_organization" {}
