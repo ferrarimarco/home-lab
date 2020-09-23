@@ -39,6 +39,11 @@ resource "tls_cert_request" "consul-req" {
     "server.${var.consul_datacenter_name}.consul",
   ]
 
+  ip_addresses = [
+    "localhost",
+    "127.0.0.1"
+  ]
+
   subject {
     common_name  = "consul.local"
     organization = "ferrari.how"
