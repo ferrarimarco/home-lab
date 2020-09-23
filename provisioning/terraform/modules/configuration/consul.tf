@@ -67,7 +67,7 @@ resource "kubernetes_namespace" "consul" {
   provider = kubernetes.configuration-gke-cluster
 
   metadata {
-    name = "consul"
+    name = local.consul_namespace_name
   }
 }
 
@@ -96,24 +96,27 @@ resource "kubernetes_secret" "consul-gossip-key" {
   provider = kubernetes.configuration-gke-cluster
 
   metadata {
-    name      = "consul-gossip-key"
+    name      = local.consul_gossip_key_secret_name
     namespace = kubernetes_namespace.consul.metadata.0.name
   }
 
   data = {
-    gossipkey = random_id.consul_encrypt.b64_std
+    (local.consul_gossip_key_secret_key) = random_id.consul_encrypt.b64_std
   }
 
   type = "Opaque"
 }
 
 locals {
-  consul_release_name = "configuration-consul"
+  consul_namespace_name         = "consul"
+  consul_release_name           = "configuration-consul"
+  consul_gossip_key_secret_name = "consul-gossip-key"
+  consul_gossip_key_secret_key  = "gossipkey"
 }
 
 resource "helm_release" "configuration-consul" {
   name       = local.consul_release_name
-  namespace  = kubernetes_namespace.consul.metadata.0.name
+  namespace  = local.consul_namespace_name
   provider   = helm.configuration-gke-cluster
   repository = "https://helm.releases.hashicorp.com"
   chart      = "consul"
@@ -134,13 +137,32 @@ resource "helm_release" "configuration-consul" {
     type  = "string"
     value = local.consul_release_name
   }
+
+  set {
+    name  = "global.gossipEncryption.secretName"
+    type  = "string"
+    value = local.consul_gossip_key_secret_name
+  }
+
+  set {
+    name  = "global.gossipEncryption.secretKey"
+    type  = "string"
+    value = local.consul_gossip_key_secret_key
+  }
 }
 
 # Workaround for https://github.com/hashicorp/consul-helm/issues/88
 # The consul helm chart doesn't yet provide an Ingress
 resource "kubernetes_ingress" "consul-ui-ingress" {
+  provider = kubernetes.configuration-gke-cluster
+
   metadata {
     name = "${local.consul_release_name}-ui-ingress"
+
+    labels = {
+      "app"       = local.consul_release_name
+      "component" = "ui"
+    }
   }
 
   spec {

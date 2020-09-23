@@ -27,9 +27,6 @@ global:
     manageSystemACLs: true
   enabled: true
   enablePodSecurityPolicies: true
-  gossipEncryption:
-    secretName: consul-gossip-encryption-key
-    secretKey: key
   tls:
     enabled: true
     enableAutoEncrypt: true
