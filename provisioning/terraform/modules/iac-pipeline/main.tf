@@ -105,13 +105,6 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
   description = "This role gives the necessary permissions to the user that runs the IaC pipeline"
   permissions = [
     "billing.resourceAssociations.create"
-    , "container.clusterRoles.bind"
-    , "container.clusterRoleBindings.create"
-    , "container.clusters.get"
-    , "container.clusters.list"
-    , "container.roles.bind"
-    , "container.roles.create"
-    , "container.roles.delete"
     , "iam.roles.create"
     , "iam.roles.delete"
     , "iam.roles.get"
@@ -133,16 +126,35 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
 
 locals {
   cloud_build_service_account_email = "${var.google_project_number}@cloudbuild.gserviceaccount.com"
+  cloud_build_service_account_id    = "serviceAccount:${local.cloud_build_service_account_email}"
 }
 
 resource "google_organization_iam_member" "cloudbuild_iam_member_iac_admin" {
   org_id = var.google_organization_id
   role   = google_organization_iam_custom_role.iac-admin-role.id
-  member = "serviceAccount:${local.cloud_build_service_account_email}"
+  member = local.cloud_build_service_account_id
 
   depends_on = [
     google_project_service.cloudbuild-apis,
     google_organization_iam_custom_role.iac-admin-role
+  ]
+}
+
+resource "google_organization_iam_binding" "container-admin-cloud-build-binding" {
+  org_id = var.google_organization_id
+  role   = "roles/container.admin"
+
+  members = [
+    local.cloud_build_service_account_id
+  ]
+}
+
+resource "google_organization_iam_binding" "container-cluster-admin-cloud-build-binding" {
+  org_id = var.google_organization_id
+  role   = "roles/container.clusterAdmin"
+
+  members = [
+    local.cloud_build_service_account_id
   ]
 }
 
