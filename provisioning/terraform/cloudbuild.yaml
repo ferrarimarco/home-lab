@@ -1,6 +1,7 @@
 ---
 options:
     env:
+        - TF_IN_AUTOMATION=true
         - TF_INPUT=false
 steps:
     - id: 'Download additional configuration for Terraform'
@@ -32,7 +33,7 @@ steps:
       args:
           - '-c'
           - |
-            terraform plan
+            terraform plan -out=tfplan
     - id: 'tf apply'
       name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
       entrypoint: 'sh'
@@ -42,7 +43,7 @@ steps:
           - |
             echo "Current branch: $BRANCH_NAME"
             if [ "${BRANCH_NAME}" = "master" ]; then
-                terraform apply -auto-approve
+                terraform apply -auto-approve tfplan
             else
                 echo "Not applying any Terraform change. Not on master branch."
             fi
