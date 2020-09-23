@@ -106,6 +106,7 @@ resource "google_organization_iam_custom_role" "iac-admin-role" {
   permissions = [
     "billing.resourceAssociations.create"
     , "container.clusters.get"
+    , "container.clusterRoleBindings.create"
     , "container.roles.create"
     , "container.roles.delete"
     , "iam.roles.create"
