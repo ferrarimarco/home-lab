@@ -30,7 +30,7 @@ meshGateway:
   enabled: false
 ui:
   service:
-    type: 'ClusterIP'
+    type: 'LoadBalancer'
 server:
   bootstrapExpect: 3
   connect: false
