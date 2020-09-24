@@ -155,7 +155,8 @@ resource "kubernetes_ingress" "consul-ui-ingress" {
   provider = kubernetes.configuration-gke-cluster
 
   metadata {
-    name = "${local.consul_release_name}-ui-ingress"
+    name      = "${local.consul_release_name}-ui-ingress"
+    namespace = local.consul_namespace_name
 
     labels = {
       "app"       = local.consul_release_name
