@@ -30,7 +30,7 @@ meshGateway:
   enabled: false
 ui:
   service:
-    type: 'LoadBalancer'
+    type: 'NodePort'
 server:
   bootstrapExpect: 3
   connect: false

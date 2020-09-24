@@ -167,7 +167,7 @@ resource "kubernetes_ingress" "consul-ui-ingress" {
   spec {
     backend {
       service_name = "${local.consul_release_name}-ui"
-      service_port = "https"
+      service_port = "http"
     }
   }
 
