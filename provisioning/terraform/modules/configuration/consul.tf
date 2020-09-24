@@ -148,30 +148,3 @@ resource "helm_release" "configuration-consul" {
     kubernetes_secret.consul-ca-cert
   ]
 }
-
-# Workaround for https://github.com/hashicorp/consul-helm/issues/88
-# The consul helm chart doesn't yet provide an Ingress
-resource "kubernetes_ingress" "consul-ui-ingress" {
-  provider = kubernetes.configuration-gke-cluster
-
-  metadata {
-    name      = "${local.consul_release_name}-ui-ingress"
-    namespace = local.consul_namespace_name
-
-    labels = {
-      "app"       = local.consul_release_name
-      "component" = "ui"
-    }
-  }
-
-  spec {
-    backend {
-      service_name = "${local.consul_release_name}-ui"
-      service_port = "https"
-    }
-  }
-
-  depends_on = [
-    helm_release.configuration-consul
-  ]
-}
