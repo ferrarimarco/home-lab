@@ -23,56 +23,6 @@ resource "tls_self_signed_cert" "consul-ca" {
   ]
 }
 
-resource "tls_private_key" "consul-private-key" {
-  algorithm   = "ECDSA"
-  ecdsa_curve = "P384"
-}
-
-locals {
-  consul_server_domain = "${local.consul_release_name}-server.${local.consul_namespace_name}.svc"
-}
-
-resource "tls_cert_request" "consul-req" {
-  key_algorithm   = tls_private_key.consul-private-key.algorithm
-  private_key_pem = tls_private_key.consul-private-key.private_key_pem
-
-  dns_names = [
-    "consul",
-    local.consul_server_domain,
-    "*.${local.consul_server_domain}",
-    "consul.${local.consul_namespace_name}.svc.cluster.local",
-    "server.${var.consul_datacenter_name}.consul",
-  ]
-
-  ip_addresses = [
-    "127.0.0.1"
-  ]
-
-  subject {
-    common_name    = "${var.tls_self_signed_cert_ca_subject_common_name} ${local.consul_server_domain}"
-    organization   = var.tls_self_signed_cert_ca_subject_organization
-    street_address = []
-  }
-}
-
-resource "tls_locally_signed_cert" "consul-signed-cert" {
-  cert_request_pem = tls_cert_request.consul-req.cert_request_pem
-
-  ca_key_algorithm   = tls_private_key.consul-ca-private-key.algorithm
-  ca_private_key_pem = tls_private_key.consul-ca-private-key.private_key_pem
-  ca_cert_pem        = tls_self_signed_cert.consul-ca.cert_pem
-
-  validity_period_hours = 8760
-
-  allowed_uses = [
-    "cert_signing",
-    "client_auth",
-    "digital_signature",
-    "key_encipherment",
-    "server_auth",
-  ]
-}
-
 resource "kubernetes_namespace" "consul" {
   provider = kubernetes.configuration-gke-cluster
 
@@ -92,10 +42,6 @@ locals {
   consul_ca_certs_secret_name     = "${local.consul_release_name}-ca-cert"
   consul_ca_certs_certificate_key = "tls.crt" # (ca_file in Consul configuration) PEM-encoded certificate authority (CA)
   consul_ca_certs_private_key_key = "tls.key" # private key of the CA certificate
-
-  consul_server_certs_secret_name     = "${local.consul_release_name}-server-cert"
-  consul_server_certs_certificate_key = "tls.crt" # (cert_file in Consul configuration) PEM-encoded server certificate
-  consul_server_certs_private_key_key = "tls.key" # (key_file in Consul configuration) PEM-encoded private key of the server certificate
 }
 
 resource "kubernetes_secret" "consul-ca-cert" {
@@ -109,22 +55,6 @@ resource "kubernetes_secret" "consul-ca-cert" {
   data = {
     (local.consul_ca_certs_certificate_key) = tls_self_signed_cert.consul-ca.cert_pem
     (local.consul_ca_certs_private_key_key) = tls_private_key.consul-ca-private-key.private_key_pem
-  }
-
-  type = "Opaque"
-}
-
-resource "kubernetes_secret" "consul-server-cert" {
-  provider = kubernetes.configuration-gke-cluster
-
-  metadata {
-    name      = local.consul_server_certs_secret_name
-    namespace = local.consul_namespace_name
-  }
-
-  data = {
-    (local.consul_server_certs_certificate_key) = tls_locally_signed_cert.consul-signed-cert.cert_pem
-    (local.consul_server_certs_private_key_key) = tls_private_key.consul-private-key.private_key_pem
   }
 
   type = "Opaque"
@@ -215,8 +145,7 @@ resource "helm_release" "configuration-consul" {
 
   depends_on = [
     kubernetes_secret.consul-gossip-key,
-    kubernetes_secret.consul-ca-cert,
-    kubernetes_secret.consul-server-cert
+    kubernetes_secret.consul-ca-cert
   ]
 }
 
