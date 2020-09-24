@@ -8,8 +8,8 @@ resource "tls_self_signed_cert" "consul-ca" {
   private_key_pem = tls_private_key.consul-ca-private-key.private_key_pem
 
   subject {
-    common_name    = var.tls_self_signed_cert_subject_common_name
-    organization   = var.tls_self_signed_cert_subject_organization
+    common_name    = var.tls_self_signed_cert_ca_subject_common_name
+    organization   = var.tls_self_signed_cert_ca_subject_organization
     street_address = []
   }
 
@@ -38,7 +38,6 @@ resource "tls_cert_request" "consul-req" {
 
   dns_names = [
     "consul",
-    var.tls_self_signed_cert_subject_common_name,
     local.consul_server_domain,
     "*.${local.consul_server_domain}",
     "consul.${local.consul_namespace_name}.svc.cluster.local",
@@ -50,8 +49,8 @@ resource "tls_cert_request" "consul-req" {
   ]
 
   subject {
-    common_name    = var.tls_self_signed_cert_subject_common_name
-    organization   = var.tls_self_signed_cert_subject_organization
+    common_name    = "${var.tls_self_signed_cert_ca_subject_common_name} ${local.consul_server_domain}"
+    organization   = var.tls_self_signed_cert_ca_subject_organization
     street_address = []
   }
 }

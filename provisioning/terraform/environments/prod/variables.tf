@@ -58,8 +58,8 @@ variable "configuration_consul_chart_version" {
   description = "Version of the Consul Helm chart to install Consul in the configuration environment"
 }
 
-variable "configuration_consul_certificate_subject_common_name" {
-  default     = "consul.local"
+variable "configuration_consul_certificate_ca_subject_common_name" {
+  default     = "Consul CA"
   description = "Common name of the TLS certificate for the Consul instance in the configuration environment"
 }
 
