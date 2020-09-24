@@ -170,7 +170,7 @@ resource "kubernetes_ingress" "consul-ui-ingress" {
         path {
           backend {
             service_name = "${local.consul_release_name}-ui"
-            service_port = 80
+            service_port = 443
           }
 
           path = "/"
