@@ -63,6 +63,11 @@ variable "configuration_consul_certificate_ca_subject_common_name" {
   description = "Common name of the TLS certificate for the Consul instance in the configuration environment"
 }
 
+variable "configuration_gke_version_prefix" {
+  default     = "1.16.13-gke.401"
+  description = "GKE version for the configuration environment."
+}
+
 variable "google_configuration_project_id" {
   description = "Google Cloud project ID for the configuration environment"
 }

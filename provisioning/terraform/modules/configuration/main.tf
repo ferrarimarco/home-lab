@@ -12,7 +12,7 @@ resource "google_project_service" "kubernetes-engine-apis" {
 data "google_container_engine_versions" "gke-version" {
   project        = var.google_project_id
   location       = var.google_region
-  version_prefix = "1.17.9-gke.1504"
+  version_prefix = var.gke_version_prefix
 }
 
 resource "google_container_cluster" "configuration-gke-cluster" {
