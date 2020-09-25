@@ -143,6 +143,12 @@ resource "helm_release" "configuration-consul" {
     value = local.consul_ca_certs_private_key_key
   }
 
+  set {
+    name  = "ui.service.type"
+    type  = "string"
+    value = "NodePort"
+  }
+
   depends_on = [
     kubernetes_secret.consul-gossip-key,
     kubernetes_secret.consul-ca-cert
