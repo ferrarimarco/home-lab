@@ -9,11 +9,18 @@ resource "google_project_service" "kubernetes-engine-apis" {
   disable_on_destroy         = true
 }
 
+data "google_container_engine_versions" "gke-version" {
+  project        = var.google_project_id
+  location       = var.google_region
+  version_prefix = "1.17."
+}
+
 resource "google_container_cluster" "configuration-gke-cluster" {
-  name     = "${var.google_project_id}-configuration"
-  project  = var.google_project_id
-  provider = google-beta
-  location = var.google_region
+  name         = "${var.google_project_id}-configuration"
+  node_version = data.google_container_engine_versions.gke-version.latest_node_version
+  project      = var.google_project_id
+  provider     = google-beta
+  location     = var.google_region
 
   # Create the smallest possible default node pool and then remove it
   # because we want to use a managed node pool
