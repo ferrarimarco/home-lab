@@ -44,7 +44,7 @@ resource "google_container_cluster" "configuration-gke-cluster" {
   networking_mode = "VPC_NATIVE"
 
   release_channel {
-    channel = "REGULAR"
+    channel = "UNSPECIFIED"
   }
 }
 
