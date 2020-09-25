@@ -44,6 +44,11 @@ resource "google_container_node_pool" "configuration-gke-cluster-node-pool" {
   node_count = var.configuration_gke_cluster_node_pool_size
   project    = var.google_project_id
 
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+
   node_config {
     oauth_scopes = [
       "https://www.googleapis.com/auth/logging.write",
