@@ -64,7 +64,7 @@ variable "configuration_consul_certificate_ca_subject_common_name" {
 }
 
 variable "configuration_gke_version_prefix" {
-  default     = "1.16.13-gke.401"
+  default     = "1.17.9-gke.1504"
   description = "GKE version for the configuration environment."
 }
 

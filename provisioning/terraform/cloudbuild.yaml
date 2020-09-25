@@ -51,3 +51,4 @@ substitutions:
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
   _TERRAFORM_ENVIRONMENT_PATH: 'environments/prod'
   _TERRAFORM_IMAGE_TAG: '0.12.29'
+timeout: 37000s
