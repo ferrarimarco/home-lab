@@ -12,15 +12,15 @@ resource "google_project_service" "kubernetes-engine-apis" {
 data "google_container_engine_versions" "gke-version" {
   project        = var.google_project_id
   location       = var.google_region
-  version_prefix = "1.17."
+  version_prefix = "1.17.9-gke.1504"
 }
 
 resource "google_container_cluster" "configuration-gke-cluster" {
-  name         = "${var.google_project_id}-configuration"
-  node_version = data.google_container_engine_versions.gke-version.latest_node_version
-  project      = var.google_project_id
-  provider     = google-beta
-  location     = var.google_region
+  min_master_version = data.google_container_engine_versions.gke-version.latest_node_version
+  name               = "${var.google_project_id}-configuration"
+  project            = var.google_project_id
+  provider           = google-beta
+  location           = var.google_region
 
   # Create the smallest possible default node pool and then remove it
   # because we want to use a managed node pool
@@ -42,6 +42,10 @@ resource "google_container_cluster" "configuration-gke-cluster" {
   }
 
   networking_mode = "VPC_NATIVE"
+
+  release_channel {
+    channel = "REGULAR"
+  }
 }
 
 resource "google_container_node_pool" "configuration-gke-cluster-node-pool" {
@@ -50,10 +54,11 @@ resource "google_container_node_pool" "configuration-gke-cluster-node-pool" {
   cluster    = google_container_cluster.configuration-gke-cluster.name
   node_count = var.configuration_gke_cluster_node_pool_size
   project    = var.google_project_id
+  version    = data.google_container_engine_versions.gke-version.latest_node_version
 
   management {
     auto_repair  = true
-    auto_upgrade = true
+    auto_upgrade = false
   }
 
   node_config {
