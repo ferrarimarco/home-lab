@@ -50,3 +50,7 @@ syncCatalog:
   enabled: true
 terminatingGateways:
   enabled: false
+ui:
+  service:
+    annotations: |
+      "cloud.google.com/neg": '{"ingress": true}'
