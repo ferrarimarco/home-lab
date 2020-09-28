@@ -148,3 +148,31 @@ resource "helm_release" "configuration-consul" {
     kubernetes_secret.consul-ca-cert
   ]
 }
+
+resource "kubernetes_ingress" "consul_ingress" {
+  metadata {
+    name      = "${local.consul_release_name}-ui-ingress"
+    namespace = local.consul_namespace_name
+  }
+
+  provider = kubernetes.configuration-gke-cluster
+
+  spec {
+    rule {
+      http {
+        path {
+          backend {
+            service_name = "${local.consul_release_name}-ui"
+            service_port = 443
+          }
+
+          path = "/consul/ui/*"
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    helm_release.configuration-consul
+  ]
+}
