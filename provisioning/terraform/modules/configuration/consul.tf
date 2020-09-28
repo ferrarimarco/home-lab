@@ -147,13 +147,13 @@ resource "helm_release" "configuration-consul" {
     name = "ui.service.annotations"
     type = "string"
     value = jsonencode({
-      "cloud.google.com/backend-config" : {
-        "ports" : {
-          "https" : "${local.consul_release_name}-ui-backendconfig"
+      "cloud.google.com/backend-config" = {
+        "ports" = {
+          "https" = "${local.consul_release_name}-ui-backendconfig"
         }
       },
-      "cloud.google.com/neg" : {
-        "ingress" : true
+      "cloud.google.com/neg" = {
+        "ingress" = true
       }
     })
   }
