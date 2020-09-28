@@ -144,9 +144,18 @@ resource "helm_release" "configuration-consul" {
   }
 
   set {
-    name  = "ui.service.type"
-    type  = "string"
-    value = "NodePort"
+    name = "ui.service.annotations"
+    type = "string"
+    value = jsonencode({
+      "cloud.google.com/backend-config" : {
+        "ports" : {
+          "https" : "${local.consul_release_name}-ui-backendconfig"
+        }
+      },
+      "cloud.google.com/neg" : {
+        "ingress" : true
+      }
+    })
   }
 
   depends_on = [
