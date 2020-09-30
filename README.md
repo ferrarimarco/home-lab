@@ -42,6 +42,7 @@ You now provision and configure the cloud infrastructure:
     google_iac_project_id                            = "ferrarimarco-iac"
     google_iot_project_id                            = "ferrarimarco-iac"
     google_organization_domain                       = "ferrari.how"
+    main_dns_zone_prefix                             = "lab"
     ```
 
 1. Generate the Terraform backend configuration: `../../generate-tf-backend.sh`

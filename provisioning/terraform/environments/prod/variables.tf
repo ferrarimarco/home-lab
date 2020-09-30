@@ -125,6 +125,5 @@ variable "development_workstation_ssh_user" {
 }
 
 variable "main_dns_zone_prefix" {
-  default     = "lab"
   description = "Prefix of the main DNS zone to manage. The organization domain is appended to this prefix."
 }
