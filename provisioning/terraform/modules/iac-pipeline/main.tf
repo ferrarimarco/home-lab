@@ -61,7 +61,7 @@ resource "google_kms_crypto_key" "cloudbuild-crypto-key" {
 resource "google_kms_crypto_key_iam_member" "cloudbuild-crypto-key-iam-member" {
   crypto_key_id = google_kms_crypto_key.cloudbuild-crypto-key.id
   role          = "roles/cloudkms.cryptoKeyDecrypter"
-  member        = "serviceAccount:${var.google_project_number}@cloudbuild.gserviceaccount.com"
+  member        = "serviceAccount:${local.cloud_build_service_account_email}"
 
   depends_on = [
     google_kms_crypto_key.cloudbuild-crypto-key
