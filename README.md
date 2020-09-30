@@ -51,8 +51,8 @@ You now provision and configure the cloud infrastructure:
 1. Import the resources that the backend configuration script created:
 
     ```shell
-    terraform import google_project.ferrarimarco_iac "${GOOGLE_CLOUD_PROJECT}"
-    terraform import google_storage_bucket.terraform_state "${GOOGLE_CLOUD_PROJECT}"/"${GOOGLE_CLOUD_PROJECT}"-terraform-state
+    terraform import module.iac-pipeline.google_project.iac_project "${GOOGLE_CLOUD_PROJECT}"
+    terraform import module.iac-pipeline.google_storage_bucket.terraform_state "${GOOGLE_CLOUD_PROJECT}"/"${GOOGLE_CLOUD_PROJECT}"-terraform-state
     ```
 
 1. Ensure the configuration is valid: `terraform validate`
