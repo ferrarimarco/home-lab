@@ -58,11 +58,6 @@ variable "configuration_consul_chart_version" {
   description = "Version of the Consul Helm chart to install Consul in the configuration environment"
 }
 
-variable "configuration_consul_certificate_ca_subject_common_name" {
-  default     = "Consul CA"
-  description = "Common name of the TLS certificate for the Consul instance in the configuration environment"
-}
-
 variable "configuration_gke_version_prefix" {
   default     = "1.17.9-gke.1504"
   description = "GKE version for the configuration environment."
@@ -117,4 +112,9 @@ variable "development_workstation_name" {
 
 variable "development_workstation_ssh_user" {
   description = "Username of the user to connect to the development workstation via SSH"
+}
+
+variable "main_dns_zone_prefix" {
+  default     = "lab"
+  description = "Prefix of the main DNS zone to manage. The organization domain is appended to this prefix."
 }

@@ -5,13 +5,9 @@ client:
         "ports": {
           "https": 8501
         },
-        "log_level": "INFO",
-        "disable_keyring_file": true,
-        "disable_host_node_id": true
+        "disable_keyring_file": true
     }
   grpc: true
-connectInject:
-  enabled: false
 dns:
   enabled: true
 global:
@@ -20,17 +16,12 @@ global:
   enabled: true
   enablePodSecurityPolicies: true
   tls:
-    enabled: true
     enableAutoEncrypt: true
+    enabled: true
     httpsOnly: true
     verify: true
-ingressGateways:
-  enabled: false
-meshGateway:
-  enabled: false
 server:
   bootstrapExpect: 3
-  connect: false
   extraConfig: |
     {
         "ports": {
@@ -39,14 +30,14 @@ server:
         "performance": {
           "raft_multiplier": 1
         },
-        "log_level": "INFO",
-        "disable_keyring_file": true,
-        "disable_host_node_id": true
+        "disable_keyring_file": true
     }
   replicas: 3
   storage: "1Gi"
   storageClass: "standard"
 syncCatalog:
   enabled: true
-terminatingGateways:
-  enabled: false
+ui:
+  service:
+    annotations: |
+      cloud.google.com/app-protocols: '{"https":"HTTPS"}'

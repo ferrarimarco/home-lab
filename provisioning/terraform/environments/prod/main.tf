@@ -38,8 +38,8 @@ locals {
 # Main configuration values
 locals {
   default_project_vpc_name   = "${var.google_default_project_id}-vpc"
+  main_dns_zone              = "${var.main_dns_zone_prefix}.${data.google_organization.ferrari_how.domain}"
   public_keys_directory_path = var.configuration_public_keys_directory_name
-
 }
 
 # IoT Core paths
@@ -114,6 +114,5 @@ module "configuration" {
   google_organization_id                         = data.google_organization.ferrari_how.org_id
   google_project_id                              = var.google_configuration_project_id
   google_region                                  = var.google_default_region
-  tls_self_signed_cert_ca_subject_common_name    = var.configuration_consul_certificate_ca_subject_common_name
-  tls_self_signed_cert_ca_subject_organization   = var.google_organization_domain
+  main_dns_zone                                  = local.main_dns_zone
 }

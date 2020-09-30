@@ -65,12 +65,21 @@ During the first run from your local environment, Terraform uploads the
 following configuration files from your file system to a Cloud Storage bucket
 named `${GOOGLE_CLOUD_PROJECT}-configuration`:
 
-- `terraform.tfvars` variables file
-- `backend.tf` backend configuration file
+- `terraform.tfvars` variables file.
+- `backend.tf` backend configuration file.
 - Public keys for IoT Core, Compute Engine, and other Google Cloud services if
     available in your environment.
 
 The pipeline downloads these files for unattended executions.
+
+#### Managed DNS zone
+
+This environment requires a DNS zone to manage, and expects it to be a subdomain
+of your organization domain. The default subdomain is `lab`, which you can
+customize by changing the value of the relevant variable in the Terraform
+variables file. To complete the setup, you must set a `NS` DNS record for the
+subdomain to point to the managed DNS servers. For example, follow
+[these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
 
 #### Conditional provisioning
 
