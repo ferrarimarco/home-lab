@@ -70,6 +70,8 @@ resource "google_compute_subnetwork" "default-subnet" {
 
 module "iac-pipeline" {
   source                                             = "../../modules/iac-pipeline"
+  cloud_build_trigger_repository_name                = var.cloud_build_trigger_repository_name
+  cloud_build_trigger_repository_owner               = var.cloud_build_trigger_repository_owner
   compute_engine_keys_directory_path                 = local.compute_engine_public_keys_directory_path
   iot_core_keys_directory_path                       = local.iot_core_public_keys_directory_path
   google_project_id                                  = var.google_iac_project_id

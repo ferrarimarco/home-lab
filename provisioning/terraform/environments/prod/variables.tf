@@ -1,3 +1,13 @@
+variable "cloud_build_trigger_repository_name" {
+  default     = "home-lab"
+  description = "Name of the repository to set up Cloud Build triggers"
+}
+
+variable "cloud_build_trigger_repository_owner" {
+  default     = "ferrarimarco"
+  description = "Owner of the repository to set up Cloud Build triggers"
+}
+
 variable "configuration_compute_engine_development_workstation_ssh_public_key_file_name" {
   default     = "development-workstation-ssh-user.pub"
   description = "Name of the public key file to use for the development workstation"
