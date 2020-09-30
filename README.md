@@ -77,7 +77,8 @@ The pipeline downloads these files for unattended executions.
 This environment requires a DNS zone to manage, and expects it to be a subdomain
 of your organization domain. The default subdomain is `lab`, which you can
 customize by changing the value of the relevant variable in the Terraform
-variables file. To complete the setup, you must set a `NS` DNS record for the
+variables file. To complete the setup, you must setup a `NS` DNS record in the
+authoritative name server of your organization for the
 subdomain to point to the managed DNS servers. For example, follow
 [these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
 
