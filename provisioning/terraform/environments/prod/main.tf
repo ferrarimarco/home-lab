@@ -1,7 +1,3 @@
-locals {
-  env = "prod"
-}
-
 provider "google" {
   region = var.google_default_region
   zone   = var.google_default_zone

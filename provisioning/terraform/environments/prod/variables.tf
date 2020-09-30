@@ -54,7 +54,6 @@ variable "configuration_terraform_environments_directory_name" {
 }
 
 variable "configuration_terraform_environment_name" {
-  default     = "prod"
   description = "Name of the Terraform configuration directory"
 }
 

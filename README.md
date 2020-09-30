@@ -35,6 +35,7 @@ You now provision and configure the cloud infrastructure:
     named `terraform.tfvars` adapting the following content to your environment:
 
     ```terraform
+    configuration_terraform_environment_name         = "prod"
     development_workstation_ssh_user                 = "ferrarimarco"
     google_billing_account_id                        = "1234567-ABCD"
     google_default_region                            = "us-central1"
