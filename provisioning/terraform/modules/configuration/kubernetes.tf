@@ -5,8 +5,16 @@ provider "kubernetes" {
   host  = "https://${google_container_cluster.configuration-gke-cluster.endpoint}"
   token = data.google_client_config.google-provider-configuration.access_token
 
-  cluster_ca_certificate = base64decode(google_container_cluster.configuration-gke-cluster.master_auth[0].cluster_ca_certificate,
-  )
+  cluster_ca_certificate = base64decode(google_container_cluster.configuration-gke-cluster.master_auth[0].cluster_ca_certificate)
+}
+
+provider "kubernetes-alpha" {
+  alias = "configuration-gke-cluster-alpha"
+
+  host  = "https://${google_container_cluster.configuration-gke-cluster.endpoint}"
+  token = data.google_client_config.google-provider-configuration.access_token
+
+  cluster_ca_certificate = base64decode(google_container_cluster.configuration-gke-cluster.master_auth[0].cluster_ca_certificate)
 }
 
 resource "kubernetes_cluster_role_binding" "cloud-build-cluster-admin-binding" {

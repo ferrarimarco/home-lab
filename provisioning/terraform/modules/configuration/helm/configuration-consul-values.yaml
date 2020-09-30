@@ -13,8 +13,13 @@ dns:
 global:
   acls:
     manageSystemACLs: true
+  datacenter: "${consul_datacenter_name}"
   enabled: true
   enablePodSecurityPolicies: true
+  gossipEncryption:
+    secretKey: "${consul_gossip_key_secret_key}"
+    secretName: "${consul_gossip_key_secret_name}"
+  name: "${consul_release_name}"
   tls:
     enableAutoEncrypt: true
     enabled: true
@@ -41,3 +46,4 @@ ui:
   service:
     annotations: |
       cloud.google.com/app-protocols: '{"https":"HTTPS"}'
+      cloud.google.com/backend-config: '{"ports": {"https": "${consul_ui_backendconfig_name}"}}'

@@ -19,6 +19,9 @@ locals {
   consul_server_additional_dns_sans = [
     local.consul_dns_name
   ]
+
+  consul_managed_certificate_name = "${local.consul_release_name}-managed-certificate"
+  consul_ui_backendconfig_name    = "${local.consul_release_name}-ui-backendconfig"
 }
 
 resource "random_id" "consul_encrypt" {
@@ -53,32 +56,14 @@ resource "helm_release" "configuration-consul" {
   version    = var.consul_chart_version
 
   values = [
-    file("${path.module}/helm/configuration-consul-values.yaml")
+    templatefile("${path.module}/helm/configuration-consul-values.yaml", {
+      consul_ui_backendconfig_name  = local.consul_ui_backendconfig_name,
+      consul_datacenter_name        = var.consul_datacenter_name,
+      consul_release_name           = local.consul_release_name,
+      consul_gossip_key_secret_key  = local.consul_gossip_key_secret_key,
+      consul_gossip_key_secret_name = local.consul_gossip_key_secret_name
+    }),
   ]
-
-  set {
-    name  = "global.datacenter"
-    type  = "string"
-    value = var.consul_datacenter_name
-  }
-
-  set {
-    name  = "global.name"
-    type  = "string"
-    value = local.consul_release_name
-  }
-
-  set {
-    name  = "global.gossipEncryption.secretKey"
-    type  = "string"
-    value = local.consul_gossip_key_secret_key
-  }
-
-  set {
-    name  = "global.gossipEncryption.secretName"
-    type  = "string"
-    value = local.consul_gossip_key_secret_name
-  }
 
   dynamic "set" {
     for_each = local.consul_server_additional_dns_sans
@@ -109,11 +94,56 @@ resource "google_dns_record_set" "main-zone-consul-a" {
   ttl  = 300
 }
 
+resource "kubernetes_manifest" "consul-managed-certificate" {
+  depends_on = [
+    google_dns_record_set.main-zone-consul-a,
+    helm_release.configuration-consul
+  ]
+
+  manifest = {
+    "apiVersion" = "networking.gke.io/v1beta2"
+    "kind"       = "ManagedCertificate"
+    "metadata" = {
+      "name"      = local.consul_managed_certificate_name
+      "namespace" = local.consul_namespace_name
+    }
+    "spec" = {
+      "domains" = local.consul_server_additional_dns_sans
+    }
+  }
+
+  provider = kubernetes-alpha.configuration-gke-cluster-alpha
+}
+
+resource "kubernetes_manifest" "consul-ui-backendconfig" {
+  depends_on = [
+    google_dns_record_set.main-zone-consul-a,
+    helm_release.configuration-consul
+  ]
+
+  manifest = {
+    "apiVersion" = "cloud.google.com/v1"
+    "kind"       = "BackendConfig"
+    "metadata" = {
+      "name"      = local.consul_ui_backendconfig_name
+      "namespace" = local.consul_namespace_name
+    }
+    "spec" = {
+      "healthCheck" = {
+        "requestPath" = "/ui/"
+      }
+    }
+  }
+
+  provider = kubernetes-alpha.configuration-gke-cluster-alpha
+}
+
 resource "kubernetes_ingress" "consul_ingress" {
   metadata {
     annotations = {
       "kubernetes.io/ingress.allow-http"            = false
       "kubernetes.io/ingress.global-static-ip-name" = google_compute_global_address.consul_ingress_global_address.name
+      "networking.gke.io/managed-certificates"      = join(",", [local.consul_managed_certificate_name])
     }
 
     name      = "${local.consul_release_name}-ui-ingress"
@@ -140,6 +170,8 @@ resource "kubernetes_ingress" "consul_ingress" {
 
   depends_on = [
     google_dns_record_set.main-zone-consul-a,
-    helm_release.configuration-consul
+    helm_release.configuration-consul,
+    kubernetes_manifest.consul-managed-certificate,
+    kubernetes_manifest.consul-ui-backendconfig
   ]
 }
