@@ -38,6 +38,10 @@ server:
         "disable_keyring_file": true
     }
   replicas: 3
+  service:
+    annotations: |
+      cloud.google.com/app-protocols: '{"https":"HTTPS"}'
+      cloud.google.com/backend-config: '{"ports": {"https": "${consul_server_backendconfig_name}"}}'
   storage: "1Gi"
   storageClass: "standard"
 syncCatalog:
