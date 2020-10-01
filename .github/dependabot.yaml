@@ -6,6 +6,6 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "terraform"
-    directory: "/provisioning/terraform"
+    directory: "/provisioning/terraform/environments/prod"
     schedule:
       interval: "daily"
