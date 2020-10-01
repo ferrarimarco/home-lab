@@ -2,6 +2,7 @@ terraform {
   required_version = "~> 0.12.29"
 
   required_providers {
+    consul           = "~> 2.10.0"
     google           = "~> 3.39.0"
     google-beta      = "~> 3.39.0"
     helm             = "~> 1.3.0"
