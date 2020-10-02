@@ -123,6 +123,11 @@ variable "development_workstation_ssh_user" {
   description = "Username of the user to connect to the development workstation via SSH"
 }
 
+variable "edge_dns_zone_prefix" {
+  default     = "edge"
+  description = "Prefix of the edge DNS zone. The main DNS zone is appended to this prefix."
+}
+
 variable "main_dns_zone_prefix" {
   description = "Prefix of the main DNS zone to manage. The organization domain is appended to this prefix."
 }

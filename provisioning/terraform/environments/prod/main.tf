@@ -9,6 +9,7 @@ data "google_organization" "main_organization" {
 
 # Main configuration values
 locals {
+  edge_dns_zone              = "${var.edge_dns_zone_prefix}.${local.main_dns_zone}"
   main_dns_zone              = "${var.main_dns_zone_prefix}.${data.google_organization.main_organization.domain}"
   public_keys_directory_path = var.configuration_public_keys_directory_name
 
@@ -78,6 +79,7 @@ module "configuration" {
   configuration_gke_cluster_subnet_ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
   consul_chart_version                           = var.configuration_consul_chart_version
   consul_datacenter_name                         = var.configuration_consul_datacenter_name
+  edge_dns_zone                                  = local.edge_dns_zone
   gke_version_prefix                             = var.configuration_gke_version_prefix
   google_compute_network_vpc_name                = google_compute_network.default-vpc.name
   google_compute_subnetwork_vpc_name             = google_compute_subnetwork.default-subnet.name
