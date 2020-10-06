@@ -1,6 +1,13 @@
 steps:
 - name: 'hashicorp/consul-template:0.25.1-alpine'
-  args: [ '/bin/consul-template', '-h' ]
+  args:
+    - '/bin/consul-template'
+    - '-dry'
+    - '-once'
+    - '-template templates/etc/dnsmasq/dhcp-hostsfile.conf:rendered-templates/etc/dnsmasq/dhcp-hostsfile.conf'
+    - '-template templates/etc/dnsmasq/dhcp-options.conf:rendered-templates/etc/dnsmasq/dhcp-options.conf'
+    - '-template templates/etc/dnsmasq/dnsmasq.conf:rendered-templates/etc/dnsmasq/dnsmasq.conf'
+    - '-template templates/etc/dnsmasq/servers.conf:rendered-templates/etc/dnsmasq/servers.conf'
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/$_DOCKER_IMAGE_ID', '.' ]
 # - name: 'gcr.io/cloud-builders/docker'
