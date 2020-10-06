@@ -21,25 +21,29 @@ provider "consul" {
 }
 
 locals {
-  beaglebone_black_configuration_prefix = "beaglebone-black/config/"
-  connman_config_path_ethernet          = "var/lib/connman/ethernet.config"
-  connman_config_path_ethernet_service  = "${local.connman_config_path_ethernet}/service_ethernet"
-  connman_config_path_main              = "etc/connman/main.cfg"
-  connman_config_path_main_general      = "${local.connman_config_path_main}/General"
-  consul_configuration_path             = "${path.module}/consul"
-  etc_network_interfaces_usb0_path      = "etc/network/interfaces.d/usb0.conf"
+  connman_config_path_ethernet         = "var/lib/connman/ethernet.config"
+  connman_config_path_ethernet_service = "${local.connman_config_path_ethernet}/service_ethernet"
+  connman_config_path_main             = "etc/connman/main.cfg"
+  connman_config_path_main_general     = "${local.connman_config_path_main}/General"
+
+  dnsmasq_conf_path = "${local.etc_dnsmasq_path}/dnsmasq.conf"
+
+  edge_key_prefix = "edge"
+
+  etc_dnsmasq_path                 = "etc/dnsmasq"
+  etc_network_interfaces_usb0_path = "etc/network/interfaces.d/usb0.conf"
 }
 
 resource "consul_key_prefix" "beaglebone-black-configuration" {
-  path_prefix = local.beaglebone_black_configuration_prefix
+  path_prefix = "${local.edge_key_prefix}/beaglebone-black/config/"
 
   subkeys = {
     "${local.connman_config_path_ethernet_service}/DeviceName"            = "eth0"
     "${local.connman_config_path_ethernet_service}/Type"                  = "ethernet"
-    "${local.connman_config_path_ethernet_service}/IPv4"                  = "192.168.0.5/255.255.0.0/192.168.0.1"
+    "${local.connman_config_path_ethernet_service}/IPv4"                  = "${var.beaglebone_black_ethernet_ipv4_address}/${cidrnetmask(var.edge_main_subnet_ipv4_address)}/${var.edge_default_gateway_ipv4_address}"
     "${local.connman_config_path_ethernet_service}/IPv6"                  = "auto"
     "${local.connman_config_path_ethernet_service}/IPv6.Privacy"          = "false"
-    "${local.connman_config_path_ethernet_service}/Nameservers"           = "8.8.8.8,8.8.4.4"
+    "${local.connman_config_path_ethernet_service}/Nameservers"           = join(",", [var.edge_external_dns_servers_primary, var.edge_external_dns_servers_secondary])
     "${local.connman_config_path_ethernet_service}/SearchDomains"         = var.edge_dns_zone
     "${local.connman_config_path_ethernet_service}/Domain"                = var.edge_dns_zone
     "${local.connman_config_path_main_general}/PreferredTechnologies"     = "ethernet,wifi"
@@ -51,5 +55,17 @@ resource "consul_key_prefix" "beaglebone-black-configuration" {
     "${local.etc_network_interfaces_usb0_path}/netmask"                   = "255.255.255.252"
     "${local.etc_network_interfaces_usb0_path}/network"                   = "192.168.7.0"
     "${local.etc_network_interfaces_usb0_path}/gateway"                   = "192.168.7.1"
+  }
+}
+
+resource "consul_key_prefix" "edge-dns-dhcp-configuration" {
+  path_prefix = "${local.edge_key_prefix}/dnsmasq/"
+
+  subkeys = {
+    "${local.dnsmasq_conf_path}/dhcp-option-router"    = "option:router,${var.edge_default_gateway_ipv4_address}"
+    "${local.dnsmasq_conf_path}/dhcp-range"            = "${var.edge_main_subnet_ipv4_address_range_start},${var.edge_main_subnet_ipv4_address_range_end},${cidrnetmask(var.edge_main_subnet_ipv4_address)},${var.edge_main_subnet_dhcp_lease_time}"
+    "${local.dnsmasq_conf_path}/domain"                = "${var.edge_dns_zone},${var.edge_main_subnet_ipv4_address},local"
+    "${local.dnsmasq_conf_path}/dns-servers/primary"   = var.edge_external_dns_servers_primary
+    "${local.dnsmasq_conf_path}/dns-servers/secondary" = var.edge_external_dns_servers_secondary
   }
 }

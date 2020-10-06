@@ -123,9 +123,49 @@ variable "development_workstation_ssh_user" {
   description = "Username of the user to connect to the development workstation via SSH"
 }
 
+variable "edge_beaglebone_black_ethernet_ipv4_address" {
+  default     = "10.0.0.2"
+  description = "IPv4 static address of the BeagleBone Black ethernet interface."
+}
+
+variable "edge_default_gateway_ipv4_address" {
+  default     = "10.0.0.1"
+  description = "Default gateway IPv4 address in the edge environment."
+}
+
 variable "edge_dns_zone_prefix" {
   default     = "edge"
   description = "Prefix of the edge DNS zone. The main DNS zone is appended to this prefix."
+}
+
+variable "edge_external_dns_servers_primary" {
+  default     = "8.8.8.8"
+  description = "External DNS servers to forward queries to, outside the edge DNS domain."
+}
+
+variable "edge_external_dns_servers_secondary" {
+  default     = "8.8.4.4"
+  description = "External DNS servers to forward queries to, outside the edge DNS domain."
+}
+
+variable "edge_main_subnet_dhcp_lease_time" {
+  default     = "2h"
+  description = "Default DHCP lease time of the main subnet in the edge environment."
+}
+
+variable "edge_main_subnet_ipv4_address" {
+  default     = "10.0.0.0/8"
+  description = "Subnet address and suffix of the main IPv4 subnet address in the edge environment."
+}
+
+variable "edge_main_subnet_ipv4_address_range_end" {
+  default     = "10.254.254.254"
+  description = "Start (inclusive) of the IPv4 address range of the main subnet in the edge environment."
+}
+
+variable "edge_main_subnet_ipv4_address_range_start" {
+  default     = "10.0.0.50"
+  description = "End (inclusive) of the IPv4 address range of the main subnet in the edge environment."
 }
 
 variable "main_dns_zone_prefix" {

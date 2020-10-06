@@ -74,12 +74,20 @@ module "development-workspace" {
 
 module "configuration" {
   source                                         = "../../modules/configuration"
+  beaglebone_black_ethernet_ipv4_address         = var.edge_beaglebone_black_ethernet_ipv4_address
   cloud_build_service_account_id                 = module.iac-pipeline.cloud_build_service_account_id
   configuration_gke_cluster_node_pool_size       = var.configuration_gke_cluster_node_pool_size
   configuration_gke_cluster_subnet_ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
   consul_chart_version                           = var.configuration_consul_chart_version
   consul_datacenter_name                         = var.configuration_consul_datacenter_name
+  edge_default_gateway_ipv4_address              = var.edge_default_gateway_ipv4_address
   edge_dns_zone                                  = local.edge_dns_zone
+  edge_external_dns_servers_primary              = var.edge_external_dns_servers_primary
+  edge_external_dns_servers_secondary            = var.edge_external_dns_servers_secondary
+  edge_main_subnet_dhcp_lease_time               = var.edge_main_subnet_dhcp_lease_time
+  edge_main_subnet_ipv4_address                  = var.edge_main_subnet_ipv4_address
+  edge_main_subnet_ipv4_address_range_end        = var.edge_main_subnet_ipv4_address_range_end
+  edge_main_subnet_ipv4_address_range_start      = var.edge_main_subnet_ipv4_address_range_start
   gke_version_prefix                             = var.configuration_gke_version_prefix
   google_compute_network_vpc_name                = google_compute_network.default-vpc.name
   google_compute_subnetwork_vpc_name             = google_compute_subnetwork.default-subnet.name
