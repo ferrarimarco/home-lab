@@ -17,10 +17,11 @@ locals {
   terraform_environment_configuration_directory_path = "${var.configuration_directory_name}/${var.configuration_terraform_environments_directory_name}/${var.configuration_terraform_environment_name}"
 }
 
-# Public keys paths
 locals {
   compute_engine_public_keys_directory_path = "${local.public_keys_directory_path}/${var.configuration_compute_engine_keys_directory_name}"
   iot_core_public_keys_directory_path       = "${local.public_keys_directory_path}/${var.configuration_iot_core_keys_directory_name}"
+
+  consul_template_directory_path = "consul-template"
 }
 
 resource "google_compute_network" "default-vpc" {
@@ -41,6 +42,7 @@ module "iac-pipeline" {
   source                                             = "../../modules/iac-pipeline"
   cloud_build_trigger_repository_name                = var.cloud_build_trigger_repository_name
   cloud_build_trigger_repository_owner               = var.cloud_build_trigger_repository_owner
+  consul_template_directory_path                     = local.consul_template_directory_path
   compute_engine_keys_directory_path                 = local.compute_engine_public_keys_directory_path
   iot_core_keys_directory_path                       = local.iot_core_public_keys_directory_path
   google_billing_account_id                          = var.google_billing_account_id
@@ -76,10 +78,12 @@ module "configuration" {
   source                                         = "../../modules/configuration"
   beaglebone_black_ethernet_ipv4_address         = var.edge_beaglebone_black_ethernet_ipv4_address
   cloud_build_service_account_id                 = module.iac-pipeline.cloud_build_service_account_id
+  configuration_bucket_name                      = module.iac-pipeline.configuration_bucket_name
   configuration_gke_cluster_node_pool_size       = var.configuration_gke_cluster_node_pool_size
   configuration_gke_cluster_subnet_ip_cidr_range = var.configuration_gke_cluster_subnet_ip_cidr_range
   consul_chart_version                           = var.configuration_consul_chart_version
   consul_datacenter_name                         = var.configuration_consul_datacenter_name
+  consul_template_directory_path                 = module.iac-pipeline.terraform_configuration_consul_template_directory
   edge_default_gateway_ipv4_address              = var.edge_default_gateway_ipv4_address
   edge_dns_zone                                  = local.edge_dns_zone
   edge_external_dns_servers_primary              = var.edge_external_dns_servers_primary

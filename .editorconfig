@@ -20,7 +20,7 @@ trim_trailing_whitespace = true
 spaces_around_operators = true
 spaces_around_brackets = false
 
-[*.{dockerfilelintrc,tf,tfvars,yml,yaml}]
+[*.{dockerfilelintrc,hcl.tpl,tf,tfvars,yml,yaml}]
 indent_style = space
 indent_size = 2
 

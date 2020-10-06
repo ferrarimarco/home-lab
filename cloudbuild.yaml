@@ -28,7 +28,7 @@ steps:
         echo "Saving eventual failures log to: ${_FAILURE_FILE_PATH}"
 
         scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "BRANCH_NAME=$BRANCH_NAME" \
+          --cloud-build-substitutions "_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH,BRANCH_NAME=$BRANCH_NAME" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/terraform" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
@@ -69,7 +69,7 @@ steps:
           &
 
         scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "_DOCKER_IMAGE_ID=dnsmasq,_DOCKER_IMAGE_TAG=$SHORT_SHA" \
+          --cloud-build-substitutions "_DOCKER_IMAGE_ID=dnsmasq,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/docker/dnsmasq" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
@@ -105,6 +105,7 @@ steps:
         fi
 substitutions:
   _FAILURE_FILE_PATH: './failure.log'
+  _TERRAFORM_ENVIRONMENT_PATH: 'environments/prod'
   _URL: '$(push.repository.html_url)'
 tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$BRANCH_NAME', '$TAG_NAME']
 # Set a high timeout because some jobs launched by this job require it

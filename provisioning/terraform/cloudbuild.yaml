@@ -49,6 +49,5 @@ steps:
             fi
 substitutions:
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
-  _TERRAFORM_ENVIRONMENT_PATH: 'environments/prod'
-  _TERRAFORM_IMAGE_TAG: '0.12.29'
+  _TERRAFORM_IMAGE_TAG: '0.13.4'
 timeout: 37000s
