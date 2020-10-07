@@ -19,7 +19,7 @@ export HOME=/home/${rfs_username?}
 export USER=${rfs_username}
 export USERNAME=${rfs_username}
 
-echo "env: [$(env)]"
+echo "env: [$(env | sort)]"
 
 is_this_qemu() {
     unset warn_qemu_will_fail

@@ -21,7 +21,6 @@ spaces_around_operators = true
 spaces_around_brackets = false
 
 [*.{dockerfilelintrc,hcl.tpl,tf,tfvars,yml,yaml}]
-indent_style = space
 indent_size = 2
 
 # Don't try to format binary files

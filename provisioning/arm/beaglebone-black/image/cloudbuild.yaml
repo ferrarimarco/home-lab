@@ -9,6 +9,32 @@ artifacts:
 options:
   machineType: 'N1_HIGHCPU_8'
 steps:
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
+    entrypoint: gsutil
+    args: ['-m', 'cp', '-r', 'gs://${PROJECT_ID}-configuration/terraform/$_TERRAFORM_ENVIRONMENT_PATH/consul-template', '.']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
+    entrypoint: 'sh'
+    args:
+        - '-c'
+        - |
+          echo "Contents of $(pwd): $(ls -al)"
+          echo "Creating the consul-template user"
+          addgroup -g 1000 consul-template && \
+          adduser -u 100 -S -G consul-template consul-template
+          mkdir -p $_RENDERED_TEMPLATES_PATH
+          chown -R consul-template:consul-template $_RENDERED_TEMPLATES_PATH
+  - name: 'hashicorp/consul-template:$_CONSUL_TEMPLATE_IMAGE_TAG'
+    args:
+      - '/bin/consul-template'
+      - '-config'
+      - 'consul-template/config.hcl'
+      - '-once'
+      - '-template'
+      - 'templates/etc/connman/main.cfg:$_RENDERED_TEMPLATES_PATH/etc/connman/main.cfg'
+      - '-template'
+      - 'templates/etc/network/interfaces.d/usb0.conf:$_RENDERED_TEMPLATES_PATH/etc/network/interfaces.d/usb0.conf'
+      - '-template'
+      - 'templates/var/lib/connman/ethernet.config:$_RENDERED_TEMPLATES_PATH/var/lib/connman/ethernet.config'
   - id: 'Download rootfs archive and checksum'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
     entrypoint: gsutil
@@ -32,6 +58,8 @@ substitutions:
   _BUILD_SCRIPT_REVISION: '442ff4a'
   _BUILD_SCRIPT_URL: 'https://github.com/RobertCNelson/omap-image-builder.git'
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
+  _CONSUL_TEMPLATE_IMAGE_TAG: '0.25.1-alpine'
+  _RENDERED_TEMPLATES_PATH: './configuration'
   _ROOTFS_ARCHIVE_NAME: 'ubuntu-20.04.1-console-armhf-2020-09-09-master-9a0489592399dc63eb3231edee8e0b681857eaa3.tar.xz'
   _ROOTFS_ARCHIVE_PATH: 'arm/armhf/beaglebone-black'
 # Set a high timeout because the default is too low

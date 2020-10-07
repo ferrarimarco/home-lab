@@ -85,6 +85,7 @@ steps:
           &
 
         scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/arm/beaglebone-black/image" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
