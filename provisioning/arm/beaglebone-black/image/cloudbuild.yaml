@@ -60,7 +60,7 @@ substitutions:
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
   _CONSUL_TEMPLATE_IMAGE_TAG: '0.25.1-alpine'
   _RENDERED_TEMPLATES_PATH: './configuration'
-  _ROOTFS_ARCHIVE_NAME: 'ubuntu-20.04.1-console-armhf-2020-09-09-master-9a0489592399dc63eb3231edee8e0b681857eaa3.tar.xz'
+  _ROOTFS_ARCHIVE_NAME: 'ubuntu-20.04.1-console-armhf-2020-10-08-master-e0c7f552e312a85ba4ffd672f8b52ac346c15627.tar.xz'
   _ROOTFS_ARCHIVE_PATH: 'arm/armhf/beaglebone-black'
 # Set a high timeout because the default is too low
 timeout: 36000s
