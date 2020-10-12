@@ -175,6 +175,11 @@ mkdir -p /var/lib/connman || true
 chown root:root /var/lib/connman
 chmod 0755 /var/lib/connman
 
+echo "Log: (chroot): Creating network interfaces configuration directory..."
+mkdir -p /etc/network/interfaces.d || true
+chown root:root /etc/network/interfaces.d
+chmod 0755 /etc/network/interfaces.d
+
 DPKG_ARCHITECTURE="$(dpkg --print-architecture)"
 echo "Log: (chroot): CPU architecture as reported by dpkg: ${DPKG_ARCHITECTURE}..."
 
