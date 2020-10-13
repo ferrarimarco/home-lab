@@ -23,15 +23,14 @@ provider "consul" {
 locals {
   connman_config_path_ethernet         = "var/lib/connman/ethernet.config"
   connman_config_path_ethernet_service = "${local.connman_config_path_ethernet}/service_ethernet"
-  connman_config_path_main             = "etc/connman/main.cfg"
+  connman_config_path_main             = "etc/connman/main.conf"
   connman_config_path_main_general     = "${local.connman_config_path_main}/General"
 
   dnsmasq_conf_path = "${local.etc_dnsmasq_path}/dnsmasq.conf"
 
   edge_key_prefix = "edge"
 
-  etc_dnsmasq_path                 = "etc/dnsmasq"
-  etc_network_interfaces_usb0_path = "etc/network/interfaces.d/usb0.conf"
+  etc_dnsmasq_path = "etc/dnsmasq"
 }
 
 resource "consul_key_prefix" "beaglebone-black-configuration" {
@@ -48,13 +47,9 @@ resource "consul_key_prefix" "beaglebone-black-configuration" {
     "${local.connman_config_path_ethernet_service}/Domain"                = var.edge_dns_zone
     "${local.connman_config_path_main_general}/PreferredTechnologies"     = "ethernet,wifi"
     "${local.connman_config_path_main_general}/SingleConnectedTechnology" = false
-    "${local.connman_config_path_main_general}/AllowHostnameUpdates"      = false
+    "${local.connman_config_path_main_general}/AllowHostnameUpdates"      = true
     "${local.connman_config_path_main_general}/PersistentTetheringMode"   = true
     "${local.connman_config_path_main_general}/NetworkInterfaceBlacklist" = "SoftAp0,usb0,usb1"
-    "${local.etc_network_interfaces_usb0_path}/address"                   = "192.168.7.2"
-    "${local.etc_network_interfaces_usb0_path}/netmask"                   = "255.255.255.252"
-    "${local.etc_network_interfaces_usb0_path}/network"                   = "192.168.7.0"
-    "${local.etc_network_interfaces_usb0_path}/gateway"                   = "192.168.7.1"
   }
 }
 
