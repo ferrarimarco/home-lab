@@ -210,3 +210,15 @@ apt-get -y install \
   containerd.io \
   docker-ce \
   docker-ce-cli
+
+echo "Removing unneeded APT packages..."
+apt-get -y purge \
+  '^apache2.*' \
+  bb-wl18xx-firmware \
+  bluetooth \
+  bluez \
+  '^dnsmasq.*' \
+  '^git.*' \
+  nodejs \
+  udhcpd \
+  '^vim.*'

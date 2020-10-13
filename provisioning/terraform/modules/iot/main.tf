@@ -86,6 +86,14 @@ locals {
   }
 }
 
+output "edge_iot_core_project_id" {
+  value = google_cloudiot_registry.home-registry.project
+}
+
+output "edge_iot_core_registry_id" {
+  value = google_cloudiot_registry.home-registry.id
+}
+
 resource "google_cloudiot_device" "iot-core-device" {
   name = basename(each.key)
 

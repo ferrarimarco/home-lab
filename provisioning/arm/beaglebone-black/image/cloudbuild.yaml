@@ -32,6 +32,10 @@ steps:
       - '-template'
       - 'templates/etc/connman/main.conf:$_RENDERED_TEMPLATES_PATH/etc/connman/main.conf'
       - '-template'
+      - 'templates/usr/local/bin/init-iot-core.sh:$_RENDERED_TEMPLATES_PATH/usr/local/bin/init-iot-core.sh'
+      - '-template'
+      - 'templates/usr/local/bin/start-mqtt-client.sh:$_RENDERED_TEMPLATES_PATH/usr/local/bin/start-mqtt-client.sh'
+      - '-template'
       - 'templates/var/lib/connman/ethernet.config:$_RENDERED_TEMPLATES_PATH/var/lib/connman/ethernet.config'
   - id: 'Download rootfs archive and checksum'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
@@ -58,7 +62,7 @@ substitutions:
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
   _CONSUL_TEMPLATE_IMAGE_TAG: '0.25.1-alpine'
   _RENDERED_TEMPLATES_PATH: './configuration'
-  _ROOTFS_ARCHIVE_NAME: 'ubuntu-20.04.1-console-armhf-2020-10-12-master-1360e427d621c30ae7c09ce63bbd924a048331f6.tar.xz'
+  _ROOTFS_ARCHIVE_NAME: 'ubuntu-20.04.1-console-armhf-2020-10-13-bbb-init-b063b959e2a62df520254e96feae02c1d081e2b7.tar.xz'
   _ROOTFS_ARCHIVE_PATH: 'arm/armhf/beaglebone-black'
 # Set a high timeout because the default is too low
 timeout: 36000s

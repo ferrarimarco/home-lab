@@ -126,6 +126,55 @@ configuration_directory_path="${workspace_directory}/configuration"
 echo "Copying configuration files from ${configuration_directory_path} to ${rootfs_contents_destination_directory_path}..."
 cp -Rv "${configuration_directory_path}"/. "${rootfs_contents_destination_directory_path}"/
 
+echo "Mounting sys..."
+if [ "$(mount | grep "${rootfs_contents_destination_directory_path}"/sys | awk '{print $3}')" != "${rootfs_contents_destination_directory_path}/sys" ]; then
+  mount -t sysfs sysfs "${rootfs_contents_destination_directory_path}/sys"
+fi
+
+echo "Mounting proc..."
+if [ "$(mount | grep "${rootfs_contents_destination_directory_path}"/proc | awk '{print $3}')" != "${rootfs_contents_destination_directory_path}/proc" ]; then
+  mount -t proc proc "${rootfs_contents_destination_directory_path}/proc"
+fi
+
+echo "Creating /dev/pts mount point..."
+if [ ! -d "${rootfs_contents_destination_directory_path}/dev/pts" ]; then
+  mkdir -p "${rootfs_contents_destination_directory_path}"/dev/pts || true
+fi
+
+echo "Mounting /dev/pts..."
+if [ "$(mount | grep "${rootfs_contents_destination_directory_path}"/dev/pts | awk '{print $3}')" != "${rootfs_contents_destination_directory_path}/dev/pts" ]; then
+  mount -t devpts devpts "${rootfs_contents_destination_directory_path}/dev/pts"
+fi
+
+CHROOT_SCRIPTS_DIRECTORY_PATH="."
+CHROOT_SCRIPTS_SOURCE_DIRECTORY_PATH="$(pwd)"/chroot
+
+CHROOT_SYSTEMD_INIT_SCRIPT_NAME="systemd-init.sh"
+CHROOT_SYSTEMD_INIT_SCRIPT_CHROOT_PATH="${CHROOT_SCRIPTS_DIRECTORY_PATH}"/"${CHROOT_SYSTEMD_INIT_SCRIPT_NAME}"
+CHROOT_SYSTEMD_INIT_SCRIPT_DESTINATION_PATH="${rootfs_contents_destination_directory_path}"/"${CHROOT_SYSTEMD_INIT_SCRIPT_CHROOT_PATH}"
+CHROOT_SYSTEMD_INIT_SCRIPT_SOURCE_PATH="${CHROOT_SCRIPTS_SOURCE_DIRECTORY_PATH}"/"${CHROOT_SYSTEMD_INIT_SCRIPT_NAME}"
+
+echo "Copying systemd initialization script from ${CHROOT_SYSTEMD_INIT_SCRIPT_SOURCE_PATH} to ${CHROOT_SYSTEMD_INIT_SCRIPT_DESTINATION_PATH}..."
+cp -v "${CHROOT_SYSTEMD_INIT_SCRIPT_SOURCE_PATH}" "${CHROOT_SYSTEMD_INIT_SCRIPT_DESTINATION_PATH}"
+
+echo "Running systemd initialization script (${rootfs_contents_destination_directory_path}) via chroot..."
+chroot "${rootfs_contents_destination_directory_path}" /bin/bash -e "${CHROOT_SYSTEMD_INIT_SCRIPT_CHROOT_PATH}"
+
+echo "Removing systemd initialization script (${CHROOT_SYSTEMD_INIT_SCRIPT_DESTINATION_PATH})..."
+rm -f "${CHROOT_SYSTEMD_INIT_SCRIPT_DESTINATION_PATH}" || true
+
+echo "Synchronizing latest filesystem changes..."
+sync
+
+echo "Unmounting /dev/pts..."
+umount -fl "${rootfs_contents_destination_directory_path}/dev/pts"
+
+echo "Unmounting /proc..."
+umount -fl "${rootfs_contents_destination_directory_path}/proc"
+
+echo "Unmounting /sys..."
+umount -fl "${rootfs_contents_destination_directory_path}/sys"
+
 echo "Removing old rootfs contents archive file (${rootfs_contents_archive_path})..."
 rm -f "${rootfs_contents_archive_path}"
 

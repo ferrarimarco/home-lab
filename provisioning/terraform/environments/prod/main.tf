@@ -13,6 +13,8 @@ locals {
   main_dns_zone              = "${var.main_dns_zone_prefix}.${data.google_organization.main_organization.domain}"
   public_keys_directory_path = var.configuration_public_keys_directory_name
 
+  container_image_registry_url = "${var.default_container_registry_url}/${module.iac-pipeline.container_registry_project}"
+
   # To get environment-specific configuration
   terraform_environment_configuration_directory_path = "${var.configuration_directory_name}/${var.configuration_terraform_environments_directory_name}/${var.configuration_terraform_environment_name}"
 }
@@ -89,6 +91,8 @@ module "configuration" {
   edge_dns_zone                                  = local.edge_dns_zone
   edge_external_dns_servers_primary              = var.edge_external_dns_servers_primary
   edge_external_dns_servers_secondary            = var.edge_external_dns_servers_secondary
+  edge_iot_core_registry_project_id              = module.iot.edge_iot_core_project_id
+  edge_iot_core_registry_id                      = module.iot.edge_iot_core_registry_id
   edge_main_subnet_dhcp_lease_time               = var.edge_main_subnet_dhcp_lease_time
   edge_main_subnet_ipv4_address                  = var.edge_main_subnet_ipv4_address
   edge_main_subnet_ipv4_address_range_end        = var.edge_main_subnet_ipv4_address_range_end
@@ -99,7 +103,11 @@ module "configuration" {
   google_organization_id                         = data.google_organization.main_organization.org_id
   google_project_id                              = var.google_configuration_project_id
   google_region                                  = var.google_default_region
+  iot_core_initializer_container_image_id        = "${local.container_image_registry_url}/${var.iot_core_initializer_container_image_id}"
+  iot_core_key_bits                              = var.edge_iot_core_key_bits
+  iot_core_credentials_validity                  = var.edge_iot_core_credentials_validity
   main_dns_zone                                  = local.main_dns_zone
+  mqtt_container_image_tag                       = var.edge_mqtt_container_image_tag
 
   dns_record_sets_main_zone = {
     (module.development-workspace.development_workstation_hostname) = {

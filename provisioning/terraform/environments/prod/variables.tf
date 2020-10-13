@@ -72,6 +72,11 @@ variable "configuration_gke_version_prefix" {
   description = "GKE version for the configuration environment."
 }
 
+variable "default_container_registry_url" {
+  default     = "gcr.io"
+  description = "Default Container Registry URL"
+}
+
 variable "google_configuration_project_id" {
   description = "Google Cloud project ID for the configuration environment"
 }
@@ -166,6 +171,26 @@ variable "edge_main_subnet_ipv4_address_range_end" {
 variable "edge_main_subnet_ipv4_address_range_start" {
   default     = "10.0.0.50"
   description = "End (inclusive) of the IPv4 address range of the main subnet in the edge environment."
+}
+
+variable "edge_mqtt_container_image_tag" {
+  default     = "eclipse-mosquitto:1.6.12-openssl"
+  description = "Container image tag of the MQTT runtime."
+}
+
+variable "edge_iot_core_key_bits" {
+  default     = 4096
+  description = "Key length for IoT Core"
+}
+
+variable "edge_iot_core_credentials_validity" {
+  default     = 86400
+  description = "Default validity for the generated IoT Core credentials, in seconds"
+}
+
+variable "iot_core_initializer_container_image_id" {
+  default     = "iot-core-initializer:e4f8bb3"
+  description = "Container image tag of the IoT Core initializer"
 }
 
 variable "main_dns_zone_prefix" {

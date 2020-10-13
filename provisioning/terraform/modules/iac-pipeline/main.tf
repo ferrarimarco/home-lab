@@ -45,6 +45,22 @@ resource "google_project_service" "cloudbuild-apis" {
   ]
 }
 
+resource "google_project_service" "containerregistry-apis" {
+  project = var.google_project_id
+  service = "containerregistry.googleapis.com"
+
+  disable_dependent_services = true
+  disable_on_destroy         = true
+
+  depends_on = [
+    google_project_service.cloudbilling-apis
+  ]
+}
+
+output "container_registry_project" {
+  value = google_project_service.containerregistry-apis.project
+}
+
 resource "google_project_service" "cloudkms-apis" {
   project = var.google_project_id
   service = "cloudkms.googleapis.com"

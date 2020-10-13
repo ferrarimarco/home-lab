@@ -3,19 +3,19 @@ options:
     env:
         - TF_INPUT=false
 steps:
-    - id: 'super-linter'
-      name: "ghcr.io/github/super-linter:v3.10.2"
-      env:
-        - ACTIONS_RUNNER_DEBUG=true
-        - ANSIBLE_DIRECTORY=configuration/ansible
-        - DEFAULT_WORKSPACE=/workspace
-        - DISABLE_ERRORS=false
-        - ERROR_ON_MISSING_EXEC_BIT=true
-        - LINTER_RULES_PATH=.
-        - MULTI_STATUS=false
-        - RUN_LOCAL=true
-        - VALIDATE_ALL_CODEBASE=true
-        - VALIDATE_TERRAFORM_TERRASCAN=false
+    # - id: 'super-linter'
+    #   name: "ghcr.io/github/super-linter:v3.13.1"
+    #   env:
+    #     - ACTIONS_RUNNER_DEBUG=true
+    #     - ANSIBLE_DIRECTORY=configuration/ansible
+    #     - DEFAULT_WORKSPACE=/workspace
+    #     - DISABLE_ERRORS=false
+    #     - ERROR_ON_MISSING_EXEC_BIT=true
+    #     - LINTER_RULES_PATH=.
+    #     - MULTI_STATUS=false
+    #     - RUN_LOCAL=true
+    #     - VALIDATE_ALL_CODEBASE=true
+    #     - VALIDATE_TERRAFORM_TERRASCAN=false
     - id: 'clone repository'
       name: gcr.io/cloud-builders/git
       args: ['clone', '${_URL}.git']
@@ -72,6 +72,22 @@ steps:
           --cloud-build-substitutions "_DOCKER_IMAGE_ID=dnsmasq,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/docker/dnsmasq" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab" \
+          &
+
+        scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "_DOCKER_IMAGE_ID=eclipse-mosquitto,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/docker/eclipse-mosquitto" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab" \
+          &
+
+        scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "_DOCKER_IMAGE_ID=iot-core-initializer,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/docker/iot-core-initializer" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
           --git-repository-path "home-lab" \
           &
