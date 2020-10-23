@@ -74,6 +74,7 @@ module "development-workspace" {
   terraform_environment_configuration_directory_path              = local.terraform_environment_configuration_directory_path
 }
 
+# This module takes care of environment configuration
 module "configuration" {
   source                                         = "../../modules/configuration"
   beaglebone_black_ethernet_ipv4_address         = var.edge_beaglebone_black_ethernet_ipv4_address

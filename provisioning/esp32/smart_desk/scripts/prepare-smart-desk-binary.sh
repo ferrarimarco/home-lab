@@ -8,8 +8,8 @@ BRANCH_NAME="$3"
 TAG_NAME="$4"
 
 if [ -z "${BINARY_FILE_PATH}" ]; then
-    echo 'The BINARY_FILE_PATH environment variable that points to the binary file is not defined. Terminating...'
-    exit 1
+  echo 'The BINARY_FILE_PATH environment variable that points to the binary file is not defined. Terminating...'
+  exit 1
 fi
 
 echo "Preparing $BINARY_FILE_PATH..."
@@ -23,17 +23,17 @@ BINARY_FILE_NAME_NO_EXT="$(basename "${BINARY_FILE_PATH}" | cut -d. -f1)"
 echo "Binary file name without extension: ${BINARY_FILE_NAME_NO_EXT}"
 
 if [ -z "${COMMIT_SHA}" ]; then
-    echo 'The COMMIT_SHA environment variable that holds the SHA of the commit is not defined. Terminating...'
-    exit 1
+  echo 'The COMMIT_SHA environment variable that holds the SHA of the commit is not defined. Terminating...'
+  exit 1
 fi
 
 if [ -z "${BRANCH_NAME}" ]; then
-    echo 'The BRANCH_NAME environment variable that holds the branch name is not defined. Terminating...'
-    exit 1
+  echo 'The BRANCH_NAME environment variable that holds the branch name is not defined. Terminating...'
+  exit 1
 fi
 
 if [ -z "${TAG_NAME}" ]; then
-    echo 'The TAG_NAME environment variable that holds the tag name is not defined.'
+  echo 'The TAG_NAME environment variable that holds the tag name is not defined.'
 fi
 
 NEW_BINARY_FILE_NAME="${BINARY_FILE_NAME_NO_EXT}-${BRANCH_NAME}-${COMMIT_SHA}.bin"

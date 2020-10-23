@@ -5,9 +5,9 @@ set -e
 echo "This script has been invoked with: $0 $*"
 
 if ! TEMP="$(getopt -o fr: --long flasher,rootfs-archive-name: \
-    -n 'build' -- "$@")"; then
-    echo "Terminating..." >&2
-    exit 1
+  -n 'build' -- "$@")"; then
+  echo "Terminating..." >&2
+  exit 1
 fi
 eval set -- "$TEMP"
 
@@ -15,37 +15,37 @@ rootfs_archive_name="rootfs.tar.xz"
 flasher=
 
 while true; do
-    echo "Decoding parameter ${1}..."
-    case "${1}" in
-    -f | --flasher)
-        flasher="enabled"
-        shift
-        ;;
-    -r | --rootfs-archive-name)
-        rootfs_archive_name="${2}"
-        shift 2
-        ;;
-    --)
-        echo "No more parameters to decode"
-        shift
-        break
-        ;;
-    *) break ;;
-    esac
+  echo "Decoding parameter ${1}..."
+  case "${1}" in
+  -f | --flasher)
+    flasher="enabled"
+    shift
+    ;;
+  -r | --rootfs-archive-name)
+    rootfs_archive_name="${2}"
+    shift 2
+    ;;
+  --)
+    echo "No more parameters to decode"
+    shift
+    break
+    ;;
+  *) break ;;
+  esac
 done
 
 rootfs_archive_integrity_checksum_path="${rootfs_archive_name}.sha256sum"
 
 echo "Rootfs archive to use: ${rootfs_archive_name}"
 if [ ! -f "${rootfs_archive_name}" ]; then
-    echo "${rootfs_archive_name} archive doesn't exists. Terminating..."
-    exit 1
+  echo "${rootfs_archive_name} archive doesn't exists. Terminating..."
+  exit 1
 fi
 
 echo "Rootfs archive integrity file check to use: ${rootfs_archive_integrity_checksum_path}"
 if [ ! -f "${rootfs_archive_integrity_checksum_path}" ]; then
-    echo "${rootfs_archive_integrity_checksum_path} archive integrity checksum file doesn't exists. Terminating..."
-    exit 1
+  echo "${rootfs_archive_integrity_checksum_path} archive integrity checksum file doesn't exists. Terminating..."
+  exit 1
 fi
 
 destination_directory_name="$(basename "${rootfs_archive_name}" .tar.xz)"
@@ -53,8 +53,8 @@ beaglebone_black_name="beaglebone-black-${destination_directory_name:?}"
 options=
 
 if [ "$flasher" = "enabled" ]; then
-    beaglebone_black_name="${beaglebone_black_name}-eMMC-flasher"
-    options="--emmc-flasher"
+  beaglebone_black_name="${beaglebone_black_name}-eMMC-flasher"
+  options="--emmc-flasher"
 fi
 
 image_size_suffix="2gb"
@@ -84,27 +84,27 @@ XZ_OPT="-T0" tar xf "${rootfs_archive_name}" -C "${destination_directory_path}"
 PROJECT_FILE_PATH="${destination_directory_path}/image-builder.project"
 echo "Sourcing ${PROJECT_FILE_PATH}..."
 if [ ! -f "${PROJECT_FILE_PATH}" ]; then
-    echo "${PROJECT_FILE_PATH} doesn't exists. Terminating..."
-    exit 1
+  echo "${PROJECT_FILE_PATH} doesn't exists. Terminating..."
+  exit 1
 else
-    echo "Contents of the project file: $(
-        echo
-        cat "${PROJECT_FILE_PATH}"
-    )"
-    # shellcheck source=/dev/null
-    . "${PROJECT_FILE_PATH}"
+  echo "Contents of the project file: $(
+    echo
+    cat "${PROJECT_FILE_PATH}"
+  )"
+  # shellcheck source=/dev/null
+  . "${PROJECT_FILE_PATH}"
 fi
 
 DTB_FILE_PATH="${destination_directory_path}/hwpack/${dtb}.conf"
 echo "Checking if ${DTB_FILE_PATH} exists..."
 if [ ! -f "${DTB_FILE_PATH}" ]; then
-    echo "${DTB_FILE_PATH} doesn't exists. Terminating..."
-    exit 1
+  echo "${DTB_FILE_PATH} doesn't exists. Terminating..."
+  exit 1
 else
-    echo "Contents of the selected DTB configuration file (${DTB_FILE_PATH}): $(
-        echo
-        cat "${DTB_FILE_PATH}"
-    )"
+  echo "Contents of the selected DTB configuration file (${DTB_FILE_PATH}): $(
+    echo
+    cat "${DTB_FILE_PATH}"
+  )"
 fi
 
 rootfs_contents_archive_name="${deb_arch:?}-rootfs-${deb_distribution:?}-${deb_codename:?}.tar"

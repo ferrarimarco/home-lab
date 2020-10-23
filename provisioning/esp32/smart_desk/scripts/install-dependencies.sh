@@ -5,13 +5,13 @@ set -e
 CMAKE_VERSION="$1"
 
 if [ -z "${CMAKE_VERSION}" ]; then
-    echo 'The CMAKE_VERSION environment variable that specifies the CMake version to install is not defined. Terminating...'
-    exit 1
+  echo 'The CMAKE_VERSION environment variable that specifies the CMake version to install is not defined. Terminating...'
+  exit 1
 fi
 
 apk add --no-cache \
-    ca-certificates \
-    wget
+  ca-certificates \
+  wget
 
 echo "Installing CMake $CMAKE_VERSION..."
 

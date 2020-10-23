@@ -5,9 +5,9 @@ set -e
 echo "This script has been invoked with: $0 $*"
 
 if ! TEMP="$(getopt -o b:c:n:r:u: --long branch-name:,build-configuration-name:,build-script-revision:,build-script-url:,commit-sha: \
-    -n 'build' -- "$@")"; then
-    echo "Terminating..." >&2
-    exit 1
+  -n 'build' -- "$@")"; then
+  echo "Terminating..." >&2
+  exit 1
 fi
 eval set -- "$TEMP"
 
@@ -18,34 +18,34 @@ build_script_url=
 COMMIT_SHA=
 
 while true; do
-    echo "Decoding parameter ${1}..."
-    case "${1}" in
-    -b | --branch-name)
-        BRANCH_NAME="${2}"
-        shift 2
-        ;;
-    -c | --commit-sha)
-        COMMIT_SHA="${2}"
-        shift 2
-        ;;
-    -n | --build-configuration-name)
-        build_configuration_name="${2}"
-        shift 2
-        ;;
-    -r | --build-script-revision)
-        build_script_revision="${2}"
-        shift 2
-        ;;
-    -u | --build-script-url)
-        build_script_url="${2}"
-        shift 2
-        ;;
-    --)
-        shift
-        break
-        ;;
-    *) break ;;
-    esac
+  echo "Decoding parameter ${1}..."
+  case "${1}" in
+  -b | --branch-name)
+    BRANCH_NAME="${2}"
+    shift 2
+    ;;
+  -c | --commit-sha)
+    COMMIT_SHA="${2}"
+    shift 2
+    ;;
+  -n | --build-configuration-name)
+    build_configuration_name="${2}"
+    shift 2
+    ;;
+  -r | --build-script-revision)
+    build_script_revision="${2}"
+    shift 2
+    ;;
+  -u | --build-script-url)
+    build_script_url="${2}"
+    shift 2
+    ;;
+  --)
+    shift
+    break
+    ;;
+  *) break ;;
+  esac
 done
 
 echo "Cloning the ${build_script_url:?} Git repository..."
@@ -82,10 +82,10 @@ echo "Sourcing ${PROJECT_FILE_PATH}..."
 ROOTFS_SOURCE_PATH="${workspace_directory}/deploy/${deb_distribution:?}-${release:?}-${image_type:?}-${deb_arch:?}-${time:?}"
 
 if [ ! -d "${ROOTFS_SOURCE_PATH}" ]; then
-    echo "${ROOTFS_SOURCE_PATH} doesn't exists. Terminating..."
-    exit 1
+  echo "${ROOTFS_SOURCE_PATH} doesn't exists. Terminating..."
+  exit 1
 else
-    echo "Rootfs source path (${ROOTFS_SOURCE_PATH}) contents: $(ls -alh "${ROOTFS_SOURCE_PATH}")"
+  echo "Rootfs source path (${ROOTFS_SOURCE_PATH}) contents: $(ls -alh "${ROOTFS_SOURCE_PATH}")"
 fi
 
 destination_directory_name="${workspace_directory}/dist"
@@ -100,8 +100,8 @@ XZ_OPT="-9 -T6" tar -cJf "${ROOTFS_ARCHIVE_FILE_PATH}" -C "${ROOTFS_SOURCE_PATH}
 ROOTFS_CHECKSUM_FILE_PATH="${ROOTFS_ARCHIVE_FILE_PATH}.sha256sum"
 echo "Calculating integrity hash of ${ROOTFS_ARCHIVE_FILE_PATH} and saving it to ${ROOTFS_CHECKSUM_FILE_PATH}..."
 (
-    cd "${ROOTFS_ARCHIVE_FILE_PATH%/*}"
-    sha256sum "${ROOTFS_ARCHIVE_FILE_PATH##*/}" >"${ROOTFS_CHECKSUM_FILE_PATH}"
+  cd "${ROOTFS_ARCHIVE_FILE_PATH%/*}"
+  sha256sum "${ROOTFS_ARCHIVE_FILE_PATH##*/}" >"${ROOTFS_CHECKSUM_FILE_PATH}"
 )
 
 echo "Contents of the integrity hash file (${ROOTFS_CHECKSUM_FILE_PATH}): $(cat "${ROOTFS_CHECKSUM_FILE_PATH}")"
