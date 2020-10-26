@@ -51,12 +51,13 @@ module "iac-pipeline" {
 }
 
 module "iot" {
-  source                                             = "../../modules/iot"
-  configuration_bucket_name                          = module.iac-pipeline.configuration_bucket_name
-  iot_core_smart_desk_public_key_file_path           = "${local.iot_core_public_keys_directory_path}/${var.configuration_iot_core_smart_desk_public_key_file_name}"
-  google_organization_id                             = data.google_organization.main_organization.org_id
-  google_project_id                                  = var.google_iot_project_id
-  terraform_environment_configuration_directory_path = local.terraform_environment_configuration_directory_path
+  source                              = "../../modules/iot"
+  configuration_bucket_name           = module.iac-pipeline.configuration_bucket_name
+  configuration_bucket_self_link      = module.iac-pipeline.configuration_bucket_self_link
+  google_organization_id              = data.google_organization.main_organization.org_id
+  google_project_id                   = var.google_iot_project_id
+  iot_core_public_keys_directory_path = local.iot_core_public_keys_directory_path
+  iot_core_public_keys_storage_prefix = "${local.terraform_environment_configuration_directory_path}/${local.iot_core_public_keys_directory_path}"
 }
 
 module "development-workspace" {

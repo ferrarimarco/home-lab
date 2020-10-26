@@ -1,5 +1,6 @@
 variable "configuration_bucket_name" {}
-variable "iot_core_smart_desk_public_key_file_path" {}
+variable "configuration_bucket_self_link" {}
 variable "google_organization_id" {}
 variable "google_project_id" {}
-variable "terraform_environment_configuration_directory_path" {}
+variable "iot_core_public_keys_directory_path" {}
+variable "iot_core_public_keys_storage_prefix" {}

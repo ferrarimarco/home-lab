@@ -12,6 +12,12 @@ resource "google_project_service" "pubsub-apis" {
   disable_dependent_services = true
 }
 
+resource "google_storage_bucket_object" "terraform-configuration-iot-core-public-keys-directory" {
+  name    = "${var.iot_core_public_keys_storage_prefix}/"
+  content = "Terraform configuration IoT Core public keys directory"
+  bucket  = var.configuration_bucket_name
+}
+
 resource "google_pubsub_topic" "default-devicestatus" {
   name    = "default-devicestatus"
   project = var.google_project_id
@@ -67,25 +73,24 @@ resource "google_storage_bucket" "smart_desk" {
   }
 }
 
-locals {
-  smart_desk_public_key_file_content = fileexists(var.iot_core_smart_desk_public_key_file_path) ? file(var.iot_core_smart_desk_public_key_file_path) : ""
-}
-
-resource "google_storage_bucket_object" "smart-desk-public-key-file" {
-  # Only create this resource if the source file is available
-  count = local.smart_desk_public_key_file_content != "" ? 1 : 0
-
-  name    = "${var.terraform_environment_configuration_directory_path}/${var.iot_core_smart_desk_public_key_file_path}"
+resource "google_storage_bucket_object" "terraform-configuration-iot-core-home-registry-public-keys-directory" {
+  name    = "${var.iot_core_public_keys_storage_prefix}/${google_cloudiot_registry.home-registry.id}/"
+  content = "Terraform configuration IoT Core Home registry public keys directory"
   bucket  = var.configuration_bucket_name
-  content = local.smart_desk_public_key_file_content
 }
 
-resource "google_cloudiot_device" "smart-desk" {
-  # Only create this resource if a public key is available
-  count = local.smart_desk_public_key_file_content != "" ? 1 : 0
+locals {
+  grouped_iot_core_public_keys = {
+    for public_key in fileset(var.iot_core_public_keys_directory_path, "**/*.pem") :
+    trimsuffix(public_key, basename(public_key)) => public_key...
+  }
+}
 
-  name     = "smart-desk"
-  registry = google_cloudiot_registry.home-registry.id
+resource "google_cloudiot_device" "iot-core-device" {
+  name = basename(each.key)
+
+  # Get the dirname of the directory containing the public key files
+  registry = dirname(dirname(each.key))
 
   log_level = "INFO"
 
@@ -93,10 +98,15 @@ resource "google_cloudiot_device" "smart-desk" {
     gateway_type = "NON_GATEWAY"
   }
 
-  credentials {
-    public_key {
-      format = "RSA_PEM"
-      key    = local.smart_desk_public_key_file_content
+  dynamic "credentials" {
+    for_each = each.value
+    content {
+      public_key {
+        format = "RSA_PEM"
+        key    = file("${var.iot_core_public_keys_directory_path}/${credentials.value}")
+      }
     }
   }
+
+  for_each = local.grouped_iot_core_public_keys
 }
