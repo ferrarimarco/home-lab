@@ -28,18 +28,15 @@ resource "google_compute_image" "dev-workstation-image-ubuntu-2004" {
   }
 
   guest_os_features {
+    type = "SEV_CAPABLE"
+  }
+
+  guest_os_features {
     type = "UEFI_COMPATIBLE"
   }
 
   guest_os_features {
     type = "VIRTIO_SCSI_MULTIQUEUE"
-  }
-
-  # Workaround for https://github.com/hashicorp/terraform-provider-google/issues/7273
-  lifecycle {
-    ignore_changes = [
-      guest_os_features
-    ]
   }
 }
 
