@@ -221,21 +221,15 @@ resource "google_storage_bucket_object" "terraform-environment-variables-file" {
   source = local.terraform_variables_file_name
 }
 
-resource "google_storage_bucket_object" "terraform-configuration-iot-core-public-keys-directory" {
-  name    = "${var.terraform_environment_configuration_directory_path}/${var.compute_engine_keys_directory_path}/"
-  content = "Terraform configuration IoT Core public keys directory"
-  bucket  = google_storage_bucket.configuration.name
-}
-
 resource "google_storage_bucket_object" "terraform-configuration-compute-engine-public-keys-directory" {
-  name    = "${var.terraform_environment_configuration_directory_path}/${var.iot_core_keys_directory_path}/"
+  name    = "${var.terraform_environment_configuration_directory_path}/${var.compute_engine_keys_directory_path}/"
   content = "Terraform configuration Compute Engine public keys directory"
   bucket  = google_storage_bucket.configuration.name
 }
 
 resource "google_storage_bucket_object" "terraform-configuration-consul-template-directory" {
   name    = "${var.terraform_environment_configuration_directory_path}/${var.consul_template_directory_path}/"
-  content = "Terraform configuration Compute Engine public keys directory"
+  content = "Terraform configuration Consul Template directory"
   bucket  = google_storage_bucket.configuration.name
 }
 
@@ -245,6 +239,10 @@ output "cloud_build_service_account_id" {
 
 output "configuration_bucket_name" {
   value = google_storage_bucket.configuration.name
+}
+
+output "configuration_bucket_self_link" {
+  value = google_storage_bucket.configuration.self_link
 }
 
 output "terraform_configuration_consul_template_directory" {

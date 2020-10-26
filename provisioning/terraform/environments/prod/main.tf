@@ -44,7 +44,6 @@ module "iac-pipeline" {
   cloud_build_trigger_repository_owner               = var.cloud_build_trigger_repository_owner
   consul_template_directory_path                     = local.consul_template_directory_path
   compute_engine_keys_directory_path                 = local.compute_engine_public_keys_directory_path
-  iot_core_keys_directory_path                       = local.iot_core_public_keys_directory_path
   google_billing_account_id                          = var.google_billing_account_id
   google_project_id                                  = var.google_iac_project_id
   google_organization_id                             = data.google_organization.main_organization.org_id
@@ -74,7 +73,6 @@ module "development-workspace" {
   terraform_environment_configuration_directory_path              = local.terraform_environment_configuration_directory_path
 }
 
-# This module takes care of environment configuration
 module "configuration" {
   source                                         = "../../modules/configuration"
   beaglebone_black_ethernet_ipv4_address         = var.edge_beaglebone_black_ethernet_ipv4_address
