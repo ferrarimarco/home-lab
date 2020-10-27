@@ -53,6 +53,18 @@ resource "google_storage_bucket_object" "development-workstations-public-key-fil
   content = local.development_workstation_ssh_public_key_content
 }
 
+resource "google_compute_address" "development_workstation_ip_address" {
+  address_type = "EXTERNAL"
+  description  = "External IP address of the development workstation"
+  name         = "development-workstation-ip-address"
+  purpose      = "GCE_ENDPOINT"
+  network_tier = "PREMIUM"
+}
+
+output "development_workstation_ip_address" {
+  value = google_compute_address.development_workstation_ip_address.address
+}
+
 resource "google_compute_instance" "development-workstation" {
   # Only create this resource if a public key is available
   count = local.development_workstation_ssh_public_key_content != "" ? 1 : 0
@@ -81,6 +93,7 @@ resource "google_compute_instance" "development-workstation" {
     subnetwork = var.development_workstation_google_compute_subnetwork_self_link
 
     access_config {
+      nat_ip       = google_compute_address.development_workstation_ip_address.address
       network_tier = "PREMIUM"
     }
   }

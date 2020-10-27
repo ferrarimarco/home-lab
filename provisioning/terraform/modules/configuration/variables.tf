@@ -6,6 +6,7 @@ variable "configuration_gke_cluster_subnet_ip_cidr_range" {}
 variable "consul_chart_version" {}
 variable "consul_datacenter_name" {}
 variable "consul_template_directory_path" {}
+variable "dns_record_sets_main_zone" {}
 variable "edge_default_gateway_ipv4_address" {}
 variable "edge_dns_zone" {}
 variable "edge_external_dns_servers_primary" {}

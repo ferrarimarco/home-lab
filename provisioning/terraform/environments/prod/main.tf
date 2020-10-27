@@ -99,4 +99,18 @@ module "configuration" {
   google_project_id                              = var.google_configuration_project_id
   google_region                                  = var.google_default_region
   main_dns_zone                                  = local.main_dns_zone
+
+  dns_record_sets_main_zone = {
+    "development-workstation" = {
+      "record_name_prefix" = "development-workstation"
+      "record_ttl"         = 300
+      "record_type"        = "A"
+      "record_data"        = [module.development-workspace.development_workstation_ip_address]
+    }
+  }
+}
+
+output "main_zone_dns_names" {
+  description = "DNS names defined in the main DNS zone"
+  value       = module.configuration.main_zone_dns_names
 }
