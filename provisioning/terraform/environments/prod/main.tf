@@ -101,11 +101,10 @@ module "configuration" {
   main_dns_zone                                  = local.main_dns_zone
 
   dns_record_sets_main_zone = {
-    "development-workstation" = {
-      "record_name_prefix" = module.development-workspace.development_workstation_hostname
-      "record_ttl"         = 300
-      "record_type"        = "A"
-      "record_data"        = [module.development-workspace.development_workstation_ip_address]
+    (module.development-workspace.development_workstation_hostname) = {
+      "record_ttl"  = 300
+      "record_type" = "A"
+      "record_data" = [module.development-workspace.development_workstation_ip_address]
     }
   }
 }
