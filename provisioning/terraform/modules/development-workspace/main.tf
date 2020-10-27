@@ -57,8 +57,9 @@ resource "google_compute_address" "development_workstation_ip_address" {
   address_type = "EXTERNAL"
   description  = "External IP address of the development workstation"
   name         = "development-workstation-ip-address"
-  purpose      = "GCE_ENDPOINT"
   network_tier = "PREMIUM"
+  project      = var.google_project_id
+  purpose      = "GCE_ENDPOINT"
 }
 
 output "development_workstation_ip_address" {
