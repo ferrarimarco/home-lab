@@ -61,6 +61,10 @@ resource "google_compute_address" "development_workstation_ip_address" {
   project      = var.google_project_id
 }
 
+output "development_workstation_hostname" {
+  value = google_compute_instance.development-workstation[0].name
+}
+
 output "development_workstation_ip_address" {
   value = google_compute_address.development_workstation_ip_address.address
 }

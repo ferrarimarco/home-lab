@@ -26,6 +26,8 @@ resource "google_dns_record_set" "main_zone_record_set" {
   rrdatas      = each.value["record_data"]
 
   for_each = var.dns_record_sets_main_zone
+
+  project = var.google_project_id
 }
 
 output "main_zone_dns_names" {
