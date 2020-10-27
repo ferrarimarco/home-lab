@@ -69,6 +69,19 @@ output "development_workstation_ip_address" {
   value = google_compute_address.development_workstation_ip_address.address
 }
 
+resource "google_compute_firewall" "allow_ssh_dev_workstation" {
+  name    = "allow-ssh-development-workstation"
+  network = var.development_workstation_google_compute_network_self_link
+  project = var.google_project_id
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  target_tags = ["development-workstation"]
+}
+
 resource "google_compute_instance" "development-workstation" {
   # Only create this resource if a public key is available
   count = local.development_workstation_ssh_public_key_content != "" ? 1 : 0
@@ -77,6 +90,7 @@ resource "google_compute_instance" "development-workstation" {
   name             = var.development_workstation_name
   machine_type     = var.development_workstation_machine_type
   min_cpu_platform = var.development_workstation_min_cpu_platform
+  tags             = google_compute_firewall.allow_ssh_dev_workstation.target_tags
 
   can_ip_forward = false
 

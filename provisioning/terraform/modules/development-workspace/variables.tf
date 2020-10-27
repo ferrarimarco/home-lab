@@ -4,6 +4,7 @@ variable "development_workstation_machine_type" {}
 variable "development_workstation_min_cpu_platform" {}
 variable "development_workstation_name" {}
 variable "development_workstation_ssh_user" {}
+variable "development_workstation_google_compute_network_self_link" {}
 variable "development_workstation_google_compute_subnetwork_self_link" {}
 variable "google_organization_id" {}
 variable "google_project_id" {}

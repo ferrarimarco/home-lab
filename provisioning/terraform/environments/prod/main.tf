@@ -64,6 +64,7 @@ module "development-workspace" {
   source                                                          = "../../modules/development-workspace"
   compute_engine_development_workstation_ssh_public_key_file_path = "${local.compute_engine_public_keys_directory_path}/${var.configuration_compute_engine_development_workstation_ssh_public_key_file_name}"
   configuration_bucket_name                                       = module.iac-pipeline.configuration_bucket_name
+  development_workstation_google_compute_network_self_link        = google_compute_network.default-vpc.self_link
   development_workstation_google_compute_subnetwork_self_link     = google_compute_subnetwork.default-subnet.self_link
   development_workstation_machine_type                            = var.development_workstation_machine_type
   development_workstation_min_cpu_platform                        = var.development_workstation_min_cpu_platform
