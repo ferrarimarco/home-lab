@@ -59,7 +59,6 @@ resource "google_compute_address" "development_workstation_ip_address" {
   name         = "development-workstation-ip-address"
   network_tier = "PREMIUM"
   project      = var.google_project_id
-  purpose      = "GCE_ENDPOINT"
 }
 
 output "development_workstation_ip_address" {
