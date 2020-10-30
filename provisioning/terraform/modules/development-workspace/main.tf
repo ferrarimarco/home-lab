@@ -105,7 +105,12 @@ resource "google_compute_instance" "development-workstation" {
     ssh-keys = "${var.development_workstation_ssh_user}:${local.development_workstation_ssh_public_key_content}"
   }
 
-  metadata_startup_script = file("${path.module}/development-workstation-startup-script.sh")
+  metadata_startup_script = templatefile("${path.module}/development-workstation-startup-script.sh",
+    {
+      development_workstation_username = var.development_workstation_ssh_user,
+      dotfiles_repository_url          = var.development_workstation_dotfiles_repository_url
+    }
+  )
 
   network_interface {
     subnetwork = var.development_workstation_google_compute_subnetwork_self_link

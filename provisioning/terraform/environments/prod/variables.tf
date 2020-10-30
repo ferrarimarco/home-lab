@@ -109,6 +109,11 @@ variable "google_iac_project_id" {
   description = "Google Cloud project ID for the IaC pipeline"
 }
 
+variable "development_workstation_dotfiles_repository_url" {
+  default     = "https://github.com/ferrarimarco/dotfiles.git"
+  description = "URL of the repository containing the developer's dotfiles"
+}
+
 variable "development_workstation_machine_type" {
   default     = "n2-standard-8"
   description = "Machine type for development workstations"

@@ -6,6 +6,7 @@ variable "development_workstation_name" {}
 variable "development_workstation_ssh_user" {}
 variable "development_workstation_google_compute_network_self_link" {}
 variable "development_workstation_google_compute_subnetwork_self_link" {}
+variable "development_workstation_dotfiles_repository_url" {}
 variable "google_organization_id" {}
 variable "google_project_id" {}
 variable "terraform_environment_configuration_directory_path" {}
