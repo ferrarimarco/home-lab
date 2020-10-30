@@ -2,7 +2,7 @@
 
 set -e
 
-if ! TEMP="$(getopt -o c:d:f:g:s: --long cloud-build-substitutions:,commit-sha:,destination-directory-path:,failure-file-path:,git-repository-path: \
+if ! TEMP="$(getopt -o c:d:f:g:o:s: --long cloud-build-substitutions:,commit-sha:,common-files-directories:,destination-directory-path:,failure-file-path:,git-repository-path: \
   -n 'submit-cloud-build' -- "$@")"; then
   echo "Terminating..." >&2
   exit 1
@@ -14,6 +14,7 @@ COMMIT_SHA=
 DESTINATION_DIRECTORY_PATH=
 FAILURE_FILE_PATH=
 GIT_REPOSITORY_PATH=
+COMMON_FILES_DIRECTORIES=
 
 while true; do
   case "$1" in
@@ -31,6 +32,10 @@ while true; do
     ;;
   -g | --git-repository-path)
     GIT_REPOSITORY_PATH="$2"
+    shift 2
+    ;;
+  -o | --common-files-directories)
+    COMMON_FILES_DIRECTORIES="${COMMON_FILES_DIRECTORIES} $2"
     shift 2
     ;;
   -s | --cloud-build-substitutions)
@@ -71,9 +76,33 @@ TEMP_GIT_REPOSITORY_PATH="$(mktemp -d)"
 cp -a "$GIT_REPOSITORY_PATH"/. "$TEMP_GIT_REPOSITORY_PATH"
 GIT_REPOSITORY_PATH="$TEMP_GIT_REPOSITORY_PATH"
 
-echo "$COMMIT_SHA contains the following modified files that match $DESTINATION_DIRECTORY_PATH:"
-if ! git -C "$TEMP_GIT_REPOSITORY_PATH" diff-tree --name-only --no-commit-id -r "$COMMIT_SHA" | grep "$DESTINATION_DIRECTORY_PATH"; then
-  echo "$COMMIT_SHA revision doesn't contain any modification to files that match $DESTINATION_DIRECTORY_PATH. Skipping the relevant build job..."
+MODIFIED_FILES="$(git -C "$TEMP_GIT_REPOSITORY_PATH" diff-tree --name-only --no-commit-id -r "$COMMIT_SHA")"
+echo "$COMMIT_SHA contains the following modified files: $(
+  echo
+  echo "${MODIFIED_FILES}"
+  )"
+
+BUILDS_MODIFIED_FILES="false"
+if echo "${MODIFIED_FILES}" | grep "$DESTINATION_DIRECTORY_PATH"; then
+  BUILDS_MODIFIED_FILES="true"
+  echo "The revision contains modifications to files that match $DESTINATION_DIRECTORY_PATH."
+else
+  echo "$COMMIT_SHA revision doesn't contain any modification to files that match $DESTINATION_DIRECTORY_PATH."
+  echo "Checking if $COMMIT_SHA contains modifications to common files for the $DESTINATION_DIRECTORY_PATH build..."
+  for DIRECTORY in ${COMMON_FILES_DIRECTORIES}
+  do
+    echo "Checking if $COMMIT_SHA contains modifications to files in ${DIRECTORY}..."
+    if echo "${MODIFIED_FILES}" | grep "$DIRECTORY"; then
+      BUILDS_MODIFIED_FILES="true"
+      echo "$COMMIT_SHA contains modifications to files in ${DIRECTORY} for the $DESTINATION_DIRECTORY_PATH build. No need to continue checking other common files."
+      break
+    fi
+  done
+fi
+
+echo "BUILDS_MODIFIED_FILES value: ${BUILDS_MODIFIED_FILES}"
+if [ "${BUILDS_MODIFIED_FILES}" != "true" ]; then
+  echo "$COMMIT_SHA revision doesn't contain any modification to files that match ${DESTINATION_DIRECTORY_PATH}, nor to the following common files directories: ${COMMON_FILES_DIRECTORIES}. Skipping the relevant build job..."
   exit 0
 fi
 
@@ -89,8 +118,24 @@ if [ ! -f "${config}" ]; then
   exit 1
 fi
 
+if [ -n "${COMMON_FILES_DIRECTORIES}" ]; then
+  echo "Copying files from ${COMMON_FILES_DIRECTORIES} to ${CLOUD_BUILD_JOB_PATH}..."
+  for DIRECTORY in ${COMMON_FILES_DIRECTORIES}
+  do
+    echo "Copying $DIRECTORY to ${CLOUD_BUILD_JOB_PATH}..."
+    cp -RTv "${DIRECTORY}/" "${CLOUD_BUILD_JOB_PATH}/"
+  done
+else
+  echo "There are no common files directories for the ${DESTINATION_DIRECTORY_PATH} build."
+fi
+
 echo "Building $DESTINATION_DIRECTORY_PATH... "
 logfile="${CLOUD_BUILD_JOB_PATH}/cloudbuild.log"
+
+echo "${CLOUD_BUILD_JOB_PATH} contents: $(
+  echo
+  find "${CLOUD_BUILD_JOB_PATH}" -type f
+)..."
 
 # Add the substitution option only when needed. The subshell must not be quoted.
 # shellcheck disable=SC2046
