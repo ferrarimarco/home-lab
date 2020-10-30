@@ -17,12 +17,12 @@ steps:
     args:
         - '-c'
         - |
-          echo "Contents of $(pwd): $(ls -al)"
           echo "Creating the consul-template user"
           addgroup -g 1000 consul-template && \
           adduser -u 100 -S -G consul-template consul-template
           mkdir -p $_RENDERED_TEMPLATES_PATH
           chown -R consul-template:consul-template $_RENDERED_TEMPLATES_PATH
+          echo "Contents of $(pwd): $(find "$(pwd)")"
   - name: 'hashicorp/consul-template:$_CONSUL_TEMPLATE_IMAGE_TAG'
     args:
       - '/bin/consul-template'
@@ -37,6 +37,12 @@ steps:
       - 'templates/usr/local/bin/start-mqtt-client.sh:$_RENDERED_TEMPLATES_PATH/usr/local/bin/start-mqtt-client.sh'
       - '-template'
       - 'templates/var/lib/connman/ethernet.config:$_RENDERED_TEMPLATES_PATH/var/lib/connman/ethernet.config'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
+    entrypoint: 'sh'
+    args:
+        - '-c'
+        - |
+          echo "Contents of $(pwd): $(find "$(pwd)")"
   - id: 'Download rootfs archive and checksum'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
     entrypoint: gsutil
