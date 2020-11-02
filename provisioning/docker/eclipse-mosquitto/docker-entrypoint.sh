@@ -8,6 +8,13 @@ IOT_CORE_DEVICE_ID="${1}" && shift
 IOT_CORE_DEVICE_NAME="${1}" && shift
 COMMAND_PATH="${1}" && shift
 
+echo "Copying mosquitto configuration files where expected..."
+MOSQUITTO_PUB_SUB_CONFIG_DIRECTORY_PATH="${HOME}"/.config
+MOSQUITTO_PUB_SUB_CONFIG_FILE_PATH="/etc/mosquitto/mosquitto"
+mkdir -p "${MOSQUITTO_PUB_SUB_CONFIG_DIRECTORY_PATH}"
+cp "${MOSQUITTO_PUB_SUB_CONFIG_FILE_PATH}" "${MOSQUITTO_PUB_SUB_CONFIG_DIRECTORY_PATH}"/mosquitto_pub
+cp "${MOSQUITTO_PUB_SUB_CONFIG_FILE_PATH}" "${MOSQUITTO_PUB_SUB_CONFIG_DIRECTORY_PATH}"/mosquitto_sub
+
 echo "Generating JWT valid for ${IOT_CORE_PROJECT_ID} project and duration ${IOT_CORE_CREDENTIALS_VALIDITY} seconds from now..."
 IOT_CORE_JWT="$(pyjwt --key="$(cat /etc/cloud-iot-core/keys/private_key.pem)" --alg=RS256 encode iat="$(date +%s)" exp=+"${IOT_CORE_CREDENTIALS_VALIDITY}" aud="${IOT_CORE_PROJECT_ID}")"
 
