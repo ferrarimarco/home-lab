@@ -7,6 +7,19 @@ if [ ! -d "${IOT_CORE_CONFIGURATION_DIRECTORY_PATH}" ]; then
   mkdir -p "${IOT_CORE_CONFIGURATION_DIRECTORY_PATH}"
 fi
 
+if [ ! -d "${IOT_CORE_CERTIFICATES_DIRECTORY_PATH}" ]; then
+  echo "Creating ${IOT_CORE_CERTIFICATES_DIRECTORY_PATH}..."
+  mkdir -p "${IOT_CORE_CERTIFICATES_DIRECTORY_PATH}"
+fi
+
+echo "Checking if IoT Core root CA is initialized in ${IOT_CORE_CERTIFICATES_DIRECTORY_PATH}..."
+if [ ! -f "${IOT_CORE_ROOT_CA_PATH}" ]; then
+  echo "Initializing IoT Core root CA..."
+  curl "${IOT_CORE_ROOT_CA_URL}" --output "${IOT_CORE_ROOT_CA_PATH}"
+else
+  echo "IoT Core root CA is already initialized."
+fi
+
 echo "Checking if IoT Core keys are initialized in ${IOT_CORE_KEYS_DIRECTORY_PATH}..."
 if [ ! -f "${IOT_CORE_KEYS_PRIVATE_KEY_PATH}" ]; then
   echo "Initializing IoT Core keys..."
