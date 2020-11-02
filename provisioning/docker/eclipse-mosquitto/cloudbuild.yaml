@@ -43,6 +43,7 @@ substitutions:
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
   _CONSUL_TEMPLATE_IMAGE_TAG: '0.25.1-alpine'
   _DOCKER_BUILDX_BUILDER_NAME: 'multiarch_builder'
-  _DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm/v7,linux/arm64'
+  #_DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm/v7,linux/arm64'
+  _DOCKER_BUILDX_PLATFORMS: 'linux/amd64'
   _RENDERED_TEMPLATES_PATH: './rendered-templates'
 timeout: 37000s
