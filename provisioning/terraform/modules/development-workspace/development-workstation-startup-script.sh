@@ -59,6 +59,9 @@ if [ -t 0 ]; then
   DOCKER_TTY_OPTION="-t"
 fi
 
+echo "Configuring Docker authentication"
+gcloud auth configure-docker
+
 # shellcheck disable=SC2034 # The value comes from Terraform.
 IOT_CORE_INITIALIZER_CONTAINER_NAME="iot-core-initializer"
 
