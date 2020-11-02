@@ -69,7 +69,6 @@ IOT_CORE_INITIALIZER_CONTAINER_NAME="iot-core-initializer"
 docker run $${DOCKER_TTY_OPTION} \
   -i \
   --name "$${IOT_CORE_INITIALIZER_CONTAINER_NAME}" \
-  --rm \
   "${iot_core_initializer_container_image_id}"
 
 # shellcheck disable=SC2034,SC2154 # The value comes from Terraform.
@@ -84,8 +83,11 @@ IOT_CORE_CREDENTIALS_VALIDITY="${iot_core_credentials_validity}"
 # shellcheck disable=SC2034,SC2154 # The value comes from Terraform.
 MQTT_CLIENT_CONTAINER_IMAGE_ID="${iot_core_mqtt_client_container_image_id}"
 
-# shellcheck disable=SC2034 # The value comes from Terraform.
-IOT_CORE_DEVICE_ID="$${IOT_CORE_REGISTRY_ID}/devices/$(hostname)"
+# shellcheck disable=SC2034 # Avoid 'unused variable' error due to escaping the variable
+IOT_CORE_DEVICE_NAME="$(hostname)"
+
+# shellcheck disable=SC2034 # Avoid 'unused variable' error due to escaping the variable
+IOT_CORE_DEVICE_ID="$${IOT_CORE_REGISTRY_ID}/devices/$${IOT_CORE_DEVICE_NAME}"
 
 # shellcheck disable=SC1083 # Escape variable because this is a Terraform template file.
 docker run $${DOCKER_TTY_OPTION} \
@@ -93,8 +95,7 @@ docker run $${DOCKER_TTY_OPTION} \
   -i \
   --name "mqtt-client-iot-core-sub" \
   --restart always \
-  --rm \
-  --volumes-from "$${IOT_CORE_INITIALIZER_CONTAINER_NAME}"
+  --volumes-from "$${IOT_CORE_INITIALIZER_CONTAINER_NAME}" \
   "$${MQTT_CLIENT_CONTAINER_IMAGE_ID}" \
   "$${IOT_CORE_PROJECT_ID}" \
   "$${IOT_CORE_CREDENTIALS_VALIDITY}" \

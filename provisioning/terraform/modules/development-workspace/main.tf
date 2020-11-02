@@ -83,6 +83,8 @@ resource "google_compute_firewall" "allow_ssh_dev_workstation" {
 }
 
 resource "google_compute_instance" "development-workstation" {
+  allow_stopping_for_update = true
+
   # Only create this resource if a public key is available
   count = local.development_workstation_ssh_public_key_content != "" ? 1 : 0
 
@@ -130,6 +132,12 @@ resource "google_compute_instance" "development-workstation" {
     automatic_restart   = true
     on_host_maintenance = "MIGRATE"
     preemptible         = false
+  }
+
+  service_account {
+    # Set to cloud-platform scope, then use IAM to limit access to the service account that this instance uses
+    # https://cloud.google.com/compute/docs/access/service-accounts#accesscopesiam
+    scopes = ["cloud-platform"]
   }
 
   shielded_instance_config {

@@ -15,6 +15,7 @@ locals {
   iot_core_initializer_container_image_id   = "${local.container_image_registry_url}/${var.iot_core_initializer_container_image_id}"
   iot_core_public_keys_directory_path       = "${local.public_keys_directory_path}/${var.configuration_iot_core_keys_directory_name}"
   main_dns_zone                             = "${var.main_dns_zone_prefix}.${data.google_organization.main_organization.domain}"
+  mqtt_container_image_id                   = "${local.container_image_registry_url}/${var.edge_mqtt_container_image_id}"
   public_keys_directory_path                = var.configuration_public_keys_directory_name
 
   # To get environment-specific configuration
@@ -72,7 +73,7 @@ module "development-workspace" {
   development_workstation_iot_core_initializer_container_image_id = local.iot_core_initializer_container_image_id
   development_workstation_iot_core_project_id                     = module.iot.edge_iot_core_project_id
   development_workstation_iot_core_registry_id                    = module.iot.edge_iot_core_registry_id
-  development_workstation_mqtt_client_container_image_id          = var.edge_mqtt_container_image_id
+  development_workstation_mqtt_client_container_image_id          = local.mqtt_container_image_id
   google_organization_id                                          = data.google_organization.main_organization.org_id
   google_project_id                                               = var.google_iot_project_id
   terraform_environment_configuration_directory_path              = local.terraform_environment_configuration_directory_path
@@ -108,7 +109,7 @@ module "configuration" {
   iot_core_key_bits                              = var.edge_iot_core_key_bits
   iot_core_credentials_validity                  = var.edge_iot_core_credentials_validity
   main_dns_zone                                  = local.main_dns_zone
-  mqtt_container_image_ic                        = var.edge_mqtt_container_image_id
+  mqtt_container_image_ic                        = local.mqtt_container_image_id
 
   dns_record_sets_main_zone = {
     (module.development-workspace.development_workstation_hostname) = {

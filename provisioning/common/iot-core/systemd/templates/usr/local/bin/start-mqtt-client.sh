@@ -14,7 +14,6 @@ echo "Starting ${CONTAINER_NAME} container from the ${IOT_CORE_INITIALIZER_CONTA
 docker run ${DOCKER_TTY_OPTION} \
   -i \
   --name "${IOT_CORE_INITIALIZER_CONTAINER_NAME}" \
-  --rm \
   "${IOT_CORE_INITIALIZER_CONTAINER_IMAGE_ID}"
 
 # Assuming that the IoT Core device name is the hostname
@@ -43,8 +42,7 @@ docker run ${DOCKER_TTY_OPTION} \
   -i \
   --name "${MQTT_SUB_CONTAINER_NAME}" \
   --restart always \
-  --rm \
-  --volumes-from "${IOT_CORE_INITIALIZER_CONTAINER_NAME}"
+  --volumes-from "${IOT_CORE_INITIALIZER_CONTAINER_NAME}" \
   "${MQTT_CLIENT_CONTAINER_IMAGE_ID}" \
   "${IOT_CORE_PROJECT_ID}" \
   "${IOT_CORE_CREDENTIALS_VALIDITY}" \

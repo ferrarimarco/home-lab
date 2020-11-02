@@ -179,7 +179,7 @@ variable "edge_main_subnet_ipv4_address_range_start" {
 }
 
 variable "edge_mqtt_container_image_id" {
-  default     = "eclipse-mosquitto:1.6.12-openssl"
+  default     = "eclipse-mosquitto:7a66277"
   description = "Container image tag of the MQTT runtime."
 }
 
@@ -194,7 +194,7 @@ variable "edge_iot_core_credentials_validity" {
 }
 
 variable "iot_core_initializer_container_image_id" {
-  default     = "iot-core-initializer:e4f8bb3"
+  default     = "iot-core-initializer:67df18b"
   description = "Container image tag of the IoT Core initializer"
 }
 
