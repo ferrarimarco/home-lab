@@ -26,5 +26,4 @@ initialize_systemd_service() {
 
 echo "Initializing systemd..."
 
-initialize_systemd_service "init-iot-core.service" "/usr/local/bin/init-iot-core.sh"
 initialize_systemd_service "start-mqtt-client.service" "/usr/local/bin/start-mqtt-client.sh"

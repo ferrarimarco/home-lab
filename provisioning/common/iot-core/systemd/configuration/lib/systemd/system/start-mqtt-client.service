@@ -1,10 +1,9 @@
 [Unit]
-After=network-online.target init-iot-core.service
-Wants=network-online.target init-iot-core.service
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 ExecStart=/usr/local/bin/start-mqtt-client.sh
-Restart=always
 
 [Install]
 WantedBy=multi-user.target

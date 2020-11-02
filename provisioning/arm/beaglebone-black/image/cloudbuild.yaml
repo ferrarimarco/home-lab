@@ -32,8 +32,6 @@ steps:
       - '-template'
       - 'templates/etc/connman/main.conf:$_RENDERED_TEMPLATES_PATH/etc/connman/main.conf'
       - '-template'
-      - 'templates/usr/local/bin/init-iot-core.sh:$_RENDERED_TEMPLATES_PATH/usr/local/bin/init-iot-core.sh'
-      - '-template'
       - 'templates/usr/local/bin/start-mqtt-client.sh:$_RENDERED_TEMPLATES_PATH/usr/local/bin/start-mqtt-client.sh'
       - '-template'
       - 'templates/var/lib/connman/ethernet.config:$_RENDERED_TEMPLATES_PATH/var/lib/connman/ethernet.config'

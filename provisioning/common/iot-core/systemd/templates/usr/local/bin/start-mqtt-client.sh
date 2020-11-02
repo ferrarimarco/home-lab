@@ -7,6 +7,16 @@ if [ -t 0 ]; then
   DOCKER_TTY_OPTION="-t"
 fi
 
+# shellcheck disable=SC2140
+IOT_CORE_INITIALIZER_CONTAINER_IMAGE_ID="{{ key "edge/iot-core/initializer-container-image-id" }}"
+IOT_CORE_INITIALIZER_CONTAINER_NAME="iot-core-initializer"
+echo "Starting ${CONTAINER_NAME} container from the ${IOT_CORE_INITIALIZER_CONTAINER_IMAGE_ID} image..."
+docker run ${DOCKER_TTY_OPTION} \
+  -i \
+  --name "${IOT_CORE_INITIALIZER_CONTAINER_NAME}" \
+  --rm \
+  "${IOT_CORE_INITIALIZER_CONTAINER_IMAGE_ID}"
+
 # Assuming that the IoT Core device name is the hostname
 IOT_CORE_DEVICE_NAME="$(hostname)"
 echo "IoT Core device name: ${IOT_CORE_DEVICE_NAME}"
@@ -32,6 +42,7 @@ echo "Starting ${MQTT_SUB_CONTAINER_NAME} container with volumes from the ${IOT_
 docker run ${DOCKER_TTY_OPTION} \
   -i \
   --name "${MQTT_SUB_CONTAINER_NAME}" \
+  --restart always \
   --rm \
   --volumes-from "${IOT_CORE_INITIALIZER_CONTAINER_NAME}"
   "${MQTT_CLIENT_CONTAINER_IMAGE_ID}" \
