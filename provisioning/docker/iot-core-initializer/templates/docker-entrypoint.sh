@@ -14,7 +14,7 @@ fi
 
 echo "Checking if IoT Core root CA is initialized in ${IOT_CORE_CERTIFICATES_DIRECTORY_PATH}..."
 if [ ! -f "${IOT_CORE_ROOT_CA_PATH}" ]; then
-  echo "Initializing IoT Core root CA..."
+  echo "Downloading IoT Core root CA from ${IOT_CORE_ROOT_CA_URL}..."
   curl "${IOT_CORE_ROOT_CA_URL}" --output "${IOT_CORE_ROOT_CA_PATH}"
 else
   echo "IoT Core root CA is already initialized."
