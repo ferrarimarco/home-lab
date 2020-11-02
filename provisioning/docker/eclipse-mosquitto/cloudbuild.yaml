@@ -1,3 +1,5 @@
+options:
+  machineType: 'N1_HIGHCPU_8'
 steps:
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
   entrypoint: gsutil
