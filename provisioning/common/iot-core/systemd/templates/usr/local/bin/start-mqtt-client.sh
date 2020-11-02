@@ -50,4 +50,4 @@ docker run ${DOCKER_TTY_OPTION} \
   "${IOT_CORE_CREDENTIALS_VALIDITY}" \
   "${IOT_CORE_DEVICE_ID}" \
   "${IOT_CORE_DEVICE_NAME}" \
-  "${COMMAND_PATH}"
+  "/usr/bin/mosquitto_sub"
