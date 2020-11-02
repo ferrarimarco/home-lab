@@ -7,6 +7,11 @@ variable "development_workstation_ssh_user" {}
 variable "development_workstation_google_compute_network_self_link" {}
 variable "development_workstation_google_compute_subnetwork_self_link" {}
 variable "development_workstation_dotfiles_repository_url" {}
+variable "development_workstation_iot_core_credentials_validity" {}
+variable "development_workstation_iot_core_initializer_container_image_id" {}
+variable "development_workstation_iot_core_project_id" {}
+variable "development_workstation_iot_core_registry_id" {}
+variable "development_workstation_mqtt_client_container_image_id" {}
 variable "google_organization_id" {}
 variable "google_project_id" {}
 variable "terraform_environment_configuration_directory_path" {}

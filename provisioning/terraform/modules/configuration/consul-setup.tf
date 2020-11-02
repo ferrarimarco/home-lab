@@ -92,7 +92,7 @@ resource "consul_key_prefix" "edge_iot_core_configuration" {
     "rsa-key-length-bits"            = var.iot_core_key_bits
     "registry-id"                    = var.edge_iot_core_registry_id
 
-    "${local.mosquitto_configuration_path}/container-image-id"    = var.mqtt_container_image_tag
+    "${local.mosquitto_configuration_path}/container-image-id"    = var.mqtt_container_image_ic
     "${local.mosquitto_configuration_path}/mqtt-protocol-version" = "mqttv311"
     "${local.mosquitto_configuration_path}/tls-version"           = "tlsv1.3"
   }

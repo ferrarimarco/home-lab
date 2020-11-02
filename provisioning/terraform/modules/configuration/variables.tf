@@ -27,4 +27,4 @@ variable "iot_core_initializer_container_image_id" {}
 variable "iot_core_key_bits" {}
 variable "iot_core_credentials_validity" {}
 variable "main_dns_zone" {}
-variable "mqtt_container_image_tag" {}
+variable "mqtt_container_image_ic" {}

@@ -107,8 +107,13 @@ resource "google_compute_instance" "development-workstation" {
 
   metadata_startup_script = templatefile("${path.module}/development-workstation-startup-script.sh",
     {
-      development_workstation_username = var.development_workstation_ssh_user,
-      dotfiles_repository_url          = var.development_workstation_dotfiles_repository_url
+      development_workstation_username        = var.development_workstation_ssh_user,
+      dotfiles_repository_url                 = var.development_workstation_dotfiles_repository_url
+      iot_core_credentials_validity           = var.development_workstation_iot_core_credentials_validity
+      iot_core_initializer_container_image_id = var.development_workstation_iot_core_initializer_container_image_id
+      iot_core_mqtt_client_container_image_id = var.development_workstation_mqtt_client_container_image_id
+      iot_core_project_id                     = var.development_workstation_iot_core_project_id
+      iot_core_registry_id                    = var.development_workstation_iot_core_registry_id
     }
   )
 

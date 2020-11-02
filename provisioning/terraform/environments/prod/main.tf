@@ -7,23 +7,18 @@ data "google_organization" "main_organization" {
   domain = var.google_organization_domain
 }
 
-# Main configuration values
 locals {
-  edge_dns_zone              = "${var.edge_dns_zone_prefix}.${local.main_dns_zone}"
-  main_dns_zone              = "${var.main_dns_zone_prefix}.${data.google_organization.main_organization.domain}"
-  public_keys_directory_path = var.configuration_public_keys_directory_name
-
-  container_image_registry_url = "${var.default_container_registry_url}/${module.iac-pipeline.container_registry_project}"
+  compute_engine_public_keys_directory_path = "${local.public_keys_directory_path}/${var.configuration_compute_engine_keys_directory_name}"
+  consul_template_directory_path            = "consul-template"
+  container_image_registry_url              = "${var.default_container_registry_url}/${module.iac-pipeline.container_registry_project}"
+  edge_dns_zone                             = "${var.edge_dns_zone_prefix}.${local.main_dns_zone}"
+  iot_core_initializer_container_image_id   = "${local.container_image_registry_url}/${var.iot_core_initializer_container_image_id}"
+  iot_core_public_keys_directory_path       = "${local.public_keys_directory_path}/${var.configuration_iot_core_keys_directory_name}"
+  main_dns_zone                             = "${var.main_dns_zone_prefix}.${data.google_organization.main_organization.domain}"
+  public_keys_directory_path                = var.configuration_public_keys_directory_name
 
   # To get environment-specific configuration
   terraform_environment_configuration_directory_path = "${var.configuration_directory_name}/${var.configuration_terraform_environments_directory_name}/${var.configuration_terraform_environment_name}"
-}
-
-locals {
-  compute_engine_public_keys_directory_path = "${local.public_keys_directory_path}/${var.configuration_compute_engine_keys_directory_name}"
-  iot_core_public_keys_directory_path       = "${local.public_keys_directory_path}/${var.configuration_iot_core_keys_directory_name}"
-
-  consul_template_directory_path = "consul-template"
 }
 
 resource "google_compute_network" "default-vpc" {
@@ -73,6 +68,11 @@ module "development-workspace" {
   development_workstation_min_cpu_platform                        = var.development_workstation_min_cpu_platform
   development_workstation_name                                    = var.development_workstation_name
   development_workstation_ssh_user                                = var.development_workstation_ssh_user
+  development_workstation_iot_core_credentials_validity           = var.edge_iot_core_credentials_validity
+  development_workstation_iot_core_initializer_container_image_id = local.iot_core_initializer_container_image_id
+  development_workstation_iot_core_project_id                     = module.iot.edge_iot_core_project_id
+  development_workstation_iot_core_registry_id                    = module.iot.edge_iot_core_registry_id
+  development_workstation_mqtt_client_container_image_id          = var.edge_mqtt_container_image_id
   google_organization_id                                          = data.google_organization.main_organization.org_id
   google_project_id                                               = var.google_iot_project_id
   terraform_environment_configuration_directory_path              = local.terraform_environment_configuration_directory_path
@@ -104,11 +104,11 @@ module "configuration" {
   google_organization_id                         = data.google_organization.main_organization.org_id
   google_project_id                              = var.google_configuration_project_id
   google_region                                  = var.google_default_region
-  iot_core_initializer_container_image_id        = "${local.container_image_registry_url}/${var.iot_core_initializer_container_image_id}"
+  iot_core_initializer_container_image_id        = local.iot_core_initializer_container_image_id
   iot_core_key_bits                              = var.edge_iot_core_key_bits
   iot_core_credentials_validity                  = var.edge_iot_core_credentials_validity
   main_dns_zone                                  = local.main_dns_zone
-  mqtt_container_image_tag                       = var.edge_mqtt_container_image_tag
+  mqtt_container_image_ic                        = var.edge_mqtt_container_image_id
 
   dns_record_sets_main_zone = {
     (module.development-workspace.development_workstation_hostname) = {

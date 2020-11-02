@@ -178,7 +178,7 @@ variable "edge_main_subnet_ipv4_address_range_start" {
   description = "End (inclusive) of the IPv4 address range of the main subnet in the edge environment."
 }
 
-variable "edge_mqtt_container_image_tag" {
+variable "edge_mqtt_container_image_id" {
   default     = "eclipse-mosquitto:1.6.12-openssl"
   description = "Container image tag of the MQTT runtime."
 }

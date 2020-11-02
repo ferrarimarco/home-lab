@@ -52,3 +52,49 @@ echo "Contents of $WORKSPACES_DIRECTORY_PATH: $(ls -alh "$WORKSPACES_DIRECTORY_P
 echo "Initializing dotfiles..."
 cd "$DOTFILES_DIRECTORY_PATH" || exit 1
 sudo -H -u "$DEVELOPMENT_WORKSTATION_USERNAME" sh -c 'bin/setup-dotfiles.sh debian && make'
+
+DOCKER_TTY_OPTION=
+if [ -t 0 ]; then
+  # shellcheck disable=SC2034 # This is a Terraform template file
+  DOCKER_TTY_OPTION="-t"
+fi
+
+# shellcheck disable=SC2034 # The value comes from Terraform.
+IOT_CORE_INITIALIZER_CONTAINER_NAME="iot-core-initializer"
+
+# shellcheck disable=SC1083,SC2154 # Escape variable because this is a Terraform template file. The value comes from Terraform
+docker run $${DOCKER_TTY_OPTION} \
+  -i \
+  --name "$${IOT_CORE_INITIALIZER_CONTAINER_NAME}" \
+  --rm \
+  "${iot_core_initializer_container_image_id}"
+
+# shellcheck disable=SC2034,SC2154 # The value comes from Terraform.
+IOT_CORE_PROJECT_ID="${iot_core_project_id}"
+
+# shellcheck disable=SC2034,SC2154 # The value comes from Terraform.
+IOT_CORE_REGISTRY_ID="${iot_core_registry_id}"
+
+# shellcheck disable=SC2034,SC2154 # The value comes from Terraform.
+IOT_CORE_CREDENTIALS_VALIDITY="${iot_core_credentials_validity}"
+
+# shellcheck disable=SC2034,SC2154 # The value comes from Terraform.
+MQTT_CLIENT_CONTAINER_IMAGE_ID="${iot_core_mqtt_client_container_image_id}"
+
+# shellcheck disable=SC2034 # The value comes from Terraform.
+IOT_CORE_DEVICE_ID="$${IOT_CORE_REGISTRY_ID}/devices/$(hostname)"
+
+# shellcheck disable=SC1083 # Escape variable because this is a Terraform template file.
+docker run $${DOCKER_TTY_OPTION} \
+  -d \
+  -i \
+  --name "mqtt-client-iot-core-sub" \
+  --restart always \
+  --rm \
+  --volumes-from "$${IOT_CORE_INITIALIZER_CONTAINER_NAME}"
+  "$${MQTT_CLIENT_CONTAINER_IMAGE_ID}" \
+  "$${IOT_CORE_PROJECT_ID}" \
+  "$${IOT_CORE_CREDENTIALS_VALIDITY}" \
+  "$${IOT_CORE_DEVICE_ID}" \
+  "$${IOT_CORE_DEVICE_NAME}" \
+  "/usr/bin/mosquitto_sub"
