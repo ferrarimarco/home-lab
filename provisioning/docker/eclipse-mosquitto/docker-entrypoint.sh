@@ -19,10 +19,12 @@ elif [ "${COMMAND}" = "publish" ]; then
   echo "Publishing a message..."
   COMMAND_PATH="mosquitto_pub"
   SUB_COMMAND="${1}" && shift
+  echo "Sub command: ${SUB_COMMAND}"
   SLEEP_AFTER_SENDING_MQTT_MESSAGE="${1}" && shift
   MQTT_MESSAGE_PAYLOAD_FILE_PATH=
+
   if [ -z "${SUB_COMMAND}" ]; then
-    echo "Error: sub command not speficied. Terminating..."
+    echo "Error: sub command not specified. Terminating..."
     exit 1
   elif [ "${SUB_COMMAND}" = "telemetry-node-exporter" ]; then
     echo "Sending Prometheus Node Exporter data as a telemetry event..."

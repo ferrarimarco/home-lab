@@ -16,6 +16,7 @@ COPY --from=prometheus-node-exporter /bin/node_exporter /usr/bin/
 COPY requirements.txt requirements.txt
 
 RUN apk add --no-cache \
+    curl \
     libressl-dev
 
 RUN apk add --no-cache --virtual .build_deps \
