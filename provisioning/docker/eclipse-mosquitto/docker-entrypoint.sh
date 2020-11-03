@@ -15,6 +15,7 @@ if [ "${COMMAND}" = "subscribe" ]; then
   COMMAND_PATH="mosquitto_sub"
   MQTT_TOPICS="${MQTT_TOPICS} --topic /devices/${IOT_CORE_DEVICE_NAME}/commands/#"
   MQTT_TOPICS="${MQTT_TOPICS} --topic /devices/${IOT_CORE_DEVICE_NAME}/config"
+  VERBOSE_FLAG="--verbose"
 elif [ "${COMMAND}" = "publish" ]; then
   echo "Publishing a message..."
   COMMAND_PATH="mosquitto_pub"
@@ -35,7 +36,8 @@ elif [ "${COMMAND}" = "publish" ]; then
 
     MQTT_MESSAGE_PAYLOAD_FILE_PATH="/tmp/prometheus-node-exporter-metrics.dat"
     echo "Saving metrics data to ${MQTT_MESSAGE_PAYLOAD_FILE_PATH}..."
-    curl localhost:9100/metrics > "${MQTT_MESSAGE_PAYLOAD_FILE_PATH}"
+    # IPv4 only as a workaround for https://github.com/curl/curl/issues/5080
+    curl -4 --connect-timeout 5 --retry 10 --retry-connrefused localhost:9100/metrics > "${MQTT_MESSAGE_PAYLOAD_FILE_PATH}"
   fi
 fi
 
@@ -58,6 +60,11 @@ COMMAND_TO_RUN="${COMMAND_PATH} --id ${IOT_CORE_DEVICE_ID} --pw ${IOT_CORE_JWT} 
 if [ -n "${MQTT_MESSAGE_PAYLOAD_FILE_PATH}" ]; then
   echo "Found a path to a file to send as payload: ${MQTT_MESSAGE_PAYLOAD_FILE_PATH}"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --file ${MQTT_MESSAGE_PAYLOAD_FILE_PATH}"
+fi
+
+if [ -n "${VERBOSE_FLAG}" ]; then
+  echo "Adding the verbose flag to the command..."
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --verbose"
 fi
 
 echo "Running command: ${COMMAND_TO_RUN}"
