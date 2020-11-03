@@ -16,6 +16,7 @@ if [ "${COMMAND}" = "subscribe" ]; then
   MQTT_TOPICS="${MQTT_TOPICS} --topic /devices/${IOT_CORE_DEVICE_NAME}/commands/#"
   MQTT_TOPICS="${MQTT_TOPICS} --topic /devices/${IOT_CORE_DEVICE_NAME}/config"
   VERBOSE_FLAG="--verbose"
+  IOT_CORE_CREDENTIALS_VALIDITY_OPTION="-W ${IOT_CORE_CREDENTIALS_VALIDITY}"
 elif [ "${COMMAND}" = "publish" ]; then
   echo "Publishing a message..."
   COMMAND_PATH="mosquitto_pub"
@@ -55,7 +56,7 @@ cp "${MOSQUITTO_PUB_SUB_CONFIG_SOURCE_DIRECTORY_PATH}/"* "${MOSQUITTO_PUB_SUB_CO
 echo "Generating JWT valid for ${IOT_CORE_PROJECT_ID} project and duration ${IOT_CORE_CREDENTIALS_VALIDITY} seconds from now..."
 IOT_CORE_JWT="$(pyjwt --key="$(cat /etc/cloud-iot-core/keys/private_key.pem)" --alg=RS256 encode iat="$(date +%s)" exp=+"${IOT_CORE_CREDENTIALS_VALIDITY}" aud="${IOT_CORE_PROJECT_ID}")"
 
-COMMAND_TO_RUN="${COMMAND_PATH} --id ${IOT_CORE_DEVICE_ID} --pw ${IOT_CORE_JWT} -W ${IOT_CORE_CREDENTIALS_VALIDITY} ${MQTT_TOPICS}"
+COMMAND_TO_RUN="${COMMAND_PATH} --id ${IOT_CORE_DEVICE_ID} --pw ${IOT_CORE_JWT} ${MQTT_TOPICS}"
 
 if [ -n "${MQTT_MESSAGE_PAYLOAD_FILE_PATH}" ]; then
   echo "Found a path to a file to send as payload: ${MQTT_MESSAGE_PAYLOAD_FILE_PATH}"
@@ -63,8 +64,13 @@ if [ -n "${MQTT_MESSAGE_PAYLOAD_FILE_PATH}" ]; then
 fi
 
 if [ -n "${VERBOSE_FLAG}" ]; then
-  echo "Adding the verbose flag to the command..."
-  COMMAND_TO_RUN="${COMMAND_TO_RUN} --verbose"
+  echo "Adding the verbose option to the command..."
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${VERBOSE_FLAG}"
+fi
+
+if [ -n "${IOT_CORE_CREDENTIALS_VALIDITY_OPTION}" ]; then
+  echo "Adding the credentials validity option to the command..."
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${IOT_CORE_CREDENTIALS_VALIDITY_OPTION}"
 fi
 
 echo "Running command: ${COMMAND_TO_RUN}"
