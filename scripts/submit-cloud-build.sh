@@ -80,7 +80,7 @@ MODIFIED_FILES="$(git -C "$TEMP_GIT_REPOSITORY_PATH" diff-tree --name-only --no-
 echo "$COMMIT_SHA contains the following modified files: $(
   echo
   echo "${MODIFIED_FILES}"
-  )"
+)"
 
 BUILDS_MODIFIED_FILES="false"
 if echo "${MODIFIED_FILES}" | grep "$DESTINATION_DIRECTORY_PATH"; then
@@ -89,8 +89,7 @@ if echo "${MODIFIED_FILES}" | grep "$DESTINATION_DIRECTORY_PATH"; then
 else
   echo "$COMMIT_SHA revision doesn't contain any modification to files that match $DESTINATION_DIRECTORY_PATH."
   echo "Checking if $COMMIT_SHA contains modifications to common files for the $DESTINATION_DIRECTORY_PATH build..."
-  for DIRECTORY in ${COMMON_FILES_DIRECTORIES}
-  do
+  for DIRECTORY in ${COMMON_FILES_DIRECTORIES}; do
     echo "Checking if $COMMIT_SHA contains modifications to files in ${DIRECTORY}..."
     if echo "${MODIFIED_FILES}" | grep "$DIRECTORY"; then
       BUILDS_MODIFIED_FILES="true"
@@ -120,8 +119,7 @@ fi
 
 if [ -n "${COMMON_FILES_DIRECTORIES}" ]; then
   echo "Copying files from ${COMMON_FILES_DIRECTORIES} to ${CLOUD_BUILD_JOB_PATH}..."
-  for DIRECTORY in ${COMMON_FILES_DIRECTORIES}
-  do
+  for DIRECTORY in ${COMMON_FILES_DIRECTORIES}; do
     echo "Copying $DIRECTORY to ${CLOUD_BUILD_JOB_PATH}..."
     cp -RTv "${DIRECTORY}/" "${CLOUD_BUILD_JOB_PATH}/"
   done

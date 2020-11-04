@@ -38,7 +38,7 @@ elif [ "${COMMAND}" = "publish" ]; then
     MQTT_MESSAGE_PAYLOAD_FILE_PATH="/tmp/prometheus-node-exporter-metrics.dat"
     echo "Saving metrics data to ${MQTT_MESSAGE_PAYLOAD_FILE_PATH}..."
     # IPv4 only as a workaround for https://github.com/curl/curl/issues/5080
-    curl -4 --connect-timeout 5 --retry 10 --retry-connrefused localhost:9100/metrics > "${MQTT_MESSAGE_PAYLOAD_FILE_PATH}"
+    curl -4 --connect-timeout 5 --retry 10 --retry-connrefused localhost:9100/metrics >"${MQTT_MESSAGE_PAYLOAD_FILE_PATH}"
   fi
 fi
 

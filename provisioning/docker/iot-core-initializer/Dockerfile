@@ -1,6 +1,6 @@
 FROM alpine:3.12
 
-RUN apk add --update \
+RUN apk add --no-cache --update \
     curl \
     openssl
 
