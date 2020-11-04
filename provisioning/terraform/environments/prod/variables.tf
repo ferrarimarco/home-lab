@@ -179,7 +179,7 @@ variable "edge_main_subnet_ipv4_address_range_start" {
 }
 
 variable "edge_mqtt_container_image_id" {
-  default     = "eclipse-mosquitto:30f0971"
+  default     = "eclipse-mosquitto:464870d"
   description = "Container image tag of the MQTT runtime."
 }
 
