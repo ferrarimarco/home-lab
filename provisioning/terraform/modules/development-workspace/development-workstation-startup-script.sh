@@ -101,4 +101,20 @@ docker run $${DOCKER_TTY_OPTION} \
   "$${IOT_CORE_CREDENTIALS_VALIDITY}" \
   "$${IOT_CORE_DEVICE_ID}" \
   "$${IOT_CORE_DEVICE_NAME}" \
-  "/usr/bin/mosquitto_sub"
+  "subscribe"
+
+# shellcheck disable=SC1083 # Escape variable because this is a Terraform template file.
+docker run $${DOCKER_TTY_OPTION} \
+  -d \
+  -i \
+  --name "mqtt-client-iot-core-pub" \
+  --restart always \
+  --volumes-from "$${IOT_CORE_INITIALIZER_CONTAINER_NAME}" \
+  "$${MQTT_CLIENT_CONTAINER_IMAGE_ID}" \
+  "$${IOT_CORE_PROJECT_ID}" \
+  "$${IOT_CORE_CREDENTIALS_VALIDITY}" \
+  "$${IOT_CORE_DEVICE_ID}" \
+  "$${IOT_CORE_DEVICE_NAME}" \
+  "publish" \
+  "telemetry-node-exporter" \
+  "10s"
