@@ -13,7 +13,7 @@ updates:
     directory: "/provisioning/docker/eclipse-mosquitto"
     schedule:
       interval: "daily"
-  - package-ecosystem: pip
+  - package-ecosystem: "pip"
     directory: "/provisioning/docker/eclipse-mosquitto"
     schedule:
       interval: daily

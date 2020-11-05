@@ -12,7 +12,6 @@ rules:
   document-start:
     level: error
   empty-values: enable
-  key-ordering: enable
   line-length:
     max: 200
     allow-non-breakable-inline-mappings: true
