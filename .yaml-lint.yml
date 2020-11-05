@@ -4,9 +4,9 @@ extends: default
 rules:
   colons:
     max-spaces-after: 1
-  comments: enable
+  comments:
     level: error
-  comments-indentation: enable
+  comments-indentation:
     level: error
   document-end: enable
   document-start:
@@ -17,6 +17,5 @@ rules:
     max: 200
     allow-non-breakable-inline-mappings: true
   octal-values: enable
-  quoted-strings: disable
   truthy:
     level: error
