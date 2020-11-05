@@ -8,7 +8,6 @@ rules:
     level: error
   comments-indentation:
     level: error
-  document-end: enable
   document-start:
     level: error
   empty-values: enable
