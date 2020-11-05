@@ -109,6 +109,11 @@ variable "google_iac_project_id" {
   description = "Google Cloud project ID for the IaC pipeline"
 }
 
+variable "development_workstation_additional_disk_size" {
+  default     = 100
+  description = "Size of the development workstation additional disk, in GB"
+}
+
 variable "development_workstation_dotfiles_repository_url" {
   default     = "https://github.com/ferrarimarco/dotfiles.git"
   description = "URL of the repository containing the developer's dotfiles"

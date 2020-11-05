@@ -1,5 +1,6 @@
 variable "compute_engine_development_workstation_ssh_public_key_file_path" {}
 variable "configuration_bucket_name" {}
+variable "development_workstation_additional_disk_size" {}
 variable "development_workstation_machine_type" {}
 variable "development_workstation_min_cpu_platform" {}
 variable "development_workstation_name" {}
