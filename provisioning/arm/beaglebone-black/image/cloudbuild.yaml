@@ -23,7 +23,7 @@ steps:
         mkdir -p $_RENDERED_TEMPLATES_PATH
         chown -R consul-template:consul-template $_RENDERED_TEMPLATES_PATH
         echo "Contents of $(pwd): $(find "$(pwd)")"
-- name: 'hashicorp/consul-template:$_CONSUL_TEMPLATE_IMAGE_TAG'
+  - name: 'hashicorp/consul-template:$_CONSUL_TEMPLATE_IMAGE_TAG'
     args:
       - '/bin/consul-template'
       - '-config'

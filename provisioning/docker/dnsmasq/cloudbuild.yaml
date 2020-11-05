@@ -15,7 +15,7 @@ steps:
         adduser -u 100 -S -G consul-template consul-template
         mkdir -p $_RENDERED_TEMPLATES_PATH
         chown consul-template:consul-template $_RENDERED_TEMPLATES_PATH
-- name: 'hashicorp/consul-template:$_CONSUL_TEMPLATE_IMAGE_TAG'
+  - name: 'hashicorp/consul-template:$_CONSUL_TEMPLATE_IMAGE_TAG'
     args:
       - '/bin/consul-template'
       - '-config'
