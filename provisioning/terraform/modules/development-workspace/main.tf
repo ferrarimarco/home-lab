@@ -82,14 +82,6 @@ resource "google_compute_firewall" "allow_ssh_dev_workstation" {
   target_tags = ["development-workstation"]
 }
 
-resource "google_compute_disk" "development_workstation_additional_disk" {
-  name                      = "${var.development_workstation_name}-disk-1"
-  type                      = "pd-ssd"
-  physical_block_size_bytes = 4096
-  project                   = var.google_project_id
-  size                      = var.development_workstation_additional_disk_size
-}
-
 resource "google_compute_instance" "development-workstation" {
   allow_stopping_for_update = true
 
@@ -104,13 +96,10 @@ resource "google_compute_instance" "development-workstation" {
 
   can_ip_forward = false
 
-  attached_disk {
-    source = google_compute_disk.development_workstation_additional_disk.self_link
-  }
-
   boot_disk {
     initialize_params {
       image = google_compute_image.dev-workstation-image-ubuntu-2004.self_link
+      size  = var.development_workstation_boot_disk_size
       type  = "pd-ssd"
     }
   }
