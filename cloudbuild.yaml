@@ -1,28 +1,28 @@
 ---
 options:
-    env:
-        - TF_INPUT=false
+  env:
+    - TF_INPUT=false
 steps:
-    - id: 'super-linter'
-      name: "ghcr.io/github/super-linter:v3.13.5"
-      env:
-        - ACTIONS_RUNNER_DEBUG=true
-        - ANSIBLE_DIRECTORY=configuration/ansible
-        - DEFAULT_WORKSPACE=/workspace
-        - DISABLE_ERRORS=false
-        - ERROR_ON_MISSING_EXEC_BIT=true
-        - LINTER_RULES_PATH=.
-        - MULTI_STATUS=false
-        - RUN_LOCAL=true
-        - VALIDATE_ALL_CODEBASE=true
-        - VALIDATE_TERRAFORM_TERRASCAN=false
-    - id: 'clone repository'
-      name: gcr.io/cloud-builders/git
-      args: ['clone', '${_URL}.git']
-    - id: 'provision infrastructure'
-      name: 'gcr.io/cloud-builders/gcloud'
-      entrypoint: 'bash'
-      args:
+  - id: 'super-linter'
+    name: "ghcr.io/github/super-linter:v3.13.5"
+    env:
+      - ACTIONS_RUNNER_DEBUG=true
+      - ANSIBLE_DIRECTORY=configuration/ansible
+      - DEFAULT_WORKSPACE=/workspace
+      - DISABLE_ERRORS=false
+      - ERROR_ON_MISSING_EXEC_BIT=true
+      - LINTER_RULES_PATH=.
+      - MULTI_STATUS=false
+      - RUN_LOCAL=true
+      - VALIDATE_ALL_CODEBASE=true
+      - VALIDATE_TERRAFORM_TERRASCAN=false
+  - id: 'clone repository'
+    name: gcr.io/cloud-builders/git
+    args: ['clone', '${_URL}.git']
+  - id: 'provision infrastructure'
+    name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
       - '-c'
       - |
         echo "Saving eventual failures log to: ${_FAILURE_FILE_PATH}"
@@ -44,10 +44,10 @@ steps:
         else
             echo "Build succeeded."
         fi
-    - id: 'start other build jobs'
-      name: 'gcr.io/cloud-builders/gcloud'
-      entrypoint: 'bash'
-      args:
+  - id: 'start other build jobs'
+    name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
       - '-c'
       - |
         echo "Saving eventual failures log to: ${_FAILURE_FILE_PATH}"

@@ -2,10 +2,10 @@
 client:
   extraConfig: |
     {
-        "ports": {
-          "https": 8501
-        },
-        "disable_keyring_file": true
+      "ports": {
+        "https": 8501
+      },
+      "disable_keyring_file": true
     }
   grpc: true
 dns:
@@ -29,13 +29,13 @@ server:
   bootstrapExpect: 3
   extraConfig: |
     {
-        "ports": {
-          "https": 8501
-        },
-        "performance": {
-          "raft_multiplier": 1
-        },
-        "disable_keyring_file": true
+      "ports": {
+        "https": 8501
+      },
+      "performance": {
+        "raft_multiplier": 1
+      },
+      "disable_keyring_file": true
     }
   replicas: 3
   service:

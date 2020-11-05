@@ -1,11 +1,12 @@
+---
 steps:
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
-  entrypoint: gsutil
-  args: ['-m', 'cp', '-r', 'gs://${PROJECT_ID}-configuration/terraform/$_TERRAFORM_ENVIRONMENT_PATH/consul-template', '.']
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
-  entrypoint: 'sh'
-  # See https://github.com/hashicorp/consul-template#docker-image-use
-  args:
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
+    entrypoint: gsutil
+    args: ['-m', 'cp', '-r', 'gs://${PROJECT_ID}-configuration/terraform/$_TERRAFORM_ENVIRONMENT_PATH/consul-template', '.']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
+    entrypoint: 'sh'
+    # See https://github.com/hashicorp/consul-template#docker-image-use
+    args:
       - '-c'
       - |
         echo "Contents of $(pwd): $(ls -al)"
@@ -15,29 +16,29 @@ steps:
         mkdir -p $_RENDERED_TEMPLATES_PATH
         chown consul-template:consul-template $_RENDERED_TEMPLATES_PATH
 - name: 'hashicorp/consul-template:$_CONSUL_TEMPLATE_IMAGE_TAG'
-  args:
-    - '/bin/consul-template'
-    - '-config'
-    - 'consul-template/config.hcl'
-    - '-once'
-    - '-template'
-    - 'templates/etc/dnsmasq/dhcp-hostsfile.conf:$_RENDERED_TEMPLATES_PATH/etc/dnsmasq/dhcp-hostsfile.conf'
-    - '-template'
-    - 'templates/etc/dnsmasq/dhcp-options.conf:$_RENDERED_TEMPLATES_PATH/etc/dnsmasq/dhcp-options.conf'
-    - '-template'
-    - 'templates/etc/dnsmasq/dnsmasq.conf:$_RENDERED_TEMPLATES_PATH/etc/dnsmasq/dnsmasq.conf'
-    - '-template'
-    - 'templates/etc/dnsmasq/servers.conf:$_RENDERED_TEMPLATES_PATH/etc/dnsmasq/servers.conf'
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['run', '--privileged', 'gcr.io/$PROJECT_ID/arm-image-builder:$_ARM_BUILDER_IMAGE_TAG']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['buildx', 'create', '--name', '$_DOCKER_BUILDX_BUILDER_NAME']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['buildx', 'use', '$_DOCKER_BUILDX_BUILDER_NAME']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['buildx', 'inspect', '--bootstrap']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['buildx', 'build', '--platform', '$_DOCKER_BUILDX_PLATFORMS', '-t', 'gcr.io/$PROJECT_ID/$_DOCKER_IMAGE_ID:$_DOCKER_IMAGE_TAG', '--build-arg', 'CONFIGURATION_DIRECTORY_PATH=$_RENDERED_TEMPLATES_PATH', '--push', '.']
+    args:
+      - '/bin/consul-template'
+      - '-config'
+      - 'consul-template/config.hcl'
+      - '-once'
+      - '-template'
+      - 'templates/etc/dnsmasq/dhcp-hostsfile.conf:$_RENDERED_TEMPLATES_PATH/etc/dnsmasq/dhcp-hostsfile.conf'
+      - '-template'
+      - 'templates/etc/dnsmasq/dhcp-options.conf:$_RENDERED_TEMPLATES_PATH/etc/dnsmasq/dhcp-options.conf'
+      - '-template'
+      - 'templates/etc/dnsmasq/dnsmasq.conf:$_RENDERED_TEMPLATES_PATH/etc/dnsmasq/dnsmasq.conf'
+      - '-template'
+      - 'templates/etc/dnsmasq/servers.conf:$_RENDERED_TEMPLATES_PATH/etc/dnsmasq/servers.conf'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['run', '--privileged', 'gcr.io/$PROJECT_ID/arm-image-builder:$_ARM_BUILDER_IMAGE_TAG']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['buildx', 'create', '--name', '$_DOCKER_BUILDX_BUILDER_NAME']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['buildx', 'use', '$_DOCKER_BUILDX_BUILDER_NAME']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['buildx', 'inspect', '--bootstrap']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['buildx', 'build', '--platform', '$_DOCKER_BUILDX_PLATFORMS', '-t', 'gcr.io/$PROJECT_ID/$_DOCKER_IMAGE_ID:$_DOCKER_IMAGE_TAG', '--build-arg', 'CONFIGURATION_DIRECTORY_PATH=$_RENDERED_TEMPLATES_PATH', '--push', '.']
 options:
   env:
     - 'DOCKER_CLI_EXPERIMENTAL=enabled'
