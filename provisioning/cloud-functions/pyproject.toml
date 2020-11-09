@@ -1,0 +1,5 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+# Duplicating the information in a requirements,
+# waiting for pip to support this
+requires = ["setuptools>=50.3.2", "wheel>=0.35.1"]

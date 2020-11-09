@@ -13,6 +13,7 @@ steps:
       - ERROR_ON_MISSING_EXEC_BIT=true
       - LINTER_RULES_PATH=.
       - MULTI_STATUS=false
+      - PYTHON_ISORT_CONFIG_FILE=pyproject.toml
       - RUN_LOCAL=true
       - VALIDATE_ALL_CODEBASE=true
       - VALIDATE_TERRAFORM_TERRASCAN=false
@@ -105,6 +106,14 @@ steps:
           --commit-sha "$COMMIT_SHA" \
           --common-files-directories "provisioning/common/iot-core/systemd" \
           --destination-directory-path "provisioning/arm/beaglebone-black/image" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab" \
+          &
+
+        scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "COMMIT_SHA=$COMMIT_SHA" \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/cloud-functions" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
           --git-repository-path "home-lab" \
           &

@@ -119,3 +119,9 @@ where `XXXX` is the SD card device identifier.
     the board will power off. Remember to remove the microSD otherwise the board
     will keep flashing the microSD over and over.
 1. Unplug the board and plug it back in.
+
+## Development environment
+
+In this section, you configure the development environment.
+
+### Cloud Functions

@@ -1,0 +1,30 @@
+---
+artifacts:
+  objects:
+    location: 'gs://${PROJECT_ID}-cloud-functions-source'
+    paths:
+      - '/workspace/dist/*.zip'
+steps:
+  - name: 'python:3.8'
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        pip install -r dev-requirements/requirements.txt
+        pip install .[development]
+        pip install -r requirements.txt
+        pytest --cache-clear
+  - name: 'alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        apk add --no-cache \
+          zip
+        mkdir -p ${_DIST_DIRECTORY}
+        cp requirements.txt src/cloudfunctions/pubsubtogcs/
+        cd src/cloudfunctions/pubsubtogcs || exit 1
+        zip -r ${_DIST_DIRECTORY}/pubsubtogcs-${COMMIT_SHA}.zip .
+        echo "Contents of ${_DIST_DIRECTORY}: $(ls -alh ${_DIST_DIRECTORY})"
+substitutions:
+  _DIST_DIRECTORY: "/workspace/dist"
