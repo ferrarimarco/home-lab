@@ -49,5 +49,5 @@ steps:
         fi
 substitutions:
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
-  _TERRAFORM_IMAGE_TAG: '0.13.4'
+  _TERRAFORM_IMAGE_TAG: '0.13.5'
 timeout: 37000s

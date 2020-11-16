@@ -206,3 +206,8 @@ variable "iot_core_initializer_container_image_id" {
 variable "main_dns_zone_prefix" {
   description = "Prefix of the main DNS zone to manage. The organization domain is appended to this prefix."
 }
+
+variable "pubsubtogcs_cloudfunction_archive_object_name" {
+  default     = "pubsubtogcs-a242da3bb9dc31a78c2fef52ba5e3f2919558afc.zip"
+  description = "Path to the Pub/Sub to Cloud Storage archive file inside the Cloud Functions bucket"
+}

@@ -201,6 +201,17 @@ resource "google_storage_bucket" "os-images" {
   }
 }
 
+resource "google_storage_bucket" "cloudfunctions_source_bucket" {
+  name                        = "${var.google_project_id}-cloud-functions-source"
+  project                     = var.google_project_id
+  location                    = "US"
+  uniform_bucket_level_access = true
+
+  versioning {
+    enabled = true
+  }
+}
+
 resource "google_storage_bucket" "configuration" {
   name                        = "${var.google_project_id}-configuration"
   project                     = var.google_project_id
@@ -263,4 +274,8 @@ output "configuration_bucket_self_link" {
 
 output "terraform_configuration_consul_template_directory" {
   value = trimsuffix(google_storage_bucket_object.terraform-configuration-consul-template-directory.name, "/")
+}
+
+output "cloudfunctions_source_bucket_name" {
+  value = google_storage_bucket.cloudfunctions_source_bucket.name
 }

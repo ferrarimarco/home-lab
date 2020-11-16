@@ -62,6 +62,10 @@ resource "google_cloudiot_registry" "home-registry" {
   }
 }
 
+output "iot_core_home_lab_registry_telemetry_pubsub_topic" {
+  value = google_pubsub_topic.default-telemetry.id
+}
+
 resource "google_storage_bucket" "smart_desk" {
   name                        = "ferrarimarco-smart-desk"
   project                     = var.google_project_id

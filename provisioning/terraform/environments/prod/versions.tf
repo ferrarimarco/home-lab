@@ -4,23 +4,23 @@ terraform {
   required_providers {
     consul = {
       source  = "hashicorp/consul"
-      version = "~> 2.10.0"
+      version = "~> 2.10.1"
     }
     google = {
       source  = "hashicorp/google"
-      version = "~> 3.44.0"
+      version = "~> 3.47.0"
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = "~> 3.44.0"
+      version = "~> 3.47.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 1.3.0"
+      version = "~> 1.3.2"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 1.13.2"
+      version = "~> 1.13.3"
     }
     kubernetes-alpha = {
       source  = "hashicorp/kubernetes-alpha"
@@ -28,11 +28,11 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 2.3.0"
+      version = "~> 3.0.0"
     }
     tls = {
       source  = "hashicorp/tls"
-      version = "~> 2.2.0"
+      version = "~> 3.0.0"
     }
   }
 }

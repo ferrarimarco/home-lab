@@ -121,6 +121,14 @@ module "configuration" {
   }
 }
 
+module "cloud-functions" {
+  source                                        = "../../modules/cloud-functions"
+  cloudfunctions_source_bucket_name             = module.iac-pipeline.cloudfunctions_source_bucket_name
+  google_project_id                             = var.google_iot_project_id
+  iot_core_telemetry_pubsub_topic               = module.iot.iot_core_home_lab_registry_telemetry_pubsub_topic
+  pubsubtogcs_cloudfunction_archive_object_name = var.pubsubtogcs_cloudfunction_archive_object_name
+}
+
 output "main_zone_dns_names" {
   description = "DNS names defined in the main DNS zone"
   value       = module.configuration.main_zone_dns_names
