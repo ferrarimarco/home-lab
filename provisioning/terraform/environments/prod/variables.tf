@@ -114,9 +114,12 @@ variable "development_workstation_boot_disk_size" {
   description = "Size of the development workstation boot disk, in GB"
 }
 
-variable "development_workstation_dotfiles_repository_url" {
-  default     = "https://github.com/ferrarimarco/dotfiles.git"
-  description = "URL of the repository containing the developer's dotfiles"
+variable "development_workstation_git_repositories_to_clone" {
+  default = [
+    "https://github.com/ferrarimarco/dotfiles.git",
+    "https://github.com/ferrarimarco/home-lab.git"
+  ]
+  description = "Git repositories to clone in the development workstation"
 }
 
 variable "development_workstation_machine_type" {
@@ -136,6 +139,11 @@ variable "development_workstation_name" {
 
 variable "development_workstation_ssh_user" {
   description = "Username of the user to connect to the development workstation via SSH"
+}
+
+variable "development_workstation_update_git_remotes_to_ssh" {
+  default     = true
+  description = "When true, Git remotes of the repositories cloned in the development workstation will be updated to use SSH after being cloned via HTTP"
 }
 
 variable "edge_beaglebone_black_ethernet_ipv4_address" {

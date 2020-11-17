@@ -63,7 +63,7 @@ module "development-workspace" {
   compute_engine_development_workstation_ssh_public_key_file_path = "${local.compute_engine_public_keys_directory_path}/${var.configuration_compute_engine_development_workstation_ssh_public_key_file_name}"
   configuration_bucket_name                                       = module.iac-pipeline.configuration_bucket_name
   development_workstation_boot_disk_size                          = var.development_workstation_boot_disk_size
-  development_workstation_dotfiles_repository_url                 = var.development_workstation_dotfiles_repository_url
+  development_workstation_git_repositories_to_clone               = var.development_workstation_git_repositories_to_clone
   development_workstation_google_compute_network_self_link        = google_compute_network.default-vpc.self_link
   development_workstation_google_compute_subnetwork_self_link     = google_compute_subnetwork.default-subnet.self_link
   development_workstation_machine_type                            = var.development_workstation_machine_type
@@ -75,6 +75,7 @@ module "development-workspace" {
   development_workstation_iot_core_project_id                     = module.iot.edge_iot_core_project_id
   development_workstation_iot_core_registry_id                    = module.iot.edge_iot_core_registry_id
   development_workstation_mqtt_client_container_image_id          = local.mqtt_container_image_id
+  development_workstation_update_git_remotes_to_ssh               = var.development_workstation_update_git_remotes_to_ssh
   google_organization_id                                          = data.google_organization.main_organization.org_id
   google_project_id                                               = var.google_iot_project_id
   terraform_environment_configuration_directory_path              = local.terraform_environment_configuration_directory_path
