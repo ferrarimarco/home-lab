@@ -136,6 +136,6 @@ substitutions:
   _FAILURE_FILE_PATH: './failure.log'
   _TERRAFORM_ENVIRONMENT_PATH: 'environments/prod'
   _URL: '$(push.repository.html_url)'
-tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$BRANCH_NAME', '$TAG_NAME']
+tags: ['$PROJECT_ID', '$BUILD_ID', '$_PR_NUMBER', '$REPO_NAME', '$COMMIT_SHA', '$SHORT_SHA', '$TAG_NAME']
 # Set a high timeout because some jobs launched by this job require it
 timeout: 37000s
