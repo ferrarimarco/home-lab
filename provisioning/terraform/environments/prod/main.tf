@@ -84,6 +84,7 @@ module "development-workspace" {
 module "configuration" {
   source                                         = "../../modules/configuration"
   beaglebone_black_ethernet_ipv4_address         = var.edge_beaglebone_black_ethernet_ipv4_address
+  cert_manager_chart_version                     = var.configuration_cert_manager_chart_version
   cloud_build_service_account_id                 = module.iac-pipeline.cloud_build_service_account_id
   configuration_bucket_name                      = module.iac-pipeline.configuration_bucket_name
   configuration_gke_cluster_node_pool_size       = var.configuration_gke_cluster_node_pool_size

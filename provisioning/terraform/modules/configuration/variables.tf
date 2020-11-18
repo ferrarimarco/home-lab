@@ -1,5 +1,6 @@
 variable "beaglebone_black_ethernet_ipv4_address" {}
 variable "cloud_build_service_account_id" {}
+variable "cert_manager_chart_version" {}
 variable "configuration_bucket_name" {}
 variable "configuration_gke_cluster_node_pool_size" {}
 variable "configuration_gke_cluster_subnet_ip_cidr_range" {}
