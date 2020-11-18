@@ -1,6 +1,5 @@
 variable "beaglebone_black_ethernet_ipv4_address" {}
 variable "cloud_build_service_account_id" {}
-variable "cert_manager_chart_version" {}
 variable "configuration_bucket_name" {}
 variable "configuration_gke_cluster_node_pool_size" {}
 variable "configuration_gke_cluster_subnet_ip_cidr_range" {}
@@ -18,6 +17,7 @@ variable "edge_main_subnet_dhcp_lease_time" {}
 variable "edge_main_subnet_ipv4_address_range_end" {}
 variable "edge_main_subnet_ipv4_address_range_start" {}
 variable "edge_main_subnet_ipv4_address" {}
+variable "edge_prometheus_scrape_interval" {}
 variable "gke_version_prefix" {}
 variable "google_compute_network_vpc_name" {}
 variable "google_compute_subnetwork_vpc_name" {}
@@ -29,3 +29,5 @@ variable "iot_core_key_bits" {}
 variable "iot_core_credentials_validity" {}
 variable "main_dns_zone" {}
 variable "mqtt_container_image_ic" {}
+variable "opentelemetry_collector_chart_version" {}
+variable "opentelemetry_collector_prometheus_exporter_endpoints_configuration" {}

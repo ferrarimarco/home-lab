@@ -1,0 +1,48 @@
+---
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+command:
+  extraArgs:
+    - "--log-level=DEBUG"
+  name: otelcontribcol
+
+config:
+  exporters:
+    logging:
+      loglevel: debug
+    stackdriver:
+
+  extensions:
+    health_check: {}
+    pprof: {}
+    zpages: {}
+  receivers:
+    jaeger: null
+    otlp: null
+    prometheus:
+      config:
+        scrape_configs: ${jsonencode(prometheus_configuration)}
+    zipkin: null
+  service:
+    extensions:
+      - health_check
+      - pprof
+      - zpages
+    pipelines:
+      metrics:
+        exporters:
+          - logging
+          - stackdriver
+        receivers:
+          - prometheus
+      traces: null
+
+# No need for an agent collector now
+agentCollector:
+  enabled: false
+
+# Enable the standalone collector
+standaloneCollector:
+  enabled: true
+  replicaCount: 1

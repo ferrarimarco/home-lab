@@ -49,13 +49,15 @@ module "iac-pipeline" {
 }
 
 module "iot" {
-  source                              = "../../modules/iot"
-  configuration_bucket_name           = module.iac-pipeline.configuration_bucket_name
-  configuration_bucket_self_link      = module.iac-pipeline.configuration_bucket_self_link
-  google_organization_id              = data.google_organization.main_organization.org_id
-  google_project_id                   = var.google_iot_project_id
-  iot_core_public_keys_directory_path = local.iot_core_public_keys_directory_path
-  iot_core_public_keys_storage_prefix = "${local.terraform_environment_configuration_directory_path}/${local.iot_core_public_keys_directory_path}"
+  source                                     = "../../modules/iot"
+  configuration_bucket_name                  = module.iac-pipeline.configuration_bucket_name
+  configuration_bucket_self_link             = module.iac-pipeline.configuration_bucket_self_link
+  edge_prometheus_scrape_interval            = var.edge_prometheus_scrape_interval
+  google_organization_id                     = data.google_organization.main_organization.org_id
+  google_project_id                          = var.google_iot_project_id
+  iot_core_public_keys_directory_path        = local.iot_core_public_keys_directory_path
+  iot_core_public_keys_storage_prefix        = "${local.terraform_environment_configuration_directory_path}/${local.iot_core_public_keys_directory_path}"
+  iot_core_telemetry_destination_bucket_name = module.cloud-functions.pubsubtogcs_cloudfunction_iot_core_telemetry_destination_bucket_name
 }
 
 module "development-workspace" {
@@ -84,7 +86,7 @@ module "development-workspace" {
 module "configuration" {
   source                                         = "../../modules/configuration"
   beaglebone_black_ethernet_ipv4_address         = var.edge_beaglebone_black_ethernet_ipv4_address
-  cert_manager_chart_version                     = var.configuration_cert_manager_chart_version
+  opentelemetry_collector_chart_version          = var.configuration_opentelemetry_collector_chart_version
   cloud_build_service_account_id                 = module.iac-pipeline.cloud_build_service_account_id
   configuration_bucket_name                      = module.iac-pipeline.configuration_bucket_name
   configuration_gke_cluster_node_pool_size       = var.configuration_gke_cluster_node_pool_size
@@ -102,6 +104,7 @@ module "configuration" {
   edge_main_subnet_ipv4_address                  = var.edge_main_subnet_ipv4_address
   edge_main_subnet_ipv4_address_range_end        = var.edge_main_subnet_ipv4_address_range_end
   edge_main_subnet_ipv4_address_range_start      = var.edge_main_subnet_ipv4_address_range_start
+  edge_prometheus_scrape_interval                = var.edge_prometheus_scrape_interval
   gke_version_prefix                             = var.configuration_gke_version_prefix
   google_compute_network_vpc_name                = google_compute_network.default-vpc.name
   google_compute_subnetwork_vpc_name             = google_compute_subnetwork.default-subnet.name
@@ -111,8 +114,11 @@ module "configuration" {
   iot_core_initializer_container_image_id        = local.iot_core_initializer_container_image_id
   iot_core_key_bits                              = var.edge_iot_core_key_bits
   iot_core_credentials_validity                  = var.edge_iot_core_credentials_validity
-  main_dns_zone                                  = local.main_dns_zone
-  mqtt_container_image_ic                        = local.mqtt_container_image_id
+  opentelemetry_collector_prometheus_exporter_endpoints_configuration = concat(
+    module.iot.cloudiot_devices_prometheus_monitoring_configuration
+  )
+  main_dns_zone           = local.main_dns_zone
+  mqtt_container_image_ic = local.mqtt_container_image_id
 
   dns_record_sets_main_zone = {
     (module.development-workspace.development_workstation_hostname) = {

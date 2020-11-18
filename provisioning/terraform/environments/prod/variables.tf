@@ -57,11 +57,6 @@ variable "configuration_terraform_environment_name" {
   description = "Name of the Terraform configuration directory"
 }
 
-variable "configuration_cert_manager_chart_version" {
-  default     = "v0.1.0"
-  description = "Version of the cert-manager Helm chart to install cert-manager in the configuration environment"
-}
-
 variable "configuration_consul_datacenter_name" {
   default     = "configuration-datacenter"
   description = "Name of the configuration Consul datacenter"
@@ -77,9 +72,19 @@ variable "configuration_gke_version_prefix" {
   description = "GKE version for the configuration environment."
 }
 
+variable "configuration_opentelemetry_collector_chart_version" {
+  default     = "0.2.1"
+  description = "Version of the opentelemetry-collector Helm chart to install in the configuration environment"
+}
+
 variable "default_container_registry_url" {
   default     = "gcr.io"
   description = "Default Container Registry URL"
+}
+
+variable "edge_prometheus_scrape_interval" {
+  default     = "10s"
+  description = "Default Prometheus scrape interval for edge devices"
 }
 
 variable "google_configuration_project_id" {

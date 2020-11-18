@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 # Check if the necessary dependencies are available
 if ! command -v gsutil >/dev/null 2>&1; then
   echo "gsutil command is not available, but it's needed. Terminating..."

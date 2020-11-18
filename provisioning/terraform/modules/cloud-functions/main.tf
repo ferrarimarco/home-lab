@@ -33,5 +33,8 @@ resource "google_cloudfunctions_function" "pubsubtogcs_cloudfunction_iot_core_te
     event_type = "google.pubsub.topic.publish"
     resource   = var.iot_core_telemetry_pubsub_topic
   }
+}
 
+output "pubsubtogcs_cloudfunction_iot_core_telemetry_destination_bucket_name" {
+  value = google_storage_bucket.iot_core_telemetry_destination_bucket.name
 }
