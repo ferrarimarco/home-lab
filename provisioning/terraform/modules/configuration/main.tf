@@ -71,7 +71,7 @@ resource "google_container_node_pool" "configuration-gke-cluster-node-pool" {
       env = var.google_project_id
     }
 
-    machine_type = "n1-standard-1"
+    machine_type = "n1-standard-2"
     tags         = ["gke-node", "${var.google_project_id}-gke"]
 
     metadata = {
