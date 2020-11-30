@@ -1,9 +1,0 @@
-[Unit]
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-ExecStart=/usr/local/bin/start-mqtt-client.sh
-
-[Install]
-WantedBy=multi-user.target

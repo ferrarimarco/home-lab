@@ -129,7 +129,7 @@ resource "google_compute_instance" "development-workstation" {
       development_workstation_git_repositories_to_clone = var.development_workstation_git_repositories_to_clone
       development_workstation_username                  = var.development_workstation_ssh_user,
       development_workstation_update_git_remotes_to_ssh = var.development_workstation_update_git_remotes_to_ssh
-      iot_core_credentials_validity                     = var.development_workstation_iot_core_credentials_validity
+      iot_core_credentials_validity                     = "86400"
       iot_core_initializer_container_image_id           = var.development_workstation_iot_core_initializer_container_image_id
       iot_core_mqtt_client_container_image_id           = var.development_workstation_mqtt_client_container_image_id
       iot_core_project_id                               = var.development_workstation_iot_core_project_id

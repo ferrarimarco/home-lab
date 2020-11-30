@@ -29,7 +29,7 @@ if [ ! -f "${IOT_CORE_KEYS_PRIVATE_KEY_PATH}" ]; then
 
   echo "Generating a private key: ${IOT_CORE_KEYS_PRIVATE_KEY_PATH}..."
   # shellcheck disable=SC2140
-  openssl genpkey -algorithm RSA -out "${IOT_CORE_KEYS_PRIVATE_KEY_PATH}" -pkeyopt rsa_keygen_bits:"{{ key "edge/iot-core/rsa-key-length-bits" }}"
+  openssl genpkey -algorithm RSA -out "${IOT_CORE_KEYS_PRIVATE_KEY_PATH}" -pkeyopt rsa_keygen_bits:4096
 
   echo "Cleaning up the old public key, if present"
   rm -f "${IOT_CORE_KEYS_PUBLIC_KEY_PATH}" || true

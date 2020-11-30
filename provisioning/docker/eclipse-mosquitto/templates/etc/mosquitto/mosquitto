@@ -1,9 +1,0 @@
-# Configuration file for both mosquitto_pub and mosquitto_sub
-
---cafile /etc/cloud-iot-core/certificates/iot-core-root-ca.pem
---debug
---host {{ key "edge/iot-core/mqtt-endpoint-fqdn" }}
---protocol-version {{ key "edge/iot-core/mosquitto/mqtt-protocol-version" }}
---qos {{ key "edge/iot-core/mqtt-subscribed-messages-qos" }}
---tls-version {{ key "edge/iot-core/mosquitto/tls-version" }}
---username {{ key "edge/iot-core/client-username" }}

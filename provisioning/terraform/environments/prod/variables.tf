@@ -126,9 +126,12 @@ variable "development_workstation_boot_disk_size" {
 
 variable "development_workstation_git_repositories_to_clone" {
   default = [
+    "https://github.com/ferrarimarco/docker-pxe.git",
     "https://github.com/ferrarimarco/dotfiles.git",
+    "https://github.com/ferrarimarco/ferrarimarco.github.io.git",
     "https://github.com/ferrarimarco/home-lab.git",
-    "https://github.com/ferrarimarco/kubernetes-playground.git"
+    "https://github.com/ferrarimarco/kubernetes-playground.git",
+    "https://github.com/github/super-linter.git"
   ]
   description = "Git repositories to clone in the development workstation"
 }
@@ -167,64 +170,14 @@ variable "development_workstation_zone" {
   description = "Zone where to create the development workstation. Defaults to google_default_zone."
 }
 
-variable "edge_beaglebone_black_ethernet_ipv4_address" {
-  default     = "10.0.0.2"
-  description = "IPv4 static address of the BeagleBone Black ethernet interface."
-}
-
-variable "edge_default_gateway_ipv4_address" {
-  default     = "10.0.0.1"
-  description = "Default gateway IPv4 address in the edge environment."
-}
-
 variable "edge_dns_zone_prefix" {
   default     = "edge"
   description = "Prefix of the edge DNS zone. The main DNS zone is appended to this prefix."
 }
 
-variable "edge_external_dns_servers_primary" {
-  default     = "8.8.8.8"
-  description = "External DNS servers to forward queries to, outside the edge DNS domain."
-}
-
-variable "edge_external_dns_servers_secondary" {
-  default     = "8.8.4.4"
-  description = "External DNS servers to forward queries to, outside the edge DNS domain."
-}
-
-variable "edge_main_subnet_dhcp_lease_time" {
-  default     = "2h"
-  description = "Default DHCP lease time of the main subnet in the edge environment."
-}
-
-variable "edge_main_subnet_ipv4_address" {
-  default     = "10.0.0.0/8"
-  description = "Subnet address and suffix of the main IPv4 subnet address in the edge environment."
-}
-
-variable "edge_main_subnet_ipv4_address_range_end" {
-  default     = "10.254.254.254"
-  description = "Start (inclusive) of the IPv4 address range of the main subnet in the edge environment."
-}
-
-variable "edge_main_subnet_ipv4_address_range_start" {
-  default     = "10.0.0.50"
-  description = "End (inclusive) of the IPv4 address range of the main subnet in the edge environment."
-}
-
 variable "edge_mqtt_container_image_id" {
   default     = "eclipse-mosquitto:464870d"
   description = "Container image tag of the MQTT runtime."
-}
-
-variable "edge_iot_core_key_bits" {
-  default     = 4096
-  description = "Key length for IoT Core"
-}
-
-variable "edge_iot_core_credentials_validity" {
-  default     = 86400
-  description = "Default validity for the generated IoT Core credentials, in seconds"
 }
 
 variable "iot_core_initializer_container_image_id" {

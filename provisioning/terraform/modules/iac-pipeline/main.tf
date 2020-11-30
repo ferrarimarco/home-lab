@@ -254,12 +254,6 @@ resource "google_storage_bucket_object" "terraform-configuration-compute-engine-
   bucket  = google_storage_bucket.configuration.name
 }
 
-resource "google_storage_bucket_object" "terraform-configuration-consul-template-directory" {
-  name    = "${var.terraform_environment_configuration_directory_path}/${var.consul_template_directory_path}/"
-  content = "Terraform configuration Consul Template directory"
-  bucket  = google_storage_bucket.configuration.name
-}
-
 output "cloud_build_service_account_id" {
   value = local.cloud_build_service_account_email
 }
@@ -270,10 +264,6 @@ output "configuration_bucket_name" {
 
 output "configuration_bucket_self_link" {
   value = google_storage_bucket.configuration.self_link
-}
-
-output "terraform_configuration_consul_template_directory" {
-  value = trimsuffix(google_storage_bucket_object.terraform-configuration-consul-template-directory.name, "/")
 }
 
 output "cloudfunctions_source_bucket_name" {

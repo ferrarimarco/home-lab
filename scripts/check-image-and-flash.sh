@@ -30,12 +30,16 @@ if ! [ -f "${OS_IMAGE_ARCHIVE_SUM_PATH}" ]; then
   exit 1
 fi
 
+CURRENT_WORKING_DIRECTORY="$(pwd)"
+echo "Current working directory: ${CURRENT_WORKING_DIRECTORY}"
+
+cd "$(dirname "${OS_IMAGE_ARCHIVE_SUM_PATH}")" || exit 1
+
 OS_IMAGE_FILE_PATH="$(basename "${OS_IMAGE_ARCHIVE_PATH}" .xz)"
-echo "Deleting leftovers..."
+echo "Deleting old image file..."
 rm -f "${OS_IMAGE_FILE_PATH}"
 
-echo "Checking hashes..."
-cd "$(dirname "${OS_IMAGE_ARCHIVE_SUM_PATH}")" || exit 1
+echo "Checking hashes contained in ${OS_IMAGE_ARCHIVE_SUM_PATH}..."
 sha256sum -c "${OS_IMAGE_ARCHIVE_SUM_PATH}"
 
 echo "Unzipping the ${OS_IMAGE_ARCHIVE_PATH} image archive"
@@ -48,3 +52,5 @@ sudo sync
 echo "Flashing ${OS_IMAGE_FILE_PATH} to ${DEVICE_TO_FLASH}..."
 sudo dd bs=1m if="${OS_IMAGE_FILE_PATH}" of="${DEVICE_TO_FLASH}"
 sudo sync
+
+cd "${CURRENT_WORKING_DIRECTORY}" || exit 1

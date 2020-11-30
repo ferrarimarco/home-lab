@@ -68,14 +68,6 @@ steps:
           &
 
         scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "_DOCKER_IMAGE_ID=dnsmasq,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
-          --commit-sha "$COMMIT_SHA" \
-          --destination-directory-path "provisioning/docker/dnsmasq" \
-          --failure-file-path "${_FAILURE_FILE_PATH}" \
-          --git-repository-path "home-lab" \
-          &
-
-        scripts/submit-cloud-build.sh \
           --cloud-build-substitutions "_DOCKER_IMAGE_ID=eclipse-mosquitto,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/docker/eclipse-mosquitto" \
@@ -87,23 +79,6 @@ steps:
           --cloud-build-substitutions "_DOCKER_IMAGE_ID=iot-core-initializer,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/docker/iot-core-initializer" \
-          --failure-file-path "${_FAILURE_FILE_PATH}" \
-          --git-repository-path "home-lab" \
-          &
-
-        scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "COMMIT_SHA=$COMMIT_SHA,BRANCH_NAME=$BRANCH_NAME" \
-          --commit-sha "$COMMIT_SHA" \
-          --destination-directory-path "provisioning/arm/beaglebone-black/rootfs" \
-          --failure-file-path "${_FAILURE_FILE_PATH}" \
-          --git-repository-path "home-lab" \
-          &
-
-        scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
-          --commit-sha "$COMMIT_SHA" \
-          --common-files-directories "provisioning/common/iot-core/systemd" \
-          --destination-directory-path "provisioning/arm/beaglebone-black/image" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
           --git-repository-path "home-lab" \
           &

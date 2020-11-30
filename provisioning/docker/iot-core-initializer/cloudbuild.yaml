@@ -1,28 +1,5 @@
 ---
 steps:
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
-    entrypoint: gsutil
-    args: ['-m', 'cp', '-r', 'gs://${PROJECT_ID}-configuration/terraform/$_TERRAFORM_ENVIRONMENT_PATH/consul-template', '.']
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
-    entrypoint: 'sh'
-    # See https://github.com/hashicorp/consul-template#docker-image-use
-    args:
-      - '-c'
-      - |
-        echo "Contents of $(pwd): $(ls -al)"
-        echo "Creating the consul-template user"
-        addgroup -g 1000 consul-template && \
-        adduser -u 100 -S -G consul-template consul-template
-        mkdir -p $_RENDERED_TEMPLATES_PATH
-        chown consul-template:consul-template $_RENDERED_TEMPLATES_PATH
-  - name: 'hashicorp/consul-template:$_CONSUL_TEMPLATE_IMAGE_TAG'
-    args:
-      - '/bin/consul-template'
-      - '-config'
-      - 'consul-template/config.hcl'
-      - '-once'
-      - '-template'
-      - 'templates/docker-entrypoint.sh:$_RENDERED_TEMPLATES_PATH/docker-entrypoint.sh'
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run', '--privileged', 'gcr.io/$PROJECT_ID/arm-image-builder:$_ARM_BUILDER_IMAGE_TAG']
   - name: 'gcr.io/cloud-builders/docker'
@@ -39,7 +16,5 @@ options:
 substitutions:
   _ARM_BUILDER_IMAGE_TAG: '4a17db0'
   _CLOUD_SDK_IMAGE_TAG: 'alpine'
-  _CONSUL_TEMPLATE_IMAGE_TAG: '0.25.1-alpine'
   _DOCKER_BUILDX_BUILDER_NAME: 'multiarch_builder'
   _DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm/v7,linux/arm64'
-  _RENDERED_TEMPLATES_PATH: './rendered-templates'

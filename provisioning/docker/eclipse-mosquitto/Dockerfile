@@ -28,10 +28,9 @@ RUN apk add --no-cache --virtual .build_deps \
     && rm requirements.txt \
     && apk del .build_deps
 
-ARG CONFIGURATION_DIRECTORY_PATH
-
 # Copy configuration files
-COPY "$CONFIGURATION_DIRECTORY_PATH"/ /
+COPY etc/mosquitto/mosquitto /etc/mosquitto/mosquitto_pub
+COPY etc/mosquitto/mosquitto /etc/mosquitto/mosquitto_sub
 
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]

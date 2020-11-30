@@ -9,7 +9,6 @@ data "google_organization" "main_organization" {
 
 locals {
   compute_engine_public_keys_directory_path = "${local.public_keys_directory_path}/${var.configuration_compute_engine_keys_directory_name}"
-  consul_template_directory_path            = "consul-template"
   container_image_registry_url              = "${var.default_container_registry_url}/${module.iac-pipeline.container_registry_project}"
   edge_dns_zone                             = "${var.edge_dns_zone_prefix}.${local.main_dns_zone}"
   iot_core_initializer_container_image_id   = "${local.container_image_registry_url}/${var.iot_core_initializer_container_image_id}"
@@ -40,7 +39,6 @@ module "iac-pipeline" {
   source                                             = "../../modules/iac-pipeline"
   cloud_build_trigger_repository_name                = var.cloud_build_trigger_repository_name
   cloud_build_trigger_repository_owner               = var.cloud_build_trigger_repository_owner
-  consul_template_directory_path                     = local.consul_template_directory_path
   compute_engine_keys_directory_path                 = local.compute_engine_public_keys_directory_path
   google_billing_account_id                          = var.google_billing_account_id
   google_project_id                                  = var.google_iac_project_id
@@ -70,7 +68,6 @@ module "development-workspace" {
   development_workstation_min_cpu_platform                        = var.development_workstation_min_cpu_platform
   development_workstation_name                                    = var.development_workstation_name
   development_workstation_ssh_user                                = var.development_workstation_ssh_user
-  development_workstation_iot_core_credentials_validity           = var.edge_iot_core_credentials_validity
   development_workstation_iot_core_initializer_container_image_id = local.iot_core_initializer_container_image_id
   development_workstation_iot_core_project_id                     = module.iot.edge_iot_core_project_id
   development_workstation_iot_core_registry_id                    = module.iot.edge_iot_core_registry_id
@@ -85,25 +82,11 @@ module "development-workspace" {
 
 module "configuration" {
   source                                                          = "../../modules/configuration"
-  beaglebone_black_ethernet_ipv4_address                          = var.edge_beaglebone_black_ethernet_ipv4_address
   opentelemetry_collector_chart_version                           = var.configuration_opentelemetry_collector_chart_version
   cloud_build_service_account_id                                  = module.iac-pipeline.cloud_build_service_account_id
   configuration_bucket_name                                       = module.iac-pipeline.configuration_bucket_name
   configuration_gke_cluster_node_pool_size                        = var.configuration_gke_cluster_node_pool_size
   configuration_gke_cluster_subnet_ip_cidr_range                  = var.configuration_gke_cluster_subnet_ip_cidr_range
-  consul_chart_version                                            = var.configuration_consul_chart_version
-  consul_datacenter_name                                          = var.configuration_consul_datacenter_name
-  consul_template_directory_path                                  = module.iac-pipeline.terraform_configuration_consul_template_directory
-  edge_default_gateway_ipv4_address                               = var.edge_default_gateway_ipv4_address
-  edge_dns_zone                                                   = local.edge_dns_zone
-  edge_external_dns_servers_primary                               = var.edge_external_dns_servers_primary
-  edge_external_dns_servers_secondary                             = var.edge_external_dns_servers_secondary
-  edge_iot_core_registry_project_id                               = module.iot.edge_iot_core_project_id
-  edge_iot_core_registry_id                                       = module.iot.edge_iot_core_registry_id
-  edge_main_subnet_dhcp_lease_time                                = var.edge_main_subnet_dhcp_lease_time
-  edge_main_subnet_ipv4_address                                   = var.edge_main_subnet_ipv4_address
-  edge_main_subnet_ipv4_address_range_end                         = var.edge_main_subnet_ipv4_address_range_end
-  edge_main_subnet_ipv4_address_range_start                       = var.edge_main_subnet_ipv4_address_range_start
   edge_prometheus_scrape_interval                                 = var.edge_prometheus_scrape_interval
   gke_version_prefix                                              = var.configuration_gke_version_prefix
   google_compute_network_vpc_name                                 = google_compute_network.default-vpc.name
@@ -111,15 +94,11 @@ module "configuration" {
   google_organization_id                                          = data.google_organization.main_organization.org_id
   google_project_id                                               = var.google_configuration_project_id
   google_region                                                   = var.google_default_region
-  iot_core_initializer_container_image_id                         = local.iot_core_initializer_container_image_id
-  iot_core_key_bits                                               = var.edge_iot_core_key_bits
-  iot_core_credentials_validity                                   = var.edge_iot_core_credentials_validity
   iot_core_telemetry_destination_bucket_read_only_service_account = module.cloud-functions.pubsubtogcs_cloudfunction_iot_core_telemetry_destination_bucket_read_only_service_account
   opentelemetry_collector_prometheus_exporter_endpoints_configuration = concat(
     module.iot.cloudiot_devices_prometheus_monitoring_configuration
   )
-  main_dns_zone           = local.main_dns_zone
-  mqtt_container_image_ic = local.mqtt_container_image_id
+  main_dns_zone = local.main_dns_zone
 
   dns_record_sets_main_zone = {
     (module.development-workspace.development_workstation_hostname) = {

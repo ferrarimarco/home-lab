@@ -7,7 +7,6 @@ variable "development_workstation_min_cpu_platform" {}
 variable "development_workstation_name" {}
 variable "development_workstation_region" {}
 variable "development_workstation_ssh_user" {}
-variable "development_workstation_iot_core_credentials_validity" {}
 variable "development_workstation_iot_core_initializer_container_image_id" {}
 variable "development_workstation_iot_core_project_id" {}
 variable "development_workstation_iot_core_registry_id" {}
