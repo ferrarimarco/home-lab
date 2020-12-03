@@ -14,13 +14,13 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
-    directory: "/provisioning/cloud-functions/dev-requirements"
+    directory: "/provisioning/cloud-functions"
     schedule:
       interval: daily
       time: "04:00"
     open-pull-requests-limit: 99
   - package-ecosystem: "pip"
-    directory: "/provisioning/cloud-functions"
+    directory: "/provisioning/cloud-functions/dev-requirements"
     schedule:
       interval: daily
       time: "04:00"
