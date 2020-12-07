@@ -11,7 +11,7 @@ config:
   exporters:
     logging:
       loglevel: debug
-    stackdriver:
+    stackdriver: {}
 
   extensions:
     health_check: {}
