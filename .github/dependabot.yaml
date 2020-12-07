@@ -19,6 +19,10 @@ updates:
       interval: daily
       time: "04:00"
     open-pull-requests-limit: 99
+  # This results in duplicate PRs because dependabot looks for
+  # descriiptors one level deep.
+  # See https://github.com/dependabot/dependabot-core/issues/1408
+  # Leaving this config entry for now, because this is not a documented feature.
   - package-ecosystem: "pip"
     directory: "/provisioning/cloud-functions/dev-requirements"
     schedule:
