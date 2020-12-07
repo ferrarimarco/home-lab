@@ -4,9 +4,7 @@ options:
     - TF_INPUT=false
 steps:
   - id: 'super-linter'
-    # name: "ghcr.io/github/super-linter:v3.13.5"
-    # Temporary workaround for a couple of super-linter issues
-    name: "ghcr.io/github/super-linter:latest"
+    name: "ghcr.io/github/super-linter:v3.14.3"
     env:
       - ACTIONS_RUNNER_DEBUG=true
       - ANSIBLE_DIRECTORY=configuration/ansible
