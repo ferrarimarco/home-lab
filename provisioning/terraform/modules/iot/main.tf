@@ -128,14 +128,14 @@ output "cloudiot_devices_prometheus_monitoring_configuration" {
     for device in google_cloudiot_device.iot-core-device :
     {
       "job_name"        = device.name
-      "metrics_path"    = "${var.iot_core_telemetry_destination_bucket_name}/${split("/", device.registry)[1]}/iot-core/${split("/", device.registry)[3]}/${split("/", device.registry)[5]}/${device.name}/telemetry/node-exporter/metrics"
+      "metrics_path"    = "/storage/v1/b/${var.iot_core_telemetry_destination_bucket_name}/o/${split("/", device.registry)[1]}%2Fiot-core%2F${split("/", device.registry)[3]}%2${split("/", device.registry)[5]}%2F${device.name}%2Ftelemetry%2Fnode-exporter%2Fmetrics?alt=media"
       "scheme"          = "https"
       "scrape_interval" = var.edge_prometheus_scrape_interval
 
       "static_configs" = [
         {
           "targets" = [
-            "storage.cloud.google.com"
+            "storage.googleapis.com"
           ]
         }
       ]

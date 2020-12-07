@@ -42,6 +42,10 @@ config:
 agentCollector:
   enabled: false
 
+serviceAccount:
+  annotations: ${jsonencode(service_account_annotations)}
+  name: ${service_account_name}
+
 # Enable the standalone collector
 standaloneCollector:
   enabled: true

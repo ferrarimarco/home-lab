@@ -27,6 +27,7 @@ variable "google_region" {}
 variable "iot_core_initializer_container_image_id" {}
 variable "iot_core_key_bits" {}
 variable "iot_core_credentials_validity" {}
+variable "iot_core_telemetry_destination_bucket_read_only_service_account" {}
 variable "main_dns_zone" {}
 variable "mqtt_container_image_ic" {}
 variable "opentelemetry_collector_chart_version" {}

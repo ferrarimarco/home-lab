@@ -16,6 +16,34 @@ resource "google_storage_bucket" "iot_core_telemetry_destination_bucket" {
   }
 }
 
+resource "google_service_account" "iot_core_telemetry_read_only" {
+  account_id   = "iot-core-telemetry-bucket-ro"
+  description  = "Service Account with read-only access to the ${google_storage_bucket.iot_core_telemetry_destination_bucket.name} bucket"
+  display_name = "${google_storage_bucket.iot_core_telemetry_destination_bucket.name} read-only Service Account"
+  project      = var.google_project_id
+}
+
+data "google_iam_policy" "iot_core_telemetry_bucket_read_only_policy" {
+  binding {
+    members = [
+      "serviceAccount:${google_service_account.iot_core_telemetry_read_only.email}"
+    ]
+    role = "roles/storage.objectViewer"
+  }
+
+  binding {
+    members = [
+      "serviceAccount:${var.cloud_build_service_account_email}"
+    ]
+    role = "roles/storage.admin"
+  }
+}
+
+resource "google_storage_bucket_iam_policy" "iot_core_telemetry_bucket_read_only_storage_iam_policy" {
+  bucket      = google_storage_bucket.iot_core_telemetry_destination_bucket.name
+  policy_data = data.google_iam_policy.iot_core_telemetry_bucket_read_only_policy.policy_data
+}
+
 resource "google_cloudfunctions_function" "pubsubtogcs_cloudfunction_iot_core_telemetry" {
   name                  = "pubsub-to-gcs"
   description           = "Save Pub/Sub messages to Cloud Storage."
@@ -37,4 +65,8 @@ resource "google_cloudfunctions_function" "pubsubtogcs_cloudfunction_iot_core_te
 
 output "pubsubtogcs_cloudfunction_iot_core_telemetry_destination_bucket_name" {
   value = google_storage_bucket.iot_core_telemetry_destination_bucket.name
+}
+
+output "pubsubtogcs_cloudfunction_iot_core_telemetry_destination_bucket_read_only_service_account" {
+  value = google_service_account.iot_core_telemetry_read_only
 }

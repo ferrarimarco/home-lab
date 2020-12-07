@@ -46,6 +46,10 @@ resource "google_container_cluster" "configuration-gke-cluster" {
   release_channel {
     channel = "UNSPECIFIED"
   }
+
+  workload_identity_config {
+    identity_namespace = "${var.google_project_id}.svc.id.goog"
+  }
 }
 
 resource "google_container_node_pool" "configuration-gke-cluster-node-pool" {
@@ -76,6 +80,10 @@ resource "google_container_node_pool" "configuration-gke-cluster-node-pool" {
 
     metadata = {
       disable-legacy-endpoints = "true"
+    }
+
+    workload_metadata_config {
+      node_metadata = "GKE_METADATA_SERVER"
     }
   }
 }
