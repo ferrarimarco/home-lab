@@ -1,7 +1,7 @@
 FROM eclipse-mosquitto:1.6.12-openssl as eclipse-mosquitto
 FROM prom/node-exporter:v1.0.1 as prometheus-node-exporter
 
-FROM python:3.9.0-alpine3.12
+FROM python:3.9.1-alpine3.12
 
 COPY --from=eclipse-mosquitto /usr/bin/mosquitto_sub /usr/bin/
 COPY --from=eclipse-mosquitto /usr/bin/mosquitto_passwd /usr/bin/
