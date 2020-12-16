@@ -127,7 +127,8 @@ variable "development_workstation_boot_disk_size" {
 variable "development_workstation_git_repositories_to_clone" {
   default = [
     "https://github.com/ferrarimarco/dotfiles.git",
-    "https://github.com/ferrarimarco/home-lab.git"
+    "https://github.com/ferrarimarco/home-lab.git",
+    "https://github.com/ferrarimarco/kubernetes-playground.git"
   ]
   description = "Git repositories to clone in the development workstation"
 }
