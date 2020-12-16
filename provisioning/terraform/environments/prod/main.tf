@@ -77,7 +77,9 @@ module "development-workspace" {
   development_workstation_iot_core_project_id                     = module.iot.edge_iot_core_project_id
   development_workstation_iot_core_registry_id                    = module.iot.edge_iot_core_registry_id
   development_workstation_mqtt_client_container_image_id          = local.mqtt_container_image_id
+  development_workstation_region                                  = coalesce(var.development_workstation_region, var.google_default_region) # Get the first non-null region setting
   development_workstation_update_git_remotes_to_ssh               = var.development_workstation_update_git_remotes_to_ssh
+  development_workstation_zone                                    = coalesce(var.development_workstation_zone, var.google_default_zone) # Get the first non-null zone setting
   google_organization_id                                          = data.google_organization.main_organization.org_id
   google_project_id                                               = var.google_iot_project_id
   terraform_environment_configuration_directory_path              = local.terraform_environment_configuration_directory_path

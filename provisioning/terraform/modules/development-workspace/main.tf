@@ -59,6 +59,7 @@ resource "google_compute_address" "development_workstation_ip_address" {
   name         = "development-workstation-ip-address"
   network_tier = "PREMIUM"
   project      = var.google_project_id
+  region       = var.development_workstation_region
 }
 
 output "development_workstation_hostname" {
@@ -93,6 +94,7 @@ resource "google_compute_instance" "development-workstation" {
   machine_type     = var.development_workstation_machine_type
   min_cpu_platform = var.development_workstation_min_cpu_platform
   tags             = google_compute_firewall.allow_ssh_dev_workstation.target_tags
+  zone             = var.development_workstation_zone
 
   can_ip_forward = false
 

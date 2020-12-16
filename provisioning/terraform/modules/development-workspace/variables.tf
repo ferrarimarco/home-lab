@@ -5,6 +5,7 @@ variable "development_workstation_git_repositories_to_clone" {}
 variable "development_workstation_machine_type" {}
 variable "development_workstation_min_cpu_platform" {}
 variable "development_workstation_name" {}
+variable "development_workstation_region" {}
 variable "development_workstation_ssh_user" {}
 variable "development_workstation_google_compute_network_self_link" {}
 variable "development_workstation_google_compute_subnetwork_self_link" {}
@@ -14,6 +15,7 @@ variable "development_workstation_iot_core_project_id" {}
 variable "development_workstation_iot_core_registry_id" {}
 variable "development_workstation_mqtt_client_container_image_id" {}
 variable "development_workstation_update_git_remotes_to_ssh" {}
+variable "development_workstation_zone" {}
 variable "google_organization_id" {}
 variable "google_project_id" {}
 variable "terraform_environment_configuration_directory_path" {}

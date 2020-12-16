@@ -147,6 +147,11 @@ variable "development_workstation_name" {
   description = "Name of the development workstation"
 }
 
+variable "development_workstation_region" {
+  default     = null
+  description = "Region where to create the development workstation. Defaults to google_default_region."
+}
+
 variable "development_workstation_ssh_user" {
   description = "Username of the user to connect to the development workstation via SSH"
 }
@@ -154,6 +159,11 @@ variable "development_workstation_ssh_user" {
 variable "development_workstation_update_git_remotes_to_ssh" {
   default     = true
   description = "When true, Git remotes of the repositories cloned in the development workstation will be updated to use SSH after being cloned via HTTP"
+}
+
+variable "development_workstation_zone" {
+  default     = null
+  description = "Zone where to create the development workstation. Defaults to google_default_zone."
 }
 
 variable "edge_beaglebone_black_ethernet_ipv4_address" {

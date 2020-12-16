@@ -36,7 +36,9 @@ You now provision and configure the cloud infrastructure:
 
     ```terraform
     configuration_terraform_environment_name         = "prod"
+    development_workstation_region                   = "europe-west6"
     development_workstation_ssh_user                 = "ferrarimarco"
+    development_workstation_zone                     = "europe-west6-a"
     google_billing_account_id                        = "1234567-ABCD"
     google_default_region                            = "us-central1"
     google_default_zone                              = "us-central1-a"
