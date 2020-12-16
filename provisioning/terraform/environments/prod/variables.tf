@@ -133,12 +133,12 @@ variable "development_workstation_git_repositories_to_clone" {
 }
 
 variable "development_workstation_machine_type" {
-  default     = "n2-standard-8"
+  default     = "n1-standard-8"
   description = "Machine type for development workstations"
 }
 
 variable "development_workstation_min_cpu_platform" {
-  default     = "Intel Cascade Lake"
+  default     = "Intel Skylake"
   description = "Minimum CPU platform required for development workstations"
 }
 
