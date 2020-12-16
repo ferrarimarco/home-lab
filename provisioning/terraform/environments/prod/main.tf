@@ -66,8 +66,6 @@ module "development-workspace" {
   configuration_bucket_name                                       = module.iac-pipeline.configuration_bucket_name
   development_workstation_boot_disk_size                          = var.development_workstation_boot_disk_size
   development_workstation_git_repositories_to_clone               = var.development_workstation_git_repositories_to_clone
-  development_workstation_google_compute_network_self_link        = google_compute_network.default-vpc.self_link
-  development_workstation_google_compute_subnetwork_self_link     = google_compute_subnetwork.default-subnet.self_link
   development_workstation_machine_type                            = var.development_workstation_machine_type
   development_workstation_min_cpu_platform                        = var.development_workstation_min_cpu_platform
   development_workstation_name                                    = var.development_workstation_name

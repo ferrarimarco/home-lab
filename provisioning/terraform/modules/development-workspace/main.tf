@@ -72,7 +72,7 @@ output "development_workstation_ip_address" {
 
 resource "google_compute_firewall" "allow_ssh_dev_workstation" {
   name    = "allow-ssh-development-workstation"
-  network = var.development_workstation_google_compute_network_self_link
+  network = google_compute_network.development-workstation-vpc.self_link
   project = var.google_project_id
 
   allow {
@@ -81,6 +81,20 @@ resource "google_compute_firewall" "allow_ssh_dev_workstation" {
   }
 
   target_tags = ["development-workstation"]
+}
+
+resource "google_compute_network" "development-workstation-vpc" {
+  name                    = "${var.development_workstation_name}-vpc"
+  auto_create_subnetworks = "false"
+  project                 = var.google_project_id
+}
+
+resource "google_compute_subnetwork" "development-workstation-subnet" {
+  name          = "${var.development_workstation_name}-subnet"
+  region        = var.development_workstation_region
+  network       = google_compute_network.development-workstation-vpc.name
+  ip_cidr_range = "192.168.0.0/16"
+  project       = var.google_project_id
 }
 
 resource "google_compute_instance" "development-workstation" {
@@ -124,7 +138,7 @@ resource "google_compute_instance" "development-workstation" {
   )
 
   network_interface {
-    subnetwork = var.development_workstation_google_compute_subnetwork_self_link
+    subnetwork = google_compute_subnetwork.development-workstation-subnet.self_link
 
     access_config {
       nat_ip       = google_compute_address.development_workstation_ip_address.address
