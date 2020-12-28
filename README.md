@@ -103,27 +103,3 @@ All the configuration files that the provisioning pipeline needs are in the
 There are edge devices, such as sensors, microcontrollers and microcomputers to provision.
 
 Edge devices auto-configure themselves during their first start.
-
-#### BeagleBone Black
-
-In this section, you provision BeagleBone Black microcomputers.
-
-1. Download latest OS image and checksum from the Storage bucket.
-1. Prepare the image (checksum, extract from the archive):
-`scripts/check-image-and-flash.sh path/to/img.xz /dev/XXXX`
-where `XXXX` is the SD card device identifier.
-1. Ensure the board is powered off.
-1. Insert the microSD.
-1. Boot the board using the SD card. Note that it may be necessary to press the
-    Boot button (near the microSD slot) until the user LEDs turn on (necessary
-    for old uBoot versions). If you downloaded a flasher version of the image,
-    it will boot and then start flashing the eMMC. When flashing is completed,
-    the board will power off. Remember to remove the microSD otherwise the board
-    will keep flashing the microSD over and over.
-1. Unplug the board and plug it back in.
-
-## Development environment
-
-In this section, you configure the development environment.
-
-### Cloud Functions
