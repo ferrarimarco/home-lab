@@ -13,6 +13,10 @@ updates:
     directory: "/provisioning/docker/eclipse-mosquitto"
     schedule:
       interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/provisioning/docker/opentelemetry-collector-contrib"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "pip"
     directory: "/provisioning/cloud-functions"
     schedule:
