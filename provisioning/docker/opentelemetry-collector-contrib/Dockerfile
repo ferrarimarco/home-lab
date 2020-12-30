@@ -2,7 +2,7 @@ FROM otel:opentelemetry-collector-contrib:0.17.0 as opentelemetry-collector-cont
 
 FROM alpine:3.12.3
 
-RUN apk --update add \
+RUN apk --no-cache add \
     ca-certificates \
     curl \
     jq
