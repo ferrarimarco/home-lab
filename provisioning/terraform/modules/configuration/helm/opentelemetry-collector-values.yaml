@@ -1,11 +1,12 @@
 ---
 image:
-  repository: otel/opentelemetry-collector-contrib
+  repository: ${opentelemetry_collector_image_id}
+  tag: ${opentelemetry_collector_image_tag}
 
 command:
   extraArgs:
     - "--log-level=DEBUG"
-  name: otelcontribcol
+  name: docker-entrypoint.sh
 
 config:
   exporters:

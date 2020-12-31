@@ -21,7 +21,9 @@ resource "helm_release" "opentelemetry_collector" {
 
   values = [
     templatefile("${path.module}/helm/opentelemetry-collector-values.yaml", {
-      prometheus_configuration = var.opentelemetry_collector_prometheus_exporter_endpoints_configuration
+      opentelemetry_collector_image_id  = var.opentelemetry_collector_image_id
+      opentelemetry_collector_image_tag = var.opentelemetry_collector_image_tag
+      prometheus_configuration          = var.opentelemetry_collector_prometheus_exporter_endpoints_configuration
       service_account_annotations = {
         "iam.gke.io/gcp-service-account" = var.iot_core_telemetry_destination_bucket_read_only_service_account.email
       }

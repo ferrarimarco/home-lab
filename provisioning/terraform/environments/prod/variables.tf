@@ -189,6 +189,16 @@ variable "main_dns_zone_prefix" {
   description = "Prefix of the main DNS zone to manage. The organization domain is appended to this prefix."
 }
 
+variable "opentelemetry_collector_container_image_id" {
+  default     = "opentelemetry-collector-contrib"
+  description = "Container image of the OpenTelemetry Collector"
+}
+
+variable "opentelemetry_collector_container_image_tag" {
+  default     = "b427781"
+  description = "Container image tag of the OpenTelemetry Collector"
+}
+
 variable "pubsubtogcs_cloudfunction_archive_object_name" {
   default     = "pubsubtogcs-a242da3bb9dc31a78c2fef52ba5e3f2919558afc.zip"
   description = "Path to the Pub/Sub to Cloud Storage archive file inside the Cloud Functions bucket"

@@ -13,4 +13,6 @@ variable "google_region" {}
 variable "iot_core_telemetry_destination_bucket_read_only_service_account" {}
 variable "main_dns_zone" {}
 variable "opentelemetry_collector_chart_version" {}
+variable "opentelemetry_collector_image_id" {}
+variable "opentelemetry_collector_image_tag" {}
 variable "opentelemetry_collector_prometheus_exporter_endpoints_configuration" {}

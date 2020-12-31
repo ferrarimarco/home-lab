@@ -15,6 +15,7 @@ locals {
   iot_core_public_keys_directory_path       = "${local.public_keys_directory_path}/${var.configuration_iot_core_keys_directory_name}"
   main_dns_zone                             = "${var.main_dns_zone_prefix}.${data.google_organization.main_organization.domain}"
   mqtt_container_image_id                   = "${local.container_image_registry_url}/${var.edge_mqtt_container_image_id}"
+  opentelemetry_collector_image_id          = "${local.container_image_registry_url}/${var.opentelemetry_collector_container_image_id}"
   public_keys_directory_path                = var.configuration_public_keys_directory_name
 
   # To get environment-specific configuration
@@ -95,6 +96,8 @@ module "configuration" {
   google_project_id                                               = var.google_configuration_project_id
   google_region                                                   = var.google_default_region
   iot_core_telemetry_destination_bucket_read_only_service_account = module.cloud-functions.pubsubtogcs_cloudfunction_iot_core_telemetry_destination_bucket_read_only_service_account
+  opentelemetry_collector_image_id                                = local.opentelemetry_collector_image_id
+  opentelemetry_collector_image_tag                               = var.opentelemetry_collector_container_image_tag
   opentelemetry_collector_prometheus_exporter_endpoints_configuration = concat(
     module.iot.cloudiot_devices_prometheus_monitoring_configuration
   )
