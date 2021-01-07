@@ -32,7 +32,7 @@ iot_core_event_attributes = {
 
 expected_cloud_storage_bucket_name = "cloud-storage-bucket-name"
 
-expected_cloud_storage_iot_core_telemetry_node_exporter_destination_path = "{}/iot-core/{}/{}/{}/telemetry/{}/metrics".format(
+expected_cloud_storage_iot_core_telemetry_node_exporter_destination_path = "{}-iot-core-{}-{}-{}-telemetry-{}-metrics".format(
     iot_core_event_attributes[iot_core_device_registry_project_id_key],
     iot_core_event_attributes[iot_core_device_registry_location_key],
     iot_core_event_attributes[iot_core_device_registry_id_key],
