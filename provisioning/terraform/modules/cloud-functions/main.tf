@@ -23,6 +23,12 @@ resource "google_service_account" "iot_core_telemetry_read_only" {
   project      = var.google_project_id
 }
 
+resource "google_project_iam_member" "iot_core_telemetry_metric_writer_iam_role_member" {
+  project = var.google_project_id
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.iot_core_telemetry_read_only.email}"
+}
+
 data "google_iam_policy" "iot_core_telemetry_bucket_read_only_policy" {
   binding {
     members = [
