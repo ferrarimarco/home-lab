@@ -37,6 +37,17 @@ data "google_iam_policy" "iot_core_telemetry_bucket_read_only_policy" {
     ]
     role = "roles/storage.admin"
   }
+
+  binding {
+    members = [
+      "serviceAccount:${var.google_project_id}@appspot.gserviceaccount.com"
+    ]
+    role = "roles/storage.legacyBucketWriter"
+  }
+
+  depends_on = [
+    google_project_service.cloudfunctions_apis
+  ]
 }
 
 resource "google_storage_bucket_iam_policy" "iot_core_telemetry_bucket_read_only_storage_iam_policy" {

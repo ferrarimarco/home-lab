@@ -200,6 +200,6 @@ variable "opentelemetry_collector_container_image_tag" {
 }
 
 variable "pubsubtogcs_cloudfunction_archive_object_name" {
-  default     = "pubsubtogcs-a242da3bb9dc31a78c2fef52ba5e3f2919558afc.zip"
+  default     = "pubsubtogcs-190d8aad142d495869bcb6dc837d2896ed7fd72b.zip"
   description = "Path to the Pub/Sub to Cloud Storage archive file inside the Cloud Functions bucket"
 }

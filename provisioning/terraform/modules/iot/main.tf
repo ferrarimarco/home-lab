@@ -129,7 +129,7 @@ output "cloudiot_devices_prometheus_monitoring_configuration" {
     {
       "bearer_token_file" = "/var/run/secrets/gke-metadata/bearer-token"
       "job_name"          = device.name
-      "metrics_path"      = "/storage/v1/b/${var.iot_core_telemetry_destination_bucket_name}/o/${split("/", device.registry)[1]}%2Fiot-core%2F${split("/", device.registry)[3]}%2F${split("/", device.registry)[5]}%2F${device.name}%2Ftelemetry%2Fnode-exporter%2Fmetrics"
+      "metrics_path"      = "/storage/v1/b/${var.iot_core_telemetry_destination_bucket_name}/o/${split("/", device.registry)[1]}-iot-core-${split("/", device.registry)[3]}-${split("/", device.registry)[5]}-${device.name}-telemetry-node-exporter-metrics"
       "params" = {
         "alt" = ["media"]
       }
