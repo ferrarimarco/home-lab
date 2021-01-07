@@ -95,7 +95,7 @@ def get_cloud_storage_destination_file_path(pubsub_event, pubsub_event_context):
         print(
             "Message attributes contain IoT Core metadata. Assuming that the message comes from IoT Core."
         )
-        return "{}/iot-core/{}/{}/{}/telemetry/{}/metrics".format(
+        return "{}-iot-core-{}-{}-{}-telemetry-{}-metrics".format(
             pubsub_message_attributes[iot_core_device_registry_project_id_key],
             pubsub_message_attributes[iot_core_device_registry_location_key],
             pubsub_message_attributes[iot_core_device_registry_id_key],
