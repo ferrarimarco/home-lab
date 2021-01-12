@@ -122,27 +122,3 @@ resource "google_cloudiot_device" "iot-core-device" {
 
   for_each = local.grouped_iot_core_public_keys
 }
-
-output "cloudiot_devices_prometheus_monitoring_configuration" {
-  value = [
-    for device in google_cloudiot_device.iot-core-device :
-    {
-      "bearer_token_file" = "/var/run/secrets/gke-metadata/bearer-token"
-      "job_name"          = device.name
-      "metrics_path"      = "/storage/v1/b/${var.iot_core_telemetry_destination_bucket_name}/o/${split("/", device.registry)[1]}-iot-core-${split("/", device.registry)[3]}-${split("/", device.registry)[5]}-${device.name}-telemetry-node-exporter-metrics"
-      "params" = {
-        "alt" = ["media"]
-      }
-      "scheme"          = "https"
-      "scrape_interval" = var.edge_prometheus_scrape_interval
-
-      "static_configs" = [
-        {
-          "targets" = [
-            "storage.googleapis.com"
-          ]
-        }
-      ]
-    }
-  ]
-}

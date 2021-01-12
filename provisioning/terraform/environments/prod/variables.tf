@@ -18,24 +18,9 @@ variable "configuration_compute_engine_keys_directory_name" {
   description = "Name of the Compute Engine public keys directory"
 }
 
-variable "configuration_gke_cluster_node_pool_size" {
-  default     = 1
-  description = "Number of nodes of the node pool used in the configuration GKE cluster"
-}
-
-variable "configuration_gke_cluster_subnet_ip_cidr_range" {
-  default     = "10.10.0.0/24"
-  description = "IP CIDR for the Configuration GKE cluster"
-}
-
 variable "configuration_iot_core_keys_directory_name" {
   default     = "iot-core"
   description = "Name of the IoT Core public keys directory"
-}
-
-variable "configuration_iot_core_smart_desk_public_key_file_name" {
-  default     = "smart_desk.pem"
-  description = "Name of the public key file to use to register the Smart Desk to IoT Core"
 }
 
 variable "configuration_public_keys_directory_name" {
@@ -57,34 +42,9 @@ variable "configuration_terraform_environment_name" {
   description = "Name of the Terraform configuration directory"
 }
 
-variable "configuration_consul_datacenter_name" {
-  default     = "configuration-datacenter"
-  description = "Name of the configuration Consul datacenter"
-}
-
-variable "configuration_consul_chart_version" {
-  default     = "0.24.1"
-  description = "Version of the Consul Helm chart to install Consul in the configuration environment"
-}
-
-variable "configuration_gke_version_prefix" {
-  default     = "1.17.9-gke.1504"
-  description = "GKE version for the configuration environment."
-}
-
-variable "configuration_opentelemetry_collector_chart_version" {
-  default     = "0.2.1"
-  description = "Version of the opentelemetry-collector Helm chart to install in the configuration environment"
-}
-
 variable "default_container_registry_url" {
   default     = "gcr.io"
   description = "Default Container Registry URL"
-}
-
-variable "edge_prometheus_scrape_interval" {
-  default     = "10s"
-  description = "Default Prometheus scrape interval for edge devices"
 }
 
 variable "google_configuration_project_id" {
@@ -170,36 +130,6 @@ variable "development_workstation_zone" {
   description = "Zone where to create the development workstation. Defaults to google_default_zone."
 }
 
-variable "edge_dns_zone_prefix" {
-  default     = "edge"
-  description = "Prefix of the edge DNS zone. The main DNS zone is appended to this prefix."
-}
-
-variable "edge_mqtt_container_image_id" {
-  default     = "eclipse-mosquitto:464870d"
-  description = "Container image tag of the MQTT runtime."
-}
-
-variable "iot_core_initializer_container_image_id" {
-  default     = "iot-core-initializer:3105e64"
-  description = "Container image tag of the IoT Core initializer"
-}
-
 variable "main_dns_zone_prefix" {
   description = "Prefix of the main DNS zone to manage. The organization domain is appended to this prefix."
-}
-
-variable "opentelemetry_collector_container_image_id" {
-  default     = "opentelemetry-collector-contrib"
-  description = "Container image of the OpenTelemetry Collector"
-}
-
-variable "opentelemetry_collector_container_image_tag" {
-  default     = "b427781"
-  description = "Container image tag of the OpenTelemetry Collector"
-}
-
-variable "pubsubtogcs_cloudfunction_archive_object_name" {
-  default     = "pubsubtogcs-190d8aad142d495869bcb6dc837d2896ed7fd72b.zip"
-  description = "Path to the Pub/Sub to Cloud Storage archive file inside the Cloud Functions bucket"
 }
