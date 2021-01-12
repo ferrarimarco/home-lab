@@ -104,8 +104,8 @@ To turn off and delete the development workstation, run:
 
 ```shell
 terraform destroy \
-  -target module.development-workspace.google_compute_instance.development-workstation \
-  -target module.development-workspace.google_compute_image.dev-workstation-image-ubuntu-2004
+    -target module.development-workspace.google_compute_instance.development-workstation \
+    -target module.development-workspace.google_compute_image.dev-workstation-image-ubuntu-2004
 ```
 
 ### Provision edge devices
