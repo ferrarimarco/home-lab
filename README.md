@@ -98,6 +98,16 @@ not met:
 All the configuration files that the provisioning pipeline needs are in the
 `${GOOGLE_CLOUD_PROJECT}-configuration` Cloud Storage bucket.
 
+#### Deleting the development workstation
+
+To turn off and delete the development workstation, run:
+
+```shell
+terraform destroy \
+  -target module.development-workspace.google_compute_instance.development-workstation \
+  -target module.development-workspace.google_compute_image.dev-workstation-image-ubuntu-2004
+```
+
 ### Provision edge devices
 
 There are edge devices, such as sensors, microcontrollers and microcomputers to provision.
