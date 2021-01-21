@@ -99,6 +99,14 @@ steps:
           --git-repository-path "home-lab" \
           &
 
+        scripts/submit-cloud-build.sh \
+          --cloud-build-substitutions "COMMIT_SHA=$COMMIT_SHA" \
+          --commit-sha "$COMMIT_SHA" \
+          --destination-directory-path "provisioning/os-images/raspberry-pi/raspberry-pi-4/ubuntu" \
+          --failure-file-path "${_FAILURE_FILE_PATH}" \
+          --git-repository-path "home-lab" \
+          &
+
         wait
 
         # Check if there is any failure.

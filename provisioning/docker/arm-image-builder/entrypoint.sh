@@ -38,7 +38,7 @@ while true; do
 done
 
 echo "Registering qemu-*-static for all supported processors except the current one..."
-bash /register --reset -p yes >/dev/null 2>&1
+bash /register --reset -p yes
 
 echo "Running ${entrypoint} ${options}..."
 sh -c "${entrypoint} ${options}"

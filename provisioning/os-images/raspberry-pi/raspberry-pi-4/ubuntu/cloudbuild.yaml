@@ -1,0 +1,10 @@
+---
+steps:
+  - id: 'Build the customized OS image'
+    name: 'gcr.io/$PROJECT_ID/arm-image-builder:$_ARM_BUILDER_IMAGE_TAG'
+    args:
+      - "--entrypoint"
+      - "$$(pwd)/build.sh"
+substitutions:
+  _ARM_BUILDER_IMAGE_TAG: 'b7673dc'
+timeout: 37000s
