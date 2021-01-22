@@ -14,6 +14,7 @@ steps:
       - PYTHON_ISORT_CONFIG_FILE=pyproject.toml
       - RUN_LOCAL=true
       - VALIDATE_ALL_CODEBASE=true
+      - VALIIDATE_JSCPD=false
       - VALIDATE_TERRAFORM_TERRASCAN=false
   - id: 'clone repository'
     name: gcr.io/cloud-builders/git
@@ -84,7 +85,6 @@ steps:
           &
 
         scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "COMMIT_SHA=$COMMIT_SHA" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/os-images/raspberry-pi/raspberry-pi-4/ubuntu" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \

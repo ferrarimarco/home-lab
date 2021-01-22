@@ -19,17 +19,17 @@ while true; do
   echo "Decoding parameter ${1}..."
   case "${1}" in
   -e | --entrypoint)
-    echo "Found entrypoint parameter"
+    echo "Found entrypoint parameter."
     entrypoint="${2}"
     shift 2
     ;;
   -o | --options)
-    echo "Found options parameter"
+    echo "Found options parameter."
     options="${2}"
     shift 2
     ;;
   --)
-    echo "No more parameters to decode"
+    echo "No more parameters to decode."
     shift
     break
     ;;

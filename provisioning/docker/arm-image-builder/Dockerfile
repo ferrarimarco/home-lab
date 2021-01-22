@@ -6,6 +6,7 @@ ENV CROSS_COMPILE_ARCHS "arm64 armhf"
 
 # Allow us to install packages for cross-compiling architectures
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # hadolint ignore=SC2094,SC2206
 RUN ARCHS=(${CROSS_COMPILE_ARCHS}) && \
     ARCHS_LIST=$(IFS=,; echo "${ARCHS[*]}") && \
@@ -24,6 +25,7 @@ RUN apt-get update \
     bmap-tools \
     build-essential \
     ca-certificates \
+    cloud-init \
     debootstrap \
     dirmngr \
     dosfstools \

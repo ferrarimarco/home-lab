@@ -15,6 +15,5 @@ options:
     - 'DOCKER_CLI_EXPERIMENTAL=enabled'
 substitutions:
   _ARM_BUILDER_IMAGE_TAG: '4a17db0'
-  _CLOUD_SDK_IMAGE_TAG: 'alpine'
   _DOCKER_BUILDX_BUILDER_NAME: 'multiarch_builder'
   _DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm/v7,linux/arm64'

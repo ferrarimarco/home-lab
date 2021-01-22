@@ -1,10 +1,19 @@
 ---
+artifacts:
+  objects:
+    location: 'gs://${PROJECT_ID}-os-images'
+    paths:
+      - './*.xz'
+options:
+  machineType: 'N1_HIGHCPU_8'
 steps:
   - id: 'Build the customized OS image'
     name: 'gcr.io/$PROJECT_ID/arm-image-builder:$_ARM_BUILDER_IMAGE_TAG'
     args:
       - "--entrypoint"
       - "$$(pwd)/build.sh"
+      - "--options"
+      - "--build-config $$(pwd)/config/build.conf --cloud-init-user-data $$(pwd)/config/cloud-init/user-data.yaml"
 substitutions:
-  _ARM_BUILDER_IMAGE_TAG: 'b7673dc'
+  _ARM_BUILDER_IMAGE_TAG: 'ec9be07'
 timeout: 37000s

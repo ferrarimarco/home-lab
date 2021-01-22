@@ -6,10 +6,14 @@ rules:
     max-spaces-after: 1
   comments:
     level: error
+    ignore: |
+      **/cloud-init/user-data.yaml
   comments-indentation:
     level: error
   document-start:
     level: error
+    ignore: |
+      **/cloud-init/user-data.yaml
   empty-values: enable
   line-length:
     max: 250

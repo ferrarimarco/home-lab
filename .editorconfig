@@ -23,6 +23,10 @@ spaces_around_brackets = false
 [*.{dockerfilelintrc,hcl.tpl,sh,tf,tfvars,yml,yaml}]
 indent_size = 2
 
+[{Makefile,**.mk,go.mod,go.sum,*.go,.gitmodules}]
+indent_size = 4
+indent_style = tab
+
 # Don't try to format binary files
 [*.tfvars.enc]
 charset = unset
