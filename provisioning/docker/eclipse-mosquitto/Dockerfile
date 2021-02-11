@@ -1,5 +1,5 @@
 FROM eclipse-mosquitto:1.6.12-openssl as eclipse-mosquitto
-FROM prom/node-exporter:v1.0.1 as prometheus-node-exporter
+FROM prom/node-exporter:v1.1.0 as prometheus-node-exporter
 
 FROM python:3.9.1-alpine3.12
 
