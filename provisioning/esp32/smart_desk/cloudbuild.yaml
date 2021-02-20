@@ -1,36 +1,14 @@
 ---
 artifacts:
   objects:
-    location: 'gs://ferrarimarco-smart-desk/esp32/builds'
+    location: 'gs://${PROJECT_ID}-os-images/esp32'
     paths: ["./build/smart-desk-*.bin"]
-options:
-  env:
-    - TF_INPUT=false
 steps:
-  - id: 'Install CMake'
-    name: 'alpine'
-    entrypoint: 'sh'
+  - name: 'gcr.io/cloud-builders/docker'
     args:
-      - '-c'
+      - -c
       - |
-        "$_ESP_SMART_DESK_PATH"/scripts/install-dependencies.sh $_CMAKE_VERSION
-  - id: 'esp-idf build'
-    name: 'espressif/idf:$_ESP_IDF_VERSION_IMAGE_TAG'
-    dir: "$_ESP_SMART_DESK_PATH"
-    args:
-      - scripts/build-esp-idf-smart-desk.sh
-      - $_CMAKE_VERSION
-  - id: 'Prepare smart_desk binary'
-    name: 'alpine'
-    entrypoint: '$_ESP_SMART_DESK_PATH/scripts/prepare-smart-desk-binary.sh'
-    args:
-      - "$_ESP_SMART_DESK_PATH/build/smart-desk.bin"
-      - "$COMMIT_SHA"
-      - "$BRANCH_NAME"
-      - "$TAG_NAME"
-substitutions:
-  # Use the latest tag because we are currently developing the ESP32 stuff.
-  # Will switch to a more repeatable tag when we stabilize.
-  _CMAKE_VERSION: '3.18.0'
-  _ESP_IDF_VERSION_IMAGE_TAG: 'latest'
-  _ESP_SMART_DESK_PATH: '.'
+        PROJECT_EXECUTABLE_TAG=$COMMIT_SHA
+        export PROJECT_EXECUTABLE_TAG
+        make
+    entrypoint: '/bin/bash'

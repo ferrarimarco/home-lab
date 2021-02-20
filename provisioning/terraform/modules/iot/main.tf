@@ -66,17 +66,6 @@ output "iot_core_home_lab_registry_telemetry_pubsub_topic" {
   value = google_pubsub_topic.default-telemetry.id
 }
 
-resource "google_storage_bucket" "smart_desk" {
-  name                        = "ferrarimarco-smart-desk"
-  project                     = var.google_project_id
-  location                    = "US"
-  uniform_bucket_level_access = true
-
-  versioning {
-    enabled = true
-  }
-}
-
 resource "google_storage_bucket_object" "terraform-configuration-iot-core-home-registry-public-keys-directory" {
   name    = "${var.iot_core_public_keys_storage_prefix}/${google_cloudiot_registry.home-registry.id}/"
   content = "Terraform configuration IoT Core Home registry public keys directory"

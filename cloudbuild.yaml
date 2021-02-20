@@ -53,7 +53,7 @@ steps:
         echo "Saving eventual failures log to: ${_FAILURE_FILE_PATH}"
 
         scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "COMMIT_SHA=$COMMIT_SHA,BRANCH_NAME=$BRANCH_NAME,TAG_NAME=$TAG_NAME" \
+          --cloud-build-substitutions "COMMIT_SHA=$COMMIT_SHA" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/esp32/smart_desk" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
