@@ -1,4 +1,4 @@
-FROM otel/opentelemetry-collector-contrib:0.18.0 as opentelemetry-collector-contrib
+FROM otel/opentelemetry-collector-contrib:0.21.0 as opentelemetry-collector-contrib
 
 FROM alpine:3.13.0
 
