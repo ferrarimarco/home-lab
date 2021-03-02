@@ -1,6 +1,6 @@
 FROM otel/opentelemetry-collector-contrib:0.18.0 as opentelemetry-collector-contrib
 
-FROM alpine:3.13.0
+FROM alpine:3.13.2
 
 RUN apk --no-cache add \
     ca-certificates \
