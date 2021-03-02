@@ -5,18 +5,6 @@ updates:
     directory: "/provisioning/docker/arm-image-builder"
     schedule:
       interval: "daily"
-  - package-ecosystem: "docker"
-    directory: "/provisioning/docker/dnsmasq"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "docker"
-    directory: "/provisioning/docker/eclipse-mosquitto"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "docker"
-    directory: "/provisioning/docker/opentelemetry-collector-contrib"
-    schedule:
-      interval: "daily"
   - package-ecosystem: "pip"
     directory: "/provisioning/cloud-functions"
     schedule:
@@ -29,12 +17,6 @@ updates:
   # Leaving this config entry for now, because this is not a documented feature.
   - package-ecosystem: "pip"
     directory: "/provisioning/cloud-functions/dev-requirements"
-    schedule:
-      interval: daily
-      time: "04:00"
-    open-pull-requests-limit: 99
-  - package-ecosystem: "pip"
-    directory: "/provisioning/docker/eclipse-mosquitto"
     schedule:
       interval: daily
       time: "04:00"
