@@ -68,25 +68,9 @@ steps:
           &
 
         scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "_DOCKER_IMAGE_ID=eclipse-mosquitto,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
-          --commit-sha "$COMMIT_SHA" \
-          --destination-directory-path "provisioning/docker/eclipse-mosquitto" \
-          --failure-file-path "${_FAILURE_FILE_PATH}" \
-          --git-repository-path "home-lab" \
-          &
-
-        scripts/submit-cloud-build.sh \
           --cloud-build-substitutions "_DOCKER_IMAGE_ID=iot-core-initializer,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
           --commit-sha "$COMMIT_SHA" \
           --destination-directory-path "provisioning/docker/iot-core-initializer" \
-          --failure-file-path "${_FAILURE_FILE_PATH}" \
-          --git-repository-path "home-lab" \
-          &
-
-        scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "_DOCKER_IMAGE_ID=opentelemetry-collector-contrib,_DOCKER_IMAGE_TAG=$SHORT_SHA,_TERRAFORM_ENVIRONMENT_PATH=$_TERRAFORM_ENVIRONMENT_PATH" \
-          --commit-sha "$COMMIT_SHA" \
-          --destination-directory-path "provisioning/docker/opentelemetry-collector-contrib" \
           --failure-file-path "${_FAILURE_FILE_PATH}" \
           --git-repository-path "home-lab" \
           &

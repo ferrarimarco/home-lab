@@ -1,9 +1,0 @@
-# Configuration file for both mosquitto_pub and mosquitto_sub
-
---cafile /etc/cloud-iot-core/certificates/iot-core-root-ca.pem
---debug
---host mqtt.googleapis.com
---protocol-version mqttv311
---qos 1
---tls-version tlsv1.3
---username unused
