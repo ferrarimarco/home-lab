@@ -13,7 +13,12 @@ steps:
       - "--entrypoint"
       - "$$(pwd)/build.sh"
       - "--options"
-      - "--build-config $$(pwd)/config/build.conf --cloud-init-user-data $$(pwd)/config/cloud-init/user-data.yaml"
+      - >-
+        --build-config $$(pwd)/config/build.conf
+        --cloud-init-meta-data $$(pwd)/$_CLOUD_INIT_META_DATA_CONFIG_PATH
+        --cloud-init-network-config $$(pwd)/$_CLOUD_INIT_NETWORK_CONFIG_PATH
+        --cloud-init-user-data $$(pwd)/$_CLOUD_INIT_USER_DATA_PATH
+        --os-image-tag $_OS_IMAGE_TAG
 substitutions:
   _ARM_BUILDER_IMAGE_TAG: 'ec9be07'
 timeout: 37000s

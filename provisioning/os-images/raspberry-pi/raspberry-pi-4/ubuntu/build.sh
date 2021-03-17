@@ -8,17 +8,39 @@ echo "This script has been invoked with: $0 $*"
 print_or_warn() {
   FILE_PATH="${1}"
   if [ -e "$FILE_PATH" ]; then
-    echo "Contents of ${FILE_PATH}:"
-    ls -alhR "${FILE_PATH}"
+    echo "-------------------------"
+    echo "Contents of ${FILE_PATH} ($(ls -alhR "${FILE_PATH}")):"
     if [ -f "$FILE_PATH" ]; then
       cat "${FILE_PATH}"
     fi
+    echo "-------------------------"
   else
-    echo "WARNING: ${FILE_PATH} doesn't exist"
+    echo "${FILE_PATH} doesn't exist"
   fi
 }
 
-if ! TEMP="$(getopt -o b:u: --long build-config:,cloud-init-user-data: \
+customize_file() {
+  SOURCE_PATH="${1}"
+  DESTINATION_PATH="${2}"
+
+  if [ -z "${SOURCE_PATH}" ]; then
+    echo "Source file path is not set. Skipping the customization of ${DESTINATION_PATH}"
+    return 0
+  fi
+
+  if [ -e "${SOURCE_PATH}" ]; then
+    print_or_warn "${SOURCE_PATH}"
+    echo "Contents of ${DESTINATION_PATH} before overriding it with ${SOURCE_PATH}:"
+    print_or_warn "${DESTINATION_PATH}"
+    echo "Copying ${SOURCE_PATH} to ${DESTINATION_PATH}..."
+    cp -f "${SOURCE_PATH}" "${DESTINATION_PATH}"
+  else
+    echo "Skipping the copy of ${SOURCE_PATH} to ${DESTINATION_PATH} because the source doesn't exist."
+  fi
+  print_or_warn "${SOURCE_PATH}"
+}
+
+if ! TEMP="$(getopt -o b:m:n:u:t: --long build-config:,cloud-init-meta-data:,cloud-init-network-config:,cloud-init-user-data:,os-image-tag: \
   -n 'build' -- "$@")"; then
   echo "Terminating..." >&2
   exit 1
@@ -26,7 +48,10 @@ fi
 eval set -- "$TEMP"
 
 BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH=
-CLOUD_INIT_USER_DATA_FIILE_PATH=
+CLOUD_INIT_META_DATA_FILE_PATH=
+CLOUD_INIT_NETWORK_CONFIG_FILE_PATH=
+CLOUD_INIT_USER_DATA_FILE_PATH=
+OS_IMAGE_FILE_TAG="generic"
 
 while true; do
   echo "Decoding parameter ${1}..."
@@ -35,8 +60,20 @@ while true; do
     BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH="${2}"
     shift 2
     ;;
+  -m | --cloud-init-meta-data)
+    CLOUD_INIT_META_DATA_FILE_PATH="${2}"
+    shift 2
+    ;;
+  -n | --cloud-init-network-config)
+    CLOUD_INIT_NETWORK_CONFIG_FILE_PATH="${2}"
+    shift 2
+    ;;
   -u | --cloud-init-user-data)
-    CLOUD_INIT_USER_DATA_FIILE_PATH="${2}"
+    CLOUD_INIT_USER_DATA_FILE_PATH="${2}"
+    shift 2
+    ;;
+  -t | --os-image-tag)
+    OS_IMAGE_FILE_TAG="${2}"
     shift 2
     ;;
   --)
@@ -59,7 +96,7 @@ echo "Current environment configuration:"
 env | sort
 
 echo "Validating cloud-init configuration file..."
-cloud-init devel schema --config-file "${CLOUD_INIT_USER_DATA_FIILE_PATH}"
+cloud-init devel schema --config-file "${CLOUD_INIT_USER_DATA_FILE_PATH}"
 
 IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"${IMAGE_ARCHIVE_FILE_NAME}"
 
@@ -154,20 +191,6 @@ fi
 
 echo "Customizing ${ROOTFS_DIRECTORY_PATH}..."
 
-CHROOT_RESOLV_CONF_PATH="${ROOTFS_DIRECTORY_PATH}"/run/systemd/resolve/stub-resolv.conf
-CHROOT_RESOLV_CONF_DIRECTORY_PATH="$(dirname "${CHROOT_RESOLV_CONF_PATH}")"
-CUSTOMIZED_RESOLV_CONF="false"
-if [ ! -f "${CHROOT_RESOLV_CONF_PATH}" ]; then
-  mkdir -p "${CHROOT_RESOLV_CONF_DIRECTORY_PATH}"
-  printf "nameserver 8.8.8.8\n" >"${CHROOT_RESOLV_CONF_PATH}"
-  CUSTOMIZED_RESOLV_CONF="true"
-fi
-
-print_or_warn "${CHROOT_RESOLV_CONF_PATH}"
-
-echo "Pinging an external domain..."
-chroot "${ROOTFS_DIRECTORY_PATH}" ping -c 3 google.com
-
 print_or_warn "${BOOT_DIRECTORY_PATH}/cmdline.txt"
 
 print_or_warn "${BOOT_DIRECTORY_PATH}/config.txt"
@@ -178,32 +201,17 @@ CLOUD_INIT_CONFIGURATION_PATH="${ROOTFS_DIRECTORY_PATH}/etc/cloud"
 print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}"
 print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg"
 
+print_or_warn "${ROOTFS_DIRECTORY_PATH}/etc/fstab"
+
 echo "Getting contents of the cloud-init configuration files..."
 find "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d" -type f -print -exec echo \; -exec cat {} \; -exec echo \;
 
-CHROOT_CLOUD_INIT_USER_DATA_FILE_PATH="${BOOT_DIRECTORY_PATH}/user-data"
-print_or_warn "${CHROOT_CLOUD_INIT_USER_DATA_FILE_PATH}"
-
-print_or_warn "${BOOT_DIRECTORY_PATH}/meta-data"
-print_or_warn "${BOOT_DIRECTORY_PATH}/network-config"
-
-echo "Copying the user-data configuration file (${CLOUD_INIT_USER_DATA_FIILE_PATH}) to ${CHROOT_CLOUD_INIT_USER_DATA_FILE_PATH}..."
-cp -f "${CLOUD_INIT_USER_DATA_FIILE_PATH}" "${CHROOT_CLOUD_INIT_USER_DATA_FILE_PATH}"
-
-print_or_warn "${CHROOT_CLOUD_INIT_USER_DATA_FILE_PATH}"
-
-print_or_warn "${ROOTFS_DIRECTORY_PATH}/etc/fstab"
-
-echo "Updating the APT index and upgrading the system..."
-chroot "${ROOTFS_DIRECTORY_PATH}" apt-get update
-chroot "${ROOTFS_DIRECTORY_PATH}" apt-get -y upgrade
+customize_file "${CLOUD_INIT_USER_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/user-data"
+customize_file "${CLOUD_INIT_META_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/meta-data"
+customize_file "${CLOUD_INIT_NETWORK_CONFIG_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/network-config"
 
 echo "Installed APT packages:"
 chroot "${ROOTFS_DIRECTORY_PATH}" dpkg -l | sort
-
-if [ "${CUSTOMIZED_RESOLV_CONF}" = "true" ]; then
-  rm -rf "${CHROOT_RESOLV_CONF_DIRECTORY_PATH}"
-fi
 
 echo "Synchronizing latest filesystem changes..."
 sync
@@ -227,9 +235,19 @@ kpartx -vd "${IMAGE_FILE_PATH}"
 echo "Ensuring that the loop device is not present anymore..."
 rm -f "${LOOP_DEVICE_PATH}"
 
-IMAGE_ARCHIVE_FILE_PATH="${IMAGE_FILE_PATH}".xz
-echo "Removing image archive path leftovers..."
-rm -f "${IMAGE_ARCHIVE_FILE_PATH}"
+echo "Adding the ${OS_IMAGE_FILE_TAG} tag to the image file..."
 
-echo "Compressing ${IMAGE_FILE_PATH} to ${IMAGE_ARCHIVE_FILE_PATH}..."
-xz -9 -T6 -v -z "${IMAGE_FILE_PATH}"
+IMAGE_FILE_EXTENSION=".${IMAGE_FILE_PATH##*.}"
+IMAGE_FILE_DIRECTORY_PATH="$(dirname -- "${IMAGE_FILE_PATH}")"
+IMAGE_FILE_NAME="$(basename -- "${IMAGE_FILE_PATH}" "${IMAGE_FILE_EXTENSION}")"
+echo "Image file path: ${IMAGE_FILE_PATH}.Image file directory: ${IMAGE_FILE_DIRECTORY_PATH}. Image file name: ${IMAGE_FILE_NAME}. Image file extension: ${IMAGE_FILE_EXTENSION}"
+
+TARGET_IMAGE_FILE_PATH="${IMAGE_FILE_DIRECTORY_PATH}"/"${IMAGE_FILE_NAME}"-"${OS_IMAGE_FILE_TAG}""${IMAGE_FILE_EXTENSION}"
+mv -v "${IMAGE_FILE_PATH}" "${TARGET_IMAGE_FILE_PATH}"
+
+ARCHIVE_FILE_EXTENSION=".xz"
+echo "Removing image archive (extension: ${ARCHIVE_FILE_EXTENSION}) path leftovers..."
+rm -f ./*"${ARCHIVE_FILE_EXTENSION}"
+
+echo "Compressing ${TARGET_IMAGE_FILE_PATH}..."
+xz -9 -T6 -v -z "${TARGET_IMAGE_FILE_PATH}"

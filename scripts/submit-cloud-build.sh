@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-set -e
+set -o nounset
+set -o errexit
 
 if ! TEMP="$(getopt -o c:d:f:g:o:s: --long cloud-build-substitutions:,commit-sha:,common-files-directories:,destination-directory-path:,failure-file-path:,git-repository-path: \
   -n 'submit-cloud-build' -- "$@")"; then
@@ -51,7 +52,7 @@ while true; do
 done
 
 if [ -z "$FAILURE_FILE_PATH" ]; then
-  echo "Specify a failure file path with the -f | --failure-file-path. Terminating..."
+  echo "Specify a failure file path with the -f | --failure-file-path. Terminating..." | tee -a "${FAILURE_FILE_PATH}"
   exit 1
 fi
 touch "${FAILURE_FILE_PATH}"
@@ -121,6 +122,10 @@ if [ -n "${COMMON_FILES_DIRECTORIES}" ]; then
   echo "Copying files from ${COMMON_FILES_DIRECTORIES} to ${CLOUD_BUILD_JOB_PATH}..."
   for DIRECTORY in ${COMMON_FILES_DIRECTORIES}; do
     echo "Copying $DIRECTORY to ${CLOUD_BUILD_JOB_PATH}..."
+    if [ ! -e "$DIRECTORY" ]; then
+      echo "$DIRECTORY doesn't exist. Terminating..." | tee -a "${FAILURE_FILE_PATH}"
+      exit 1
+    fi
     cp -RTv "${DIRECTORY}/" "${CLOUD_BUILD_JOB_PATH}/"
   done
 else
@@ -140,6 +145,7 @@ echo "${CLOUD_BUILD_JOB_PATH} contents: $(
 if ! gcloud builds submit "$CLOUD_BUILD_JOB_PATH" --config="${config}" $([ -n "$CLOUD_BUILD_SUBSTITUTIONS" ] && printf %s "--substitutions $CLOUD_BUILD_SUBSTITUTIONS") >"${logfile}" 2>&1; then
   echo "$DESTINATION_DIRECTORY_PATH failed" | tee -a "${FAILURE_FILE_PATH}"
   cat "${logfile}"
+  exit 1
 else
   echo "$DESTINATION_DIRECTORY_PATH build completed successfully"
 fi

@@ -2,32 +2,35 @@
 
 All the necessary to provision, configure and manage my home lab.
 
-## Provisioning the environment
+The home lab has two main environments:
 
-To bootstrap the home lab, follow the instructions in this section.
+1. A cloud environment on Google Cloud.
+1. An edge environment, on premises.
 
-### Dependencies
+Before using the home lab, you initialize both environments by executing
+two manual processes. After these two initalization processes complete,
+automated processes take care of applying provisioning and
+configuration changes to both environments.
+
+## Dependencies
+
+To interact with the home lab, you need the following tools:
 
 - [Git](https://git-scm.com/) (tested with version `2.25.0`).
 - [Terraform](https://www.terraform.io/) (tested with version `v0.12.20`).
 - [Google Cloud SDK](https://cloud.google.com/sdk) (tested with version `271.0.0`).
 
-### Set the environment variables
+## Initialize the cloud environment
 
-To provision the necessary infrastructure, you need to initialize and export
-the following environment variables:
+To initialize the cloud environment, you manually execute the initialization
+process:
 
-- `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID that will contain the
+1. Initialize the default Google Cloud: `gcloud auth application-default login`
+1. Initialize and export the following environment variables:
+    - `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID that will contain the
     resources for the provisioning pipeline.
-- `GOOGLE_APPLICATION_CREDENTIALS`: path to the default Google Cloud credentials.
-- `ORGANIZATION_ID`: Google Cloud organization ID at the root of the hierarchy.
-
-Note: Initialize the default Google Cloud with `gcloud auth application-default login`
-
-### Provision the cloud infrastructure
-
-You now provision and configure the cloud infrastructure:
-
+    - `GOOGLE_APPLICATION_CREDENTIALS`: path to the default Google Cloud credentials.
+    - `ORGANIZATION_ID`: Google Cloud organization ID at the root of the hierarchy.
 1. Change your working directory to the root of this repo.
 1. Change your working directory: `cd provisioning/terraform/environments/prod`
 1. Populate a
@@ -58,35 +61,21 @@ You now provision and configure the cloud infrastructure:
     ```
 
 1. Ensure the configuration is valid: `terraform validate`
-1. Inspect the changes that Terraform will apply: `terraform plan`
 1. Apply the changes: `terraform apply`
 
-An automated, CI/CD pipeline will then be responsible to apply future changes to
-the infrastructure and to run the rest of the build tasks. The pipeline applies
-changes to the infrastructure only for commits pushed to the `master` branch.
-
-During the first run from your local environment, Terraform uploads the
-following configuration files from your file system to a Cloud Storage bucket
-named `${GOOGLE_CLOUD_PROJECT}-configuration`:
-
-- `terraform.tfvars` variables file.
-- `backend.tf` backend configuration file.
-- Public keys for IoT Core, Compute Engine, and other Google Cloud services if
-    available in your environment.
-
-The pipeline downloads these files for unattended executions.
-
-#### Managed DNS zone
+### Managed DNS zone
 
 This environment requires a DNS zone to manage, and expects it to be a subdomain
-of your organization domain. The default subdomain is `lab`, which you can
-customize by changing the value of the relevant variable in the Terraform
-variables file. To complete the setup, you must setup a `NS` DNS record in the
+of your Google Cloud organization domain. You can customize the subdomain name
+of the cloud environment by changing the value of the relevant variable in the
+Terraform variables file.
+
+To complete the setup, you must setup a `NS` DNS record in the
 authoritative name server of your organization for the
 subdomain to point to the managed DNS servers. For example, follow
 [these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
 
-#### Conditional provisioning
+### Conditional provisioning
 
 Some resources will not be provisioned by Terraform if certain conditions are
 not met:
@@ -98,7 +87,7 @@ not met:
 All the configuration files that the provisioning pipeline needs are in the
 `${GOOGLE_CLOUD_PROJECT}-configuration` Cloud Storage bucket.
 
-#### Deleting the development workstation
+### Deleting the development workstation
 
 To turn off and delete the development workstation, run:
 
@@ -108,8 +97,35 @@ terraform destroy \
     -target module.development-workspace.google_compute_image.dev-workstation-image-ubuntu-2004
 ```
 
-### Provision edge devices
+## Initialize the edge environment
 
-There are edge devices, such as sensors, microcontrollers and microcomputers to provision.
+To initialize the edge environment, you execute the first initialization process
+using a seed device. Besides this initialization phase that may require a manual
+intervention, devices in the edge envirnment auto-configure themselves when they
+start.
 
-Edge devices auto-configure themselves during their first start.
+### Initialize the edge environment with the seed device
+
+To provision the edge environment, you use a seed device. After this process is
+completed, the seed device has no special purpose or status, and you can use
+that seed device as any other device in the edge environment.
+
+The seed device has as few external dependencies as possible. The seed
+device requires:
+
+1. A connection to an IP network that can route packets to and from the
+    Internet.
+1. An IP address to statically assign to the main network interface of the seed
+    device.
+
+As soon as the seed device detects that the edge environment initialization
+process is completed, and there are enough nodes, servers, and service
+instances to back the seed device up, the seed device loads and the
+configuration that non-seed devices use, and applies that configuration to
+itself. This approach has two benefits:
+
+1. Avoid circular dependencies. The on premises environment needs minimal,
+    pre-existing infrastructure to complete the initialization process.
+1. Avoid special-purpose devices. By applying the general-purpose configuration to
+    the seed device after the initialization process, you avoid introducing
+    ad-hoc components in the environment.
