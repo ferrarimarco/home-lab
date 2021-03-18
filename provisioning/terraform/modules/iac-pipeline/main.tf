@@ -201,17 +201,6 @@ resource "google_storage_bucket" "os-images" {
   }
 }
 
-resource "google_storage_bucket" "cloudfunctions_source_bucket" {
-  name                        = "${var.google_project_id}-cloud-functions-source"
-  project                     = var.google_project_id
-  location                    = "US"
-  uniform_bucket_level_access = true
-
-  versioning {
-    enabled = true
-  }
-}
-
 resource "google_storage_bucket" "configuration" {
   name                        = "${var.google_project_id}-configuration"
   project                     = var.google_project_id
