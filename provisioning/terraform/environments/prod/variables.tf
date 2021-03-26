@@ -86,6 +86,7 @@ variable "development_workstation_boot_disk_size" {
 
 variable "development_workstation_git_repositories_to_clone" {
   default = [
+    "https://github.com/espressif/esp-idf.git",
     "https://github.com/ferrarimarco/docker-pxe.git",
     "https://github.com/ferrarimarco/dotfiles.git",
     "https://github.com/ferrarimarco/ferrarimarco.github.io.git",
