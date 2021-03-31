@@ -24,18 +24,32 @@ build-esp-idf-project: ## Build the ESP-IDF project.
 help: ## Show help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-ESP_IDF_SERIAL_PORT ?= /dev/cu.SLAB_USBtoUART
+ESP32_RFC2217_SERIAL_PORT ?= 3000
 
 .PHONY: monitor-esp-idf-project
 monitor-esp-idf-project: ## Launch the ESP-IDF project monitor.
 	docker run --rm -i $(DOCKER_FLAGS) \
-		--device "$(ESP_IDF_SERIAL_PORT)" \
+		--add-host=host.docker.internal:host-gateway \
 		-v "$(CURDIR)":/workspace \
 		-w="/workspace" \
 		"$(ESP_IDF_CONTAINER_IMAGE_TAG)" \
 		idf.py \
-		-p "$(ESP_IDF_SERIAL_PORT)" \
+		-p rfc2217://host.docker.internal:$(ESP32_RFC2217_SERIAL_PORT) \
 		monitor
+
+.PHONY: setup-rfc2217-server
+setup-rfc2217-server: ## Set up a RFC 2217 server to interact with the serial port over the network. Requires Python 3
+	python3 -m venv ./.env; \
+	. .env/bin/activate; \
+	pip3 install pyserial
+	curl https://raw.githubusercontent.com/pyserial/pyserial/master/examples/rfc2217_server.py --output .env/rfc2217_server.py
+
+ESP32_SERIAL_PORT ?= /dev/cu.SLAB_USBtoUART
+
+.PHONY: start-rfc2217-server
+start-rfc2217-server: setup-rfc2217-server ## Start a RFC 2217 server to interact with the serial port over the network.
+	. .env/bin/activate; \
+	python3 .env/rfc2217_server.py -p $(ESP32_NETWORK_SERIAL_PORT) -v "$(ESP_IDF_SERIAL_PORT)"
 
 PROJECT_EXECUTABLE_TAG ?= latest
 
