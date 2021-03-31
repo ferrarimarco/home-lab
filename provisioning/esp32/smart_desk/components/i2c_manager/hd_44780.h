@@ -63,7 +63,7 @@
 #define LCD_FUNCTION_SET_5X8 0x00     // Enable 5x8 font mode
 #define LCD_FUNCTION_SET_5X11 0x04    // Enable 5x11 font mode
 
-void LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backlighPin, uint8_t initial_bit_mode);
+esp_err_t LCD_init(uint8_t addr, uint8_t cols, uint8_t rows, uint8_t En, uint8_t Rw, uint8_t Rs, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backlighPin, uint8_t interface_bit_mode);
 void LCD_setCursor(uint8_t col, uint8_t row);
 void LCD_home(void);
 void LCD_clearScreen(void);

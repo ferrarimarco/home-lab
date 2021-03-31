@@ -147,8 +147,8 @@ configuration of the workstation.
 To use the remote workstation as a development environment for embedded devices,
 you:
 
-1. Expose the needed serial ports via an RFC2217 server.
-1. Forward the RFC2217 ports over SSH.
+1. Expose the needed serial ports via an RFC 2217 server.
+1. Forward the RFC 2217 ports over SSH.
 1. Connect to the forwarded ports from the development workstation.
 
 An example of this approach to develop with an ESP32 and the

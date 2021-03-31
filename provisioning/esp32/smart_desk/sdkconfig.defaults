@@ -29,3 +29,12 @@ CONFIG_MBEDTLS_HARDWARE_SHA=y
 # After that issue is fixed, we can avoid disabling it, and manually enabling it
 # when we're done with time-consuming tasks.
 CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=n
+
+# Set the default log level
+# Level = INFO
+CONFIG_LOG_DEFAULT_LEVEL=3
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+
+# Level = DEBUG
+#CONFIG_LOG_DEFAULT_LEVEL=4
+#CONFIG_LOG_DEFAULT_LEVEL_DEBUG=y

@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -25,7 +26,8 @@
 
 #define SDA_PIN 23
 #define SCL_PIN 22
-#define I2C_FREQUENCY ((uint8_t)100000)
+// The PCF8574 has a 100 kHz I2C interface
+#define I2C_MASTER_CLOCK_FREQUENCY_HZ 100000
 
 #define LCD_ADDR 0x27
 #define LCD_COLS 20
@@ -77,22 +79,42 @@ void vCpu1Task(void *pvParameters)
 
 void app_main(void)
 {
-    i2c_master_driver_initialize(SDA_PIN, SCL_PIN, I2C_FREQUENCY);
-    do_i2cdetect();
+    ESP_ERROR_CHECK(i2c_master_driver_initialize(SDA_PIN, SCL_PIN, I2C_MASTER_CLOCK_FREQUENCY_HZ));
 
-    // i2c expander - LCD Pin mappings
-    // P0 -> RS
-    // P1 -> RW
-    // P2 -> E
-    // P3 -> Backlight (b)
-    // P4 -> D4
-    // P5 -> D5
-    // P6 -> D6
-    // P7 -> D7
+    esp_err_t ret;
+    char err_msg[20];
 
-    LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3, LCD_FUNCTION_SET_4_BIT);
+    do
+    {
+        if ((ret = i2c_detect_device(LCD_ADDR)) != ESP_OK)
+        {
+            ESP_LOGE(TAG, "%s during I2C device detection at address 0x%02x. Retrying...", esp_err_to_name_r(ret, err_msg, sizeof(err_msg)), LCD_ADDR);
+        }
+    } while (ret != ESP_OK);
 
-    LCD_writeStr("Initializing...");
+    do
+    {
+        // i2c expander - LCD Pin mappings
+        // P0 -> RS
+        // P1 -> RW
+        // P2 -> E
+        // P3 -> Backlight (b)
+        // P4 -> D4
+        // P5 -> D5
+        // P6 -> D6
+        // P7 -> D7
+        if ((ret = LCD_init(LCD_ADDR, LCD_COLS, LCD_ROWS, 2, 1, 0, 4, 5, 6, 7, 3, LCD_FUNCTION_SET_4_BIT)) != ESP_OK)
+        {
+            ESP_LOGE(TAG, "%s during LCD (I2C address 0x%02x) initialization. Retrying...", esp_err_to_name_r(ret, err_msg, sizeof(err_msg)), LCD_ADDR);
+        }
+    } while (ret == ESP_FAIL || ret == ESP_ERR_TIMEOUT);
+
+    bool lcd_available = true;
+    if (ret == ESP_FAIL)
+    {
+        lcd_available = false;
+        ESP_LOGW(TAG, "The LCD (I2C address 0x%02x) is not available.", LCD_ADDR);
+    }
 
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
@@ -110,18 +132,26 @@ void app_main(void)
     ESP_LOGI(TAG, "Initializing the non-volatile storage flash...");
     ESP_ERROR_CHECK(initialize_nvs_flash());
 
-    ESP_LOGI(TAG, "Preparing the default LCD visualization...");
-    LCD_clearScreen();
-    LCD_home();
-    LCD_writeStr("IP: ");
-    LCD_setCursor(0, 1);
-    LCD_writeStr("Distance:     cm");
+    if (lcd_available)
+    {
+        ESP_LOGI(TAG, "Preparing the default LCD visualization...");
+        LCD_clearScreen();
+        LCD_home();
+        LCD_writeStr("IP: ");
+        LCD_setCursor(0, 1);
+        LCD_writeStr("Distance:     cm");
+    }
 
     ESP_LOGI(TAG, "Registering event handlers...");
     register_wifi_manager_event_handlers();
     register_ip_address_manager_event_handlers();
     register_provisioning_manager_event_handlers();
-    register_lcd_events();
+
+    if (lcd_available)
+    {
+        ESP_LOGI(TAG, "Registering LCD event handlers...");
+        register_lcd_events();
+    }
 
     char *tasks_info = get_tasks_info();
     ESP_LOGI(TAG, "%s", tasks_info);
@@ -136,7 +166,6 @@ void app_main(void)
 
     start_wifi_provisioning();
 
-    ESP_LOGI(TAG, "Starting the actuators demo...");
     struct Relay relay_1 = {RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
     struct Relay relay_2 = {RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
     struct Relay relay_3 = {RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
@@ -146,7 +175,6 @@ void app_main(void)
     init_relay(relay_3);
     init_relay(relay_4);
     vTaskDelay(2000 / portTICK_PERIOD_MS);
-    actuators_demo(relay_1, relay_2, relay_3, relay_4);
 
     ESP_LOGI(TAG, "Starting the distance sensor demo...");
     ultrasonic_sensor_t ultrasonic_sensor = {
