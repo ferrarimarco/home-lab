@@ -76,4 +76,4 @@ void LCD_writeStr(const char *str);
 
 void LCD_Demo();
 
-void register_lcd_events();
+esp_err_t register_lcd_events();

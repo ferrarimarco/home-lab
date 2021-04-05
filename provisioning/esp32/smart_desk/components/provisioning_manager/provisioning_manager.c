@@ -22,7 +22,6 @@ void handle_prov_manager_init_event(void *arg, esp_event_base_t event_base, int3
         .scheme_event_handler = WIFI_PROV_SCHEME_BLE_EVENT_HANDLER_FREE_BTDM,
     };
 
-    ESP_LOGI(TAG, "Initializing WiFi provisioning manager...");
     ESP_ERROR_CHECK(wifi_prov_mgr_init(wifi_provisioning_manager_config));
 }
 
@@ -30,13 +29,13 @@ void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, int32_t
 {
     ESP_LOGI(TAG, "WiFi provisioning manager initialization completed.");
 
-    ESP_LOGI(TAG, "Checking if WiFi is already provisioned...");
+    ESP_LOGD(TAG, "Checking if WiFi is already provisioned...");
     bool provisioned = false;
     ESP_ERROR_CHECK(wifi_prov_mgr_is_provisioned(&provisioned));
 
     if (!provisioned)
     {
-        ESP_LOGI(TAG, "WiFi is not already provisioned. Starting WiFi provisioning...");
+        ESP_LOGI(TAG, "Starting WiFi provisioning...");
 
         char service_name[12];
         uint8_t eth_mac[6];
@@ -82,13 +81,13 @@ void handle_wifi_prov_init_event(void *arg, esp_event_base_t event_base, int32_t
 
 void handle_wifi_prov_start_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ESP_LOGI(TAG, "Provisioning started");
+    ESP_LOGD(TAG, "Provisioning started");
 }
 
 void handle_wifi_prov_cred_recv_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     wifi_sta_config_t *wifi_sta_cfg = (wifi_sta_config_t *)event_data;
-    ESP_LOGI(TAG, "Received Wi-Fi credentials. SSID: %s. Password : %s", (const char *)wifi_sta_cfg->ssid, (const char *)wifi_sta_cfg->password);
+    ESP_LOGD(TAG, "Received Wi-Fi credentials. SSID: %s. Password : %s", (const char *)wifi_sta_cfg->ssid, (const char *)wifi_sta_cfg->password);
 }
 
 void handle_wifi_prov_cred_fail_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -99,45 +98,47 @@ void handle_wifi_prov_cred_fail_event(void *arg, esp_event_base_t event_base, in
 
 void handle_wifi_prov_cred_success_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ESP_LOGI(TAG, "Provisioning successful");
+    ESP_LOGD(TAG, "Provisioning successful");
 }
 
 void handle_wifi_prov_end_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ESP_LOGI(TAG, "WiFi provisioning completed. De-initializing the WiFi provisioning manager...");
+    ESP_LOGD(TAG, "WiFi provisioning completed. De-initializing the WiFi provisioning manager...");
     wifi_prov_mgr_deinit();
 }
 
 void handle_wifi_prov_deinit_event(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ESP_LOGI(TAG, "WiFi provisioning manager de-initialization completed. Initializing WiFi station mode...");
+    ESP_LOGD(TAG, "WiFi provisioning manager de-initialization completed. Initializing WiFi station mode...");
     ESP_ERROR_CHECK(esp_event_post(WIFI_CONNECTION_MANAGER_EVENTS, WIFI_CONNECTION_MANAGER_EVENT_STA_MODE_INIT, NULL, 0, portMAX_DELAY));
 }
 
 void register_provisioning_manager_event_handlers()
 {
-    ESP_LOGI(TAG, "Registering the handler for PROVISIONING_MANAGER_INIT event...");
+    ESP_LOGI(TAG, "Registering provisioning manager events...");
+
+    ESP_LOGD(TAG, "Registering the handler for PROVISIONING_MANAGER_INIT event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(PROVISIONING_MANAGER_EVENTS, PROVISIONING_MANAGER_INIT, handle_prov_manager_init_event, NULL, NULL));
 
-    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_INIT event...");
+    ESP_LOGD(TAG, "Registering the handler for WIFI_PROV_INIT event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_INIT, handle_wifi_prov_init_event, NULL, NULL));
 
-    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_START event...");
+    ESP_LOGD(TAG, "Registering the handler for WIFI_PROV_START event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_START, handle_wifi_prov_start_event, NULL, NULL));
 
-    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_CRED_RECV event...");
+    ESP_LOGD(TAG, "Registering the handler for WIFI_PROV_CRED_RECV event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_CRED_RECV, handle_wifi_prov_cred_recv_event, NULL, NULL));
 
-    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_CRED_FAIL event...");
+    ESP_LOGD(TAG, "Registering the handler for WIFI_PROV_CRED_FAIL event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_CRED_FAIL, handle_wifi_prov_cred_fail_event, NULL, NULL));
 
-    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_CRED_SUCCESS event...");
+    ESP_LOGD(TAG, "Registering the handler for WIFI_PROV_CRED_SUCCESS event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_CRED_SUCCESS, handle_wifi_prov_cred_success_event, NULL, NULL));
 
-    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_END event...");
+    ESP_LOGD(TAG, "Registering the handler for WIFI_PROV_END event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_END, handle_wifi_prov_end_event, NULL, NULL));
 
-    ESP_LOGI(TAG, "Registering the handler for WIFI_PROV_DEINIT event...");
+    ESP_LOGD(TAG, "Registering the handler for WIFI_PROV_DEINIT event...");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_PROV_EVENT, WIFI_PROV_DEINIT, handle_wifi_prov_deinit_event, NULL, NULL));
 }
 

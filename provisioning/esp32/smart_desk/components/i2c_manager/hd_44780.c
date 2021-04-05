@@ -343,34 +343,37 @@ static void sta_got_ip_event_handler(void *arg, esp_event_base_t event_base, int
     LCD_writeStr(txtBuf);
 }
 
-static void sta_ultrasonic_sensor_measure_available_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+static void ultrasonic_sensor_measure_available_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    ESP_LOGD(TAG, "%s: %u sta_ultrasonic_sensor_measure_available_handler", event_base, event_id);
+    ESP_LOGD(TAG, "%s: %u ultrasonic_sensor_measure_available_handler", event_base, event_id);
     struct DistanceMeasure distance_measure = *((struct DistanceMeasure *)event_data);
-    uint32_t measured_distance = distance_measure.distance;
-
     char txtBuf[11];
 
-    if (measured_distance >= distance_measure.min_valid_distance && measured_distance <= distance_measure.max_valid_distance)
-    {
-        ESP_LOGD(TAG, "Measured distance: %d cm", measured_distance);
-        sprintf(txtBuf, "%03u", measured_distance);
-    }
+    if (distance_measure.return_code == ESP_OK)
+        sprintf(txtBuf, "%03u", distance_measure.distance);
     else
-    {
-        ESP_LOGD(TAG, "Measured distance (%d) is not in a valid range", measured_distance);
         sprintf(txtBuf, "N/A");
-    }
 
     LCD_setCursor(10, 1);
     LCD_writeStr(txtBuf);
 }
 
-void register_lcd_events()
+esp_err_t register_lcd_events()
 {
-    ESP_LOGI(TAG, "Registering the handler for IP_EVENT_STA_GOT_IP event...");
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, sta_got_ip_event_handler, NULL, NULL));
+    esp_err_t ret = ESP_OK;
+    char err_msg[20];
 
     ESP_LOGI(TAG, "Registering the handler for IP_EVENT_STA_GOT_IP event...");
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(ULTRASONIC_EVENTS, ULTRASONIC_EVENT_MEASURE_AVAILABLE, sta_ultrasonic_sensor_measure_available_handler, NULL, NULL));
+    if ((ret = esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, sta_got_ip_event_handler, NULL, NULL)) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "%s while registering the handler for the IP_EVENT_STA_GOT_IP event.", esp_err_to_name_r(ret, err_msg, sizeof(err_msg)));
+    }
+
+    ESP_LOGI(TAG, "Registering the handler for ULTRASONIC_EVENT_MEASURE_AVAILABLE event...");
+    if ((ret = esp_event_handler_instance_register(ULTRASONIC_EVENTS, ULTRASONIC_EVENT_MEASURE_AVAILABLE, ultrasonic_sensor_measure_available_handler, NULL, NULL)) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "%s while registering the handler for the ULTRASONIC_EVENT_MEASURE_AVAILABLE event.", esp_err_to_name_r(ret, err_msg, sizeof(err_msg)));
+    }
+
+    return ret;
 }

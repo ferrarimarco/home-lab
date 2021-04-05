@@ -19,6 +19,7 @@
 #include "relay_board.h"
 #include "rsa_utils.h"
 
+#include "actuators_controller.h"
 #include "ip_address_manager.h"
 #include "wifi_connection_manager.h"
 #include "provisioning_manager.h"
@@ -38,6 +39,7 @@
 #define ULTRASONIC_TRIGGER_GPIO GPIO_NUM_27
 #define ULTRASONIC_ECHO_GPIO GPIO_NUM_15
 
+#define RELAY_COUNT 4
 #define RELAY_1_GPIO GPIO_NUM_33
 #define RELAY_2_GPIO GPIO_NUM_32
 #define RELAY_3_GPIO GPIO_NUM_14
@@ -48,7 +50,36 @@
 #define RSA_KEY_SIZE DEFAULT_RSA_KEY_SIZE
 #define RSA_KEY_STORAGE_NAMESPACE DEFAULT_RSA_KEY_STORAGE_NAMESPACE
 
+#define ACTUATORS_COUNT 2
+
+// The controller is on the floor, enclosed in a box,
+// and the distance sensor is on one side of the box.
+//
+// 110 cm --------- Desk top (@ max extension)
+//
+// 75 cm  --------- Desk top
+//        |       |
+// 16 cm  |   ^   | distance sensor
+//        |  | |  |
+//  0 cm  --------- Floor
+
+#define MAX_ACTUATORS_EXTENSION_CM 35                                      // Maximum actuators extension
+#define MIN_DESK_HEIGHT_CM 70                                              // Minimum distance between the floor and (bottom of) the desk top
+#define MAX_DESK_HEIGHT_CM MIN_DESK_HEIGHT_CM + MAX_ACTUATORS_EXTENSION_CM // Moximum distance between the floor and the (bottom of) desk top
+
+#define CONTROLLER_ENCLOSURE_HEIGHT_CM 16                                   // Distance between the distance sensor and the floor
+#define MIN_DISTANCE_CM MIN_DESK_HEIGHT_CM - CONTROLLER_ENCLOSURE_HEIGHT_CM // Minimum distance between the distance sensor and the desk top
+#define MAX_DISTANCE_CM MIN_DISTANCE_CM + MAX_ACTUATORS_EXTENSION_CM        // Maximum distance between the distance sensor and the desk top
+#define TOLERANCE_EXTENSION_CM 2
+
 static const char *TAG = "smart_desk";
+
+// Need this in both CPU tasks
+static ultrasonic_sensor_t ultrasonic_sensor = {
+    .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
+    .echo_pin = ULTRASONIC_ECHO_GPIO,
+    .min_distance = ULTRASONIC_MIN_DISTANCE_CM,
+    .max_distance = ULTRASONIC_MAX_DISTANCE_CM};
 
 void vCpu1Task(void *pvParameters)
 {
@@ -70,10 +101,16 @@ void vCpu1Task(void *pvParameters)
 
     esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(1));
 
+    ESP_LOGI(TAG, "Starting to measure distance...");
     // FreeRTOS tasks must not terminate
-    while (1)
+    while (true)
     {
-        vTaskDelay(100 / portTICK_RATE_MS);
+        uint32_t distance;
+        esp_err_t res = ultrasonic_measure_cm(&ultrasonic_sensor, &distance);
+        if (res == ESP_OK)
+            ESP_LOGD(TAG, "Measured distance: %d cm", distance);
+
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
@@ -150,12 +187,15 @@ void app_main(void)
     if (lcd_available)
     {
         ESP_LOGI(TAG, "Registering LCD event handlers...");
-        register_lcd_events();
+        ESP_ERROR_CHECK(register_lcd_events());
     }
 
     char *tasks_info = get_tasks_info();
     ESP_LOGI(TAG, "%s", tasks_info);
     free(tasks_info);
+
+    ESP_LOGI(TAG, "Initializing the distance sensor...");
+    ultrasonic_init(&ultrasonic_sensor);
 
     struct RsaKeyGenerationOptions rsa_key_generation_options = {
         RSA_KEY_SIZE,
@@ -166,22 +206,30 @@ void app_main(void)
 
     start_wifi_provisioning();
 
-    struct Relay relay_1 = {RELAY_1_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_2 = {RELAY_2_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_3 = {RELAY_3_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    struct Relay relay_4 = {RELAY_4_GPIO, GPIO_MODE_OUTPUT, GPIO_PULLUP_ONLY, 1, 0, 1};
-    init_relay(relay_1);
-    init_relay(relay_2);
-    init_relay(relay_3);
-    init_relay(relay_4);
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    size_t relays_num = RELAY_COUNT;
+    struct Relay *relays;
+    uint8_t relay_pins[] = {RELAY_1_GPIO, RELAY_2_GPIO, RELAY_3_GPIO, RELAY_4_GPIO};
+    ESP_ERROR_CHECK(init_relays(relay_pins, relays_num, &relays));
+    ESP_LOGI(TAG, "Completed relays initialization. Pointer to relays array: %p", relays);
 
-    ESP_LOGI(TAG, "Starting the distance sensor demo...");
-    ultrasonic_sensor_t ultrasonic_sensor = {
-        .trigger_pin = ULTRASONIC_TRIGGER_GPIO,
-        .echo_pin = ULTRASONIC_ECHO_GPIO,
-        .min_distance = ULTRASONIC_MIN_DISTANCE_CM,
-        .max_distance = ULTRASONIC_MAX_DISTANCE_CM};
-    ultrasonic_init(&ultrasonic_sensor);
-    ultrasonic_sensor_demo(&ultrasonic_sensor);
+    struct Actuator **actuators;
+    size_t actuators_num = relays_num / 2;
+    ESP_ERROR_CHECK(init_actuators(relays, relays_num, &actuators, actuators_num));
+    ESP_LOGI(TAG, "Completed actuators initialization. Pointer to actuators pointers array: %p", actuators);
+
+    ESP_ERROR_CHECK(register_actuators_events(actuators, actuators_num));
+
+    uint32_t distance;
+    ESP_ERROR_CHECK(ultrasonic_measure_cm(&ultrasonic_sensor, &distance));
+    ESP_LOGI(TAG, "Max reachable distance: %u cm, min reachable distance: %u cm, current distance: %u cm", MAX_DISTANCE_CM, MIN_DISTANCE_CM, distance);
+
+    // if (distance <= MIN_DISTANCE_CM)
+    // {
+    //     ESP_ERROR_CHECK(start_actuators_extension(MAX_DISTANCE_CM));
+    // }
+    // else if (distance >= MAX_DISTANCE_CM - TOLERANCE_EXTENSION_CM)
+    // {
+    //     ESP_ERROR_CHECK(start_actuators_retraction(MIN_DISTANCE_CM));
+    // }
+    ESP_ERROR_CHECK(start_actuators_retraction(MIN_DISTANCE_CM));
 }

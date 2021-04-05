@@ -8,6 +8,7 @@
 #define ESP_ERR_ULTRASONIC_PING 0x200
 #define ESP_ERR_ULTRASONIC_PING_TIMEOUT 0x201
 #define ESP_ERR_ULTRASONIC_ECHO_TIMEOUT 0x202
+#define ESP_ERR_ULTRASONIC_DISTANCE_OUT_OF_RANGE 0x203
 
 // For events coming from the ultrasonic sensor
 ESP_EVENT_DECLARE_BASE(ULTRASONIC_EVENTS);
@@ -22,6 +23,7 @@ struct DistanceMeasure
     uint32_t distance;
     uint32_t min_valid_distance;
     uint32_t max_valid_distance;
+    esp_err_t return_code;
 };
 
 /**
@@ -50,7 +52,5 @@ esp_err_t ultrasonic_init(const ultrasonic_sensor_t *dev);
  * @return `ESP_OK` on success
  */
 esp_err_t ultrasonic_measure_cm(const ultrasonic_sensor_t *dev, uint32_t *distance);
-
-void ultrasonic_sensor_demo(const ultrasonic_sensor_t *dev);
 
 #endif /* __ULTRASONIC_H__ */

@@ -13,12 +13,8 @@ struct Relay
     uint32_t inactive_level;
 };
 
-void init_relay(struct Relay relay);
-void turn_relay_on(struct Relay relay);
-void turn_relay_off(struct Relay relay);
-
-void relay_board_demo();
-
-void shut_down_actuators(struct Relay relay_1, struct Relay relay_2, struct Relay relay_3, struct Relay relay_4);
+esp_err_t init_relays(uint8_t relay_pins[], size_t relay_num, struct Relay **relays_p);
+esp_err_t turn_relay_on(struct Relay *relay);
+esp_err_t turn_relay_off(struct Relay *relay);
 
 #endif
