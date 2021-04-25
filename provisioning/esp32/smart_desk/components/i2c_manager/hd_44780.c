@@ -102,6 +102,10 @@ static esp_err_t send(uint8_t value, uint8_t mode, uint8_t reg, bool enable_ack)
     // So there is at least 45us of time overhead in the physical interface.
     ets_delay_us(45);
 
+    // Wait a bit more because we're using internal pull-up resistors which
+    // are slower than what the i2c spec allows
+    vTaskDelay(10 / portTICK_RATE_MS);
+
     esp_err_t ret;
     char err_msg[20];
 
