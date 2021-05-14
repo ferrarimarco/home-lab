@@ -125,6 +125,19 @@ itself. This approach has two benefits:
     the seed device after the initialization process, you avoid introducing
     ad-hoc components in the environment.
 
+### Update and configure the Raspberry Pi 4 bootloader
+
+To update the bootloader on the [Raspberry Pi 4 EEPROM](https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md)
+and configure the [boot order](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711_bootloader_config.md):
+
+1. Download the latest release of [rpi-eeprom](https://github.com/raspberrypi/rpi-eeprom/releases).
+   There are different boot order configurations available, as configured
+   [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
+1. Extract the contents of the downloaded archive to a FAT32 formatted SD card.
+1. Insert the SD card in a powered off Raspberry Pi 4.
+1. Wait for the activity LED to steadily flash green.
+1. Power the Raspberry Pi off.
+
 ## Development environment
 
 In this section, you set up a development environment for the home lab.
