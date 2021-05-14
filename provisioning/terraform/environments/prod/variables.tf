@@ -79,57 +79,6 @@ variable "google_iac_project_id" {
   description = "Google Cloud project ID for the IaC pipeline"
 }
 
-variable "development_workstation_boot_disk_size" {
-  default     = 200
-  description = "Size of the development workstation boot disk, in GB"
-}
-
-variable "development_workstation_git_repositories_to_clone" {
-  default = [
-    "https://github.com/ferrarimarco/docker-pxe.git",
-    "https://github.com/ferrarimarco/dotfiles.git",
-    "https://github.com/ferrarimarco/ferrarimarco.github.io.git",
-    "https://github.com/ferrarimarco/home-lab.git",
-    "https://github.com/ferrarimarco/kubernetes-playground.git",
-    "https://github.com/github/super-linter.git"
-  ]
-  description = "Git repositories to clone in the development workstation"
-}
-
-variable "development_workstation_machine_type" {
-  default     = "n1-standard-8"
-  description = "Machine type for development workstations"
-}
-
-variable "development_workstation_min_cpu_platform" {
-  default     = "Intel Skylake"
-  description = "Minimum CPU platform required for development workstations"
-}
-
-variable "development_workstation_name" {
-  default     = "dev-linux-1"
-  description = "Name of the development workstation"
-}
-
-variable "development_workstation_region" {
-  default     = null
-  description = "Region where to create the development workstation. Defaults to google_default_region."
-}
-
-variable "development_workstation_ssh_user" {
-  description = "Username of the user to connect to the development workstation via SSH"
-}
-
-variable "development_workstation_update_git_remotes_to_ssh" {
-  default     = true
-  description = "When true, Git remotes of the repositories cloned in the development workstation will be updated to use SSH after being cloned via HTTP"
-}
-
-variable "development_workstation_zone" {
-  default     = null
-  description = "Zone where to create the development workstation. Defaults to google_default_zone."
-}
-
 variable "main_dns_zone_prefix" {
   description = "Prefix of the main DNS zone to manage. The organization domain is appended to this prefix."
 }

@@ -254,7 +254,3 @@ output "configuration_bucket_name" {
 output "configuration_bucket_self_link" {
   value = google_storage_bucket.configuration.self_link
 }
-
-output "cloudfunctions_source_bucket_name" {
-  value = google_storage_bucket.cloudfunctions_source_bucket.name
-}

@@ -39,9 +39,6 @@ process:
 
     ```terraform
     configuration_terraform_environment_name         = "prod"
-    development_workstation_region                   = "europe-west6"
-    development_workstation_ssh_user                 = "ferrarimarco"
-    development_workstation_zone                     = "europe-west6-a"
     google_billing_account_id                        = "1234567-ABCD"
     google_default_region                            = "us-central1"
     google_default_zone                              = "us-central1-a"
@@ -81,8 +78,6 @@ Some resources will not be provisioned by Terraform if certain conditions are
 not met:
 
 1. IoT Core devices must have at least one key file on the local file system.
-1. The development workstation Compute Engine virtual machine needs at least one
-    public key to set up SSH access.
 
 All the configuration files that the provisioning pipeline needs are in the
 `${GOOGLE_CLOUD_PROJECT}-configuration` Cloud Storage bucket.
