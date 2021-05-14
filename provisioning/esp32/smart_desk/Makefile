@@ -29,7 +29,7 @@ ESP32_RFC2217_SERVER_PORT ?= 3000
 .PHONY: flash-monitor-esp-idf-project
 flash-monitor-esp-idf-project: ## Flash the firmware and launch the ESP-IDF project monitor.
 	docker run --rm -i $(DOCKER_FLAGS) \
-		--add-host=host.docker.internal:host-gateway \
+		--network host \
 		-v "$(CURDIR)":/workspace \
 		-w="/workspace" \
 		"$(ESP_IDF_CONTAINER_IMAGE_TAG)" \
@@ -41,7 +41,7 @@ flash-monitor-esp-idf-project: ## Flash the firmware and launch the ESP-IDF proj
 .PHONY: menuconfig-esp-idf-project
 menuconfig-esp-idf-project: ## Launch the ESP-IDF project menuconfig.
 	docker run --rm -i $(DOCKER_FLAGS) \
-		--add-host=host.docker.internal:host-gateway \
+		--network host \
 		-v "$(CURDIR)":/workspace \
 		-w="/workspace" \
 		"$(ESP_IDF_CONTAINER_IMAGE_TAG)" \
@@ -51,13 +51,23 @@ menuconfig-esp-idf-project: ## Launch the ESP-IDF project menuconfig.
 .PHONY: monitor-esp-idf-project
 monitor-esp-idf-project: ## Launch the ESP-IDF project monitor.
 	docker run --rm -i $(DOCKER_FLAGS) \
-		--add-host=host.docker.internal:host-gateway \
+		--network host \
 		-v "$(CURDIR)":/workspace \
 		-w="/workspace" \
 		"$(ESP_IDF_CONTAINER_IMAGE_TAG)" \
 		idf.py \
-		-p rfc2217://host.docker.internal:$(ESP32_RFC2217_SERVER_PORT) \
+		-p rfc2217://localhost:$(ESP32_RFC2217_SERVER_PORT) \
 		monitor
+
+.PHONY: size-components-esp-idf-project
+size-components-esp-idf-project: ## Launch the ESP-IDF project size-components.
+	docker run --rm -i $(DOCKER_FLAGS) \
+		--network host \
+		-v "$(CURDIR)":/workspace \
+		-w="/workspace" \
+		"$(ESP_IDF_CONTAINER_IMAGE_TAG)" \
+		idf.py \
+		size-components
 
 .PHONY: setup-rfc2217-server
 setup-rfc2217-server: ## Set up a RFC 2217 server to interact with the serial port over the network. Requires Python 3
