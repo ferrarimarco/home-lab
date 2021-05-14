@@ -41,7 +41,8 @@ resource "google_project_service" "cloudbuild-apis" {
   disable_on_destroy         = true
 
   depends_on = [
-    google_project_service.cloudbilling-apis
+    google_project_service.cloudbilling-apis,
+    google_project_service.containerregistry-apis
   ]
 }
 
