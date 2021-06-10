@@ -69,14 +69,6 @@ steps:
           &
 
         scripts/submit-cloud-build.sh \
-          --cloud-build-substitutions "_DOCKER_IMAGE_ID=iot-core-initializer,_DOCKER_IMAGE_TAG=$SHORT_SHA" \
-          --commit-sha "$COMMIT_SHA" \
-          --destination-directory-path "provisioning/docker/iot-core-initializer" \
-          --failure-file-path "${_FAILURE_FILE_PATH}" \
-          --git-repository-path "home-lab" \
-          &
-
-        scripts/submit-cloud-build.sh \
           --cloud-build-substitutions "_CLOUD_INIT_META_DATA_CONFIG_PATH=meta-data.yaml,_CLOUD_INIT_NETWORK_CONFIG_PATH=network-config.yaml,_CLOUD_INIT_USER_DATA_PATH=user-data.yaml,_OS_IMAGE_TAG=seed-device" \
           --commit-sha "$COMMIT_SHA" \
           --common-files-directories "provisioning/cloud-init/seed-device" \

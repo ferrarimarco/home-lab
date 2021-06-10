@@ -131,8 +131,8 @@ To update the bootloader on the [Raspberry Pi 4 EEPROM](https://www.raspberrypi.
 and configure the [boot order](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711_bootloader_config.md):
 
 1. Download the latest release of [rpi-eeprom](https://github.com/raspberrypi/rpi-eeprom/releases).
-   There are different boot order configurations available, as configured
-   [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
+    There are different boot order configurations available, as configured
+    [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
 1. Extract the contents of the downloaded archive to a FAT32 formatted SD card.
 1. Insert the SD card in a powered off Raspberry Pi 4.
 1. Wait for the activity LED to steadily flash green.
