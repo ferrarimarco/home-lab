@@ -43,7 +43,6 @@ process:
     google_default_region                            = "us-central1"
     google_default_zone                              = "us-central1-a"
     google_iac_project_id                            = "ferrarimarco-iac"
-    google_iot_project_id                            = "ferrarimarco-iac"
     google_organization_domain                       = "ferrari.how"
     main_dns_zone_prefix                             = "lab"
     ```
@@ -71,26 +70,6 @@ To complete the setup, you must setup a `NS` DNS record in the
 authoritative name server of your organization for the
 subdomain to point to the managed DNS servers. For example, follow
 [these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
-
-### Conditional provisioning
-
-Some resources will not be provisioned by Terraform if certain conditions are
-not met:
-
-1. IoT Core devices must have at least one key file on the local file system.
-
-All the configuration files that the provisioning pipeline needs are in the
-`${GOOGLE_CLOUD_PROJECT}-configuration` Cloud Storage bucket.
-
-### Deleting the development workstation
-
-To turn off and delete the development workstation, run:
-
-```shell
-terraform destroy \
-    -target module.development-workspace.google_compute_instance.development-workstation \
-    -target module.development-workspace.google_compute_image.dev-workstation-image-ubuntu-2004
-```
 
 ## Initialize the edge environment
 

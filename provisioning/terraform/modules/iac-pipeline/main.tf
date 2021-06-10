@@ -238,12 +238,6 @@ resource "google_storage_bucket_object" "terraform-environment-variables-file" {
   source = local.terraform_variables_file_name
 }
 
-resource "google_storage_bucket_object" "terraform-configuration-compute-engine-public-keys-directory" {
-  name    = "${var.terraform_environment_configuration_directory_path}/${var.compute_engine_keys_directory_path}/"
-  content = "Terraform configuration Compute Engine public keys directory"
-  bucket  = google_storage_bucket.configuration.name
-}
-
 output "cloud_build_service_account_id" {
   value = local.cloud_build_service_account_email
 }

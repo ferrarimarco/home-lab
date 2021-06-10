@@ -8,26 +8,6 @@ variable "cloud_build_trigger_repository_owner" {
   description = "Owner of the repository to set up Cloud Build triggers"
 }
 
-variable "configuration_compute_engine_development_workstation_ssh_public_key_file_name" {
-  default     = "development-workstation-ssh-user.pub"
-  description = "Name of the public key file to use for the development workstation"
-}
-
-variable "configuration_compute_engine_keys_directory_name" {
-  default     = "compute-engine"
-  description = "Name of the Compute Engine public keys directory"
-}
-
-variable "configuration_iot_core_keys_directory_name" {
-  default     = "iot-core"
-  description = "Name of the IoT Core public keys directory"
-}
-
-variable "configuration_public_keys_directory_name" {
-  default     = "public-keys"
-  description = "Name of the public keys directory"
-}
-
 variable "configuration_directory_name" {
   default     = "terraform"
   description = "Name of the Terraform configuration directory"
@@ -65,10 +45,6 @@ variable "google_default_project_id" {
 
 variable "google_organization_domain" {
   description = "The default organization domain for Google Cloud projects"
-}
-
-variable "google_iot_project_id" {
-  description = "Google Cloud project ID for the IoT environment"
 }
 
 variable "google_billing_account_id" {
