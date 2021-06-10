@@ -1,32 +1,3 @@
-variable "cloud_build_trigger_repository_name" {
-  default     = "home-lab"
-  description = "Name of the repository to set up Cloud Build triggers"
-}
-
-variable "cloud_build_trigger_repository_owner" {
-  default     = "ferrarimarco"
-  description = "Owner of the repository to set up Cloud Build triggers"
-}
-
-variable "configuration_directory_name" {
-  default     = "terraform"
-  description = "Name of the Terraform configuration directory"
-}
-
-variable "configuration_terraform_environments_directory_name" {
-  default     = "environments"
-  description = "Name of the Terraform configuration directory"
-}
-
-variable "configuration_terraform_environment_name" {
-  description = "Name of the Terraform configuration directory"
-}
-
-variable "default_container_registry_url" {
-  default     = "gcr.io"
-  description = "Default Container Registry URL"
-}
-
 variable "google_configuration_project_id" {
   description = "Google Cloud project ID for the configuration environment"
 }
