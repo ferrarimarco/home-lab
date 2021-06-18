@@ -4,11 +4,6 @@ options:
     - TF_IN_AUTOMATION=true
     - TF_INPUT=false
 steps:
-  - id: 'Download additional configuration for Terraform'
-    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:$_CLOUD_SDK_IMAGE_TAG'
-    entrypoint: gsutil
-    dir: "$_TERRAFORM_ENVIRONMENT_PATH/.."
-    args: ['-m', 'cp', '-r', 'gs://${PROJECT_ID}-configuration/terraform/$_TERRAFORM_ENVIRONMENT_PATH', '.']
   - id: 'tf init'
     name: 'hashicorp/terraform:$_TERRAFORM_IMAGE_TAG'
     entrypoint: 'sh'
