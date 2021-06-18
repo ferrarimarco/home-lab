@@ -18,7 +18,7 @@ RUN ARCHS=(${CROSS_COMPILE_ARCHS}) && \
     | sed 's|http://.*.ubuntu.com/ubuntu/|http://ports.ubuntu.com/|' \
     >> /etc/apt/sources.list
 
-# some scripts have a hard dependency on sudo :(
+# hadolint ignore=DL3008
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends \
@@ -53,12 +53,12 @@ RUN apt-get update \
     qemu \
     qemu-user-static \
     qemu-utils \
-    sudo \
     wget \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Install armhf-specific packages
+# hadolint ignore=DL3008
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive \
     apt-get install -y --no-install-recommends \

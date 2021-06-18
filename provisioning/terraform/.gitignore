@@ -1,8 +1,0 @@
-# Ignore the Terraform state directory
-*/**/.terraform
-
-# Ignore the tfvars files because it might contain sensitive information
-**/environments/**/*.tfvars
-
-# Ignore the backend file because it's dynamically generated
-**/environments/**/backend.tf

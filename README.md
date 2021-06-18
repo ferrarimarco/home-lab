@@ -2,76 +2,27 @@
 
 All the necessary to provision, configure and manage my home lab.
 
-The home lab has two main environments:
-
-1. A cloud environment on Google Cloud.
-1. An edge environment, on premises.
-
-Before using the home lab, you initialize both environments by executing
-two manual processes. After these two initalization processes complete,
+Before using the home lab, you initialize the environments by executing
+a manual process. After the initalization process completes,
 automated processes take care of applying provisioning and
-configuration changes to both environments.
+configuration changes to the environments.
 
 ## Dependencies
 
 To interact with the home lab, you need the following tools:
 
 - [Git](https://git-scm.com/) (tested with version `2.25.0`).
-- [Terraform](https://www.terraform.io/) (tested with version `v0.12.20`).
-- [Google Cloud SDK](https://cloud.google.com/sdk) (tested with version `271.0.0`).
-
-## Initialize the cloud environment
-
-To initialize the cloud environment, you manually execute the initialization
-process:
-
-1. Initialize the default Google Cloud: `gcloud auth application-default login`
-1. Initialize and export the following environment variables:
-    - `GOOGLE_CLOUD_PROJECT`: Google Cloud project ID that will contain the
-    resources for the provisioning pipeline.
-    - `GOOGLE_APPLICATION_CREDENTIALS`: path to the default Google Cloud credentials.
-    - `ORGANIZATION_ID`: Google Cloud organization ID at the root of the hierarchy.
-1. Change your working directory to the root of this repo.
-1. Change your working directory: `cd provisioning/terraform/environments/prod`
-1. Populate a
-    [Terraform variables file](https://www.terraform.io/docs/configuration/variables.html#assigning-values-to-root-module-variables)
-    named `terraform.tfvars` adapting the following content to your environment:
-
-    ```terraform
-    configuration_terraform_environment_name         = "prod"
-    google_billing_account_id                        = "1234567-ABCD"
-    google_default_region                            = "us-central1"
-    google_default_zone                              = "us-central1-a"
-    google_iac_project_id                            = "ferrarimarco-iac"
-    google_organization_domain                       = "ferrari.how"
-    main_dns_zone_prefix                             = "lab"
-    ```
-
-1. Generate the Terraform backend configuration: `../../generate-tf-backend.sh`
-1. Init the Terraform state: `terraform init`
-1. Import the resources that the backend configuration script created:
-
-    ```shell
-    terraform import module.iac-pipeline.google_project.iac_project "${GOOGLE_CLOUD_PROJECT}"
-    terraform import module.iac-pipeline.google_storage_bucket.terraform_state "${GOOGLE_CLOUD_PROJECT}"/"${GOOGLE_CLOUD_PROJECT}"-terraform-state
-    ```
-
-1. Ensure the configuration is valid: `terraform validate`
-1. Apply the changes: `terraform apply`
 
 ### Managed DNS zone
 
-This environment requires a DNS zone to manage, and expects it to be a subdomain
-of your Google Cloud organization domain. You can customize the subdomain name
-of the cloud environment by changing the value of the relevant variable in the
-Terraform variables file.
+This environment requires a DNS zone to manage.
 
 To complete the setup, you must setup a `NS` DNS record in the
 authoritative name server of your organization for the
 subdomain to point to the managed DNS servers. For example, follow
 [these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
 
-## Initialize the edge environment
+## Initialize the environment
 
 To initialize the edge environment, you execute the first initialization process
 using a seed device. Besides this initialization phase that may require a manual

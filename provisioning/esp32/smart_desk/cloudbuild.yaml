@@ -12,3 +12,4 @@ steps:
         export PROJECT_EXECUTABLE_TAG
         make
     entrypoint: '/bin/bash'
+...

@@ -10,6 +10,8 @@ rules:
       **/cloud-init/**/user-data.yaml
   comments-indentation:
     level: error
+  document-end:
+    level: error
   document-start:
     level: error
     ignore: |
@@ -20,4 +22,7 @@ rules:
     allow-non-breakable-inline-mappings: true
   octal-values: enable
   truthy:
+    # because the "on" key in GitHub actions workflow configuration files
+    check-keys: false
     level: error
+...
