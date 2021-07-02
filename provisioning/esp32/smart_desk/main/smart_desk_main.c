@@ -223,13 +223,12 @@ void app_main(void)
     ESP_ERROR_CHECK(ultrasonic_measure_cm(&ultrasonic_sensor, &distance));
     ESP_LOGI(TAG, "Max reachable distance: %u cm, min reachable distance: %u cm, current distance: %u cm", MAX_DISTANCE_CM, MIN_DISTANCE_CM, distance);
 
-    // if (distance <= MIN_DISTANCE_CM)
-    // {
-    //     ESP_ERROR_CHECK(start_actuators_extension(MAX_DISTANCE_CM));
-    // }
-    // else if (distance >= MAX_DISTANCE_CM - TOLERANCE_EXTENSION_CM)
-    // {
-    //     ESP_ERROR_CHECK(start_actuators_retraction(MIN_DISTANCE_CM));
-    // }
-    ESP_ERROR_CHECK(start_actuators_retraction(MIN_DISTANCE_CM));
+    if (distance <= MIN_DISTANCE_CM)
+    {
+        ESP_ERROR_CHECK(start_actuators_extension(MAX_DISTANCE_CM));
+    }
+    else if (distance >= MAX_DISTANCE_CM - TOLERANCE_EXTENSION_CM)
+    {
+        ESP_ERROR_CHECK(start_actuators_retraction(MIN_DISTANCE_CM));
+    }
 }
