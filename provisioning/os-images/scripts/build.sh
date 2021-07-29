@@ -169,26 +169,6 @@ df -h
 print_or_warn "${BOOT_DIRECTORY_PATH}"
 print_or_warn "${ROOTFS_DIRECTORY_PATH}/var/lib/cloud"
 
-echo "Mounting /sys..."
-if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/sys | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/sys" ]; then
-  mount -t sysfs sysfs "${ROOTFS_DIRECTORY_PATH}/sys"
-fi
-
-echo "Mounting /proc..."
-if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/proc | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/proc" ]; then
-  mount -t proc proc "${ROOTFS_DIRECTORY_PATH}/proc"
-fi
-
-echo "Creating /dev/pts mount point..."
-if [ ! -d "${ROOTFS_DIRECTORY_PATH}/dev/pts" ]; then
-  mkdir -p "${ROOTFS_DIRECTORY_PATH}"/dev/pts || true
-fi
-
-echo "Mounting /dev/pts..."
-if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/dev/pts | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/dev/pts" ]; then
-  mount -t devpts devpts "${ROOTFS_DIRECTORY_PATH}/dev/pts"
-fi
-
 echo "Customizing ${ROOTFS_DIRECTORY_PATH}..."
 
 print_or_warn "${BOOT_DIRECTORY_PATH}/cmdline.txt"
@@ -210,20 +190,8 @@ customize_file "${CLOUD_INIT_USER_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/user-
 customize_file "${CLOUD_INIT_META_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/meta-data"
 customize_file "${CLOUD_INIT_NETWORK_CONFIG_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/network-config"
 
-echo "Installed APT packages:"
-chroot "${ROOTFS_DIRECTORY_PATH}" dpkg -l | sort
-
 echo "Synchronizing latest filesystem changes..."
 sync
-
-echo "Unmounting /dev/pts..."
-umount -fl "${ROOTFS_DIRECTORY_PATH}/dev/pts"
-
-echo "Unmounting /proc..."
-umount -fl "${ROOTFS_DIRECTORY_PATH}/proc"
-
-echo "Unmounting /sys..."
-umount -fl "${ROOTFS_DIRECTORY_PATH}/sys"
 
 echo "Unmounting Raspberry Pi file system..."
 umount -v "${BOOT_DIRECTORY_PATH}"

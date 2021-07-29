@@ -17,7 +17,7 @@ build-os-image-raspberry-pi-4-ubuntu: ## Build the Ubuntu OS image for the Raspb
 		-w="/workspace" \
 		arm-image-builder \
 		--entrypoint /workspace/build.sh \
-		--options "--build-config /workspace/config/build.conf --cloud-init-user-data /workspace/config/cloud-init/user-data.yaml"
+		--options "--build-config /workspace/config/build.conf --cloud-init-meta-data /workspace/config/cloud-init/meta-data.yaml --cloud-init-network-config /workspace/config/cloud-init/network-config.yaml --cloud-init-user-data /workspace/config/cloud-init/user-data.yaml --os-image-tag $_OS_IMAGE_TAG"
 
 .PHONY: help
 help: ## Show help
