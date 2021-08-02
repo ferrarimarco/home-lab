@@ -1,7 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-set -o nounset
 set -o errexit
+set -o nounset
+set -o pipefail
 
 echo "This script has been invoked with: $0 $*"
 
@@ -40,7 +41,7 @@ customize_file() {
   print_or_warn "${SOURCE_PATH}"
 }
 
-if ! TEMP="$(getopt -o b:m:n:u:t: --long build-config:,cloud-init-meta-data:,cloud-init-network-config:,cloud-init-user-data:,os-image-tag: \
+if ! TEMP="$(getopt -o b: --long build-config: \
   -n 'build' -- "$@")"; then
   echo "Terminating..." >&2
   exit 1
@@ -48,32 +49,12 @@ fi
 eval set -- "$TEMP"
 
 BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH=
-CLOUD_INIT_META_DATA_FILE_PATH=
-CLOUD_INIT_NETWORK_CONFIG_FILE_PATH=
-CLOUD_INIT_USER_DATA_FILE_PATH=
-OS_IMAGE_FILE_TAG="generic"
 
 while true; do
   echo "Decoding parameter ${1}..."
   case "${1}" in
   -b | --build-config)
     BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH="${2}"
-    shift 2
-    ;;
-  -m | --cloud-init-meta-data)
-    CLOUD_INIT_META_DATA_FILE_PATH="${2}"
-    shift 2
-    ;;
-  -n | --cloud-init-network-config)
-    CLOUD_INIT_NETWORK_CONFIG_FILE_PATH="${2}"
-    shift 2
-    ;;
-  -u | --cloud-init-user-data)
-    CLOUD_INIT_USER_DATA_FILE_PATH="${2}"
-    shift 2
-    ;;
-  -t | --os-image-tag)
-    OS_IMAGE_FILE_TAG="${2}"
     shift 2
     ;;
   --)
@@ -103,9 +84,13 @@ IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"${IMAGE_ARCHIVE_FILE_NAME}"
 echo "Downloading the OS image from ${IMAGE_URL}..."
 [ ! -f "${IMAGE_ARCHIVE_FILE_PATH}" ] && wget -q "${IMAGE_URL}"
 [ ! -f "${IMAGE_CHECKSUM_FILE_NAME}" ] && wget -q -O "${IMAGE_CHECKSUM_FILE_NAME}" "${IMAGE_CHECKSUM_URL}"
+[ ! -f "${MANIFEST_FILE_NAME}" ] && wget -q -O "${MANIFEST_FILE_NAME}" "${MANIFEST_FILE_URL}"
 
 echo "Verifying the integrity of ${IMAGE_ARCHIVE_FILE_PATH}..."
 sha256sum --ignore-missing -c "${IMAGE_CHECKSUM_FILE_NAME}"
+
+echo "Contents of the ${MANIFEST_FILE_NAME} manifest file:"
+cat "${MANIFEST_FILE_NAME}"
 
 IMAGE_FILE_NAME="$(basename "${IMAGE_ARCHIVE_FILE_PATH}" .xz)"
 IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}/${IMAGE_FILE_NAME}"
@@ -125,7 +110,7 @@ else
   echo "${IMAGE_FILE_PATH} already exists, skipping extraction..."
 fi
 
-echo "Gathering information about ${IMAGE_ARCHIVE_FILE_PATH}"
+echo "Gathering information about ${IMAGE_FILE_PATH}"
 fdisk -l "${IMAGE_FILE_PATH}"
 
 echo "Currently used loop devices:"
@@ -145,8 +130,8 @@ kpartx -asv "${IMAGE_FILE_PATH}"
 echo "Currently used loop devices (after mounting the image):"
 losetup --all
 
-BOOT_DIRECTORY_PATH="/mnt/raspi-1"
-ROOTFS_DIRECTORY_PATH="/mnt/raspi-2"
+BOOT_DIRECTORY_PATH="/tmp/raspi-1"
+ROOTFS_DIRECTORY_PATH="/tmp/raspi-2"
 
 echo "Creating directories to mount loop devices (${BOOT_DIRECTORY_PATH}, ${ROOTFS_DIRECTORY_PATH})..."
 mkdir -p "${BOOT_DIRECTORY_PATH}"
@@ -169,26 +154,6 @@ df -h
 print_or_warn "${BOOT_DIRECTORY_PATH}"
 print_or_warn "${ROOTFS_DIRECTORY_PATH}/var/lib/cloud"
 
-echo "Mounting /sys..."
-if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/sys | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/sys" ]; then
-  mount -t sysfs sysfs "${ROOTFS_DIRECTORY_PATH}/sys"
-fi
-
-echo "Mounting /proc..."
-if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/proc | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/proc" ]; then
-  mount -t proc proc "${ROOTFS_DIRECTORY_PATH}/proc"
-fi
-
-echo "Creating /dev/pts mount point..."
-if [ ! -d "${ROOTFS_DIRECTORY_PATH}/dev/pts" ]; then
-  mkdir -p "${ROOTFS_DIRECTORY_PATH}"/dev/pts || true
-fi
-
-echo "Mounting /dev/pts..."
-if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/dev/pts | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/dev/pts" ]; then
-  mount -t devpts devpts "${ROOTFS_DIRECTORY_PATH}/dev/pts"
-fi
-
 echo "Customizing ${ROOTFS_DIRECTORY_PATH}..."
 
 print_or_warn "${BOOT_DIRECTORY_PATH}/cmdline.txt"
@@ -210,20 +175,8 @@ customize_file "${CLOUD_INIT_USER_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/user-
 customize_file "${CLOUD_INIT_META_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/meta-data"
 customize_file "${CLOUD_INIT_NETWORK_CONFIG_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/network-config"
 
-echo "Installed APT packages:"
-chroot "${ROOTFS_DIRECTORY_PATH}" dpkg -l | sort
-
 echo "Synchronizing latest filesystem changes..."
 sync
-
-echo "Unmounting /dev/pts..."
-umount -fl "${ROOTFS_DIRECTORY_PATH}/dev/pts"
-
-echo "Unmounting /proc..."
-umount -fl "${ROOTFS_DIRECTORY_PATH}/proc"
-
-echo "Unmounting /sys..."
-umount -fl "${ROOTFS_DIRECTORY_PATH}/sys"
 
 echo "Unmounting Raspberry Pi file system..."
 umount -v "${BOOT_DIRECTORY_PATH}"
@@ -240,7 +193,7 @@ echo "Adding the ${OS_IMAGE_FILE_TAG} tag to the image file..."
 IMAGE_FILE_EXTENSION=".${IMAGE_FILE_PATH##*.}"
 IMAGE_FILE_DIRECTORY_PATH="$(dirname -- "${IMAGE_FILE_PATH}")"
 IMAGE_FILE_NAME="$(basename -- "${IMAGE_FILE_PATH}" "${IMAGE_FILE_EXTENSION}")"
-echo "Image file path: ${IMAGE_FILE_PATH}.Image file directory: ${IMAGE_FILE_DIRECTORY_PATH}. Image file name: ${IMAGE_FILE_NAME}. Image file extension: ${IMAGE_FILE_EXTENSION}"
+echo "Image file path: ${IMAGE_FILE_PATH}. Image file directory: ${IMAGE_FILE_DIRECTORY_PATH}. Image file name: ${IMAGE_FILE_NAME}. Image file extension: ${IMAGE_FILE_EXTENSION}"
 
 TARGET_IMAGE_FILE_PATH="${IMAGE_FILE_DIRECTORY_PATH}"/"${IMAGE_FILE_NAME}"-"${OS_IMAGE_FILE_TAG}""${IMAGE_FILE_EXTENSION}"
 mv -v "${IMAGE_FILE_PATH}" "${TARGET_IMAGE_FILE_PATH}"

@@ -7,3 +7,8 @@
 *.conf.local
 
 env/*
+
+SHA256SUMS
+
+*.img
+*.xz
