@@ -2,28 +2,28 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "sdkconfig.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "esp_spi_flash.h"
+#include "esp_system.h"
+#include "esp_task_wdt.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_event.h"
-#include "esp_system.h"
-#include "esp_spi_flash.h"
-#include "esp_task_wdt.h"
+#include "sdkconfig.h"
 
 #include "app_info.h"
 #include "board_info.h"
-#include "i2c_utils.h"
 #include "hd_44780.h"
-#include "ultrasonic.h"
+#include "i2c_utils.h"
 #include "relay_board.h"
 #include "rsa_utils.h"
+#include "ultrasonic.h"
 
 #include "actuators_controller.h"
 #include "ip_address_manager.h"
-#include "wifi_connection_manager.h"
-#include "provisioning_manager.h"
 #include "nvs_manager.h"
+#include "provisioning_manager.h"
+#include "wifi_connection_manager.h"
 
 #define SDA_PIN 23
 #define SCL_PIN 22
@@ -34,8 +34,8 @@
 #define LCD_COLS 20
 #define LCD_ROWS 4
 
-#define ULTRASONIC_MAX_DISTANCE_CM 400 // 4m max
-#define ULTRASONIC_MIN_DISTANCE_CM 2   // 2cm min
+#define ULTRASONIC_MAX_DISTANCE_CM 400  // 4m max
+#define ULTRASONIC_MIN_DISTANCE_CM 2    // 2cm min
 #define ULTRASONIC_TRIGGER_GPIO GPIO_NUM_27
 #define ULTRASONIC_ECHO_GPIO GPIO_NUM_15
 
@@ -63,13 +63,13 @@
 //        |  | |  |
 //  0 cm  --------- Floor
 
-#define MAX_ACTUATORS_EXTENSION_CM 35                                      // Maximum actuators extension
-#define MIN_DESK_HEIGHT_CM 70                                              // Minimum distance between the floor and (bottom of) the desk top
-#define MAX_DESK_HEIGHT_CM MIN_DESK_HEIGHT_CM + MAX_ACTUATORS_EXTENSION_CM // Moximum distance between the floor and the (bottom of) desk top
+#define MAX_ACTUATORS_EXTENSION_CM 35                                       // Maximum actuators extension
+#define MIN_DESK_HEIGHT_CM 70                                               // Minimum distance between the floor and (bottom of) the desk top
+#define MAX_DESK_HEIGHT_CM MIN_DESK_HEIGHT_CM + MAX_ACTUATORS_EXTENSION_CM  // Moximum distance between the floor and the (bottom of) desk top
 
-#define CONTROLLER_ENCLOSURE_HEIGHT_CM 16                                   // Distance between the distance sensor and the floor
-#define MIN_DISTANCE_CM MIN_DESK_HEIGHT_CM - CONTROLLER_ENCLOSURE_HEIGHT_CM // Minimum distance between the distance sensor and the desk top
-#define MAX_DISTANCE_CM MIN_DISTANCE_CM + MAX_ACTUATORS_EXTENSION_CM        // Maximum distance between the distance sensor and the desk top
+#define CONTROLLER_ENCLOSURE_HEIGHT_CM 16                                    // Distance between the distance sensor and the floor
+#define MIN_DISTANCE_CM MIN_DESK_HEIGHT_CM - CONTROLLER_ENCLOSURE_HEIGHT_CM  // Minimum distance between the distance sensor and the desk top
+#define MAX_DISTANCE_CM MIN_DISTANCE_CM + MAX_ACTUATORS_EXTENSION_CM         // Maximum distance between the distance sensor and the desk top
 #define TOLERANCE_EXTENSION_CM 2
 
 static const char *TAG = "smart_desk";
@@ -155,13 +155,9 @@ void app_main(void)
 
     esp_chip_info_t chip_info;
     esp_chip_info(&chip_info);
-    char *board_info = get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
-    ESP_LOGI(TAG, "%s", board_info);
-    free(board_info);
+    get_board_info(chip_info, spi_flash_get_chip_size(), esp_get_free_heap_size());
 
-    char *app_info = get_app_info();
-    ESP_LOGI(TAG, "%s", app_info);
-    free(app_info);
+    get_app_info();
 
     ESP_LOGI(TAG, "Creating the default loop...");
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -190,9 +186,7 @@ void app_main(void)
         ESP_ERROR_CHECK(register_lcd_events());
     }
 
-    char *tasks_info = get_tasks_info();
-    ESP_LOGI(TAG, "%s", tasks_info);
-    free(tasks_info);
+    get_tasks_info();
 
     ESP_LOGI(TAG, "Initializing the distance sensor...");
     ultrasonic_init(&ultrasonic_sensor);

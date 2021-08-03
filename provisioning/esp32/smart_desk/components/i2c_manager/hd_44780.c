@@ -1,13 +1,15 @@
+#include "hd_44780.h"
+
 #include <stdio.h>
-#include "sdkconfig.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_event.h"
+
 #include "driver/i2c.h"
 #include "esp32/rom/ets_sys.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "sdkconfig.h"
 
-#include "hd_44780.h"
 #include "i2c_utils.h"
 
 #include "print_utils.h"
@@ -20,11 +22,11 @@ static uint8_t LCD_addr;
 static uint8_t LCD_cols;
 static uint8_t LCD_rows;
 
-static uint8_t _backlightPinMask;    // Backlight IO pin mask
-static uint8_t _backlightStatusMask; // Backlight status mask
-static uint8_t _En;                  // LCD expander word for enable pin
-static uint8_t _Rw;                  // LCD expander word for R/W pin
-static uint8_t _Rs;                  // LCD expander word for Register Select pin
+static uint8_t _backlightPinMask;     // Backlight IO pin mask
+static uint8_t _backlightStatusMask;  // Backlight status mask
+static uint8_t _En;                   // LCD expander word for enable pin
+static uint8_t _Rw;                   // LCD expander word for R/W pin
+static uint8_t _Rs;                   // LCD expander word for Register Select pin
 
 // LCD data lines
 static uint8_t _d4;
@@ -306,7 +308,7 @@ void LCD_home(void)
 {
     ESP_LOGI(TAG, "Returning the cursor home...");
     send(LCD_RETURN_HOME, LCD_SEND_8_BITS, LCD_INSTRUCTION_REGISTER, ACK_ON);
-    vTaskDelay(2 / portTICK_RATE_MS); // This command takes a while to complete
+    vTaskDelay(2 / portTICK_RATE_MS);  // This command takes a while to complete
 }
 
 void LCD_clearScreen(void)
@@ -337,7 +339,7 @@ static void sta_got_ip_event_handler(void *arg, esp_event_base_t event_base, int
     esp_ip4_addr_t ip_address = event->ip_info.ip;
 
     char txtBuf[16];
-    sprintf(txtBuf, IPSTR, IP2STR(&ip_address));
+    sprintf(txtBuf, IPSTR, IP2STR(&ip_address));  // NOLINT
     ESP_LOGI(TAG, "Got IP address: %s", txtBuf);
     LCD_setCursor(4, 0);
     LCD_writeStr(txtBuf);
@@ -350,9 +352,9 @@ static void ultrasonic_sensor_measure_available_handler(void *arg, esp_event_bas
     char txtBuf[11];
 
     if (distance_measure.return_code == ESP_OK)
-        sprintf(txtBuf, "%03u", distance_measure.distance);
+        sprintf(txtBuf, "%03u", distance_measure.distance);  // NOLINT
     else
-        sprintf(txtBuf, "N/A");
+        sprintf(txtBuf, "N/A");  // NOLINT
 
     LCD_setCursor(10, 1);
     LCD_writeStr(txtBuf);

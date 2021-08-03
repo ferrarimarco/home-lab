@@ -1,3 +1,6 @@
+#ifndef PROVISIONING_ESP32_SMART_DESK_COMPONENTS_DEBUG_UTILS_PRINT_UTILS_H_
+#define PROVISIONING_ESP32_SMART_DESK_COMPONENTS_DEBUG_UTILS_PRINT_UTILS_H_
+
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)       \
     (byte & 0x80 ? '1' : '0'),     \
@@ -15,3 +18,5 @@
         (nibble & 0x40 ? '1' : '0'), \
         (nibble & 0x20 ? '1' : '0'), \
         (nibble & 0x10 ? '1' : '0')
+
+#endif  // PROVISIONING_ESP32_SMART_DESK_COMPONENTS_DEBUG_UTILS_PRINT_UTILS_H_

@@ -1,5 +1,5 @@
-#ifndef __ULTRASONIC_H__
-#define __ULTRASONIC_H__
+#ifndef PROVISIONING_ESP32_SMART_DESK_COMPONENTS_GPIO_MANAGER_ULTRASONIC_H_
+#define PROVISIONING_ESP32_SMART_DESK_COMPONENTS_GPIO_MANAGER_ULTRASONIC_H_
 
 #include "driver/gpio.h"
 #include "esp_err.h"
@@ -14,8 +14,8 @@
 ESP_EVENT_DECLARE_BASE(ULTRASONIC_EVENTS);
 
 enum
-{                                       // declaration of the specific events under the ultrasonic event family
-    ULTRASONIC_EVENT_MEASURE_AVAILABLE, // raised when a new measure is available
+{                                        // declaration of the specific events under the ultrasonic event family
+    ULTRASONIC_EVENT_MEASURE_AVAILABLE,  // raised when a new measure is available
 };
 
 struct DistanceMeasure
@@ -53,4 +53,4 @@ esp_err_t ultrasonic_init(const ultrasonic_sensor_t *dev);
  */
 esp_err_t ultrasonic_measure_cm(const ultrasonic_sensor_t *dev, uint32_t *distance);
 
-#endif /* __ULTRASONIC_H__ */
+#endif  // PROVISIONING_ESP32_SMART_DESK_COMPONENTS_GPIO_MANAGER_ULTRASONIC_H_

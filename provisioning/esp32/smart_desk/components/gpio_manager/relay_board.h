@@ -1,5 +1,5 @@
-#ifndef RELAY_BOARD_H_
-#define RELAY_BOARD_H_
+#ifndef PROVISIONING_ESP32_SMART_DESK_COMPONENTS_GPIO_MANAGER_RELAY_BOARD_H_
+#define PROVISIONING_ESP32_SMART_DESK_COMPONENTS_GPIO_MANAGER_RELAY_BOARD_H_
 
 #include "driver/gpio.h"
 
@@ -17,4 +17,4 @@ esp_err_t init_relays(uint8_t relay_pins[], size_t relay_num, struct Relay **rel
 esp_err_t turn_relay_on(struct Relay *relay);
 esp_err_t turn_relay_off(struct Relay *relay);
 
-#endif
+#endif  // PROVISIONING_ESP32_SMART_DESK_COMPONENTS_GPIO_MANAGER_RELAY_BOARD_H_

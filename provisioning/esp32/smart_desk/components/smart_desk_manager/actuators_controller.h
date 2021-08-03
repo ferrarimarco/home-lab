@@ -1,5 +1,5 @@
-#ifndef __ACTUATORS_CONTROLLER_H__
-#define __ACTUATORS_CONTROLLER_H__
+#ifndef PROVISIONING_ESP32_SMART_DESK_COMPONENTS_SMART_DESK_MANAGER_ACTUATORS_CONTROLLER_H_
+#define PROVISIONING_ESP32_SMART_DESK_COMPONENTS_SMART_DESK_MANAGER_ACTUATORS_CONTROLLER_H_
 
 #include "esp_event.h"
 
@@ -28,10 +28,10 @@ esp_err_t start_actuators_retraction(uint8_t target_height);
 ESP_EVENT_DECLARE_BASE(ACTUATOR_EVENT);
 
 enum
-{                            // declaration of the specific events under the actuator events family
-    EXTEND_ACTUATORS_EVENT,  // raised when there's a request to extend the actuators
-    RETRACT_ACTUATORS_EVENT, // raised when there's a request to retract the actuators
-    SHUTDOWN_ACTUATORS_EVENT // raised when there's a request to stop the actuators
+{                             // declaration of the specific events under the actuator events family
+    EXTEND_ACTUATORS_EVENT,   // raised when there's a request to extend the actuators
+    RETRACT_ACTUATORS_EVENT,  // raised when there's a request to retract the actuators
+    SHUTDOWN_ACTUATORS_EVENT  // raised when there's a request to stop the actuators
 };
 
-#endif /* __ACTUATORS_CONTROLLER_H__ */
+#endif  // PROVISIONING_ESP32_SMART_DESK_COMPONENTS_SMART_DESK_MANAGER_ACTUATORS_CONTROLLER_H_
