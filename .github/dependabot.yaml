@@ -1,17 +1,9 @@
 ---
 version: 2
 updates:
-  - package-ecosystem: "docker"
-    directory: "/provisioning/docker/arm-image-builder"
-    schedule:
-      interval: "daily"
   - directory: "/"
     package-ecosystem: "github-actions"
     open-pull-requests-limit: 10
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/provisioning/terraform/environments/prod"
     schedule:
       interval: "daily"
 ...
