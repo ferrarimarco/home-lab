@@ -72,17 +72,9 @@ and configure the [boot order](https://www.raspberrypi.org/documentation/hardwar
 
 In this section, you set up a development environment for the home lab.
 
-### Remote development workstation
-
-All the development work can be carried out in a remote development workstation
-that you provision in the cloud environment, after opening a SSH session.
-
-See the `development-workspace` Terraform module for details about the
-configuration of the workstation.
-
 ### Remote embedded development
 
-To use the remote workstation as a development environment for embedded devices,
+To use a remote workstation as a development environment for embedded devices,
 you:
 
 1. Expose the needed serial ports via an RFC 2217 server.
