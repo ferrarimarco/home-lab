@@ -1,10 +1,12 @@
+#include "i2c_utils.h"
+
 #include <stdbool.h>
 #include <stdio.h>
+
 #include "driver/i2c.h"
 #include "driver/periph_ctrl.h"
 #include "esp_log.h"
 
-#include "i2c_utils.h"
 #include "print_utils.h"
 
 static const char *TAG = "i2c_utils";

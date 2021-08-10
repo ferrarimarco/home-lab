@@ -1,0 +1,9 @@
+AlignAfterOpenBracket: DontAlign
+AllowShortIfStatementsOnASingleLine: false
+BreakBeforeBraces: Allman
+ColumnLimit: 0
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
+IndentWidth: 4
+SpacesBeforeTrailingComments: 2
+UseTab: Never

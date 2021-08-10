@@ -1,7 +1,12 @@
 #include "rsa_utils.h"
 
-#include "freertos/FreeRTOS.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
 
 static const char *TAG = "rsa_utils";
 
@@ -9,20 +14,13 @@ static const char *TAG = "rsa_utils";
 
 #include "mbedtls/platform.h"
 
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/entropy.h"
 #include "mbedtls/error.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/rsa.h"
-#include "mbedtls/error.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
 
 #include "nvs_manager.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <unistd.h>
 
 static int write_key_pair(mbedtls_pk_context *key, const char *storage_namespace, const char *private_key_file_path, const char *public_key_file_path)
 {

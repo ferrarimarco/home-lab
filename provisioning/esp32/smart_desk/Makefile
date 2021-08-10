@@ -30,7 +30,6 @@ ESP32_RFC2217_SERVER_PORT ?= 3000
 fullclean-esp-idf-project: ## Clean the ESP-IDF project.
 	rm -f sdkconfig \
 	&& docker run --rm -i $(DOCKER_FLAGS) \
-		--network host \
 		-v "$(CURDIR)":/workspace \
 		-w="/workspace" \
 		"$(ESP_IDF_CONTAINER_IMAGE_TAG)" \
@@ -84,7 +83,6 @@ monitor-esp-idf-project: ## Launch the ESP-IDF project monitor.
 .PHONY: size-components-esp-idf-project
 size-components-esp-idf-project: ## Launch the ESP-IDF project size-components.
 	docker run --rm -i $(DOCKER_FLAGS) \
-		--network host \
 		-v "$(CURDIR)":/workspace \
 		-w="/workspace" \
 		"$(ESP_IDF_CONTAINER_IMAGE_TAG)" \

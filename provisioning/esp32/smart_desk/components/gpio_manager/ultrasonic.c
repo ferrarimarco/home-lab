@@ -1,9 +1,9 @@
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include "esp_timer.h"
-#include "esp_log.h"
-
 #include "ultrasonic.h"
+
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #define TRIGGER_LOW_DELAY 4
 #define TRIGGER_HIGH_DELAY 10

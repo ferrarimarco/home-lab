@@ -1,3 +1,6 @@
+#ifndef PROVISIONING_ESP32_SMART_DESK_COMPONENTS_CRYPTO_UTILS_RSA_UTILS_H_
+#define PROVISIONING_ESP32_SMART_DESK_COMPONENTS_CRYPTO_UTILS_RSA_UTILS_H_
+
 struct RsaKeyGenerationOptions
 {
     int key_size;                     /* length of key in bits                */
@@ -12,3 +15,5 @@ struct RsaKeyGenerationOptions
 #define DEFAULT_RSA_KEY_STORAGE_NAMESPACE "rsa_keys"
 
 int generate_rsa_keypair(struct RsaKeyGenerationOptions rsa_key_generation_options);
+
+#endif  // PROVISIONING_ESP32_SMART_DESK_COMPONENTS_CRYPTO_UTILS_RSA_UTILS_H_

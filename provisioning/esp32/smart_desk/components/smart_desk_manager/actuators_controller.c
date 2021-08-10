@@ -66,7 +66,6 @@ static void operate_actuators(void *event_handler_arg, esp_event_base_t event_ba
     if (event_id == SHUTDOWN_ACTUATORS_EVENT)
     {
         // Stop the safety timer because the actuators stopped moving
-        // TODO: check errors here
         ret = esp_timer_stop(safety_timer);
         if (ret != ESP_OK)
         {
