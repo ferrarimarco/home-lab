@@ -9,34 +9,30 @@ template: |
   See details of [all code changes](https://github.com/github/super-linter/compare/$PREVIOUS_TAG...$RESOLVED_VERSION) since previous release
 
 categories:
-  - title: '🚀  Features'
+  - title: '🚀 Features'
     labels:
       - 'feature'
-  - title: '🐛  Bug Fixes'
+  - title: '🐛 Bug Fixes'
     labels:
       - 'bugfix'
-      - 'fix'
-  - title: '🧰  Maintenance'
+  - title: '🧰 Maintenance'
     labels:
       - 'dependencies'
       - 'documentation'
       - 'maintenance'
-  - title: '🏎  Performance'
-    label: 'performance'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 version-resolver:
   major:
     labels:
-      - 'type: breaking'
+      - 'breaking'
   minor:
     labels:
-      - 'type: dependencies'
-      - 'type: feature'
+      - 'dependencies'
+      - 'feature'
   patch:
     labels:
-      - 'type: bug'
-      - 'type: documentation'
-      - 'type: fix'
-      - 'type: maintenance'
+      - 'bugfix'
+      - 'documentation'
+      - 'maintenance'
   default: patch
 ...
