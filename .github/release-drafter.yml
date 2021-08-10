@@ -17,9 +17,9 @@ categories:
       - 'fix'
   - title: '🧰  Maintenance'
     labels:
-      - 'automation'
+      - 'dependencies'
       - 'documentation'
-      - 'infrastructure'
+      - 'maintenance'
   - title: '🏎  Performance'
     label: 'performance'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
@@ -29,10 +29,11 @@ version-resolver:
       - 'type: breaking'
   minor:
     labels:
+      - 'type: dependencies'
       - 'type: feature'
   patch:
     labels:
-      - 'type: bugfix'
+      - 'type: bug'
       - 'type: documentation'
       - 'type: fix'
       - 'type: maintenance'
