@@ -1,0 +1,40 @@
+name-template: '$RESOLVED_VERSION'
+tag-template: '$RESOLVED_VERSION'
+template: |
+  # Changelog
+
+  $CHANGES
+
+  See details of [all code changes](https://github.com/github/super-linter/compare/$PREVIOUS_TAG...$RESOLVED_VERSION) since previous release
+
+categories:
+  - title: '🚀  Features'
+    labels:
+      - 'feature'
+  - title: '🐛  Bug Fixes'
+    labels:
+      - 'bugfix'
+      - 'fix'
+  - title: '🧰  Maintenance'
+    labels:
+      - 'automation'
+      - 'documentation'
+      - 'infrastructure'
+  - title: '🏎  Performance'
+    label: 'performance'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+version-resolver:
+  major:
+    labels:
+      - 'type: breaking'
+  minor:
+    labels:
+      - 'type: feature'
+  patch:
+    labels:
+      - 'type: bugfix'
+      - 'type: documentation'
+      - 'type: fix'
+      - 'type: maintenance'
+  default: patch
+...
