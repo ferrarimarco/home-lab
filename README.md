@@ -51,9 +51,23 @@ itself. This approach has two benefits:
 
 1. Avoid circular dependencies. The on premises environment needs minimal,
     pre-existing infrastructure to complete the initialization process.
-1. Avoid special-purpose devices. By applying the general-purpose configuration to
-    the seed device after the initialization process, you avoid introducing
+1. Avoid special-purpose devices. By applying the general-purpose configuration
+    to the seed device after the initialization process, you avoid introducing
     ad-hoc components in the environment.
+
+#### Initialize the seed device operating system
+
+To initialize the seed device operating system (OS), you need to populate a
+flash memory with the contents of the seed device operating system image. The
+guidance in this section is also applicable if you're evaluating an OS image for
+the seed device that the CI/CD pipeline built as a result to changes in that
+area of the codebase.
+
+In the current iteration of the home lab, the seed device is a Raspberry Pi 4,
+so initializing the seed device operating system consists of flashing the OS
+image to an secure digital (SD) card. For more information about flashing
+Raspberry Pi OS images to a SD card, refer to
+[Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
 
 ### Update and configure the Raspberry Pi 4 bootloader
 
