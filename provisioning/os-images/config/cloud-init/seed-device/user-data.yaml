@@ -34,6 +34,11 @@ random_seed:
 
 resize_rootfs: true
 
+runcmd:
+  # Enable cgroups. See https://microk8s.io/docs/install-alternatives#heading--arm for more info
+  - sed -i -e '/cgroup_enable=memory/!s/$/ cgroup_enable=memory/' /boot/firmware/cmdline.txt
+  - sed -i -e '/cgroup_memory=1/!s/$/ cgroup_memory=1/' /boot/firmware/cmdline.txt
+
 snap:
   commands:
     "001": "snap install microk8s --classic --channel=1.21/stable"

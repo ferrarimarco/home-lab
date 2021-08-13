@@ -30,15 +30,17 @@ customize_file() {
   fi
 
   if [ -e "${SOURCE_PATH}" ]; then
+    echo "Contents of ${SOURCE_PATH}:"
     print_or_warn "${SOURCE_PATH}"
     echo "Contents of ${DESTINATION_PATH} before overriding it with ${SOURCE_PATH}:"
     print_or_warn "${DESTINATION_PATH}"
     echo "Copying ${SOURCE_PATH} to ${DESTINATION_PATH}..."
     cp -f "${SOURCE_PATH}" "${DESTINATION_PATH}"
+    echo "Contents of ${DESTINATION_PATH} after overriding it with ${SOURCE_PATH}:"
+    print_or_warn "${DESTINATION_PATH}"
   else
     echo "Skipping the copy of ${SOURCE_PATH} to ${DESTINATION_PATH} because the source doesn't exist."
   fi
-  print_or_warn "${SOURCE_PATH}"
 }
 
 if ! TEMP="$(getopt -o b: --long build-config: \
@@ -155,6 +157,8 @@ print_or_warn "${BOOT_DIRECTORY_PATH}"
 print_or_warn "${ROOTFS_DIRECTORY_PATH}/var/lib/cloud"
 
 echo "Customizing ${ROOTFS_DIRECTORY_PATH}..."
+
+print_or_warn "${BOOT_DIRECTORY_PATH}/README"
 
 print_or_warn "${BOOT_DIRECTORY_PATH}/cmdline.txt"
 
