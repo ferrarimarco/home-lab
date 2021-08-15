@@ -20,12 +20,24 @@ print_or_warn() {
   fi
 }
 
-customize_file() {
+print_directory_contents_or_warn() {
+  DIRECTORY_PATH="${1}"
+  if [ -e "$FILE_PATH" ]; then
+    echo "-------------------------"
+    echo "Contents of ${DIRECTORY_PATH}:"
+    find "${DIRECTORY_PATH}" -type f -print -exec echo "-------------------------" \; -exec echo "Contents of "{} \; -exec cat {} \; -exec echo "-------------------------" \;
+    echo "-------------------------"
+  else
+    echo "${DIRECTORY_PATH} doesn't exist"
+  fi
+}
+
+customize_file_or_directory() {
   SOURCE_PATH="${1}"
   DESTINATION_PATH="${2}"
 
   if [ -z "${SOURCE_PATH}" ]; then
-    echo "Source file path is not set. Skipping the customization of ${DESTINATION_PATH}"
+    echo "Source path is not set. Skipping the customization of ${DESTINATION_PATH}"
     return 0
   fi
 
@@ -34,12 +46,19 @@ customize_file() {
     print_or_warn "${SOURCE_PATH}"
     echo "Contents of ${DESTINATION_PATH} before overriding it with ${SOURCE_PATH}:"
     print_or_warn "${DESTINATION_PATH}"
-    echo "Copying ${SOURCE_PATH} to ${DESTINATION_PATH}..."
-    cp -f "${SOURCE_PATH}" "${DESTINATION_PATH}"
+
+    if [ -d "${SOURCE_PATH}" ]; then
+      echo "Copying ${SOURCE_PATH} directory contents to ${DESTINATION_PATH}..."
+      cp --force --recursive --verbose "${SOURCE_PATH}/." "${DESTINATION_PATH}/"
+    else
+      echo "Copying ${SOURCE_PATH} to ${DESTINATION_PATH}..."
+      cp --force --verbose "${SOURCE_PATH}" "${DESTINATION_PATH}"
+    fi
     echo "Contents of ${DESTINATION_PATH} after overriding it with ${SOURCE_PATH}:"
     print_or_warn "${DESTINATION_PATH}"
   else
     echo "Skipping the copy of ${SOURCE_PATH} to ${DESTINATION_PATH} because the source doesn't exist."
+    return 0
   fi
 }
 
@@ -79,7 +98,7 @@ echo "Current environment configuration:"
 env | sort
 
 echo "Validating cloud-init configuration file..."
-cloud-init devel schema --config-file "${CLOUD_INIT_USER_DATA_FILE_PATH}"
+cloud-init devel schema --config-file "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}/user-data.yaml"
 
 IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"${IMAGE_ARCHIVE_FILE_NAME}"
 
@@ -153,16 +172,10 @@ mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p2 "${ROOTFS_DIRECTORY_PATH}"
 echo "Current disk space usage:"
 df -h
 
+print_or_warn "${ROOTFS_DIRECTORY_PATH}/etc/fstab"
+
 print_or_warn "${BOOT_DIRECTORY_PATH}"
-print_or_warn "${ROOTFS_DIRECTORY_PATH}/var/lib/cloud"
-
-echo "Customizing ${ROOTFS_DIRECTORY_PATH}..."
-
 print_or_warn "${BOOT_DIRECTORY_PATH}/README"
-
-KERNEL_CMDLINE_DESTINATION_FILE_PATH="${BOOT_DIRECTORY_PATH}/cmdline.txt"
-print_or_warn "${KERNEL_CMDLINE_DESTINATION_FILE_PATH}"
-
 print_or_warn "${BOOT_DIRECTORY_PATH}/config.txt"
 print_or_warn "${BOOT_DIRECTORY_PATH}/syscfg.txt"
 print_or_warn "${BOOT_DIRECTORY_PATH}/usercfg.txt"
@@ -170,21 +183,16 @@ print_or_warn "${BOOT_DIRECTORY_PATH}/usercfg.txt"
 CLOUD_INIT_CONFIGURATION_PATH="${ROOTFS_DIRECTORY_PATH}/etc/cloud"
 print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}"
 print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg"
+print_directory_contents_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d"
 
-print_or_warn "${ROOTFS_DIRECTORY_PATH}/etc/fstab"
+echo "Removing the yaml file extension from cloud init datasource configuration files..."
+mv "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/meta-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/meta-data
+mv "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/network-config.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/network-config
+mv "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/user-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/user-data
 
-echo "Getting contents of the cloud-init configuration files..."
-find "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d" -type f -print -exec echo \; -exec cat {} \; -exec echo \;
+customize_file_or_directory "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}" "${BOOT_DIRECTORY_PATH}"
 
-customize_file "${CLOUD_INIT_USER_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/user-data"
-customize_file "${CLOUD_INIT_META_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/meta-data"
-customize_file "${CLOUD_INIT_NETWORK_CONFIG_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/network-config"
-
-# Enable cgroups. See https://microk8s.io/docs/install-alternatives#heading--arm for more info.
-# This needs to be done in before booting to avoid a race condition with the
-# with packages that might need certain kernel parameters and will not complete
-# the installation if those parameters are disabled.
-customize_file "${KERNEL_CMDLINE_SOURCE_FILE_PATH}" "${KERNEL_CMDLINE_DESTINATION_FILE_PATH}"
+customize_file_or_directory "${KERNEL_CMDLINE_SOURCE_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/cmdline.txt"
 
 echo "Synchronizing latest filesystem changes..."
 sync
