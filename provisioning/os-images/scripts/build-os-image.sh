@@ -160,7 +160,8 @@ echo "Customizing ${ROOTFS_DIRECTORY_PATH}..."
 
 print_or_warn "${BOOT_DIRECTORY_PATH}/README"
 
-print_or_warn "${BOOT_DIRECTORY_PATH}/cmdline.txt"
+KERNEL_CMDLINE_DESTINATION_FILE_PATH="${BOOT_DIRECTORY_PATH}/cmdline.txt"
+print_or_warn "${KERNEL_CMDLINE_DESTINATION_FILE_PATH}"
 
 print_or_warn "${BOOT_DIRECTORY_PATH}/config.txt"
 print_or_warn "${BOOT_DIRECTORY_PATH}/syscfg.txt"
@@ -178,6 +179,12 @@ find "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d" -type f -print -exec echo \;
 customize_file "${CLOUD_INIT_USER_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/user-data"
 customize_file "${CLOUD_INIT_META_DATA_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/meta-data"
 customize_file "${CLOUD_INIT_NETWORK_CONFIG_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/network-config"
+
+# Enable cgroups. See https://microk8s.io/docs/install-alternatives#heading--arm for more info.
+# This needs to be done in before booting to avoid a race condition with the
+# with packages that might need certain kernel parameters and will not complete
+# the installation if those parameters are disabled.
+customize_file "${KERNEL_CMDLINE_SOURCE_FILE_PATH}" "${KERNEL_CMDLINE_DESTINATION_FILE_PATH}"
 
 echo "Synchronizing latest filesystem changes..."
 sync
