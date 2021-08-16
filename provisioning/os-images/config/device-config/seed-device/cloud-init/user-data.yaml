@@ -34,10 +34,6 @@ random_seed:
 
 resize_rootfs: true
 
-snap:
-  commands:
-    "001": "snap install microk8s --classic --channel=1.21/stable"
-
 # Disable password authentication with the SSH daemon
 # for the default user
 ssh_pwauth: false

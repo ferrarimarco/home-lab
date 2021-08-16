@@ -110,8 +110,7 @@ echo "Downloading the OS image from ${IMAGE_URL}..."
 echo "Verifying the integrity of ${IMAGE_ARCHIVE_FILE_PATH}..."
 sha256sum --ignore-missing -c "${IMAGE_CHECKSUM_FILE_NAME}"
 
-echo "Contents of the ${MANIFEST_FILE_NAME} manifest file:"
-cat "${MANIFEST_FILE_NAME}"
+print_or_warn "${MANIFEST_FILE_NAME}"
 
 IMAGE_FILE_NAME="$(basename "${IMAGE_ARCHIVE_FILE_PATH}" .xz)"
 IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}/${IMAGE_FILE_NAME}"
