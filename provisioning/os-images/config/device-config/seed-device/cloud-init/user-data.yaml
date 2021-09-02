@@ -34,13 +34,6 @@ random_seed:
 
 resize_rootfs: true
 
-snap:
-  commands:
-    "001": "snap install microk8s --classic --channel=1.21/stable"
-    "002": "/snap/bin/microk8s status --wait-ready"
-    "003": "/snap/bin/microk8s enable dns ingress metallb:10.254.0.0/16 storage"
-    "004": "/snap/bin/microk8s status --wait-ready"
-
 # Disable password authentication with the SSH daemon
 # for the default user
 ssh_pwauth: false
@@ -55,7 +48,7 @@ users:
   - name: marco
     groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, microk8s, netdev, plugdev, sudo, video]
     lock_passwd: true
-    ssh_authorized_keys:
-      - gh:ferrarimarco
+    shell: /usr/bin/bash
+    ssh_import_id: gh:ferrarimarco
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
 ...
