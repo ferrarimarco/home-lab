@@ -4,10 +4,15 @@ name: Build OS images
 on:
   push:
     paths:
+      - ".github/workflows/build-os-images.yaml"
       - "provisioning/os-images/**"
   pull_request:
     paths:
+      - ".github/workflows/build-os-images.yaml"
       - "provisioning/os-images/**"
+  release:
+    types:
+      - published
 
 jobs:
   customize-preinstalled-os-images:
@@ -48,6 +53,12 @@ jobs:
           if-no-files-found: error
           name: os-image
           path: "${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz"
+      - name: "Upload the OS image: ${{ matrix.build-configuration-file-path }}"
+        if: ${{ github.event_name == 'release' && github.event.action == 'unassigned' }}
+        run: |
+          gh auth login
+          gh auth status
+          gh release upload "${GITHUB_REF}" "**/*.xz" --clobber
     strategy:
       matrix:
         build-configuration-file-path:
