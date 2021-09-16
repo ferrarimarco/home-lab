@@ -54,7 +54,7 @@ jobs:
           name: os-image
           path: "${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz"
       - name: "Upload the OS image: ${{ matrix.build-configuration-file-path }}"
-        if: ${{ github.event_name == 'release' && github.event.action == 'unassigned' }}
+        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
         run: |
           gh auth login
           gh auth status
