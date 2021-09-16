@@ -4,27 +4,63 @@ name: Build OS images
 on:
   push:
     paths:
+      - ".github/workflows/build-os-images.yaml"
       - "provisioning/os-images/**"
   pull_request:
     paths:
+      - ".github/workflows/build-os-images.yaml"
       - "provisioning/os-images/**"
+  release:
+    types:
+      - published
 
 jobs:
-  build-os-images:
+  customize-preinstalled-os-images:
+    env:
+      OS_BUILDER_CONTAINER_IMAGE_ID: "ferrarimarco/os-image-builder:latest"
+      TEMP_WORKSPACE_PATH: "/tmp/temp-customize-os-image-workdir"
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.3.4
-      - name: "Build OS image: ${{ matrix.build-configuration-file-path }}"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build the OS image builder container image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: provisioning/os-images/docker
+          load: true
+          push: false
+          tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
+      - name: "Customize preinstalled OS image. Config: ${{ matrix.build-configuration-file-path }}"
         run: |
-          sudo ./provisioning/os-images/scripts/build-os-image.sh \
-          --build-config "${{ matrix.build-configuration-file-path }}"
+          BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
+          BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
+          mkdir -p "${TEMP_WORKSPACE_PATH}"
+          export TEMP_WORKSPACE_PATH
+
+          docker run \
+            --privileged \
+            -v /dev:/dev \
+            -v "${TEMP_WORKSPACE_PATH}":/tmp/workdir \
+            -v "${BUILD_CONFIGURATION_DIRECTORY_PATH}":/tmp/config \
+            "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
+            --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
           name: os-image
-          path: "**/*.xz"
+          path: "${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz"
+      - name: "Upload the OS image: ${{ matrix.build-configuration-file-path }}"
+        if: ${{ github.event_name == 'release' && github.event.action == 'unassigned' }}
+        run: |
+          gh auth login
+          gh auth status
+          gh release upload "${GITHUB_REF}" "**/*.xz" --clobber
     strategy:
       matrix:
         build-configuration-file-path:
-          - provisioning/os-images/config/builds/ubuntu-20.04.2-arm64-raspberry-pi-4-seed-device.conf
+          - "${GITHUB_WORKSPACE}/provisioning/os-images/config/builds/seed-device/ubuntu-20.04-arm64-raspberry-pi-4-seed-device.conf"
 ...
