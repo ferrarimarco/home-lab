@@ -53,11 +53,11 @@ jobs:
           if-no-files-found: error
           name: os-image
           path: "${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz"
-      - name: "Upload the OS image: ${{ matrix.build-configuration-file-path }}"
+      - name: "Upload the OS image"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
         run: |
-          gh auth login
-          gh auth status
           gh release upload "${GITHUB_REF}" "**/*.xz" --clobber
     strategy:
       matrix:
