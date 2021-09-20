@@ -133,8 +133,16 @@ echo "Removing the yaml file extension from cloud init datasource configuration 
 mv --verbose "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"/meta-data.yaml "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"/meta-data
 mv --verbose "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"/user-data.yaml "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"/user-data
 
+# We don't use cloud-localds here because it doesn't support adding data to the
+# ISO, besides user-data, network-config, vendor-data
 echo "Generating the CIDATA ISO..."
-cloud-localds "${CLOUD_INIT_DATASOURCE_OUTPUT_DIRECTORY_PATH}"/cloud-init-datasource.iso "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"/user-data "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"/meta-data
+genisoimage \
+  -joliet \
+  -output "${CLOUD_INIT_DATASOURCE_ISO_PATH}" \
+  -rock \
+  -verbose \
+  -volid cidata \
+  "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"
 
 echo "Deleting the temporary working directory (${TEMP_CLOUD_INIT_WORKING_DIRECTORY})..."
 rm \
