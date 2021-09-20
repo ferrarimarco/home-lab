@@ -5,9 +5,6 @@ chpasswd:
   list:
     - ubuntu:ubuntu
 
-groups:
-  - microk8s
-
 growpart:
   mode: auto
   devices: ["/"]
@@ -46,7 +43,7 @@ timezone: "Etc/UTC"
 users:
   - default
   - name: marco
-    groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, microk8s, netdev, plugdev, sudo, video]
+    groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video]
     lock_passwd: true
     shell: /usr/bin/bash
     ssh_import_id: gh:ferrarimarco
