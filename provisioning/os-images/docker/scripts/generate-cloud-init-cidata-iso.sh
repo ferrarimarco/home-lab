@@ -117,6 +117,11 @@ cloud-init devel schema --config-file "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_
 
 TEMP_CLOUD_INIT_WORKING_DIRECTORY="$(mktemp -d)"
 
+CLOUD_INIT_DATASOURCE_ISO_PATH="${CLOUD_INIT_DATASOURCE_OUTPUT_DIRECTORY_PATH}"/cloud-init-datasource.iso
+
+echo "Removing the eventual leftovers from previous runs..."
+rm -f "${CLOUD_INIT_DATASOURCE_ISO_PATH}"
+
 echo "Copying cloud-init configuration files to ${TEMP_CLOUD_INIT_WORKING_DIRECTORY}..."
 cp \
   --force \
