@@ -246,5 +246,6 @@ rm -f ./*"${ARCHIVE_FILE_EXTENSION}"
 echo "Compressing ${TARGET_IMAGE_FILE_PATH}..."
 xz -9 \
   --compress \
+  --threads=0 \
   --verbose \
   "${TARGET_IMAGE_FILE_PATH}"
