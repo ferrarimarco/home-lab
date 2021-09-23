@@ -1,6 +1,10 @@
 ---
 name: Build OS images
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  TEMP_WORKSPACE_PATH: "/tmp/temp-customize-os-image-workdir"
+
 on:
   push:
     paths:
@@ -10,22 +14,30 @@ on:
     paths:
       - ".github/workflows/build-os-images.yaml"
       - "provisioning/os-images/**"
-  release:
-    types:
-      - published
 
 jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Super-Linter
+        uses: github/super-linter@v4.7.3
+        env:
+          DISABLE_ERRORS: false
+          ERROR_ON_MISSING_EXEC_BIT: true
+          LINTER_RULES_PATH: .
+          VALIDATE_ALL_CODEBASE: true
   customize-preinstalled-os-images:
     env:
       OS_BUILDER_CONTAINER_IMAGE_ID: "ferrarimarco/os-image-builder:latest"
-      TEMP_WORKSPACE_PATH: "/tmp/temp-customize-os-image-workdir"
+    needs:
+      - lint
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.3.4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Build the OS image builder container image
-        id: docker_build
         uses: docker/build-push-action@v2
         with:
           cache-from: type=gha
@@ -39,7 +51,6 @@ jobs:
           BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
           BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
           mkdir -p "${TEMP_WORKSPACE_PATH}"
-          export TEMP_WORKSPACE_PATH
 
           docker run \
             --privileged \
@@ -53,14 +64,31 @@ jobs:
           if-no-files-found: error
           name: os-image
           path: "${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz"
-      - name: "Upload the OS image"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-        run: |
-          gh release upload "${GITHUB_REF}" "${TEMP_WORKSPACE_PATH}/**/*.xz" --clobber
     strategy:
       matrix:
         build-configuration-file-path:
           - "${GITHUB_WORKSPACE}/provisioning/os-images/config/builds/seed-device/ubuntu-20.04-arm64-raspberry-pi-4-seed-device.conf"
+  update-release-draft:
+    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
+    needs:
+      - customize-preinstalled-os-images
+      - lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yaml
+  upload-images-to-release:
+    needs:
+      - update-release-draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download
+        uses: actions/download-artifact@v2
+        with:
+          name: os-image
+          path: "${{ env.TEMP_WORKSPACE_PATH }}"
+      - name: "Upload the OS image"
+        run: |
+          gh release upload "${GITHUB_REF}" "${TEMP_WORKSPACE_PATH}"/**/*.xz --clobber
 ...
