@@ -238,14 +238,3 @@ echo "Image file path: ${IMAGE_FILE_PATH}. Image file directory: ${IMAGE_FILE_DI
 
 TARGET_IMAGE_FILE_PATH="${IMAGE_FILE_DIRECTORY_PATH}"/"${IMAGE_FILE_NAME}"-"${OS_IMAGE_FILE_TAG}""${IMAGE_FILE_EXTENSION}"
 mv -v "${IMAGE_FILE_PATH}" "${TARGET_IMAGE_FILE_PATH}"
-
-ARCHIVE_FILE_EXTENSION=".xz"
-echo "Removing image archive (extension: ${ARCHIVE_FILE_EXTENSION}) path leftovers..."
-rm -f ./*"${ARCHIVE_FILE_EXTENSION}"
-
-echo "Compressing ${TARGET_IMAGE_FILE_PATH}..."
-xz -9 \
-  --compress \
-  --threads=0 \
-  --verbose \
-  "${TARGET_IMAGE_FILE_PATH}"
