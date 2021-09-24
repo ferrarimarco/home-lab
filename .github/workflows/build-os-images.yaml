@@ -87,10 +87,7 @@ jobs:
     steps:
       - name: Download
         uses: actions/download-artifact@v2
-        with:
-          name: os-image
-          path: "${{ env.TEMP_WORKSPACE_PATH }}"
       - name: "Upload the OS image"
         run: |
-          gh release upload "${GITHUB_REF}" "${TEMP_WORKSPACE_PATH}"/**/*.xz --clobber
+          gh release upload "${GITHUB_REF}" ./**/*.zip --clobber
 ...
