@@ -60,11 +60,11 @@ jobs:
             "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
-          echo "BUILD_CONFIGURATION_FILE_NAME_NO_EXT=${BUILD_CONFIGURATION_FILE_NAME%.*}" >> "${GITHUB_ENV}"
+          cat "${TEMP_WORKSPACE_PATH}"/results.out >> "${GITHUB_ENV}"
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
-          name: ${{ env.BUILD_CONFIGURATION_FILE_NAME_NO_EXT }}
+          name: ${{ env.CUSTOMIZED_IMAGE_FILE_NAME }}
           path: |
             ${{ env.TEMP_WORKSPACE_PATH }}/**/*.iso
             ${{ env.TEMP_WORKSPACE_PATH }}/**/*.img
@@ -85,9 +85,9 @@ jobs:
       - update-release-draft
     runs-on: ubuntu-latest
     steps:
-      - name: Download
+      - name: Download artifacts to upload
         uses: actions/download-artifact@v2
-      - name: "Upload the OS image"
+      - name: Upload artifacts to the release
         run: |
           gh release upload "${GITHUB_REF}" ./**/*.zip --clobber
 ...
