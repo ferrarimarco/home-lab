@@ -85,10 +85,15 @@ jobs:
       - update-release-draft
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2.3.4
       - name: Download artifacts to upload
         uses: actions/download-artifact@v2
       - name: Upload artifacts to the release
         run: |
-          ls ./**/*.img  >/dev/null && gh release upload "${GITHUB_REF}" ./**/*.img --clobber
-          ls ./**/*.iso  >/dev/null && gh release upload "${GITHUB_REF}" ./**/*.iso --clobber
+          ls ./**/*.${{ matrix.artifact-file-extension }}  >/dev/null && gh release upload "${GITHUB_REF}" ./**/*.${{ matrix.artifact-file-extension }} --clobber
+    strategy:
+      matrix:
+        artifact-file-extension:
+          - img
+          - iso
 ...
