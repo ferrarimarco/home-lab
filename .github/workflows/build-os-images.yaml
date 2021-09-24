@@ -66,8 +66,8 @@ jobs:
           if-no-files-found: error
           name: ${{ env.CUSTOMIZED_IMAGE_FILE_NAME }}
           path: |
-            ${{ env.TEMP_WORKSPACE_PATH }}/**/*.iso
             ${{ env.TEMP_WORKSPACE_PATH }}/**/*.img
+            ${{ env.TEMP_WORKSPACE_PATH }}/**/*.iso
     strategy:
       matrix:
         build-configuration-file-path:
@@ -89,5 +89,6 @@ jobs:
         uses: actions/download-artifact@v2
       - name: Upload artifacts to the release
         run: |
-          gh release upload "${GITHUB_REF}" ./**/*.zip --clobber
+          ls ./**/*.img  >/dev/null && gh release upload "${GITHUB_REF}" ./**/*.img --clobber
+          ls ./**/*.iso  >/dev/null && gh release upload "${GITHUB_REF}" ./**/*.iso --clobber
 ...
