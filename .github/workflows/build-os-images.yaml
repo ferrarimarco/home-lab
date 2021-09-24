@@ -60,8 +60,7 @@ jobs:
             "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
-          BUILD_CONFIGURATION_FILE_NAME_NO_EXT="${BUILD_CONFIGURATION_FILE_NAME%.*}"
-          export BUILD_CONFIGURATION_FILE_NAME_NO_EXT
+          "BUILD_CONFIGURATION_FILE_NAME_NO_EXT=${BUILD_CONFIGURATION_FILE_NAME%.*}" >> "${GITHUB_ENV}"
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
