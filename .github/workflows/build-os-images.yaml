@@ -64,10 +64,9 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
-          name: ${{ env.CUSTOMIZED_IMAGE_FILE_NAME }}
+          name: ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
           path: |
-            ${{ env.TEMP_WORKSPACE_PATH }}/**/*.img
-            ${{ env.TEMP_WORKSPACE_PATH }}/**/*.iso
+            ${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz
     strategy:
       matrix:
         build-configuration-file-path:
@@ -98,6 +97,5 @@ jobs:
     strategy:
       matrix:
         artifact-file-extension:
-          - img
-          - iso
+          - xz
 ...
