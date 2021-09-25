@@ -64,7 +64,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
-          name: ${{ env.CUSTOMIZED_IMAGE_FILE_NAME }}
+          name: ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
           path: |
             ${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz
     strategy:
