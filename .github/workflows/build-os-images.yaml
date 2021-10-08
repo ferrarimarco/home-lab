@@ -61,7 +61,7 @@ jobs:
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
           RESULTS_FILE_PATH="${TEMP_WORKSPACE_PATH}"/results.out
-          [-e "${RESULTS_FILE_PATH}" ] && cat "${TEMP_WORKSPACE_PATH}"/results.out >>"${GITHUB_ENV}"
+          [ -e "${RESULTS_FILE_PATH}" ] && cat "${TEMP_WORKSPACE_PATH}"/results.out >>"${GITHUB_ENV}"
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
