@@ -67,7 +67,7 @@ jobs:
           if-no-files-found: error
           name: ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
           path: |
-            ${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz
+            ${{ env.TEMP_WORKSPACE_PATH }}/${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
     strategy:
       matrix:
         build-configuration-file-path:
