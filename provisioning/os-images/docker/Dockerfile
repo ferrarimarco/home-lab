@@ -5,11 +5,11 @@ RUN apt-get update \
     --no-install-recommends \
     --yes \
     install \
-    cloud-image-utils=0.31-7-gd99b2d76-0ubuntu1 \
-    cloud-init=21.2-3-g899bfaa9-0ubuntu2~20.04.1 \
-    kpartx=0.8.3-1ubuntu2 \
-    wget=1.20.3-1ubuntu1 \
-    xz-utils=5.2.4-1ubuntu1 \
+    cloud-image-utils \
+    cloud-init \
+    kpartx \
+    wget \
+    xz-utils \
     && rm -rf /var/lib/apt/lists/*
 
 ENV WORKDIR /tmp/workdir
