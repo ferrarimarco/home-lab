@@ -45,6 +45,7 @@ check_exec_dependency() {
 echo "Checking if the necessary dependencies are available..."
 check_exec_dependency "cloud-init"
 check_exec_dependency "cloud-localds"
+check_exec_dependency "genisoimage"
 check_exec_dependency "getopt"
 
 # Doesn't follow symlinks, but it's likely expected for most users
@@ -110,6 +111,7 @@ while true; do
 done
 
 echo "Checking if the necessary parameters are set..."
+check_argument "${CLOUD_INIT_DATASOURCE_OUTPUT_DIRECTORY_PATH}" "${CLOUD_INIT_DATASOURCE_OUTPUT_DIRECTORY_PATH_DESCRIPTION}"
 check_argument "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH_DESCRIPTION}"
 
 echo "Validating cloud-init configuration file..."
