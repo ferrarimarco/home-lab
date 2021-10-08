@@ -1,0 +1,76 @@
+#cloud-config
+---
+autoinstall:
+
+  apt:
+    geoip: true
+
+  ssh:
+    allow-pw: false
+    install-server: true
+
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''
+
+  storage:
+    layout:
+      name: lvm
+
+  user-data:
+    chpasswd:
+      expire: true
+      list:
+        - ubuntu:ubuntu
+
+    growpart:
+      mode: auto
+      devices: ["/"]
+      ignore_growroot_disabled: false
+
+    locale: "en_US.UTF-8"
+
+    # update the contents of /etc/hosts based on the hostname/fqdn specified
+    manage_etc_hosts: true
+
+    # Set up the NTP client with default configuration and client
+    ntp:
+      enabled: true
+      ntp_client: auto
+
+    package_update: true
+    package_upgrade: true
+    package_reboot_if_required: true
+
+    random_seed:
+      file: /dev/urandom
+      command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
+      command_required: true
+
+    resize_rootfs: true
+
+    # Disable password authentication with the SSH daemon
+    # for the default user
+    ssh_pwauth: false
+
+    # Remove default host keys if any
+    ssh_deletekeys: true
+
+    timezone: "Etc/UTC"
+
+    users:
+      - default
+      - name: marco
+        groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video]
+        lock_passwd: true
+        shell: /usr/bin/bash
+        ssh_import_id: gh:ferrarimarco
+        sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+
+    write_files:
+      - path: /etc/sysctl.d/enable-ip-forwarding.conf
+        content: |
+          net.ipv4.conf.all.forwarding=1
+  version: 1
+...
