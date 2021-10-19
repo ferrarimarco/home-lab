@@ -9,13 +9,6 @@ echo "This script has been invoked with: $0 $*"
 # shellcheck disable=SC1091
 . common.sh
 
-echo "Checking if the necessary dependencies are available..."
-check_exec_dependency "cloud-init"
-check_exec_dependency "dirname"
-check_exec_dependency "getopt"
-check_exec_dependency "sha256sum"
-check_exec_dependency "wget"
-
 # Doesn't follow symlinks, but it's likely expected for most users
 SCRIPT_BASENAME="$(basename "${0}")"
 
@@ -65,6 +58,8 @@ while true; do
     ;;
   -h | --help | *)
     usage
+    # Ignoring because those are defined in common.sh, and don't need quotes
+    # shellcheck disable=SC2086
     exit ${EXIT_OK}
     break
     ;;
@@ -108,6 +103,8 @@ if [ "${IMAGE_ARCHIVE_FILE_EXTENSION}" = "xz" ]; then
   fi
 else
   echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
+  # Ignoring because those are defined in common.sh, and don't need quotes
+  # shellcheck disable=SC2086
   exit ${ERR_ARCHIVE_NOT_SUPPORTED}
 fi
 
@@ -152,22 +149,7 @@ df -h
 DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}")"
 echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
 
-CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
-if [ -e "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}" ]; then
-  echo "cloud-init datasource configuration directory: ${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"
-
-  echo "Validating cloud-init configuration file..."
-  cloud-init devel schema --config-file "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}/user-data.yaml"
-
-  echo "Removing the yaml file extension from cloud init datasource configuration files..."
-  mv "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/meta-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/meta-data
-  mv "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/network-config.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/network-config
-  mv "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/user-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"/user-data
-
-  cp --force --recursive --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}/." "${BOOT_DIRECTORY_PATH}/"
-else
-  echo "No cloud-init datasource configuration directory found at ${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}"
-fi
+setup_cloud_init_nocloud_datasource "${DEVICE_CONFIG_DIRECTORY}/cloud-init" "${BOOT_DIRECTORY_PATH}"
 
 KERNEL_CMDLINE_SOURCE_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/kernel/cmdline.txt"
 if [ -e "${KERNEL_CMDLINE_SOURCE_FILE_PATH}" ]; then
