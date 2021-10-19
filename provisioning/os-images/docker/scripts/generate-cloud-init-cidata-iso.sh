@@ -4,43 +4,10 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-EXIT_OK=0
-
-ERR_GENERIC=1
-ERR_VARIABLE_NOT_DEFINED=2
-ERR_MISSING_DEPENDENCY=3
-ERR_ARGUMENT_EVAL_ERROR=4
-ERR_ARCHIVE_NOT_SUPPORTED=5
-
 echo "This script has been invoked with: $0 $*"
 
-check_argument() {
-  ARGUMENT_VALUE="${1}"
-  ARGUMENT_DESCRIPTION="${2}"
-
-  if [ -z "${ARGUMENT_VALUE}" ]; then
-    echo "[ERROR]: ${ARGUMENT_DESCRIPTION} is not defined. Run this command with the -h option to get help. Terminating..."
-    exit ${ERR_VARIABLE_NOT_DEFINED}
-  else
-    echo "[OK]: ${ARGUMENT_DESCRIPTION} value is defined: ${ARGUMENT_VALUE}"
-  fi
-
-  unset ARGUMENT_NAME
-  unset ARGUMENT_VALUE
-}
-
-check_exec_dependency() {
-  EXECUTABLE_NAME="${1}"
-
-  if ! command -v "${EXECUTABLE_NAME}" >/dev/null 2>&1; then
-    echo "[ERROR]: ${EXECUTABLE_NAME} command is not available, but it's needed. Make it available in PATH and try again. Terminating..."
-    exit ${ERR_MISSING_DEPENDENCY}
-  else
-    echo "[OK]: ${EXECUTABLE_NAME} is available in PATH, pointing to: $(command -v "${EXECUTABLE_NAME}")"
-  fi
-
-  unset EXECUTABLE_NAME
-}
+# shellcheck disable=SC1091
+. common.sh
 
 echo "Checking if the necessary dependencies are available..."
 check_exec_dependency "cloud-init"
@@ -64,7 +31,7 @@ usage() {
   echo "OPTIONS"
   echo "  -d | --cloud-init-datasource-source-directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH_DESCRIPTION}"
   echo "  -o | --cloud-init-datasource-output-directory: ${CLOUD_INIT_DATASOURCE_OUTPUT_DIRECTORY_PATH_DESCRIPTION}"
-  echo "  -h | --help: show this help message and exit"
+  echo "  -h | --help: ${HELP_DESCRIPTION}"
   echo
   echo "EXIT STATUS"
   echo
@@ -104,6 +71,8 @@ while true; do
     ;;
   -h | --help | *)
     usage
+    # Ignoring because those are defined in common.sh, and don't need quotes
+    # shellcheck disable=SC2086
     exit ${EXIT_OK}
     break
     ;;

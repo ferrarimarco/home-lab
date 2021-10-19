@@ -15,6 +15,7 @@ RUN apt-get update \
 ENV WORKDIR /tmp/workdir
 WORKDIR ${WORKDIR}
 
+COPY scripts/common.sh /common.sh
 COPY scripts/customize-preinstalled-os-image.sh /customize-preinstalled-os-image.sh
 COPY scripts/generate-cloud-init-cidata-iso.sh /generate-cloud-init-cidata-iso.sh
 
