@@ -43,6 +43,19 @@ check_argument() {
   unset ARGUMENT_VALUE
 }
 
+copy_file_if_exists() {
+  SOURCE_FILE_PATH="${1}"
+  DESTINATION_FILE_PATH="${2}"
+  if [ -e "${SOURCE_FILE_PATH}" ]; then
+    cp \
+      --force \
+      --verbose \
+      "${SOURCE_FILE_PATH}" "${DESTINATION_FILE_PATH}"
+  else
+    echo "Source file ${SOURCE_FILE_PATH} doesn't exist."
+  fi
+}
+
 # We don't use cloud-localds here because it doesn't support adding data to the
 # ISO, besides user-data, network-config, vendor-data
 generate_cidata_iso() {
@@ -76,9 +89,9 @@ setup_cloud_init_nocloud_datasource() {
   echo "Validating cloud-init configuration file..."
   cloud-init devel schema --config-file "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data.yaml"
 
-  echo "Removing the yaml file extension from cloud init datasource configuration files..."
-  mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data
-  mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config
-  mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/user-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/user-data
-  mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data
+  echo "Removing the yaml file extension from cloud-init datasource configuration files..."
+  [ -e "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data
+  [ -e "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config
+  [ -e "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/user-data.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/user-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/user-data
+  [ -e "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data
 }

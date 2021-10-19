@@ -87,6 +87,3 @@ rm \
   --force \
   --recursive \
   "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"
-
-echo "Synchronizing latest filesystem changes..."
-sync

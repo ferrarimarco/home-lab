@@ -151,13 +151,7 @@ echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
 
 setup_cloud_init_nocloud_datasource "${DEVICE_CONFIG_DIRECTORY}/cloud-init" "${BOOT_DIRECTORY_PATH}"
 
-KERNEL_CMDLINE_SOURCE_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/kernel/cmdline.txt"
-if [ -e "${KERNEL_CMDLINE_SOURCE_FILE_PATH}" ]; then
-  echo "Kernel cmdline configuration file path: ${KERNEL_CMDLINE_SOURCE_FILE_PATH}"
-  cp --force --verbose "${KERNEL_CMDLINE_SOURCE_FILE_PATH}" "${BOOT_DIRECTORY_PATH}/cmdline.txt"
-else
-  echo "No kernel cmdline configuration file found at ${KERNEL_CMDLINE_SOURCE_FILE_PATH}"
-fi
+copy_file_if_exists "${DEVICE_CONFIG_DIRECTORY}/kernel/cmdline.txt" "${BOOT_DIRECTORY_PATH}/cmdline.txt"
 
 echo "Synchronizing latest filesystem changes..."
 sync
