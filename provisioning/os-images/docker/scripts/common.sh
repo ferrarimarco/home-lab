@@ -43,6 +43,20 @@ check_argument() {
   unset ARGUMENT_VALUE
 }
 
+compress_file() {
+  SOURCE_FILE_PATH="${1}"
+  DESTINATION_FILE_PATH="${2}"
+  echo "Removing leftovers (${DESTINATION_FILE_PATH})..."
+  rm -f "${DESTINATION_FILE_PATH}"
+
+  echo "Compressing ${SOURCE_FILE_PATH}..."
+  xz -9 \
+    --compress \
+    --threads=0 \
+    --verbose \
+    "${SOURCE_FILE_PATH}"
+}
+
 copy_file_if_exists() {
   SOURCE_FILE_PATH="${1}"
   DESTINATION_FILE_PATH="${2}"
