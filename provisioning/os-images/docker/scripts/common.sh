@@ -28,6 +28,14 @@ ERR_ARCHIVE_NOT_SUPPORTED=5
 # shellcheck disable=SC2034
 HELP_DESCRIPTION="show this help message and exit"
 
+# Ignoring SC2034 because this variable is used in other scripts
+# shellcheck disable=SC2034
+BUILD_TYPE_CIDATA_ISO="cidata-iso"
+
+# Ignoring SC2034 because this variable is used in other scripts
+# shellcheck disable=SC2034
+BUILD_TYPE_PREINSTALLED="customize-preinstalled"
+
 check_argument() {
   ARGUMENT_VALUE="${1}"
   ARGUMENT_DESCRIPTION="${2}"
@@ -45,13 +53,11 @@ check_argument() {
 
 compress_file() {
   SOURCE_FILE_PATH="${1}"
-  DESTINATION_FILE_PATH="${2}"
-  echo "Removing leftovers (${DESTINATION_FILE_PATH})..."
-  rm -f "${DESTINATION_FILE_PATH}"
 
   echo "Compressing ${SOURCE_FILE_PATH}..."
   xz -9 \
     --compress \
+    --force \
     --threads=0 \
     --verbose \
     "${SOURCE_FILE_PATH}"

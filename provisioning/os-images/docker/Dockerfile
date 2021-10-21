@@ -16,8 +16,7 @@ ENV WORKDIR /tmp/workdir
 WORKDIR ${WORKDIR}
 
 COPY scripts/common.sh /common.sh
-COPY scripts/customize-preinstalled-os-image.sh /customize-preinstalled-os-image.sh
-COPY scripts/generate-cloud-init-cidata-iso.sh /generate-cloud-init-cidata-iso.sh
+COPY scripts/entrypoint.sh /entrypoint.sh
 
 RUN chmod a+x /*.sh
-ENTRYPOINT ["/customize-preinstalled-os-image.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
