@@ -136,15 +136,9 @@ LOOP_DEVICE_PATH="$(losetup -O NAME,BACK-FILE | grep "${IMAGE_FILE_PATH}" | awk 
 LOOP_DEVICE_NAME="$(basename "${LOOP_DEVICE_PATH}")"
 LOOP_DEVICE_PARTITION_PREFIX=/dev/mapper/"${LOOP_DEVICE_NAME}"
 
-echo "Gathering information about the partitions to mount..."
-blkid "${LOOP_DEVICE_PATH}" "${LOOP_DEVICE_PARTITION_PREFIX}"p*
-
 echo "Mounting partitions from ${LOOP_DEVICE_PATH} (prefix: ${LOOP_DEVICE_PARTITION_PREFIX})"
 mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p1 "${BOOT_DIRECTORY_PATH}"
 mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p2 "${ROOTFS_DIRECTORY_PATH}"
-
-echo "Current disk space usage:"
-df -h
 
 DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}")"
 echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
@@ -155,9 +149,6 @@ copy_file_if_exists "${DEVICE_CONFIG_DIRECTORY}/kernel/cmdline.txt" "${BOOT_DIRE
 
 echo "Synchronizing latest filesystem changes..."
 sync
-
-echo "Current disk space usage:"
-df -h
 
 echo "Unmounting file systems..."
 umount -v "${BOOT_DIRECTORY_PATH}"
