@@ -63,19 +63,6 @@ compress_file() {
     "${SOURCE_FILE_PATH}"
 }
 
-copy_file_if_exists() {
-  SOURCE_FILE_PATH="${1}"
-  DESTINATION_FILE_PATH="${2}"
-  if [ -e "${SOURCE_FILE_PATH}" ]; then
-    cp \
-      --force \
-      --verbose \
-      "${SOURCE_FILE_PATH}" "${DESTINATION_FILE_PATH}"
-  else
-    echo "Source file ${SOURCE_FILE_PATH} doesn't exist."
-  fi
-}
-
 # We don't use cloud-localds here because it doesn't support adding data to the
 # ISO, besides user-data, network-config, vendor-data
 generate_cidata_iso() {

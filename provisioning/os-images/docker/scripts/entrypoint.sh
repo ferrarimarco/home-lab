@@ -140,7 +140,13 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
 
   setup_cloud_init_nocloud_datasource "${DEVICE_CONFIG_DIRECTORY}/cloud-init" "${TEMP_WORKING_DIRECTORY}"
 
-  copy_file_if_exists "${DEVICE_CONFIG_DIRECTORY}/kernel/cmdline.txt" "${TEMP_WORKING_DIRECTORY}/cmdline.txt"
+  if [ -n "${KERNEL_CMDLINE_FILE_PATH}" ]; then
+    echo "Customizing the Kernel command line..."
+    cp \
+      --force \
+      --verbose \
+      "${DEVICE_CONFIG_DIRECTORY}/${KERNEL_CMDLINE_FILE_PATH}" "${TEMP_WORKING_DIRECTORY}/cmdline.txt"
+  fi
 
   echo "Synchronizing latest filesystem changes..."
   sync
