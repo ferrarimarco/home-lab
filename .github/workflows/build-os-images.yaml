@@ -60,8 +60,14 @@ jobs:
             "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
-          RESULTS_FILE_PATH="${TEMP_WORKSPACE_PATH}"/results.out
-          [ -e "${RESULTS_FILE_PATH}" ] && cat "${TEMP_WORKSPACE_PATH}"/results.out >>"${GITHUB_ENV}"
+          RESULTS_FILE_PATH="${TEMP_WORKSPACE_PATH}/results.out"
+          if [ -r "${RESULTS_FILE_PATH}" ]; then
+            echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
+            cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
+          else
+            echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
+            exit 1
+          fi
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
