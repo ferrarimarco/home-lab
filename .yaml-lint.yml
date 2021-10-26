@@ -6,6 +6,11 @@ rules:
     max-spaces-after: 1
   comments:
     level: error
+    # cloud-init expects the first line to be #cloud-config and this conflicts with
+    # the rules.comments.require-starting-space directive.
+    # See https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.comments
+    ignore: |
+      **/cloud-init*/**/user-data*.yaml
   comments-indentation:
     level: error
   document-end:

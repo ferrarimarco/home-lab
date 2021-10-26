@@ -39,7 +39,7 @@ The seed device has as few external dependencies as possible. The seed
 device requires:
 
 1. A connection to an IP network that can route packets to and from the
-    Internet.
+    internet.
 1. An IP address to statically assign to the main network interface of the seed
     device.
 
