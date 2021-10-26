@@ -78,6 +78,12 @@ echo "Loading the build environment configuration from ${BUILD_ENVIRONMENT_CONFI
 TEMP_WORKING_DIRECTORY="$(mktemp -d)"
 echo "Created a temporary working directory: ${TEMP_WORKING_DIRECTORY}"
 
+DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}")"
+echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
+
+CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
+echo "Cloud-init configuration directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}"
+
 if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
   IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"${IMAGE_ARCHIVE_FILE_NAME}"
 
@@ -135,10 +141,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
   echo "Mounting partitions from ${LOOP_DEVICE_PATH} (prefix: ${LOOP_DEVICE_PARTITION_PREFIX})"
   mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p1 "${TEMP_WORKING_DIRECTORY}"
 
-  DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}")"
-  echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
-
-  setup_cloud_init_nocloud_datasource "${DEVICE_CONFIG_DIRECTORY}/cloud-init" "${TEMP_WORKING_DIRECTORY}"
+  setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${TEMP_WORKING_DIRECTORY}"
 
   if [ -n "${KERNEL_CMDLINE_FILE_PATH}" ]; then
     echo "Customizing the Kernel command line..."
