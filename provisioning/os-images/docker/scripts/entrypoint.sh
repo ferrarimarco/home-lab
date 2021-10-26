@@ -4,13 +4,88 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-echo "This script has been invoked with: $0 $*"
-
-# shellcheck disable=SC1091
-. common.sh
-
 # Doesn't follow symlinks, but it's likely expected for most users
 SCRIPT_BASENAME="$(basename "${0}")"
+
+echo "This script (${SCRIPT_BASENAME}) has been invoked with: $0 $*"
+
+EXIT_OK=0
+ERR_GENERIC=1
+ERR_VARIABLE_NOT_DEFINED=2
+ERR_MISSING_DEPENDENCY=3
+ERR_ARGUMENT_EVAL_ERROR=4
+ERR_ARCHIVE_NOT_SUPPORTED=5
+
+BUILD_TYPE_CIDATA_ISO="cidata-iso"
+BUILD_TYPE_PREINSTALLED="customize-preinstalled"
+
+check_argument() {
+  ARGUMENT_VALUE="${1}"
+  ARGUMENT_DESCRIPTION="${2}"
+
+  if [ -z "${ARGUMENT_VALUE}" ]; then
+    echo "[ERROR]: ${ARGUMENT_DESCRIPTION} is not defined. Run this command with the -h option to get help. Terminating..."
+    exit ${ERR_VARIABLE_NOT_DEFINED}
+  else
+    echo "[OK]: ${ARGUMENT_DESCRIPTION} value is defined: ${ARGUMENT_VALUE}"
+  fi
+
+  unset ARGUMENT_NAME
+  unset ARGUMENT_VALUE
+}
+
+compress_file() {
+  SOURCE_FILE_PATH="${1}"
+
+  echo "Compressing ${SOURCE_FILE_PATH}..."
+  xz -9 \
+    --compress \
+    --force \
+    --threads=0 \
+    --verbose \
+    "${SOURCE_FILE_PATH}"
+}
+
+# We don't use cloud-localds here because it doesn't support adding data to the
+# ISO, besides user-data, network-config, vendor-data
+generate_cidata_iso() {
+  TEMP_CLOUD_INIT_WORKING_DIRECTORY="${1}"
+  CLOUD_INIT_DATASOURCE_ISO_PATH="${2}"
+
+  echo "Removing the eventual leftovers (${CLOUD_INIT_DATASOURCE_ISO_PATH}) from previous runs..."
+  rm -f "${CLOUD_INIT_DATASOURCE_ISO_PATH}"
+
+  echo "Generating the CIDATA ISO (${CLOUD_INIT_DATASOURCE_ISO_PATH} from ${TEMP_CLOUD_INIT_WORKING_DIRECTORY}..."
+  genisoimage \
+    -joliet \
+    -output "${CLOUD_INIT_DATASOURCE_ISO_PATH}" \
+    -rock \
+    -verbose \
+    -volid cidata \
+    "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"
+}
+
+setup_cloud_init_nocloud_datasource() {
+  CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY="${1}"
+  CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY="${2}"
+
+  echo "Copying contents of the cloud-init datasource configuration directory (${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}) to ${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}..."
+  cp \
+    --force \
+    --recursive \
+    --verbose \
+    "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}/." "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/"
+
+  CLOUD_INIT_USER_DATA_FILE_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data.yaml"
+  echo "Validating cloud-init user-data file (${CLOUD_INIT_USER_DATA_FILE_PATH})..."
+  cloud-init devel schema --config-file "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data.yaml"
+
+  echo "Removing the yaml file extension from cloud-init datasource configuration files..."
+  [ -e "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data
+  [ -e "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config
+  [ -e "${CLOUD_INIT_USER_DATA_FILE_PATH}" ] && mv --verbose "${CLOUD_INIT_USER_DATA_FILE_PATH}" "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/user-data
+  [ -e "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data
+}
 
 BUILD_CONFIG_PARAMETER_DESCRIPTION="path to the build configuration file"
 
@@ -58,8 +133,6 @@ while true; do
     ;;
   -h | --help | *)
     usage
-    # Ignoring because those are defined in common.sh, and don't need quotes
-    # shellcheck disable=SC2086
     exit ${EXIT_OK}
     break
     ;;
@@ -112,8 +185,6 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
     fi
   else
     echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
-    # Ignoring because those are defined in common.sh, and don't need quotes
-    # shellcheck disable=SC2086
     exit ${ERR_ARCHIVE_NOT_SUPPORTED}
   fi
 
@@ -180,8 +251,6 @@ elif [ "${BUILD_TYPE}" = "${BUILD_TYPE_CIDATA_ISO}" ]; then
   generate_cidata_iso "${TEMP_WORKING_DIRECTORY}" "${TARGET_IMAGE_FILE_PATH}"
 else
   echo "[ERROR]: Unsupported build type. Terminating..."
-  # Ignoring because those are defined in common.sh, and don't need quotes
-  # shellcheck disable=SC2086
   exit ${ERR_ARGUMENT_EVAL_ERROR}
 fi
 

@@ -15,7 +15,6 @@ RUN apt-get update \
 ENV WORKDIR /tmp/workdir
 WORKDIR ${WORKDIR}
 
-COPY scripts/common.sh /common.sh
 COPY scripts/entrypoint.sh /entrypoint.sh
 
 RUN chmod a+x /*.sh
