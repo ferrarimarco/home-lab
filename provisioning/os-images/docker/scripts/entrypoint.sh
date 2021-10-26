@@ -76,19 +76,17 @@ setup_cloud_init_nocloud_datasource() {
     --verbose \
     "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}/." "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/"
 
-  CLOUD_INIT_USER_DATA_FILE_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data.yaml"
-  if [ -r "${CLOUD_INIT_USER_DATA_FILE_PATH}" ]; then
-    echo "Validating cloud-init user-data file (${CLOUD_INIT_USER_DATA_FILE_PATH})..."
-    cloud-init devel schema --config-file "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data.yaml"
-
-    echo "Removing the yaml file extension from cloud-init user-data configuration file..."
-    mv --verbose "${CLOUD_INIT_USER_DATA_FILE_PATH}" "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/user-data
-  fi
-
   echo "Removing the yaml file extension from cloud-init datasource configuration files..."
-  [ -r "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/meta-data
-  [ -r "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/network-config
-  [ -r "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data.yaml ] && mv --verbose "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data.yaml "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"/vendor-data
+  for FILE in meta-data.yaml network-config.yaml vendor-data.yaml user-data.yaml; do
+    FILE_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/${FILE}"
+    if [ -e "${FILE_PATH}" ]; then
+      if [ "${FILE}" = "user-data.yaml" ]; then
+        echo "Validating cloud-init user-data file (${FILE_PATH})..."
+        cloud-init devel schema --config-file "${FILE_PATH}"
+      fi
+      mv --verbose "${FILE_PATH}" "${FILE_PATH%.*}"
+    fi
+  done
 }
 
 BUILD_CONFIG_PARAMETER_DESCRIPTION="path to the build configuration file"
