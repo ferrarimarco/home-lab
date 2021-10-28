@@ -1,51 +1,71 @@
 #cloud-config
 ---
-chpasswd:
-  expire: true
-  list:
-    - ubuntu:ubuntu
+autoinstall:
 
-growpart:
-  mode: auto
-  devices: ["/"]
-  ignore_growroot_disabled: false
+  apt:
+    geoip: true
 
-locale: "en_US.UTF-8"
+  ssh:
+    allow-pw: false
+    install-server: true
 
-# update the contents of /etc/hosts based on the hostname/fqdn specified
-manage_etc_hosts: true
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''
 
-# Set up the NTP client with default configuration and client
-ntp:
-  enabled: true
-  ntp_client: auto
+  storage:
+    layout:
+      name: lvm
 
-package_update: true
-package_upgrade: true
-package_reboot_if_required: true
+  user-data:
+    chpasswd:
+      expire: true
+      list:
+        - ubuntu:ubuntu
 
-random_seed:
-  file: /dev/urandom
-  command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
-  command_required: true
+    growpart:
+      mode: auto
+      devices: ["/"]
+      ignore_growroot_disabled: false
 
-resize_rootfs: true
+    locale: "en_US.UTF-8"
 
-# Disable password authentication with the SSH daemon
-# for the default user
-ssh_pwauth: false
+    # update the contents of /etc/hosts based on the hostname/fqdn specified
+    manage_etc_hosts: true
 
-# Remove default host keys if any
-ssh_deletekeys: true
+    # Set up the NTP client with default configuration and client
+    ntp:
+      enabled: true
+      ntp_client: auto
 
-timezone: "Etc/UTC"
+    package_update: true
+    package_upgrade: true
+    package_reboot_if_required: true
 
-users:
-  - default
-  - name: marco
-    groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video]
-    lock_passwd: true
-    shell: /usr/bin/bash
-    ssh_import_id: gh:ferrarimarco
-    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    random_seed:
+      file: /dev/urandom
+      command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
+      command_required: true
+
+    resize_rootfs: true
+
+    # Disable password authentication with the SSH daemon
+    # for the default user
+    ssh_pwauth: false
+
+    # Remove default host keys if any
+    ssh_deletekeys: true
+
+    timezone: "Etc/UTC"
+
+    users:
+      - default
+      - name: marco
+        groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video]
+        lock_passwd: true
+        shell: /usr/bin/bash
+        ssh_import_id: gh:ferrarimarco
+        sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+  version: 1
 ...

@@ -46,7 +46,7 @@ jobs:
           load: true
           push: false
           tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
-      - name: "Customize preinstalled OS image. Config: ${{ matrix.build-configuration-file-path }}"
+      - name: "Generate the cloud-init datasource ISO. Config: ${{ matrix.build-configuration-file-path }}"
         run: |
           BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
           BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
@@ -78,7 +78,6 @@ jobs:
       matrix:
         build-configuration-file-path:
           - "${GITHUB_WORKSPACE}/provisioning/os-images/config/builds/seed-device/ubuntu-20.04-cidata-iso-seed-device.conf"
-          - "${GITHUB_WORKSPACE}/provisioning/os-images/config/builds/seed-device/ubuntu-20.04-arm64-raspberry-pi-4-seed-device.conf"
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     outputs:
