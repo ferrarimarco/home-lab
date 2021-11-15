@@ -24,10 +24,14 @@ autoinstall:
       list:
         - ubuntu:ubuntu
 
+    fqdn: home-lab-1.edge.lab.ferrari.how
+
     growpart:
       mode: auto
       devices: ["/"]
       ignore_growroot_disabled: false
+
+    hostname: home-lab-1
 
     locale: "en_US.UTF-8"
 

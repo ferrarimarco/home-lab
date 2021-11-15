@@ -1,9 +1,2 @@
 ---
-final_message: "Seed device initialization completed."
-# DHCP or cloud-init network-config may override this
-fqdn: edge.lab.ferrari.how
-hostname: home-lab-1
-instance_id: seed-device-1
-local-hostname: home-lab-1
-public-hostname: home-lab-1.edge.lab.ferrari.how
 ...
