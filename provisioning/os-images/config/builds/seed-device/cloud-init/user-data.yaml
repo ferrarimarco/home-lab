@@ -2,13 +2,6 @@
 ---
 autoinstall:
 
-  apt:
-    geoip: true
-
-  ssh:
-    allow-pw: false
-    install-server: true
-
   keyboard:
     layout: us
     toggle: null
@@ -29,6 +22,9 @@ autoinstall:
           search:
             - edge.lab.ferrari.how
         optional: true
+
+  ssh:
+    allow-pw: false
 
   storage:
     layout:
@@ -58,6 +54,9 @@ autoinstall:
     ntp:
       enabled: true
       ntp_client: auto
+
+    packages:
+      - openssh-server
 
     package_update: true
     package_upgrade: true
