@@ -36,8 +36,6 @@ autoinstall:
       list:
         - ubuntu:ubuntu
 
-    hostname: home-lab-1
-
     growpart:
       mode: auto
       devices: ["/"]
