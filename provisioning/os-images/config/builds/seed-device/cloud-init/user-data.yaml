@@ -14,6 +14,22 @@ autoinstall:
     toggle: null
     variant: ''
 
+  network:
+    version: 2
+    ethernets:
+      enp0s0:
+        addresses:
+          - 10.0.0.2/8
+        dhcp4: false
+        gateway4: 10.0.0.1
+        nameservers:
+          addresses:
+            - 8.8.8.8
+            - 8.8.4.4
+          search:
+            - edge.lab.ferrari.how
+        optional: true
+
   storage:
     layout:
       name: lvm
@@ -24,7 +40,7 @@ autoinstall:
       list:
         - ubuntu:ubuntu
 
-    fqdn: home-lab-1.edge.lab.ferrari.how
+    hostname: home-lab-1
 
     growpart:
       mode: auto
