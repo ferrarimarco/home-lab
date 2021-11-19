@@ -10,7 +10,7 @@ autoinstall:
   network:
     version: 2
     ethernets:
-      enp0s0:
+      enp0s25:
         addresses:
           - 10.0.0.2/8
         dhcp4: false
