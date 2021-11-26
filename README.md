@@ -39,7 +39,7 @@ The seed device has as few external dependencies as possible. The seed
 device requires:
 
 1. A connection to an IP network that can route packets to and from the
-    Internet.
+    internet.
 1. An IP address to statically assign to the main network interface of the seed
     device.
 
@@ -57,17 +57,35 @@ itself. This approach has two benefits:
 
 #### Initialize the seed device operating system
 
-To initialize the seed device operating system (OS), you need to populate a
-flash memory with the contents of the seed device operating system image. The
-guidance in this section is also applicable if you're evaluating an OS image for
-the seed device that the CI/CD pipeline built as a result to changes in that
-area of the codebase.
+To initialize the seed device, you need to install and configure the operating
+system (OS). In the current iteration of the home lab, the seed device can be
+any computing device that is capable of installing the operating system from an
+ISO image. The operating system must have cloud-init pre-installed.
 
-In the current iteration of the home lab, the seed device is a Raspberry Pi 4,
-so initializing the seed device operating system consists of flashing the OS
-image to an secure digital (SD) card. For more information about flashing
-Raspberry Pi OS images to a SD card, refer to
-[Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
+1. Download the OS installer ISO.
+1. Write the OS installer ISO on a USB flash drive.
+1. Download the cloud-init datasource ISO.
+1. Write the cloud-init datasource ISO on a (different) USB flash drive.
+1. Plug in both USB flash drives in the seed device.
+1. Boot the seed device from the OS installer ISO.
+
+##### Write an ISO image on a flash drive
+
+To write an ISO image on a flash drive, do the following:
+
+On Linux:
+
+```shell
+sudo dd bs=4M if=[PATH_TO_OS_INSTALLER_ISO] of=[USB_FLASH_DRIVE] conv=fdatasync status=progress
+```
+
+On MacOS:
+
+```shell
+diskutil unmountDisk [USB_FLASH_DRIVE]
+sudo dd bs=4m if=[PATH_TO_OS_INSTALLER_ISO] of=[USB_FLASH_DRIVE]; sync
+sudo diskutil eject [USB_FLASH_DRIVE]
+```
 
 ### Update and configure the Raspberry Pi 4 bootloader
 
@@ -81,6 +99,9 @@ and configure the [boot order](https://www.raspberrypi.org/documentation/hardwar
 1. Insert the SD card in a powered off Raspberry Pi 4.
 1. Wait for the activity LED to steadily flash green.
 1. Power the Raspberry Pi off.
+
+For more information about flashing Raspberry Pi OS images to a SD card, refer to
+[Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
 
 ## Development environment
 

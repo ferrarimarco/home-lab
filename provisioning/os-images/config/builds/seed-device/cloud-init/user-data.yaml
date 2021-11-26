@@ -1,51 +1,90 @@
 #cloud-config
 ---
-chpasswd:
-  expire: true
-  list:
-    - ubuntu:ubuntu
+autoinstall:
 
-growpart:
-  mode: auto
-  devices: ["/"]
-  ignore_growroot_disabled: false
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''
 
-locale: "en_US.UTF-8"
+  network:
+    version: 2
+    ethernets:
+      enp0s25:
+        addresses:
+          - 10.0.0.2/8
+        dhcp4: false
+        gateway4: 10.0.0.1
+        nameservers:
+          addresses:
+            - 8.8.8.8
+            - 8.8.4.4
+          search:
+            - edge.lab.ferrari.how
+        optional: true
 
-# update the contents of /etc/hosts based on the hostname/fqdn specified
-manage_etc_hosts: true
+  ssh:
+    allow-pw: false
+    install-server: true
 
-# Set up the NTP client with default configuration and client
-ntp:
-  enabled: true
-  ntp_client: auto
+  storage:
+    layout:
+      name: lvm
 
-package_update: true
-package_upgrade: true
-package_reboot_if_required: true
+  user-data:
+    chpasswd:
+      expire: true
+      list:
+        - ubuntu:ubuntu
 
-random_seed:
-  file: /dev/urandom
-  command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
-  command_required: true
+    growpart:
+      mode: auto
+      devices: ["/"]
+      ignore_growroot_disabled: false
 
-resize_rootfs: true
+    hostname: home-lab-1
 
-# Disable password authentication with the SSH daemon
-# for the default user
-ssh_pwauth: false
+    locale: "en_US.UTF-8"
 
-# Remove default host keys if any
-ssh_deletekeys: true
+    # update the contents of /etc/hosts based on the hostname/fqdn specified
+    manage_etc_hosts: true
 
-timezone: "Etc/UTC"
+    # Set up the NTP client with default configuration and client
+    ntp:
+      enabled: true
+      ntp_client: auto
 
-users:
-  - default
-  - name: marco
-    groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video]
-    lock_passwd: true
-    shell: /usr/bin/bash
-    ssh_import_id: gh:ferrarimarco
-    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    packages:
+      - openssh-server
+
+    package_update: true
+    package_upgrade: true
+    package_reboot_if_required: true
+
+    random_seed:
+      file: /dev/urandom
+      command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
+      command_required: true
+
+    resize_rootfs: true
+
+    # Disable password authentication with the SSH daemon
+    # for the default user
+    ssh_pwauth: false
+
+    # Remove default host keys if any
+    ssh_deletekeys: true
+
+    timezone: "Etc/UTC"
+
+    users:
+      - default
+      - name: marco
+        groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video]
+        lock_passwd: true
+        shell: /usr/bin/bash
+        ssh_import_id:
+          - "gh:ferrarimarco"
+        sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+  version: 1
 ...

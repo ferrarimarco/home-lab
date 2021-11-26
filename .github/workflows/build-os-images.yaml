@@ -46,7 +46,7 @@ jobs:
           load: true
           push: false
           tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
-      - name: "Customize preinstalled OS image. Config: ${{ matrix.build-configuration-file-path }}"
+      - name: "Generate the cloud-init datasource ISO. Config: ${{ matrix.build-configuration-file-path }}"
         run: |
           BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
           BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
@@ -60,17 +60,24 @@ jobs:
             "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
-          cat "${TEMP_WORKSPACE_PATH}"/results.out >>"${GITHUB_ENV}"
+          RESULTS_FILE_PATH="${TEMP_WORKSPACE_PATH}/results.out"
+          if [ -r "${RESULTS_FILE_PATH}" ]; then
+            echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
+            cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
+          else
+            echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
+            exit 1
+          fi
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
           name: ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
           path: |
-            ${{ env.TEMP_WORKSPACE_PATH }}/**/*.xz
+            ${{ env.TEMP_WORKSPACE_PATH }}/${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
     strategy:
       matrix:
         build-configuration-file-path:
-          - "${GITHUB_WORKSPACE}/provisioning/os-images/config/builds/seed-device/ubuntu-20.04-arm64-raspberry-pi-4-seed-device.conf"
+          - "${GITHUB_WORKSPACE}/provisioning/os-images/config/builds/seed-device/ubuntu-20.04-cidata-iso-seed-device.conf"
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     outputs:
