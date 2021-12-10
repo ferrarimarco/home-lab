@@ -20,7 +20,7 @@ trim_trailing_whitespace = true
 spaces_around_operators = true
 spaces_around_brackets = false
 
-[*.{dockerfilelintrc,hcl.tpl,lock.hcl,sh,tf,tfvars,yml,yaml}]
+[*.{hcl.tpl,lock.hcl,sh,tf,tfvars,yml,yaml}]
 indent_size = 2
 
 [{Makefile,**.mk,go.mod,go.sum,*.go,.gitmodules}]
