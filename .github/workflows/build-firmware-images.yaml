@@ -13,11 +13,11 @@ on:
 
 # TODO: uncomment as soon as the lint reusable workflow is available
 jobs:
-  # lint:
-  #   uses: ferrarimarco/home-lab/.github/workflows/lint.yaml@master
+  lint:
+    uses: ferrarimarco/home-lab/.github/workflows/lint.yaml@master
   build-smart-desk:
-    # needs:
-    #   - lint
+    needs:
+      - lint
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.4.0
