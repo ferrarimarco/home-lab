@@ -1,5 +1,5 @@
 .PHONY: all
-all: size-components-esp-idf-project build-esp-idf-project tag-esp-idf-project-executable ## Run all targets.
+all: size-components-esp-idf-project build-esp-idf-project ## Run all targets.
 
 # if this session isn't interactive, then we don't want to allocate a
 # TTY, which would fail, but if it is interactive, we do want to attach
@@ -104,9 +104,3 @@ ESP32_SERIAL_PORT ?= /dev/cu.SLAB_USBtoUART
 start-rfc2217-server: setup-rfc2217-server ## Start a RFC 2217 server to interact with the serial port over the network.
 	. .env/bin/activate; \
 	python3 "$(RFC2217_EXEC_PATH)" -p $(ESP32_RFC2217_SERVER_PORT) -v "$(ESP32_SERIAL_PORT)"
-
-PROJECT_EXECUTABLE_TAG ?= latest
-
-.PHONY: tag-esp-idf-project-executable
-tag-esp-idf-project-executable: ## Add a build-specific tag to the esp-idf project executable
-	mv "build/smart-desk.bin" "build/smart-desk-$(PROJECT_EXECUTABLE_TAG).bin"
