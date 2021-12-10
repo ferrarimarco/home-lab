@@ -1,0 +1,28 @@
+---
+name: Build firmware images
+
+on:
+  push:
+    paths:
+      - ".github/workflows/build-firmware-images.yaml"
+      - "provisioning/esp32/**"
+  pull_request:
+    paths:
+      - ".github/workflows/build-firmware-images.yaml"
+      - "provisioning/esp32/**"
+
+# TODO: uncomment as soon as the lint reusable workflow is available
+jobs:
+  # lint:
+  #   uses: ferrarimarco/home-lab/.github/workflows/lint.yaml@master
+  build-smart-desk:
+    # needs:
+    #   - lint
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2.4.0
+      - name: "Build the Smart Desk firmware"
+        run: |
+          make
+        working-directory: provisioning/esp32/smart_desk
+...

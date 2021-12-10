@@ -1,5 +1,5 @@
 .PHONY: all
-all: build-esp-idf-project tag-esp-idf-project-executable ## Run all targets.
+all: size-components-esp-idf-project build-esp-idf-project tag-esp-idf-project-executable ## Run all targets.
 
 # if this session isn't interactive, then we don't want to allocate a
 # TTY, which would fail, but if it is interactive, we do want to attach
