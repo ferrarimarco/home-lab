@@ -98,8 +98,6 @@ compress-binary-image: build-esp-idf-project
 		-w="/workspace" \
 		"$(BINARY_IMAGE_COMPRESSION_IMAGE_TAG)" \
 		bash -c "xz -9 --compress --force --threads=0 --verbose provisioning/esp32/smart_desk/build/smart-desk.bin"
-echo "Compressing ${SOURCE_FILE_PATH}..."
-
 
 RFC2217_EXEC_PATH ?= .env/rfc2217_server.py
 
