@@ -1,5 +1,5 @@
 .PHONY: all
-all: size-components-esp-idf-project build-esp-idf-project ## Run all targets.
+all: size-components-esp-idf-project compress-binary-image ## Run all targets.
 
 # if this session isn't interactive, then we don't want to allocate a
 # TTY, which would fail, but if it is interactive, we do want to attach
@@ -88,6 +88,18 @@ size-components-esp-idf-project: ## Launch the ESP-IDF project size-components.
 		"$(ESP_IDF_CONTAINER_IMAGE_TAG)" \
 		idf.py \
 		size-components
+
+BINARY_IMAGE_COMPRESSION_IMAGE_TAG ?= ubuntu:20.04
+
+.PHONY: compress-binary-image
+compress-binary-image: build-esp-idf-project
+	docker run --rm -i $(DOCKER_FLAGS) \
+		-v "$(CURDIR)":/workspace \
+		-w="/workspace" \
+		"$(BINARY_IMAGE_COMPRESSION_IMAGE_TAG)" \
+		bash -c "xz -9 --compress --force --threads=0 --verbose provisioning/esp32/smart_desk/build/smart-desk.bin"
+echo "Compressing ${SOURCE_FILE_PATH}..."
+
 
 RFC2217_EXEC_PATH ?= .env/rfc2217_server.py
 

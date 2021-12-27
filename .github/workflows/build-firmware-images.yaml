@@ -38,7 +38,7 @@ jobs:
           if-no-files-found: error
           name: smart-desk.bin
           path: |
-            provisioning/esp32/smart_desk/build/smart-desk.bin
+            provisioning/esp32/smart_desk/build/smart-desk.bin.xz
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     outputs:
