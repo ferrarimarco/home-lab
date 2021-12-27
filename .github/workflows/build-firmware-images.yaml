@@ -11,10 +11,18 @@ on:
       - ".github/workflows/build-firmware-images.yaml"
       - "provisioning/esp32/**"
 
-# TODO: uncomment as soon as the lint reusable workflow is available
 jobs:
   lint:
-    uses: ferrarimarco/home-lab/.github/workflows/lint.yaml@master
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2.4.0
+      - name: Super-Linter
+        uses: github/super-linter@v4.8.4
+        env:
+          DISABLE_ERRORS: false
+          ERROR_ON_MISSING_EXEC_BIT: true
+          LINTER_RULES_PATH: .
+          VALIDATE_ALL_CODEBASE: true
   build-smart-desk:
     needs:
       - lint
