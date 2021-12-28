@@ -25,7 +25,8 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
   build-smart-desk:
     defaults:
-      working-directory: provisioning/esp32/smart_desk
+      run:
+        working-directory: provisioning/esp32/smart_desk
     needs:
       - lint
     runs-on: ubuntu-20.04
