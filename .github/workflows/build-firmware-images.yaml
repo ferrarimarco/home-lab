@@ -38,9 +38,9 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
-          name: smart-desk.bin
+          name: smart-desk.bin.xz
           path: |
-            build/smart-desk.bin
+            build/smart-desk.bin.xz
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     outputs:
