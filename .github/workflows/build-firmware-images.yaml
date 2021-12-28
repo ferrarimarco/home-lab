@@ -1,6 +1,9 @@
 ---
 name: Build firmware images
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 on:
   push:
     paths:
