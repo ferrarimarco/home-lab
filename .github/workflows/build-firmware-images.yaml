@@ -24,6 +24,8 @@ jobs:
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
   build-smart-desk:
+    defaults:
+      working-directory: provisioning/esp32/smart_desk
     needs:
       - lint
     runs-on: ubuntu-20.04
@@ -32,13 +34,12 @@ jobs:
       - name: "Build the Smart Desk firmware"
         run: |
           make
-        working-directory: provisioning/esp32/smart_desk
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
           name: smart-desk.bin
           path: |
-            provisioning/esp32/smart_desk/build/smart-desk.bin.xz
+            build/smart-desk.bin
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     outputs:
