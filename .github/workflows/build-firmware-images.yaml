@@ -35,13 +35,14 @@ jobs:
       - name: "Build the Smart Desk firmware"
         run: |
           make
-          ls -alR
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
           name: smart-desk.bin.xz
+          # working-directory has no effect on this action, so we need to set the full path anyway.
+          # See https://github.com/actions/upload-artifact/issues/246
           path: |
-            build/smart-desk.bin.xz
+            provisioning/esp32/smart_desk/build/smart-desk.bin.xz
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     outputs:
