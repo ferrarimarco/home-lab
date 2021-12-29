@@ -17,9 +17,11 @@ To interact with the home lab, you need the following tools:
 
 This environment requires a DNS zone to manage.
 
-To complete the setup, you must setup a `NS` DNS record in the
+To complete the setup, you setup a `NS` DNS record in the
 authoritative name server of your organization for the
-subdomain to point to the managed DNS servers. For example, follow
+subdomain to point to the managed DNS servers.
+
+For example, follow
 [these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
 
 ## Initialize the environment
@@ -38,7 +40,7 @@ that seed device as any other device in the edge environment.
 The seed device has as few external dependencies as possible. The seed
 device requires:
 
-1. A connection to an IP network that can route packets to and from the
+1. A connection to an IP network that can route packets to the
     internet.
 1. An IP address to statically assign to the main network interface of the seed
     device.
@@ -64,8 +66,8 @@ ISO image. The operating system must have cloud-init pre-installed.
 
 1. Download the OS installer ISO.
 1. Write the OS installer ISO on a USB flash drive.
-1. Download the cloud-init datasource ISO.
-1. Write the cloud-init datasource ISO on a (different) USB flash drive.
+1. Download the installer configuration ISO.
+1. Write the installer configuration ISO on a (different) USB flash drive.
 1. Plug in both USB flash drives in the seed device.
 1. Boot the seed device from the OS installer ISO.
 
