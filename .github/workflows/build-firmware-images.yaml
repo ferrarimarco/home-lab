@@ -39,15 +39,7 @@ jobs:
             config/smart-desk/esphome/.esphome/build/smart-desk/.pioenvs/smart-desk/firmware-factory.bin.xz
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
-    outputs:
-      release-tag-name: ${{ steps.draft-release.outputs.tag_name }}
-    runs-on: ubuntu-latest
-    steps:
-      - id: draft-release
-        name: Update release
-        uses: release-drafter/release-drafter@v5
-        with:
-          config-name: release-drafter.yaml
+    uses: ferrarimarco/home-lab/.github/workflows/draft-release.yaml@master
   upload-images-to-release:
     needs:
       - build-smart-desk
