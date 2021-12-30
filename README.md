@@ -33,17 +33,7 @@ start.
 
 ### Initialize the edge environment with the seed device
 
-To provision the edge environment, you use a seed device. After this process is
-completed, the seed device has no special purpose or status, and you can use
-that seed device as any other device in the edge environment.
-
-The seed device has as few external dependencies as possible. The seed
-device requires:
-
-1. A connection to an IP network that can route packets to the
-    internet.
-1. An IP address to statically assign to the main network interface of the seed
-    device.
+To provision the edge environment, you use a seed device.
 
 As soon as the seed device detects that the edge environment initialization
 process is completed, and there are enough nodes, servers, and service
@@ -57,37 +47,45 @@ itself. This approach has two benefits:
     to the seed device after the initialization process, you avoid introducing
     ad-hoc components in the environment.
 
-#### Initialize the seed device operating system
+After the edge environment initialization process is completed, the seed device
+has no special purpose or status, and you can use that seed device as any other
+device in the edge environment.
 
-To initialize the seed device, you need to install and configure the operating
-system (OS). In the current iteration of the home lab, the seed device can be
-any computing device that is capable of installing the operating system from an
-ISO image. The operating system must have cloud-init pre-installed.
+The seed device has as few external dependencies as possible. The seed
+device requires:
 
-1. Download the OS installer ISO.
-1. Write the OS installer ISO on a USB flash drive.
-1. Download the installer configuration ISO.
-1. Write the installer configuration ISO on a (different) USB flash drive.
-1. Plug in both USB flash drives in the seed device.
-1. Boot the seed device from the OS installer ISO.
+1. A connection to an IP network that can route packets to the
+    internet.
+1. An IP address to statically assign to the main network interface of the seed
+    device.
 
-##### Write an ISO image on a flash drive
+#### Initialize the seed device
 
-To write an ISO image on a flash drive, do the following:
+To initialize the seed device, you:
 
-On Linux:
+- Download the operating system (OS) installer disk image.
+- Prepare the OS installer configuration disk image.
+- Flash both disk images on two distinct removable flash disks.
+- Boot the seed device from the OS installer disk.
 
-```shell
-sudo dd bs=4M if=[PATH_TO_OS_INSTALLER_ISO] of=[USB_FLASH_DRIVE] conv=fdatasync status=progress
-```
+To initialize the seed device, do the following:
 
-On MacOS:
+1. Download the OS installer disk image and flash it on a removable flash disk:
 
-```shell
-diskutil unmountDisk [USB_FLASH_DRIVE]
-sudo dd bs=4m if=[PATH_TO_OS_INSTALLER_ISO] of=[USB_FLASH_DRIVE]; sync
-sudo diskutil eject [USB_FLASH_DRIVE]
-```
+    ```sh
+    scripts/flash-images.sh \
+        -f "${OS_INSTALLER_DRIVE_TO_FLASH}" \
+        -i "${OS_INSTALLER_URL}"
+    ```
+
+1. Download the OS installer configuration disk image and flash it on a
+    removable flash disk:
+
+    ```sh
+    scripts/flash-images.sh \
+        -f "${OS_INSTALLER_CONFIGURATION_DRIVE_TO_FLASH}" \
+        -i "${OS_INSTALLER_CONFIGURATION_URL}"
+    ```
 
 ### Update and configure the Raspberry Pi 4 bootloader
 
