@@ -8,7 +8,6 @@ RUN apt-get update \
     cloud-image-utils \
     cloud-init \
     kpartx \
-    wget \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*
 

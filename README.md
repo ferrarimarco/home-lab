@@ -13,17 +13,6 @@ To interact with the home lab, you need the following tools:
 
 - [Git](https://git-scm.com/) (tested with version `2.25.0`).
 
-### Managed DNS zone
-
-This environment requires a DNS zone to manage.
-
-To complete the setup, you setup a `NS` DNS record in the
-authoritative name server of your organization for the
-subdomain to point to the managed DNS servers.
-
-For example, follow
-[these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
-
 ## Initialize the environment
 
 To initialize the edge environment, you execute the first initialization process
@@ -70,24 +59,28 @@ To initialize the seed device, you:
 
 To initialize the seed device, do the following:
 
-1. Download the OS installer disk image and flash it on a removable flash disk:
+1. Download the OS installer disk image.
+1. Flash the OS installer disk image on a dedicated, removable flash drive:
+
+    On Linux:
 
     ```sh
-    scripts/flash-images.sh \
-        -f "${OS_INSTALLER_DRIVE_TO_FLASH}" \
-        -i "${OS_INSTALLER_URL}"
+    sudo dd bs=4M if=[PATH_TO_ISO] of=[USB_FLASH_DRIVE] conv=fdatasync status=progress
     ```
 
-1. Download the OS installer configuration disk image and flash it on a
-    removable flash disk:
+    On MacOS:
 
     ```sh
-    scripts/flash-images.sh \
-        -f "${OS_INSTALLER_CONFIGURATION_DRIVE_TO_FLASH}" \
-        -i "${OS_INSTALLER_CONFIGURATION_URL}"
+    diskutil unmountDisk [USB_FLASH_DRIVE]
+    sudo dd bs=4m if=[PATH_TO_ISO] of=[USB_FLASH_DRIVE]; sync
+    sudo diskutil eject [USB_FLASH_DRIVE]
     ```
 
-### Update and configure the Raspberry Pi 4 bootloader
+1. Download the OS installer configuration disk image.
+1. Flash the OS installer configuration disk image on a dedicated, removable flash drive adapting the commands described
+    in the previous steps.
+
+#### Update and configure the Raspberry Pi 4 bootloader
 
 To update the bootloader on the [Raspberry Pi 4 EEPROM](https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md)
 and configure the [boot order](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711_bootloader_config.md):
@@ -102,6 +95,17 @@ and configure the [boot order](https://www.raspberrypi.org/documentation/hardwar
 
 For more information about flashing Raspberry Pi OS images to a SD card, refer to
 [Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
+
+### Managed DNS zone
+
+This environment requires a DNS zone to manage.
+
+To complete the setup, you setup a `NS` DNS record in the
+authoritative name server of your organization for the
+subdomain to point to the managed DNS servers.
+
+For example, follow
+[these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
 
 ## Development environment
 
