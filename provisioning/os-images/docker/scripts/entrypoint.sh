@@ -191,14 +191,18 @@ echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
 CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
 echo "Cloud-init configuration directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}"
 
+if [ -n "${OS_IMAGE_URL}" ]; then
+  download_file_if_necessary "${OS_IMAGE_URL}"
+
+  if [ -n "${OS_IMAGE_CHECKSUM_FILE_URL}" ]; then
+    download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}"
+    echo "Verifying the integrity of the downloaded files..."
+    sha256sum --ignore-missing -c "$(basename "${OS_IMAGE_CHECKSUM_FILE_URL}")"
+  fi
+fi
+
 if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
-  download_file_if_necessary "${IMAGE_URL}"
-  download_file_if_necessary "${IMAGE_CHECKSUM_URL}" "${IMAGE_CHECKSUM_FILE_NAME}"
-
-  IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"${IMAGE_ARCHIVE_FILE_NAME}"
-  echo "Verifying the integrity of ${IMAGE_ARCHIVE_FILE_PATH}..."
-  sha256sum --ignore-missing -c "${IMAGE_CHECKSUM_FILE_NAME}"
-
+  IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
   if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
     RET_CODE=$?
     echo "Error while decompressing ${IMAGE_ARCHIVE_FILE_PATH}. Terminating..."
