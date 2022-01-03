@@ -64,7 +64,7 @@ decompress_file() {
 
 download_file_if_necessary() {
   FILE_TO_DOWNLOAD_URL="${1}"
-  FILE_TO_DOWNLOAD_NAME="${2}"
+  FILE_TO_DOWNLOAD_NAME="${2-}"
 
   if [ ! -f "${FILE_TO_DOWNLOAD_PATH}" ]; then
 
