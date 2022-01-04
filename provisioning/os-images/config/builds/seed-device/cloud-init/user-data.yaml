@@ -32,16 +32,6 @@ autoinstall:
       name: lvm
 
   user-data:
-    chpasswd:
-      expire: true
-      list:
-        - ubuntu:ubuntu
-
-    growpart:
-      mode: auto
-      devices: ["/"]
-      ignore_growroot_disabled: false
-
     hostname: home-lab-1
 
     locale: "en_US.UTF-8"
