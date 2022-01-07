@@ -44,6 +44,38 @@ compress_file() {
     --threads=0 \
     --verbose \
     "${SOURCE_FILE_PATH}"
+
+  COMPRESSED_FILE_PATH="${SOURCE_FILE_PATH}.xz"
+}
+
+decompress_file() {
+  FILE_TO_DECOMPRESS_PATH="${1}"
+
+  FILE_TO_DECOMPRESS_EXTENSION="${FILE_TO_DECOMPRESS_PATH##*.}"
+
+  echo "Decompressing ${FILE_TO_DECOMPRESS_PATH}..."
+  if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
+    xz -d -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
+  else
+    echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
+    return ${ERR_ARCHIVE_NOT_SUPPORTED}
+  fi
+}
+
+download_file_if_necessary() {
+  FILE_TO_DOWNLOAD_URL="${1}"
+  FILE_TO_DOWNLOAD_NAME="${2-}"
+
+  if [ ! -f "${FILE_TO_DOWNLOAD_PATH-}" ]; then
+
+    if [ -z "${FILE_TO_DOWNLOAD_NAME}" ]; then
+      curl -L -O "${FILE_TO_DOWNLOAD_URL}"
+    else
+      curl -L -o "${FILE_TO_DOWNLOAD_NAME}" "${FILE_TO_DOWNLOAD_URL}"
+    fi
+  else
+    echo "${FILE_TO_DOWNLOAD_PATH} already exists. Skipping download of ${FILE_TO_DOWNLOAD_URL}"
+  fi
 }
 
 # We don't use cloud-localds here because it doesn't support adding data to the
@@ -159,36 +191,26 @@ echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
 CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
 echo "Cloud-init configuration directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}"
 
-if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
-  IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"${IMAGE_ARCHIVE_FILE_NAME}"
+if [ -n "${OS_IMAGE_URL}" ]; then
+  download_file_if_necessary "${OS_IMAGE_URL}"
 
-  echo "Downloading the OS image from ${IMAGE_URL}..."
-  [ ! -f "${IMAGE_ARCHIVE_FILE_PATH}" ] && wget -q "${IMAGE_URL}"
-  [ ! -f "${IMAGE_CHECKSUM_FILE_NAME}" ] && wget -q -O "${IMAGE_CHECKSUM_FILE_NAME}" "${IMAGE_CHECKSUM_URL}"
-
-  echo "Verifying the integrity of ${IMAGE_ARCHIVE_FILE_PATH}..."
-  sha256sum --ignore-missing -c "${IMAGE_CHECKSUM_FILE_NAME}"
-
-  IMAGE_ARCHIVE_FILE_EXTENSION="${IMAGE_ARCHIVE_FILE_PATH##*.}"
-
-  if [ "${IMAGE_ARCHIVE_FILE_EXTENSION}" = "xz" ]; then
-    echo "${IMAGE_ARCHIVE_FILE_PATH} is a compressed file."
-    IMAGE_FILE_NAME="$(basename "${IMAGE_ARCHIVE_FILE_PATH}" ".${IMAGE_ARCHIVE_FILE_EXTENSION}")"
-    IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}/${IMAGE_FILE_NAME}"
-
-    if [ ! -f "${IMAGE_FILE_PATH}" ]; then
-      echo "Extracting contents of ${IMAGE_ARCHIVE_FILE_PATH}..."
-      xz -d -T0 -v "${IMAGE_ARCHIVE_FILE_PATH}"
-
-      echo "Deleting ${IMAGE_ARCHIVE_FILE_PATH} if necessary..."
-      [ -f "${IMAGE_ARCHIVE_FILE_PATH}" ] && rm -f "${IMAGE_ARCHIVE_FILE_PATH}"
-    else
-      echo "${IMAGE_FILE_PATH} already exists, skipping extraction..."
-    fi
-  else
-    echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
-    exit ${ERR_ARCHIVE_NOT_SUPPORTED}
+  if [ -n "${OS_IMAGE_CHECKSUM_FILE_URL}" ]; then
+    download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}"
+    echo "Verifying the integrity of the downloaded files..."
+    sha256sum --ignore-missing -c "$(basename "${OS_IMAGE_CHECKSUM_FILE_URL}")"
   fi
+fi
+
+if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
+  IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
+  if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
+    RET_CODE=$?
+    echo "Error while decompressing ${IMAGE_ARCHIVE_FILE_PATH}. Terminating..."
+    exit ${RET_CODE}
+  fi
+
+  IMAGE_FILE_NAME="$(basename "${IMAGE_ARCHIVE_FILE_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
+  IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}/${IMAGE_FILE_NAME}"
 
   echo "Currently used loop devices:"
   losetup --list
@@ -257,12 +279,16 @@ else
 fi
 
 compress_file "${TARGET_IMAGE_FILE_PATH}"
+CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME="$(basename "${COMPRESSED_FILE_PATH}")"
 
 # Store metadata about the customization process
 BUILD_RESULTS_FILE_PATH="${WORKSPACE_DIRECTORY}/results.out"
 echo "Saving build metadata to ${BUILD_RESULTS_FILE_PATH}..."
 echo "CUSTOMIZED_IMAGE_FILE_NAME=${TARGET_IMAGE_FILE_NAME}" >>"${BUILD_RESULTS_FILE_PATH}"
-echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME=${TARGET_IMAGE_FILE_NAME}.xz" >>"${BUILD_RESULTS_FILE_PATH}"
+echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME=${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}" >>"${BUILD_RESULTS_FILE_PATH}"
+
+echo "Contents of ${BUILD_RESULTS_FILE_PATH}:"
+cat "${BUILD_RESULTS_FILE_PATH}"
 
 echo "Deleting the temporary working directory (${TEMP_WORKING_DIRECTORY})..."
 rm \

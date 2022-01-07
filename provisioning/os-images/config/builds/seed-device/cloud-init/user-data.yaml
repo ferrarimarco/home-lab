@@ -32,16 +32,6 @@ autoinstall:
       name: lvm
 
   user-data:
-    chpasswd:
-      expire: true
-      list:
-        - ubuntu:ubuntu
-
-    growpart:
-      mode: auto
-      devices: ["/"]
-      ignore_growroot_disabled: false
-
     hostname: home-lab-1
 
     locale: "en_US.UTF-8"
@@ -68,6 +58,17 @@ autoinstall:
 
     resize_rootfs: true
 
+    # We don't use a script because Ubuntu autoinstall doesn't support generating
+    # a user-data file that includes scripts that are not in autoinstall.user-data
+    runcmd:
+      - /snap/bin/microk8s status --wait-ready
+      - /snap/bin/microk8s enable dashboard dns gpu ingress storage
+      - /snap/bin/microk8s status --wait-ready
+
+    snap:
+      commands:
+        "001": "snap install microk8s --classic --channel=1.23/stable"
+
     # Disable password authentication with the SSH daemon
     # for the default user
     ssh_pwauth: false
@@ -77,14 +78,5 @@ autoinstall:
 
     timezone: "Etc/UTC"
 
-    users:
-      - default
-      - name: marco
-        groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video]
-        lock_passwd: true
-        shell: /usr/bin/bash
-        ssh_import_id:
-          - "gh:ferrarimarco"
-        sudo: ["ALL=(ALL) NOPASSWD:ALL"]
   version: 1
 ...
