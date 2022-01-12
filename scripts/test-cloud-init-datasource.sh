@@ -18,8 +18,8 @@ ERR_ARGUMENT_EVAL_ERROR=4
 install_dependencies() {
   echo "Ensure test dependencies are installed..."
   apt-get -qy update
-    apt-get -qy install \
-      cloud-init
+  apt-get -qy install \
+    cloud-init
 }
 
 DATASOURCE_IMAGE_PATH_DESCRIPTION="path to the cloud-init datasource image to test"
