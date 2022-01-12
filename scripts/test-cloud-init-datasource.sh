@@ -17,8 +17,8 @@ ERR_ARGUMENT_EVAL_ERROR=4
 
 install_dependencies() {
   echo "Ensure test dependencies are installed..."
-  apt-get -qy update
-  apt-get -qy install \
+  sudo apt-get -qy update
+  sudo apt-get -qy install \
     cloud-init
 }
 
