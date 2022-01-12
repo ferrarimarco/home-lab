@@ -38,9 +38,9 @@ jobs:
       - name: Set environment variables
         run: |
           BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
-          cat "BUILD_CONFIGURATION_FILE_NAME=${BUILD_CONFIGURATION_FILE_NAME}" >>"${GITHUB_ENV}"
+          echo "BUILD_CONFIGURATION_FILE_NAME=${BUILD_CONFIGURATION_FILE_NAME}" >>"${GITHUB_ENV}"
           BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
-          cat "BUILD_CONFIGURATION_DIRECTORY_PATH=${BUILD_CONFIGURATION_DIRECTORY_PATH}" >>"${GITHUB_ENV}"
+          echo "BUILD_CONFIGURATION_DIRECTORY_PATH=${BUILD_CONFIGURATION_DIRECTORY_PATH}" >>"${GITHUB_ENV}"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Build the OS image builder container image
