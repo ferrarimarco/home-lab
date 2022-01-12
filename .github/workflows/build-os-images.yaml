@@ -71,6 +71,7 @@ jobs:
           if [ -r "${RESULTS_FILE_PATH}" ]; then
             echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
             cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
+            # shellcheck source=/dev/null
             . "${RESULTS_FILE_PATH}"
           else
             echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
