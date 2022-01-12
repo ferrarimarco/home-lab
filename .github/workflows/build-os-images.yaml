@@ -35,6 +35,12 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.4.0
+      - name: Set environment variables
+        run: |
+          BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
+          cat "BUILD_CONFIGURATION_FILE_NAME=${BUILD_CONFIGURATION_FILE_NAME}" >>"${GITHUB_ENV}"
+          BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
+          cat "BUILD_CONFIGURATION_DIRECTORY_PATH=${BUILD_CONFIGURATION_DIRECTORY_PATH}" >>"${GITHUB_ENV}"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Build the OS image builder container image
@@ -48,8 +54,6 @@ jobs:
           tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
       - name: "Generate the cloud-init datasource ISO. Config: ${{ matrix.build-configuration-file-path }}"
         run: |
-          BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
-          BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
           mkdir -p "${TEMP_WORKSPACE_PATH}"
 
           docker run \
@@ -68,6 +72,8 @@ jobs:
             echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
             exit 1
           fi
+      - name: Test the cloud-init datasource
+        run: ./scripts/test-cloud-init-datasource.sh --datasource-image-path "${CUSTOMIZED_IMAGE_FILE_NAME}"
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
