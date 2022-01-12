@@ -38,9 +38,13 @@ jobs:
       - name: Set environment variables
         run: |
           BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
-          echo "BUILD_CONFIGURATION_FILE_NAME=${BUILD_CONFIGURATION_FILE_NAME}" >>"${GITHUB_ENV}"
           BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
-          echo "BUILD_CONFIGURATION_DIRECTORY_PATH=${BUILD_CONFIGURATION_DIRECTORY_PATH}" >>"${GITHUB_ENV}"
+
+          {
+            echo "BUILD_CONFIGURATION_FILE_NAME=${BUILD_CONFIGURATION_FILE_NAME}"
+            echo "BUILD_CONFIGURATION_DIRECTORY_PATH=${BUILD_CONFIGURATION_DIRECTORY_PATH}"
+            echo "RESULTS_FILE_PATH=${TEMP_WORKSPACE_PATH}/results.out"
+          } >>"${GITHUB_ENV}"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Build the OS image builder container image
@@ -64,22 +68,26 @@ jobs:
             "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
-          RESULTS_FILE_PATH="${TEMP_WORKSPACE_PATH}/results.out"
           if [ -r "${RESULTS_FILE_PATH}" ]; then
             echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
             cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
+            . "${RESULTS_FILE_PATH}"
           else
             echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
             exit 1
           fi
+
+          {
+            echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH=$${{ env.TEMP_WORKSPACE_PATH }}/${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
+          } >>"${GITHUB_ENV}"
       - name: Test the cloud-init datasource
-        run: ./scripts/test-cloud-init-datasource.sh --datasource-image-path "${CUSTOMIZED_IMAGE_FILE_NAME}"
+        run: ./scripts/test-cloud-init-datasource.sh --datasource-image-path "${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}"
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
           name: ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
           path: |
-            ${{ env.TEMP_WORKSPACE_PATH }}/${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
+            ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH }}
     strategy:
       matrix:
         build-configuration-file-path:

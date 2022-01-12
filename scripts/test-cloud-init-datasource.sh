@@ -42,7 +42,6 @@ usage() {
   echo "  ${ERR_VARIABLE_NOT_DEFINED} when a parameter or a variable is not defined, or empty."
   echo "  ${ERR_MISSING_DEPENDENCY} when a required dependency is missing."
   echo "  ${ERR_ARGUMENT_EVAL_ERROR} when there was an error while evaluating the program options."
-  echo "  ${ERR_ARCHIVE_NOT_SUPPORTED} when the archive is not supported."
 }
 
 if ! TEMP="$(getopt -o d:h --long datasource-image-path:,help \
@@ -76,7 +75,7 @@ done
 
 install_dependencies
 
-if ! [ -e "${DATASOURCE_IMAGE_PATH}" ]; then
+if ! [ -r "${DATASOURCE_IMAGE_PATH}" ]; then
   echo "[ERROR]: ${DATASOURCE_IMAGE_PATH} doesn't exist. Terminating..."
   exit ${ERR_ARGUMENT_EVAL_ERROR}
 else
