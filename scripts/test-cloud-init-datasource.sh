@@ -37,6 +37,7 @@ install_dependencies() {
   echo "Ensure test dependencies are installed..."
   sudo apt-get -qy update
   sudo apt-get -qy install \
+    cloud-image-utils \
     cloud-init \
     kpartx \
     xz-utils
@@ -109,6 +110,9 @@ fi
 
 decompress_file "${DATASOURCE_IMAGE_PATH}"
 
+echo "Gathering information about ${DECOMPRESSED_FILE_PATH}..."
+isoinfo -d -i "${DECOMPRESSED_FILE_PATH}"
+
 echo "Mapping ${DECOMPRESSED_FILE_PATH} to loop devices..."
 sudo kpartx -asv "${DECOMPRESSED_FILE_PATH}"
 
@@ -130,9 +134,13 @@ cat "${CLOUD_INIT_CONFIG_FILE_PATH}"
 
 echo "Cloud-init version: $(cloud-init --version)"
 cloud-init status --long
+echo "Cleanining cloud-init status..."
 sudo cloud-init clean
-
 cloud-init status --long
+
+echo "Running cloud-init init..."
 sudo cloud-init init --local
+
+echo "Running cloud-init modules..."
 sudo cloud-init modules
 cloud-init status --long
