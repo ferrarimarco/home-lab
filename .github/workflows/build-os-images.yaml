@@ -68,29 +68,30 @@ jobs:
             "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
-          if [ -r "${RESULTS_FILE_PATH}" ]; then
-            CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH="${TEMP_WORKSPACE_PATH}/${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
-
-            if ! [ -e "${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}" ]; then
-              echo "Contents of ${TEMP_WORKSPACE_PATH}:"
-              ls -alh "${TEMP_WORKSPACE_PATH}"
-              echo "[ERROR]: The customized compressed image file doesn't exist. Terminating..."
-              exit 1
-            fi
-
-            echo "Adding the path to the customized compressed image (${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}) file to GITHUB_ENV"
-            {
-              echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH=${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}"
-            } >>"${GITHUB_ENV}"
-
-            echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
-            cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
-            # shellcheck source=/dev/null
-            . "${RESULTS_FILE_PATH}"
-          else
+          if ! [ -r "${RESULTS_FILE_PATH}" ]; then
             echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
             exit 2
           fi
+
+          echo "Sourcing ${RESULTS_FILE_PATH} to load the variables defined there..."
+          # shellcheck source=/dev/null
+          . "${RESULTS_FILE_PATH}"
+
+          CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH="${TEMP_WORKSPACE_PATH}/${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
+          if ! [ -e "${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}" ]; then
+            echo "Contents of ${TEMP_WORKSPACE_PATH}:"
+            ls -alh "${TEMP_WORKSPACE_PATH}"
+            echo "[ERROR]: The customized compressed image file doesn't exist. Terminating..."
+            exit 1
+          fi
+
+          echo "Adding the path to the customized compressed image (${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}) file to GITHUB_ENV"
+          {
+            echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH=${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}"
+          } >>"${GITHUB_ENV}"
+
+          echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
+          cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
       - name: Test the cloud-init datasource
         run: ./scripts/test-cloud-init-datasource.sh --datasource-image-path "${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}"
       - uses: actions/upload-artifact@v2
