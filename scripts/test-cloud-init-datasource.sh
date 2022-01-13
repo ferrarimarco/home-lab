@@ -134,7 +134,7 @@ ls -alh "${DATASOURCE_ISO_MOUNT_PATH}"
 CLOUD_INIT_CONFIG_FILE_PATH="/etc/cloud/cloud.cfg"
 
 echo "Appending configuration to the cloud-init configuration file (${CLOUD_INIT_CONFIG_FILE_PATH})..."
-cat <<EOF >> "${CLOUD_INIT_CONFIG_FILE_PATH}"
+cat <<EOF >>"${CLOUD_INIT_CONFIG_FILE_PATH}"
 datasource:
   NoCloud:
     seedfrom: "${DATASOURCE_ISO_MOUNT_PATH}"/
@@ -146,7 +146,7 @@ cat "${CLOUD_INIT_CONFIG_FILE_PATH}"
 echo "Cloud-init version: $(cloud-init --version)"
 cloud-init status --long
 echo "Cleanining cloud-init status..."
-sudo cloud-init clean
+sudo cloud-init clean --logs
 cloud-init status --long
 
 echo "Running cloud-init init..."
