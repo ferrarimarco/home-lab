@@ -93,6 +93,10 @@ while true; do
   esac
 done
 
+SOURCE_DIRECTORY_PATH="$(dirname "${DATASOURCE_IMAGE_PATH}")"
+echo "Contents of ${SOURCE_DIRECTORY_PATH}:"
+ls -alh "${SOURCE_DIRECTORY_PATH}"
+
 install_dependencies
 
 if ! [ -r "${DATASOURCE_IMAGE_PATH}" ]; then
@@ -101,10 +105,6 @@ if ! [ -r "${DATASOURCE_IMAGE_PATH}" ]; then
 else
   echo "Testing cloud-init datasource image: ${DATASOURCE_IMAGE_PATH}"
 fi
-
-SOURCE_DIRECTORY_PATH="$(dirname "${DATASOURCE_IMAGE_PATH}")"
-echo "Contents of ${SOURCE_DIRECTORY_PATH}:"
-ls -alh "${SOURCE_DIRECTORY_PATH}"
 
 decompress_file "${DATASOURCE_IMAGE_PATH}"
 

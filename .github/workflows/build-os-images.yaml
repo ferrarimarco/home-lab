@@ -3,7 +3,6 @@ name: Build OS images
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  TEMP_WORKSPACE_PATH: "/tmp/temp-customize-os-image-workdir"
 
 on:
   push:
@@ -37,12 +36,11 @@ jobs:
       - uses: actions/checkout@v2.4.0
       - name: Set environment variables
         run: |
-          BUILD_CONFIGURATION_FILE_NAME="$(basename "${{ matrix.build-configuration-file-path }}")"
-          BUILD_CONFIGURATION_DIRECTORY_PATH="$(dirname "${{ matrix.build-configuration-file-path }}")"
-
+          TEMP_WORKSPACE_PATH="$(mktemp -d)"
           {
-            echo "BUILD_CONFIGURATION_FILE_NAME=${BUILD_CONFIGURATION_FILE_NAME}"
-            echo "BUILD_CONFIGURATION_DIRECTORY_PATH=${BUILD_CONFIGURATION_DIRECTORY_PATH}"
+            echo "TEMP_WORKSPACE_PATH=${TEMP_WORKSPACE_PATH}"
+            echo "BUILD_CONFIGURATION_FILE_NAME=$(basename "${{ matrix.build-configuration-file-path }}")"
+            echo "BUILD_CONFIGURATION_DIRECTORY_PATH=$(dirname "${{ matrix.build-configuration-file-path }}")"
             echo "RESULTS_FILE_PATH=${TEMP_WORKSPACE_PATH}/results.out"
           } >>"${GITHUB_ENV}"
       - name: Set up Docker Buildx
@@ -58,10 +56,9 @@ jobs:
           tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
       - name: "Generate the cloud-init datasource ISO. Config: ${{ matrix.build-configuration-file-path }}"
         run: |
-          mkdir -p "${TEMP_WORKSPACE_PATH}"
-
           docker run \
             --privileged \
+            --user "$(id -u):$(id -g)" \
             -v /dev:/dev \
             -v "${TEMP_WORKSPACE_PATH}":/tmp/workdir \
             -v "${BUILD_CONFIGURATION_DIRECTORY_PATH}":/tmp/config \
