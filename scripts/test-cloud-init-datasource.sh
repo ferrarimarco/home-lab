@@ -132,14 +132,6 @@ echo "Contents of ${DATASOURCE_ISO_MOUNT_PATH}:"
 ls -alh "${DATASOURCE_ISO_MOUNT_PATH}"
 
 CLOUD_INIT_CONFIG_FILE_PATH="/etc/cloud/cloud.cfg"
-
-echo "Appending configuration to the cloud-init configuration file (${CLOUD_INIT_CONFIG_FILE_PATH})..."
-cat <<EOF >>"${CLOUD_INIT_CONFIG_FILE_PATH}"
-datasource:
-  NoCloud:
-    seedfrom: "${DATASOURCE_ISO_MOUNT_PATH}"/
-EOF
-
 echo "Current cloud-init configuration (${CLOUD_INIT_CONFIG_FILE_PATH}):"
 cat "${CLOUD_INIT_CONFIG_FILE_PATH}"
 
