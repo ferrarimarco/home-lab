@@ -122,6 +122,9 @@ sudo losetup --list
 DATASOURCE_ISO_MOUNT_PATH="$(mktemp -d)"
 sudo mount -o loop,ro "${DECOMPRESSED_FILE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
 
+echo "Currently attached block devices:"
+sudo lsblk -o name,mountpoint,label,size,uuid
+
 echo "Currently mounted file systems:"
 mount
 
