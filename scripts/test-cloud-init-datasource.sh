@@ -14,12 +14,31 @@ ERR_GENERIC=1
 ERR_VARIABLE_NOT_DEFINED=2
 ERR_MISSING_DEPENDENCY=3
 ERR_ARGUMENT_EVAL_ERROR=4
+ERR_ARCHIVE_NOT_SUPPORTED=5
+
+decompress_file() {
+  FILE_TO_DECOMPRESS_PATH="${1}"
+
+  FILE_TO_DECOMPRESS_EXTENSION="${FILE_TO_DECOMPRESS_PATH##*.}"
+
+  echo "Decompressing ${FILE_TO_DECOMPRESS_PATH}..."
+  if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
+    xz -d -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
+  else
+    echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
+    return ${ERR_ARCHIVE_NOT_SUPPORTED}
+  fi
+
+  DECOMPRESSED_FILE_NAME="$(basename "${FILE_TO_DECOMPRESS_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
+  DECOMPRESSED_FILE_PATH="$(dirname "${FILE_TO_DECOMPRESS_PATH}")/${DECOMPRESSED_FILE_NAME}"
+}
 
 install_dependencies() {
   echo "Ensure test dependencies are installed..."
   sudo apt-get -qy update
   sudo apt-get -qy install \
-    cloud-init
+    cloud-init \
+    xz-utils
 }
 
 DATASOURCE_IMAGE_PATH_DESCRIPTION="path to the cloud-init datasource image to test"
@@ -42,6 +61,7 @@ usage() {
   echo "  ${ERR_VARIABLE_NOT_DEFINED} when a parameter or a variable is not defined, or empty."
   echo "  ${ERR_MISSING_DEPENDENCY} when a required dependency is missing."
   echo "  ${ERR_ARGUMENT_EVAL_ERROR} when there was an error while evaluating the program options."
+  echo "  ${ERR_ARCHIVE_NOT_SUPPORTED} when the archive is not supported."
 }
 
 if ! TEMP="$(getopt -o d:h --long datasource-image-path:,help \
@@ -82,8 +102,10 @@ else
   echo "Testing cloud-init datasource image: ${DATASOURCE_IMAGE_PATH}"
 fi
 
+decompress_file "${DATASOURCE_IMAGE_PATH}"
+
 DATASOURCE_ISO_MOUNT_PATH="$(mktemp -d)"
-sudo mount -o loop "${DATASOURCE_IMAGE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
+sudo mount -o loop "${DECOMPRESSED_FILE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
 
 cloud-init --version
 cloud-init clean
