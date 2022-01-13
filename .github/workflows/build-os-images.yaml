@@ -69,11 +69,11 @@ jobs:
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
           if [ -r "${RESULTS_FILE_PATH}" ]; then
-            CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH="$${{ env.TEMP_WORKSPACE_PATH }}/${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
+            CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH="${TEMP_WORKSPACE_PATH}/${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
 
             if ! [ -e "${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}" ]; then
-              echo "Contents of $${{ env.TEMP_WORKSPACE_PATH }}:"
-              ls -alh "$${{ env.TEMP_WORKSPACE_PATH }}"
+              echo "Contents of ${TEMP_WORKSPACE_PATH}:"
+              ls -alh "${TEMP_WORKSPACE_PATH}"
               echo "[ERROR]: The customized compressed image file doesn't exist. Terminating..."
               exit 1
             fi
