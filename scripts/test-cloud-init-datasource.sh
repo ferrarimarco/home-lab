@@ -132,6 +132,13 @@ echo "Contents of ${DATASOURCE_ISO_MOUNT_PATH}:"
 ls -alh "${DATASOURCE_ISO_MOUNT_PATH}"
 
 CLOUD_INIT_CONFIG_FILE_PATH="/etc/cloud/cloud.cfg"
+
+sudo tee -a "${CLOUD_INIT_CONFIG_FILE_PATH}" <<END
+datasource:
+  NoCloud:
+    seedfrom: ${DATASOURCE_ISO_MOUNT_PATH}/
+END
+
 echo "Current cloud-init configuration (${CLOUD_INIT_CONFIG_FILE_PATH}):"
 cat "${CLOUD_INIT_CONFIG_FILE_PATH}"
 
@@ -142,7 +149,7 @@ sudo cloud-init clean --logs
 cloud-init status --long
 
 echo "Running cloud-init init..."
-sudo cloud-init init --local
+sudo cloud-init init
 
 echo "Running cloud-init modules..."
 sudo cloud-init modules
