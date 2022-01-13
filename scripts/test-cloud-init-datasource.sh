@@ -23,7 +23,7 @@ decompress_file() {
 
   echo "Decompressing ${FILE_TO_DECOMPRESS_PATH}..."
   if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
-    xz -d -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
+    xz -d --keep -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
   else
     echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
     return ${ERR_ARCHIVE_NOT_SUPPORTED}
@@ -101,6 +101,10 @@ if ! [ -r "${DATASOURCE_IMAGE_PATH}" ]; then
 else
   echo "Testing cloud-init datasource image: ${DATASOURCE_IMAGE_PATH}"
 fi
+
+SOURCE_DIRECTORY_PATH="$(dirname "${DATASOURCE_IMAGE_PATH}")"
+echo "Contents of ${SOURCE_DIRECTORY_PATH}:"
+ls -alh "${SOURCE_DIRECTORY_PATH}"
 
 decompress_file "${DATASOURCE_IMAGE_PATH}"
 
