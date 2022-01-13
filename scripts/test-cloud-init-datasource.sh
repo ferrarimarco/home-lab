@@ -109,11 +109,23 @@ fi
 decompress_file "${DATASOURCE_IMAGE_PATH}"
 
 DATASOURCE_ISO_MOUNT_PATH="$(mktemp -d)"
-sudo mount -o loop,ro "${DECOMPRESSED_FILE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
+sudo mount -o loop,ro -l  "${DECOMPRESSED_FILE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
+
+echo "Currently mounted file systems:"
+mount
+
+echo "Contents of ${DATASOURCE_ISO_MOUNT_PATH}:"
+ls -alh "${DATASOURCE_ISO_MOUNT_PATH}"
+
+CLOUD_INIT_CONFIG_FILE_PATH="/etc/cloud/cloud.cfg"
+echo "Current cloud-init configuration (${CLOUD_INIT_CONFIG_FILE_PATH}):"
+cat "${CLOUD_INIT_CONFIG_FILE_PATH}"
 
 echo "Cloud-init version: $(cloud-init --version)"
 cloud-init status --long
 sudo cloud-init clean
-sudo cloud-init --file "${DATASOURCE_ISO_MOUNT_PATH}/user-data" --file "${DATASOURCE_ISO_MOUNT_PATH}/meta-data" init
-sudo cloud-init --file "${DATASOURCE_ISO_MOUNT_PATH}/user-data" --file "${DATASOURCE_ISO_MOUNT_PATH}/meta-data" modules
+
+cloud-init status --long
+sudo cloud-init init --local
+sudo cloud-init modules
 cloud-init status --long
