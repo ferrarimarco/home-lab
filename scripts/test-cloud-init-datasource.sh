@@ -109,10 +109,10 @@ fi
 decompress_file "${DATASOURCE_IMAGE_PATH}"
 
 DATASOURCE_ISO_MOUNT_PATH="$(mktemp -d)"
-sudo mount -o loop "${DECOMPRESSED_FILE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
+sudo mount -o loop,ro "${DECOMPRESSED_FILE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
 
-cloud-init --version
-cloud-init clean
-cloud-init init --file "${DATASOURCE_ISO_MOUNT_PATH}/user-data" --file "${DATASOURCE_ISO_MOUNT_PATH}/meta-data"
-cloud-init modules --file "${DATASOURCE_ISO_MOUNT_PATH}/user-data" --file "${DATASOURCE_ISO_MOUNT_PATH}/meta-data"
+echo "Cloud-init version: $(cloud-init --version)"
+sudo cloud-init clean
+sudo cloud-init init --file "${DATASOURCE_ISO_MOUNT_PATH}/user-data" --file "${DATASOURCE_ISO_MOUNT_PATH}/meta-data"
+sudo cloud-init modules --file "${DATASOURCE_ISO_MOUNT_PATH}/user-data" --file "${DATASOURCE_ISO_MOUNT_PATH}/meta-data"
 cloud-init status
