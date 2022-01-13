@@ -38,6 +38,7 @@ install_dependencies() {
   sudo apt-get -qy update
   sudo apt-get -qy install \
     cloud-init \
+    kpartx \
     xz-utils
 }
 
@@ -107,6 +108,12 @@ else
 fi
 
 decompress_file "${DATASOURCE_IMAGE_PATH}"
+
+echo "Mapping ${DECOMPRESSED_FILE_PATH} to loop devices..."
+sudo kpartx -asv "${DECOMPRESSED_FILE_PATH}"
+
+echo "Currently used loop devices:"
+sudo losetup --list
 
 DATASOURCE_ISO_MOUNT_PATH="$(mktemp -d)"
 sudo mount -o loop,ro "${DECOMPRESSED_FILE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
