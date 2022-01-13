@@ -144,3 +144,6 @@ sudo cloud-init init --local
 echo "Running cloud-init modules..."
 sudo cloud-init modules
 cloud-init status --long
+
+echo "Contents of cloud-init log:"
+cat /var/log/cloud-init.log
