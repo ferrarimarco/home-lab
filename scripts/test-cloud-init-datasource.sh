@@ -23,9 +23,9 @@ decompress_file() {
 
   echo "Decompressing ${FILE_TO_DECOMPRESS_PATH}..."
   if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
-    xz -d --keep -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
+    xz --decompress --force --keep -T0 --verbose "${FILE_TO_DECOMPRESS_PATH}"
   else
-    echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
+    echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
     return ${ERR_ARCHIVE_NOT_SUPPORTED}
   fi
 
@@ -113,17 +113,24 @@ decompress_file "${DATASOURCE_IMAGE_PATH}"
 echo "Gathering information about ${DECOMPRESSED_FILE_PATH}..."
 isoinfo -d -i "${DECOMPRESSED_FILE_PATH}"
 
+echo "Ensuring a loop device exists before mounting the ISO image..."
+sudo losetup -f
+
 echo "Mapping ${DECOMPRESSED_FILE_PATH} to loop devices..."
 sudo kpartx -asv "${DECOMPRESSED_FILE_PATH}"
 
 echo "Currently used loop devices:"
-sudo losetup --list
+losetup --list
 
 DATASOURCE_ISO_MOUNT_PATH="$(mktemp -d)"
+echo "Created mount directory for the datasource ISO: ${DATASOURCE_ISO_MOUNT_PATH}"
 sudo mount -o loop,ro "${DECOMPRESSED_FILE_PATH}" "${DATASOURCE_ISO_MOUNT_PATH}"
 
+echo "Ensure that ${DATASOURCE_ISO_MOUNT_PATH} has the correct owner..."
+chown -Rv "$(id -u)":"$(id -g)" "${DATASOURCE_ISO_MOUNT_PATH}"
+
 echo "Currently attached block devices:"
-sudo lsblk -o name,mountpoint,label,size,uuid
+lsblk -o name,mountpoint,label,size,uuid
 
 echo "Currently mounted file systems:"
 mount
@@ -138,16 +145,28 @@ cat "${CLOUD_INIT_CONFIG_FILE_PATH}"
 echo "Cloud-init version: $(cloud-init --version)"
 cloud-init status --long
 echo "Cleanining cloud-init status..."
-sudo cloud-init clean --logs
+cloud-init clean --logs
 cloud-init status --long
 
 echo "Running cloud-init init..."
-sudo cloud-init init
+cloud-init init
 
 echo "Running cloud-init modules..."
-sudo cloud-init modules
+cloud-init modules
 cloud-init status --long
 
 echo "Collecting cloud-init logs..."
 cloud-init collect-logs \
   --verbose
+
+echo "Unmounting the datasource ISO..."
+umount "${DECOMPRESSED_FILE_PATH}"
+
+echo "Deleting loop devices where ${DECOMPRESSED_FILE_PATH} was mapped..."
+kpartx -svd "${DECOMPRESSED_FILE_PATH}"
+
+LOOP_DEVICE_PATH="$(losetup -O NAME,BACK-FILE | grep "${DECOMPRESSED_FILE_PATH}" | awk '{ print $1 }')"
+echo "Removing the ${LOOP_DEVICE_PATH} loop device..."
+rm -f "${LOOP_DEVICE_PATH}"
+
+rm -frv "${DATASOURCE_ISO_MOUNT_PATH}"
