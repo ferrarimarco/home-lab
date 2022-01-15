@@ -57,7 +57,7 @@ decompress_file() {
   if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
     xz -d -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
   else
-    echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
+    echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
     return ${ERR_ARCHIVE_NOT_SUPPORTED}
   fi
 }
@@ -284,8 +284,10 @@ CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME="$(basename "${COMPRESSED_FILE_PATH}")"
 # Store metadata about the customization process
 BUILD_RESULTS_FILE_PATH="${WORKSPACE_DIRECTORY}/results.out"
 echo "Saving build metadata to ${BUILD_RESULTS_FILE_PATH}..."
-echo "CUSTOMIZED_IMAGE_FILE_NAME=${TARGET_IMAGE_FILE_NAME}" >>"${BUILD_RESULTS_FILE_PATH}"
-echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME=${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}" >>"${BUILD_RESULTS_FILE_PATH}"
+{
+  echo "CUSTOMIZED_IMAGE_FILE_NAME=${TARGET_IMAGE_FILE_NAME}"
+  echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME=${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
+} >>"${BUILD_RESULTS_FILE_PATH}"
 
 echo "Contents of ${BUILD_RESULTS_FILE_PATH}:"
 cat "${BUILD_RESULTS_FILE_PATH}"
