@@ -119,6 +119,9 @@ setup_cloud_init_nocloud_datasource() {
       mv --verbose "${FILE_PATH}" "${FILE_PATH%.*}"
     fi
   done
+
+  echo "Setting ownership of the ${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY} directory and its contents to the root user..."
+  chown -Rv root:root "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}"
 }
 
 BUILD_CONFIG_PARAMETER_DESCRIPTION="path to the build configuration file"
