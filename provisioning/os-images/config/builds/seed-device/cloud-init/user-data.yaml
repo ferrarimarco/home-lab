@@ -91,6 +91,8 @@ autoinstall:
         groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, microk8s, netdev, plugdev, sudo, video]
         lock_passwd: true
         shell: /usr/bin/bash
+        ssh_authorized_keys:
+          - key 1
         sudo: ["ALL=(ALL) NOPASSWD:ALL"]
 
   version: 1
