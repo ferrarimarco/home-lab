@@ -89,8 +89,6 @@ jobs:
 
           echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
           cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
-      - name: Test the cloud-init datasource
-        run: ./scripts/test-cloud-init-datasource.sh --datasource-image-path "${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}"
       - uses: actions/upload-artifact@v2
         name: Upload ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
         with:

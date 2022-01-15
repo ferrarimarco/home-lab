@@ -57,7 +57,7 @@ decompress_file() {
   if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
     xz -d -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
   else
-    echo "${IMAGE_ARCHIVE_FILE_PATH} archive is not supported. Terminating..."
+    echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
     return ${ERR_ARCHIVE_NOT_SUPPORTED}
   fi
 }
