@@ -66,7 +66,7 @@ download_file_if_necessary() {
   FILE_TO_DOWNLOAD_URL="${1}"
   FILE_TO_DOWNLOAD_NAME="${2-}"
 
-  if [ ! -f "${FILE_TO_DOWNLOAD_PATH-}" ]; then
+  if [ ! -f "${FILE_TO_DOWNLOAD_PATH}" ]; then
 
     if [ -z "${FILE_TO_DOWNLOAD_NAME}" ]; then
       curl -L -O "${FILE_TO_DOWNLOAD_URL}"
