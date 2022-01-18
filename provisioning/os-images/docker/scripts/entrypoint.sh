@@ -17,7 +17,7 @@ ERR_ARGUMENT_EVAL_ERROR=4
 ERR_ARCHIVE_NOT_SUPPORTED=5
 
 BUILD_TYPE_CIDATA_ISO="cidata-iso"
-BUILD_TYPE_PREINSTALLED="customize-preinstalled"
+BUILD_TYPE_CUSTOMIZE_IMAGE="customize-image"
 
 check_argument() {
   ARGUMENT_VALUE="${1}"
@@ -190,15 +190,16 @@ echo "Cloud-init configuration directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTO
 
 if [ -n "${OS_IMAGE_URL}" ]; then
   OS_IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
-  download_file_if_necessary "${OS_IMAGE_URL}"
+  download_file_if_necessary "${OS_IMAGE_URL}" "${OS_IMAGE_FILE_PATH}"
 
+  # We assume there's a checksum file path to verify the downloaded image
   OS_IMAGE_CHECKSUM_FILE_PATH="${WORKSPACE_DIRECTORY}/$(basename "${OS_IMAGE_CHECKSUM_FILE_URL}")"
   echo "Verifying the integrity of the downloaded files..."
   download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}" "${OS_IMAGE_CHECKSUM_FILE_PATH}"
   sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
 fi
 
-if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
+if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   IMAGE_ARCHIVE_FILE_PATH="${OS_IMAGE_FILE_PATH}"
   if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
     RET_CODE=$?
@@ -230,6 +231,8 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
   LOOP_DEVICE_PARTITION_PREFIX=/dev/mapper/"${LOOP_DEVICE_NAME}"
 
   echo "Mounting partitions from ${LOOP_DEVICE_PATH} (prefix: ${LOOP_DEVICE_PARTITION_PREFIX})"
+  # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis, p1 is mounted as /boot
+  # and cointains configuration files.
   mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p1 "${TEMP_WORKING_DIRECTORY}"
 
   setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${TEMP_WORKING_DIRECTORY}"
