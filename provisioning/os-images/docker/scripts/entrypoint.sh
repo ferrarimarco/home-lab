@@ -60,19 +60,16 @@ decompress_file() {
     echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
     return ${ERR_ARCHIVE_NOT_SUPPORTED}
   fi
+
+  DECOMPRESSED_FILE_PATH="$(pwd)/$(basename "${FILE_TO_DECOMPRESS_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
 }
 
 download_file_if_necessary() {
   FILE_TO_DOWNLOAD_URL="${1}"
-  FILE_TO_DOWNLOAD_NAME="${2-}"
+  FILE_TO_DOWNLOAD_PATH="${2}"
 
   if [ ! -f "${FILE_TO_DOWNLOAD_PATH}" ]; then
-
-    if [ -z "${FILE_TO_DOWNLOAD_NAME}" ]; then
-      curl -L -O "${FILE_TO_DOWNLOAD_URL}"
-    else
-      curl -L -o "${FILE_TO_DOWNLOAD_NAME}" "${FILE_TO_DOWNLOAD_URL}"
-    fi
+    curl -L -o "${FILE_TO_DOWNLOAD_PATH}" "${FILE_TO_DOWNLOAD_URL}"
   else
     echo "${FILE_TO_DOWNLOAD_PATH} already exists. Skipping download of ${FILE_TO_DOWNLOAD_URL}"
   fi
@@ -192,25 +189,24 @@ CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-in
 echo "Cloud-init configuration directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}"
 
 if [ -n "${OS_IMAGE_URL}" ]; then
+  OS_IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
   download_file_if_necessary "${OS_IMAGE_URL}"
 
-  if [ -n "${OS_IMAGE_CHECKSUM_FILE_URL}" ]; then
-    download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}"
-    echo "Verifying the integrity of the downloaded files..."
-    sha256sum --ignore-missing -c "$(basename "${OS_IMAGE_CHECKSUM_FILE_URL}")"
-  fi
+  OS_IMAGE_CHECKSUM_FILE_PATH="${WORKSPACE_DIRECTORY}/$(basename "${OS_IMAGE_CHECKSUM_FILE_URL}")"
+  echo "Verifying the integrity of the downloaded files..."
+  download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}" "${OS_IMAGE_CHECKSUM_FILE_PATH}"
+  sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
 fi
 
 if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
-  IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
+  IMAGE_ARCHIVE_FILE_PATH="${OS_IMAGE_FILE_PATH}"
   if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
     RET_CODE=$?
     echo "Error while decompressing ${IMAGE_ARCHIVE_FILE_PATH}. Terminating..."
     exit ${RET_CODE}
   fi
 
-  IMAGE_FILE_NAME="$(basename "${IMAGE_ARCHIVE_FILE_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
-  IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}/${IMAGE_FILE_NAME}"
+  IMAGE_FILE_PATH="${DECOMPRESSED_FILE_PATH}"
 
   echo "Currently used loop devices:"
   losetup --list
