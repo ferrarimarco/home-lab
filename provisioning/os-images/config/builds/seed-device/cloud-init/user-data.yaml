@@ -33,6 +33,13 @@ autoinstall:
 
   user-data:
 
+    # Set the password to a known value, and expire it right after the first login,
+    # so that the user is forced to change it.
+    chpasswd:
+      expire: true
+      list:
+        - "marco:marco"
+
     groups:
       - microk8s
 
@@ -40,7 +47,7 @@ autoinstall:
 
     locale: "en_US.UTF-8"
 
-    # update the contents of /etc/hosts based on the hostname/fqdn specified
+    # Update the contents of /etc/hosts based on the hostname/fqdn specified
     manage_etc_hosts: true
 
     # Set up the NTP client with default configuration and client
@@ -73,26 +80,25 @@ autoinstall:
       commands:
         "001": "snap install microk8s --classic --channel=1.23/stable"
 
-    # Disable password authentication with the SSH daemon
-    # for the default user
-    ssh_pwauth: false
+    # Enable SSH password authentication. We use for the first authentication,
+    # then we switch to key-based authentication later in the setup process.
+    ssh_pwauth: true
 
     # Remove default host keys if any
     ssh_deletekeys: true
 
     timezone: "Etc/UTC"
 
-    # Create users and don't preserve the default user, so that we've full control on which accounts we expect to be there.
-    # The cc_set_passwords module automatically expires passwords for all the users that cloud-init creates, so no need
-    # to add a chpasswd configuration section.
+    # Create users and don't preserve the default user,
+    # so that we've full control on which accounts we expect to be there.
     users:
       - name: marco
         gecos: Marco
         groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, microk8s, netdev, plugdev, sudo, video]
-        lock_passwd: true
+        # Don't lock the user to allow the first login with a password,
+        # so that we initialize key-based authentication later.
+        lock_passwd: false
         shell: /usr/bin/bash
-        ssh_authorized_keys:
-          - key 1
         sudo: ["ALL=(ALL) NOPASSWD:ALL"]
 
   version: 1
