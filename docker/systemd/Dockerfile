@@ -12,7 +12,9 @@ RUN DEBIAN_FRONTEND=noninteractive \
   cloud-init \
   dbus \
   kmod \
+  locales \
   lsb-release \
+  openssh-client \
   ntp \
   systemd \
   udev \
@@ -33,3 +35,5 @@ ENTRYPOINT [ "/sbin/init" ]
 RUN echo 'root:root' | chpasswd
 
 COPY etc/ /etc/
+
+RUN for f in /etc/cloud/cloud.cfg.d/*.cfg.yaml; do mv -- "${f}" "${f%.yaml}"; done

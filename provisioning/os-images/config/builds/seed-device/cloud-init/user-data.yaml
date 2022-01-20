@@ -23,10 +23,6 @@ autoinstall:
             - edge.lab.ferrari.how
         optional: true
 
-  ssh:
-    allow-pw: false
-    install-server: true
-
   storage:
     layout:
       name: lvm
