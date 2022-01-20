@@ -1,25 +1,26 @@
 FROM ubuntu:20.04
 
+SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
+
 # Setting TZ has issues for now: https://bugs.launchpad.net/ubuntu/+source/tzdata/+bug/1899343
 RUN DEBIAN_FRONTEND=noninteractive \
-  TERM=linux \
-  TZ=Etc/UTC \
-  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
-  && apt-get update \
-  && apt-get \
-  --no-install-recommends --yes install \
-  ca-certificates \
-  cloud-init \
-  dbus \
-  kmod \
-  locales \
-  lsb-release \
-  openssh-client \
-  ntp \
-  systemd \
-  udev \
-  && rm -rf /var/lib/apt/lists/* \
-  && ln -s "$(command -v systemd)" /sbin/init
+    TERM=linux \
+    TZ=Etc/UTC \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+    && apt-get update \
+    && apt-get \
+    --no-install-recommends --yes install \
+    ca-certificates \
+    cloud-init \
+    dbus \
+    kmod \
+    locales \
+    lsb-release \
+    openssh-client \
+    ntp \
+    systemd \
+    udev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Don't clean up apt cache
 RUN rm /etc/apt/apt.conf.d/docker-clean

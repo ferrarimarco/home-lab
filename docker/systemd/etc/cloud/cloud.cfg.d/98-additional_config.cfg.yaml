@@ -1,6 +1,6 @@
 ---
 # Only allow the NoCloud datasource
-datasource_list: [ NoCloud, None ]
+datasource_list: [NoCloud, None]
 
 # Explicitly set the datasource path because we can't rely on filesystem labels
 datasource:

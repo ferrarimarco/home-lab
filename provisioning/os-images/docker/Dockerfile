@@ -1,5 +1,7 @@
 FROM ubuntu:20.04
 
+SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
+
 RUN DEBIAN_FRONTEND=noninteractive \
     TERM=linux \
     TZ=Etc/UTC \
