@@ -1,6 +1,10 @@
 FROM ubuntu:20.04
 
-RUN apt-get update \
+RUN DEBIAN_FRONTEND=noninteractive \
+    TERM=linux \
+    TZ=Etc/UTC \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+    apt-get update \
     && apt-get \
     --no-install-recommends \
     --yes \
