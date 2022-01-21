@@ -19,7 +19,8 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
     ntp \
     systemd \
     udev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s "$(command -v systemd)" /sbin/init
 
 # Don't clean up apt cache
 RUN rm /etc/apt/apt.conf.d/docker-clean
