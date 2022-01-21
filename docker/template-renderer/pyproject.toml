@@ -1,0 +1,17 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry_core>=1.0.0"]
+
+[tool.isort]
+profile = "black"
+
+[tool.poetry]
+authors = ["Marco Ferrari <ferrari.marco@gmail.com>"]
+description = "Tool to render templates"
+license = "Apache-2.0"
+name = "template-renderer"
+version = "1.0.0"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Jinja2 = "^3.0.3"
