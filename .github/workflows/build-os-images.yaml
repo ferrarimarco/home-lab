@@ -8,10 +8,12 @@ on:
   push:
     paths:
       - ".github/workflows/build-os-images.yaml"
+      - "docker/os-image-builder/**"
       - "provisioning/os-images/**"
   pull_request:
     paths:
       - ".github/workflows/build-os-images.yaml"
+      - "docker/os-image-builder/**"
       - "provisioning/os-images/**"
 
 jobs:
