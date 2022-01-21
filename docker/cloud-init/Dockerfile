@@ -33,6 +33,7 @@ ENV container docker
 STOPSIGNAL SIGRTMIN+3
 ENTRYPOINT [ "/sbin/init" ]
 
+# Set the root user password to a known value that we can use to login as needed
 RUN echo 'root:root' | chpasswd
 
 COPY etc/ /etc/
