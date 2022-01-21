@@ -50,7 +50,7 @@ jobs:
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          context: provisioning/os-images/docker
+          context: docker/os-image-builder
           load: true
           push: false
           tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
