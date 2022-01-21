@@ -8,9 +8,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
     TERM=linux \
     TZ=Etc/UTC \
     apt-get \
-    --no-install-recommends \
-    --yes \
-    install \
+    --no-install-recommends --yes install \
     cloud-image-utils \
     cloud-init \
     curl \

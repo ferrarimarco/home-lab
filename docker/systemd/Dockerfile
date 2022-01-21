@@ -2,7 +2,6 @@ FROM ubuntu:20.04
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
-# Setting TZ has issues for now: https://bugs.launchpad.net/ubuntu/+source/tzdata/+bug/1899343
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive \
