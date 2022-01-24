@@ -1,10 +1,11 @@
-from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, FileType
 import os
+import yaml
 from jinja2 import Environment, FileSystemLoader
 
 
 def render_template(
-    template_load_path: str, template_file_path: str, template_data_file_path: str
+    template_load_path: str, template_file_path: str, template_data_file: str
 ):
     """Render a Jinja template.
     Args:
@@ -15,11 +16,17 @@ def render_template(
         The rendered template.
     """
     file_loader = FileSystemLoader(template_load_path)
-    env = Environment(loader=file_loader, lstrip_blocks=True, trim_blocks=True)
+    env = Environment(
+        autoescape=True, loader=file_loader, lstrip_blocks=True, trim_blocks=True
+    )
 
     template = env.get_template(template_file_path)
 
-    output = template.render()
+    template_data = {}
+    if template_data_file:
+        template_data = yaml.safe_load(template_data_file)
+
+    output = template.render(template_data)
     return output
 
 
@@ -48,7 +55,8 @@ def parse_arguments(args: list[str] = None):
     )
     render_template_parser.add_argument(
         "--template_data_file_path",
-        help="Path to the template configuration data file.",
+        help="Path to the YAML-formatted template configuration data file.",
+        type=FileType("r", encoding="UTF-8"),
     )
 
     return parser, vars(parser.parse_args(args))
