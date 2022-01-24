@@ -3,16 +3,19 @@ import os
 from jinja2 import Environment, FileSystemLoader
 
 
-def render_template(template_load_path: str, template_file_path: str):
+def render_template(
+    template_load_path: str, template_file_path: str, template_data_file_path: str
+):
     """Render a Jinja template.
     Args:
      template_load_path: Path to the directory where templates are stored.
      template_file_path: Path to the template to render inside the directory where templates are stored.
+     template_data_file_path: Path to the data file where template configuration values are stored.
     Returns:
         The rendered template.
     """
     file_loader = FileSystemLoader(template_load_path)
-    env = Environment(loader=file_loader, trim_blocks=True)
+    env = Environment(loader=file_loader, lstrip_blocks=True, trim_blocks=True)
 
     template = env.get_template(template_file_path)
 
@@ -43,6 +46,10 @@ def parse_arguments(args: list[str] = None):
         default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates"),
         help="Path to the directory where templates are stored.",
     )
+    render_template_parser.add_argument(
+        "--template_data_file_path",
+        help="Path to the template configuration data file.",
+    )
 
     return parser, vars(parser.parse_args(args))
 
@@ -56,7 +63,11 @@ def main():
         parser.error("No function defined. Terminating...")
 
     if func == render_template:
-        result = render_template(args["template_load_path"], args["template_file_path"])
+        result = render_template(
+            args["template_load_path"],
+            args["template_file_path"],
+            args["template_data_file_path"],
+        )
     else:
         parser.error("Unsupported command. Terminating...")
 
