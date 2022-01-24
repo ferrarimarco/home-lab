@@ -6,13 +6,10 @@ from jinja2 import Environment, FileSystemLoader
 def render_template(template_load_path: str, template_file_path: str):
     """Render a Jinja template.
     Args:
-     project_id: The Google Cloud project ID to generate a JWT for.
-     google_cloud_region: Google Cloud region where the IoT Core registry resides.
-     iot_core_registry_id: ID of the Cloud IoT Core registry where you registered the device in.
-     oauth2_scopes: List of Oauth 2.0 scopes to request access to.
-     jwt: JWT to authenticate the request.
+     template_load_path: Path to the directory where templates are stored.
+     template_file_path: Path to the template to render inside the directory where templates are stored.
     Returns:
-        The requested Oauth 2.0 for the specified IoT Core device.
+        The rendered template.
     """
     file_loader = FileSystemLoader(template_load_path)
     env = Environment(loader=file_loader, trim_blocks=True)
