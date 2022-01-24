@@ -37,26 +37,30 @@ autoinstall:
 {% set user_data_indentation_width = 0 %}
 {% endif %}
 {% filter indent(width=user_data_indentation_width) %}
-{% if initialize_known_user_password %}
+{% if initialize_default_user_password %}
 # Set the password to a known value, and expire it right after the first login,
 # so that the user is forced to change it.
 chpasswd:
   expire: true
   list:
     - "marco:marco"
-{% endif %}
 
+{% endif %}
+{% if groups | length > 0 %}
 groups:
-{% if install_microk8s %}
-  - microk8s
-{% endif %}
+{% for group in groups %}
+  - {{ group }}
+{% endfor %}
 
+{% endif %}
+{% if hostname %}
 hostname: {{ hostname }}
 
-locale: "en_US.UTF-8"
+{% endif %}
+locale: {{ timezone | default("en_US.UTF-8", true) }}
 
 # Update the contents of /etc/hosts based on the hostname/fqdn specified
-manage_etc_hosts: true
+manage_etc_hosts: {{ manage_etc_hosts | default(true, true) | lower }}
 
 # Set up the NTP client with default configuration and client
 ntp:
@@ -64,39 +68,48 @@ ntp:
   ntp_client: auto
 
 packages:
+{# Install openssh-server by default #}
   - openssh-server
+{% for package in packages %}
+  - {{ package }}
+{% endfor %}
 
-package_update: true
-package_upgrade: true
-package_reboot_if_required: true
+package_update: {{ package_update | default(true, true) | lower }}
+package_upgrade: {{ package_upgrade | default(true, true) | lower }}
+package_reboot_if_required: {{ package_reboot_if_required | default(true, true) | lower }}
 
 random_seed:
   file: /dev/urandom
   command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
   command_required: true
 
-resize_rootfs: true
+resize_rootfs: {{ resize_rootfs | default(true, true) | lower }}
 
-{% if install_microk8s %}
 # We don't use a script because Ubuntu autoinstall doesn't support generating
 # a user-data file that includes scripts that are not in autoinstall.user-data
+{% if runcmd | length > 0 %}
 runcmd:
-  - /snap/bin/microk8s status --wait-ready
-  - /snap/bin/microk8s enable dashboard dns gpu ingress storage
-  - /snap/bin/microk8s status --wait-ready
+{% for cmd in runcmd %}
+  - {{ cmd }}
+{% endfor %}
 
+{% endif %}
+{% if snap_commands | length > 0 %}
 snap:
   commands:
-    "001": "snap install microk8s --classic --channel=1.23/stable"
+{% for command in snap_commands %}
+    - {{ command }}
+{% endfor %}
+
 {% endif %}
 # Enable SSH password authentication. We use for the first authentication,
 # then we switch to key-based authentication later in the setup process.
-ssh_pwauth: {{ ssh_pwauth }}
+ssh_pwauth: {{ ssh_pwauth | default(true, true) | lower }}
 
 # Remove default host keys if any
-ssh_deletekeys: true
+ssh_deletekeys: {{ ssh_deletekeys | default(true, true) | lower }}
 
-timezone: "Etc/UTC"
+timezone: {{ timezone | default("Etc/UTC", true) }}
 
 # Create users and don't preserve the default user,
 # so that we've full control on which accounts we expect to be there.
@@ -104,7 +117,7 @@ users:
   - name: marco
     gecos: Marco
     groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, microk8s, netdev, plugdev, sudo, video]
-{% if initialize_known_user_password %}
+{% if initialize_default_user_password %}
     # Don't lock the user to allow the first login with a password,
     # so that we initialize key-based authentication later.
     lock_passwd: false

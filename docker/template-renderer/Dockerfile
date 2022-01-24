@@ -39,4 +39,4 @@ COPY --from=build /usr/src/app /usr/src/app
 ENV PATH="/usr/src/app/.venv/bin:${PATH}"
 
 WORKDIR /usr/src/app
-ENTRYPOINT [ "/usr/src/app/docker-entrypoint.sh" ]
+ENTRYPOINT [ "python3", "/usr/src/app/template_renderer.py" ]
