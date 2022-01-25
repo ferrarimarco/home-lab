@@ -57,7 +57,7 @@ groups:
 hostname: {{ hostname }}
 
 {% endif %}
-locale: {{ timezone | default("en_US.UTF-8", true) }}
+locale: {{ locale | default("en_US.UTF-8", true) }}
 
 # Update the contents of /etc/hosts based on the hostname/fqdn specified
 manage_etc_hosts: {{ manage_etc_hosts | default(true, true) | lower }}
@@ -98,7 +98,7 @@ runcmd:
 snap:
   commands:
 {% for command in snap_commands %}
-    - {{ command }}
+    "{{ loop.index }}": "{{ command }}"
 {% endfor %}
 
 {% endif %}
