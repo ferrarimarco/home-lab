@@ -38,6 +38,7 @@ autoinstall:
 {% endif %}
 {% filter indent(width=user_data_indentation_width) %}
 {% if initialize_default_user_password %}
+
 # Set the password to a known value, and expire it right after the first login,
 # so that the user is forced to change it.
 chpasswd:

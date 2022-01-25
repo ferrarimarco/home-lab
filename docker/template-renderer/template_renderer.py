@@ -5,13 +5,13 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def render_template(
-    template_load_path: str, template_file_path: str, template_data_file: str
+    template_load_path: str, template_file_path: str, template_data_files: list[str]
 ):
     """Render a Jinja template.
     Args:
      template_load_path: Path to the directory where templates are stored.
      template_file_path: Path to the template to render inside the directory where templates are stored.
-     template_data_file_path: Path to the data file where template configuration values are stored.
+     template_data_files: List of paths to the data files where template configuration values are stored.
     Returns:
         The rendered template.
     """
@@ -23,8 +23,9 @@ def render_template(
     template = env.get_template(template_file_path)
 
     template_data = {}
-    if template_data_file:
-        template_data = yaml.safe_load(template_data_file)
+    for template_data_file in template_data_files:
+        with open(template_data_file, "r") as stream:
+            template_data.update(yaml.safe_load(stream))
 
     output = template.render(template_data)
     return output
@@ -54,9 +55,9 @@ def parse_arguments(args: list[str] = None):
         help="Path to the directory where templates are stored.",
     )
     render_template_parser.add_argument(
-        "--template_data_file_path",
-        help="Path to the YAML-formatted template configuration data file.",
-        type=FileType("r", encoding="UTF-8"),
+        "--template_data_file_paths",
+        help="Paths to the YAML-formatted template configuration data file.",
+        nargs="*",
     )
 
     return parser, vars(parser.parse_args(args))
@@ -74,7 +75,7 @@ def main():
         result = render_template(
             args["template_load_path"],
             args["template_file_path"],
-            args["template_data_file_path"],
+            args["template_data_file_paths"],
         )
     else:
         parser.error("Unsupported command. Terminating...")
