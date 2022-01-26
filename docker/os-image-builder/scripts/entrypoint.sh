@@ -17,7 +17,7 @@ ERR_ARGUMENT_EVAL_ERROR=4
 ERR_ARCHIVE_NOT_SUPPORTED=5
 
 BUILD_TYPE_CIDATA_ISO="cidata-iso"
-BUILD_TYPE_PREINSTALLED="customize-preinstalled"
+BUILD_TYPE_CUSTOMIZE_IMAGE="customize-image"
 
 check_argument() {
   ARGUMENT_VALUE="${1}"
@@ -60,19 +60,16 @@ decompress_file() {
     echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
     return ${ERR_ARCHIVE_NOT_SUPPORTED}
   fi
+
+  DECOMPRESSED_FILE_PATH="$(pwd)/$(basename "${FILE_TO_DECOMPRESS_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
 }
 
 download_file_if_necessary() {
   FILE_TO_DOWNLOAD_URL="${1}"
-  FILE_TO_DOWNLOAD_NAME="${2-}"
+  FILE_TO_DOWNLOAD_PATH="${2}"
 
-  if [ ! -f "${FILE_TO_DOWNLOAD_PATH-}" ]; then
-
-    if [ -z "${FILE_TO_DOWNLOAD_NAME}" ]; then
-      curl -L -O "${FILE_TO_DOWNLOAD_URL}"
-    else
-      curl -L -o "${FILE_TO_DOWNLOAD_NAME}" "${FILE_TO_DOWNLOAD_URL}"
-    fi
+  if [ ! -f "${FILE_TO_DOWNLOAD_PATH}" ]; then
+    curl -L -o "${FILE_TO_DOWNLOAD_PATH}" "${FILE_TO_DOWNLOAD_URL}"
   else
     echo "${FILE_TO_DOWNLOAD_PATH} already exists. Skipping download of ${FILE_TO_DOWNLOAD_URL}"
   fi
@@ -107,6 +104,20 @@ setup_cloud_init_nocloud_datasource() {
     --recursive \
     --verbose \
     "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}/." "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/"
+
+  if [ "${UBUNTU_AUTOINSTALL}" = "true" ]; then
+    USER_DATA_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data.yaml"
+    USER_DATA_AUTOINSTALL_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data-autoinstall.yaml"
+    echo "This build targets an instance that installs the OS with subiquity (Ubuntu autoinstaller)."
+    if [ -e "${USER_DATA_AUTOINSTALL_PATH}" ]; then
+      mv \
+        --force \
+        --verbose \
+        "${USER_DATA_AUTOINSTALL_PATH}" "${USER_DATA_PATH}"
+    fi
+    unset USER_DATA_PATH
+    unset USER_DATA_AUTOINSTALL_PATH
+  fi
 
   echo "Removing the yaml file extension from cloud-init datasource configuration files..."
   for FILE in meta-data.yaml network-config.yaml vendor-data.yaml user-data.yaml; do
@@ -192,25 +203,25 @@ CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-in
 echo "Cloud-init configuration directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}"
 
 if [ -n "${OS_IMAGE_URL}" ]; then
-  download_file_if_necessary "${OS_IMAGE_URL}"
+  OS_IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
+  download_file_if_necessary "${OS_IMAGE_URL}" "${OS_IMAGE_FILE_PATH}"
 
-  if [ -n "${OS_IMAGE_CHECKSUM_FILE_URL}" ]; then
-    download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}"
-    echo "Verifying the integrity of the downloaded files..."
-    sha256sum --ignore-missing -c "$(basename "${OS_IMAGE_CHECKSUM_FILE_URL}")"
-  fi
+  # We assume there's a checksum file path to verify the downloaded image
+  OS_IMAGE_CHECKSUM_FILE_PATH="${WORKSPACE_DIRECTORY}/$(basename "${OS_IMAGE_CHECKSUM_FILE_URL}")"
+  echo "Verifying the integrity of the downloaded files..."
+  download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}" "${OS_IMAGE_CHECKSUM_FILE_PATH}"
+  sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
 fi
 
-if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
-  IMAGE_ARCHIVE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
+if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
+  IMAGE_ARCHIVE_FILE_PATH="${OS_IMAGE_FILE_PATH}"
   if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
     RET_CODE=$?
     echo "Error while decompressing ${IMAGE_ARCHIVE_FILE_PATH}. Terminating..."
     exit ${RET_CODE}
   fi
 
-  IMAGE_FILE_NAME="$(basename "${IMAGE_ARCHIVE_FILE_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
-  IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}/${IMAGE_FILE_NAME}"
+  IMAGE_FILE_PATH="${DECOMPRESSED_FILE_PATH}"
 
   echo "Currently used loop devices:"
   losetup --list
@@ -234,6 +245,8 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_PREINSTALLED}" ]; then
   LOOP_DEVICE_PARTITION_PREFIX=/dev/mapper/"${LOOP_DEVICE_NAME}"
 
   echo "Mounting partitions from ${LOOP_DEVICE_PATH} (prefix: ${LOOP_DEVICE_PARTITION_PREFIX})"
+  # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis, p1 is mounted as /boot
+  # and cointains configuration files.
   mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p1 "${TEMP_WORKING_DIRECTORY}"
 
   setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${TEMP_WORKING_DIRECTORY}"

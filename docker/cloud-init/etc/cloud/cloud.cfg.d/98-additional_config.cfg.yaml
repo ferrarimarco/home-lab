@@ -1,0 +1,16 @@
+---
+# Only allow the NoCloud datasource
+datasource_list: [NoCloud, None]
+
+# Explicitly set the datasource path because we can't rely on filesystem labels
+datasource:
+  NoCloud:
+    seedfrom: "file:///etc/cloud/datasources/NoCloud/"
+
+# Don't disable the root account because we use that account to login to the system
+disable_root: false
+
+# Don't configure the network. Docker takes care of this
+network:
+  config: disabled
+...

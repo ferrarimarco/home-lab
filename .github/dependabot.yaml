@@ -7,7 +7,19 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"
-    directory: "/provisioning/os-images/docker"
+    directory: "/docker/os-image-builder"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/docker/cloud-init"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    directory: "/docker/template-renderer"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/docker/template-renderer"
     schedule:
       interval: "daily"
 ...

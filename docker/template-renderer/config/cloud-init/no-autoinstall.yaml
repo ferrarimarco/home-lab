@@ -1,0 +1,6 @@
+---
+# This is useful to override a true value.
+# For example, it may be useful when you need to implement a test that doesn't need autoinstall,
+# but runs cloud-init directly.
+include_autoinstall: false
+...
