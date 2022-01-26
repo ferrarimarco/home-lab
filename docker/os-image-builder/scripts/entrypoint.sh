@@ -114,7 +114,7 @@ setup_cloud_init_nocloud_datasource() {
       mv \
         --force \
         --verbose \
-        "${FILE_PATH}" "${FILE_PATH%.*}"
+        "${USER_DATA_AUTOINSTALL_PATH}" "${USER_DATA_PATH}"
     fi
     unset USER_DATA_PATH
     unset USER_DATA_AUTOINSTALL_PATH
