@@ -11,6 +11,7 @@ autoinstall:
     toggle: null
     variant: ''
 
+{% if include_autoinstall_network %}
   network:
     version: 2
     ethernets:
@@ -27,6 +28,7 @@ autoinstall:
             - edge.lab.ferrari.how
         optional: true
 
+{% endif %}
   storage:
     layout:
       name: lvm

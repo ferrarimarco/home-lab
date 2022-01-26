@@ -3,6 +3,7 @@ groups:
   - microk8s
 hostname: home-lab-1
 include_autoinstall: true
+include_autoinstall_network: true
 initialize_default_user_password: true
 runcmd:
   - /snap/bin/microk8s status --wait-ready
