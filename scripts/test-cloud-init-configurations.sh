@@ -24,9 +24,11 @@ docker run \
   --name="${CONTAINER_NAME}" \
   --privileged \
   --rm \
-  --tmpfs /tmp \
   --tmpfs /run \
   --tmpfs /run/lock \
+  --tmpfs /sys/fs/cgroup/systemd \
+  --tmpfs /tmp \
+  --tmpfs /var/lib/journal \
   -v "${CLOUD_INIT_DATASOURCE_PATH}/meta-data.yaml":/etc/cloud/datasources/NoCloud/meta-data \
   -v "${CLOUD_INIT_DATASOURCE_PATH}/user-data.yaml":/etc/cloud/datasources/NoCloud/user-data \
   -v /lib/modules:/lib/modules:ro \
