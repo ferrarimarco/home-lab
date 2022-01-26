@@ -110,7 +110,6 @@ setup_cloud_init_nocloud_datasource() {
     USER_DATA_AUTOINSTALL_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data-autoinstall.yaml"
     echo "This build targets an instance that installs the OS with subiquity (Ubuntu autoinstaller)."
     if [ -e "${USER_DATA_AUTOINSTALL_PATH}" ]; then
-      echo "Moving user-data-autoinstall (${USER_DATA_AUTOINSTALL_PATH}) to user-data (${USER_DATA_PATH})"
       mv \
         --force \
         --verbose \
