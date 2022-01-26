@@ -1,7 +1,7 @@
 import os
-import yaml
-
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+
+import yaml
 from jinja2 import Environment, FileSystemLoader
 
 
