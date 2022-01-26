@@ -123,3 +123,22 @@ you:
 An example of this approach to develop with an ESP32 and the
 [esp-idf framework](https://github.com/espressif/esp-idf) is
 [here](provisioning/esp32/smart_desk/Makefile).
+
+### Generate the templated files
+
+To avoid duplications, a template generator produces files from templates.
+To generate templated files, do the following:
+
+```sh
+scripts/generate-templated-files.sh
+```
+
+After the generator produces the files, commit any updates to the generated files.
+
+### Test cloud-init configurations
+
+I use [cloud-init](https://cloudinit.readthedocs.io/) to perform some early provisioning
+and configuration tasks. It has a hard dependency on systemd, which may have issues
+running in containers. `scripts/test-cloud-init-configuration.sh` offers some support
+to run a containerized cloud-init instance, but it's currently too rough to
+integrate it in the CI/CD pipeline.
