@@ -12,15 +12,25 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
     ca-certificates \
     cloud-init \
     dbus \
+    fuse \
     kmod \
     locales \
     lsb-release \
-    openssh-client \
     ntp \
+    openssh-client \
+    openssh-server \
+    pollinate \
+    snap-confine \
+    snapd \
+    squashfuse \
+    sudo \
     systemd \
     udev \
     && rm -rf /var/lib/apt/lists/* \
-    && ln -s "$(command -v systemd)" /sbin/init
+    && ln -s "$(command -v systemd)" /sbin/init \
+    && dpkg-divert --local --rename --add /sbin/udevadm \
+    && ln -s /bin/true /sbin/udevadm \
+    && systemctl enable snapd
 
 # Don't clean up apt cache
 RUN rm /etc/apt/apt.conf.d/docker-clean
