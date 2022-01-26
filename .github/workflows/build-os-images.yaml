@@ -101,7 +101,7 @@ jobs:
     strategy:
       matrix:
         build-configuration-file-path:
-          - "${GITHUB_WORKSPACE}/provisioning/os-images/config/builds/seed-device/ubuntu-20.04-cidata-iso-seed-device.conf"
+          - "${GITHUB_WORKSPACE}/config/seed-device/os-images/ubuntu-20.04-cidata-iso-seed-device.conf"
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     outputs:

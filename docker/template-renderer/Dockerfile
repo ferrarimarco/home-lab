@@ -5,7 +5,7 @@ ENV PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1
 
 RUN apt-get update \
-    && apt-get --assume-yes install \
+    && apt-get --assume-yes --no-install-recommends install \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 

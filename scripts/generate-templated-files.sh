@@ -12,9 +12,9 @@ TEMPLATE_RENDERER_CONTAINER_IMAGE_CONTEXT_PATH="docker/template-renderer"
 
 docker build -t template-renderer "${TEMPLATE_RENDERER_CONTAINER_IMAGE_CONTEXT_PATH}"
 
-SEED_DEVICE_CLOUD_INIT_DIRECTORY_PATH="config/cloud-init/seed-device"
+SEED_DEVICE_CLOUD_INIT_DIRECTORY_PATH="config/seed-device/os-images/cloud-init"
 
 echo "Building the seed device cloud-init configuration files in: ${SEED_DEVICE_CLOUD_INIT_DIRECTORY_PATH}"
 docker run template-renderer render_template "cloud-init/meta-data.yaml.jinja" > "${SEED_DEVICE_CLOUD_INIT_DIRECTORY_PATH}/meta-data.yaml"
-docker run template-renderer render_template "cloud-init/user-data.yaml.jinja" --template_data_file_paths "config/cloud-init/seed-device/ubuntu-20.04-autoinstall.yaml" > "${SEED_DEVICE_CLOUD_INIT_DIRECTORY_PATH}/user-data-autoinstall.yaml"
-docker run template-renderer render_template "cloud-init/user-data.yaml.jinja" --template_data_file_paths "config/cloud-init/seed-device/ubuntu-20.04-autoinstall.yaml" "config/cloud-init/no-autoinstall.yaml" > "${SEED_DEVICE_CLOUD_INIT_DIRECTORY_PATH}/user-data.yaml"
+docker run template-renderer render_template "cloud-init/user-data.yaml.jinja" --template_data_file_paths "config/cloud-init/seed-device/ubuntu-20.04-autoinstall.yaml" >"${SEED_DEVICE_CLOUD_INIT_DIRECTORY_PATH}/user-data-autoinstall.yaml"
+docker run template-renderer render_template "cloud-init/user-data.yaml.jinja" --template_data_file_paths "config/cloud-init/seed-device/ubuntu-20.04-autoinstall.yaml" "config/cloud-init/no-autoinstall.yaml" >"${SEED_DEVICE_CLOUD_INIT_DIRECTORY_PATH}/user-data.yaml"

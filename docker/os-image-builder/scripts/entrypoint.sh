@@ -105,6 +105,21 @@ setup_cloud_init_nocloud_datasource() {
     --verbose \
     "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}/." "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/"
 
+  if [ "${UBUNTU_AUTOINSTALL}" = "true" ]; then
+    USER_DATA_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data.yaml"
+    USER_DATA_AUTOINSTALL_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data-autoinstall.yaml"
+    echo "This build targets an instance that installs the OS with subiquity (Ubuntu autoinstaller)."
+    if [ -e "${USER_DATA_AUTOINSTALL_PATH}" ]; then
+      echo "Moving user-data-autoinstall (${USER_DATA_AUTOINSTALL_PATH}) to user-data (${USER_DATA_PATH})"
+      mv \
+        --force \
+        --verbose \
+        "${FILE_PATH}" "${FILE_PATH%.*}"
+    fi
+    unset USER_DATA_PATH
+    unset USER_DATA_AUTOINSTALL_PATH
+  fi
+
   echo "Removing the yaml file extension from cloud-init datasource configuration files..."
   for FILE in meta-data.yaml network-config.yaml vendor-data.yaml user-data.yaml; do
     FILE_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/${FILE}"

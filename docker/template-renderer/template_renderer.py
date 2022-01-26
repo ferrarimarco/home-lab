@@ -1,6 +1,7 @@
-from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, FileType
 import os
 import yaml
+
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -9,9 +10,9 @@ def render_template(
 ):
     """Render a Jinja template.
     Args:
-     template_load_path: Path to the directory where templates are stored.
-     template_file_path: Path to the template to render inside the directory where templates are stored.
-     template_data_files: List of paths to the data files where template configuration values are stored.
+        template_load_path: Path to the directory where templates are stored.
+        template_file_path: Path to the template to render inside the directory where templates are stored.
+        template_data_files: List of paths to the data files where template configuration values are stored.
     Returns:
         The rendered template.
     """
