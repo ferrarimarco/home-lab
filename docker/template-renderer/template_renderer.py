@@ -56,6 +56,7 @@ def parse_arguments(args: list[str] = None):
     )
     render_template_parser.add_argument(
         "--template_data_file_paths",
+        default=[],
         help="Paths to the YAML-formatted template configuration data file.",
         nargs="*",
     )
