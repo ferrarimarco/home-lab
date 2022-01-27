@@ -26,9 +26,6 @@ CONFIG_MBEDTLS_HARDWARE_SHA=y
 
 # Disable watchdog for CPU1 Idle task. We'll re-enable it after generating the
 # RSA key pair, which is a time-consuming task.
-# This is a workaround for
-# After that issue is fixed, we can avoid disabling it, and manually enabling it
-# when we're done with time-consuming tasks.
 CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=n
 
 # Set the default log level
