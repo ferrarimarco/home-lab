@@ -1,0 +1,50 @@
+---
+esphome:
+  name: smart-desk
+
+esp32:
+  board: featheresp32
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret home_assistant_api_key
+
+ota:
+  password: !secret home_assistant_api_key
+
+wifi:
+  domain: .edge.lab.ferrari.how
+  password: !secret wifi_ssid
+  ssid: !secret wifi_ssid
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Smart-Desk Fallback Hotspot"
+    password: !secret wifi_fallback_hostspot_password
+
+captive_portal:
+
+display:
+  - platform: lcd_pcf8574
+    dimensions: 20x4
+    address: 0x27
+    lambda: |-
+      it.print("Hello World!");
+
+i2c:
+  sda: 23
+  scl: 22
+
+sensor:
+  - platform: ultrasonic
+    trigger_pin: GPIO27
+    echo_pin: GPIO15
+    name: "Ultrasonic distance sensor"
+    update_interval: 100ms
+
+...

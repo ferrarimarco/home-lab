@@ -1,0 +1,13 @@
+{
+  "storage_version": 1,
+  "name": "smart-desk",
+  "comment": null,
+  "esphome_version": "2022.1.2",
+  "src_version": 1,
+  "address": "smart-desk.edge.lab.ferrari.how",
+  "web_port": null,
+  "esp_platform": "ESP32",
+  "build_path": null,
+  "firmware_bin_path": null,
+  "loaded_integrations": []
+}
