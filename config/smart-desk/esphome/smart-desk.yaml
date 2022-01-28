@@ -40,6 +40,11 @@ i2c:
   sda: 23
   scl: 22
 
+light:
+  - platform: status_led
+    name: "Switch state"
+    pin: GPIO13
+
 prometheus:
 
 sensor:
