@@ -9,3 +9,6 @@ SHA256SUMS
 
 # ESPHome secrets
 secrets.y*ml
+
+.esphome
+!.esphome/smart-desk.yaml.json
