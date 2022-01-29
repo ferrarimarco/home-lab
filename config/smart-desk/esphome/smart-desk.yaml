@@ -1,40 +1,46 @@
 ---
-esphome:
-  name: smart-desk
+# Enable Home Assistant API
+api:
+  password: !secret home_assistant_api_key
+
+captive_portal:
+
+display:
+  - platform: lcd_pcf8574
+    dimensions: ${lcd_width}x${lcd_height}
+    address: 0x27
+    lambda: |-
+      it.printf(0, 0, "IP: %s", id(wifi_ip_v4_address).state.c_str());
+      // it.print(0, 1, "FQDN: ${fqdn}");
+      it.printf(0, 2, "Distance: %.2f cm", id(ultrasonic_distance_sensor).state);
+
+      static int p1 = 0;
+
+      char const *fqdn = "FQDN: ${fqdn}";
+      int fqdn_length = strlen(fqdn);
+      if (fqdn_length > ${lcd_width}) fqdn_length = ${lcd_width};
+
+      int spaces_length = fqdn_length >= ${lcd_width} ? 0 : ${lcd_width} - fqdn_length + 1;
+      char spaces[spaces_length];
+      for (int i = 0; i < spaces_length - 1; i++) spaces[i] = ' ';
+      spaces[spaces_length - 1] = '\0';
+
+      it.printf(0, 1, "%.*s%s", fqdn_length, fqdn + p1, spaces);
+
+      p1++;
+      if(p1 > strlen(fqdn) - ${lcd_width}) {
+        p1 = 0;
+      }
+
+    update_interval: 1s
 
 esp32:
   board: featheresp32
   framework:
     type: arduino
 
-# Enable logging
-logger:
-
-# Enable Home Assistant API
-api:
-  password: !secret home_assistant_api_key
-
-ota:
-  password: !secret home_assistant_api_key
-
-wifi:
-  domain: .edge.lab.ferrari.how
-  password: !secret wifi_password
-  ssid: !secret wifi_ssid
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Smart-Desk Fallback Hotspot"
-    password: !secret wifi_fallback_hostspot_password
-
-captive_portal:
-
-display:
-  - platform: lcd_pcf8574
-    dimensions: 20x4
-    address: 0x27
-    lambda: |-
-      it.print("Hello World!");
+esphome:
+  name: smart-desk
 
 i2c:
   sda: 23
@@ -44,6 +50,12 @@ light:
   - platform: status_led
     name: "Switch state"
     pin: GPIO13
+
+# Enable logging
+logger:
+
+ota:
+  password: !secret home_assistant_api_key
 
 prometheus:
 
@@ -73,14 +85,26 @@ sensor:
                 (minutes ? to_string(minutes) + "m " : "") +
                 (to_string(seconds) + "s")
               ).c_str();
-  - platform: ultrasonic
+  - id: ultrasonic_distance_sensor
+    filters:
+      - multiply: 100
+    platform: ultrasonic
     trigger_pin: GPIO27
     echo_pin: GPIO15
     name: "Ultrasonic distance sensor"
+    unit_of_measurement: "cm"
     update_interval: 100ms
   - platform: wifi_signal
     name: "WiFi Signal Sensor"
     update_interval: 30s
+
+substitutions:
+  device_name: smart-desk
+  device_name_upper: Smart Desk
+  fqdn: ${device_name}.${network_domain}
+  network_domain: edge.lab.ferrari.how
+  lcd_height: "4"
+  lcd_width: "20"
 
 text_sensor:
   - platform: template
@@ -89,6 +113,7 @@ text_sensor:
     icon: mdi:clock-start
   - platform: wifi_info
     ip_address:
+      id: wifi_ip_v4_address
       name: ESP IP Address
     ssid:
       name: ESP Connected SSID
@@ -100,4 +125,13 @@ text_sensor:
       name: ESP Latest Scan Results
 
 web_server:
+
+wifi:
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${device_name_upper} Fallback Hotspot"
+    password: !secret wifi_fallback_hostspot_password
+  domain: .${network_domain}
+  password: !secret wifi_password
+  ssid: !secret wifi_ssid
 ...
