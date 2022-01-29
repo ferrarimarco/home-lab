@@ -48,7 +48,7 @@ i2c:
 
 light:
   - platform: status_led
-    name: "Switch state"
+    name: "ESP32 Status LED"
     pin: GPIO13
 
 # Enable logging
@@ -97,6 +97,40 @@ sensor:
   - platform: wifi_signal
     name: "WiFi Signal Sensor"
     update_interval: 30s
+
+switch:
+  - id: desk_relay_1
+    interlock: &interlock_group_actuator_1 [desk_relay_1, desk_relay_2]
+    platform: gpio
+    pin:
+      inverted: true
+      number: 33
+    restore_mode: ALWAYS_OFF
+    name: "Desk relay 1"
+  - id: desk_relay_2
+    interlock: *interlock_group_actuator_1
+    platform: gpio
+    pin:
+      inverted: true
+      number: 32
+    restore_mode: ALWAYS_OFF
+    name: "Desk relay 2"
+  - id: desk_relay_3
+    interlock: &interlock_group_actuator_2 [desk_relay_3, desk_relay_4]
+    platform: gpio
+    pin:
+      inverted: true
+      number: 14
+    restore_mode: ALWAYS_OFF
+    name: "Desk relay 3"
+  - id: desk_relay_4
+    interlock: *interlock_group_actuator_2
+    platform: gpio
+    pin:
+      inverted: true
+      number: 12
+    restore_mode: ALWAYS_OFF
+    name: "Desk relay 4"
 
 substitutions:
   device_name: smart-desk
