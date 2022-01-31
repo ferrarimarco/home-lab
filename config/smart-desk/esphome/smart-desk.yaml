@@ -11,7 +11,6 @@ display:
     address: 0x27
     lambda: |-
       it.printf(0, 0, "IP: %s", id(wifi_ip_v4_address).state.c_str());
-      // it.print(0, 1, "FQDN: ${fqdn}");
       it.printf(0, 2, "Distance: %.2f cm", id(ultrasonic_distance_sensor).state);
 
       static int p1 = 0;
@@ -30,6 +29,13 @@ display:
       p1++;
       if(p1 > strlen(fqdn) - ${lcd_width}) {
         p1 = 0;
+      }
+
+      it.printf(0, 4, "                    ");
+      if (id(extend_actuators).state) {
+        it.printf(0, 4, "Extending actuators");
+      } else if (id(retract_actuators).state) {
+        it.printf(0, 4, "Retracting actuators");
       }
 
     update_interval: 1s
@@ -98,6 +104,14 @@ sensor:
     name: "WiFi Signal Sensor"
     update_interval: 30s
 
+script:
+  - id: turn_actuators_off
+    then:
+      - switch.turn_off: desk_relay_1
+      - switch.turn_off: desk_relay_2
+      - switch.turn_off: desk_relay_3
+      - switch.turn_off: desk_relay_4
+
 switch:
   - id: desk_relay_1
     interlock: &interlock_group_actuator_1 [desk_relay_1, desk_relay_2]
@@ -131,7 +145,8 @@ switch:
       number: 12
     restore_mode: ALWAYS_OFF
     name: "Desk relay 4"
-  - platform: template
+  - id: extend_actuators
+    platform: template
     name: "Extend actuators"
     lambda: |-
       if (id(desk_relay_1).state && id(desk_relay_3).state) {
@@ -143,12 +158,13 @@ switch:
       # No need to turn off the other relays because the interlock group takes care of that
       - switch.turn_on: desk_relay_1
       - switch.turn_on: desk_relay_3
+      # Turn the actuators off anyway as a safety measure
+      - delay: 1min
+      - script.execute: turn_actuators_off
     turn_off_action:
-      - switch.turn_off: desk_relay_1
-      - switch.turn_off: desk_relay_2
-      - switch.turn_off: desk_relay_3
-      - switch.turn_off: desk_relay_4
-  - platform: template
+      - script.execute: turn_actuators_off
+  - id: retract_actuators
+    platform: template
     name: "Retract actuators"
     lambda: |-
       if (id(desk_relay_2).state && id(desk_relay_4).state) {
@@ -160,11 +176,11 @@ switch:
       # No need to turn off the other relays because the interlock group takes care of that
       - switch.turn_on: desk_relay_2
       - switch.turn_on: desk_relay_4
+      # Turn the actuators off anyway as a safety measure
+      - delay: 1min
+      - script.execute: turn_actuators_off
     turn_off_action:
-      - switch.turn_off: desk_relay_1
-      - switch.turn_off: desk_relay_2
-      - switch.turn_off: desk_relay_3
-      - switch.turn_off: desk_relay_4
+      - script.execute: turn_actuators_off
 
 substitutions:
   device_name: smart-desk
