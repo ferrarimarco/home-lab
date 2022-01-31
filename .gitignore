@@ -6,9 +6,3 @@
 *.iso
 *.xz
 SHA256SUMS
-
-# ESPHome secrets
-secrets.y*ml
-
-# ESPHome build path
-.esphome

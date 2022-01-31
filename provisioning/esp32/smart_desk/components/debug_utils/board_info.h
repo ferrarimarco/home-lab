@@ -1,8 +1,0 @@
-#ifndef PROVISIONING_ESP32_SMART_DESK_COMPONENTS_DEBUG_UTILS_BOARD_INFO_H_
-#define PROVISIONING_ESP32_SMART_DESK_COMPONENTS_DEBUG_UTILS_BOARD_INFO_H_
-
-#include "esp_system.h"
-
-void get_board_info(esp_chip_info_t chip_info, int flash_chip_size, int free_heap_size);
-
-#endif  // PROVISIONING_ESP32_SMART_DESK_COMPONENTS_DEBUG_UTILS_BOARD_INFO_H_

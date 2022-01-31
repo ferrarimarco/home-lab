@@ -19,6 +19,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
+    directory: "/config/smart-desk/esphome"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
     directory: "/docker/template-renderer"
     schedule:
       interval: "daily"
