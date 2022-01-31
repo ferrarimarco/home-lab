@@ -3,7 +3,7 @@
 api:
   password: !secret home_assistant_api_key
 
-captive_portal:
+captive_portal: null
 
 display:
   - platform: lcd_pcf8574
@@ -52,12 +52,12 @@ light:
     pin: GPIO13
 
 # Enable logging
-logger:
+logger: null
 
 ota:
   password: !secret home_assistant_api_key
 
-prometheus:
+prometheus: null
 
 sensor:
   - platform: esp32_hall
@@ -194,7 +194,7 @@ text_sensor:
     scan_results:
       name: ESP Latest Scan Results
 
-web_server:
+web_server: null
 
 wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
