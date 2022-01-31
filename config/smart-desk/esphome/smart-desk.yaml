@@ -131,6 +131,40 @@ switch:
       number: 12
     restore_mode: ALWAYS_OFF
     name: "Desk relay 4"
+  - platform: template
+    name: "Extend actuators"
+    lambda: |-
+      if (id(desk_relay_1).state && id(desk_relay_3).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      # No need to turn off the other relays because the interlock group takes care of that
+      - switch.turn_on: desk_relay_1
+      - switch.turn_on: desk_relay_3
+    turn_off_action:
+      - switch.turn_off: desk_relay_1
+      - switch.turn_off: desk_relay_2
+      - switch.turn_off: desk_relay_3
+      - switch.turn_off: desk_relay_4
+  - platform: template
+    name: "Retract actuators"
+    lambda: |-
+      if (id(desk_relay_2).state && id(desk_relay_4).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      # No need to turn off the other relays because the interlock group takes care of that
+      - switch.turn_on: desk_relay_2
+      - switch.turn_on: desk_relay_4
+    turn_off_action:
+      - switch.turn_off: desk_relay_1
+      - switch.turn_off: desk_relay_2
+      - switch.turn_off: desk_relay_3
+      - switch.turn_off: desk_relay_4
 
 substitutions:
   device_name: smart-desk
@@ -141,6 +175,8 @@ substitutions:
   lcd_width: "20"
 
 text_sensor:
+  - platform: version
+    name: "ESPHome Version"
   - platform: template
     name: Uptime Human Readable
     id: uptime_human
