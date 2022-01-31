@@ -14,7 +14,7 @@ VIRTUAL_ENVIRONMENT_PATH="${WORKING_DIRECTORY}/.venv"
 activate_python_virtual_environment() {
   VENV_PATH="${1}"
 
-  if [ -z "${VIRTUAL_ENV}" ]; then
+  if [ -z "${VIRTUAL_ENV-}" ]; then
     echo "Activating the virtual environment in ${VENV_PATH}"
     # shellcheck source=/dev/null
     . "${VENV_PATH}/bin/activate"
