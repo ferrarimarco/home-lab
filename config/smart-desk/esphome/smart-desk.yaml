@@ -31,13 +31,14 @@ display:
         p1 = 0;
       }
 
-      it.printf(0, 4, "                    ");
+      it.printf(0, 3, "                    ");
       if (id(extend_actuators).state) {
-        it.printf(0, 4, "Extending actuators");
+        it.printf(0, 3, "Extending actuators");
       } else if (id(retract_actuators).state) {
-        it.printf(0, 4, "Retracting actuators");
+        it.printf(0, 3, "Retracting actuators");
+      } else {
+        it.printf(0, 3, "Actuators stopped");
       }
-
     update_interval: 1s
 
 esp32:
@@ -59,6 +60,16 @@ light:
 
 # Enable logging
 logger: null
+
+number:
+  - platform: template
+    icon: "mdi:desk"
+    name: "Desired desk distance from sensor"
+    min_value: ${min_desk_distance_cm}
+    max_value: ${max_desk_distance_cm}
+    optimistic: true
+    step: 1
+    unit_of_measurement: cm
 
 ota:
   password: !secret home_assistant_api_key
@@ -183,12 +194,16 @@ switch:
       - script.execute: turn_actuators_off
 
 substitutions:
-  device_name: smart-desk
   device_name_upper: Smart Desk
+  device_name: smart-desk
   fqdn: ${device_name}.${network_domain}
-  network_domain: edge.lab.ferrari.how
   lcd_height: "4"
   lcd_width: "20"
+  min_desk_distance_cm: "19.5"
+  max_actuators_extension_cm: "35"
+  # this is min_desk_distance_cm + max_actuators_extension_cm
+  max_desk_distance_cm: "54.5"
+  network_domain: edge.lab.ferrari.how
 
 text_sensor:
   - platform: version
