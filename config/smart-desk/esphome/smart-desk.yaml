@@ -70,6 +70,24 @@ number:
     optimistic: true
     step: 1
     unit_of_measurement: cm
+    on_value:
+      - if:
+          condition:
+            lambda: |-
+              return id(extend_actuators).state
+                || id(retract_actuators).state
+                || id(ultrasonic_distance_sensor).state == x;
+          then:
+            - logger.log: "The actuators are moving or the distance is equal to the requested one. Discarding the number value."
+          else:
+            - if:
+                condition:
+                  lambda: |-
+                    return id(ultrasonic_distance_sensor).state < x;
+                then:
+                  - script.execute: extend_actuators_script
+                else:
+                  - script.execute: retract_actuators_script
 
 ota:
   password: !secret home_assistant_api_key
@@ -116,8 +134,27 @@ sensor:
     update_interval: 30s
 
 script:
-  - id: turn_actuators_off
+  - id: extend_actuators_script
     then:
+      - logger.log: "Extending the actuators..."
+      # No need to turn off the other relays because the interlock group takes care of that
+      - switch.turn_on: desk_relay_1
+      - switch.turn_on: desk_relay_3
+      # Turn the actuators off anyway as a safety measure
+      - delay: 1min
+      - script.execute: turn_actuators_off_script
+  - id: retract_actuators_script
+    then:
+      - logger.log: "Retracting the actuators..."
+      # No need to turn off the other relays because the interlock group takes care of that
+      - switch.turn_on: desk_relay_2
+      - switch.turn_on: desk_relay_4
+      # Turn the actuators off anyway as a safety measure
+      - delay: 1min
+      - script.execute: turn_actuators_off_script
+  - id: turn_actuators_off_script
+    then:
+      - logger.log: "Turning the actuators off..."
       - switch.turn_off: desk_relay_1
       - switch.turn_off: desk_relay_2
       - switch.turn_off: desk_relay_3
@@ -166,14 +203,9 @@ switch:
         return false;
       }
     turn_on_action:
-      # No need to turn off the other relays because the interlock group takes care of that
-      - switch.turn_on: desk_relay_1
-      - switch.turn_on: desk_relay_3
-      # Turn the actuators off anyway as a safety measure
-      - delay: 1min
-      - script.execute: turn_actuators_off
+      - script.execute: extend_actuators_script
     turn_off_action:
-      - script.execute: turn_actuators_off
+      - script.execute: turn_actuators_off_script
   - id: retract_actuators
     platform: template
     name: "Retract actuators"
@@ -184,14 +216,9 @@ switch:
         return false;
       }
     turn_on_action:
-      # No need to turn off the other relays because the interlock group takes care of that
-      - switch.turn_on: desk_relay_2
-      - switch.turn_on: desk_relay_4
-      # Turn the actuators off anyway as a safety measure
-      - delay: 1min
-      - script.execute: turn_actuators_off
+      - script.execute: retract_actuators_script
     turn_off_action:
-      - script.execute: turn_actuators_off
+      - script.execute: turn_actuators_off_script
 
 substitutions:
   device_name_upper: Smart Desk
