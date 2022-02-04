@@ -11,7 +11,7 @@ echo "This script (${SCRIPT_BASENAME}) has been invoked with: $0 $*"
 # shellcheck source=/dev/null
 . scripts/install-dependencies.sh
 
-if [ -r secrets.yaml ]; then
+if [ ! -r secrets.yaml ]; then
   echo "No secrets file available. Creating one from the template..."
   cp -v secrets-template.yaml secrets.yaml
 fi
