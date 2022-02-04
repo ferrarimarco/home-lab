@@ -8,11 +8,11 @@ on:
   push:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
-      - "provisioning/esp32/**"
+      - "config/smart-desk/**"
   pull_request:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
-      - "provisioning/esp32/**"
+      - "config/smart-desk/**"
 
 jobs:
   lint:
@@ -29,15 +29,18 @@ jobs:
   build-smart-desk:
     defaults:
       run:
-        working-directory: provisioning/esp32/smart_desk
+        working-directory: config/smart-desk/esphome
     needs:
       - lint
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.4.0
-      - name: "Build the Smart Desk firmware"
+      - name: "Install dependencies"
         run: |
-          make
+          scripts/install-dependencies.sh
+      - name: "Build the Smart Desk firmware image"
+        run: |
+          scripts/build.sh
       - uses: actions/upload-artifact@v2
         with:
           if-no-files-found: error
@@ -45,7 +48,7 @@ jobs:
           # working-directory has no effect on this action, so we need to set the full path anyway.
           # See https://github.com/actions/upload-artifact/issues/246
           path: |
-            provisioning/esp32/smart_desk/build/smart-desk.bin.xz
+            config/smart-desk/esphome/.esphome/build/smart-desk/.pioenvs/smart-desk/firmware-factory.bin.xz
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     outputs:

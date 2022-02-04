@@ -1,20 +1,8 @@
-.vagrant/
-
-*.retry
-
+# Log files
 *.log
 
-*.conf.local
-
-env/*
-
-SHA256SUMS
-
+# Downloaded artifacts
 *.img
+*.iso
 *.xz
-
-# We use a .yaml file extension for these files, and we remove that extension
-# before using these files, as cloud-init expects.
-meta-data
-network-config
-user-data
+SHA256SUMS

@@ -1,0 +1,5 @@
+# ESPHome build path
+.esphome
+
+# ESPHome secrets
+secrets.y*ml
