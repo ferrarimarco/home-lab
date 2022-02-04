@@ -62,37 +62,67 @@ light:
 logger: null
 
 number:
-  - platform: template
+  - id: target_smart_desk_distance
+    platform: template
     icon: "mdi:desk"
-    name: "Desired desk distance from sensor"
+    name: "Desired desk top distance from sensor"
     min_value: ${min_desk_distance_cm}
     max_value: ${max_desk_distance_cm}
     optimistic: true
     step: 1
     unit_of_measurement: cm
     on_value:
-      - if:
-          condition:
-            lambda: |-
-              return id(extend_actuators).state
-                || id(retract_actuators).state
-                || id(ultrasonic_distance_sensor).state == x;
-          then:
-            - logger.log: "The actuators are moving or the distance is equal to the requested one. Discarding the number value."
-          else:
-            - if:
-                condition:
-                  lambda: |-
-                    return id(ultrasonic_distance_sensor).state < x;
-                then:
-                  - script.execute: extend_actuators_script
-                else:
-                  - script.execute: retract_actuators_script
+      - script.execute: operate_actuators
 
 ota:
   password: !secret home_assistant_api_key
 
 prometheus: null
+
+script:
+  - id: operate_actuators
+    then:
+      - if:
+          condition:
+            lambda: |-
+              return id(ultrasonic_distance_sensor).state == id(target_smart_desk_distance).state;
+          then:
+            - logger.log: "The current distance is equal to the requested one. Stopping the actuators."
+            - script.execute: turn_actuators_off_script
+          else:
+            - if:
+                condition:
+                  lambda: |-
+                    return id(ultrasonic_distance_sensor).state < id(target_smart_desk_distance).state;
+                then:
+                  - script.execute: extend_actuators_script
+                else:
+                  - script.execute: retract_actuators_script
+  - id: extend_actuators_script
+    then:
+      - logger.log: "Extending the actuators..."
+      # No need to turn off the other relays because the interlock group takes care of that
+      - switch.turn_on: desk_relay_1
+      - switch.turn_on: desk_relay_3
+      # Turn the actuators off anyway as a safety measure
+      - delay: 1min
+      - script.execute: turn_actuators_off_script
+  - id: retract_actuators_script
+    then:
+      - logger.log: "Retracting the actuators..."
+      # No need to turn off the other relays because the interlock group takes care of that
+      - switch.turn_on: desk_relay_2
+      - switch.turn_on: desk_relay_4
+      # Turn the actuators off anyway as a safety measure
+      - delay: 1min
+      - script.execute: turn_actuators_off_script
+  - id: turn_actuators_off_script
+    then:
+      - logger.log: "Turning the actuators off..."
+      - switch.turn_off: desk_relay_1
+      - switch.turn_off: desk_relay_2
+      - switch.turn_off: desk_relay_3
+      - switch.turn_off: desk_relay_4
 
 sensor:
   - platform: esp32_hall
@@ -129,36 +159,27 @@ sensor:
     name: "Ultrasonic distance sensor"
     unit_of_measurement: "cm"
     update_interval: 100ms
+    on_value:
+      - if:
+          condition:
+            lambda: |-
+              return id(extend_actuators).state || id(retract_actuators).state;
+          then:
+            - logger.log: "The actuators are moving. Checking if the desk reached the target distance..."
+            - if:
+                condition:
+                  lambda: |-
+                    return id(ultrasonic_distance_sensor).state == id(target_smart_desk_distance).state;
+                then:
+                  - logger.log: "The desk reached the target distance. Stopping the actuators..."
+                  - script.execute: turn_actuators_off_script
+                else:
+                  - logger.log: "The desk didn't reach the target distance yet. Leaving the actuators on..."
+          else:
+            - logger.log: "The actuators are not moving. Skipping the desk distance check."
   - platform: wifi_signal
     name: "WiFi Signal Sensor"
     update_interval: 30s
-
-script:
-  - id: extend_actuators_script
-    then:
-      - logger.log: "Extending the actuators..."
-      # No need to turn off the other relays because the interlock group takes care of that
-      - switch.turn_on: desk_relay_1
-      - switch.turn_on: desk_relay_3
-      # Turn the actuators off anyway as a safety measure
-      - delay: 1min
-      - script.execute: turn_actuators_off_script
-  - id: retract_actuators_script
-    then:
-      - logger.log: "Retracting the actuators..."
-      # No need to turn off the other relays because the interlock group takes care of that
-      - switch.turn_on: desk_relay_2
-      - switch.turn_on: desk_relay_4
-      # Turn the actuators off anyway as a safety measure
-      - delay: 1min
-      - script.execute: turn_actuators_off_script
-  - id: turn_actuators_off_script
-    then:
-      - logger.log: "Turning the actuators off..."
-      - switch.turn_off: desk_relay_1
-      - switch.turn_off: desk_relay_2
-      - switch.turn_off: desk_relay_3
-      - switch.turn_off: desk_relay_4
 
 switch:
   - id: desk_relay_1
@@ -226,8 +247,10 @@ substitutions:
   fqdn: ${device_name}.${network_domain}
   lcd_height: "4"
   lcd_width: "20"
+  # 19.5 cm is the distance between the mount point and the desk top if the controller box is placed on the horizontal table reinforcement
   min_desk_distance_cm: "19.5"
   max_actuators_extension_cm: "35"
+  # 54 cm is the distance between the mount point and the desk top if the controller box is placed on the ground
   # this is min_desk_distance_cm + max_actuators_extension_cm
   max_desk_distance_cm: "54.5"
   network_domain: edge.lab.ferrari.how
