@@ -66,11 +66,11 @@ number:
     platform: template
     icon: "mdi:desk"
     name: "Desired desk top distance from sensor"
-    min_value: ${min_desk_distance_cm}
-    max_value: ${max_desk_distance_cm}
+    min_value: ${min_desk_distance}
+    max_value: ${max_desk_distance}
     optimistic: true
-    step: 1
-    unit_of_measurement: cm
+    step: 0.01
+    unit_of_measurement: m
     on_value:
       - script.execute: operate_actuators
 
@@ -85,19 +85,13 @@ script:
       - if:
           condition:
             lambda: |-
-              return id(ultrasonic_distance_sensor).state == id(target_smart_desk_distance).state;
+              return id(ultrasonic_distance_sensor).state < id(target_smart_desk_distance).state;
           then:
-            - logger.log: "The current distance is equal to the requested one. Stopping the actuators."
-            - script.execute: turn_actuators_off_script
+            - logger.log: "Current distance < requested distance. Extending the actuators."
+            - script.execute: extend_actuators_script
           else:
-            - if:
-                condition:
-                  lambda: |-
-                    return id(ultrasonic_distance_sensor).state < id(target_smart_desk_distance).state;
-                then:
-                  - script.execute: extend_actuators_script
-                else:
-                  - script.execute: retract_actuators_script
+            - logger.log: "Current distance > requested distance. Retracting the actuators."
+            - script.execute: retract_actuators_script
   - id: extend_actuators_script
     then:
       - logger.log: "Extending the actuators..."
@@ -106,6 +100,7 @@ script:
       - switch.turn_on: desk_relay_3
       # Turn the actuators off anyway as a safety measure
       - delay: 1min
+      - logger.log: "Safety timer expired. Stopping the actuators. Stopping the actuators in any case."
       - script.execute: turn_actuators_off_script
   - id: retract_actuators_script
     then:
@@ -115,6 +110,7 @@ script:
       - switch.turn_on: desk_relay_4
       # Turn the actuators off anyway as a safety measure
       - delay: 1min
+      - logger.log: "Safety timer expired. Stopping the actuators in any case."
       - script.execute: turn_actuators_off_script
   - id: turn_actuators_off_script
     then:
@@ -123,6 +119,11 @@ script:
       - switch.turn_off: desk_relay_2
       - switch.turn_off: desk_relay_3
       - switch.turn_off: desk_relay_4
+      # Stop the other scripts because they might be running and waiting for the
+      # safety timer to expire, but we explicitly stop the actuators here, so
+      # there's no need for the safety timer at this point.
+      - script.stop: extend_actuators_script
+      - script.stop: retract_actuators_script
 
 sensor:
   - platform: esp32_hall
@@ -151,14 +152,12 @@ sensor:
                 (to_string(seconds) + "s")
               ).c_str();
   - id: ultrasonic_distance_sensor
-    filters:
-      - multiply: 100
     platform: ultrasonic
     trigger_pin: GPIO27
     echo_pin: GPIO15
     name: "Ultrasonic distance sensor"
-    unit_of_measurement: "cm"
     update_interval: 100ms
+    timeout: 4m
     on_value:
       - if:
           condition:
@@ -169,7 +168,17 @@ sensor:
             - if:
                 condition:
                   lambda: |-
-                    return id(ultrasonic_distance_sensor).state == id(target_smart_desk_distance).state;
+                    float diff = id(ultrasonic_distance_sensor).state - id(target_smart_desk_distance).state;
+                    float abs_diff = abs(diff);
+                    float distance_tolerance = ${distance_tolerance};
+                    ESP_LOGD("main", "Difference: %f, Abs difference: %f, Tolerance: %f", diff, abs_diff, distance_tolerance);
+                    if (abs_diff < distance_tolerance){
+                      ESP_LOGD("main", "Abs difference is in the tolerance range. Condition matched.");
+                      return true;
+                    } else {
+                      ESP_LOGD("main", "Abs difference is not in the tolerance range. Condition not matched.");
+                      return false;
+                    }
                 then:
                   - logger.log: "The desk reached the target distance. Stopping the actuators..."
                   - script.execute: turn_actuators_off_script
@@ -247,12 +256,13 @@ substitutions:
   fqdn: ${device_name}.${network_domain}
   lcd_height: "4"
   lcd_width: "20"
+  distance_tolerance: "0.02"
   # 19.5 cm is the distance between the mount point and the desk top if the controller box is placed on the horizontal table reinforcement
-  min_desk_distance_cm: "19.5"
-  max_actuators_extension_cm: "35"
+  min_desk_distance: "0.19"
+  max_actuators_extension: "0.35"
   # 54 cm is the distance between the mount point and the desk top if the controller box is placed on the ground
-  # this is min_desk_distance_cm + max_actuators_extension_cm
-  max_desk_distance_cm: "54.5"
+  # this is min_desk_distance + max_actuators_extension
+  max_desk_distance: "0.54"
   network_domain: edge.lab.ferrari.how
 
 text_sensor:
