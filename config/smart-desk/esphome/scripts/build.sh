@@ -19,7 +19,7 @@ fi
 echo "Validating ESPHome configuration..."
 esphome --verbose config smart-desk.yaml
 
-if [ ! "${CI:-}" = "true" ]; then
+if [ "${CI:-}" = "true" ]; then
   echo "Continuous integration environment detected. Compiling the firmware without pushing it to the ESPHome node."
   esphome compile smart-desk.yaml
 else
