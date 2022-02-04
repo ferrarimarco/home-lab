@@ -39,6 +39,7 @@ display:
       } else {
         it.printf(0, 3, "Actuators stopped");
       }
+
     update_interval: 1s
 
 esp32:
@@ -256,7 +257,7 @@ substitutions:
   fqdn: ${device_name}.${network_domain}
   lcd_height: "4"
   lcd_width: "20"
-  distance_tolerance: "0.02"
+  distance_tolerance: "0.01"
   # 19.5 cm is the distance between the mount point and the desk top if the controller box is placed on the horizontal table reinforcement
   min_desk_distance: "0.19"
   max_actuators_extension: "0.35"
