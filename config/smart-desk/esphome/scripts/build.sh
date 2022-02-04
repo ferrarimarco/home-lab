@@ -37,6 +37,8 @@ esphome --verbose config "${ESPHOME_CONFIGURATION_FILE_NAME}"
 if [ "${CI:-}" = "true" ]; then
   echo "Continuous integration environment detected. Compiling the firmware without pushing it to the ESPHome node."
   esphome compile "${ESPHOME_CONFIGURATION_FILE_NAME}"
+  echo "PWD: $(pwd)"
+  ls -alhR "config/smart-desk/esphome/.esphome/"
   compress_file "config/smart-desk/esphome/.esphome/build/${ESPHOME_NODE_NAME}/.pioenvs/${ESPHOME_NODE_NAME}/firmware-factory.bin"
 else
   esphome run "${ESPHOME_CONFIGURATION_FILE_NAME}"
