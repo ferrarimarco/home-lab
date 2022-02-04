@@ -111,19 +111,6 @@ For example, follow
 
 In this section, you set up a development environment for the home lab.
 
-### Remote embedded development
-
-To use a remote workstation as a development environment for embedded devices,
-you:
-
-1. Expose the needed serial ports via an RFC 2217 server.
-1. Forward the RFC 2217 ports over SSH.
-1. Connect to the forwarded ports from the development workstation.
-
-An example of this approach to develop with an ESP32 and the
-[esp-idf framework](https://github.com/espressif/esp-idf) is
-[here](provisioning/esp32/smart_desk/Makefile).
-
 ### Generate the templated files
 
 To avoid duplications, a template generator produces files from templates.
