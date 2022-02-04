@@ -11,12 +11,17 @@ echo "This script (${SCRIPT_BASENAME}) has been invoked with: $0 $*"
 # shellcheck source=/dev/null
 . scripts/install-dependencies.sh
 
+if [ -r secrets.yaml ]; then
+  echo "No secrets file available. Creating one from the template..."
+  cp -v secrets-template.yaml secrets.yaml
+fi
+
+echo "Validating ESPHome configuration..."
 esphome --verbose config smart-desk.yaml
 
 if [ ! "${CI:-}" = "true" ]; then
-  esphome run smart-desk.yaml
-else
   echo "Continuous integration environment detected. Compiling the firmware without pushing it to the ESPHome node."
-  cp -v secrets-template.yaml secrets.yaml
   esphome compile smart-desk.yaml
+else
+  esphome run smart-desk.yaml
 fi

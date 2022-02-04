@@ -31,6 +31,9 @@ if [ ! -e "${VIRTUAL_ENVIRONMENT_PATH}" ]; then
 
   activate_python_virtual_environment "${VIRTUAL_ENVIRONMENT_PATH}"
 
+  echo "Ensure pip, setuptools, and wheel are installed and up to date"
+  pip3 install --upgrade pip setuptools wheel
+
   echo "Installing dependencies"
   pip3 install -r requirements.txt
 else
