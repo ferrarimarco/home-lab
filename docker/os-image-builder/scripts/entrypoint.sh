@@ -229,7 +229,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     exit ${RET_CODE}
   fi
 
-  IMAGE_FILE_PATH="$(pwd)/${OS_IMAGE_FILE_NAME}}"
+  IMAGE_FILE_PATH="$(pwd)/${OS_IMAGE_FILE_NAME}"
   if [ ! -e "${IMAGE_FILE_PATH}" ]; then
     echo "[ERROR]: The image file does not exist: ${IMAGE_FILE_PATH}. Terminating..."
     exit ${ERR_GENERIC}
