@@ -70,6 +70,10 @@ decompress_file() {
   fi
 
   DECOMPRESSED_FILE_PATH="$(pwd)/$(basename "${FILE_TO_DECOMPRESS_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
+  if [ ! -r "${DECOMPRESSED_FILE_PATH}" ]; then
+    echo "[ERROR]: The path to the decompressed file points to a non-existing file: ${DECOMPRESSED_FILE_PATH}. Terminating..."
+    exit ${ERR_GENERIC}
+  fi
 }
 
 download_file_if_necessary() {
