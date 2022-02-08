@@ -61,7 +61,6 @@ decompress_file() {
       "${FILE_TO_DECOMPRESS_PATH}"
   elif [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "zip" ]; then
     unzip \
-      -v \
       "${FILE_TO_DECOMPRESS_PATH}"
   else
     echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
