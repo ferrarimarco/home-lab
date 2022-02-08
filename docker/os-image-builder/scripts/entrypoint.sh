@@ -50,10 +50,9 @@ compress_file() {
 
 decompress_file() {
   FILE_TO_DECOMPRESS_PATH="${1}"
-
   FILE_TO_DECOMPRESS_EXTENSION="${FILE_TO_DECOMPRESS_PATH##*.}"
 
-  echo "Decompressing ${FILE_TO_DECOMPRESS_PATH}..."
+  echo "Decompressing ${FILE_TO_DECOMPRESS_PATH} (file extension: ${FILE_TO_DECOMPRESS_EXTENSION})..."
   if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
     xz \
       --decompress \
@@ -69,11 +68,8 @@ decompress_file() {
     return ${ERR_ARCHIVE_NOT_SUPPORTED}
   fi
 
-  DECOMPRESSED_FILE_PATH="$(pwd)/$(basename "${FILE_TO_DECOMPRESS_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
-  if [ ! -r "${DECOMPRESSED_FILE_PATH}" ]; then
-    echo "[ERROR]: The path to the decompressed file points to a non-existing file: ${DECOMPRESSED_FILE_PATH}. Terminating..."
-    exit ${ERR_GENERIC}
-  fi
+  unset FILE_TO_DECOMPRESS_PATH
+  unset FILE_TO_DECOMPRESS_EXTENSION
 }
 
 download_file_if_necessary() {
@@ -234,7 +230,11 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     exit ${RET_CODE}
   fi
 
-  IMAGE_FILE_PATH="${DECOMPRESSED_FILE_PATH}"
+  IMAGE_FILE_PATH="$(pwd)/${OS_IMAGE_FILE_NAME}}"
+  if [ ! -e "${IMAGE_FILE_PATH}" ]; then
+    echo "[ERROR]: The image file does not exist: ${IMAGE_FILE_PATH}. Terminating..."
+    exit ${ERR_GENERIC}
+  fi
 
   echo "Currently used loop devices:"
   losetup --list
