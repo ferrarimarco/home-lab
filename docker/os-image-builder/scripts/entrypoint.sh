@@ -55,7 +55,15 @@ decompress_file() {
 
   echo "Decompressing ${FILE_TO_DECOMPRESS_PATH}..."
   if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
-    xz -d -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
+    xz \
+      --decompress \
+      --threads=0 \
+      --verbose \
+      "${FILE_TO_DECOMPRESS_PATH}"
+  elif [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "zip" ]; then
+    unzip \
+      -v \
+      "${FILE_TO_DECOMPRESS_PATH}"
   else
     echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
     return ${ERR_ARCHIVE_NOT_SUPPORTED}

@@ -40,6 +40,9 @@ jobs:
       - uses: actions/checkout@v2.4.0
       - name: Set environment variables
         run: |
+          set -o errexit
+          set -o nounset
+
           TEMP_WORKSPACE_PATH="$(mktemp -d)"
           {
             echo "TEMP_WORKSPACE_PATH=${TEMP_WORKSPACE_PATH}"
@@ -60,6 +63,9 @@ jobs:
           tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
       - name: "Generate the cloud-init datasource ISO. Config: ${{ matrix.build-configuration-file-path }}"
         run: |
+          set -o errexit
+          set -o nounset
+
           docker run \
             --privileged \
             --user "$(id -u):$(id -g)" \
