@@ -197,10 +197,11 @@ TEMP_WORKING_DIRECTORY="$(mktemp -d)"
 echo "Created a temporary working directory: ${TEMP_WORKING_DIRECTORY}"
 
 DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}")"
-echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
+echo "Device configuration directory path: ${DEVICE_CONFIG_DIRECTORY}"
 
 CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
-echo "Cloud-init configuration directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}"
+KERNEL_CMDLINE_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/cmdline.txt"
+RASPBERRY_PI_CONFIG_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/raspberry-pi-config.txt"
 
 if [ -n "${OS_IMAGE_URL}" ]; then
   OS_IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
@@ -245,18 +246,31 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   LOOP_DEVICE_PARTITION_PREFIX=/dev/mapper/"${LOOP_DEVICE_NAME}"
 
   echo "Mounting partitions from ${LOOP_DEVICE_PATH} (prefix: ${LOOP_DEVICE_PARTITION_PREFIX})"
-  # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis, p1 is mounted as /boot
-  # and cointains configuration files.
+  # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis and the Raspberry Pi
+  # OS image, p1 is mounted as /boot and cointains configuration files.
   mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p1 "${TEMP_WORKING_DIRECTORY}"
 
-  setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${TEMP_WORKING_DIRECTORY}"
+  if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
+    setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${TEMP_WORKING_DIRECTORY}"
+  fi
 
-  if [ -n "${KERNEL_CMDLINE_FILE_PATH}" ]; then
-    echo "Customizing the Kernel command line..."
+  if [ -e "${KERNEL_CMDLINE_FILE_PATH}" ]; then
     cp \
       --force \
       --verbose \
-      "${DEVICE_CONFIG_DIRECTORY}/${KERNEL_CMDLINE_FILE_PATH}" "${TEMP_WORKING_DIRECTORY}/cmdline.txt"
+      "${KERNEL_CMDLINE_FILE_PATH}" "${TEMP_WORKING_DIRECTORY}/cmdline.txt"
+  fi
+
+  if [ -e "${RASPBERRY_PI_CONFIG_FILE_PATH}" ]; then
+    cp \
+      --force \
+      --verbose \
+      "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${TEMP_WORKING_DIRECTORY}/config.txt"
+  fi
+
+  if [ "${ENABLE_RASPBERRY_PI_OS_SSH}" = "true" ]; then
+    # https://www.raspberrypi.com/documentation/computers/configuration.html#ssh-or-ssh-txt
+    touch "${TEMP_WORKING_DIRECTORY}/ssh.txt"
   fi
 
   echo "Synchronizing latest filesystem changes..."
