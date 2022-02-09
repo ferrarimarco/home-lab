@@ -61,7 +61,7 @@ jobs:
           load: true
           push: false
           tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
-      - name: "Generate the cloud-init datasource ISO. Config: ${{ matrix.build-configuration-file-path }}"
+      - name: "Build the image. Config: ${{ matrix.build-configuration-file-path }}"
         run: |
           set -o errexit
           set -o nounset
