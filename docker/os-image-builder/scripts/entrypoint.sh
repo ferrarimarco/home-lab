@@ -48,6 +48,29 @@ compress_file() {
   COMPRESSED_FILE_PATH="${SOURCE_FILE_PATH}.xz"
 }
 
+copy_file_if_available() {
+  SOURCE_FILE_PATH="${1}"
+  DESTINATION_FILE_PATH="${2}"
+
+  if [ -e "${SOURCE_FILE_PATH}" ]; then
+    echo "Copying ${SOURCE_FILE_PATH} to ${DESTINATION_FILE_PATH}"
+
+    if [ -e "${DESTINATION_FILE_PATH}" ]; then
+      echo "Contents of ${DESTINATION_FILE_PATH} before overriding it:"
+      cat "${DESTINATION_FILE_PATH}"
+    fi
+
+    echo "Copying ${SOURCE_FILE_PATH} to ${DESTINATION_FILE_PATH}"
+    cp \
+      --force \
+      --verbose \
+      "${SOURCE_FILE_PATH}" "${DESTINATION_FILE_PATH}"
+  fi
+
+  unset SOURCE_FILE_PATH
+  unset DESTINATION_FILE_PATH
+}
+
 decompress_file() {
   FILE_TO_DECOMPRESS_PATH="${1}"
   FILE_TO_DECOMPRESS_EXTENSION="${FILE_TO_DECOMPRESS_PATH##*.}"
@@ -295,19 +318,8 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
   fi
 
-  if [ -e "${KERNEL_CMDLINE_FILE_PATH}" ]; then
-    cp \
-      --force \
-      --verbose \
-      "${KERNEL_CMDLINE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
-  fi
-
-  if [ -e "${RASPBERRY_PI_CONFIG_FILE_PATH}" ]; then
-    cp \
-      --force \
-      --verbose \
-      "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
-  fi
+  copy_file_if_available "${KERNEL_CMDLINE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
+  copy_file_if_available "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
 
   if [ "${ENABLE_RASPBERRY_PI_OS_SSH}" = "true" ]; then
     echo "Enabling SSH on Raspberry Pi OS..."
