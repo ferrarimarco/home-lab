@@ -237,6 +237,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
 
   echo "Getting info about the partitions in the image (${IMAGE_FILE_PATH})..."
   PARTITIONS_INFO="$(sfdisk -d "${IMAGE_FILE_PATH}")"
+  echo "${PARTITIONS_INFO}"
 
   # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis and the Raspberry Pi
   # OS image, p1 is mounted as /boot and cointains configuration files.
