@@ -12,7 +12,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
     cloud-image-utils \
     cloud-init \
     curl \
-    kpartx \
+    lsof \
     unzip \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*

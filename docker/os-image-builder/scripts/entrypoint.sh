@@ -235,6 +235,21 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     exit ${ERR_GENERIC}
   fi
 
+  echo "Getting info about the partitions in the image (${IMAGE_FILE_PATH})..."
+  PARTITIONS_INFO="$(sfdisk -d "${IMAGE_FILE_PATH}")"
+
+  # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis and the Raspberry Pi
+  # OS image, p1 is mounted as /boot and cointains configuration files.
+  BOOT_PARTITION_INDEX="${BOOT_PARTITION_INDEX:-"1"}"
+  ROOT_PARTITION_INDEX="${ROOT_PARTITION_INDEX:-"2"}"
+
+  echo "Boot partition index: ${BOOT_PARTITION_INDEX}. Root paritition index: ${ROOT_PARTITION_INDEX}"
+
+  BOOT_PARTITION_OFFSET=$(($(echo "${PARTITIONS_INFO}" | grep "${IMAGE_FILE_PATH}${BOOT_PARTITION_INDEX}" | awk '{print $4-0}') * 512))
+  ROOT_PARTITION_OFFSET=$(($(echo "${PARTITIONS_INFO}" | grep "${IMAGE_FILE_PATH}${ROOT_PARTITION_INDEX}" | awk '{print $4-0}') * 512))
+
+  echo "Boot partition offset: ${BOOT_PARTITION_OFFSET}. Root paritition offset: ${ROOT_PARTITION_OFFSET}"
+
   echo "Currently used loop devices:"
   losetup --list
 
@@ -246,55 +261,73 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     echo "There are no stale mounts to clean."
   fi
 
-  echo "Mapping ${IMAGE_FILE_PATH} to loop devices..."
-  kpartx -asv "${IMAGE_FILE_PATH}"
-
   echo "Currently used loop devices:"
   losetup --list
 
-  LOOP_DEVICE_PATH="$(losetup -O NAME,BACK-FILE | grep "${IMAGE_FILE_PATH}" | awk '{ print $1 }')"
-  LOOP_DEVICE_NAME="$(basename "${LOOP_DEVICE_PATH}")"
-  LOOP_DEVICE_PARTITION_PREFIX=/dev/mapper/"${LOOP_DEVICE_NAME}"
+  echo "Getting a loop device to mount the root partition..."
+  losetup -f
 
-  echo "Mounting partitions from ${LOOP_DEVICE_PATH} (prefix: ${LOOP_DEVICE_PARTITION_PREFIX})"
-  # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis and the Raspberry Pi
-  # OS image, p1 is mounted as /boot and cointains configuration files.
-  mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p1 "${TEMP_WORKING_DIRECTORY}"
+  BOOT_PARTITION_MOUNT_PATH="${TEMP_WORKING_DIRECTORY}/boot"
+  mkdir -p "${BOOT_PARTITION_MOUNT_PATH}"
+
+  ROOT_PARTITION_MOUNT_PATH="${TEMP_WORKING_DIRECTORY}/root"
+  mkdir -p "${ROOT_PARTITION_MOUNT_PATH}"
+
+  echo "Mounting the root partition to ${ROOT_PARTITION_MOUNT_PATH}"
+  mount -o loop,offset=${ROOT_PARTITION_OFFSET} "${IMAGE_FILE_PATH}" "${ROOT_PARTITION_MOUNT_PATH}"/
+  if [ "${BOOT_PARTITION_INDEX}" != "${ROOT_PARTITION_INDEX}" ]; then
+    echo "Getting a loop device to mount the boot partition..."
+    losetup -f
+
+    echo "Mounting the boot partition to ${BOOT_PARTITION_MOUNT_PATH}"
+    mount -o loop,offset=${BOOT_PARTITION_OFFSET},sizelimit=$((ROOT_PARTITION_OFFSET - BOOT_PARTITION_OFFSET)) "${IMAGE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
+  fi
+
+  echo "Mounting /dev"
+  mount -o bind /dev "${ROOT_PARTITION_MOUNT_PATH}/dev"
+  mkdir -p "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
+  mount -o bind /dev/pts "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
 
   if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
-    setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${TEMP_WORKING_DIRECTORY}"
+    setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
   fi
 
   if [ -e "${KERNEL_CMDLINE_FILE_PATH}" ]; then
     cp \
       --force \
       --verbose \
-      "${KERNEL_CMDLINE_FILE_PATH}" "${TEMP_WORKING_DIRECTORY}/cmdline.txt"
+      "${KERNEL_CMDLINE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
   fi
 
   if [ -e "${RASPBERRY_PI_CONFIG_FILE_PATH}" ]; then
     cp \
       --force \
       --verbose \
-      "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${TEMP_WORKING_DIRECTORY}/config.txt"
+      "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
   fi
 
   if [ "${ENABLE_RASPBERRY_PI_OS_SSH}" = "true" ]; then
     # https://www.raspberrypi.com/documentation/computers/configuration.html#ssh-or-ssh-txt
-    touch "${TEMP_WORKING_DIRECTORY}/ssh.txt"
+    touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
   fi
 
   echo "Synchronizing latest filesystem changes..."
   sync
 
   echo "Unmounting file systems..."
-  umount -v "${TEMP_WORKING_DIRECTORY}"
-
-  echo "Deleting loop devices where ${IMAGE_FILE_PATH} was mapped..."
-  kpartx -svd "${IMAGE_FILE_PATH}"
-
-  echo "Removing the ${LOOP_DEVICE_PATH} loop device..."
-  rm -f "${LOOP_DEVICE_PATH}"
+  # We might have "broken" mounts in the mix that point at a deleted image (in case of some odd
+  # build errors). So our "sudo mount" output can look like this:
+  #
+  #     /path/to/our/image.img (deleted) on /path/to/our/mount type ext4 (rw)
+  #     /path/to/our/image.img on /path/to/our/mount type ext4 (rw)
+  #     /path/to/our/image.img on /path/to/our/mount/boot type vfat (rw)
+  #
+  # so we split on "on" first, then do a whitespace split to get the actual mounted directory.
+  # Also we sort in reverse to get the deepest mounts first.
+  for m in $(sudo mount | grep "${TEMP_WORKING_DIRECTORY}" | awk -F " on " '{print $2}' | awk '{print $1}' | sort -r); do
+    echo "Unmounting ${m}..."
+    sudo umount "${m}"
+  done
 
   echo "Adding the ${OS_IMAGE_FILE_TAG} tag to the image file..."
   IMAGE_FILE_EXTENSION=".${IMAGE_FILE_PATH##*.}"
