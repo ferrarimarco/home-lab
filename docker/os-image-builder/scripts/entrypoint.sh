@@ -310,6 +310,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   fi
 
   if [ "${ENABLE_RASPBERRY_PI_OS_SSH}" = "true" ]; then
+    echo "Enabling SSH on Raspberry Pi OS..."
     # https://www.raspberrypi.com/documentation/computers/configuration.html#ssh-or-ssh-txt
     touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
   fi
