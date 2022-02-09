@@ -74,7 +74,7 @@ jobs:
             "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
-          chown \
+          sudo chown \
             --recursive \
             --verbose \
             "$(id -u):$(id -g)" \
