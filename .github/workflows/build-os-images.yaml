@@ -68,12 +68,17 @@ jobs:
 
           docker run \
             --privileged \
-            --user "$(id -u):$(id -g)" \
             -v /dev:/dev \
             -v "${TEMP_WORKSPACE_PATH}":/tmp/workdir \
             -v "${BUILD_CONFIGURATION_DIRECTORY_PATH}":/tmp/config \
             "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
             --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
+
+          chown \
+            --recursive \
+            --verbose \
+            "$(id -u):$(id -g)" \
+            "${TEMP_WORKSPACE_PATH}"
 
           if ! [ -r "${RESULTS_FILE_PATH}" ]; then
             echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
