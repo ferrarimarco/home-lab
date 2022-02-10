@@ -161,7 +161,12 @@ initialize_resolv_conf() {
 
 register_qemu_static() {
   echo "Registering qemu-*-static for all supported processors except the current one..."
-  bash -x -c "/register --reset --persistent yes"
+  set -x
+  export SHELLOPTS
+  /register \
+    --persistent yes \
+    --reset
+  set +x
 }
 
 setup_cloud_init_nocloud_datasource() {
