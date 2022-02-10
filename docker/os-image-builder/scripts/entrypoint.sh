@@ -161,9 +161,11 @@ initialize_resolv_conf() {
 
 register_qemu_static() {
   echo "Registering qemu-*-static for all supported processors except the current one..."
+  # Keep the "--reset" option as the first because the register script consumes it before passing the rest to qemu-binfmt-conf.sh
+  # See https://github.com/multiarch/qemu-user-static/blob/master/containers/latest/register.sh
   /register \
-    --persistent yes \
-    --reset
+    --reset \
+    --persistent yes
 }
 
 setup_cloud_init_nocloud_datasource() {
