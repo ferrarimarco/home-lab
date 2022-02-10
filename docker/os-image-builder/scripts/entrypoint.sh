@@ -160,8 +160,11 @@ initialize_resolv_conf() {
 }
 
 register_qemu_static() {
+  BINFMT_MISC_REGISTER_PATH=/proc/sys/fs/binfmt_misc/register
+  print_or_warn "${BINFMT_MISC_REGISTER_PATH}"
   echo "Registering qemu-*-static for all supported processors except the current one..."
   bash /register --reset -p yes
+  print_or_warn "${BINFMT_MISC_REGISTER_PATH}"
 }
 
 setup_cloud_init_nocloud_datasource() {
