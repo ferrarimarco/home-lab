@@ -34,6 +34,21 @@ check_argument() {
   unset ARGUMENT_VALUE
 }
 
+print_or_warn() {
+  FILE_PATH="${1}"
+  if [ -e "${FILE_PATH}" ]; then
+    echo "-------------------------"
+    echo "Contents of ${FILE_PATH} ($(ls -alhR "${FILE_PATH}")):"
+    if [ -f "${FILE_PATH}" ]; then
+      cat "${FILE_PATH}"
+    fi
+    echo "-------------------------"
+  else
+    echo "${FILE_PATH} doesn't exist"
+  fi
+  unset FILE_PATH
+}
+
 compress_file() {
   SOURCE_FILE_PATH="${1}"
 
@@ -54,13 +69,6 @@ copy_file_if_available() {
 
   if [ -e "${SOURCE_FILE_PATH}" ]; then
     echo "Copying ${SOURCE_FILE_PATH} to ${DESTINATION_FILE_PATH}"
-
-    if [ -e "${DESTINATION_FILE_PATH}" ]; then
-      echo "Contents of ${DESTINATION_FILE_PATH} before overriding it:"
-      cat "${DESTINATION_FILE_PATH}"
-    fi
-
-    echo "Copying ${SOURCE_FILE_PATH} to ${DESTINATION_FILE_PATH}"
     cp \
       --force \
       --verbose \
@@ -77,12 +85,20 @@ decompress_file() {
 
   echo "Decompressing ${FILE_TO_DECOMPRESS_PATH} (file extension: ${FILE_TO_DECOMPRESS_EXTENSION})..."
   if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
+    echo "Getting information about the ${IMAGE_ARCHIVE_FILE_PATH} archive: $(
+      echo
+      xz --list "${FILE_TO_DECOMPRESS_PATH}"
+    )"
     xz \
       --decompress \
       --threads=0 \
       --verbose \
       "${FILE_TO_DECOMPRESS_PATH}"
   elif [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "zip" ]; then
+    echo "Getting information about the ${IMAGE_ARCHIVE_FILE_PATH} archive: $(
+      echo
+      unzip -v "${FILE_TO_DECOMPRESS_PATH}"
+    )"
     unzip \
       "${FILE_TO_DECOMPRESS_PATH}"
   else
@@ -122,6 +138,30 @@ generate_cidata_iso() {
     -verbose \
     -volid cidata \
     "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"
+}
+
+initialize_resolv_conf() {
+  RESOLV_CONF_PATH="${1}"
+  RESOLV_CONF_DIRECTORY_PATH="$(dirname "${RESOLV_CONF_PATH}")"
+  CUSTOMIZED_RESOLV_CONF="false"
+  if [ ! -f "${RESOLV_CONF_PATH}" ]; then
+    mkdir \
+      --parents \
+      --verbose \
+      "${RESOLV_CONF_DIRECTORY_PATH}"
+    printf "nameserver 8.8.8.8\n" >"${RESOLV_CONF_PATH}"
+    CUSTOMIZED_RESOLV_CONF="true"
+  fi
+
+  print_or_warn "${RESOLV_CONF_PATH}"
+
+  unset RESOLV_CONF_PATH
+  unset RESOLV_CONF_DIRECTORY_PATH
+}
+
+register_qemu_static() {
+  echo "Registering qemu-*-static for all supported processors except the current one..."
+  bash /register --reset -p yes
 }
 
 setup_cloud_init_nocloud_datasource() {
@@ -233,6 +273,9 @@ CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-in
 KERNEL_CMDLINE_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/cmdline.txt"
 RASPBERRY_PI_CONFIG_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/raspberry-pi-config.txt"
 
+echo "Current environment configuration:"
+env | sort
+
 if [ -n "${OS_IMAGE_URL}" ]; then
   OS_IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
   download_file_if_necessary "${OS_IMAGE_URL}" "${OS_IMAGE_FILE_PATH}"
@@ -247,6 +290,8 @@ fi
 OS_IMAGE_FILE_TAG="${OS_IMAGE_FILE_TAG:-"generic"}"
 
 if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
+  register_qemu_static
+
   IMAGE_ARCHIVE_FILE_PATH="${OS_IMAGE_FILE_PATH}"
   if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
     RET_CODE=$?
@@ -291,28 +336,75 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   losetup --list
 
   echo "Getting a loop device to mount the root partition..."
-  losetup -f
+  losetup --find
 
   BOOT_PARTITION_MOUNT_PATH="${TEMP_WORKING_DIRECTORY}/boot"
-  mkdir -p "${BOOT_PARTITION_MOUNT_PATH}"
+  mkdir \
+    --parents \
+    --verbose \
+    "${BOOT_PARTITION_MOUNT_PATH}"
 
   ROOT_PARTITION_MOUNT_PATH="${TEMP_WORKING_DIRECTORY}/root"
-  mkdir -p "${ROOT_PARTITION_MOUNT_PATH}"
+  mkdir \
+    --parents \
+    --verbose \
+    "${ROOT_PARTITION_MOUNT_PATH}"
 
   echo "Mounting the root partition to ${ROOT_PARTITION_MOUNT_PATH}"
   mount -o loop,offset=${ROOT_PARTITION_OFFSET} "${IMAGE_FILE_PATH}" "${ROOT_PARTITION_MOUNT_PATH}"/
   if [ "${BOOT_PARTITION_INDEX}" != "${ROOT_PARTITION_INDEX}" ]; then
     echo "Getting a loop device to mount the boot partition..."
-    losetup -f
+    losetup --find
 
     echo "Mounting the boot partition to ${BOOT_PARTITION_MOUNT_PATH}"
     mount -o loop,offset=${BOOT_PARTITION_OFFSET},sizelimit=$((ROOT_PARTITION_OFFSET - BOOT_PARTITION_OFFSET)) "${IMAGE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
   fi
 
+  echo "Mounting /sys..."
+  if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/sys | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/sys" ]; then
+    mount -t sysfs sysfs "${ROOTFS_DIRECTORY_PATH}/sys"
+  fi
+
+  echo "Mounting /proc..."
+  if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/proc | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/proc" ]; then
+    mount -t proc proc "${ROOTFS_DIRECTORY_PATH}/proc"
+  fi
+
   echo "Mounting /dev"
   mount -o bind /dev "${ROOT_PARTITION_MOUNT_PATH}/dev"
-  mkdir -p "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
-  mount -o bind /dev/pts "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
+
+  echo "Mounting /dev/pts..."
+  mkdir \
+    --parents \
+    --verbose \
+    "${ROOTFS_DIRECTORY_PATH}/dev/pts"
+
+  if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/dev/pts | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/dev/pts" ]; then
+    mount -t devpts devpts "${ROOTFS_DIRECTORY_PATH}/dev/pts"
+  fi
+
+  echo "Current disk space usage:"
+  df \
+    --human-readable \
+    --sync
+
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}"
+  print_or_warn "${ROOTFS_DIRECTORY_PATH}/var/lib/cloud"
+
+  print_or_warn "${BOOT_DIRECTORY_PATH}/cmdline.txt"
+
+  print_or_warn "${BOOT_DIRECTORY_PATH}/config.txt"
+  print_or_warn "${BOOT_DIRECTORY_PATH}/syscfg.txt"
+  print_or_warn "${BOOT_DIRECTORY_PATH}/usercfg.txt"
+
+  CLOUD_INIT_CONFIGURATION_PATH="${ROOTFS_DIRECTORY_PATH}/etc/cloud"
+  print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}"
+  print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg"
+
+  print_or_warn "${ROOTFS_DIRECTORY_PATH}/etc/fstab"
+
+  echo "Getting contents of the cloud-init configuration files..."
+  find "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d" -type f -print -exec echo \; -exec cat {} \; -exec echo \;
 
   if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
     setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
@@ -327,8 +419,34 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
   fi
 
+  CHROOT_RESOLV_CONF_PATH="${ROOTFS_DIRECTORY_PATH}"/run/systemd/resolve/stub-resolv.conf
+  initialize_resolv_conf "${CHROOT_RESOLV_CONF_PATH}"
+
+  echo "Pinging an external domain to test name resolution and network connectivity..."
+  chroot "${ROOTFS_DIRECTORY_PATH}" ping -c 3 google.com
+
+  echo "Updating the APT index and upgrading the system..."
+  chroot "${ROOTFS_DIRECTORY_PATH}" apt-get update
+  chroot "${ROOTFS_DIRECTORY_PATH}" apt-get -y upgrade
+
+  echo "Installed APT packages:"
+  chroot "${ROOTFS_DIRECTORY_PATH}" dpkg -l | sort
+
+  if [ "${CUSTOMIZED_RESOLV_CONF}" = "true" ]; then
+    rm \
+      --force \
+      --recursive \
+      --verbose \
+      "$(dirname "${CHROOT_RESOLV_CONF_PATH}")"
+  fi
+
   echo "Synchronizing latest filesystem changes..."
   sync
+
+  echo "Current disk space usage:"
+  df \
+    --human-readable \
+    --sync
 
   echo "Unmounting file systems..."
   # We might have "broken" mounts in the mix that point at a deleted image (in case of some odd
