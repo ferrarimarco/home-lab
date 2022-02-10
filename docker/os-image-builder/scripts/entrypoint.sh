@@ -425,9 +425,11 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   echo "Pinging an external domain to test name resolution and network connectivity..."
   chroot "${ROOTFS_DIRECTORY_PATH}" ping -c 3 google.com
 
-  echo "Updating the APT index and upgrading the system..."
-  chroot "${ROOTFS_DIRECTORY_PATH}" apt-get update
-  chroot "${ROOTFS_DIRECTORY_PATH}" apt-get -y upgrade
+  if [ "${UPGRADE_APT_PACKAGES-}" = "true" ]; then
+    echo "Updating the APT index and upgrading the system..."
+    chroot "${ROOTFS_DIRECTORY_PATH}" apt-get update
+    chroot "${ROOTFS_DIRECTORY_PATH}" apt-get -y upgrade
+  fi
 
   echo "Installed APT packages:"
   chroot "${ROOTFS_DIRECTORY_PATH}" dpkg -l | sort
