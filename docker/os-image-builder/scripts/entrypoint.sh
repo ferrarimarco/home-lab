@@ -168,8 +168,8 @@ register_qemu_static() {
   # (and we don't need to emulate hexagon), so, adding this as a workaround.
   /register \
     --reset \
-    --persistent yes \
-  || true
+    --persistent yes ||
+    true
 }
 
 setup_cloud_init_nocloud_datasource() {
