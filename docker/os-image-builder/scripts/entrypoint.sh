@@ -503,10 +503,11 @@ CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME="$(basename "${COMPRESSED_FILE_PATH}")"
 # Store metadata about the customization process
 BUILD_RESULTS_FILE_PATH="${WORKSPACE_DIRECTORY}/results.out"
 echo "Saving build metadata to ${BUILD_RESULTS_FILE_PATH}..."
+# We override any existing content in the build results file
 {
   echo "CUSTOMIZED_IMAGE_FILE_NAME=${TARGET_IMAGE_FILE_NAME}"
   echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME=${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
-} >>"${BUILD_RESULTS_FILE_PATH}"
+} >"${BUILD_RESULTS_FILE_PATH}"
 
 echo "Contents of ${BUILD_RESULTS_FILE_PATH}:"
 cat "${BUILD_RESULTS_FILE_PATH}"

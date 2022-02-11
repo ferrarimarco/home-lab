@@ -57,12 +57,16 @@ jobs:
           TEMP_WORKSPACE_PATH="$(mktemp -d)"
           export TEMP_WORKSPACE_PATH
 
+          RESULTS_FILE_PATH="${TEMP_WORKSPACE_PATH}/results.out"
+          export RESULTS_FILE_PATH
+
           BUILD_CONFIGURATION_FILE_PATH="${{ matrix.build-configuration-file-path }}"
           export BUILD_CONFIGURATION_FILE_PATH
 
           scripts/build-os-image.sh
 
-          echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
+          echo "OS image build completed for ${BUILD_CONFIGURATION_FILE_PATH}."
+          echo "Appending the build result file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
           cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
       - uses: actions/upload-artifact@v2
         name: Upload ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}

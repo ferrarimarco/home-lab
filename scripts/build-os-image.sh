@@ -40,9 +40,9 @@ sudo chown \
 echo "Contents of ${TEMP_WORKSPACE_PATH}:"
 ls -alh "${TEMP_WORKSPACE_PATH}"
 
-RESULTS_FILE_PATH="${TEMP_WORKSPACE_PATH}/results.out"
+RESULTS_FILE_PATH="${RESULTS_FILE_PATH:-"${TEMP_WORKSPACE_PATH}/results.out"}"
 if ! [ -r "${RESULTS_FILE_PATH}" ]; then
-  echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
+  echo "[ERROR]: The build result metadata file is not readable at ${RESULTS_FILE_PATH}. Terminating..."
   exit 1
 fi
 
@@ -51,9 +51,8 @@ echo "Sourcing ${RESULTS_FILE_PATH} to load the variables defined there..."
 . "${RESULTS_FILE_PATH}"
 
 CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH="${TEMP_WORKSPACE_PATH}/${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
-echo "Customized compressed image file path: ${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}"
 if ! [ -e "${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}" ]; then
-  echo "[ERROR]: The customized compressed image file doesn't exist. Terminating..."
+  echo "[ERROR]: The customized compressed image file (${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}) doesn't exist. Terminating..."
   exit 2
 fi
 
