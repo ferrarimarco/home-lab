@@ -23,13 +23,14 @@ echo "OS Builder container image id: ${OS_BUILDER_CONTAINER_IMAGE_ID}"
 
 docker run \
   --privileged \
+  --rm \
   -v /dev:/dev \
   -v "${TEMP_WORKSPACE_PATH}":/tmp/workdir \
   -v "${BUILD_CONFIGURATION_DIRECTORY_PATH}":/tmp/config \
   "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
   --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
 
-echo "Fixing the ownership of files and folder in ${TEMP_WORKSPACE_PATH}"
+echo "Fixing the ownership of files and folders in ${TEMP_WORKSPACE_PATH}"
 sudo chown \
   --recursive \
   --verbose \

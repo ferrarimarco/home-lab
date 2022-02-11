@@ -38,7 +38,7 @@ print_or_warn() {
   FILE_PATH="${1}"
   if [ -e "${FILE_PATH}" ]; then
     echo "-------------------------"
-    echo "Contents of ${FILE_PATH} ($(ls -alhR "${FILE_PATH}")):"
+    echo "Contents of ${FILE_PATH} ($(echo && ls -alhR "${FILE_PATH}")):"
     if [ -f "${FILE_PATH}" ]; then
       cat "${FILE_PATH}"
     fi
@@ -100,6 +100,7 @@ decompress_file() {
       unzip -v "${FILE_TO_DECOMPRESS_PATH}"
     )"
     unzip \
+      -u \
       "${FILE_TO_DECOMPRESS_PATH}"
   else
     echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
@@ -163,9 +164,12 @@ register_qemu_static() {
   echo "Registering qemu-*-static for all supported processors except the current one..."
   # Keep the "--reset" option as the first because the register script consumes it before passing the rest to qemu-binfmt-conf.sh
   # See https://github.com/multiarch/qemu-user-static/blob/master/containers/latest/register.sh
+  # The "|| true" is to ensure that this doesn't block the exeuction. There's an issue with when registering the hexagon binfmt
+  # (and we don't need to emulate hexagon), so, adding this as a workaround.
   /register \
     --reset \
-    --persistent yes
+    --persistent yes \
+  || true
 }
 
 setup_cloud_init_nocloud_datasource() {
@@ -365,13 +369,13 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   fi
 
   echo "Mounting /sys..."
-  if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/sys | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/sys" ]; then
-    mount -t sysfs sysfs "${ROOTFS_DIRECTORY_PATH}/sys"
+  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/sys | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/sys" ]; then
+    mount -t sysfs sysfs "${ROOT_PARTITION_MOUNT_PATH}/sys"
   fi
 
   echo "Mounting /proc..."
-  if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/proc | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/proc" ]; then
-    mount -t proc proc "${ROOTFS_DIRECTORY_PATH}/proc"
+  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/proc | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/proc" ]; then
+    mount -t proc proc "${ROOT_PARTITION_MOUNT_PATH}/proc"
   fi
 
   echo "Mounting /dev"
@@ -381,10 +385,10 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   mkdir \
     --parents \
     --verbose \
-    "${ROOTFS_DIRECTORY_PATH}/dev/pts"
+    "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
 
-  if [ "$(mount | grep "${ROOTFS_DIRECTORY_PATH}"/dev/pts | awk '{print $3}')" != "${ROOTFS_DIRECTORY_PATH}/dev/pts" ]; then
-    mount -t devpts devpts "${ROOTFS_DIRECTORY_PATH}/dev/pts"
+  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/dev/pts | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/dev/pts" ]; then
+    mount -t devpts devpts "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
   fi
 
   echo "Current disk space usage:"
@@ -392,23 +396,27 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     --human-readable \
     --sync
 
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}"
-  print_or_warn "${ROOTFS_DIRECTORY_PATH}/var/lib/cloud"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/var/lib/cloud"
 
-  print_or_warn "${BOOT_DIRECTORY_PATH}/cmdline.txt"
+  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
 
-  print_or_warn "${BOOT_DIRECTORY_PATH}/config.txt"
-  print_or_warn "${BOOT_DIRECTORY_PATH}/syscfg.txt"
-  print_or_warn "${BOOT_DIRECTORY_PATH}/usercfg.txt"
+  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
+  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/syscfg.txt"
+  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/usercfg.txt"
 
-  CLOUD_INIT_CONFIGURATION_PATH="${ROOTFS_DIRECTORY_PATH}/etc/cloud"
+  CLOUD_INIT_CONFIGURATION_PATH="${ROOT_PARTITION_MOUNT_PATH}/etc/cloud"
   print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}"
   print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg"
 
-  print_or_warn "${ROOTFS_DIRECTORY_PATH}/etc/fstab"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/fstab"
 
-  echo "Getting contents of the cloud-init configuration files..."
-  find "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d" -type f -print -exec echo \; -exec cat {} \; -exec echo \;
+  CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH="${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d"
+  if [ -e "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}" ]; then
+    echo "Getting contents of the cloud-init configuration files from ${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}..."
+    find "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}" -type f -print -exec echo \; -exec cat {} \; -exec echo \;
+  else
+    echo "The cloud-init configuration directory ${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH} does not exist"
+  fi
 
   if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
     setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
@@ -423,20 +431,20 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
   fi
 
-  CHROOT_RESOLV_CONF_PATH="${ROOTFS_DIRECTORY_PATH}"/run/systemd/resolve/stub-resolv.conf
+  CHROOT_RESOLV_CONF_PATH="${ROOT_PARTITION_MOUNT_PATH}"/run/systemd/resolve/stub-resolv.conf
   initialize_resolv_conf "${CHROOT_RESOLV_CONF_PATH}"
 
   echo "Pinging an external domain to test name resolution and network connectivity..."
-  chroot "${ROOTFS_DIRECTORY_PATH}" ping -c 3 google.com
+  chroot "${ROOT_PARTITION_MOUNT_PATH}" ping -c 3 google.com
 
   if [ "${UPGRADE_APT_PACKAGES-}" = "true" ]; then
     echo "Updating the APT index and upgrading the system..."
-    chroot "${ROOTFS_DIRECTORY_PATH}" apt-get update
-    chroot "${ROOTFS_DIRECTORY_PATH}" apt-get -y upgrade
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get update
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -y upgrade
   fi
 
   echo "Installed APT packages:"
-  chroot "${ROOTFS_DIRECTORY_PATH}" dpkg -l | sort
+  chroot "${ROOT_PARTITION_MOUNT_PATH}" dpkg -l | sort
 
   if [ "${CUSTOMIZED_RESOLV_CONF}" = "true" ]; then
     rm \
