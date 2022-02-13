@@ -21,7 +21,13 @@ echo "Build configuration directory path: ${BUILD_CONFIGURATION_DIRECTORY_PATH}"
 OS_BUILDER_CONTAINER_IMAGE_ID="${OS_BUILDER_CONTAINER_IMAGE_ID:-"ferrarimarco/os-image-builder:latest"}"
 echo "OS Builder container image id: ${OS_BUILDER_CONTAINER_IMAGE_ID}"
 
+INTERACTIVE=$([ -t 0 ] && echo 1 || echo 0)
+if [ "${INTERACTIVE}" = "1" ]; then
+	DOCKER_FLAGS=-it
+fi
+
 docker run \
+  ${DOCKER_FLAGS} \
   --privileged \
   --rm \
   -v /dev:/dev \

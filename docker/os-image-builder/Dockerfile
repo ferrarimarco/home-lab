@@ -44,7 +44,7 @@ COPY --from=register /qemu-binfmt-conf.sh /qemu-binfmt-conf.sh
 ENV WORKDIR /tmp/workdir
 WORKDIR ${WORKDIR}
 
-COPY scripts/entrypoint.sh /entrypoint.sh
+COPY scripts/*.sh /
 
 RUN chmod a+x /*.sh
 ENTRYPOINT ["/entrypoint.sh"]
