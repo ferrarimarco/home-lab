@@ -232,7 +232,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   copy_file_if_available "${KERNEL_CMDLINE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
   copy_file_if_available "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
 
-  if [ "${ENABLE_RASPBERRY_PI_OS_SSH}" = "true" ]; then
+  if [ "${ENABLE_RASPBERRY_PI_OS_SSH:-"false"}" = "true" ]; then
     echo "Enabling SSH on Raspberry Pi OS..."
     # https://www.raspberrypi.com/documentation/computers/configuration.html#ssh-or-ssh-txt
     touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
@@ -243,10 +243,20 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     initialize_resolv_conf "${CHROOT_RESOLV_CONF_PATH}"
   fi
 
-  echo "Pinging an external domain to test name resolution and network connectivity..."
-  chroot "${ROOT_PARTITION_MOUNT_PATH}" ping -c 3 google.com
+  if [ "${TEST_CHROOT_CONNECTIVITY:-"true"}" = "true" ]; then
+    TEST_CONNECTIVITY_HOST="${TEST_CONNECTIVITY_HOST:-"google.com"}"
+    echo "Trying to resolve an external domain to check DNS name resolution"
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" host -a "${TEST_CONNECTIVITY_HOST}"
 
-  if [ "${UPGRADE_APT_PACKAGES-}" = "true" ]; then
+    echo "Establishing a HTTP connection to test network connectivity..."
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" \
+      curl \
+      --silent \
+      --verbose \
+      "${TEST_CONNECTIVITY_HOST}"
+  fi
+
+  if [ "${UPGRADE_APT_PACKAGES:-"false"}" = "true" ]; then
     echo "Updating the APT index and upgrading the system..."
     chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get update
     chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -y upgrade
@@ -255,7 +265,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   echo "Installed APT packages:"
   chroot "${ROOT_PARTITION_MOUNT_PATH}" dpkg -l | sort
 
-  if [ "${CUSTOMIZED_RESOLV_CONF}" = "true" ]; then
+  if [ "${CUSTOMIZED_RESOLV_CONF:-"false"}" = "true" ]; then
     rm \
       --force \
       --recursive \
