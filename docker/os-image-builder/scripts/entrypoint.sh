@@ -238,7 +238,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
   fi
 
-  if [ "${BUILD_DISTRIBUTION}" = "ubuntu " ]; then
+  if [ "${BUILD_DISTRIBUTION}" = "ubuntu" ]; then
     CHROOT_RESOLV_CONF_PATH="${ROOT_PARTITION_MOUNT_PATH}"/run/systemd/resolve/stub-resolv.conf
     initialize_resolv_conf "${CHROOT_RESOLV_CONF_PATH}"
   fi
