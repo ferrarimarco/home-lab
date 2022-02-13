@@ -331,7 +331,7 @@ echo "Saving build metadata to ${BUILD_RESULTS_FILE_PATH}..."
 } >"${BUILD_RESULTS_FILE_PATH}"
 
 echo "Contents of ${BUILD_RESULTS_FILE_PATH}:"
-cat "${BUILD_RESULTS_FILE_PATH}"
+print_or_warn "${BUILD_RESULTS_FILE_PATH}"
 
 echo "Deleting the temporary working directory (${TEMP_WORKING_DIRECTORY})..."
 rm \
