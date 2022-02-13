@@ -242,6 +242,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     CHROOT_RESOLV_CONF_PATH="${ROOT_PARTITION_MOUNT_PATH}"/run/systemd/resolve/stub-resolv.conf
     initialize_resolv_conf "${CHROOT_RESOLV_CONF_PATH}"
   fi
+
   echo "Pinging an external domain to test name resolution and network connectivity..."
   chroot "${ROOT_PARTITION_MOUNT_PATH}" ping -c 3 google.com
 

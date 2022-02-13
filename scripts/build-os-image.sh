@@ -23,7 +23,7 @@ echo "OS Builder container image id: ${OS_BUILDER_CONTAINER_IMAGE_ID}"
 
 INTERACTIVE=$([ -t 0 ] && echo 1 || echo 0)
 if [ "${INTERACTIVE}" = "1" ]; then
-	DOCKER_FLAGS=-it
+  DOCKER_FLAGS=-it
 fi
 
 docker run \
