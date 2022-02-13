@@ -9,128 +9,8 @@ SCRIPT_BASENAME="$(basename "${0}")"
 
 echo "This script (${SCRIPT_BASENAME}) has been invoked with: $0 $*"
 
-EXIT_OK=0
-ERR_GENERIC=1
-ERR_VARIABLE_NOT_DEFINED=2
-ERR_MISSING_DEPENDENCY=3
-ERR_ARGUMENT_EVAL_ERROR=4
-ERR_ARCHIVE_NOT_SUPPORTED=5
-
-BUILD_TYPE_CIDATA_ISO="cidata-iso"
-BUILD_TYPE_CUSTOMIZE_IMAGE="customize-image"
-
-check_argument() {
-  ARGUMENT_VALUE="${1}"
-  ARGUMENT_DESCRIPTION="${2}"
-
-  if [ -z "${ARGUMENT_VALUE}" ]; then
-    echo "[ERROR]: ${ARGUMENT_DESCRIPTION} is not defined. Run this command with the -h option to get help. Terminating..."
-    exit ${ERR_VARIABLE_NOT_DEFINED}
-  else
-    echo "[OK]: ${ARGUMENT_DESCRIPTION} value is defined: ${ARGUMENT_VALUE}"
-  fi
-
-  unset ARGUMENT_NAME
-  unset ARGUMENT_VALUE
-}
-
-compress_file() {
-  SOURCE_FILE_PATH="${1}"
-
-  echo "Compressing ${SOURCE_FILE_PATH}..."
-  xz -9 \
-    --compress \
-    --force \
-    --threads=0 \
-    --verbose \
-    "${SOURCE_FILE_PATH}"
-
-  COMPRESSED_FILE_PATH="${SOURCE_FILE_PATH}.xz"
-}
-
-decompress_file() {
-  FILE_TO_DECOMPRESS_PATH="${1}"
-
-  FILE_TO_DECOMPRESS_EXTENSION="${FILE_TO_DECOMPRESS_PATH##*.}"
-
-  echo "Decompressing ${FILE_TO_DECOMPRESS_PATH}..."
-  if [ "${FILE_TO_DECOMPRESS_EXTENSION}" = "xz" ]; then
-    xz -d -T0 -v "${FILE_TO_DECOMPRESS_PATH}"
-  else
-    echo "${FILE_TO_DECOMPRESS_PATH} archive is not supported. Terminating..."
-    return ${ERR_ARCHIVE_NOT_SUPPORTED}
-  fi
-
-  DECOMPRESSED_FILE_PATH="$(pwd)/$(basename "${FILE_TO_DECOMPRESS_PATH}" ".${FILE_TO_DECOMPRESS_EXTENSION}")"
-}
-
-download_file_if_necessary() {
-  FILE_TO_DOWNLOAD_URL="${1}"
-  FILE_TO_DOWNLOAD_PATH="${2}"
-
-  if [ ! -f "${FILE_TO_DOWNLOAD_PATH}" ]; then
-    curl -L -o "${FILE_TO_DOWNLOAD_PATH}" "${FILE_TO_DOWNLOAD_URL}"
-  else
-    echo "${FILE_TO_DOWNLOAD_PATH} already exists. Skipping download of ${FILE_TO_DOWNLOAD_URL}"
-  fi
-}
-
-# We don't use cloud-localds here because it doesn't support adding data to the
-# ISO, besides user-data, network-config, vendor-data
-generate_cidata_iso() {
-  TEMP_CLOUD_INIT_WORKING_DIRECTORY="${1}"
-  CLOUD_INIT_DATASOURCE_ISO_PATH="${2}"
-
-  echo "Removing the eventual leftovers (${CLOUD_INIT_DATASOURCE_ISO_PATH}) from previous runs..."
-  rm -f "${CLOUD_INIT_DATASOURCE_ISO_PATH}"
-
-  echo "Generating the CIDATA ISO (${CLOUD_INIT_DATASOURCE_ISO_PATH} from ${TEMP_CLOUD_INIT_WORKING_DIRECTORY}..."
-  genisoimage \
-    -joliet \
-    -output "${CLOUD_INIT_DATASOURCE_ISO_PATH}" \
-    -rock \
-    -verbose \
-    -volid cidata \
-    "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"
-}
-
-setup_cloud_init_nocloud_datasource() {
-  CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY="${1}"
-  CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY="${2}"
-
-  echo "Copying contents of the cloud-init datasource configuration directory (${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}) to ${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}..."
-  cp \
-    --force \
-    --recursive \
-    --verbose \
-    "${CLOUD_INIT_DATASOURCE_CONFIG_DIRECTORY}/." "${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/"
-
-  if [ "${UBUNTU_AUTOINSTALL}" = "true" ]; then
-    USER_DATA_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data.yaml"
-    USER_DATA_AUTOINSTALL_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/user-data-autoinstall.yaml"
-    echo "This build targets an instance that installs the OS with subiquity (Ubuntu autoinstaller)."
-    if [ -e "${USER_DATA_AUTOINSTALL_PATH}" ]; then
-      mv \
-        --force \
-        --verbose \
-        "${USER_DATA_AUTOINSTALL_PATH}" "${USER_DATA_PATH}"
-    fi
-    unset USER_DATA_PATH
-    unset USER_DATA_AUTOINSTALL_PATH
-  fi
-
-  echo "Removing the yaml file extension from cloud-init datasource configuration files..."
-  for FILE in meta-data.yaml network-config.yaml vendor-data.yaml user-data.yaml; do
-    FILE_PATH="${CLOUD_INIT_DATASOURCE_CONFIG_DESTINATION_DIRECTORY}/${FILE}"
-    if [ -e "${FILE_PATH}" ]; then
-      if [ "${FILE}" = "user-data.yaml" ]; then
-        echo "Validating cloud-init user-data file (${FILE_PATH})..."
-        cloud-init devel schema --config-file "${FILE_PATH}"
-      fi
-      mv --verbose "${FILE_PATH}" "${FILE_PATH%.*}"
-    fi
-  done
-}
+# shellcheck source=/dev/null
+. /common.sh
 
 BUILD_CONFIG_PARAMETER_DESCRIPTION="path to the build configuration file"
 
@@ -178,6 +58,8 @@ while true; do
     ;;
   -h | --help | *)
     usage
+    # Ignoring because those are defined in common.sh, and don't need quotes
+    # shellcheck disable=SC2086
     exit ${EXIT_OK}
     break
     ;;
@@ -197,10 +79,14 @@ TEMP_WORKING_DIRECTORY="$(mktemp -d)"
 echo "Created a temporary working directory: ${TEMP_WORKING_DIRECTORY}"
 
 DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}")"
-echo "Device configuration directory: ${DEVICE_CONFIG_DIRECTORY}"
+echo "Device configuration directory path: ${DEVICE_CONFIG_DIRECTORY}"
 
 CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
-echo "Cloud-init configuration directory: ${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}"
+KERNEL_CMDLINE_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/cmdline.txt"
+RASPBERRY_PI_CONFIG_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/raspberry-pi-config.txt"
+
+echo "Current environment configuration:"
+env | sort
 
 if [ -n "${OS_IMAGE_URL}" ]; then
   OS_IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
@@ -213,7 +99,11 @@ if [ -n "${OS_IMAGE_URL}" ]; then
   sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
 fi
 
+OS_IMAGE_FILE_TAG="${OS_IMAGE_FILE_TAG:-"generic"}"
+
 if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
+  register_qemu_static
+
   IMAGE_ARCHIVE_FILE_PATH="${OS_IMAGE_FILE_PATH}"
   if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
     RET_CODE=$?
@@ -221,7 +111,29 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     exit ${RET_CODE}
   fi
 
-  IMAGE_FILE_PATH="${DECOMPRESSED_FILE_PATH}"
+  IMAGE_FILE_PATH="$(pwd)/${OS_IMAGE_FILE_NAME}"
+  if [ ! -e "${IMAGE_FILE_PATH}" ]; then
+    echo "[ERROR]: The image file does not exist: ${IMAGE_FILE_PATH}. Terminating..."
+    # Ignoring because those are defined in common.sh, and don't need quotes
+    # shellcheck disable=SC2086
+    exit ${ERR_GENERIC}
+  fi
+
+  echo "Getting info about the partitions in the image (${IMAGE_FILE_PATH})..."
+  PARTITIONS_INFO="$(sfdisk -d "${IMAGE_FILE_PATH}")"
+  echo "${PARTITIONS_INFO}"
+
+  # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis and the Raspberry Pi
+  # OS image, p1 is mounted as /boot and cointains configuration files.
+  BOOT_PARTITION_INDEX="${BOOT_PARTITION_INDEX:-"1"}"
+  ROOT_PARTITION_INDEX="${ROOT_PARTITION_INDEX:-"2"}"
+
+  echo "Boot partition index: ${BOOT_PARTITION_INDEX}. Root paritition index: ${ROOT_PARTITION_INDEX}"
+
+  BOOT_PARTITION_OFFSET=$(($(echo "${PARTITIONS_INFO}" | grep "${IMAGE_FILE_PATH}${BOOT_PARTITION_INDEX}" | awk '{print $4-0}') * 512))
+  ROOT_PARTITION_OFFSET=$(($(echo "${PARTITIONS_INFO}" | grep "${IMAGE_FILE_PATH}${ROOT_PARTITION_INDEX}" | awk '{print $4-0}') * 512))
+
+  echo "Boot partition offset: ${BOOT_PARTITION_OFFSET}. Root paritition offset: ${ROOT_PARTITION_OFFSET}"
 
   echo "Currently used loop devices:"
   losetup --list
@@ -234,42 +146,155 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     echo "There are no stale mounts to clean."
   fi
 
-  echo "Mapping ${IMAGE_FILE_PATH} to loop devices..."
-  kpartx -asv "${IMAGE_FILE_PATH}"
-
   echo "Currently used loop devices:"
   losetup --list
 
-  LOOP_DEVICE_PATH="$(losetup -O NAME,BACK-FILE | grep "${IMAGE_FILE_PATH}" | awk '{ print $1 }')"
-  LOOP_DEVICE_NAME="$(basename "${LOOP_DEVICE_PATH}")"
-  LOOP_DEVICE_PARTITION_PREFIX=/dev/mapper/"${LOOP_DEVICE_NAME}"
+  echo "Getting a loop device to mount the root partition..."
+  losetup --find
 
-  echo "Mounting partitions from ${LOOP_DEVICE_PATH} (prefix: ${LOOP_DEVICE_PARTITION_PREFIX})"
-  # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis, p1 is mounted as /boot
-  # and cointains configuration files.
-  mount -v "${LOOP_DEVICE_PARTITION_PREFIX}"p1 "${TEMP_WORKING_DIRECTORY}"
+  BOOT_PARTITION_MOUNT_PATH="${TEMP_WORKING_DIRECTORY}/boot"
+  mkdir \
+    --parents \
+    --verbose \
+    "${BOOT_PARTITION_MOUNT_PATH}"
 
-  setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${TEMP_WORKING_DIRECTORY}"
+  ROOT_PARTITION_MOUNT_PATH="${TEMP_WORKING_DIRECTORY}/root"
+  mkdir \
+    --parents \
+    --verbose \
+    "${ROOT_PARTITION_MOUNT_PATH}"
 
-  if [ -n "${KERNEL_CMDLINE_FILE_PATH}" ]; then
-    echo "Customizing the Kernel command line..."
-    cp \
-      --force \
+  echo "Mounting the root partition to ${ROOT_PARTITION_MOUNT_PATH}"
+  mount -o loop,offset=${ROOT_PARTITION_OFFSET} "${IMAGE_FILE_PATH}" "${ROOT_PARTITION_MOUNT_PATH}"/
+  if [ "${BOOT_PARTITION_INDEX}" != "${ROOT_PARTITION_INDEX}" ]; then
+    echo "Getting a loop device to mount the boot partition..."
+    losetup --find
+
+    echo "Mounting the boot partition to ${BOOT_PARTITION_MOUNT_PATH}"
+    mount -o loop,offset=${BOOT_PARTITION_OFFSET},sizelimit=$((ROOT_PARTITION_OFFSET - BOOT_PARTITION_OFFSET)) "${IMAGE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
+  fi
+
+  echo "Mounting /sys..."
+  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/sys | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/sys" ]; then
+    mount -t sysfs sysfs "${ROOT_PARTITION_MOUNT_PATH}/sys"
+  fi
+
+  echo "Mounting /proc..."
+  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/proc | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/proc" ]; then
+    mount -t proc proc "${ROOT_PARTITION_MOUNT_PATH}/proc"
+  fi
+
+  echo "Mounting /dev"
+  mount -o bind /dev "${ROOT_PARTITION_MOUNT_PATH}/dev"
+
+  echo "Mounting /dev/pts..."
+  mkdir \
+    --parents \
+    --verbose \
+    "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
+
+  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/dev/pts | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/dev/pts" ]; then
+    mount -t devpts devpts "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
+  fi
+
+  echo "Current disk space usage:"
+  df \
+    --human-readable \
+    --sync
+
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/var/lib/cloud"
+
+  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
+
+  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
+  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/syscfg.txt"
+  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/usercfg.txt"
+
+  CLOUD_INIT_CONFIGURATION_PATH="${ROOT_PARTITION_MOUNT_PATH}/etc/cloud"
+  print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}"
+  print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg"
+
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/fstab"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/ld.so.preload"
+
+  CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH="${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d"
+  if [ -e "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}" ]; then
+    echo "Getting contents of the cloud-init configuration files from ${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}..."
+    find "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}" -type f -print -exec echo \; -exec cat {} \; -exec echo \;
+  else
+    echo "The cloud-init configuration directory ${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH} does not exist"
+  fi
+
+  if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
+    setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
+  fi
+
+  copy_file_if_available "${KERNEL_CMDLINE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
+  copy_file_if_available "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
+
+  if [ "${ENABLE_RASPBERRY_PI_OS_SSH:-"false"}" = "true" ]; then
+    echo "Enabling SSH on Raspberry Pi OS..."
+    # https://www.raspberrypi.com/documentation/computers/configuration.html#ssh-or-ssh-txt
+    touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
+  fi
+
+  if [ "${BUILD_DISTRIBUTION}" = "ubuntu" ]; then
+    CHROOT_RESOLV_CONF_PATH="${ROOT_PARTITION_MOUNT_PATH}"/run/systemd/resolve/stub-resolv.conf
+    initialize_resolv_conf "${CHROOT_RESOLV_CONF_PATH}"
+  fi
+
+  if [ "${TEST_CHROOT_CONNECTIVITY:-"true"}" = "true" ]; then
+    TEST_CONNECTIVITY_HOST="${TEST_CONNECTIVITY_HOST:-"google.com"}"
+    echo "Trying to resolve an external domain to check DNS name resolution"
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" host -a "${TEST_CONNECTIVITY_HOST}"
+
+    echo "Establishing a HTTP connection to test network connectivity..."
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" \
+      curl \
+      --silent \
       --verbose \
-      "${DEVICE_CONFIG_DIRECTORY}/${KERNEL_CMDLINE_FILE_PATH}" "${TEMP_WORKING_DIRECTORY}/cmdline.txt"
+      "${TEST_CONNECTIVITY_HOST}"
+  fi
+
+  if [ "${UPGRADE_APT_PACKAGES:-"false"}" = "true" ]; then
+    echo "Updating the APT index and upgrading the system..."
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get update
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -y upgrade
+  fi
+
+  echo "Installed APT packages:"
+  chroot "${ROOT_PARTITION_MOUNT_PATH}" dpkg -l | sort
+
+  if [ "${CUSTOMIZED_RESOLV_CONF:-"false"}" = "true" ]; then
+    rm \
+      --force \
+      --recursive \
+      --verbose \
+      "$(dirname "${CHROOT_RESOLV_CONF_PATH}")"
   fi
 
   echo "Synchronizing latest filesystem changes..."
   sync
 
+  echo "Current disk space usage:"
+  df \
+    --human-readable \
+    --sync
+
   echo "Unmounting file systems..."
-  umount -v "${TEMP_WORKING_DIRECTORY}"
-
-  echo "Deleting loop devices where ${IMAGE_FILE_PATH} was mapped..."
-  kpartx -svd "${IMAGE_FILE_PATH}"
-
-  echo "Removing the ${LOOP_DEVICE_PATH} loop device..."
-  rm -f "${LOOP_DEVICE_PATH}"
+  # We might have "broken" mounts in the mix that point at a deleted image (in case of some odd
+  # build errors). So our "mount" output can look like this:
+  #
+  #     /path/to/our/image.img (deleted) on /path/to/our/mount type ext4 (rw)
+  #     /path/to/our/image.img on /path/to/our/mount type ext4 (rw)
+  #     /path/to/our/image.img on /path/to/our/mount/boot type vfat (rw)
+  #
+  # so we split on "on" first, then do a whitespace split to get the actual mounted directory.
+  # Also we sort in reverse to get the deepest mounts first.
+  for m in $(mount | grep "${TEMP_WORKING_DIRECTORY}" | awk -F " on " '{print $2}' | awk '{print $1}' | sort -r); do
+    echo "Unmounting ${m}..."
+    umount "${m}"
+  done
 
   echo "Adding the ${OS_IMAGE_FILE_TAG} tag to the image file..."
   IMAGE_FILE_EXTENSION=".${IMAGE_FILE_PATH##*.}"
@@ -288,6 +313,8 @@ elif [ "${BUILD_TYPE}" = "${BUILD_TYPE_CIDATA_ISO}" ]; then
   generate_cidata_iso "${TEMP_WORKING_DIRECTORY}" "${TARGET_IMAGE_FILE_PATH}"
 else
   echo "[ERROR]: Unsupported build type. Terminating..."
+  # Ignoring because those are defined in common.sh, and don't need quotes
+  # shellcheck disable=SC2086
   exit ${ERR_ARGUMENT_EVAL_ERROR}
 fi
 
@@ -297,13 +324,14 @@ CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME="$(basename "${COMPRESSED_FILE_PATH}")"
 # Store metadata about the customization process
 BUILD_RESULTS_FILE_PATH="${WORKSPACE_DIRECTORY}/results.out"
 echo "Saving build metadata to ${BUILD_RESULTS_FILE_PATH}..."
+# We override any existing content in the build results file
 {
   echo "CUSTOMIZED_IMAGE_FILE_NAME=${TARGET_IMAGE_FILE_NAME}"
   echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME=${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
-} >>"${BUILD_RESULTS_FILE_PATH}"
+} >"${BUILD_RESULTS_FILE_PATH}"
 
 echo "Contents of ${BUILD_RESULTS_FILE_PATH}:"
-cat "${BUILD_RESULTS_FILE_PATH}"
+print_or_warn "${BUILD_RESULTS_FILE_PATH}"
 
 echo "Deleting the temporary working directory (${TEMP_WORKING_DIRECTORY})..."
 rm \

@@ -8,13 +8,15 @@ on:
   push:
     paths:
       - ".github/workflows/build-os-images.yaml"
+      - "config/raspberry-pi/**"
+      - "config/seed-device/**"
       - "docker/os-image-builder/**"
-      - "provisioning/os-images/**"
   pull_request:
     paths:
       - ".github/workflows/build-os-images.yaml"
+      - "config/raspberry-pi/**"
+      - "config/seed-device/**"
       - "docker/os-image-builder/**"
-      - "provisioning/os-images/**"
 
 jobs:
   lint:
@@ -36,15 +38,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.4.0
-      - name: Set environment variables
-        run: |
-          TEMP_WORKSPACE_PATH="$(mktemp -d)"
-          {
-            echo "TEMP_WORKSPACE_PATH=${TEMP_WORKSPACE_PATH}"
-            echo "BUILD_CONFIGURATION_FILE_NAME=$(basename "${{ matrix.build-configuration-file-path }}")"
-            echo "BUILD_CONFIGURATION_DIRECTORY_PATH=$(dirname "${{ matrix.build-configuration-file-path }}")"
-            echo "RESULTS_FILE_PATH=${TEMP_WORKSPACE_PATH}/results.out"
-          } >>"${GITHUB_ENV}"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Build the OS image builder container image
@@ -56,40 +49,24 @@ jobs:
           load: true
           push: false
           tags: "${{ env.OS_BUILDER_CONTAINER_IMAGE_ID }}"
-      - name: "Generate the cloud-init datasource ISO. Config: ${{ matrix.build-configuration-file-path }}"
+      - name: "Build the image. Config: ${{ matrix.build-configuration-file-path }}"
         run: |
-          docker run \
-            --privileged \
-            --user "$(id -u):$(id -g)" \
-            -v /dev:/dev \
-            -v "${TEMP_WORKSPACE_PATH}":/tmp/workdir \
-            -v "${BUILD_CONFIGURATION_DIRECTORY_PATH}":/tmp/config \
-            "${OS_BUILDER_CONTAINER_IMAGE_ID}" \
-            --build-config /tmp/config/"${BUILD_CONFIGURATION_FILE_NAME}"
+          set -o errexit
+          set -o nounset
 
-          if ! [ -r "${RESULTS_FILE_PATH}" ]; then
-            echo "[ERROR]: The build result metadata file is not available at ${RESULTS_FILE_PATH}. Terminating..."
-            exit 2
-          fi
+          TEMP_WORKSPACE_PATH="$(mktemp -d)"
+          export TEMP_WORKSPACE_PATH
 
-          echo "Sourcing ${RESULTS_FILE_PATH} to load the variables defined there..."
-          # shellcheck source=/dev/null
-          . "${RESULTS_FILE_PATH}"
+          RESULTS_FILE_PATH="${TEMP_WORKSPACE_PATH}/results.out"
+          export RESULTS_FILE_PATH
 
-          CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH="${TEMP_WORKSPACE_PATH}/${CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME}"
-          if ! [ -e "${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}" ]; then
-            echo "Contents of ${TEMP_WORKSPACE_PATH}:"
-            ls -alh "${TEMP_WORKSPACE_PATH}"
-            echo "[ERROR]: The customized compressed image file doesn't exist. Terminating..."
-            exit 1
-          fi
+          BUILD_CONFIGURATION_FILE_PATH="${{ matrix.build-configuration-file-path }}"
+          export BUILD_CONFIGURATION_FILE_PATH
 
-          echo "Adding the path to the customized compressed image (${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}) file to GITHUB_ENV"
-          {
-            echo "CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH=${CUSTOMIZED_COMPRESSED_IMAGE_FILE_PATH}"
-          } >>"${GITHUB_ENV}"
+          scripts/build-os-image.sh
 
-          echo "Appending the build result metadata file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
+          echo "OS image build completed for ${BUILD_CONFIGURATION_FILE_PATH}."
+          echo "Appending the build result file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
           cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
       - uses: actions/upload-artifact@v2
         name: Upload ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
@@ -101,6 +78,7 @@ jobs:
     strategy:
       matrix:
         build-configuration-file-path:
+          - "${GITHUB_WORKSPACE}/config/raspberry-pi/raspberry-pi-os-bullseye-arm64.conf"
           - "${GITHUB_WORKSPACE}/config/seed-device/os-images/ubuntu-20.04-cidata-iso-seed-device.conf"
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
