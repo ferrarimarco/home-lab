@@ -90,7 +90,7 @@ print_or_warn() {
     echo "${FILE_PATH} doesn't exist"
   fi
   unset FILE_PATH
-  unset PRINT_FILE_CONTENTS
+  unset PRINT_FILE_CONTENTS_IN_DIRECTORY
 }
 
 compress_file() {
