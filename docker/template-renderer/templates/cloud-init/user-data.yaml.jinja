@@ -5,7 +5,7 @@
 {% if include_autoinstall %}
 autoinstall:
 {# Indent user-data under autoinstall #}
-{% set user_data_indentation_width = 2 %}
+{% set user_data_indentation_width = 4 %}
   version: 1
 
   keyboard:
@@ -51,12 +51,16 @@ chpasswd:
     - "marco:marco"
 
 {% endif %}
+{% set default_groups = ['adm', 'audio', 'cdrom', 'dialout', 'dip', 'floppy', 'lxd', 'netdev', 'plugdev', 'sudo', 'video'] %}
 {% if groups | length > 0 %}
 groups:
 {% for group in groups %}
   - {{ group }}
 {% endfor %}
 
+{% set user_groups = default_groups + groups %}
+{% else %}
+{% set user_groups = default_groups %}
 {% endif %}
 {% if hostname %}
 hostname: {{ hostname }}
@@ -121,7 +125,7 @@ timezone: {{ timezone | default("Etc/UTC", true) }}
 users:
   - name: marco
     gecos: Marco
-    groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, microk8s, netdev, plugdev, sudo, video]
+    groups: [{{ user_groups | sort | join(', ') }}]
 {% if initialize_default_user_password %}
     # Don't lock the user to allow the first login with a password,
     # so that we initialize key-based authentication later.
