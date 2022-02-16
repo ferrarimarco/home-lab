@@ -40,7 +40,7 @@ append_directory_contents() {
   if [ ! -e "${DESTINATION_DIRECTORY}" ]; then
     mkdir \
       --parents \
-      --verbose
+      --verbose \
       "${DESTINATION_DIRECTORY}"
   fi
 
