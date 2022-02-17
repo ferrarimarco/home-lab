@@ -29,6 +29,33 @@ BUILD_TYPE_CIDATA_ISO="cidata-iso"
 # shellcheck disable=SC2034
 BUILD_TYPE_CUSTOMIZE_IMAGE="customize-image"
 
+append_directory_contents() {
+  SOURCE_DIRECTORY="${1}"
+  DESTINATION_DIRECTORY="${2}"
+
+  if [ ! -d "${SOURCE_DIRECTORY}" ]; then
+    echo "[ERROR]: ${SOURCE_DIRECTORY} doesn't exist or it's not a directory."
+    return ${ERR_ARGUMENT_EVAL_ERROR}
+  fi
+  if [ ! -e "${DESTINATION_DIRECTORY}" ]; then
+    mkdir \
+      --parents \
+      --verbose \
+      "${DESTINATION_DIRECTORY}"
+  fi
+
+  echo "Appending ${SOURCE_DIRECTORY} contents to ${DESTINATION_DIRECTORY}"
+
+  rsync \
+    --archive \
+    --verbose \
+    "${SOURCE_DIRECTORY}/" \
+    "${DESTINATION_DIRECTORY}/"
+
+  unset SOURCE_DIRECTORY
+  unset DESTINATION_DIRECTORY
+}
+
 check_argument() {
   ARGUMENT_VALUE="${1}"
   ARGUMENT_DESCRIPTION="${2}"
@@ -46,6 +73,7 @@ check_argument() {
 
 print_or_warn() {
   FILE_PATH="${1}"
+  PRINT_FILE_CONTENTS_IN_DIRECTORY="${2:-"false"}"
   if [ -e "${FILE_PATH}" ]; then
     echo "-------------------------"
     echo "Contents of ${FILE_PATH} ($(echo && ls -alhR "${FILE_PATH}")):"
@@ -53,10 +81,16 @@ print_or_warn() {
       cat "${FILE_PATH}"
     fi
     echo "-------------------------"
+
+    if [ "${PRINT_FILE_CONTENTS_IN_DIRECTORY}" = "true" ] && [ -d "${FILE_PATH}" ]; then
+      echo "Contents of the files contained in the ${FILE_PATH} directory and its subdirectories:"
+      find "${FILE_PATH}" -type f -print -exec echo \; -exec cat {} \; -exec echo \;
+    fi
   else
     echo "${FILE_PATH} doesn't exist"
   fi
   unset FILE_PATH
+  unset PRINT_FILE_CONTENTS_IN_DIRECTORY
 }
 
 compress_file() {

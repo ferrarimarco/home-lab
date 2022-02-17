@@ -34,6 +34,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
     qemu \
     qemu-user-static \
     qemu-utils \
+    rsync \
     unzip \
     xz-utils \
     && rm -rf /var/lib/apt/lists/*

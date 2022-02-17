@@ -99,6 +99,12 @@ if [ -n "${OS_IMAGE_URL}" ]; then
   sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
 fi
 
+RASPBERRY_PI_BOOTLOADER_URL="${RASPBERRY_PI_BOOTLOADER_URL:-""}"
+if [ -n "${RASPBERRY_PI_BOOTLOADER_URL}" ]; then
+  RASPBERRY_PI_BOOTLOADER_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${RASPBERRY_PI_BOOTLOADER_URL}")"
+  download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
+fi
+
 OS_IMAGE_FILE_TAG="${OS_IMAGE_FILE_TAG:-"generic"}"
 
 if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
@@ -202,31 +208,39 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     --human-readable \
     --sync
 
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/var/lib/cloud"
-
   print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
 
   print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
   print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/syscfg.txt"
   print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/usercfg.txt"
 
-  CLOUD_INIT_CONFIGURATION_PATH="${ROOT_PARTITION_MOUNT_PATH}/etc/cloud"
-  print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}"
-  print_or_warn "${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg"
+  CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/etc/cloud"
+  print_or_warn "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}"
+  print_or_warn "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}/cloud.cfg"
+  print_or_warn "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}/cloud.cfg.d" "true"
 
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/fstab"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/ld.so.preload"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/logrotate.conf"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/logrotate.d" "true"
 
-  CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH="${CLOUD_INIT_CONFIGURATION_PATH}/cloud.cfg.d"
-  if [ -e "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}" ]; then
-    echo "Getting contents of the cloud-init configuration files from ${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}..."
-    find "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}" -type f -print -exec echo \; -exec cat {} \; -exec echo \;
-  else
-    echo "The cloud-init configuration directory ${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH} does not exist"
-  fi
+  SYSTEMD_CONFIGURATION_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/etc/systemd"
+  print_or_warn "${SYSTEMD_CONFIGURATION_DIRECTORY_PATH}"
+  print_or_warn "${SYSTEMD_CONFIGURATION_DIRECTORY_PATH}/journald.conf"
+  print_or_warn "${SYSTEMD_CONFIGURATION_DIRECTORY_PATH}/journald.conf.d" "true"
+
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/var/lib/cloud"
+
+  SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/var/log/journal"
+  print_or_warn "${SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH}"
 
   if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
     setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
+  fi
+
+  ETC_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/etc"
+  if [ -e "${ETC_SOURCE_DIRECTORY_PATH}" ]; then
+    append_directory_contents "${ETC_SOURCE_DIRECTORY_PATH}" "${ROOT_PARTITION_MOUNT_PATH}/etc"
   fi
 
   copy_file_if_available "${KERNEL_CMDLINE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
@@ -260,6 +274,14 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     echo "Updating the APT index and upgrading the system..."
     chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get update
     chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -y upgrade
+  fi
+
+  if [ "${REMOVE_SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY:-"false"}" = "true" ]; then
+    rm \
+      --force \
+      --recursive \
+      --verbose \
+      "${SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH}"
   fi
 
   echo "Installed APT packages:"
