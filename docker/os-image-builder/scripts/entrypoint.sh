@@ -306,6 +306,14 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any -y upgrade
   fi
 
+  APT_PACKAGES_TO_INSTALL="${APT_PACKAGES_TO_INSTALL:-""}"
+  if [ -n "${APT_PACKAGES_TO_INSTALL}" ]; then
+    echo "Updating the APT index and upgrading the system..."
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any update
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any -y install \
+      "${APT_PACKAGES_TO_INSTALL}"
+  fi
+
   if [ "${REMOVE_SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY:-"false"}" = "true" ]; then
     rm \
       --force \
