@@ -26,6 +26,10 @@ if [ -t 0 ]; then
   DOCKER_FLAGS=-it
 fi
 
+# We use host network to work around configuring the network inside the
+# image we build or modify. Example: we don't need to configure the name
+# resolution
+#   --network=host \
 docker run \
   ${DOCKER_FLAGS} \
   --privileged \
