@@ -186,26 +186,6 @@ generate_cidata_iso() {
     "${TEMP_CLOUD_INIT_WORKING_DIRECTORY}"
 }
 
-initialize_resolv_conf() {
-  RESOLV_CONF_PATH="${1}"
-  RESOLV_CONF_DIRECTORY_PATH="$(dirname "${RESOLV_CONF_PATH}")"
-  CUSTOMIZED_RESOLV_CONF="false"
-  if [ ! -f "${RESOLV_CONF_PATH}" ]; then
-    mkdir \
-      --parents \
-      --verbose \
-      "${RESOLV_CONF_DIRECTORY_PATH}"
-    printf "nameserver 8.8.8.8\nnameserver 8.8.4.4\n" >"${RESOLV_CONF_PATH}"
-    CUSTOMIZED_RESOLV_CONF="true"
-    export CUSTOMIZED_RESOLV_CONF
-  fi
-
-  print_or_warn "${RESOLV_CONF_PATH}"
-
-  unset RESOLV_CONF_PATH
-  unset RESOLV_CONF_DIRECTORY_PATH
-}
-
 register_qemu_static() {
   echo "Registering qemu-*-static for all supported processors except the current one..."
   # Keep the "--reset" option as the first because the register script consumes it before passing the rest to qemu-binfmt-conf.sh

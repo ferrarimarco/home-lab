@@ -60,7 +60,7 @@ To initialize the seed device, you:
 To initialize the seed device, do the following:
 
 1. Download the OS installer disk image.
-1. Flash the OS installer disk image on a dedicated, removable flash drive:
+1. Flash the OS installer disk image on a removable flash drive:
 
     On Linux:
 
@@ -72,7 +72,7 @@ To initialize the seed device, do the following:
 
     ```sh
     diskutil unmountDisk [USB_FLASH_DRIVE]
-    sudo dd bs=4m if=[PATH_TO_ISO] of=[USB_FLASH_DRIVE]; sync
+    sudo dd bs=4m if=[PATH_TO_IMAGE] of=[USB_FLASH_DRIVE]; sync
     sudo diskutil eject [USB_FLASH_DRIVE]
     ```
 
@@ -80,16 +80,19 @@ To initialize the seed device, do the following:
 1. Flash the OS installer configuration disk image on a dedicated, removable flash drive adapting the commands described
     in the previous steps.
 
+For more information about flashing Raspberry Pi OS images to a SD card, refer to
+[Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
+
 #### Update and configure the Raspberry Pi 4 bootloader
 
-To update the bootloader on the [Raspberry Pi 4 EEPROM](https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md)
+To update the bootloader on the [Raspberry Pi 4 EEPROM](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-boot-eeprom)
 and configure the [boot order](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#BOOT_ORDER)
 when not using Raspberry Pi OS, do the following:
 
 1. Download the latest release of [rpi-eeprom](https://github.com/raspberrypi/rpi-eeprom/releases).
     There are different boot order configurations available, as configured
     [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
-1. Extract the contents of the downloaded archive to a FAT32 formatted SD card.
+1. Flash the bootloader disk image on a removable flash drive.
 1. Insert the SD card in a powered off Raspberry Pi 4.
 1. Wait for the activity LED to steadily flash green.
 1. Power the Raspberry Pi off.

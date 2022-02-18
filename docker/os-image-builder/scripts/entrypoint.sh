@@ -203,6 +203,16 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     mount -t devpts devpts "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
   fi
 
+  echo "Mounting /run..."
+  mkdir \
+    --parents \
+    --verbose \
+    "${ROOT_PARTITION_MOUNT_PATH}/run"
+
+  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/run | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/run" ]; then
+    mount -t tmpfs run "${ROOT_PARTITION_MOUNT_PATH}/run"
+  fi
+
   echo "Current disk space usage:"
   df \
     --human-readable \
@@ -219,10 +229,20 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   print_or_warn "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}/cloud.cfg"
   print_or_warn "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}/cloud.cfg.d" "true"
 
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/apt/apt.conf"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/apt/apt.conf.d" "true"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/fstab"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/dhcpcd.conf"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/host.conf"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/hosts"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/ld.so.preload"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/logrotate.conf"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/logrotate.d" "true"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/network/interfaces"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/network/interfaces.d" "true"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/nsswitch.conf"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/resolv.conf"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/resolvconf.conf"
 
   SYSTEMD_CONFIGURATION_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/etc/systemd"
   print_or_warn "${SYSTEMD_CONFIGURATION_DIRECTORY_PATH}"
@@ -233,6 +253,21 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
 
   SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/var/log/journal"
   print_or_warn "${SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH}"
+
+  echo "Current date (chroot): $(
+    echo
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" date
+  )"
+
+  echo "Network interfaces (chroot): $(
+    echo
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" ip a
+  )"
+
+  echo "APT config dump: $(
+    echo
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-config dump
+  )"
 
   if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
     setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
@@ -252,15 +287,10 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
   fi
 
-  if [ "${BUILD_DISTRIBUTION}" = "ubuntu" ]; then
-    CHROOT_RESOLV_CONF_PATH="${ROOT_PARTITION_MOUNT_PATH}"/run/systemd/resolve/stub-resolv.conf
-    initialize_resolv_conf "${CHROOT_RESOLV_CONF_PATH}"
-  fi
-
   if [ "${TEST_CHROOT_CONNECTIVITY:-"true"}" = "true" ]; then
     TEST_CONNECTIVITY_HOST="${TEST_CONNECTIVITY_HOST:-"google.com"}"
     echo "Trying to resolve an external domain to check DNS name resolution"
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" host -a "${TEST_CONNECTIVITY_HOST}"
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" host -v "${TEST_CONNECTIVITY_HOST}"
 
     echo "Establishing a HTTP connection to test network connectivity..."
     chroot "${ROOT_PARTITION_MOUNT_PATH}" \
@@ -272,8 +302,16 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
 
   if [ "${UPGRADE_APT_PACKAGES:-"false"}" = "true" ]; then
     echo "Updating the APT index and upgrading the system..."
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get update
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -y upgrade
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any update
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any -y upgrade
+  fi
+
+  APT_PACKAGES_TO_INSTALL="${APT_PACKAGES_TO_INSTALL:-""}"
+  if [ -n "${APT_PACKAGES_TO_INSTALL}" ]; then
+    echo "Installing additional APT packages: ${APT_PACKAGES_TO_INSTALL}"
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any update
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any -y install \
+      "${APT_PACKAGES_TO_INSTALL}"
   fi
 
   if [ "${REMOVE_SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY:-"false"}" = "true" ]; then
@@ -286,14 +324,6 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
 
   echo "Installed APT packages:"
   chroot "${ROOT_PARTITION_MOUNT_PATH}" dpkg -l | sort
-
-  if [ "${CUSTOMIZED_RESOLV_CONF:-"false"}" = "true" ]; then
-    rm \
-      --force \
-      --recursive \
-      --verbose \
-      "$(dirname "${CHROOT_RESOLV_CONF_PATH}")"
-  fi
 
   echo "Synchronizing latest filesystem changes..."
   sync
