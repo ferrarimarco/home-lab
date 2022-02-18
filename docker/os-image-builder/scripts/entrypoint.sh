@@ -302,8 +302,8 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
 
   if [ "${UPGRADE_APT_PACKAGES:-"false"}" = "true" ]; then
     echo "Updating the APT index and upgrading the system..."
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get update
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -y upgrade
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any update
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any -y upgrade
   fi
 
   if [ "${REMOVE_SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY:-"false"}" = "true" ]; then
