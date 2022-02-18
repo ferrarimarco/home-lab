@@ -254,9 +254,20 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/var/log/journal"
   print_or_warn "${SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH}"
 
-  echo "Current date (chroot): $(echo; chroot "${ROOT_PARTITION_MOUNT_PATH}" date)"
-  echo "Network interfaces (chroot): $(echo; chroot "${ROOT_PARTITION_MOUNT_PATH}" ip a)"
-  echo "APT config dump: $(echo; chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-config dump)"
+  echo "Current date (chroot): $(
+    echo
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" date
+  )"
+
+  echo "Network interfaces (chroot): $(
+    echo
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" ip a
+  )"
+
+  echo "APT config dump: $(
+    echo
+    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-config dump
+  )"
 
   if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
     setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
