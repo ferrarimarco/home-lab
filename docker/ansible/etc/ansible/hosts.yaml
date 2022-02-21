@@ -4,7 +4,7 @@ all:
   children:
     edge:
       children:
-        home_lab:
+        home_lab: null
     home_lab:
       hosts:
         raspberrypi.edge.lab.ferrari.how: null
