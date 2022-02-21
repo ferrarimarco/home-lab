@@ -27,7 +27,6 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
     systemd \
     udev \
     && rm -rf /var/lib/apt/lists/* \
-    && ln -s "$(command -v systemd)" /sbin/init \
     && dpkg-divert --local --rename --add /sbin/udevadm \
     && ln -s /bin/true /sbin/udevadm \
     && systemctl enable snapd
@@ -41,7 +40,7 @@ ENV container docker
 # systemd exits on SIGRTMIN+3, not SIGTERM
 # https://www.freedesktop.org/software/systemd/man/systemd.html#SIGRTMIN+3
 STOPSIGNAL SIGRTMIN+3
-ENTRYPOINT [ "/sbin/init" ]
+ENTRYPOINT [ "systemd" ]
 
 # Set the root user password to a known value that we can use to login as needed
 RUN echo 'root:root' | chpasswd
