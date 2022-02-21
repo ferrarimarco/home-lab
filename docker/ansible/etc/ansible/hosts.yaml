@@ -1,0 +1,11 @@
+---
+all:
+  hosts: null
+  children:
+    edge:
+      children:
+        home_lab:
+    home_lab:
+      hosts:
+        raspberrypi.edge.lab.ferrari.how: null
+...

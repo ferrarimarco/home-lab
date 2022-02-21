@@ -11,6 +11,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"
+    directory: "/docker/ansible"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
     directory: "/docker/cloud-init"
     schedule:
       interval: "daily"
@@ -20,6 +24,10 @@ updates:
       interval: "daily"
   - package-ecosystem: "pip"
     directory: "/config/smart-desk/esphome"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/docker/ansible"
     schedule:
       interval: "daily"
   - package-ecosystem: "pip"
