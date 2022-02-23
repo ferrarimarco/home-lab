@@ -45,7 +45,6 @@ jobs:
       matrix:
         container-image-context-directory:
           - ansible
-          - cloud-init
           - os-image-builder
           - template-renderer
 ...
