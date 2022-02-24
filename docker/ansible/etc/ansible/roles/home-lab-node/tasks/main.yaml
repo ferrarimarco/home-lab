@@ -1,6 +1,5 @@
 ---
-- name: Include OS-specific variables.
-  include_vars: "{{ ansible_os_family }}.yml"
+- import_tasks: include-variables.yml
 
 - name: Set authorized key taken from file
   ansible.posix.authorized_key:
