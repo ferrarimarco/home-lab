@@ -3,6 +3,20 @@
 set -o errexit
 set -o nounset
 
+activate_python_virtual_environment() {
+  VENV_PATH="${1}"
+
+  if [ -z "${VIRTUAL_ENV-}" ]; then
+    echo "Activating the virtual environment in ${VENV_PATH}"
+    # shellcheck source=/dev/null
+    . "${VENV_PATH}/bin/activate"
+  else
+    echo "You're already inside a Python virtual environment. Skipping the activation of ${VENV_PATH}"
+  fi
+
+  unset VENV_PATH
+}
+
 compress_file() {
   SOURCE_FILE_PATH="${1}"
 
@@ -42,18 +56,4 @@ create_and_activate_python_virtual_environment() {
 
   unset PIP_REQUIREMENTS_PATH
   unset PYTHON_VIRTUAL_ENVIRONMENT_PATH
-}
-
-activate_python_virtual_environment() {
-  VENV_PATH="${1}"
-
-  if [ -z "${VIRTUAL_ENV-}" ]; then
-    echo "Activating the virtual environment in ${VENV_PATH}"
-    # shellcheck source=/dev/null
-    . "${VENV_PATH}/bin/activate"
-  else
-    echo "You're already inside a Python virtual environment. Skipping the activation of ${VENV_PATH}"
-  fi
-
-  unset VENV_PATH
 }
