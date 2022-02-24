@@ -31,8 +31,8 @@ create_and_activate_python_virtual_environment() {
     pip3 install --upgrade pip setuptools wheel
 
     if [ -n "${PIP_REQUIREMENTS_PATH}" ] && [ -r "${PIP_REQUIREMENTS_PATH}" ]; then
-      echo "Installing dependencies"
-      pip3 install -r requirements.txt
+      echo "Installing dependencies from requirements file: ${PIP_REQUIREMENTS_PATH}"
+      pip3 install -r "${PIP_REQUIREMENTS_PATH}"
     fi
   else
     echo "The virtual environment already exists. Skipping creation."
