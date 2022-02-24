@@ -20,6 +20,7 @@ jobs:
           ANSIBLE_DIRECTORY: /docker/ansible/etc/ansible
           DISABLE_ERRORS: false
           ERROR_ON_MISSING_EXEC_BIT: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
   molecule:
@@ -39,9 +40,11 @@ jobs:
           set -o errexit
           set -o nounset
 
-          scripts/run-ansible-role-tests.sh "${{ matrix.ansible-role-path }}"
+          scripts/run-ansible-role-tests.sh "${{ matrix.ansible-role-path }}" "${{ matrix.molecule-distribution }}"
     strategy:
       matrix:
         ansible-role-path:
           - "${GITHUB_WORKSPACE}/docker/ansible/roles/home-lab-node"
+        molecule-distribution:
+          - python:3.10.2-bullseye
 ...

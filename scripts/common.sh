@@ -27,7 +27,7 @@ compress_file() {
     --threads=0 \
     --verbose \
     "${SOURCE_FILE_PATH}"
-  
+
   unset SOURCE_FILE_PATH
 }
 

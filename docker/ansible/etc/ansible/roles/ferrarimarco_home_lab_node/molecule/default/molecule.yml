@@ -6,13 +6,13 @@ driver:
 platforms:
   - name: instance
     image: "${MOLECULE_DISTRO}"
-    command: ${MOLECULE_DOCKER_COMMAND:-""}
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
     pre_build_image: true
 provisioner:
+  env:
+    ANSIBLE_ROLES_PATH: "../../roles"
   name: ansible
   playbooks:
     converge: ${MOLECULE_PLAYBOOK:-converge.yaml}
+verifier:
+  name: ansible
 ...

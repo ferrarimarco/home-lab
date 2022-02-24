@@ -20,6 +20,7 @@ jobs:
           ANSIBLE_DIRECTORY: /docker/ansible/etc/ansible
           DISABLE_ERRORS: false
           ERROR_ON_MISSING_EXEC_BIT: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
   build-container-images:

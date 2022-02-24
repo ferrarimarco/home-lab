@@ -16,6 +16,7 @@ WORKING_DIRECTORY="$(pwd)"
 VIRTUAL_ENVIRONMENT_PATH="${WORKING_DIRECTORY}/.venv"
 
 ANSIBLE_ROLE_PATH="${1}"
+MOLECULE_DISTRO="${2}"
 PIP_REQUIREMENTS_FILE_PATH="${PIP_REQUIREMENTS_FILE_PATH:-"$(pwd)/docker/ansible/requirements.txt"}"
 
 (
@@ -24,8 +25,12 @@ PIP_REQUIREMENTS_FILE_PATH="${PIP_REQUIREMENTS_FILE_PATH:-"$(pwd)/docker/ansible
   export PY_COLORS
   ANSIBLE_FORCE_COLOR="1"
   export ANSIBLE_FORCE_COLOR
-  MOLECULE_DISTRO="${MOLECULE_DISTRO:-"ubuntu:20.04"}"
+  echo "Testing the role against ${MOLECULE_DISTRO}"
   export MOLECULE_DISTRO
   cd "${ANSIBLE_ROLE_PATH}"
-  molecule test
+  molecule --debug test
 )
+
+unset ANSIBLE_ROLE_PATH
+unset MOLECULE_DISTRO
+unset PIP_REQUIREMENTS_FILE_PATH
