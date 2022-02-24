@@ -5,23 +5,20 @@ set -o nounset
 
 # Doesn't follow symlinks, but it's likely expected for most users
 SCRIPT_BASENAME="$(basename "${0}")"
+SCRIPT_DIRECTORY_PATH="$(dirname "${0}")"
 
-echo "This script (${SCRIPT_BASENAME}) has been invoked with: $0 $*"
-
-compress_file() {
-  SOURCE_FILE_PATH="${1}"
-
-  echo "Compressing ${SOURCE_FILE_PATH}..."
-  xz -9 \
-    --compress \
-    --force \
-    --threads=0 \
-    --verbose \
-    "${SOURCE_FILE_PATH}"
-}
+echo "This script (name: ${SCRIPT_BASENAME}, directory path: ${SCRIPT_DIRECTORY_PATH}) has been invoked with: ${0} $*"
 
 # shellcheck source=/dev/null
-. scripts/install-dependencies.sh
+. ../../../scripts/common.sh
+
+WORKING_DIRECTORY="$(pwd)"
+VIRTUAL_ENVIRONMENT_PATH="${WORKING_DIRECTORY}/.venv"
+
+create_and_activate_python_virtual_environment "${VIRTUAL_ENVIRONMENT_PATH}" "${WORKING_DIRECTORY}/requirements.txt"
+
+echo "Getting ESPHome version"
+esphome --verbose version
 
 ESPHOME_CONFIGURATION_FILE_NAME="smart-desk.yaml"
 ESPHOME_NODE_NAME="smart-desk"
