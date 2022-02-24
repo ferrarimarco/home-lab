@@ -1,5 +1,5 @@
 ---
-- import_tasks: include-variables.yml
+- import_tasks: include-variables.yaml
 
 - name: Set authorized key taken from file
   ansible.posix.authorized_key:
