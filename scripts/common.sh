@@ -50,7 +50,6 @@ create_and_activate_python_virtual_environment() {
     fi
   else
     echo "The virtual environment already exists. Skipping creation."
-    echo "Activating the virtual environment"
     activate_python_virtual_environment "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
   fi
 
