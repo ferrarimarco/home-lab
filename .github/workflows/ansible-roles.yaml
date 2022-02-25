@@ -23,6 +23,8 @@ jobs:
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
   test:
+    needs:
+      - lint
     name: Test Ansible roles and playbooks
     runs-on: ubuntu-20.04
     steps:
@@ -37,5 +39,5 @@ jobs:
           set -o errexit
           set -o nounset
 
-          scripts/run-ansible-role-tests.sh "${{ matrix.ansible-artifact-path }}"
+          scripts/run-ansible-role-tests.sh
 ...
