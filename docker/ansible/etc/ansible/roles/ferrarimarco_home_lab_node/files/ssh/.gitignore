@@ -1,8 +1,0 @@
-# In this directory, we expect to store public keys for SSH,
-# so we don't want to add them to version control.
-
-# Ignore all files in this dir...
-*
-
-# ... except for this one.
-!.gitignore
