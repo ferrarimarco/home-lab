@@ -4,9 +4,5 @@
     user: "{{ ansible_user }}"
     state: present
     key: "{{ lookup('file', home_lab_node_ssh_public_key_path) }}"
-
-# - name: "Disable password login for the default user: {{ ansible_user }}"
-#   ansible.builtin.user:
-#     name: "{{ ansible_user }}"
-#     password_lock: true
+  when: home_lab_node_ssh_public_key_path is defined
 ...
