@@ -35,9 +35,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.4.0
-      - name: "Install dependencies"
-        run: |
-          scripts/install-dependencies.sh
       - name: "Build the Smart Desk firmware image"
         run: |
           scripts/build.sh
