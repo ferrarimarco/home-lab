@@ -22,7 +22,6 @@ jobs:
       - name: Super-Linter
         uses: github/super-linter@v4.9.0
         env:
-          ANSIBLE_DIRECTORY: /docker/ansible/etc/ansible
           DISABLE_ERRORS: false
           ERROR_ON_MISSING_EXEC_BIT: true
           LINTER_RULES_PATH: .
