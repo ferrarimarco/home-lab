@@ -109,6 +109,10 @@ a passowrd instead of a key. To authenticate with a password, add the
 Note: Using [Paramiko](https://www.paramiko.org/) lets you use password authentication
 without having the `sshpass` program installed on the host that runs Ansible.
 
+To run Ansible, use the `scripts/run-ansible.sh` script. This script provides a
+thin wrapper that takes care of setting up either a container (preferred) or a
+Python virtual environment.
+
 ### Managed DNS zone
 
 This environment requires a DNS zone to manage.
