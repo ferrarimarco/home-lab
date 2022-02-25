@@ -1,0 +1,8 @@
+---
+- name: "Create the default user: {{ ansible_user }}"
+  ansible.builtin.user:
+    append: true
+    name: "{{ ansible_user }}"
+    groups: "{{ default_user_groups }}"
+    # Don't lock the password here because we want to be sure to set up key-based authentication first
+...

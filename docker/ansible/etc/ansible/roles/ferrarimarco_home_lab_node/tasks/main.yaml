@@ -1,11 +1,9 @@
 ---
 - import_tasks: include-variables.yaml
 
-- name: Set authorized key taken from file
-  ansible.posix.authorized_key:
-    user: "{{ ansible_user }}"
-    state: present
-    key: "{{ lookup('file', 'files/ssh/home-lab-node-key.pub') }}"
+- include_tasks: users.yaml
+
+- include_tasks: ssh.yaml
 
 - include_tasks: setup-Debian.yaml
   when: ansible_facts.os_family == 'Debian'
