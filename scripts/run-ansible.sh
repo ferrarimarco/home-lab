@@ -25,5 +25,8 @@ export ANSIBLE_ROLES_PATH
 # Running ansible-lint here because super-linter runs it on a file-by-file basis
 ansible-lint -vv "${ANSIBLE_DIRECTORY}"
 
+echo "Running command: ${1}"
+eval "${1}"
+
 unset ANSIBLE_DIRECTORY
 unset ANSIBLE_ROLES_PATH
