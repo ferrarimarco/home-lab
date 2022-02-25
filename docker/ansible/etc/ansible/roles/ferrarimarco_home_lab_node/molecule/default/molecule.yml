@@ -10,9 +10,13 @@ platforms:
 provisioner:
   env:
     ANSIBLE_ROLES_PATH: "../../roles"
+  inventory:
+    host_vars:
+      instance:
+        ansible_user: root
   name: ansible
   playbooks:
-    converge: ${MOLECULE_PLAYBOOK:-converge.yaml}
+    converge: converge.yaml
 verifier:
   name: ansible
 ...
