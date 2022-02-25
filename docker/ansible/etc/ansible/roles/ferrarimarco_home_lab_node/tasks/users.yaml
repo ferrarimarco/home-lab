@@ -1,5 +1,5 @@
 ---
-- name: "Create the default user: {{ ansible_user }}, {{ ansible_pass }}"
+- name: "Create the default user: {{ ansible_user }}"
   ansible.builtin.user:
     append: true
     name: "{{ ansible_user }}"
