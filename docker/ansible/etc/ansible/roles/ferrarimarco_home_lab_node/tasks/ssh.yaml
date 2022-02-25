@@ -3,7 +3,7 @@
   ansible.posix.authorized_key:
     user: "{{ ansible_user }}"
     state: present
-    key: "{{ lookup('file', files/ssh/home-lab-node-key.pub) }}"
+    key: "{{ lookup('file', home_lab_node_ssh_public_key_path) }}"
 
 - name: "Disable password login for the default user: {{ ansible_user }}"
   ansible.builtin.user:
