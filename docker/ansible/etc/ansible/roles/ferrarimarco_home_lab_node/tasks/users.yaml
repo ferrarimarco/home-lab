@@ -6,7 +6,7 @@
     groups: "{{ default_user_groups }}"
     # Don't lock the password here because we want to be sure to set up key-based authentication first
 
-- name: "Lock the password of the default user: {{ ansible_user }}"
+- name: "Lock the password of the default user if we authenticated with a key: {{ ansible_user }}"
   ansible.builtin.user:
     name: "{{ ansible_user }}"
     password_lock: true

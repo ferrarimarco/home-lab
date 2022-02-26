@@ -7,4 +7,7 @@
 
 - include_tasks: setup-Debian.yaml
   when: ansible_facts.os_family == 'Debian'
+
+- include_tasks: setup-raspberry-pi.yaml
+  when: is_raspberry_pi == true
 ...

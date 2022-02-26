@@ -1,0 +1,5 @@
+---
+- name: Print all available facts
+  ansible.builtin.debug:
+    msg: "This is a Raspberry Pi"
+...
