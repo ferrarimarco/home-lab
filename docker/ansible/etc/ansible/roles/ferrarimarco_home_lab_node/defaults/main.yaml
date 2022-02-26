@@ -1,4 +1,6 @@
 ---
 default_user_groups: []
+has_sense_hat: false
 is_raspberry_pi: false
+raspberry_pi_config_file_values: {}
 ...

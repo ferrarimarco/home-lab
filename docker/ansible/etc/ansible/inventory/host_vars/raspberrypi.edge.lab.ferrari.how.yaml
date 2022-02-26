@@ -1,3 +1,4 @@
 ---
 ansible_user: pi
+has_sense_hat: true
 ...
