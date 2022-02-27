@@ -1,5 +1,5 @@
 ---
-- name: Set authorized key taken from file
+- name: Set authorized key for the {{ ansible_user }} user, from {{ home_lab_node_ssh_public_key_path }}
   ansible.posix.authorized_key:
     user: "{{ ansible_user }}"
     state: present

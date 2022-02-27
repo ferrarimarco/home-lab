@@ -1,7 +1,17 @@
 ---
-- name: Ensure APT cache is up to date.
-  ansible.builtin.apt:
-    update_cache: true
-    cache_valid_time: 3600
+- name: Update APT package index and upgrade APT packages
   become: true
+  apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    update_cache: true
+    upgrade: true
+
+- name: Install APT packages
+  apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  become: true
+  with_items: "{{ apt_packages_to_install }}"
 ...
