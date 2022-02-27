@@ -1,4 +1,5 @@
 ---
+apt_packages_to_install: []
 default_user_groups: []
 has_sense_hat: false
 is_raspberry_pi: false

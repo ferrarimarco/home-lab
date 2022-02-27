@@ -6,4 +6,8 @@
     - "{{ ansible_distribution }}.yaml"
     - "{{ ansible_os_family }}.yaml"
     - "default.yaml"
+
+- name: Load Raspberry Pi OS variables.
+  include_vars: "raspberry-pi-os.yaml"
+  when: is_raspberry_pi
 ...

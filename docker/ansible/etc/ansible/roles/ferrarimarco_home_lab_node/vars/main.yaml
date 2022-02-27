@@ -1,6 +1,2 @@
 ---
-raspberry_pi_config_file_path: "/boot/config.txt"
-raspberry_pi_sense_hat_config_txt_values:
-  # Force enable the sense hat overlay
-  dtoverlay: rpi-sense
 ...
