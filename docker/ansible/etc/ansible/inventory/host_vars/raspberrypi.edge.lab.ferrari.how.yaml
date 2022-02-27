@@ -1,4 +1,5 @@
 ---
 ansible_user: pi
+delete_systemd_journal_file: true
 has_sense_hat: true
 ...

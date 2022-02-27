@@ -1,6 +1,7 @@
 ---
 apt_packages_to_install: []
 default_user_groups: []
+delete_systemd_journal_file: false
 has_sense_hat: false
 is_raspberry_pi: false
 raspberry_pi_config_file_values: {}

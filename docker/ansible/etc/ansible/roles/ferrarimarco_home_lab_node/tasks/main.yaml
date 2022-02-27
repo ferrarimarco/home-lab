@@ -10,4 +10,6 @@
 
 - include_tasks: setup-Debian.yaml
   when: ansible_facts.os_family == 'Debian'
+
+- include_tasks: setup-logging.yaml
 ...
