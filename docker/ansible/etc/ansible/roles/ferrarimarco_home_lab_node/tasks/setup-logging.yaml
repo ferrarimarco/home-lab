@@ -1,8 +1,0 @@
----
-- name: Remove file (delete file)
-  ansible.builtin.file:
-    path: "{{ systemd_journal_file_path }}"
-    state: absent
-  when: delete_systemd_journal_file
-
-...

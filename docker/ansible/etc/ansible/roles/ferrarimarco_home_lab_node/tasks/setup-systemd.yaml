@@ -1,0 +1,19 @@
+---
+- name: "Delete {{ systemd_journal_file_path }}"
+  ansible.builtin.file:
+    path: "{{ systemd_journal_file_path }}"
+    state: absent
+  when: delete_systemd_journal_file
+
+- name: Create systemd configuration directories
+  ansible.builtin.file:
+    group: root
+    mode: "0755"
+    owner: root
+    path: "{{ item }}"
+    state: directory
+  become: true
+  with_items:
+    - "{{ systemd_configuration_directory }}"
+    - "{{ systemd_journald_configuration_directory_path }}"
+...
