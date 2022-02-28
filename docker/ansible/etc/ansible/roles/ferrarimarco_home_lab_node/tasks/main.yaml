@@ -3,7 +3,10 @@
   ansible.builtin.import_tasks: include-variables.yaml
 
 - name: Include users setup tasks
-  ansible.builtin.include_tasks: users.yaml
+  ansible.builtin.include_tasks:
+    file: users.yaml
+    apply:
+      become: true
 
 - name: Include SSH tasks
   ansible.builtin.include_tasks:

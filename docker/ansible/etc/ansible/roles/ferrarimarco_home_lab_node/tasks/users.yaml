@@ -18,7 +18,7 @@
     user: "{{ ansible_user }}"
     state: present
     key: "{{ lookup('file', home_lab_node_ssh_public_key_path) }}"
-  when: home_lab_node_ssh_public_key_path is defined
+  when: home_lab_node_ssh_public_key_path | length > 0
 
 - name: Add configured user accounts to passwordless sudoers
   ansible.builtin.lineinfile:
@@ -28,7 +28,6 @@
     state: present
     validate: 'visudo -cf %s'
     mode: 0644
-  become: true
   with_items: "{{ security_sudoers_passwordless }}"
   when: security_sudoers_passwordless | length > 0
 
@@ -40,7 +39,6 @@
     state: present
     validate: 'visudo -cf %s'
     mode: 0644
-  become: true
   with_items: "{{ security_sudoers_passworded }}"
   when: security_sudoers_passworded | length > 0
 ...
