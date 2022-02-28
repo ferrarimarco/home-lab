@@ -12,4 +12,35 @@
     password_lock: true
   # Make sure that we authenticated with a key before locking the password
   when: ansible_password is not defined
+
+- name: Set authorized key for the {{ ansible_user }} user
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ lookup('file', home_lab_node_ssh_public_key_path) }}"
+  when: home_lab_node_ssh_public_key_path is defined
+
+- name: Add configured user accounts to passwordless sudoers
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    regexp: '^{{ item }}'
+    line: '{{ item }} ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    validate: 'visudo -cf %s'
+    mode: 0644
+  become: true
+  with_items: "{{ security_sudoers_passwordless }}"
+  when: security_sudoers_passwordless | length > 0
+
+- name: Add configured user accounts to passworded sudoers
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    regexp: '^{{ item }}'
+    line: '{{ item }} ALL=(ALL) ALL'
+    state: present
+    validate: 'visudo -cf %s'
+    mode: 0644
+  become: true
+  with_items: "{{ security_sudoers_passworded }}"
+  when: security_sudoers_passworded | length > 0
 ...

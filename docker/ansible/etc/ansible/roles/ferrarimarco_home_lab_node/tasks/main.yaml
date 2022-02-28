@@ -1,15 +1,24 @@
 ---
-- import_tasks: include-variables.yaml
+- name: Setup variables
+  ansible.builtin.import_tasks: include-variables.yaml
 
-- include_tasks: users.yaml
+- name: Include users setup tasks
+  ansible.builtin.include_tasks: users.yaml
 
-- include_tasks: ssh.yaml
+- name: Include SSH tasks
+  ansible.builtin.include_tasks:
+    file: ssh.yaml
+    apply:
+      become: true
 
-- include_tasks: setup-raspberry-pi.yaml
+- name: Include Raspberry Pi tasks
+  ansible.builtin.include_tasks: setup-raspberry-pi.yaml
   when: is_raspberry_pi
 
-- include_tasks: setup-Debian.yaml
+- name: Include Debian tasks
+  ansible.builtin.include_tasks: setup-Debian.yaml
   when: ansible_facts.os_family == 'Debian'
 
-- include_tasks: setup-systemd.yaml
+- name: Include Systemd tasks
+  ansible.builtin.include_tasks: setup-systemd.yaml
 ...

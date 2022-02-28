@@ -1,3 +1,6 @@
 ---
 apt_cache_valid_time: 3600
+security_ssh_config_path: /etc/ssh/sshd_config
+security_sshd_name: ssh
+sshd_path: /usr/sbin/sshd
 ...

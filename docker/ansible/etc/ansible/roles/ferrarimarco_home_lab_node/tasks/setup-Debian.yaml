@@ -1,13 +1,13 @@
 ---
 - name: Update APT package index and upgrade APT packages
   become: true
-  apt:
+  ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
     update_cache: true
     upgrade: true
 
 - name: Install APT packages
-  apt:
+  ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
     name: "{{ item }}"
     state: present

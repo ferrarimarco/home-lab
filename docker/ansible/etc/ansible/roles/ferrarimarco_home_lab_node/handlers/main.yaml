@@ -1,5 +1,6 @@
 ---
 - name: Reboot host and wait for it to restart
+  become: true
   reboot:
     msg: "Reboot initiated by Ansible"
     connect_timeout: 5
@@ -7,4 +8,16 @@
     pre_reboot_delay: 0
     post_reboot_delay: 30
     test_command: whoami
+
+- name: restart journald
+  become: true
+  service:
+    name: systemd-journald
+    state: restarted
+
+- name: restart ssh
+  become: true
+  service:
+    name: "{{ security_sshd_name }}"
+    state: "{{ security_ssh_restart_handler_state }}"
 ...

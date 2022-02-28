@@ -5,4 +5,20 @@ delete_systemd_journal_file: false
 has_sense_hat: false
 is_raspberry_pi: false
 raspberry_pi_config_file_values: {}
+security_ssh_allowed_groups: []
+security_ssh_allowed_users:
+  - "{{ ansible_user }}"
+security_ssh_challenge_response_auth: "no"
+security_ssh_gss_api_authentication: "no"
+security_ssh_password_authentication: "no"
+security_ssh_permit_empty_password: "no"
+security_ssh_permit_root_login: "no"
+security_ssh_port: 22
+security_ssh_restart_handler_state: restarted
+security_ssh_usedns: "no"
+security_ssh_x11_forwarding: "no"
+security_sshd_state: started
+security_sudoers_passworded: []
+security_sudoers_passwordless:
+ - "{{ ansible_user }}"
 ...
