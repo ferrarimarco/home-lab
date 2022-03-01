@@ -1,0 +1,9 @@
+---
+- name: "Configure {{ raspberry_pi_config_file_path }}"
+  ansible.builtin.lineinfile:
+    line: "{{ item.key }}={{ item.value }}"
+    dest: "{{ raspberry_pi_config_file_path }}"
+    regexp: "^{{ item.key }}="
+  notify: Reboot host and wait for it to restart
+  with_dict: "{{ raspberry_pi_config_file_values }}"
+...

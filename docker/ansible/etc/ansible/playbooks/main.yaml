@@ -1,0 +1,8 @@
+---
+- hosts: all
+  gather_facts: true
+  roles:
+    - role: ferrarimarco_home_lab_node
+      vars:
+        home_lab_node_ssh_public_key_path: "ssh/home-lab-node-ssh-key.pub"
+...

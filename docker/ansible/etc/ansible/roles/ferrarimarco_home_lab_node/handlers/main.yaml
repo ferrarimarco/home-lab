@@ -1,0 +1,35 @@
+---
+- name: Reboot host and wait for it to restart
+  become: true
+  ansible.builtin.reboot:
+    msg: "Reboot initiated by Ansible"
+    connect_timeout: 5
+    reboot_timeout: 600
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: whoami
+
+- name: restart fail2ban
+  become: true
+  ansible.builtin.service:
+    name: "{{ fail2ban_service_name }}"
+    state: "restarted"
+
+- name: restart journald
+  become: true
+  ansible.builtin.service:
+    name: systemd-journald
+    state: restarted
+
+- name: restart ssh
+  become: true
+  ansible.builtin.service:
+    name: "{{ security_sshd_name }}"
+    state: "restarted"
+
+- name: restart unattended-upgrades
+  become: true
+  ansible.builtin.service:
+    name: "{{ unattended_upgrades_service_name }}"
+    state: "restarted"
+...

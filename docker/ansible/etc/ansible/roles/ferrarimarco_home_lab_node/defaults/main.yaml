@@ -1,0 +1,29 @@
+---
+apt_packages_to_install: []
+default_user_groups: []
+delete_systemd_journal_file: false
+configure_wifi: false
+has_sense_hat: false
+home_lab_node_ssh_public_key_path: ""
+is_raspberry_pi: false
+raspberry_pi_config_file_values: {}
+security_fail2ban_enabled: true
+security_fail2ban_custom_configuration_template: "fail2ban/jail.local.jinja"
+security_ssh_allowed_groups: []
+security_ssh_allowed_users:
+  - "{{ ansible_user }}"
+security_ssh_challenge_response_auth: "no"
+security_ssh_gss_api_authentication: "no"
+security_ssh_password_authentication: "no"
+security_ssh_permit_empty_password: "no"
+security_ssh_permit_root_login: "no"
+security_ssh_port: 22
+security_ssh_usedns: "no"
+security_ssh_x11_forwarding: "no"
+security_sudoers_passworded: []
+security_sudoers_passwordless:
+  - "{{ ansible_user }}"
+security_unattended_upgrades_enabled: true
+systemd_journald_runtime_max_memory_use: "64M"
+systemd_journald_system_max_memory_use: "500M"
+...

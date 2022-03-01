@@ -100,6 +100,19 @@ when not using Raspberry Pi OS, do the following:
 For more information about flashing Raspberry Pi OS images to a SD card, refer to
 [Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
 
+### Provisioning hosts with Ansible
+
+For newly provisioned hosts, you might have to authenticate a SSH connection using
+a passowrd instead of a key. To authenticate with a password, add the
+`--askpass --connection paramiko` switches to the Ansible command you're running.
+
+Note: Using [Paramiko](https://www.paramiko.org/) lets you use password authentication
+without having the `sshpass` program installed on the host that runs Ansible.
+
+To run Ansible, use the `scripts/run-ansible.sh` script. This script provides a
+thin wrapper that takes care of setting up either a container (preferred) or a
+Python virtual environment.
+
 ### Managed DNS zone
 
 This environment requires a DNS zone to manage.

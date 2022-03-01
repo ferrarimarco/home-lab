@@ -1,0 +1,9 @@
+---
+- name: Copy wpa_supplicant configuration file
+  copy:
+    src: wifi/wpa_supplicant.conf.jinja
+    dest: /etc/wpa_supplicant/wpa_supplicant.conf
+    owner: root
+    group: root
+    mode: "0600"
+...

@@ -1,0 +1,7 @@
+[Journal]
+# To constraint how much memory space the journal may use at most
+RuntimeMaxUse={{ systemd_journald_runtime_max_memory_use }}
+
+# To control how much disk space the journal may use up at most
+# Setting this as a fallback if we later enable persistent journal storage
+SystemMaxUse={{ systemd_journald_system_max_memory_use }}

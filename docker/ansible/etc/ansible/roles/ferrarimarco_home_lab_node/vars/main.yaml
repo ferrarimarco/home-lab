@@ -1,0 +1,6 @@
+---
+sshd_validation_command: "{{ sshd_path }} -T -f %s"
+systemd_configuration_directory: /etc/systemd
+systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"
+systemd_journal_file_path: /var/log/journal
+...
