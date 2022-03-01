@@ -10,4 +10,13 @@
 - name: Load Raspberry Pi OS variables.
   ansible.builtin.include_vars: "raspberry-pi-os.yaml"
   when: is_raspberry_pi
+
+- name: Add Sense Hat packages to the list of packages to install
+  ansible.builtin.set_fact:
+    apt_packages_to_install: "{{ apt_packages_to_install + raspberry_pi_sense_hat_apt_packages }}"
+  when: has_sense_hat
+
+- name: Add fail2ban packages to the list of packages to install
+  ansible.builtin.set_fact:
+    apt_packages_to_install: "{{ apt_packages_to_install + fail2ban_packages }}"
 ...

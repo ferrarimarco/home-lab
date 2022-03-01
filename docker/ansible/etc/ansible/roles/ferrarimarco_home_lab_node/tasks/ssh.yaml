@@ -2,7 +2,8 @@
 - name: Ensure SSH server daemon is running
   ansible.builtin.service:
     name: "{{ security_sshd_name }}"
-    state: "{{ security_sshd_state }}"
+    state: "started"
+    enabled: true
 
 - name: Configure SSH server
   ansible.builtin.lineinfile:

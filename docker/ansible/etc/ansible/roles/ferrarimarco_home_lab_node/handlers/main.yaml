@@ -9,6 +9,12 @@
     post_reboot_delay: 30
     test_command: whoami
 
+- name: restart fail2ban
+  become: true
+  service:
+    name: "{{ fail2ban_service_name }}"
+    state: "restarted"
+
 - name: restart journald
   become: true
   service:
@@ -19,5 +25,5 @@
   become: true
   service:
     name: "{{ security_sshd_name }}"
-    state: "{{ security_ssh_restart_handler_state }}"
+    state: "restarted"
 ...

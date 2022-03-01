@@ -12,10 +12,4 @@
     regexp: "^{{ item.key }}="
   notify: Reboot host and wait for it to restart
   with_dict: "{{ raspberry_pi_config_file_values }}"
-
-# Those packages will be installed in the setup-Debian.yaml
-- name: Add Sense Hat APT packages list to the APT packages to install list
-  ansible.builtin.set_fact:
-    apt_packages_to_install: "{{ apt_packages_to_install + raspberry_pi_sense_hat_apt_packages }}"
-  when: has_sense_hat
 ...

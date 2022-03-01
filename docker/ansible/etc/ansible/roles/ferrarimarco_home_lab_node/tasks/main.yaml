@@ -8,6 +8,13 @@
     apply:
       become: true
 
+- name: Include Debian tasks
+  ansible.builtin.include_tasks: setup-Debian.yaml
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Include Systemd tasks
+  ansible.builtin.include_tasks: setup-systemd.yaml
+
 - name: Include SSH tasks
   ansible.builtin.include_tasks:
     file: ssh.yaml
@@ -18,10 +25,10 @@
   ansible.builtin.include_tasks: setup-raspberry-pi.yaml
   when: is_raspberry_pi
 
-- name: Include Debian tasks
-  ansible.builtin.include_tasks: setup-Debian.yaml
-  when: ansible_facts.os_family == 'Debian'
-
-- name: Include Systemd tasks
-  ansible.builtin.include_tasks: setup-systemd.yaml
+- name: Include fail2ban tasks
+  ansible.builtin.include_tasks:
+    file: fail2ban.yaml
+    apply:
+      become: true
+  when: security_fail2ban_enabled
 ...
