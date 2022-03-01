@@ -2,6 +2,7 @@
 apt_packages_to_install: []
 default_user_groups: []
 delete_systemd_journal_file: false
+configure_wifi: false
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 is_raspberry_pi: false

@@ -38,4 +38,11 @@
     apply:
       become: true
   when: security_unattended_upgrades_enabled
+
+- name: Include wifi tasks
+  ansible.builtin.include_tasks:
+    file: wifi.yaml
+    apply:
+      become: true
+  when: configure_wifi
 ...
