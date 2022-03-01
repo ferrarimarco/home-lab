@@ -31,4 +31,11 @@
     apply:
       become: true
   when: security_fail2ban_enabled
+
+- name: Include unattended-upgrades tasks
+  ansible.builtin.include_tasks:
+    file: unattended-upgrades.yaml
+    apply:
+      become: true
+  when: security_unattended_upgrades_enabled
 ...

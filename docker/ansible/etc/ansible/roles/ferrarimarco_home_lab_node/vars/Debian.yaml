@@ -6,4 +6,7 @@ fail2ban_service_name: fail2ban
 security_ssh_config_path: /etc/ssh/sshd_config
 security_sshd_name: ssh
 sshd_path: /usr/sbin/sshd
+unattended_upgrades_packages:
+  - unattended-upgrades
+unattended_upgrades_service_name: unattended-upgrades
 ...

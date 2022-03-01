@@ -22,4 +22,5 @@ security_ssh_x11_forwarding: "no"
 security_sudoers_passworded: []
 security_sudoers_passwordless:
  - "{{ ansible_user }}"
+security_unattended_upgrades_enabled: true
 ...
