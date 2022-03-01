@@ -24,7 +24,7 @@
     dest: "{{ systemd_journald_configuration_directory_path }}/{{ item }}"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   notify: restart journald
   with_items:
     - 001-journald.conf

@@ -22,7 +22,7 @@ security_ssh_usedns: "no"
 security_ssh_x11_forwarding: "no"
 security_sudoers_passworded: []
 security_sudoers_passwordless:
- - "{{ ansible_user }}"
+  - "{{ ansible_user }}"
 security_unattended_upgrades_enabled: true
 systemd_journald_runtime_max_memory_use: "64M"
 systemd_journald_system_max_memory_use: "500M"

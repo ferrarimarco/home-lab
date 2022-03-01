@@ -12,7 +12,7 @@
     line: "{{ item.line }}"
     state: present
     validate: "{{ sshd_validation_command }}"
-    mode: 0644
+    mode: "0644"
   notify: restart ssh
   with_items:
     - regexp: "^PermitRootLogin"
@@ -39,7 +39,7 @@
     line: "PasswordAuthentication {{ security_ssh_password_authentication }}"
     state: present
     validate: "{{ sshd_validation_command }}"
-    mode: 0644
+    mode: "0644"
   notify: restart ssh
   when: ansible_password is not defined
 
@@ -51,7 +51,7 @@
     state: present
     create: true
     validate: "{{ sshd_validation_command }}"
-    mode: 0644
+    mode: "0644"
   notify: restart ssh
   when: security_ssh_allowed_users | length > 0
 
@@ -63,7 +63,7 @@
     state: present
     create: true
     validate: "{{ sshd_validation_command }}"
-    mode: 0644
+    mode: "0644"
   notify: restart ssh
   when: security_ssh_allowed_groups | length > 0
 ...
