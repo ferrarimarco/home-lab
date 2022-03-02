@@ -1,5 +1,22 @@
 ---
 apt_cache_valid_time: 3600
+docker_repositories_to_add:
+  - repository_key_id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    repository_key_keyring_file_path: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
+    repository_key_url: "{{ docker_repository_url }}/{{ ansible_distribution | lower }}/gpg"
+    repository_url: "deb [arch={{ docker_apt_arch }}] {{ docker_repository_url }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
+docker_packages_to_install:
+  - apt-transport-https
+  - ca-certificates
+  - docker-ce
+  - gnupg
+docker_packages_to_uninstall:
+  - containerd
+  - docker
+  - docker-engine
+  - docker.io
+  - runc
+docker_service_name: docker
 fail2ban_packages:
   - fail2ban
 fail2ban_service_name: fail2ban

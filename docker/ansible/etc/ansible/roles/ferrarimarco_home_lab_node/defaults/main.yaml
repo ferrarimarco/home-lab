@@ -1,8 +1,18 @@
 ---
+apt_repositories_to_add: []
 apt_packages_to_install: []
+apt_packages_to_uninstall: []
+configure_docker: false
+configure_docker_compose: false
+configure_monitoring: true
+configure_wifi: false
 default_user_groups: []
 delete_systemd_journal_file: false
-configure_wifi: false
+docker_apt_release_channel: stable
+docker_compose_version: "v2.2.2"
+docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-{{ ansible_architecture }}"
+docker_compose_path: "/usr/local/bin/docker-compose"
+docker_daemon_options: {}
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 is_raspberry_pi: false

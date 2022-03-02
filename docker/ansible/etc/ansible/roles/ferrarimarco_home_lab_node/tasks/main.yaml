@@ -48,4 +48,11 @@
     apply:
       become: true
   when: configure_wifi
+
+- name: Include Docker tasks
+  ansible.builtin.include_tasks:
+    file: docker.yaml
+    apply:
+      become: true
+  when: configure_docker
 ...

@@ -1,5 +1,7 @@
 ---
 ansible_user: pi
+configure_docker: true
+configure_docker_compose: true
 delete_systemd_journal_file: true
 has_sense_hat: true
 ...

@@ -22,6 +22,21 @@
   with_dict: "{{ raspberry_pi_sense_hat_config_txt_values }}"
   when: has_sense_hat
 
+- name: Add Docker repositories to the list of repositories to add
+  ansible.builtin.set_fact:
+     apt_repositories_to_add: "{{ apt_repositories_to_add + docker_repositories_to_add }}"
+  when: configure_docker
+
+- name: Add Docker packages to the list of packages to install
+  ansible.builtin.set_fact:
+     apt_packages_to_install: "{{ apt_packages_to_install + docker_packages_to_install }}"
+  when: configure_docker
+
+- name: Add Docker packages to uninstall to the list of packages to uninstall
+  ansible.builtin.set_fact:
+     apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + docker_packages_to_uninstall }}"
+  when: configure_docker
+
 - name: Add fail2ban packages to the list of packages to install
   ansible.builtin.set_fact:
     apt_packages_to_install: "{{ apt_packages_to_install + fail2ban_packages }}"
