@@ -1,6 +1,7 @@
 ---
 docker_repository_url: https://download.docker.com/linux
 home_lab_configuration_directory_path: /etc/ferrarimarco-home-lab
+home_lab_configuration_docker_compose_directory_path: "{{ home_lab_configuration_directory_path }}/docker-compose"
 sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"

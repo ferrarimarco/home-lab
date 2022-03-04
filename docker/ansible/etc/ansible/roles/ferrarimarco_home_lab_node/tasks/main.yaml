@@ -12,6 +12,7 @@
   become: true
   with_items:
     - "{{ home_lab_configuration_directory_path }}"
+    - "{{ home_lab_configuration_docker_compose_directory_path }}"
 
 - name: Include users setup tasks
   ansible.builtin.include_tasks:
