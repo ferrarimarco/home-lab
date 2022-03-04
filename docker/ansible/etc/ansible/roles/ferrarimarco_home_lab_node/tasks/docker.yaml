@@ -20,10 +20,6 @@
     state: started
     enabled: true
 
-- name: Include docker-compose tasks
-  ansible.builtin.include_tasks: docker-compose.yml
-  when: docker_install_compose
-
 - name: Ensure docker users are added to the docker group
   ansible.builtin.user:
     name: "{{ item }}"
