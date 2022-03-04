@@ -2,6 +2,17 @@
 - name: Setup variables
   ansible.builtin.import_tasks: include-variables.yaml
 
+- name: Create home lab configuration directories
+  ansible.builtin.file:
+    group: root
+    mode: "0755"
+    owner: root
+    path: "{{ item }}"
+    state: directory
+  become: true
+  with_items:
+    - "{{ home_lab_configuration_directory_path }}"
+
 - name: Include users setup tasks
   ansible.builtin.include_tasks:
     file: users.yaml
