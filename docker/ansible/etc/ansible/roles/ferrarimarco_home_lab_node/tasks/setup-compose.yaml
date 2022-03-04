@@ -20,3 +20,4 @@
     mode: 755
   when: >
     docker_compose_current_version.stdout is not defined or docker_compose_version not in docker_compose_current_version.stdout
+...
