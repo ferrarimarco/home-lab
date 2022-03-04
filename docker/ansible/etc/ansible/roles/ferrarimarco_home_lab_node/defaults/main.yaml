@@ -9,7 +9,7 @@ configure_wifi: false
 default_user_groups: []
 delete_systemd_journal_file: false
 docker_apt_release_channel: stable
-docker_compose_version: "v2.2.3"
+docker_compose_version: "v2.3.0"
 docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-{{ ansible_architecture }}"
 docker_compose_path: "/usr/local/bin/docker-compose"
 docker_daemon_options: {}
