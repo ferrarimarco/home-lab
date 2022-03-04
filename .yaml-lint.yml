@@ -24,7 +24,5 @@ rules:
     allow-non-breakable-inline-mappings: true
   octal-values: enable
   truthy:
-    # because the "on" key in GitHub actions workflow configuration files
-    check-keys: false
     level: error
 ...

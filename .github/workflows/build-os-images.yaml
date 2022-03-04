@@ -4,7 +4,7 @@ name: Build OS images
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-on:
+on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-os-images.yaml"

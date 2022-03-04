@@ -1,7 +1,7 @@
 ---
 name: Build container images
 
-on:
+on: # yamllint disable-line rule:truthy
   push:
     paths:
       - "docker/**"
