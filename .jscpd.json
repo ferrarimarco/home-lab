@@ -4,7 +4,8 @@
     "consoleFull"
   ],
   "ignore": [
-    "**/user-data*.yaml"
+    "**/user-data*.yaml",
+    "**/workflows/*.yaml"
   ],
   "absolute": true
 }
