@@ -18,7 +18,7 @@ jobs:
   lint:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - name: Super-Linter
         uses: github/super-linter@v4.9.0
         env:
@@ -34,7 +34,7 @@ jobs:
       - lint
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - name: "Build the Smart Desk firmware image"
         run: |
           scripts/build.sh
@@ -63,7 +63,7 @@ jobs:
       - update-release-draft
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
       - name: Download artifacts to upload
         uses: actions/download-artifact@v2
       - name: "Upload artifacts to the ${{ needs.update-release-draft.outputs.release-tag-name }} release"
