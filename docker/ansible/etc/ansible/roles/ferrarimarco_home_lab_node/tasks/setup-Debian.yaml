@@ -1,8 +1,7 @@
 ---
 - name: Add APT repository keys
   apt_key:
-    id: "{{ item.repository_key_id }}"
-    keyring: "{{ repository_key_keyring_file_path }}"
+    keyring: "{{ item.repository_key_keyring_file_path }}"
     state: present
     url: "{{ item.repository_key_url }}"
   with_items: "{{ apt_repositories_to_add }}"

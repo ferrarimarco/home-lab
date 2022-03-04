@@ -13,7 +13,7 @@
   when: >
     docker_compose_current_version.stdout is defined and docker_compose_version not in docker_compose_current_version.stdout
 
-- name: Install Docker Compose
+- name: Install Docker Compose {{ docker_compose_version }}
   ansible.builtin.get_url:
     url: "{{ docker_compose_url }}"
     dest: "{{ docker_compose_path }}"

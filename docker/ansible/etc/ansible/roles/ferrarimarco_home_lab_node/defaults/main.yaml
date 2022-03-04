@@ -12,7 +12,16 @@ docker_apt_release_channel: stable
 docker_compose_version: "v2.3.0"
 docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-{{ ansible_architecture }}"
 docker_compose_path: "/usr/local/bin/docker-compose"
-docker_daemon_options: {}
+docker_daemon_options: {
+  "log-driver": "local",
+  "log-opts": {
+    "compress": "true",
+    "max-size": "10m",
+    "max-file": "3",
+  }
+}
+docker_users:
+  - "{{ ansible_user }}"
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 is_raspberry_pi: false

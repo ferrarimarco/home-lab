@@ -11,6 +11,15 @@
   ansible.builtin.include_vars: "raspberry-pi-os.yaml"
   when: is_raspberry_pi
 
+- name: Register facts based on the OS type, or a default if not found
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - "register-{{ ansible_distribution }}-{{ ansible_distribution_version }}-facts.yaml"
+    - "register-{{ ansible_distribution }}-facts.yaml"
+    - "register-{{ ansible_os_family }}-facts.yaml"
+    - "register-default-facts.yaml"
+
 - name: Add Sense Hat packages to the list of packages to install
   ansible.builtin.set_fact:
     apt_packages_to_install: "{{ apt_packages_to_install + raspberry_pi_sense_hat_apt_packages }}"

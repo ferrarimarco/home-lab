@@ -57,6 +57,9 @@
   when: configure_docker
 
 - name: Include docker-compose tasks
-  ansible.builtin.include_tasks: compose.yaml
+  ansible.builtin.include_tasks:
+    file: setup-compose.yaml
+    apply:
+      become: true
   when: configure_docker_compose
 ...
