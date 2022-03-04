@@ -4,7 +4,7 @@ name: Build firmware images
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-on: # yamllint disable-line rule:truthy
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
@@ -26,6 +26,7 @@ jobs:
           ERROR_ON_MISSING_EXEC_BIT: true
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JSCPD_ALL_CODEBASE: true
   build-smart-desk:
     defaults:
       run:

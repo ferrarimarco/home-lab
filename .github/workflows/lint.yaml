@@ -1,9 +1,9 @@
 ---
 name: Lint
 
-on: # yamllint disable-line rule:truthy
-  push:
-  pull_request:
+on:  # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
 
 jobs:
   lint:
@@ -18,4 +18,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JSCPD_ALL_CODEBASE: true
 ...

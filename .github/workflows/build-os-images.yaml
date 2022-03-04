@@ -4,7 +4,7 @@ name: Build OS images
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-on: # yamllint disable-line rule:truthy
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-os-images.yaml"
@@ -30,6 +30,7 @@ jobs:
           ERROR_ON_MISSING_EXEC_BIT: true
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JSCPD_ALL_CODEBASE: true
   customize-preinstalled-os-images:
     env:
       OS_BUILDER_CONTAINER_IMAGE_ID: "ferrarimarco/os-image-builder:latest"

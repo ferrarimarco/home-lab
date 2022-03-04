@@ -1,7 +1,7 @@
 ---
 name: Build container images
 
-on: # yamllint disable-line rule:truthy
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - "docker/**"
@@ -22,6 +22,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JSCPD_ALL_CODEBASE: true
   build-container-images:
     env:
       CONTAINER_IMAGE_ID: "ferrarimarco/${{ matrix.container-image-context-directory }}:latest"
