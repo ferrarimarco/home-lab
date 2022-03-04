@@ -74,4 +74,9 @@
     apply:
       become: true
   when: configure_docker_compose
+
+- name: Include monitoring tasks
+  ansible.builtin.include_tasks:
+    file: monitoring.yaml
+  when: configure_monitoring
 ...
