@@ -2,8 +2,14 @@
 configuration_directories_to_copy: []
 configuration_directories_to_create:
   - "{{ home_lab_configuration_directory_path }}"
+  - "{{ systemd_configuration_directory }}"
+  - "{{ systemd_journald_configuration_directory_path }}"
+directories_to_ensure_ownership:
+  - "{{ etc_directory_path }}"
+docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
 docker_repository_url: https://download.docker.com/linux
-home_lab_configuration_directory_path: /etc/ferrarimarco-home-lab
+etc_directory_path: "/etc"
+home_lab_configuration_directory_path: "{{ etc_directory_path }}/ferrarimarco-home-lab"
 monitoring_configuration_directories:
   - "{{ monitoring_configuration_directory_path }}"
 monitoring_configuration_directories_to_copy:

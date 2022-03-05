@@ -2,7 +2,16 @@
 - name: Setup variables
   ansible.builtin.import_tasks: include-variables.yaml
 
-- name: Create home lab configuration directories
+- name: Ensure that the ownership of directories is configuration_directories_to_copy
+  ansible.builtin.file:
+    group: root
+    mode: "0755"
+    owner: root
+    path: "{{ item }}"
+  become: true
+  with_items: "{{ directories_to_ensure_ownership }}"
+
+- name: Create configuration directories
   ansible.builtin.file:
     group: root
     mode: "0755"
