@@ -12,6 +12,17 @@
   become: true
   with_items: "{{ configuration_directories_to_create }}"
 
+- name: Copy configuration directories
+  ansible.builtin.copy:
+    src: "{{ item.src }}/"
+    dest: "{{ item.dest }}/"
+    group: root
+    directory_mode: "0755"
+    mode: "0644"
+    owner: root
+  become: true
+  with_items: "{{ configuration_directories_to_copy }}"
+
 - name: Include users setup tasks
   ansible.builtin.include_tasks:
     file: users.yaml
