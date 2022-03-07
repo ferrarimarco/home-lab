@@ -5,6 +5,7 @@ apt_packages_to_uninstall: []
 configure_docker: false
 configure_docker_compose: false
 configure_monitoring: true
+configure_monitoring_backend: false
 configure_wifi: false
 default_user_groups: []
 delete_systemd_journal_file: false

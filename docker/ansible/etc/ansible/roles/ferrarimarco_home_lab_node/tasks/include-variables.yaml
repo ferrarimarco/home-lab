@@ -44,4 +44,9 @@
   ansible.builtin.include_tasks:
     file: register-monitoring-facts.yaml
   when: configure_monitoring
+
+- name: Include monitoring tasks
+  ansible.builtin.include_tasks:
+    file: register-monitoring-backend-facts.yaml
+  when: configure_monitoring_backend
 ...

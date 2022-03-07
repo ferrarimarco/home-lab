@@ -32,6 +32,16 @@
   become: true
   with_items: "{{ configuration_directories_to_copy }}"
 
+- name: Copy system-wide, templated configuration files in place
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  with_items: "{{ templates_to_render }}"
+
 - name: Include users setup tasks
   ansible.builtin.include_tasks:
     file: users.yaml
