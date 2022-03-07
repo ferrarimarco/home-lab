@@ -6,6 +6,8 @@ configuration_directories_to_create:
   - "{{ systemd_journald_configuration_directory_path }}"
 directories_to_ensure_ownership:
   - "{{ etc_directory_path }}"
+default_docker_compose_file_name: "compose.yaml"
+docker_compose_up_items: []
 docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
 docker_repository_url: https://download.docker.com/linux
 etc_directory_path: "/etc"
@@ -17,6 +19,8 @@ monitoring_configuration_directories_to_copy:
     dest: "{{ monitoring_configuration_directory_path }}"
 monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring"
 monitoring_configuration_source_directory_path: "config/monitoring"
+monitoring_docker_compose_up_items:
+  - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"

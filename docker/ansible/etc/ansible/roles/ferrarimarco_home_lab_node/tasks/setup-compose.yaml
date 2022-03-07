@@ -20,4 +20,20 @@
     mode: 755
   when: >
     docker_compose_current_version.stdout is not defined or docker_compose_version not in docker_compose_current_version.stdout
+
+- name: Run docker-compose up in detached mode
+  debugger: on_failed
+  changed_when: '"Started" in docker_compose_up_result.stdout or "Started" in docker_compose_up_result.stderr'
+  command: >
+    docker-compose \
+    --file {{ item.compose_file_path }} \
+    up \
+    --detach \
+    --remove-orphans
+  register: docker_compose_up_result
+  with_items: "{{ docker_compose_up_items }}"
+
+- name: Debug Docker Compose output
+  debug:
+    var: docker_compose_up_result
 ...

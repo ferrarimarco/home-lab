@@ -6,4 +6,8 @@
 - name: Add monitoring configuration directories to the list of configuration directories to copy
   ansible.builtin.set_fact:
     configuration_directories_to_copy: "{{ configuration_directories_to_copy + monitoring_configuration_directories_to_copy }}"
+
+- name: Add monitoring configuration directories to the list of configuration directories to copy
+  ansible.builtin.set_fact:
+    docker_compose_up_items: "{{ docker_compose_up_items + monitoring_docker_compose_up_items }}"
 ...
