@@ -4,7 +4,7 @@ volumes:
 
 services:
   prometheus:
-    image: prom/prometheus:v2.33.4
+    image: prom/prometheus:v2.33.5
     container_name: prometheus
     restart: unless-stopped
     volumes:
