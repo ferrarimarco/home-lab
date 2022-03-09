@@ -16,6 +16,9 @@ rules:
     level: error
   document-end:
     level: error
+    # Temporary workaround for https://github.com/microsoft/compose-language-service/issues/93
+    ignore: |
+      **/compose.yaml
   document-start:
     level: error
   empty-values: enable
