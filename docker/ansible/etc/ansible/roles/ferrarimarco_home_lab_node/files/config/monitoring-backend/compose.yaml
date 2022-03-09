@@ -13,6 +13,7 @@ services:
       - GF_METRICS_ENABLED=true
     restart: on-failure
     volumes:
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
       - grafana_data:/var/lib/grafana
     ports:
