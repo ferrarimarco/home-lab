@@ -100,7 +100,22 @@ when not using Raspberry Pi OS, do the following:
 For more information about flashing Raspberry Pi OS images to a SD card, refer to
 [Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
 
-### Provisioning hosts with Ansible
+### Provision new hosts
+
+When provisioning a new host, do the following:
+
+1. Set a unique hostname for the new host.
+1. Add the new host to the Ansible inventory.
+
+#### Configure Raspberry Pi nodes
+
+To update the configuration of a Raspberry Pis running Raspberry Pi OS, refer to
+[Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/computers/configuration.html).
+
+For example, you may need to change the hostname of a newly provisioned node
+before adding it to the set of automatically configured nodes.
+
+### Configure hosts with Ansible
 
 For newly provisioned hosts, you might have to authenticate a SSH connection using
 a passowrd instead of a key. To authenticate with a password, add the
@@ -111,7 +126,7 @@ without having the `sshpass` program installed on the host that runs Ansible.
 
 To run Ansible, use the `scripts/run-ansible.sh` script. This script provides a
 thin wrapper that takes care of setting up either a container (preferred) or a
-Python virtual environment.
+Python virtual environment to run Ansible.
 
 ### Managed DNS zone
 

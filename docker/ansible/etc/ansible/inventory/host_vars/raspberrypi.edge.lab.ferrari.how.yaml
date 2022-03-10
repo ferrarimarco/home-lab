@@ -1,5 +1,4 @@
 ---
-ansible_user: pi
 configure_docker: true
 configure_docker_compose: true
 configure_monitoring_backend: true
