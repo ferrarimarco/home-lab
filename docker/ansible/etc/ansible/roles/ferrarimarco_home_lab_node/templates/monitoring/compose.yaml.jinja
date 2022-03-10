@@ -1,0 +1,26 @@
+---
+services:
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:v1.3.1
+    container_name: node_exporter
+    command:
+      - "--collector.textfile.directory=/var/lib/node_exporter/textfile_collector"
+      - "--path.rootfs=/host"
+    network_mode: host
+    pid: host
+    restart: always
+    volumes:
+      - "/:/host:ro,rslave"
+      - textfile_collector_metrics:/var/lib/node_exporter/textfile_collector
+{% if has_sense_hat %}
+  sense_hat_exporter:
+    build: ./sense-hat-exporter
+    restart: always
+    privileged: true
+    volumes:
+      - textfile_collector_metrics:/var/lib/node_exporter/textfile_collector
+{% endif %}
+
+volumes:
+  textfile_collector_metrics: {}
+...

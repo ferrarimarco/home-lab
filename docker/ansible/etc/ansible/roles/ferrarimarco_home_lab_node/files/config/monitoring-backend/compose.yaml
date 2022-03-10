@@ -11,7 +11,7 @@ services:
     image: grafana/grafana-oss:8.4.3
     environment:
       - GF_METRICS_ENABLED=true
-    restart: on-failure
+    restart: always
     volumes:
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
@@ -22,7 +22,7 @@ services:
   prometheus:
     image: prom/prometheus:v2.33.5
     container_name: prometheus
-    restart: unless-stopped
+    restart: always
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
       - prometheus_data:/prometheus

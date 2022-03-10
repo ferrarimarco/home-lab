@@ -1,0 +1,2 @@
+prometheus-client==0.13.1
+sense-hat==2.2.0
