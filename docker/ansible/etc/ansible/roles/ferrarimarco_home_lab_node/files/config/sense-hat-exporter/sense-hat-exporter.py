@@ -1,7 +1,7 @@
 import argparse
 import time
 
-from prometheus_client import Metric, Summary, REGISTRY, write_to_textfile
+from prometheus_client import REGISTRY, Metric, Summary, write_to_textfile
 from sense_hat import SenseHat
 
 # Create a metric to track time spent and requests made.
