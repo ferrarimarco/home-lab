@@ -4,6 +4,7 @@
     "consoleFull"
   ],
   "ignore": [
+    "**/grafana/dashboards/dashboard-definitions/**/*.json",
     "**/user-data*.yaml",
     "**/workflows/*.yaml"
   ],
