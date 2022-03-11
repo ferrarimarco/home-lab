@@ -1,0 +1,14 @@
+---
+- name: Initialize the list of OS services to restart
+  ansible.builtin.set_fact:
+    os_services_to_restart: "{{ os_services_to_restart + item.os_service_to_restart }}"
+  when: item.changed and item.os_service_to_restart is defined
+  with_items: "{{ system_wide_copied_configuration_directories.results + system_wide_rendered_templates.results }}"
+
+- name: Restart OS services
+  become: true
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: "restarted"
+  with_items: "{{ os_services_to_restart }}"
+...

@@ -1,17 +1,8 @@
 ---
-- name: Ensure the Docker configuration directory ({{ docker_daemon_configuration_directory_path }}) exists
-  ansible.builtin.file:
-    group: root
-    path: "{{ docker_daemon_configuration_directory_path }}"
-    state: directory
-    mode: "0755"
-    owner: root
-  when: docker_daemon_options.keys() | length > 0
-
 - name: Configure Docker daemon options
   ansible.builtin.copy:
     content: "{{ docker_daemon_options | to_nice_json }}"
-    dest: /etc/docker/daemon.json
+    dest: "{{ docker_daemon_configuration_directory_path }}/daemon.json"
     mode: "0644"
   notify: restart docker
   when: docker_daemon_options.keys() | length > 0

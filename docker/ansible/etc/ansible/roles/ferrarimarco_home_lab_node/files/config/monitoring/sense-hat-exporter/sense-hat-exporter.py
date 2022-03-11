@@ -17,13 +17,17 @@ class SenseHatCollector():
     def collect(self):
 
         temperature = self.sense.get_temperature()
+        temperature_humidity = self.sense.get_temperature_from_humidity()
+        temperature_pressure = self.sense.get_temperature_from_pressure()
         humidity = self.sense.get_humidity()
         pressure = self.sense.get_pressure()
 
         metric = Metric('raspberry_pi_sensehat', 'Raspberry Pi SenseHat metrics', 'gauge')
-        metric.add_sample('raspberry_pi_sensehat_temperature', value=temperature, labels={'name': 'SenseHat Temperature'})
-        metric.add_sample('raspberry_pi_sensehat_humidity', value=humidity, labels={'name': 'SenseHat Humidity'})
-        metric.add_sample('raspberry_pi_sensehat_pressure', value=pressure, labels={'name': 'SenseHat Pressure'})
+        metric.add_sample('raspberry_pi_sensehat_temperature', value=temperature, labels={'name': 'SenseHat temperature from the temperature sensor in Celsius degrees'})
+        metric.add_sample('raspberry_pi_sensehat_temperature_humidity', value=temperature_humidity, labels={'name': 'SenseHat temperature from the humidity sensor in Celsius degrees'})
+        metric.add_sample('raspberry_pi_sensehat_temperature_pressure', value=temperature_pressure, labels={'name': 'SenseHat temperature from the pressure sensor in Celsius degrees'})
+        metric.add_sample('raspberry_pi_sensehat_humidity', value=humidity, labels={'name': 'SenseHat relative humidity percentage'})
+        metric.add_sample('raspberry_pi_sensehat_pressure', value=pressure, labels={'name': 'SenseHat pressure in millibars'})
         if self.orientation:
             roll = self.sense.orientation['roll']
             yaw = self.sense.orientation['yaw']

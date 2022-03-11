@@ -15,27 +15,9 @@
     name: "{{ docker_service_name }}"
     state: "restarted"
 
-- name: restart fail2ban
-  become: true
-  ansible.builtin.service:
-    name: "{{ fail2ban_service_name }}"
-    state: "restarted"
-
-- name: restart journald
-  become: true
-  ansible.builtin.service:
-    name: systemd-journald
-    state: "restarted"
-
 - name: restart ssh
   become: true
   ansible.builtin.service:
     name: "{{ security_sshd_name }}"
-    state: "restarted"
-
-- name: restart unattended-upgrades
-  become: true
-  ansible.builtin.service:
-    name: "{{ unattended_upgrades_service_name }}"
     state: "restarted"
 ...

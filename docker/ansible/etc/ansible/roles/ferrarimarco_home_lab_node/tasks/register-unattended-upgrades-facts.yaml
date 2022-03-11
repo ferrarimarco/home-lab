@@ -6,4 +6,8 @@
 - name: Add unattended-upgrades services to configure to the list of services to configure
   ansible.builtin.set_fact:
     os_services_to_configure: "{{ os_services_to_configure + unattended_upgrades_os_services_to_configure }}"
+
+- name: Add unattended-upgrades templates to render to the list of templates to render
+  ansible.builtin.set_fact:
+    templates_to_render: "{{ templates_to_render + unattended_upgrades_templates_to_render }}"
 ...

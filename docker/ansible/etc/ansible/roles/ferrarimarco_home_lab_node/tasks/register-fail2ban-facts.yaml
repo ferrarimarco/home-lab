@@ -6,4 +6,8 @@
 - name: Add fail2ban services to configure to the list of services to configure
   ansible.builtin.set_fact:
     os_services_to_configure: "{{ os_services_to_configure + fail2ban_os_services_to_configure }}"
+
+- name: Add fail2ban templates to render to the list of templates to render
+  ansible.builtin.set_fact:
+    templates_to_render: "{{ templates_to_render + fail2ban_templates_to_render }}"
 ...
