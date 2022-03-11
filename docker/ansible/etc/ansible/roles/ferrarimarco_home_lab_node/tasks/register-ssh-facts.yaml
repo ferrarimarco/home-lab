@@ -1,5 +1,0 @@
----
-- name: Add ssh services to configure to the list of services to configure
-  ansible.builtin.set_fact:
-    os_services_to_configure: "{{ os_services_to_configure + ssh_os_services_to_configure }}"
-...

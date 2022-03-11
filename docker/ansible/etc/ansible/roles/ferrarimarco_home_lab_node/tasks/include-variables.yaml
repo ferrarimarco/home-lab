@@ -20,9 +20,28 @@
     - "register-{{ ansible_os_family }}-facts.yaml"
     - "register-default-facts.yaml"
 
-- name: Include SSH tasks
+- name: Register custom facts
   ansible.builtin.include_tasks:
-    file: register-ssh-facts.yaml
+    apply:
+      vars:
+        fact_category: "{{ item.fact_category }}"
+        fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
+        fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
+        fact_os_package_repositories_to_add: "{{ item.fact_os_package_repositories_to_add | default([]) }}"
+        fact_os_packages_to_install: "{{ item.fact_os_packages_to_install | default([]) }}"
+        fact_os_packages_to_uninstall: "{{ item.fact_os_packages_to_uninstall | default([]) }}"
+        fact_os_services_to_configure: "{{ item.fact_os_services_to_configure | default([]) }}"
+        fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
+    file: register-custom-facts.yaml
+  with_items:
+    - fact_category: "Raspberry Pi Sense Hat"
+      fact_configuration_directories_to_copy: "{{ sense_hat_exporter_configuration_directories_to_copy }}"
+      fact_configuration_directories_to_create: "{{ sense_hat_exporter_configuration_directories }}"
+      fact_os_packages_to_install: "{{ raspberry_pi_sense_hat_apt_packages }}"
+      fact_os_services_to_configure: "{{ sense_hat_os_services_to_configure }}"
+      fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
+    - fact_category: "ssh"
+      fact_os_services_to_configure: "{{ ssh_os_services_to_configure }}"
 
 - name: Include Raspberry Pi Sense Hat tasks
   ansible.builtin.include_tasks:
