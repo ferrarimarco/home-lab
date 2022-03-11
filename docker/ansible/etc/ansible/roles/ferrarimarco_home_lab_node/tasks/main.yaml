@@ -96,6 +96,12 @@
       become: true
   when: configure_docker
 
+- name: Include OS services tasks
+  ansible.builtin.include_tasks:
+    file: os-services.yaml
+    apply:
+      become: true
+
 - name: Include docker-compose tasks
   ansible.builtin.include_tasks:
     file: setup-compose.yaml

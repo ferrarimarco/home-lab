@@ -1,0 +1,9 @@
+---
+- name: Add unattended-upgrades packages to the list of packages to install
+  ansible.builtin.set_fact:
+    apt_packages_to_install: "{{ apt_packages_to_install + unattended_upgrades_packages }}"
+
+- name: Add unattended-upgrades services to configure to the list of services to configure
+  ansible.builtin.set_fact:
+    os_services_to_configure: "{{ os_services_to_configure + unattended_upgrades_os_services_to_configure }}"
+...

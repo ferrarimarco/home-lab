@@ -10,8 +10,16 @@ default_docker_compose_file_name: "compose.yaml"
 default_prometheus_configuration_file_name: "prometheus.yaml"
 docker_compose_up_items: []
 docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
+docker_os_services_to_configure:
+  - enabled: true
+    service_name: "{{ docker_service_name }}"
+    service_state: started
 docker_repository_url: https://download.docker.com/linux
 etc_directory_path: "/etc"
+fail2ban_os_services_to_configure:
+  - enabled: true
+    service_name: "{{ fail2ban_service_name }}"
+    service_state: started
 home_lab_configuration_directory_path: "{{ etc_directory_path }}/ferrarimarco-home-lab"
 monitoring_backend_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring-backend"
 monitoring_backend_configuration_directories:
@@ -39,9 +47,18 @@ monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collect
 monitoring_templates_to_render:
   - src: "monitoring/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+os_services_to_configure: []
+ssh_os_services_to_configure:
+  - enabled: true
+    service_name: "{{ security_sshd_name }}"
+    service_state: started
 sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"
 systemd_journal_file_path: /var/log/journal
 templates_to_render: []
+unattended_upgrades_os_services_to_configure:
+  - enabled: true
+    service_name: "{{ unattended_upgrades_service_name }}"
+    service_state: started
 ...

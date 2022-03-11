@@ -20,6 +20,10 @@
     - "register-{{ ansible_os_family }}-facts.yaml"
     - "register-default-facts.yaml"
 
+- name: Include SSH tasks
+  ansible.builtin.include_tasks:
+    file: register-ssh-facts.yaml
+
 - name: Include Raspberry Pi Sense Hat tasks
   ansible.builtin.include_tasks:
     file: register-raspberry-pi-sense-hat-facts.yaml
@@ -30,14 +34,14 @@
     file: register-docker-facts.yaml
   when: configure_docker
 
-- name: Add fail2ban packages to the list of packages to install
-  ansible.builtin.set_fact:
-    apt_packages_to_install: "{{ apt_packages_to_install + fail2ban_packages }}"
+- name: Include fail2ban tasks
+  ansible.builtin.include_tasks:
+    file: register-fail2ban-facts.yaml
   when: security_fail2ban_enabled
 
-- name: Add unattended-upgrades packages to the list of packages to install
-  ansible.builtin.set_fact:
-    apt_packages_to_install: "{{ apt_packages_to_install + unattended_upgrades_packages }}"
+- name: Include unattended-upgrades tasks
+  ansible.builtin.include_tasks:
+    file: register-unattended-upgrades-facts.yaml
   when: security_unattended_upgrades_enabled
 
 - name: Include monitoring tasks
@@ -45,7 +49,7 @@
     file: register-monitoring-facts.yaml
   when: configure_monitoring
 
-- name: Include monitoring tasks
+- name: Include monitoring backend tasks
   ansible.builtin.include_tasks:
     file: register-monitoring-backend-facts.yaml
   when: configure_monitoring_backend

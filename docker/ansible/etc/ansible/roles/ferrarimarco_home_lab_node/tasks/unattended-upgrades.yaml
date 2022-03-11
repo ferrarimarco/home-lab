@@ -9,10 +9,4 @@
   notify: restart unattended-upgrades
   with_items:
     - 20auto-upgrades
-
-- name: Ensure unattended-upgrades is running and enabled on boot
-  ansible.builtin.service:
-    name: "{{ unattended_upgrades_service_name }}"
-    state: started
-    enabled: true
 ...

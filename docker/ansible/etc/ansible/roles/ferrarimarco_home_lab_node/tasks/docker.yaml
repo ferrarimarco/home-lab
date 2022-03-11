@@ -16,12 +16,6 @@
   notify: restart docker
   when: docker_daemon_options.keys() | length > 0
 
-- name: Ensure Docker is started and enabled at boot
-  ansible.builtin.service:
-    name: "{{ docker_service_name }}"
-    state: started
-    enabled: true
-
 - name: Ensure docker users are added to the docker group
   ansible.builtin.user:
     name: "{{ item }}"

@@ -7,10 +7,4 @@
     group: root
     mode: "0644"
   notify: restart fail2ban
-
-- name: Ensure fail2ban is running and enabled on boot
-  ansible.builtin.service:
-    name: "{{ fail2ban_service_name }}"
-    state: started
-    enabled: true
 ...

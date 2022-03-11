@@ -10,4 +10,8 @@
 - name: Add Docker packages to uninstall to the list of packages to uninstall
   ansible.builtin.set_fact:
     apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + docker_packages_to_uninstall }}"
+
+- name: Add Docker services to configure to the list of services to configure
+  ansible.builtin.set_fact:
+    os_services_to_configure: "{{ os_services_to_configure + docker_os_services_to_configure }}"
 ...

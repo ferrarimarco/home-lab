@@ -15,10 +15,6 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"
-    directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring/sense-hat-exporter"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "docker"
     directory: "/docker/cloud-init"
     schedule:
       interval: "daily"
