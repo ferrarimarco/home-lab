@@ -37,4 +37,5 @@
 - name: Debug Docker Compose output
   debug:
     var: docker_compose_up_result
+    verbosity: 1
 ...
