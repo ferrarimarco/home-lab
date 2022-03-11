@@ -15,13 +15,14 @@ class SenseHatCollector():
 
     @REQUEST_TIME.time()
     def collect(self):
-
+        # Get data from the Sense Hat
         temperature = self.sense.get_temperature()
         temperature_humidity = self.sense.get_temperature_from_humidity()
         temperature_pressure = self.sense.get_temperature_from_pressure()
         humidity = self.sense.get_humidity()
         pressure = self.sense.get_pressure()
 
+        # Store the data from the Sense Hat in Prometheus metrics
         metric = Metric('raspberry_pi_sensehat', 'Raspberry Pi SenseHat metrics', 'gauge')
         metric.add_sample('raspberry_pi_sensehat_temperature', value=temperature, labels={'name': 'SenseHat temperature from the temperature sensor in Celsius degrees'})
         metric.add_sample('raspberry_pi_sensehat_temperature_humidity', value=temperature_humidity, labels={'name': 'SenseHat temperature from the humidity sensor in Celsius degrees'})

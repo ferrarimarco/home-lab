@@ -1,8 +1,11 @@
 ---
 - name: Initialize the list of OS services to restart
+  # For item.item, see https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html#registering-variables-with-a-loop
+  # "When you use register with a loop, the data structure placed in the variable will contain a results attribute
+  # that is a list of all responses from the module. This differs from the data structure returned when using register without a loop."
   ansible.builtin.set_fact:
-    os_services_to_restart: "{{ os_services_to_restart + item.os_service_to_restart }}"
-  when: item.changed and item.os_service_to_restart is defined
+    os_services_to_restart: "{{ os_services_to_restart + item.item.os_services_to_restart }}"
+  when: item.changed and item.item.os_services_to_restart is defined
   with_items: "{{ system_wide_copied_configuration_directories.results + system_wide_rendered_templates.results }}"
 
 - name: Restart OS services

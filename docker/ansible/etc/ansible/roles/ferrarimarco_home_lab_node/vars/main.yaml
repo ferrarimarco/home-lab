@@ -43,11 +43,8 @@ monitoring_backend_templates_to_render:
 monitoring_configuration_directories:
   - "{{ monitoring_configuration_directory_path }}"
   - "{{ monitoring_host_metrics_directory_path }}"
-monitoring_configuration_directories_to_copy:
-  - src: "{{ monitoring_configuration_source_directory_path }}"
-    dest: "{{ monitoring_configuration_directory_path }}"
+monitoring_configuration_directories_to_copy: []
 monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring"
-monitoring_configuration_source_directory_path: "config/monitoring"
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collector"
@@ -56,7 +53,14 @@ monitoring_templates_to_render:
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 os_services_to_configure: []
 os_services_to_restart: []
-sense_hat_exporter_configuration_directory_path: "{{ monitoring_configuration_directory_path }}/sense-hat-exporter"
+sense_hat_exporter_configuration_directories:
+  - "{{ sense_hat_exporter_configuration_directory_path }}"
+sense_hat_exporter_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/sense-hat-exporter"
+sense_hat_exporter_configuration_directories_to_copy:
+  - src: "config/sense-hat-exporter"
+    dest: "{{ sense_hat_exporter_configuration_directory_path }}"
+    os_services_to_restart:
+      - "{{ sense_hat_exporter_os_service_name }}"
 sense_hat_exporter_executable_path: "{{ sense_hat_exporter_configuration_directory_path }}/sense-hat-exporter.py"
 sense_hat_exporter_requirements_file_path: "{{ sense_hat_exporter_configuration_directory_path }}/requirements.txt"
 sense_hat_exporter_run_directory_path: "/run/sense-hat-exporter"
@@ -65,12 +69,10 @@ sense_hat_exporter_os_service_file_name: "{{ sense_hat_exporter_os_service_name 
 sense_hat_exporter_os_service_name: "sense-hat-exporter"
 sense_hat_os_services_to_configure:
   - enabled: true
-    os_services_to_restart:
-      - "{{ sense_hat_exporter_os_service_name }}"
     service_name: "{{ sense_hat_exporter_os_service_file_name }}"
     service_state: started
 sense_hat_templates_to_render:
-  - src: "monitoring/{{ sense_hat_exporter_os_service_file_name }}.jinja"
+  - src: "sense-hat-exporter/{{ sense_hat_exporter_os_service_file_name }}.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ sense_hat_exporter_os_service_file_name }}"
     os_services_to_restart:
       - "{{ sense_hat_exporter_os_service_name }}"

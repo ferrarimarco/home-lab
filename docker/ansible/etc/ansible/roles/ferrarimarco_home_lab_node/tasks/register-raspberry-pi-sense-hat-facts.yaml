@@ -1,4 +1,12 @@
 ---
+- name: Add monitoring configuration directories to the list of configuration directories to create
+  ansible.builtin.set_fact:
+    configuration_directories_to_create: "{{ configuration_directories_to_create + sense_hat_exporter_configuration_directories }}"
+
+- name: Add monitoring configuration directories to the list of configuration directories to copy
+  ansible.builtin.set_fact:
+    configuration_directories_to_copy: "{{ configuration_directories_to_copy + sense_hat_exporter_configuration_directories_to_copy }}"
+
 - name: Add Sense Hat packages to the list of packages to install
   ansible.builtin.set_fact:
     apt_packages_to_install: "{{ apt_packages_to_install + raspberry_pi_sense_hat_apt_packages }}"
