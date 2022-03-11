@@ -20,17 +20,17 @@ class SenseHatCollector():
         humidity = self.sense.get_humidity()
         pressure = self.sense.get_pressure()
 
-        metric = Metric('rpi_sensehat', 'sensehat metric values', 'gauge')
-        metric.add_sample('rpi_sensehat_temperature', value=temperature, labels={'name': 'SenseHat Temperature'})
-        metric.add_sample('rpi_sensehat_humidity', value=humidity, labels={'name': 'SenseHat Humidity'})
-        metric.add_sample('rpi_sensehat_pressure', value=pressure, labels={'name': 'SenseHat Pressure'})
+        metric = Metric('raspberry_pi_sensehat', 'Raspberry Pi SenseHat metrics', 'gauge')
+        metric.add_sample('raspberry_pi_sensehat_temperature', value=temperature, labels={'name': 'SenseHat Temperature'})
+        metric.add_sample('raspberry_pi_sensehat_humidity', value=humidity, labels={'name': 'SenseHat Humidity'})
+        metric.add_sample('raspberry_pi_sensehat_pressure', value=pressure, labels={'name': 'SenseHat Pressure'})
         if self.orientation:
             roll = self.sense.orientation['roll']
             yaw = self.sense.orientation['yaw']
             pitch = self.sense.orientation['pitch']
-            metric.add_sample('rpi_sensehat_roll', value=roll, labels={'name': 'SenseHat Roll'})
-            metric.add_sample('rpi_sensehat_yaw', value=yaw, labels={'name': 'SenseHat Yaw'})
-            metric.add_sample('rpi_sensehat_pitch', value=pitch, labels={'name': 'SenseHat Pitch'})
+            metric.add_sample('raspberry_pi_sensehat_roll', value=roll, labels={'name': 'SenseHat Roll'})
+            metric.add_sample('raspberry_pi_sensehat_yaw', value=yaw, labels={'name': 'SenseHat Yaw'})
+            metric.add_sample('raspberry_pi_sensehat_pitch', value=pitch, labels={'name': 'SenseHat Pitch'})
 
         yield metric
 

@@ -28,6 +28,7 @@
     docker-compose \
     --file {{ item.compose_file_path }} \
     up \
+    --build \
     --detach \
     --remove-orphans
   register: docker_compose_up_result

@@ -11,16 +11,5 @@ services:
     restart: always
     volumes:
       - "/:/host:ro,rslave"
-      - textfile_collector_metrics:/var/lib/node_exporter/textfile_collector
-{% if has_sense_hat %}
-  sense_hat_exporter:
-    build: ./sense-hat-exporter
-    restart: always
-    privileged: true
-    volumes:
-      - textfile_collector_metrics:/var/lib/node_exporter/textfile_collector
-{% endif %}
-
-volumes:
-  textfile_collector_metrics: {}
+      - /var/lib/node_exporter/textfile_collector:/var/lib/node_exporter/textfile_collector
 ...

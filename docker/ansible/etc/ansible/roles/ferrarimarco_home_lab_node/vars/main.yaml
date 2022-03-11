@@ -27,6 +27,7 @@ monitoring_backend_templates_to_render:
     dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_prometheus_configuration_file_name }}"
 monitoring_configuration_directories:
   - "{{ monitoring_configuration_directory_path }}"
+  - "{{ monitoring_host_metrics_directory_path }}"
 monitoring_configuration_directories_to_copy:
   - src: "{{ monitoring_configuration_source_directory_path }}"
     dest: "{{ monitoring_configuration_directory_path }}"
@@ -34,6 +35,7 @@ monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_pa
 monitoring_configuration_source_directory_path: "config/monitoring"
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collector"
 monitoring_templates_to_render:
   - src: "monitoring/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
