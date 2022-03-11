@@ -26,4 +26,8 @@
 - name: Add {{ fact_category }} templates to render items to the list of templates to render
   ansible.builtin.set_fact:
     templates_to_render: "{{ templates_to_render + fact_templates_to_render }}"
+
+- name: Add {{ fact_category }} Docker Compose up items to the list of Docker Compose up items
+  ansible.builtin.set_fact:
+    docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items }}"
 ...

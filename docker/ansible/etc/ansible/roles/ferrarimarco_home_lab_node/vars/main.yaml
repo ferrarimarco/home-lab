@@ -43,7 +43,6 @@ monitoring_backend_templates_to_render:
 monitoring_configuration_directories:
   - "{{ monitoring_configuration_directory_path }}"
   - "{{ monitoring_host_metrics_directory_path }}"
-monitoring_configuration_directories_to_copy: []
 monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring"
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"

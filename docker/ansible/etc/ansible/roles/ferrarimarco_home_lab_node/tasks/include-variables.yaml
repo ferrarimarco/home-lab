@@ -20,21 +20,24 @@
     - "register-{{ ansible_os_family }}-facts.yaml"
     - "register-default-facts.yaml"
 
-- name: Register custom facts
+- name: Set custom facts
   ansible.builtin.include_tasks:
     apply:
       vars:
         fact_category: "{{ item.fact_category }}"
         fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
         fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
+        fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_os_package_repositories_to_add: "{{ item.fact_os_package_repositories_to_add | default([]) }}"
         fact_os_packages_to_install: "{{ item.fact_os_packages_to_install | default([]) }}"
         fact_os_packages_to_uninstall: "{{ item.fact_os_packages_to_uninstall | default([]) }}"
         fact_os_services_to_configure: "{{ item.fact_os_services_to_configure | default([]) }}"
         fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
     file: register-custom-facts.yaml
+  when: item.enable_custom_fact | default(true)
   with_items:
-    - fact_category: "Raspberry Pi Sense Hat"
+    - enable_custom_fact: "{{ has_sense_hat }}"
+      fact_category: "Raspberry Pi Sense Hat"
       fact_configuration_directories_to_copy: "{{ sense_hat_exporter_configuration_directories_to_copy }}"
       fact_configuration_directories_to_create: "{{ sense_hat_exporter_configuration_directories }}"
       fact_os_packages_to_install: "{{ raspberry_pi_sense_hat_apt_packages }}"
@@ -42,34 +45,37 @@
       fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
     - fact_category: "ssh"
       fact_os_services_to_configure: "{{ ssh_os_services_to_configure }}"
+    - enable_custom_fact: "{{ configure_docker }}"
+      fact_category: "Docker"
+      fact_configuration_directories_to_create: "{{ docker_configuration_directories }}"
+      fact_os_package_repositories_to_add: "{{ docker_repositories_to_add }}"
+      fact_os_packages_to_install: "{{ docker_packages_to_install }}"
+      fact_os_packages_to_uninstall: "{{ docker_packages_to_uninstall }}"
+      fact_os_services_to_configure: "{{ docker_os_services_to_configure }}"
+    - enable_custom_fact: "{{ security_fail2ban_enabled }}"
+      fact_category: "fail2ban"
+      fact_os_packages_to_install: "{{ fail2ban_packages }}"
+      fact_os_services_to_configure: "{{ fail2ban_os_services_to_configure }}"
+      fact_templates_to_render: "{{ fail2ban_templates_to_render }}"
+    - enable_custom_fact: "{{ security_unattended_upgrades_enabled }}"
+      fact_category: "unattended-upgrades"
+      fact_os_packages_to_install: "{{ unattended_upgrades_packages }}"
+      fact_os_services_to_configure: "{{ unattended_upgrades_os_services_to_configure }}"
+      fact_templates_to_render: "{{ unattended_upgrades_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_monitoring }}"
+      fact_category: "monitoring"
+      fact_configuration_directories_to_create: "{{ monitoring_configuration_directories }}"
+      fact_docker_compose_up_items: "{{ monitoring_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ monitoring_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_monitoring_backend }}"
+      fact_category: "monitoring-backend"
+      fact_configuration_directories_to_create: "{{ monitoring_backend_configuration_directories }}"
+      fact_configuration_directories_to_copy: "{{ monitoring_backend_configuration_directories_to_copy }}"
+      fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
 
 - name: Include Raspberry Pi Sense Hat tasks
   ansible.builtin.include_tasks:
     file: register-raspberry-pi-sense-hat-facts.yaml
   when: has_sense_hat
-
-- name: Include Docker tasks
-  ansible.builtin.include_tasks:
-    file: register-docker-facts.yaml
-  when: configure_docker
-
-- name: Include fail2ban tasks
-  ansible.builtin.include_tasks:
-    file: register-fail2ban-facts.yaml
-  when: security_fail2ban_enabled
-
-- name: Include unattended-upgrades tasks
-  ansible.builtin.include_tasks:
-    file: register-unattended-upgrades-facts.yaml
-  when: security_unattended_upgrades_enabled
-
-- name: Include monitoring tasks
-  ansible.builtin.include_tasks:
-    file: register-monitoring-facts.yaml
-  when: configure_monitoring
-
-- name: Include monitoring backend tasks
-  ansible.builtin.include_tasks:
-    file: register-monitoring-backend-facts.yaml
-  when: configure_monitoring_backend
 ...
