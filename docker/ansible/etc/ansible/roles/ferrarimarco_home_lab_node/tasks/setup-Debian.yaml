@@ -33,5 +33,5 @@
     state: present
     update_cache: true
   become: true
-  with_items: "{{ apt_packages_to_install }}"
+  with_items: "{{ apt_packages_to_install + default_os_packages_to_install }}"
 ...

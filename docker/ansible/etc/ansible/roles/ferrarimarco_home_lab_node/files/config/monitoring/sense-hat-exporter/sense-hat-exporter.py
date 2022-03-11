@@ -37,7 +37,7 @@ class SenseHatCollector():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--seconds_between_reads', help='The path of the text file to save the metrics to', default=60, type=int)
+    parser.add_argument('--seconds_between_reads', help='Seconds to wait between reads', default=60, type=int)
     parser.add_argument('--metrics_textfile_path', help='The path of the text file to save the metrics to', default='/var/lib/node_exporter/textfile_collector/sense-hat.prom')
     parser.add_argument('--orientation', help='Output orientation data', action='store_true')
     parser.set_defaults(orientation=False)

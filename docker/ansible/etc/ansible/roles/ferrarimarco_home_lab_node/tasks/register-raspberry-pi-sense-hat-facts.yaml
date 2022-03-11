@@ -7,4 +7,12 @@
   ansible.builtin.set_fact:
     raspberry_pi_config_file_values: "{{ raspberry_pi_config_file_values | combine({item.key: item.value}) }}"
   with_dict: "{{ raspberry_pi_sense_hat_config_txt_values }}"
+
+- name: Add Sense Hat templates to render items to the list of templates to render
+  ansible.builtin.set_fact:
+    templates_to_render: "{{ templates_to_render + sense_hat_templates_to_render }}"
+
+- name: Add Sense Hat services to configure to the list of services to configure
+  ansible.builtin.set_fact:
+    os_services_to_configure: "{{ os_services_to_configure + sense_hat_os_services_to_configure }}"
 ...

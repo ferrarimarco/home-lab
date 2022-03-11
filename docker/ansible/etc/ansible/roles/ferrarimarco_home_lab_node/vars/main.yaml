@@ -48,12 +48,27 @@ monitoring_templates_to_render:
   - src: "monitoring/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 os_services_to_configure: []
+sense_hat_exporter_configuration_directory_path: "{{ monitoring_configuration_directory_path }}/sense-hat-exporter"
+sense_hat_exporter_executable_path: "{{ sense_hat_exporter_configuration_directory_path }}/sense-hat-exporter.py"
+sense_hat_exporter_requirements_file_path: "{{ sense_hat_exporter_configuration_directory_path }}/requirements.txt"
+sense_hat_exporter_run_directory_path: "/run/sense-hat-exporter"
+sense_hat_exporter_virtual_env_path: "{{ sense_hat_exporter_run_directory_path }}/.venv"
+sense_hat_exporter_os_service_file_name: "{{ sense_hat_exporter_os_service_name }}.service"
+sense_hat_exporter_os_service_name: "sense-hat-exporter"
+sense_hat_os_services_to_configure:
+  - enabled: true
+    service_name: "{{ sense_hat_exporter_os_service_file_name }}"
+    service_state: started
+sense_hat_templates_to_render:
+  - src: "monitoring/{{ sense_hat_exporter_os_service_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ sense_hat_exporter_os_service_file_name }}"
 ssh_os_services_to_configure:
   - enabled: true
     service_name: "{{ security_sshd_name }}"
     service_state: started
 sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
+systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"
 systemd_journal_file_path: /var/log/journal
 templates_to_render: []

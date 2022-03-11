@@ -1,6 +1,10 @@
 ---
+- name: Reload the systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: Configure OS services
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: "{{ item.service_name }}"
     state: "{{ item.service_state }}"
     enabled: "{{ item.enabled }}"

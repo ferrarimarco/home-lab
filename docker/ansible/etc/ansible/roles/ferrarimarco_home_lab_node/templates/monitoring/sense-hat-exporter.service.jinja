@@ -1,0 +1,14 @@
+[Unit]
+Description=SenseHat metrics exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStartPre=mkdir --parents --verbose {{ sense_hat_exporter_run_directory_path }}
+ExecStartPre=python3 -m venv --clear --system-site-packages --upgrade-deps {{ sense_hat_exporter_virtual_env_path }}
+ExecStartPre={{ sense_hat_exporter_virtual_env_path }}/bin/pip3 install -r {{ sense_hat_exporter_requirements_file_path }}
+ExecStart={{ sense_hat_exporter_virtual_env_path }}/bin/python3 {{ sense_hat_exporter_executable_path }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
