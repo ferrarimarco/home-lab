@@ -4,6 +4,16 @@ volumes:
   prometheus_data: {}
 
 services:
+  blackbox_exporter:
+    container_name: blackbox-exporter
+    command:
+      - "--config.file=/etc/prometheus-blackbox-exporter/config.yaml"
+    image: prom/blackbox-exporter:v0.19.0
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./prometheus-blackbox-exporter-config.yaml:/etc/prometheus-blackbox-exporter/config.yaml
+
   grafana:
     container_name: grafana
     depends_on:

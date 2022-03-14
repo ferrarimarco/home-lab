@@ -40,6 +40,8 @@ monitoring_backend_docker_compose_up_items:
 monitoring_backend_templates_to_render:
   - src: "prometheus/{{ default_prometheus_configuration_file_name }}.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_prometheus_configuration_file_name }}"
+  - src: "prometheus-blackbox-exporter/config.yaml.jinja"
+    dest: "{{ monitoring_backend_configuration_directory_path }}/prometheus-blackbox-exporter-config.yaml"
 monitoring_configuration_directories:
   - "{{ monitoring_configuration_directory_path }}"
   - "{{ monitoring_host_metrics_directory_path }}"
