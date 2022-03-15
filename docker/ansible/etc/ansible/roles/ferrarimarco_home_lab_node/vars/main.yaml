@@ -9,6 +9,7 @@ directories_to_ensure_ownership:
 default_docker_compose_file_name: "compose.yaml"
 default_prometheus_configuration_file_name: "prometheus.yaml"
 docker_compose_up_items: []
+docker_compose_services_to_restart: []
 docker_configuration_directories:
   - "{{ docker_daemon_configuration_directory_path }}"
 docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
@@ -34,14 +35,17 @@ monitoring_backend_configuration_directories:
 monitoring_backend_configuration_directories_to_copy:
   - src: "{{ monitoring_backend_configuration_source_directory_path }}"
     dest: "{{ monitoring_backend_configuration_directory_path }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
 monitoring_backend_configuration_source_directory_path: "config/monitoring-backend"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_backend_templates_to_render:
   - src: "prometheus/{{ default_prometheus_configuration_file_name }}.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_prometheus_configuration_file_name }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
   - src: "prometheus-blackbox-exporter/config.yaml.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/prometheus-blackbox-exporter-config.yaml"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
 monitoring_configuration_directories:
   - "{{ monitoring_configuration_directory_path }}"
   - "{{ monitoring_host_metrics_directory_path }}"
@@ -52,6 +56,7 @@ monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collect
 monitoring_templates_to_render:
   - src: "monitoring/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ monitoring_docker_compose_up_items }}"
 os_services_to_configure: []
 os_services_to_restart: []
 sense_hat_exporter_configuration_directories:

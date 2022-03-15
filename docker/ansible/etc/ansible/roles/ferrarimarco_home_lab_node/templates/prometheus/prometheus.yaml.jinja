@@ -37,6 +37,7 @@ scrape_configs:
         - "ferrarimarco.info"
         - "github.com"
         - "google.com"
+        - "smart-desk.edge.lab.ferrari.how"
 {% for host in groups['all'] %}
         - "{{ host }}"
 {% endfor %}
@@ -46,5 +47,5 @@ scrape_configs:
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: blackbox-exporter:9115 # The blackbox exporter's real hostname:port.
+        replacement: blackbox-exporter:9115 # Blackbox exporter hostname:port.
 ...
