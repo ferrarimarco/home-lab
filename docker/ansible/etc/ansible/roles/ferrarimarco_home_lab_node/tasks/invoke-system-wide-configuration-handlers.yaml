@@ -22,10 +22,11 @@
   with_items: "{{ system_wide_copied_configuration_directories.results + system_wide_rendered_templates.results }}"
 
 - name: Restart Docker Compose services
-  changed_when: '"Started" in docker_compose_up_result.stdout or "Started" in docker_compose_up_result.stderr'
+  changed_when: '"Started" in docker_compose_restart_result.stdout or "Started" in docker_compose_restart_result.stderr'
   command: >
     docker-compose \
     --file {{ item.compose_file_path }} \
     restart
+  register: docker_compose_restart_result
   with_items: "{{ docker_compose_services_to_restart }}"
 ...
