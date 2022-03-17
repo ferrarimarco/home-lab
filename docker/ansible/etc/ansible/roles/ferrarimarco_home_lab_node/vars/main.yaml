@@ -28,6 +28,15 @@ fail2ban_templates_to_render:
     dest: "{{ etc_directory_path }}/fail2ban/jail.local"
     os_services_to_restart:
       - "{{ fail2ban_service_name }}"
+home_assistant_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/home-assistant"
+home_assistant_configuration_directories:
+  - "{{ home_assistant_configuration_directory_path }}"
+home_assistant_configuration_directories_to_copy:
+  - src: "config/home-assistant"
+    dest: "{{ home_assistant_configuration_directory_path }}"
+    docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
+home_assistant_docker_compose_up_items:
+- compose_file_path: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 home_lab_configuration_directory_path: "{{ etc_directory_path }}/ferrarimarco-home-lab"
 monitoring_backend_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring-backend"
 monitoring_backend_configuration_directories:
