@@ -1,0 +1,11 @@
+---
+- name: Add all hosts to the list of DNS A records to check
+  ansible.builtin.set_fact:
+    monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_a_record_check_template }}"
+  with_items: "{{ groups['all'] }}"
+
+- name: Debug monitoring_backend_dns_records_to_check
+  debug:
+    var: monitoring_backend_dns_records_to_check
+    verbosity: 1
+...

@@ -28,6 +28,7 @@ enable_prometheus_node_exporter_scraping: true
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 is_raspberry_pi: false
+main_dns_server_address: "10.0.0.1"
 raspberry_pi_config_file_values: {}
 security_fail2ban_enabled: true
 security_fail2ban_custom_configuration_template: "fail2ban/jail.local.jinja"

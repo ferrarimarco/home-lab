@@ -79,8 +79,13 @@
       fact_configuration_directories_to_copy: "{{ home_assistant_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
 
-- name: Include Raspberry Pi Sense Hat tasks
+- name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:
     file: register-raspberry-pi-sense-hat-facts.yaml
   when: has_sense_hat
+
+- name: Register monitoring-backend facts
+  ansible.builtin.include_tasks:
+    file: register-monitoring-backend-facts.yaml
+  when: configure_monitoring_backend
 ...
