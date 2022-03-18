@@ -1,3 +1,14 @@
 ---
 default_config:
+
+homeassistant:
+  currency: EUR
+  internal_url: !secret internal_url_home
+  latitude: !secret latitude_home
+  longitude: !secret longitude_home
+  elevation: !secret elevation_home
+  name: !secret name_home
+  temperature_unit: C
+  time_zone: !secret timezone_home
+  unit_system: metric
 ...
