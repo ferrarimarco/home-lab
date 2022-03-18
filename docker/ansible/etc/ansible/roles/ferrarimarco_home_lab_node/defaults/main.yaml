@@ -24,6 +24,7 @@ docker_daemon_options: {
 }
 docker_users:
   - "{{ ansible_user }}"
+enable_prometheus_node_exporter_scraping: true
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 is_raspberry_pi: false
