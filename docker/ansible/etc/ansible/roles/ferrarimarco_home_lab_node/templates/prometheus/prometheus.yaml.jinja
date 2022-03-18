@@ -27,6 +27,23 @@ scrape_configs:
       - targets:
         - "blackbox-exporter:9115"
 
+{% for dns_record_to_check in monitoring_backend_dns_records_to_check %}
+  - job_name: "blackbox-dns-{{ dns_record_to_check.check_name }}"
+    metrics_path: /probe
+    params:
+      module:
+        - "{{ dns_record_to_check.check_name }}"
+    static_configs:
+      - targets: {{ dns_record_to_check.targets | default(monitoring_backend_default_dns_check_targets) }}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115 # Blackbox exporter hostname:port.
+{% endfor %}
+
   - job_name: blackbox-ping
     metrics_path: /probe
     params:

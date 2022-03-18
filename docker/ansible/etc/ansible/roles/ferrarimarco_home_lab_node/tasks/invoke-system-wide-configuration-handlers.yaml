@@ -13,7 +13,7 @@
   ansible.builtin.service:
     name: "{{ item }}"
     state: "restarted"
-  with_items: "{{ os_services_to_restart }}"
+  with_items: "{{ os_services_to_restart | unique }}"
 
 - name: Initialize the list of Docker Compose services to restart
   ansible.builtin.set_fact:
@@ -28,5 +28,5 @@
     --file {{ item.compose_file_path }} \
     restart
   register: docker_compose_restart_result
-  with_items: "{{ docker_compose_services_to_restart }}"
+  with_items: "{{ docker_compose_services_to_restart | unique }}"
 ...

@@ -1,5 +1,17 @@
 ---
 modules:
+{% for dns_record_to_check in monitoring_backend_dns_records_to_check %}
+  "{{ dns_record_to_check.check_name }}":
+    prober: dns
+    dns:
+      query_name: "{{ dns_record_to_check.query_name }}"
+      query_type: "{{ dns_record_to_check.query_type }}"
+      validate_answer_rrs:
+        fail_if_not_matches_regexp:
+          - "{{ dns_record_to_check.query_name }}.\t.*\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_not_matches_regexp_value | default('') }}"
+      valid_rcodes:
+        - NOERROR
+{% endfor %}
   icmp:
     prober: icmp
     timeout: 5s

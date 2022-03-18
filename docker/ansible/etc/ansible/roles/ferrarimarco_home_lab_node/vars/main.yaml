@@ -46,6 +46,17 @@ monitoring_backend_configuration_directories_to_copy:
     dest: "{{ monitoring_backend_configuration_directory_path }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
 monitoring_backend_configuration_source_directory_path: "config/monitoring-backend"
+monitoring_backend_default_dns_check_targets:
+  - "8.8.4.4"
+  - "8.8.8.8"
+monitoring_backend_dns_records_to_check:
+  - check_name: "dns_ferrarimarco_info_a"
+    query_name: "ferrarimarco.info"
+    query_type: "A"
+  - check_name: "dns_ferrarimarco_info_ns"
+    query_name: "ferrarimarco.info"
+    query_type: "NS"
+    fail_if_not_matches_regexp_value: ".*googledomains.*"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_backend_templates_to_render:
