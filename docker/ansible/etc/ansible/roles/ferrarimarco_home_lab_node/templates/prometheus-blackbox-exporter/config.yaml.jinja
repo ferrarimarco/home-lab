@@ -7,6 +7,8 @@ modules:
       query_name: "{{ dns_record_to_check.query_name }}"
       query_type: "{{ dns_record_to_check.query_type }}"
       validate_answer_rrs:
+        fail_if_none_matches_regexp:
+          - "{{ dns_record_to_check.query_name }}.\t.*\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_none_matches_regexp_value | default('') }}"
         fail_if_not_matches_regexp:
           - "{{ dns_record_to_check.query_name }}.\t.*\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_not_matches_regexp_value | default('') }}"
       valid_rcodes:

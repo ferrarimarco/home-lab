@@ -52,14 +52,6 @@ monitoring_backend_dns_a_record_check_template:
   - check_name: "dns_{{ item | lower | replace('.', '_') }}_a"
     query_name: "{{ item }}"
     query_type: "A"
-monitoring_backend_dns_records_to_check:
-  - check_name: "dns_ferrarimarco_info_a"
-    query_name: "ferrarimarco.info"
-    query_type: "A"
-  - check_name: "dns_ferrarimarco_info_ns"
-    query_name: "ferrarimarco.info"
-    query_type: "NS"
-    fail_if_not_matches_regexp_value: ".*googledomains.*"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_backend_templates_to_render:
