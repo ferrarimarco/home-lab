@@ -12,6 +12,14 @@ homeassistant:
   time_zone: !secret timezone_home
   unit_system: metric
 
+sensor:
+  - name: Home theater sala power integral
+    platform: integration
+    source: sensor.presa_smart_sala_power
+  - name: Desk studio power integral
+    platform: integration
+    source: sensor.presa_smart_studio_power
+
 telegram_bot:
   - platform: polling
     api_key: !secret telegram_bot_api_key
