@@ -11,4 +11,11 @@ homeassistant:
   temperature_unit: C
   time_zone: !secret timezone_home
   unit_system: metric
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_bot_api_key
+    allowed_chat_ids: !secret telegram_bot_allowed_chat_ids
+
+automation: !include automations.yaml
 ...
