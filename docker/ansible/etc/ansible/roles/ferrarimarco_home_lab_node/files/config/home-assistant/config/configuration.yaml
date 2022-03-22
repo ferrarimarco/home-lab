@@ -1,5 +1,17 @@
 ---
+automation: !include automations.yaml
+
+camera:
+  - name: Camera 1
+    platform: generic
+    stream_source: !secret cam_1_rtsp_url
+
 default_config:
+
+group:
+  tracked_people:
+    name: Tracked people
+    entities: !secret tracked_people
 
 homeassistant:
   currency: EUR
@@ -24,6 +36,4 @@ telegram_bot:
   - platform: polling
     api_key: !secret telegram_bot_api_key
     allowed_chat_ids: !secret telegram_bot_allowed_chat_ids
-
-automation: !include automations.yaml
 ...

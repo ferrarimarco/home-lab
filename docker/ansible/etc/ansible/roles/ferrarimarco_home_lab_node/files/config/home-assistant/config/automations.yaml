@@ -1,19 +1,21 @@
 ---
-- id: person_logging
+- id: person_notify
   alias: Notify when a person changes location
-  description: ''
+  description: "Notify when a person changes location"
   trigger:
-  - platform: state
-    entity_id: !secret location_tracking_people_list
+    - event_type: state_changed
+      platform: event
   condition:
     - condition: template
-      value_template: '{{ trigger.from_state.state != trigger.to_state.state }}'
+      value_template: "{{ trigger.event.data.entity_id in (expand('group.tracked_people') | map(attribute='entity_id')) }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.old_state.state != trigger.event.data.new_state.state }}"
   action:
-  - service: telegram_bot.send_message
-    data:
-      message: >-
-        {{trigger.to_state.attributes.friendly_name}} changed from
-        location: {{trigger.from_state.state}}
-        to location: {{trigger.to_state.state}}
+    - service: telegram_bot.send_message
+      data:
+        message: >-
+          `{{ state_attr(trigger.event.data.entity_id, 'friendly_name')}}` changed from
+          location: `{{ trigger.event.data.old_state.state }}`
+          to location: `{{ trigger.event.data.new_state.state }}`
   mode: queued
 ...
