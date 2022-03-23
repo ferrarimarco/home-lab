@@ -1,17 +1,12 @@
 ---
 automation: !include automations.yaml
 
-camera:
-  - name: Camera 1
-    platform: generic
-    stream_source: !secret cam_1_rtsp_url
-
 default_config:
 
 group:
   tracked_people:
     name: Tracked people
-    entities: !secret tracked_people
+    entities: !secret location_tracking_people_list
 
 homeassistant:
   currency: EUR
