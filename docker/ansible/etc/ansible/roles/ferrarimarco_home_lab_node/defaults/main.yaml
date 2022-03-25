@@ -1,11 +1,62 @@
 ---
+apt_repositories_to_add: []
 apt_packages_to_install: []
+apt_packages_to_uninstall: []
+configure_docker: false
+configure_docker_compose: false
+configure_home_assistant: false
+configure_monitoring: true
+configure_monitoring_backend: false
+configure_wifi: false
 default_user_groups: []
 delete_systemd_journal_file: false
-configure_wifi: false
+docker_apt_release_channel: stable
+docker_compose_version: "v2.3.4"
+docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-{{ ansible_architecture }}"
+docker_compose_path: "/usr/local/bin/docker-compose"
+docker_daemon_options: {
+  "log-driver": "local",
+  "log-opts": {
+    "compress": "true",
+    "max-size": "10m",
+    "max-file": "3",
+  }
+}
+docker_users:
+  - "{{ ansible_user }}"
+enable_prometheus_node_exporter_scraping: true
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 is_raspberry_pi: false
+main_dns_server_address: "10.0.0.1"
+monitoring_backend_dns_records_to_check:
+  - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
+    query_name: "cam-1.edge.lab.ferrari.how"
+    query_type: "A"
+  - check_name: "dns_ferrari_how_txt"
+    query_name: "ferrari.how"
+    query_type: "TXT"
+    fail_if_none_matches_regexp_value: ".*google-site-verification.*"
+  - check_name: "dns_ferrarimarco_info_a"
+    query_name: "ferrarimarco.info"
+    query_type: "A"
+  - check_name: "dns_ferrarimarco_info_ns"
+    query_name: "ferrarimarco.info"
+    query_type: "NS"
+    fail_if_not_matches_regexp_value: ".*googledomains.*"
+  - check_name: "dns_gateway_edge_lab_ferrari_how_a"
+    query_name: "gateway.edge.lab.ferrari.how"
+    query_type: "A"
+  - check_name: "dns_smart_desk_edge_lab_ferrari_how_a"
+    query_name: "smart-desk.edge.lab.ferrari.how"
+    query_type: "A"
+monitoring_backend_icmp_ping_hosts_to_check:
+  - "cam-1.edge.lab.ferrari.how"
+  - "ferrarimarco.info"
+  - "github.com"
+  - "google.com"
+  - "gateway.edge.lab.ferrari.how"
+  - "smart-desk.edge.lab.ferrari.how"
 raspberry_pi_config_file_values: {}
 security_fail2ban_enabled: true
 security_fail2ban_custom_configuration_template: "fail2ban/jail.local.jinja"

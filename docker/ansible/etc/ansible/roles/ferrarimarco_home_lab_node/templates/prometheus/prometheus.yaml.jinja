@@ -1,0 +1,69 @@
+---
+global:
+  evaluation_interval: 1m
+  scrape_interval: 30s
+
+scrape_configs:
+  - job_name: "grafana"
+    static_configs:
+      - targets:
+        - "grafana:3000"
+
+  - job_name: "prometheus"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - "localhost:9090"
+
+  - job_name: "node_exporter"
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].enable_prometheus_node_exporter_scraping | default(enable_prometheus_node_exporter_scraping) %}
+        - "{{ host }}:9100"
+{% endif %}
+{% endfor %}
+
+  - job_name: blackbox
+    static_configs:
+      - targets:
+        - "blackbox-exporter:9115"
+
+{% for dns_record_to_check in monitoring_backend_dns_records_to_check %}
+  - job_name: "blackbox-dns-{{ dns_record_to_check.check_name }}"
+    metrics_path: /probe
+    params:
+      module:
+        - "{{ dns_record_to_check.check_name }}"
+    static_configs:
+      - targets: {{ dns_record_to_check.targets | default(monitoring_backend_default_dns_check_targets) }}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115 # Blackbox exporter hostname:port.
+{% endfor %}
+
+  - job_name: blackbox-ping
+    metrics_path: /probe
+    params:
+      module:
+        - icmp
+    static_configs:
+      - targets:
+{% for host in monitoring_backend_icmp_ping_hosts_to_check %}
+        - "{{ host }}"
+{% endfor %}
+{% for host in groups['all'] %}
+        - "{{ host }}"
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115 # Blackbox exporter hostname:port.
+...

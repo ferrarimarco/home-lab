@@ -4,7 +4,7 @@ name: Build firmware images
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
@@ -20,12 +20,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Super-Linter
-        uses: github/super-linter@v4.9.0
+        uses: github/super-linter@v4.9.1
         env:
           DISABLE_ERRORS: false
           ERROR_ON_MISSING_EXEC_BIT: true
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JSCPD_ALL_CODEBASE: true
   build-smart-desk:
     defaults:
       run:

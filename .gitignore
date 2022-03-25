@@ -6,3 +6,9 @@
 *.iso
 *.xz
 SHA256SUMS
+
+# ESPHome build path
+.esphome
+
+# ESPHome and Home assistant secrets
+secrets.y*ml

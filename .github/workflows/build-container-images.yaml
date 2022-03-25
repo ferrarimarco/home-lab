@@ -1,7 +1,7 @@
 ---
 name: Build container images
 
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - "docker/**"
@@ -15,13 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Super-Linter
-        uses: github/super-linter@v4.9.0
+        uses: github/super-linter@v4.9.1
         env:
           DISABLE_ERRORS: false
           ERROR_ON_MISSING_EXEC_BIT: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JSCPD_ALL_CODEBASE: true
   build-container-images:
     env:
       CONTAINER_IMAGE_ID: "ferrarimarco/${{ matrix.container-image-context-directory }}:latest"

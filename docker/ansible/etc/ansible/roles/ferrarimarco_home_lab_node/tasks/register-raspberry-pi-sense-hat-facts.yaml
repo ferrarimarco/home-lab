@@ -1,0 +1,6 @@
+---
+- name: Add Sense Hat config file values to the config file values dictionary
+  ansible.builtin.set_fact:
+    raspberry_pi_config_file_values: "{{ raspberry_pi_config_file_values | combine({item.key: item.value}) }}"
+  with_dict: "{{ raspberry_pi_sense_hat_config_txt_values }}"
+...

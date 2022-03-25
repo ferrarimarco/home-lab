@@ -1,30 +1,33 @@
 ---
 extends: default
 
+locale: "en_US.UTF-8"
+
 rules:
   colons:
     max-spaces-after: 1
   comments:
-    level: error
     # cloud-init expects the first line to be #cloud-config and this conflicts with
     # the rules.comments.require-starting-space directive.
     # See https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.comments
     ignore: |
       **/cloud-init/**/user-data.yaml
       **/cloud-init/**/user-data-autoinstall.yaml
+    level: error
   comments-indentation:
     level: error
   document-end:
+    # Temporary workaround for https://github.com/microsoft/compose-language-service/issues/93
+    ignore: |
+      **/compose.yaml
     level: error
   document-start:
     level: error
   empty-values: enable
   line-length:
-    max: 250
     allow-non-breakable-inline-mappings: true
+    max: 250
   octal-values: enable
   truthy:
-    # because the "on" key in GitHub actions workflow configuration files
-    check-keys: false
     level: error
 ...

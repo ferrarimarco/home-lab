@@ -1,0 +1,12 @@
+---
+- name: Get the current dpkg architecture
+  ansible.builtin.command: "dpkg --print-architecture"
+  register: dpkg_architecture_result
+  check_mode: false
+  changed_when: false
+  failed_when: false
+
+- name: Save the current dpkg architecture in a fact
+  ansible.builtin.set_fact:
+    dpkg_architecture: "{{ dpkg_architecture_result.stdout }}"
+...

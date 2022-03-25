@@ -1,7 +1,9 @@
 ---
 name: Lint
 
-on: [push, pull_request]
+on:  # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
 
 jobs:
   lint:
@@ -9,11 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Super-Linter
-        uses: github/super-linter@v4.9.0
+        uses: github/super-linter@v4.9.1
         env:
           DISABLE_ERRORS: false
           ERROR_ON_MISSING_EXEC_BIT: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JSCPD_ALL_CODEBASE: true
 ...

@@ -11,24 +11,81 @@
   ansible.builtin.include_vars: "raspberry-pi-os.yaml"
   when: is_raspberry_pi
 
-- name: Add Sense Hat packages to the list of packages to install
-  ansible.builtin.set_fact:
-    apt_packages_to_install: "{{ apt_packages_to_install + raspberry_pi_sense_hat_apt_packages }}"
+- name: Register facts based on the OS type, or a default if not found
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - "register-{{ ansible_distribution }}-{{ ansible_distribution_version }}-facts.yaml"
+    - "register-{{ ansible_distribution }}-facts.yaml"
+    - "register-{{ ansible_os_family }}-facts.yaml"
+    - "register-default-facts.yaml"
+
+- name: Set custom facts
+  ansible.builtin.include_tasks:
+    apply:
+      vars:
+        fact_category: "{{ item.fact_category }}"
+        fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
+        fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
+        fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
+        fact_os_package_repositories_to_add: "{{ item.fact_os_package_repositories_to_add | default([]) }}"
+        fact_os_packages_to_install: "{{ item.fact_os_packages_to_install | default([]) }}"
+        fact_os_packages_to_uninstall: "{{ item.fact_os_packages_to_uninstall | default([]) }}"
+        fact_os_services_to_configure: "{{ item.fact_os_services_to_configure | default([]) }}"
+        fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
+    file: register-custom-facts.yaml
+  when: item.enable_custom_fact | default(true)
+  with_items:
+    - enable_custom_fact: "{{ has_sense_hat }}"
+      fact_category: "Raspberry Pi Sense Hat"
+      fact_configuration_directories_to_copy: "{{ sense_hat_exporter_configuration_directories_to_copy }}"
+      fact_configuration_directories_to_create: "{{ sense_hat_exporter_configuration_directories }}"
+      fact_os_packages_to_install: "{{ raspberry_pi_sense_hat_apt_packages }}"
+      fact_os_services_to_configure: "{{ sense_hat_os_services_to_configure }}"
+      fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
+    - fact_category: "ssh"
+      fact_os_services_to_configure: "{{ ssh_os_services_to_configure }}"
+    - enable_custom_fact: "{{ configure_docker }}"
+      fact_category: "Docker"
+      fact_configuration_directories_to_create: "{{ docker_configuration_directories }}"
+      fact_os_package_repositories_to_add: "{{ docker_repositories_to_add }}"
+      fact_os_packages_to_install: "{{ docker_packages_to_install }}"
+      fact_os_packages_to_uninstall: "{{ docker_packages_to_uninstall }}"
+      fact_os_services_to_configure: "{{ docker_os_services_to_configure }}"
+    - enable_custom_fact: "{{ security_fail2ban_enabled }}"
+      fact_category: "fail2ban"
+      fact_os_packages_to_install: "{{ fail2ban_packages }}"
+      fact_os_services_to_configure: "{{ fail2ban_os_services_to_configure }}"
+      fact_templates_to_render: "{{ fail2ban_templates_to_render }}"
+    - enable_custom_fact: "{{ security_unattended_upgrades_enabled }}"
+      fact_category: "unattended-upgrades"
+      fact_os_packages_to_install: "{{ unattended_upgrades_packages }}"
+      fact_os_services_to_configure: "{{ unattended_upgrades_os_services_to_configure }}"
+      fact_templates_to_render: "{{ unattended_upgrades_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_monitoring }}"
+      fact_category: "monitoring"
+      fact_configuration_directories_to_create: "{{ monitoring_configuration_directories }}"
+      fact_docker_compose_up_items: "{{ monitoring_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ monitoring_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_monitoring_backend }}"
+      fact_category: "monitoring-backend"
+      fact_configuration_directories_to_create: "{{ monitoring_backend_configuration_directories }}"
+      fact_configuration_directories_to_copy: "{{ monitoring_backend_configuration_directories_to_copy }}"
+      fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_home_assistant }}"
+      fact_category: "home-assistant"
+      fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
+      fact_configuration_directories_to_copy: "{{ home_assistant_configuration_directories_to_copy }}"
+      fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
+
+- name: Register Raspberry Pi Sense Hat facts
+  ansible.builtin.include_tasks:
+    file: register-raspberry-pi-sense-hat-facts.yaml
   when: has_sense_hat
 
-- name: Add Sense Hat config file values to the config file values dictionary
-  ansible.builtin.set_fact:
-    raspberry_pi_config_file_values: "{{ raspberry_pi_config_file_values | combine({item.key: item.value}) }}"
-  with_dict: "{{ raspberry_pi_sense_hat_config_txt_values }}"
-  when: has_sense_hat
-
-- name: Add fail2ban packages to the list of packages to install
-  ansible.builtin.set_fact:
-    apt_packages_to_install: "{{ apt_packages_to_install + fail2ban_packages }}"
-  when: security_fail2ban_enabled
-
-- name: Add unattended-upgrades packages to the list of packages to install
-  ansible.builtin.set_fact:
-    apt_packages_to_install: "{{ apt_packages_to_install + unattended_upgrades_packages }}"
-  when: security_unattended_upgrades_enabled
+- name: Register monitoring-backend facts
+  ansible.builtin.include_tasks:
+    file: register-monitoring-backend-facts.yaml
+  when: configure_monitoring_backend
 ...

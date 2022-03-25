@@ -1,0 +1,40 @@
+---
+- id: notify_on_device_offline
+  alias: Notify when a device goes offline
+  mode: parallel
+  trigger:
+    - platform: state
+      entity_id:
+        - button.hdipc_reboot
+        - camera.hdipc_mainstream
+        - device_tracker.cam_1
+      to: "unavailable"
+      for:
+        minutes: 5
+  action:
+    - service: telegram_bot.send_message
+      data:
+        message: >-
+          {{ state_attr(trigger.to_state.entity_id, 'friendly_name') }} is offline since 5 minutes or more.
+        title: "A device is offline!"
+
+- id: person_notify
+  alias: Notify when a person changes location
+  description: "Notify when a person changes location"
+  trigger:
+    - event_type: state_changed
+      platform: event
+  condition:
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id in (expand('group.tracked_people') | map(attribute='entity_id')) }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.old_state.state != trigger.event.data.new_state.state }}"
+  action:
+    - service: telegram_bot.send_message
+      data:
+        message: >-
+          `{{ state_attr(trigger.event.data.entity_id, 'friendly_name')}}` changed from
+          location: `{{ trigger.event.data.old_state.state }}`
+          to location: `{{ trigger.event.data.new_state.state }}`
+  mode: queued
+...

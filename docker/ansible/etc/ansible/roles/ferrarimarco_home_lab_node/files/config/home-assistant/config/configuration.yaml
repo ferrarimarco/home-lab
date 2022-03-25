@@ -1,0 +1,40 @@
+---
+automation: !include automations.yaml
+
+default_config: null
+
+group:
+  tracked_people:
+    name: Tracked people
+    entities: !secret location_tracking_people_list
+
+homeassistant:
+  currency: EUR
+  internal_url: !secret internal_url_home
+  latitude: !secret latitude_home
+  longitude: !secret longitude_home
+  elevation: !secret elevation_home
+  name: !secret name_home
+  temperature_unit: C
+  time_zone: !secret timezone_home
+  unit_system: metric
+
+prometheus: null
+
+sensor:
+  - name: Home theater sala power integral
+    platform: integration
+    source: sensor.presa_smart_sala_power
+  - name: Desk studio power integral
+    platform: integration
+    source: sensor.presa_smart_studio_power
+
+spotify:
+  client_id: !secret spotify_client_id
+  client_secret: !secret spotify_client_secret
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_bot_api_key
+    allowed_chat_ids: !secret telegram_bot_allowed_chat_ids
+...
