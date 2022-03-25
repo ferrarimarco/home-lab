@@ -4,6 +4,8 @@
     "consoleFull"
   ],
   "ignore": [
+    "**/.esphome/**",
+    "**/.venv/**",
     "**/grafana/dashboards/dashboard-definitions/**/*.json",
     "**/user-data*.yaml",
     "**/workflows/*.yaml"

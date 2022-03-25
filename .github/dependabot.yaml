@@ -1,41 +1,40 @@
 ---
-version: 2
 updates:
   - directory: "/"
     package-ecosystem: "github-actions"
-    open-pull-requests-limit: 10
     schedule:
       interval: "daily"
-  - package-ecosystem: "docker"
-    directory: "/docker/os-image-builder"
+  - directory: "/config/smart-desk/esphome"
+    package-ecosystem: "pip"
     schedule:
       interval: "daily"
-  - package-ecosystem: "docker"
-    directory: "/docker/ansible"
+  - directory: "/docker/ansible"
+    package-ecosystem: "docker"
     schedule:
       interval: "daily"
-  - package-ecosystem: "docker"
-    directory: "/docker/cloud-init"
+  - directory: "/docker/ansible"
+    package-ecosystem: "pip"
     schedule:
       interval: "daily"
-  - package-ecosystem: "docker"
-    directory: "/docker/template-renderer"
+  - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring/sense-hat-exporter"
+    package-ecosystem: "pip"
     schedule:
       interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring/sense-hat-exporter"
+  - directory: "/docker/cloud-init"
+    package-ecosystem: "docker"
     schedule:
       interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "/config/smart-desk/esphome"
+  - directory: "/docker/os-image-builder"
+    package-ecosystem: "docker"
     schedule:
       interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "/docker/ansible"
+  - directory: "/docker/template-renderer"
+    package-ecosystem: "docker"
     schedule:
       interval: "daily"
-  - package-ecosystem: "pip"
-    directory: "/docker/template-renderer"
+  - directory: "/docker/template-renderer"
+    package-ecosystem: "pip"
     schedule:
       interval: "daily"
+version: 2
 ...
