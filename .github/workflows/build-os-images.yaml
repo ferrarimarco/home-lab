@@ -20,7 +20,7 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   lint:
-    uses: .github/workflows/lint.yaml
+    uses: ./.github/workflows/lint.yaml
   customize-preinstalled-os-images:
     env:
       OS_BUILDER_CONTAINER_IMAGE_ID: "ferrarimarco/os-image-builder:latest"
@@ -73,7 +73,7 @@ jobs:
           - "${GITHUB_WORKSPACE}/config/seed-device/os-images/ubuntu-20.04-cidata-iso-seed-device.conf"
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
-    uses: .github/workflows/draft-release.yaml
+    uses: ./.github/workflows/draft-release.yaml
   upload-images-to-release:
     needs:
       - customize-preinstalled-os-images

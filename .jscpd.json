@@ -7,8 +7,7 @@
     "**/.esphome/**",
     "**/.venv/**",
     "**/grafana/dashboards/dashboard-definitions/**/*.json",
-    "**/user-data*.yaml",
-    "**/workflows/*.yaml"
+    "**/user-data*.yaml"
   ],
   "absolute": true
 }

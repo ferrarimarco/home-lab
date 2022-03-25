@@ -11,7 +11,7 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   lint:
-    uses: .github/workflows/lint.yaml
+    uses: ./.github/workflows/lint.yaml
   build-container-images:
     env:
       CONTAINER_IMAGE_ID: "ferrarimarco/${{ matrix.container-image-context-directory }}:latest"
