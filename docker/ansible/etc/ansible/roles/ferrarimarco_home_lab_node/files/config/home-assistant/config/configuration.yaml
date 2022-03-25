@@ -1,7 +1,7 @@
 ---
 automation: !include automations.yaml
 
-default_config:
+default_config: null
 
 group:
   tracked_people:
