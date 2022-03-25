@@ -19,6 +19,8 @@ homeassistant:
   time_zone: !secret timezone_home
   unit_system: metric
 
+prometheus: null
+
 sensor:
   - name: Home theater sala power integral
     platform: integration
@@ -26,6 +28,10 @@ sensor:
   - name: Desk studio power integral
     platform: integration
     source: sensor.presa_smart_studio_power
+
+spotify:
+  client_id: !secret spotify_client_id
+  client_secret: !secret spotify_client_secret
 
 telegram_bot:
   - platform: polling
