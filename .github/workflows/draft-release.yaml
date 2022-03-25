@@ -10,10 +10,10 @@ on:  # yamllint disable-line rule:truthy
     outputs:
       release-tag-name:
         description: Release tag name
-        value: ${{ steps.draft-release.outputs.tag_name }}
+        value: ${{ jobs.update-release-draft.outputs.release-tag-name }}
 
 jobs:
-  update_release_draft:
+  update-release-draft:
     outputs:
       release-tag-name: ${{ steps.draft-release.outputs.tag_name }}
     runs-on: ubuntu-latest
