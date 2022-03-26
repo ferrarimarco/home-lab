@@ -33,5 +33,5 @@ jobs:
           context: "${{ inputs.build_context_directory }}"
           load: true
           push: "${ inputs.push_image_to_registry }"
-          tags: "${{ env.CONTAINER_IMAGE_ID }}"
+          tags: "${ inputs.container_image_tag }"
 ...
