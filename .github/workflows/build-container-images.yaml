@@ -13,16 +13,21 @@ jobs:
   lint:
     uses: ./.github/workflows/lint.yaml
   build-container-images:
-    uses: ./.github/workflows/build-container-image.yaml
-    with:
-      build_context_directory: "docker/${{ matrix.container-image-context-directory }}"
-      container_image_tag: "ferrarimarco/${{ matrix.container-image-context-directory }}:latest"
+    steps:
+      - uses: actions/checkout@v3
+      # Reusable workflows don't support a build matrix
+      - uses: ./.github/workflows/build-container-image.yaml
+        with:
+          build_context_directory: "docker/ansible"
+          container_image_tag: "ferrarimarco/ansible:latest"
+      - uses: ./.github/workflows/build-container-image.yaml
+        with:
+          build_context_directory: "docker/os-image-builder"
+          container_image_tag: "ferrarimarco/os-image-builder:latest"
+      - uses: ./.github/workflows/build-container-image.yaml
+        with:
+          build_context_directory: "docker/template-renderer"
+          container_image_tag: "ferrarimarco/template-renderer:latest"
     needs:
       - lint
-    strategy:
-      matrix:
-        container-image-context-directory:
-          - ansible
-          - os-image-builder
-          - template-renderer
 ...
