@@ -5,13 +5,16 @@ on:  # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       build_context_directory:
+        description: "Path to the container image build context directory."
         required: true
         type: string
       container_image_tag:
+        description: "Tag to apply to the container image."
         required: true
         type: string
       push_image_to_registry:
         default: false
+        description: "If set to true, push the image to the registry."
         required: false
         type: boolean
 
