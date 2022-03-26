@@ -1,5 +1,5 @@
 ---
-name: Build container images
+name: Build and push container images
 
 env:
   REGISTRY: ghcr.io
@@ -10,12 +10,12 @@ on:  # yamllint disable-line rule:truthy
     paths:
       - ".github/workflows/build-container-images.yaml"
       - "docker/**"
+    tags:
+      - '*'
   pull_request:
     paths:
       - ".github/workflows/build-container-images.yaml"
       - "docker/**"
-  tags:
-    - '*'
 
 jobs:
   lint:
@@ -42,6 +42,11 @@ jobs:
         uses: docker/metadata-action@v3.6.2
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.container-image-context-directory }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
       - name: Build the OS image builder container image
         uses: docker/build-push-action@v2
         with:
