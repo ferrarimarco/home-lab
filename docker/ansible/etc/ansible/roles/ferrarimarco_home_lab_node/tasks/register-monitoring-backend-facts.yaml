@@ -5,7 +5,7 @@
   with_items: "{{ groups['all'] }}"
 
 - name: Debug monitoring_backend_dns_records_to_check
-  debug:
+  ansible.builtin.debug:
     var: monitoring_backend_dns_records_to_check
     verbosity: 1
 ...

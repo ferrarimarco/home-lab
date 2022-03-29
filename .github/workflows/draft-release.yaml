@@ -6,12 +6,21 @@ on:  # yamllint disable-line rule:truthy
     branches:
       - master
       - main
+  workflow_call:
+    outputs:
+      release-tag-name:
+        description: Release tag name
+        value: ${{ jobs.update-release-draft.outputs.release-tag-name }}
 
 jobs:
-  update_release_draft:
+  update-release-draft:
+    outputs:
+      release-tag-name: ${{ steps.draft-release.outputs.tag_name }}
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v5
+      - id: draft-release
+        name: Update release draft
+        uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

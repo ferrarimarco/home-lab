@@ -25,6 +25,4 @@ RUN ansible-galaxy install -r /etc/ansible/requirements.yml
 
 COPY etc/ /etc/
 
-RUN ansible-lint -vv /etc/ansible
-
 CMD [ "ansible" ]

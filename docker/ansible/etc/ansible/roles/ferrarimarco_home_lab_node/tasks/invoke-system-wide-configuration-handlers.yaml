@@ -23,7 +23,7 @@
 
 - name: Restart Docker Compose services
   changed_when: '"Started" in docker_compose_restart_result.stdout or "Started" in docker_compose_restart_result.stderr'
-  command: >
+  ansible.builtin.command: >
     docker-compose \
     --file {{ item.compose_file_path }} \
     restart

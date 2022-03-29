@@ -20,17 +20,7 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   lint:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Super-Linter
-        uses: github/super-linter@v4.9.1
-        env:
-          DISABLE_ERRORS: false
-          ERROR_ON_MISSING_EXEC_BIT: true
-          LINTER_RULES_PATH: .
-          VALIDATE_ALL_CODEBASE: true
-          VALIDATE_JSCPD_ALL_CODEBASE: true
+    uses: ./.github/workflows/lint.yaml
   customize-preinstalled-os-images:
     env:
       OS_BUILDER_CONTAINER_IMAGE_ID: "ferrarimarco/os-image-builder:latest"
@@ -83,15 +73,7 @@ jobs:
           - "${GITHUB_WORKSPACE}/config/seed-device/os-images/ubuntu-20.04-cidata-iso-seed-device.conf"
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
-    outputs:
-      release-tag-name: ${{ steps.draft-release.outputs.tag_name }}
-    runs-on: ubuntu-latest
-    steps:
-      - id: draft-release
-        name: Update release
-        uses: release-drafter/release-drafter@v5
-        with:
-          config-name: release-drafter.yaml
+    uses: ./.github/workflows/draft-release.yaml
   upload-images-to-release:
     needs:
       - customize-preinstalled-os-images
