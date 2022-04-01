@@ -11,6 +11,7 @@ services:
     image: prom/blackbox-exporter:v0.20.0
     ports:
       - "9115:9115"
+    restart: always
     volumes:
       - ./prometheus-blackbox-exporter-config.yaml:/etc/prometheus-blackbox-exporter/config.yaml
 
