@@ -15,9 +15,10 @@
 
 - name: Set authorized key for the {{ ansible_user }} user
   ansible.posix.authorized_key:
-    user: "{{ ansible_user }}"
-    state: present
+    exclusive: true
     key: "{{ lookup('file', home_lab_node_ssh_public_key_path) }}"
+    state: present
+    user: "{{ ansible_user }}"
   when: home_lab_node_ssh_public_key_path | length > 0
 
 - name: Add configured user accounts to passwordless sudoers
