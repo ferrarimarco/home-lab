@@ -72,6 +72,15 @@ monitoring_templates_to_render:
   - src: "monitoring/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     docker_compose_services_to_restart: "{{ monitoring_docker_compose_up_items }}"
+mosquitto_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/mosquitto"
+mosquitto_configuration_directories:
+  - "{{ mosquitto_configuration_directory_path }}"
+mosquitto_configuration_directories_to_copy:
+  - src: "config/mosquitto"
+    dest: "{{ mosquitto_configuration_directory_path }}"
+    docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
+mosquitto_docker_compose_up_items:
+  - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 os_services_to_configure: []
 os_services_to_restart: []
 sense_hat_exporter_configuration_directories:

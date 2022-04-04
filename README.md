@@ -12,6 +12,8 @@ configuration changes to the environments.
 To interact with the home lab, you need the following tools:
 
 - [Git](https://git-scm.com/) (tested with version `2.25.0`).
+- An OCI container runtime, such as Docker. Tested with Docker 20.10.
+- During the bootstrap phase, the Home Lab also supports hosts where there's no container engine.
 
 ## Initialize the environment
 
@@ -127,6 +129,16 @@ without having the `sshpass` program installed on the host that runs Ansible.
 To run Ansible, use the `scripts/run-ansible.sh` script. This script provides a
 thin wrapper that takes care of setting up either a container (preferred) or a
 Python virtual environment to run Ansible.
+
+#### Ansible execution examples
+
+These examples assume that the current working directory is the root of this repository.
+
+To run `ansible-playbook` against the hosts listed in an inventory:
+
+```shell
+scripts/run-ansible.sh "ansible-playbook  --inventory docker/ansible/etc/ansible/inventory/hosts.yml docker/ansible/etc/ansible/playbooks/main.yaml"
+```
 
 ### Managed DNS zone
 

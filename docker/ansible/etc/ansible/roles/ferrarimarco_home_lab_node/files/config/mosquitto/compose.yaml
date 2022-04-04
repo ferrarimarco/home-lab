@@ -1,0 +1,18 @@
+---
+volumes:
+  mosquitto_data: {}
+  mosquitto_logs: {}
+
+services:
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2.0.14-openssl
+    # Enable host networking to listen on the host's localhost interface
+    network_mode: host
+    restart: always
+    volumes:
+      - ./config:/mosquitto/config
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    ports:
+      - "1883:1883"
