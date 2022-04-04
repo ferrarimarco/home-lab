@@ -3,6 +3,7 @@ configure_docker: true
 configure_docker_compose: true
 configure_home_assistant: true
 configure_monitoring_backend: true
+configure_mqtt_broker: true
 delete_systemd_journal_file: true
 has_sense_hat: true
 ...
