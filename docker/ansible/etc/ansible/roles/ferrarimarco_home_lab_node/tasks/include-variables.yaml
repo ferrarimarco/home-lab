@@ -78,6 +78,11 @@
       fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
       fact_configuration_directories_to_copy: "{{ home_assistant_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
+    - enable_custom_fact: "{{ configure_mosquitto }}"
+      fact_category: "mosquitto"
+      fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"
+      fact_configuration_directories_to_copy: "{{ mosquitto_configuration_directories_to_copy }}"
+      fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:
