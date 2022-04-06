@@ -28,6 +28,20 @@ fail2ban_templates_to_render:
     dest: "{{ etc_directory_path }}/fail2ban/jail.local"
     os_services_to_restart:
       - "{{ fail2ban_service_name }}"
+frigate_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/frigate"
+frigate_configuration_directories:
+  - "{{ frigate_configuration_directory_path }}"
+  # Create this because we only have templates to render
+  - "{{ frigate_configuration_directory_path }}/config"
+frigate_docker_compose_up_items:
+  - compose_file_path: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+frigate_templates_to_render:
+  - src: "frigate/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ frigate_docker_compose_up_items }}"
+  - src: "frigate/config/config.yaml.jinja"
+    dest: "{{ frigate_configuration_directory_path }}/config/config.yaml"
+    docker_compose_services_to_restart: "{{ frigate_docker_compose_up_items }}"
 home_assistant_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/home-assistant"
 home_assistant_configuration_directories:
   - "{{ home_assistant_configuration_directory_path }}"

@@ -4,7 +4,7 @@ services:
     container_name: frigate
     privileged: true
     restart: always
-    image: blakeblackshear/frigate:0.10.1-aarch64
+    image: "blakeblackshear/frigate:0.10.1-{{ frigate_container_image_architecture }}"
     shm_size: "64mb"
     devices:
       - /dev/bus/usb:/dev/bus/usb
@@ -12,12 +12,6 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./config/config.yaml:/config/config.yml:ro
       - /var/lib/frigate/media:/media/frigate
-      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
-        target: /tmp/cache
-        tmpfs:
-          size: 1000000000
     ports:
       - "5000:5000"
       - "1935:1935" # RTMP feeds
-    environment:
-      FRIGATE_RTSP_PASSWORD: "password"
