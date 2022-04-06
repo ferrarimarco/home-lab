@@ -2,7 +2,6 @@
 mqtt:
   host: localhost
   port: 1883
-  user: frigate
 
 # # Optional: Detectors configuration. Defaults to a single CPU detector
 # detectors:
@@ -17,12 +16,12 @@ mqtt:
 #     # This value is only used for CPU types
 #     num_threads: 3
 
-# ffmpeg:
-#   # Enable acceleration for Raspberry Pis
-#   hwaccel_args:
-# {% for argument in frigate_ffmpeg_harware_acceleration_arguments %}
-#     - "{{ argument }}"
-# {% endfor %}
+ffmpeg:
+  # Enable acceleration
+  hwaccel_args:
+{% for argument in frigate_ffmpeg_harware_acceleration_arguments %}
+    - "{{ argument }}"
+{% endfor %}
 
 # # Optional: Record configuration
 # # NOTE: Can be overridden at the camera level
@@ -111,12 +110,14 @@ cameras:
 {% for rtsp_camera_url in frigate_cameras_rtsp_urls %}
         # Required: the path to the stream
         # NOTE: path may include environment variables, which must begin with 'FRIGATE_' and be referenced in {}
-        - path: "rtsp://viewer:{FRIGATE_RTSP_PASSWORD}@{{ rtsp_camera_url }}"
+        - path: "{{ rtsp_camera_url }}"
           # Required: list of roles for this stream. valid values are: detect,record,rtmp
           # NOTICE: In addition to assigning the record, and rtmp roles,
           # they must also be enabled in the camera config.
           roles:
             - detect
             - rtmp
+      detect:
+        enabled: False
 {% endfor %}
 ...
