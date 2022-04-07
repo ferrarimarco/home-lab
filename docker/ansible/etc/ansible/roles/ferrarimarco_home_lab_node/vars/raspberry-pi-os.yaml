@@ -1,4 +1,10 @@
 ---
+argonone_case_apt_packages_to_install:
+  - i2c-tools
+  - python3-rpi.gpio
+  - python3-smbus
+  - raspi-gpio
+argonone_os_service_name: "argononed"
 configure_dphys_swapfile: true
 frigate_container_image_architecture: aarch64
 # Got those from v4l2-ctl --list-devices
@@ -11,11 +17,6 @@ frigate_gpu_decode_devices:
 frigate_ffmpeg_harware_acceleration_arguments:
   - -c:v
   - h264_v4l2m2m
-raspberry_pi_argon_one_case_apt_packages_to_install:
-  - i2c-tools
-  - python3-rpi.gpio
-  - python3-smbus
-  - raspi-gpio
 raspberry_pi_config_file_path: "/boot/config.txt"
 raspberry_pi_sense_hat_apt_packages:
   - sense-hat

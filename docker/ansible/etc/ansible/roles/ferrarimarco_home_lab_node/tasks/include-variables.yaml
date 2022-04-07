@@ -91,6 +91,12 @@
     - enable_custom_fact: "{{ configure_dphys_swapfile }}"
       fact_category: "dphys-swapfile"
       fact_templates_to_render: "{{ dphys_swapfile_templates_to_render }}"
+    - enable_custom_fact: "{{ has_argonone_case }}"
+      fact_category: "argonone-case"
+      fact_configuration_directories_to_create: "{{ argonone_configuration_directories }}"
+      fact_configuration_directories_to_copy: "{{ argonone_configuration_directories_to_copy }}"
+      fact_os_packages_to_install: "{{ argonone_case_apt_packages_to_install }}"
+      fact_os_services_to_configure: "{{ argonone_os_services_to_configure }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

@@ -1,4 +1,20 @@
 ---
+argonone_configuration_directories:
+  - "{{ argonone_configuration_directory }}"
+argonone_configuration_directories_to_copy:
+  - src: "config/argonone-case/etc/argonone"
+    dest: "{{ argonone_configuration_directory }}"
+    os_services_to_restart:
+      - "{{ argonone_os_service_name }}"
+  - src: "config/argonone-case/lib/systemd/system"
+    dest: "{{ systemd_system_services_configuration_directory }}"
+    os_services_to_restart:
+      - "{{ argonone_os_service_name }}"
+argonone_configuration_directory: "{{ etc_directory_path }}/argonone-case"
+argonone_os_services_to_configure:
+  - enabled: true
+    service_name: "{{ argonone_os_service_name }}"
+    service_state: started
 configuration_directories_to_copy: []
 configuration_directories_to_create:
   - "{{ home_lab_configuration_directory_path }}"

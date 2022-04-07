@@ -1,8 +1,14 @@
 ---
-# command -v raspi-config &> /dev/null
-# if [ $? -eq 0 ]
-# then
-#   sudo raspi-config nonint do_i2c 0
-#   sudo raspi-config nonint do_serial 0
-# fi
+- name: Enable i2c and serial
+  ansible.builtin.command: "{{ item }}"
+  become: true
+  register: enable_i2c_serial
+  with_items:
+    - "raspi-config nonint do_i2c 0"
+    - "raspi-config nonint do_serial 0"
+
+- name: Debug i2c and serial command output
+  ansible.builtin.debug:
+    var: enable_i2c_serial
+    # verbosity: 1
 ...

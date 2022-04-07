@@ -18,5 +18,5 @@ if len(sys.argv) > 1:
     if sys.argv[1] == "poweroff" or sys.argv[1] == "halt":
         try:
             bus.write_byte(0x1A, 0xFF)
-        except:
+        except Exception:
             rev = 0
