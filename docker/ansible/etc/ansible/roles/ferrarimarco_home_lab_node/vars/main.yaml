@@ -10,6 +10,14 @@ argonone_configuration_directories_to_copy:
     dest: "{{ systemd_system_services_configuration_directory }}"
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
+  - src: "config/argonone-case/lib/systemd/system-shutdown"
+    dest: "{{ systemd_system_shutdown_configuration_directory }}"
+    os_services_to_restart:
+      - "{{ argonone_os_service_name }}"
+  - src: "config/argonone-case/usr/local/bin"
+    dest: "/usr/local/bin"
+    os_services_to_restart:
+      - "{{ argonone_os_service_name }}"
 argonone_configuration_directory: "{{ etc_directory_path }}/argonone-case"
 argonone_os_services_to_configure:
   - enabled: true
@@ -149,6 +157,7 @@ ssh_os_services_to_configure:
 sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
+systemd_system_shutdown_configuration_directory: "{{ systemd_configuration_directory }}/system-shutdown"
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"
 systemd_journal_file_path: /var/log/journal
 templates_to_render:
