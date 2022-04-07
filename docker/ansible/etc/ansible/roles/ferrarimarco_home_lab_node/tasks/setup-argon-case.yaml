@@ -1,0 +1,8 @@
+---
+# command -v raspi-config &> /dev/null
+# if [ $? -eq 0 ]
+# then
+#   sudo raspi-config nonint do_i2c 0
+#   sudo raspi-config nonint do_serial 0
+# fi
+...
