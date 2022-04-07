@@ -47,7 +47,7 @@
 #     then
 #       echo "-1"
 #       return
-#     fi	
+#     fi
 #     echo $curnumber
 #     return
 #   fi
@@ -278,7 +278,7 @@
 #     echo '' | sudo tee -a $irexecshfile 1> /dev/null
 
 #     sudo chmod 755 $irexecshfile
-#   fi	
+#   fi
 # fi
 
 # if [ ! -f "$irdecodefile" ]
