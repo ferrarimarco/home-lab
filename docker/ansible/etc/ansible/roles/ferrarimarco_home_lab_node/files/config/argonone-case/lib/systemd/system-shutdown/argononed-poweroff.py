@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+# Original source: https://download.argon40.com/argon1.sh
 
 import sys
 

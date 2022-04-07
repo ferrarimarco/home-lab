@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+# Original source: https://download.argon40.com/argon1.sh
 
 import os
 import time
@@ -64,18 +64,18 @@ def load_config(fname):
                     tempval = float(tmppair[0])
                     if tempval < 0 or tempval > 100:
                         continue
-                except:
+                except Exception:
                     continue
                 try:
                     fanval = int(float(tmppair[1]))
                     if fanval < 0 or fanval > 100:
                         continue
-                except:
+                except Exception:
                     continue
                 newconfig.append("{:5.1f}={}".format(tempval, fanval))
         if len(newconfig) > 0:
             newconfig.sort(reverse=True)
-    except:
+    except Exception:
         return []
     return newconfig
 
@@ -114,5 +114,5 @@ try:
     t2 = Thread(target=temp_check)
     t1.start()
     t2.start()
-except:
+except Exception:
     GPIO.cleanup()
