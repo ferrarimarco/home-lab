@@ -32,6 +32,7 @@ def shutdown_check():
         elif pulsetime >= 4 and pulsetime <= 5:
             os.system("shutdown now -h")
 
+
 def get_fanspeed(tempval, configlist):
     for curconfig in configlist:
         curpair = curconfig.split("=")
@@ -71,7 +72,7 @@ def load_config(fname):
                         continue
                 except:
                     continue
-                newconfig.append("{:5.1f}={}".format(tempval,fanval))
+                newconfig.append("{:5.1f}={}".format(tempval, fanval))
         if len(newconfig) > 0:
             newconfig.sort(reverse=True)
     except:
@@ -106,6 +107,7 @@ def temp_check():
         except IOError:
             temp = ""
         time.sleep(30)
+
 
 try:
     t1 = Thread(target=shutdown_check)
