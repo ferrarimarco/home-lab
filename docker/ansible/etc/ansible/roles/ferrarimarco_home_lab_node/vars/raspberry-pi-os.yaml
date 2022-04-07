@@ -1,4 +1,5 @@
 ---
+configure_dphys_swapfile: true
 frigate_container_image_architecture: aarch64
 # Got those from v4l2-ctl --list-devices
 frigate_gpu_decode_devices:

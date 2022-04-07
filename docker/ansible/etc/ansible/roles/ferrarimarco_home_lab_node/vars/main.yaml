@@ -18,6 +18,11 @@ docker_os_services_to_configure:
     service_name: "{{ docker_service_name }}"
     service_state: started
 docker_repository_url: https://download.docker.com/linux
+dphys_swapfile_templates_to_render:
+  - src: "dphys-swapfile/dphys-swapfile.jinja"
+    dest: "{{ etc_directory_path }}/dphys-swapfile"
+    os_services_to_restart:
+      - "{{ dphys_swapfile_service_name }}"
 etc_directory_path: "/etc"
 fail2ban_os_services_to_configure:
   - enabled: true

@@ -18,6 +18,7 @@ docker_packages_to_uninstall:
   - docker.io
   - runc
 docker_service_name: docker
+dphys_swapfile_service_name: dphys-swapfile
 fail2ban_packages:
   - fail2ban
 fail2ban_service_name: fail2ban
