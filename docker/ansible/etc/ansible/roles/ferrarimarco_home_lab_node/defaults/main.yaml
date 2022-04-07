@@ -32,7 +32,7 @@ enable_prometheus_node_exporter_scraping: true
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 frigate_cameras_rtsp_urls:
- - rtsp://cam-1.edge.lab.ferrari.how:554/11
+  - rtsp://cam-1.edge.lab.ferrari.how:554/11
 is_raspberry_pi: false
 main_dns_server_address: "10.0.0.1"
 monitoring_backend_dns_records_to_check:
