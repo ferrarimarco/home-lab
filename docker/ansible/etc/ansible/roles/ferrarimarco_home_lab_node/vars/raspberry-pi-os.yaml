@@ -1,4 +1,16 @@
 ---
+configure_dphys_swapfile: true
+frigate_container_image_architecture: aarch64
+# Got those from v4l2-ctl --list-devices
+frigate_gpu_decode_devices:
+  - /dev/media2
+  - /dev/video10
+  - /dev/video11
+  - /dev/video12
+  - /dev/video18
+frigate_ffmpeg_harware_acceleration_arguments:
+  - -c:v
+  - h264_v4l2m2m
 raspberry_pi_config_file_path: "/boot/config.txt"
 raspberry_pi_sense_hat_apt_packages:
   - sense-hat

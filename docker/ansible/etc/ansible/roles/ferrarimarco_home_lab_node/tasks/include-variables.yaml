@@ -83,6 +83,14 @@
       fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"
       fact_configuration_directories_to_copy: "{{ mosquitto_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
+    - enable_custom_fact: "{{ configure_frigate }}"
+      fact_category: "frigate"
+      fact_configuration_directories_to_create: "{{ frigate_configuration_directories }}"
+      fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ frigate_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_dphys_swapfile }}"
+      fact_category: "dphys-swapfile"
+      fact_templates_to_render: "{{ dphys_swapfile_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

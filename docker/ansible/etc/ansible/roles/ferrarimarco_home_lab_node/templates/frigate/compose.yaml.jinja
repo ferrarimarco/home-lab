@@ -1,0 +1,20 @@
+---
+services:
+  frigate:
+    container_name: frigate
+    privileged: true
+    restart: always
+    image: "blakeblackshear/frigate:0.10.1-{{ frigate_container_image_architecture }}"
+    shm_size: "64mb"
+    # Got those from
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+{% for device in frigate_gpu_decode_devices %}
+      - "{{ device }}:{{ device }}"
+{% endfor %}
+    # We need host networking because Mosquitto listens on localhost only
+    network_mode: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/config.yaml:/config/config.yml:ro
+      - /var/lib/frigate/media:/media/frigate
