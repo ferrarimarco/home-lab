@@ -59,7 +59,7 @@ jobs:
           echo "OS image build completed for ${BUILD_CONFIGURATION_FILE_PATH}."
           echo "Appending the build result file (${RESULTS_FILE_PATH}) contents to GITHUB_ENV..."
           cat "${RESULTS_FILE_PATH}" >>"${GITHUB_ENV}"
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         name: Upload ${{ env.CUSTOMIZED_COMPRESSED_IMAGE_FILE_NAME }}
         with:
           if-no-files-found: error
