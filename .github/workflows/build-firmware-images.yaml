@@ -29,7 +29,7 @@ jobs:
       - name: "Build the Smart Desk firmware image"
         run: |
           scripts/build.sh
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           if-no-files-found: error
           name: smart-desk.bin.xz
