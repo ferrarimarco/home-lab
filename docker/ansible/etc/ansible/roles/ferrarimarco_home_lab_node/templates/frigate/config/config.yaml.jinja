@@ -1,6 +1,6 @@
 ---
 mqtt:
-  host: localhost
+  host: "{{ mosquitto_server_fqdn }}"
   port: 1883
 
 detectors:
@@ -15,101 +15,32 @@ ffmpeg:
     - "{{ argument }}"
 {% endfor %}
 
-# # Optional: Record configuration
-# # NOTE: Can be overridden at the camera level
-# record:
-#   # Optional: Enable recording (default: shown below)
-#   # WARNING: Frigate does not currently support limiting recordings based
-#   #          on available disk space automatically. If using recordings,
-#   #          you must specify retention settings for a number of days that
-#   #          will fit within the available disk space of your drive or Frigate
-#   #          will crash.
-#   enabled: False
-#   # Optional: Number of minutes to wait between cleanup runs (default: shown below)
-#   # This can be used to reduce the frequency of deleting recording segments from disk if you want to minimize i/o
-#   expire_interval: 60
-#   # Optional: Retention settings for recording
-#   retain:
-#     # Optional: Number of days to retain recordings regardless of events (default: shown below)
-#     # NOTE: This should be set to 0 and retention should be defined in events section below
-#     #       if you only want to retain recordings of events.
-#     days: 0
-#     # Optional: Mode for retention. Available options are: all, motion, and active_objects
-#     #   all - save all recording segments regardless of activity
-#     #   motion - save all recordings segments with any detected motion
-#     #   active_objects - save all recording segments with active/moving objects
-#     # NOTE: this mode only applies when the days setting above is greater than 0
-#     mode: all
-#   # Optional: Event recording settings
-#   events:
-#     # Optional: Maximum length of time to retain video during long events. (default: shown below)
-#     # NOTE: If an object is being tracked for longer than this amount of time, the retained recordings
-#     #       will be the last x seconds of the event unless retain->days under record is > 0.
-#     max_seconds: 300
-#     # Optional: Number of seconds before the event to include (default: shown below)
-#     pre_capture: 5
-#     # Optional: Number of seconds after the event to include (default: shown below)
-#     post_capture: 5
-#     # Optional: Objects to save recordings for. (default: all tracked objects)
-#     objects:
-#       - person
-#     # Optional: Restrict recordings to objects that entered any of the listed zones (default: no required zones)
-#     required_zones: []
-#     # Optional: Retention settings for recordings of events
-#     retain:
-#       # Required: Default retention days (default: shown below)
-#       default: 10
-#       # Optional: Mode for retention. (default: shown below)
-#       #   all - save all recording segments for events regardless of activity
-#       #   motion - save all recordings segments for events with any detected motion
-#       #   active_objects - save all recording segments for event with active/moving objects
-#       #
-#       # NOTE: If the retain mode for the camera is more restrictive than the mode configured
-#       #       here, the segments will already be gone by the time this mode is applied.
-#       #       For example, if the camera retain mode is "motion", the segments without motion are
-#       #       never stored, so setting the mode to "all" here won't bring them back.
-#       mode: motion
-#       # Optional: Per object retention days
-#       objects:
-#         person: 15
+# Configuration for the snapshots written to the clips directory for each event
+snapshots:
+  bounding_box: true
+  enabled: true
+  retain:
+    # Retention days
+    default: 10
 
-# # Optional: Configuration for the jpg snapshots written to the clips directory for each event
-# # NOTE: Can be overridden at the camera level
-# snapshots:
-#   # Optional: Enable writing jpg snapshot to /media/frigate/clips (default: shown below)
-#   # This value can be set via MQTT and will be updated in startup based on retained value
-#   enabled: False
-#   # Optional: print a timestamp on the snapshots
-#   timestamp: true
-#   # Optional: draw bounding box on the snapshots
-#   bounding_box: true
-#   # Optional: crop the snapshot
-#   crop: false
-#   # Optional: Restrict snapshots to objects that entered any of the listed zones (default: no required zones)
-#   required_zones: []
-
-# timestamp_style:
-#   # Optional: Format specifier conform to the Python package "datetime"
-#   format: "%Y-%m-%dT%H:%M:%S"
-#   # Optional: Position of the timestamp
-#   #           "tl" (top left), "tr" (top right), "bl" (bottom left), "br" (bottom right)
-#   position: "tl"
+timestamp_style:
+  format: "%Y-%m-%dT%H:%M:%S"
+  # Position of the timestamp. "tl" (top left), "tr" (top right), "bl" (bottom left), "br" (bottom right)
+  position: "tl"
 
 cameras:
   cam-1:
     ffmpeg:
       inputs:
 {% for rtsp_camera_url in frigate_cameras_rtsp_urls %}
-        # Required: the path to the stream
-        # NOTE: path may include environment variables, which must begin with 'FRIGATE_' and be referenced in {}
         - path: "{{ rtsp_camera_url }}"
-          # Required: list of roles for this stream. valid values are: detect,record,rtmp
-          # NOTICE: In addition to assigning the record, and rtmp roles,
-          # they must also be enabled in the camera config.
           roles:
             - detect
             - rtmp
-      detect:
-        enabled: False
+    motion:
+      # Exclude elevator light and camera timestamp
+      mask:
+        - 925,66,1236,63,1233,31,928,26
+        - 1053,0,1038,0,1039,30,1054,32
 {% endfor %}
 ...
