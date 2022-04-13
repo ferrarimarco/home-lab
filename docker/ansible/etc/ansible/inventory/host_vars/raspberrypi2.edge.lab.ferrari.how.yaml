@@ -1,3 +1,5 @@
 ---
+configure_docker: true
+configure_docker_compose: true
 has_argonone_case: true
 ...
