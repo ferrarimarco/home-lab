@@ -54,6 +54,8 @@
       fact_os_services_to_configure: "{{ docker_os_services_to_configure }}"
     - enable_custom_fact: "{{ security_fail2ban_enabled }}"
       fact_category: "fail2ban"
+      fact_configuration_directories_to_create:
+        - "{{ fail2ban_configuration_directory }}"
       fact_os_packages_to_install: "{{ fail2ban_packages }}"
       fact_os_services_to_configure: "{{ fail2ban_os_services_to_configure }}"
       fact_templates_to_render: "{{ fail2ban_templates_to_render }}"
@@ -91,6 +93,12 @@
     - enable_custom_fact: "{{ configure_dphys_swapfile }}"
       fact_category: "dphys-swapfile"
       fact_templates_to_render: "{{ dphys_swapfile_templates_to_render }}"
+    - enable_custom_fact: "{{ has_argonone_case }}"
+      fact_category: "argonone-case"
+      fact_configuration_directories_to_create: "{{ argonone_configuration_directories }}"
+      fact_configuration_directories_to_copy: "{{ argonone_configuration_directories_to_copy }}"
+      fact_os_packages_to_install: "{{ argonone_case_apt_packages_to_install }}"
+      fact_os_services_to_configure: "{{ argonone_os_services_to_configure }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

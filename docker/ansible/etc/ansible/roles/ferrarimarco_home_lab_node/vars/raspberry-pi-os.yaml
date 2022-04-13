@@ -1,4 +1,10 @@
 ---
+argonone_case_apt_packages_to_install:
+  - i2c-tools
+  - python3-rpi.gpio
+  - python3-smbus
+  - raspi-gpio
+argonone_os_service_name: "argononed"
 configure_dphys_swapfile: true
 frigate_container_image_architecture: aarch64
 # Got those from v4l2-ctl --list-devices

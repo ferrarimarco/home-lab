@@ -29,6 +29,7 @@ docker_daemon_options: {
 docker_users:
   - "{{ ansible_user }}"
 enable_prometheus_node_exporter_scraping: true
+has_argonone_case: false
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 frigate_cameras_rtsp_urls:

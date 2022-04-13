@@ -97,6 +97,13 @@
       become: true
   when: configure_docker_compose
 
+- name: Include Argon One case tasks
+  ansible.builtin.include_tasks:
+    file: setup-argonone-case.yaml
+    apply:
+      become: true
+  when: has_argonone_case
+
 - name: Include invoke handlers for system-wide configuration
   ansible.builtin.include_tasks:
     file: invoke-system-wide-configuration-handlers.yaml

@@ -1,4 +1,28 @@
 ---
+argonone_configuration_directories:
+  - "{{ argonone_configuration_directory }}"
+argonone_configuration_directories_to_copy:
+  - src: "config/argonone-case/etc/argonone"
+    dest: "{{ argonone_configuration_directory }}"
+    os_services_to_restart:
+      - "{{ argonone_os_service_name }}"
+  - src: "config/argonone-case/lib/systemd/system"
+    dest: "{{ systemd_system_services_configuration_directory }}"
+    os_services_to_restart:
+      - "{{ argonone_os_service_name }}"
+  - src: "config/argonone-case/lib/systemd/system-shutdown"
+    dest: "{{ systemd_system_shutdown_configuration_directory }}"
+    os_services_to_restart:
+      - "{{ argonone_os_service_name }}"
+  - src: "config/argonone-case/usr/local/bin"
+    dest: "/usr/local/bin"
+    os_services_to_restart:
+      - "{{ argonone_os_service_name }}"
+argonone_configuration_directory: "{{ etc_directory_path }}/argonone-case"
+argonone_os_services_to_configure:
+  - enabled: true
+    service_name: "{{ argonone_os_service_name }}"
+    service_state: started
 configuration_directories_to_copy: []
 configuration_directories_to_create:
   - "{{ home_lab_configuration_directory_path }}"
@@ -24,13 +48,14 @@ dphys_swapfile_templates_to_render:
     os_services_to_restart:
       - "{{ dphys_swapfile_service_name }}"
 etc_directory_path: "/etc"
+fail2ban_configuration_directory: "{{ etc_directory_path }}/fail2ban"
 fail2ban_os_services_to_configure:
   - enabled: true
     service_name: "{{ fail2ban_service_name }}"
     service_state: started
 fail2ban_templates_to_render:
   - src: "{{ security_fail2ban_custom_configuration_template }}"
-    dest: "{{ etc_directory_path }}/fail2ban/jail.local"
+    dest: "{{ fail2ban_configuration_directory }}/jail.local"
     os_services_to_restart:
       - "{{ fail2ban_service_name }}"
 frigate_configuration_app_configuration_directory_path: "{{ frigate_configuration_directory_path }}/config"
@@ -133,6 +158,7 @@ ssh_os_services_to_configure:
 sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
+systemd_system_shutdown_configuration_directory: "{{ systemd_configuration_directory }}/system-shutdown"
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"
 systemd_journal_file_path: /var/log/journal
 templates_to_render:
