@@ -13,9 +13,9 @@
 - name: Enable i2c
   ansible.builtin.command: "raspi-config nonint do_i2c 0"
   become: true
-  changed_when: enable_i2c_output.stdout == 0
+  changed_when: enable_i2c_output.stdout == "0"
   register: enable_i2c_output
-  when: raspi_config_i2c_output.stdout != 0
+  when: raspi_config_i2c_output.stdout != "0"
 
 - name: Get Raspberry Pi serial status
   ansible.builtin.command: "raspi-config nonint get_serial"
@@ -31,7 +31,7 @@
 - name: Enable serial
   ansible.builtin.command: "raspi-config nonint do_serial 0"
   become: true
-  changed_when: enable_serial_output.stdout == 0
+  changed_when: enable_serial_output.stdout == "0"
   register: enable_serial_output
-  when: raspi_config_serial_output.stdout != 0
+  when: raspi_config_serial_output.stdout != "0"
 ...

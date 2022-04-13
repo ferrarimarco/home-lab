@@ -54,6 +54,8 @@
       fact_os_services_to_configure: "{{ docker_os_services_to_configure }}"
     - enable_custom_fact: "{{ security_fail2ban_enabled }}"
       fact_category: "fail2ban"
+      fact_configuration_directories_to_create:
+        - "{{ fail2ban_configuration_directory }}"
       fact_os_packages_to_install: "{{ fail2ban_packages }}"
       fact_os_services_to_configure: "{{ fail2ban_os_services_to_configure }}"
       fact_templates_to_render: "{{ fail2ban_templates_to_render }}"
