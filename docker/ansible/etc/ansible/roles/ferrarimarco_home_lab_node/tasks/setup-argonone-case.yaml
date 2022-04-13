@@ -8,7 +8,7 @@
 - name: Debug i2c status command output
   ansible.builtin.debug:
     var: raspi_config_i2c_output
-    # verbosity: 1
+    verbosity: 1
 
 - name: Enable i2c
   ansible.builtin.command: "raspi-config nonint do_i2c 0"
@@ -26,7 +26,7 @@
 - name: Debug serial status command output
   ansible.builtin.debug:
     var: raspi_config_serial_output
-    # verbosity: 1
+    verbosity: 1
 
 - name: Enable serial
   ansible.builtin.command: "raspi-config nonint do_serial 0"
