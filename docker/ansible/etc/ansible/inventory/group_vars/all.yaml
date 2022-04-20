@@ -1,3 +1,4 @@
 ---
 ansible_python_interpreter: auto_silent
+mosquitto_server_fqdn: "raspberrypi.edge.lab.ferrari.how"
 ...

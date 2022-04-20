@@ -4,20 +4,22 @@
     keyring: "{{ item.repository_key_keyring_file_path }}"
     state: present
     url: "{{ item.repository_key_url }}"
+  become: true
   with_items: "{{ apt_repositories_to_add | unique }}"
 
 - name: Add APT repositories
   ansible.builtin.apt_repository:
     repo: "{{ item.repository_url }}"
     state: present
+  become: true
   with_items: "{{ apt_repositories_to_add | unique }}"
 
 - name: Update APT package index and upgrade APT packages
-  become: true
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
     update_cache: true
     upgrade: true
+  become: true
 
 - name: Remove APT packages
   ansible.builtin.apt:

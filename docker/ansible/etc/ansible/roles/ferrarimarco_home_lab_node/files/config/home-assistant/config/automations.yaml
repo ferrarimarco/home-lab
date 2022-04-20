@@ -37,4 +37,21 @@
           location: `{{ trigger.event.data.old_state.state }}`
           to location: `{{ trigger.event.data.new_state.state }}`
   mode: queued
+
+- id: frigate_event_notify
+  alias: Notify on Frigate events
+  description: "Notify when a Frigate event occurs"
+  trigger:
+    - platform: mqtt
+      topic: frigate/events
+  action:
+    - service: telegram_bot.send_photo
+      data:
+        url: >-
+          http://raspberrypi2.edge.lab.ferrari.how:5000/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg?format=android
+        caption: >-
+          A {{trigger.payload_json["after"]["label"]}} was detected.
+        message_tag: >-
+          {{trigger.payload_json["after"]["id"]}}
+  mode: queued
 ...
