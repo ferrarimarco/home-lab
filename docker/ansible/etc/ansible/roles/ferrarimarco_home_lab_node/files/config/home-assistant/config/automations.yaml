@@ -48,7 +48,7 @@
     - service: telegram_bot.send_photo
       data:
         url: >-
-          http://raspberrypi2.edge.lab.ferrari.how:5000/api/frigate/notifications/{{trigger.payload_json["after"]["id"]}}/thumbnail.jpg?format=android
+          http://raspberrypi2.edge.lab.ferrari.how:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
         caption: >-
           A {{trigger.payload_json["after"]["label"]}} was detected.
         message_tag: >-
