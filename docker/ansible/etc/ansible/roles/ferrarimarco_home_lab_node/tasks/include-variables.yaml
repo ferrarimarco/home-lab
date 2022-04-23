@@ -80,6 +80,7 @@
       fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
       fact_configuration_directories_to_copy: "{{ home_assistant_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
     - enable_custom_fact: "{{ configure_mqtt_broker }}"
       fact_category: "mosquitto"
       fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"

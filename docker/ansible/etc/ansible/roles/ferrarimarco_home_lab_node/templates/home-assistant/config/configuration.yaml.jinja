@@ -1,6 +1,12 @@
 ---
 automation: !include automations.yaml
 
+binary_sensor:
+{% for host in monitoring_backend_icmp_ping_hosts_to_check + groups['all'] %}
+  - platform: ping
+    host: "{{ host }}"
+{% endfor %}
+
 default_config: null
 
 group:
