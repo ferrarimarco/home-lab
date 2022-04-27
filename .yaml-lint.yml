@@ -17,9 +17,6 @@ rules:
   comments-indentation:
     level: error
   document-end:
-    # Temporary workaround for https://github.com/microsoft/compose-language-service/issues/93
-    ignore: |
-      **/compose.yaml
     level: error
   document-start:
     level: error

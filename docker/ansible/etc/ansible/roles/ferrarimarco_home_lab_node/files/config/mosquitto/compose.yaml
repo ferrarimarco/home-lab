@@ -16,3 +16,4 @@ services:
       - mosquitto_logs:/mosquitto/log
     ports:
       - "1883:1883"
+...

@@ -45,3 +45,4 @@ services:
       - '--web.enable-lifecycle'
     ports:
       - "9090:9090"
+...
