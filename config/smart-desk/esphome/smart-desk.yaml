@@ -272,7 +272,7 @@ substitutions:
   lcd_width: "20"
   distance_tolerance: "0.01"
   # 19.5 cm is the distance between the mount point and the desk top if the controller box is placed on the horizontal table reinforcement
-  min_desk_distance: "0.19"
+  min_desk_distance: "0.18"
   max_actuators_extension: "0.35"
   # 54 cm is the distance between the mount point and the desk top if the controller box is placed on the ground
   # this is min_desk_distance + max_actuators_extension
