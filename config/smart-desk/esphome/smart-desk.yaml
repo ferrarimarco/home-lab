@@ -54,6 +54,7 @@ esphome:
       - switch.turn_on: smart_desk_automation_switch
 
 i2c:
+  frequency: 100kHz
   sda: 23
   scl: 22
 
