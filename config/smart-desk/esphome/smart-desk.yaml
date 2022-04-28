@@ -199,6 +199,7 @@ sensor:
 switch:
   - id: desk_relay_1
     interlock: &interlock_group_actuator_1 [desk_relay_1, desk_relay_2]
+    internal: true
     platform: gpio
     pin:
       inverted: true
@@ -207,6 +208,7 @@ switch:
     name: "Desk relay 1"
   - id: desk_relay_2
     interlock: *interlock_group_actuator_1
+    internal: true
     platform: gpio
     pin:
       inverted: true
@@ -215,6 +217,7 @@ switch:
     name: "Desk relay 2"
   - id: desk_relay_3
     interlock: &interlock_group_actuator_2 [desk_relay_3, desk_relay_4]
+    internal: true
     platform: gpio
     pin:
       inverted: true
@@ -223,6 +226,7 @@ switch:
     name: "Desk relay 3"
   - id: desk_relay_4
     interlock: *interlock_group_actuator_2
+    internal: true
     platform: gpio
     pin:
       inverted: true
