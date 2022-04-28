@@ -64,7 +64,8 @@ light:
     pin: GPIO13
 
 # Enable logging
-logger: null
+logger:
+  level: INFO
 
 number:
   - id: target_smart_desk_distance
