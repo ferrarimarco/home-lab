@@ -140,6 +140,28 @@ To run `ansible-playbook` against the hosts listed in an inventory:
 scripts/run-ansible.sh "ansible-playbook  --inventory docker/ansible/etc/ansible/inventory/hosts.yml docker/ansible/etc/ansible/playbooks/main.yaml"
 ```
 
+To gather all the facts about a single host:
+
+```shell
+scripts/run-ansible.sh "ansible -m ansible.builtin.setup --user pi -i 'hostname.tld,' all"
+```
+
+### Add hosts to the Tailscale network
+
+The automated provisioning and configuration process takes care of setting up
+the Tailscale CLI.
+
+To add a device to the Tailscale network, do the following:
+
+1. From a shell on the host to add to the Tailscale network, run:
+
+    ```shell
+    sudo tailscale up
+    ```
+
+    and follow the instructions to authenticate
+2. (optional) Disable [Tailscale key expiration](https://tailscale.com/kb/1028/key-expiry/)
+
 ### Managed DNS zone
 
 This environment requires a DNS zone to manage.
@@ -183,11 +205,3 @@ scripts/generate-templated-files.sh
 ```
 
 After the generator produces the files, commit any updates to the generated files.
-
-### Test cloud-init configurations
-
-I use [cloud-init](https://cloudinit.readthedocs.io/) to perform some early provisioning
-and configuration tasks. It has a hard dependency on systemd, which may have issues
-running in containers. `scripts/test-cloud-init-configuration.sh` offers some support
-to run a containerized cloud-init instance, but it's currently too rough to
-integrate it in the CI/CD pipeline.
