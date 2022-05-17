@@ -1,2 +1,2 @@
 ansible==5.7.1
-paramiko==2.10.4
+paramiko==2.11.0
