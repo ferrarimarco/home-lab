@@ -411,7 +411,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
@@ -451,7 +452,7 @@
     }
   ],
   "refresh": "30s",
-  "schemaVersion": 35,
+  "schemaVersion": 36,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -465,6 +466,6 @@
   "timezone": "",
   "title": "Home network",
   "uid": "h10-uIPnk",
-  "version": 12,
+  "version": 13,
   "weekStart": ""
 }
