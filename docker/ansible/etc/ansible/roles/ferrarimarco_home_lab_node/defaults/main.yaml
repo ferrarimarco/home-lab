@@ -60,6 +60,7 @@ monitoring_backend_dns_records_to_check:
     query_type: "A"
 monitoring_backend_icmp_ping_hosts_to_check:
   - "cam-1.edge.lab.ferrari.how"
+  - "dns.google"
   - "ferrarimarco.info"
   - "github.com"
   - "google.com"
