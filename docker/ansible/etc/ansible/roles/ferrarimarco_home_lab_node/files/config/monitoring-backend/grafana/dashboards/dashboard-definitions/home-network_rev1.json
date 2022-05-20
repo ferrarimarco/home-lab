@@ -168,7 +168,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
@@ -531,8 +532,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -590,6 +590,6 @@
   "timezone": "",
   "title": "Home network",
   "uid": "h10-uIPnk",
-  "version": 13,
+  "version": 14,
   "weekStart": ""
 }
