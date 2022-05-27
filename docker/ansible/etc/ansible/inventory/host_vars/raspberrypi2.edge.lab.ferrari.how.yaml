@@ -2,5 +2,11 @@
 configure_docker: true
 configure_docker_compose: true
 configure_frigate: true
+disks_to_mount:
+  - fstype: ext4
+    opts: noatime
+    path: /media/data0
+    src: UUID=3fb762aa-c397-460b-809c-9ac741ce14f1
+    state: mounted
 has_argonone_case: true
 ...

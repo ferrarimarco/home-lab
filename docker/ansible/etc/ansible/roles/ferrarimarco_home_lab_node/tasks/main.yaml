@@ -90,6 +90,12 @@
     apply:
       become: true
 
+- name: Include disk setup tasks
+  ansible.builtin.include_tasks:
+    file: setup-disks.yaml
+    apply:
+      become: true
+
 - name: Include docker-compose tasks
   ansible.builtin.include_tasks:
     file: setup-compose.yaml

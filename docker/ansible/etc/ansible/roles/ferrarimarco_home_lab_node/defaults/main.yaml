@@ -15,6 +15,7 @@ configure_tailscale: false
 configure_wifi: false
 default_user_groups: []
 delete_systemd_journal_file: false
+disks_to_mount: []
 docker_apt_release_channel: stable
 docker_compose_version: "v2.3.4"
 docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-{{ ansible_architecture }}"

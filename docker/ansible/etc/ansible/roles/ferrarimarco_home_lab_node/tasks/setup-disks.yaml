@@ -1,0 +1,10 @@
+---
+- name: Mount devices
+  ansible.posix.mount:
+    fstype: "{{ item.fstype }}"
+    opts: "{{ item.opts }}"
+    path: "{{ item.path }}"
+    src: "{{ item.src }}"
+    state: "{{ item.state }}"
+  with_items: "{{ disks_to_mount }}"
+...
