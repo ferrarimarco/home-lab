@@ -70,6 +70,7 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "github.com"
   - "google.com"
   - "smart-desk.edge.lab.ferrari.how"
+monitoring_smart_metrics_collection_script_url: "https://github.com/prometheus-community/node-exporter-textfile-collector-scripts/blob/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
 raspberry_pi_config_file_values: {}
 security_fail2ban_enabled: true
 security_fail2ban_custom_configuration_template: "fail2ban/jail.local.jinja"

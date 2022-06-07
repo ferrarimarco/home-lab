@@ -44,6 +44,17 @@
   register: system_wide_rendered_templates
   with_items: "{{ templates_to_render }}"
 
+- name: Download files
+  become: true
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  register: system_wide_downloaded_files
+  with_items: "{{ files_to_download }}"
+
 - name: Include users setup tasks
   ansible.builtin.include_tasks:
     file: users.yaml

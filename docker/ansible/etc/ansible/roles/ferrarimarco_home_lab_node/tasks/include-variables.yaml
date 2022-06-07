@@ -68,6 +68,17 @@
       fact_category: "monitoring"
       fact_configuration_directories_to_create: "{{ monitoring_configuration_directories }}"
       fact_docker_compose_up_items: "{{ monitoring_docker_compose_up_items }}"
+      fact_files_to_download:
+        - url: "{{ monitoring_smart_metrics_collection_script_url }}"
+          dest: "{{ monitoring_smartmon_prometheus_exporter_script_destination_path }}"
+          mode: "0755"
+          owner: "root"
+          group: "root"
+      fact_os_packages_to_install: "{{ monitoring_packages_to_install }}"
+      fact_os_services_to_configure:
+        - enabled: true
+          service_name: "{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}"
+          service_state: started
       fact_templates_to_render: "{{ monitoring_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
       fact_category: "monitoring-backend"

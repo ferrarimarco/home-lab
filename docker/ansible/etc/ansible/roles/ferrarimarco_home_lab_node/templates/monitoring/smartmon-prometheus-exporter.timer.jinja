@@ -1,0 +1,8 @@
+[Unit]
+Description=Run smartmon-prometheus-exporter service as scheduled
+
+[Timer]
+OnCalendar=*:0/10
+
+[Install]
+WantedBy=timers.target

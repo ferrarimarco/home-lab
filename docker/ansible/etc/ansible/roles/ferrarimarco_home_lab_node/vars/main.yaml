@@ -58,6 +58,7 @@ fail2ban_templates_to_render:
     dest: "{{ fail2ban_configuration_directory }}/jail.local"
     os_services_to_restart:
       - "{{ fail2ban_service_name }}"
+files_to_download: []
 frigate_configuration_app_configuration_directory_path: "{{ frigate_configuration_directory_path }}/config"
 frigate_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/frigate"
 frigate_configuration_directories:
@@ -117,10 +118,23 @@ monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_pa
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collector"
+monitoring_prometheus_node_exporter_textfile_collector_directory: "/var/lib/node_exporter/textfile_collector"
+monitoring_smartmon_prometheus_exporter_script_destination_path: "/usr/local/bin/node-exporter-text-smartmon"
+monitoring_smartmon_prometheus_exporter_service_name: "smartmon-prometheus-exporter"
+monitoring_smartmon_prometheus_exporter_service_file_name: "{{ monitoring_smartmon_prometheus_exporter_service_name }}.service"
+monitoring_smartmon_prometheus_exporter_timer_file_name: "{{ monitoring_smartmon_prometheus_exporter_service_name }}.timer"
 monitoring_templates_to_render:
   - src: "monitoring/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     docker_compose_services_to_restart: "{{ monitoring_docker_compose_up_items }}"
+  - src: "monitoring/{{ monitoring_smartmon_prometheus_exporter_service_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_smartmon_prometheus_exporter_service_file_name }}"
+    os_services_to_restart:
+      - "{{ monitoring_smartmon_prometheus_exporter_service_name }}"
+  - src: "monitoring/{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}"
+    os_services_to_restart:
+      - "{{ monitoring_smartmon_prometheus_exporter_service_name }}"
 mosquitto_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/mosquitto"
 mosquitto_configuration_directories:
   - "{{ mosquitto_configuration_directory_path }}"

@@ -30,4 +30,8 @@
 - name: Add {{ fact_category }} Docker Compose up items to the list of Docker Compose up items
   ansible.builtin.set_fact:
     docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items }}"
+
+- name: Add {{ fact_category }} files to download to the list of files to download
+  ansible.builtin.set_fact:
+    files_to_download: "{{ files_to_download + fact_files_to_download }}"
 ...
