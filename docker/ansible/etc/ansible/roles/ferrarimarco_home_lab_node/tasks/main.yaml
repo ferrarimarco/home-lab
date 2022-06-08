@@ -46,7 +46,7 @@
 
 - name: Download files
   become: true
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ item.url }}"
     dest: "{{ item.dest }}"
     mode: "{{ item.mode }}"
