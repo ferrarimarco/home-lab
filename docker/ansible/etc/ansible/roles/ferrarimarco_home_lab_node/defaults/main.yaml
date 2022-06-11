@@ -17,8 +17,8 @@ default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
 docker_apt_release_channel: stable
-docker_compose_version: "v2.3.4"
-docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-{{ ansible_architecture }}"
+docker_compose_version: "v2.6.0"
+docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
 docker_compose_path: "/usr/local/bin/docker-compose"
 docker_daemon_options: {
   "log-driver": "local",
@@ -70,6 +70,7 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "github.com"
   - "google.com"
   - "smart-desk.edge.lab.ferrari.how"
+monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
 raspberry_pi_config_file_values: {}
 security_fail2ban_enabled: true
 security_fail2ban_custom_configuration_template: "fail2ban/jail.local.jinja"

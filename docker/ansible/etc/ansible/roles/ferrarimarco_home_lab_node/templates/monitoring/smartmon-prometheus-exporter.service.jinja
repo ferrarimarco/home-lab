@@ -1,0 +1,12 @@
+[Unit]
+Description=Export smartctl metrics to Prometheus Node Exporter Textfile Collector
+
+[Service]
+Nice=-10
+ExecStart=/bin/sh -c 'exec {{ monitoring_smartmon_prometheus_exporter_script_destination_path }} > {{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/smartctl.prom'
+# Write nothing except the output file
+ProtectSystem=strict
+ReadWritePaths={{ monitoring_prometheus_node_exporter_textfile_collector_directory }}
+# Shell needs a temp directory
+PrivateTmp=true
+ProtectHome=tmpfs

@@ -8,7 +8,7 @@ services:
     container_name: blackbox-exporter
     command:
       - "--config.file=/etc/prometheus-blackbox-exporter/config.yaml"
-    image: prom/blackbox-exporter:v0.20.0
+    image: prom/blackbox-exporter:v0.21.0
     ports:
       - "9115:9115"
     restart: always
@@ -19,7 +19,7 @@ services:
     container_name: grafana
     depends_on:
       - prometheus
-    image: grafana/grafana-oss:8.5.0
+    image: grafana/grafana-oss:8.5.5
     environment:
       - GF_METRICS_ENABLED=true
     restart: always
@@ -31,7 +31,7 @@ services:
       - "3000:3000"
 
   prometheus:
-    image: prom/prometheus:v2.35.0
+    image: prom/prometheus:v2.36.1
     container_name: prometheus
     restart: always
     volumes:

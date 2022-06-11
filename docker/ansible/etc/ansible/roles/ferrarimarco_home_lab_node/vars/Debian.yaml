@@ -22,6 +22,8 @@ dphys_swapfile_service_name: dphys-swapfile
 fail2ban_packages:
   - fail2ban
 fail2ban_service_name: fail2ban
+monitoring_packages_to_install:
+  - smartmontools
 security_ssh_config_path: /etc/ssh/sshd_config
 security_sshd_name: ssh
 sshd_path: /usr/sbin/sshd
