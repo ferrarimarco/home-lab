@@ -27,6 +27,7 @@
         fact_category: "{{ item.fact_category }}"
         fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
         fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
+        fact_deb_packages_to_install: "{{ item.fact_deb_packages_to_install | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
         fact_os_package_repositories_to_add: "{{ item.fact_os_package_repositories_to_add | default([]) }}"
@@ -120,6 +121,10 @@
           repository_url: "deb {{ tailscale_package_repository_url }} {{ ansible_distribution_release }} main"
       fact_os_packages_to_install:
         - tailscale
+    - enable_custom_fact: "{{ configure_hard_disks }}"
+      fact_category: "hard_disks"
+      fact_deb_packages_to_install:
+        - "https://github.com/adelolmo/hd-idle/releases/download/v1.16/hd-idle_1.16_{{ dpkg_architecture }}.deb"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

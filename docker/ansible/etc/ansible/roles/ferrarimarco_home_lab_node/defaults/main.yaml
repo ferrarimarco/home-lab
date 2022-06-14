@@ -7,12 +7,14 @@ configure_docker_compose: false
 configure_dphys_swapfile: false
 configure_dphys_swapfile_swapfactor: 2
 configure_frigate: false
+configure_hard_disks: false
 configure_home_assistant: false
 configure_monitoring: true
 configure_monitoring_backend: false
 configure_mqtt_broker: false
 configure_tailscale: false
 configure_wifi: false
+deb_packages_to_install: []
 default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
