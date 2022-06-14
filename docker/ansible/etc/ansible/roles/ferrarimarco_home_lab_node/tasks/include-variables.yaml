@@ -113,6 +113,7 @@
       fact_os_packages_to_install: "{{ argonone_case_apt_packages_to_install }}"
       fact_os_services_to_configure: "{{ argonone_os_services_to_configure }}"
     - enable_custom_fact: "{{ configure_tailscale }}"
+      fact_category: "tailscale"
       fact_os_package_repositories_to_add:
         - repository_key_keyring_file_path: "{{ tailscale_package_repository_key_file_path }}"
           repository_key_url: "{{ tailscale_package_repository_url }}/{{ ansible_distribution_release }}.gpg"
