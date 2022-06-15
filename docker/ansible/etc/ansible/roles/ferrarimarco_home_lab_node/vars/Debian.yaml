@@ -2,6 +2,7 @@
 apt_cache_valid_time: 3600
 default_os_packages_to_install:
   - python3-venv
+  - xz-utils
 docker_repositories_to_add:
   - repository_key_keyring_file_path: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
     repository_key_url: "{{ docker_repository_url }}/{{ ansible_distribution | lower }}/gpg"

@@ -15,6 +15,10 @@
   ansible.builtin.set_fact:
     apt_packages_to_install: "{{ apt_packages_to_install + fact_os_packages_to_install }}"
 
+- name: Add {{ fact_category }} OS packages to the list of OS packages to install
+  ansible.builtin.set_fact:
+    deb_packages_to_install: "{{ deb_packages_to_install + fact_deb_packages_to_install }}"
+
 - name: Add {{ fact_category }} OS packages to uninstall to the list of OS packages to uninstall
   ansible.builtin.set_fact:
     apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + fact_os_packages_to_uninstall }}"

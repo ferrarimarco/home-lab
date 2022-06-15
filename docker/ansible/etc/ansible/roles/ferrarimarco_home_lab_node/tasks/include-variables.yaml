@@ -27,6 +27,7 @@
         fact_category: "{{ item.fact_category }}"
         fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
         fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
+        fact_deb_packages_to_install: "{{ item.fact_deb_packages_to_install | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
         fact_os_package_repositories_to_add: "{{ item.fact_os_package_repositories_to_add | default([]) }}"
