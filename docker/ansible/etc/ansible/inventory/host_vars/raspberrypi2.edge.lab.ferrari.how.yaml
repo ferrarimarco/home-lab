@@ -2,7 +2,6 @@
 configure_docker: true
 configure_docker_compose: true
 configure_frigate: true
-configure_hard_disks: true
 disks_to_mount:
   - fstype: ext4
     opts: noatime

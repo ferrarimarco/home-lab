@@ -7,7 +7,6 @@ configure_docker_compose: false
 configure_dphys_swapfile: false
 configure_dphys_swapfile_swapfactor: 2
 configure_frigate: false
-configure_hard_disks: false
 configure_home_assistant: false
 configure_monitoring: true
 configure_monitoring_backend: false

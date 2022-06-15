@@ -121,10 +121,6 @@
           repository_url: "deb {{ tailscale_package_repository_url }} {{ ansible_distribution_release }} main"
       fact_os_packages_to_install:
         - tailscale
-    - enable_custom_fact: "{{ configure_hard_disks }}"
-      fact_category: "hard_disks"
-      fact_deb_packages_to_install:
-        - "https://github.com/adelolmo/hd-idle/releases/download/v1.16/hd-idle_1.16_{{ dpkg_architecture }}.deb"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:
