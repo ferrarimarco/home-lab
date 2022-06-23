@@ -121,6 +121,14 @@
           repository_url: "deb {{ tailscale_package_repository_url }} {{ ansible_distribution_release }} main"
       fact_os_packages_to_install:
         - tailscale
+    - enable_custom_fact: "{{ configure_network_shares }}"
+      fact_category: "network-shares"
+      fact_os_packages_to_install:
+        - samba
+      fact_os_services_to_configure:
+        - enabled: true
+          service_name: "smbd"
+          service_state: started
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

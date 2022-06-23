@@ -11,6 +11,7 @@ configure_home_assistant: false
 configure_monitoring: true
 configure_monitoring_backend: false
 configure_mqtt_broker: false
+configure_network_shares: false
 configure_tailscale: false
 configure_wifi: false
 deb_packages_to_install: []
