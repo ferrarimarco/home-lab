@@ -19,5 +19,5 @@ samba_shares:
     name: "media"
     path: "/media/data0/media"
     read_only: "yes"
-    valid_users: "@users"
+    valid_users: "@{{ samba_default_readers_group_name }}"
 ...
