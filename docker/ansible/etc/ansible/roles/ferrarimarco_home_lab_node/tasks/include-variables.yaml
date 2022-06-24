@@ -128,8 +128,6 @@
       fact_os_groups_to_create:
         - name: "{{ samba_default_readers_group_name }}"
         - name: "{{ samba_default_writers_group_name }}"
-      fact_os_users_to_create:
-        - name:
       fact_os_packages_to_install:
         - samba
       fact_os_services_to_configure:
