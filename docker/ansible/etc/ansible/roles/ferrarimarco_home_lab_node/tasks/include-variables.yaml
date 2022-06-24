@@ -127,8 +127,13 @@
         - samba
       fact_os_services_to_configure:
         - enabled: true
-          service_name: "smbd"
+          service_name: "{{ samba_service_name }}"
           service_state: started
+      fact_templates_to_render:
+        - src: "samba/smb.conf.jinja"
+          dest: "{{ etc_directory_path }}/samba/smb.conf"
+          os_services_to_restart:
+            - "{{ samba_service_name }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

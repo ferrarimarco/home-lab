@@ -146,6 +146,7 @@ mosquitto_docker_compose_up_items:
   - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 os_services_to_configure: []
 os_services_to_restart: []
+samba_service_name: "smbd"
 sense_hat_exporter_configuration_directories:
   - "{{ sense_hat_exporter_configuration_directory_path }}"
 sense_hat_exporter_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/sense-hat-exporter"

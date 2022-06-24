@@ -10,4 +10,12 @@ disks_to_mount:
     src: UUID=3fb762aa-c397-460b-809c-9ac741ce14f1
     state: mounted
 has_argonone_case: true
+samba_shares:
+  - comment: "Media"
+    directory_mask: "0755"
+    force_group: "users"
+    name: "media"
+    path: "/media/data0/media"
+    read_only: "yes"
+    valid_users: "@users"
 ...

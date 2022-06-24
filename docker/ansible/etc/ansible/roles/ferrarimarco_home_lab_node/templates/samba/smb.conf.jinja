@@ -1,0 +1,92 @@
+# samba wide configuration
+[global]
+    # Change this to the workgroup/NT-domain name your Samba server will part of
+    workgroup = {{ samba_workgroup }}
+
+    # security level (user based authentication)
+    security = user
+
+    # disable guest access
+    restrict anonymous = 2
+
+    # allow all IPs in the subnet starting with {{ samba_hosts_allow }}
+    hosts allow = {{ samba_hosts_allow }}
+
+    # interfaces that Samba will use for browsing (only allow local and trusted network)
+    interfaces = 127.0.0.1/8 {{ samba_additional_interfaces }}
+
+    # limit serving requests to specified interfaces above
+    bind interfaces only = yes
+
+    # log file location
+    log file = /var/log/samba/samba.log
+
+    # log file size
+    max log size = 1000
+
+    # disallow clients with null password
+    null passwords = no
+
+    # encrypt the password, don't store in plaintext
+    encrypt passwords = yes
+
+    # synchronize the UNIX password with the SMB password when the encrypted SMB password in the smbpasswd file is changed
+    unix password sync = yes
+
+    # support case sensitive depends on OS. Windows doesn't, *nix does
+    case sensitive = auto
+
+    # default casing for new filenames
+    default case = lower
+
+    # save the case for new files
+    preserve case = yes
+
+    # keep short filenames in lowercase while long filenames as is
+    short preserve case = yes
+
+{% if samba_enable_homes_share %}
+[homes]
+    comment = Home Directories
+    browseable = no
+
+    # By default, the home directories are exported read-only. Change the
+    # next parameter to 'no' if you want to be able to write to them.
+    read only = yes
+
+    # File creation mask is set to 0700 for security reasons. If you want to
+    # create files with group=rw permissions, set next parameter to 0775.
+    create mask = 0700
+
+    # Directory creation mask is set to 0700 for security reasons. If you want to
+    # create dirs. with group=rw permissions, set next parameter to 0775.
+    directory mask = 0700
+
+    # By default, \\server\username shares can be connected to by anyone
+    # with access to the samba server.
+    # The following parameter makes sure that only "username" can connect
+    # to \\server\username
+    # This might need tweaking when using external authentication schemes
+    valid users = %S
+{% endif %}
+
+{% for share in samba_shares %}
+[{{ share.name }}]
+    comment = {{ share.comment }}
+    path = {{ share.path }}
+{% if share.valid_users is defined %}
+    valid users = {{ share.valid_users }}
+{% endif %}
+{% if share.force_group is defined %}
+    force group = {{ share.force_group }}
+{% endif %}
+{% if share.create_mask is defined %}
+    create mask = {{ share.create_mask }}
+{% endif %}
+{% if share.directory_mask is defined %}
+    directory mask = {{ share.directory_mask }}
+{% endif %}
+{% if share.read_only is defined %}
+    read only = {{ share.read_only }}
+{% endif %}
+{% endfor %}

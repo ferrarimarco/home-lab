@@ -55,6 +55,16 @@
   register: system_wide_downloaded_files
   with_items: "{{ files_to_download }}"
 
+- name: Create Samba share directories
+  ansible.builtin.file:
+    group: root
+    mode: "{{ item.directory_mask }}"
+    owner: root
+    path: "{{ item.path }}"
+    state: directory
+  become: true
+  with_items: "{{ samba_shares }}"
+
 - name: Include users setup tasks
   ansible.builtin.include_tasks:
     file: users.yaml

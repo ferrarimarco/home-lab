@@ -173,6 +173,17 @@ subdomain to point to the managed DNS servers.
 For example, follow
 [these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
 
+### Configure network shares
+
+To allow access to Samba network shares, do the following:
+
+1. Create a Linux system user.
+1. Add the user to the Samba database:
+
+    ```shell
+    sudo smbpasswd -a pi
+    ```
+
 ## Monitoring
 
 To monitor the status of the home lab, the automated provisioning and configuration
