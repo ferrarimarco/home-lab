@@ -38,4 +38,12 @@
 - name: Add {{ fact_category }} files to download to the list of files to download
   ansible.builtin.set_fact:
     files_to_download: "{{ files_to_download + fact_files_to_download }}"
+
+- name: Add {{ fact_category }} OS groups to create to the list of OS groups to create
+  ansible.builtin.set_fact:
+    os_groups_to_create: "{{ os_groups_to_create + fact_os_groups_to_create }}"
+
+- name: Add {{ fact_category }} OS users to create to the list of OS users to create
+  ansible.builtin.set_fact:
+    os_users_to_create: "{{ os_users_to_create + fact_os_users_to_create }}"
 ...

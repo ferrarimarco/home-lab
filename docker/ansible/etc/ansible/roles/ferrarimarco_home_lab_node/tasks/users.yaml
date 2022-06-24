@@ -1,12 +1,26 @@
 ---
-- name: "Create the default user: {{ ansible_user }}"
-  ansible.builtin.user:
-    append: true
-    name: "{{ ansible_user }}"
-    groups: "{{ default_user_groups }}"
-    # Don't lock the password here because we want to be sure to set up key-based authentication first
+- name: Create OS groups
+  ansible.builtin.group:
+    name: "{{ item.name }}"
+    state: present
+    system: "{{ item.system | default(omit) }}"
+  with_items: "{{ os_groups_to_create }}"
 
-- name: "Lock the password of the default user if we authenticated with a key: {{ ansible_user }}"
+- name: Create OS users
+  ansible.builtin.user:
+    append: "{{ item.append | default(omit) }}"
+    comment: "{{ item.comment | default(omit) }}"
+    create_home: "{{ item.create_home | default(omit) }}"
+    groups: "{{ item.groups | default(omit) }}"
+    name: "{{ item.name }}"
+    password: "{{ item.password | default(omit) }}"
+    password_lock: "{{ item.password_lock | default(omit) }}"
+    shell: "{{ item.shell | default(omit) }}"
+    state: present
+    system: "{{ item.system | default(omit) }}"
+  with_items: "{{ os_users_to_create }}"
+
+- name: "Lock the password of the default user ({{ ansible_user }}) if we authenticated with a key"
   ansible.builtin.user:
     name: "{{ ansible_user }}"
     password_lock: true
@@ -30,7 +44,6 @@
     validate: 'visudo -cf %s'
     mode: "0644"
   with_items: "{{ security_sudoers_passwordless }}"
-  when: security_sudoers_passwordless | length > 0
 
 - name: Add configured user accounts to passworded sudoers
   ansible.builtin.lineinfile:
@@ -41,5 +54,4 @@
     validate: 'visudo -cf %s'
     mode: "0644"
   with_items: "{{ security_sudoers_passworded }}"
-  when: security_sudoers_passworded | length > 0
 ...

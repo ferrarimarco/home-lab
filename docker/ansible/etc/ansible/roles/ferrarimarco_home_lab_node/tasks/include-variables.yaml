@@ -30,6 +30,8 @@
         fact_deb_packages_to_install: "{{ item.fact_deb_packages_to_install | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
+        fact_os_groups_to_create: "{{ item.fact_os_groups_to_create | default([]) }}"
+        fact_os_users_to_create: "{{ item.fact_os_users_to_create | default([]) }}"
         fact_os_package_repositories_to_add: "{{ item.fact_os_package_repositories_to_add | default([]) }}"
         fact_os_packages_to_install: "{{ item.fact_os_packages_to_install | default([]) }}"
         fact_os_packages_to_uninstall: "{{ item.fact_os_packages_to_uninstall | default([]) }}"
@@ -123,6 +125,11 @@
         - tailscale
     - enable_custom_fact: "{{ configure_network_shares }}"
       fact_category: "network-shares"
+      fact_os_groups_to_create:
+        - name: "{{ samba_default_readers_group_name }}"
+        - name: "{{ samba_default_writers_group_name }}"
+      fact_os_users_to_create:
+        - name:
       fact_os_packages_to_install:
         - samba
       fact_os_services_to_configure:
