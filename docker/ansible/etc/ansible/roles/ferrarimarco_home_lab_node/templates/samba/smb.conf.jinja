@@ -89,4 +89,7 @@
 {% if share.read_only is defined %}
     read only = {{ share.read_only }}
 {% endif %}
+{% if share.write_list is defined %}
+    write list = {{ share.write_list }}
+{% endif %}
 {% endfor %}
