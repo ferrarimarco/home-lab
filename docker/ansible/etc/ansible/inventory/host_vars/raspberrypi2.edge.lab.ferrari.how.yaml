@@ -20,4 +20,5 @@ samba_shares:
     path: "/media/data0/media"
     read_only: "yes"
     valid_users: "@{{ samba_default_readers_group_name }}"
+    write_list: "@{{ samba_default_writers_group_name }}"
 ...
