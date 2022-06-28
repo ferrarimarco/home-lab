@@ -24,14 +24,11 @@
     # log file size
     max log size = 1000
 
-    # disallow clients with null password
-    null passwords = no
-
-    # encrypt the password, don't store in plaintext
-    encrypt passwords = yes
-
     # synchronize the UNIX password with the SMB password when the encrypted SMB password in the smbpasswd file is changed
     unix password sync = yes
+
+    # set the passwd program
+    passwd program = /bin/passwd %u
 
     # support case sensitive depends on OS. Windows doesn't, *nix does
     case sensitive = auto
