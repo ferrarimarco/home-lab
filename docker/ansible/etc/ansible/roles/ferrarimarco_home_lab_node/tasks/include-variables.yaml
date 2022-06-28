@@ -134,6 +134,13 @@
         - enabled: true
           service_name: "{{ samba_service_name }}"
           service_state: started
+      fact_os_users_to_create:
+        # Here we likely to update the user groups, not to create it so we append groups
+        - append: true
+          name: "{{ ansible_user }}"
+          groups:
+            - "{{ samba_default_readers_group_name }}"
+            - "{{ samba_default_writers_group_name }}"
       fact_templates_to_render:
         - src: "samba/smb.conf.jinja"
           dest: "{{ etc_directory_path }}/samba/smb.conf"
