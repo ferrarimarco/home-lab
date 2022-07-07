@@ -12,6 +12,7 @@ disks_to_mount:
 has_argonone_case: true
 samba_shares:
   - comment: "Media"
+    create_mask: "0744"
     directory_group: users
     directory_mask: "0755"
     directory_owner: pi
