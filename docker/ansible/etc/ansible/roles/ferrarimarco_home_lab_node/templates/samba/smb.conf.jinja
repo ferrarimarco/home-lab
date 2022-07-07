@@ -77,6 +77,9 @@
 {% if share.force_group is defined %}
     force group = {{ share.force_group }}
 {% endif %}
+{% if share.force_user is defined %}
+    force user = {{ share.force_user }}
+{% endif %}
 {% if share.create_mask is defined %}
     create mask = {{ share.create_mask }}
 {% endif %}

@@ -17,6 +17,7 @@ samba_shares:
     directory_mask: "0755"
     directory_owner: pi
     force_group: "users"
+    force_user: "{{ ansible_user }}"
     name: "media"
     path: "/media/data0/media"
     read_only: "yes"
