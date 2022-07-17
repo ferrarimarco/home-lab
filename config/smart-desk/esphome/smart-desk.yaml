@@ -65,20 +65,30 @@ light:
 
 # Enable logging
 logger:
-  level: INFO
+  level: DEBUG
 
 number:
-  - id: target_smart_desk_distance
+  - id: target_smart_desk_actuators_extension
     platform: template
-    icon: "mdi:desk"
-    name: "Desired desk top distance from sensor"
-    min_value: ${min_desk_distance}
-    max_value: ${max_desk_distance}
+    icon: "mdi:icon7-resize-vertical"
+    name: "Desired actuators extension"
+    min_value: 0
+    max_value: ${max_actuators_extension_m}
     optimistic: true
     step: 0.01
     unit_of_measurement: m
     on_value:
       - script.execute: operate_actuators
+  - id: min_distance_offset
+    platform: template
+    icon: "mdi:icon7-resize-small"
+    name: "Offset to adjust the minimum distance between the bottom of the table top and the distance sensor"
+    min_value: 0
+    max_value: ${min_desk_distance_from_feet_m}
+    optimistic: true
+    restore_value: true
+    step: 0.01
+    unit_of_measurement: m
 
 ota:
   password: !secret home_assistant_api_key
@@ -91,12 +101,12 @@ script:
       - if:
           condition:
             lambda: |-
-              return id(ultrasonic_distance_sensor).state < id(target_smart_desk_distance).state;
+              return id(smart_desk_actuators_extension).state < id(target_smart_desk_actuators_extension).state;
           then:
-            - logger.log: "Current distance < requested distance. Extending the actuators."
+            - logger.log: "Current actuators extension < requested extension. Extending the actuators."
             - script.execute: extend_actuators_script
           else:
-            - logger.log: "Current distance > requested distance. Retracting the actuators."
+            - logger.log: "Current actuators extension > requested extension. Retracting the actuators."
             - script.execute: retract_actuators_script
   - id: extend_actuators_script
     then:
@@ -163,6 +173,7 @@ sensor:
     echo_pin: GPIO15
     name: "Ultrasonic distance sensor"
     update_interval: 100ms
+    # The number of meters for the sensor to timeout
     timeout: 4m
     on_value:
       - if:
@@ -170,11 +181,11 @@ sensor:
             lambda: |-
               return id(smart_desk_automation_switch).state && (id(extend_actuators).state || id(retract_actuators).state);
           then:
-            - logger.log: "The actuators are moving. Checking if the desk reached the target distance..."
+            - logger.log: "The actuators are moving. Checking if the they reached the target extension..."
             - if:
                 condition:
                   lambda: |-
-                    float diff = id(ultrasonic_distance_sensor).state - id(target_smart_desk_distance).state;
+                    float diff = id(smart_desk_actuators_extension).state - id(target_smart_desk_actuators_extension).state;
                     float abs_diff = abs(diff);
                     float distance_tolerance = ${distance_tolerance};
                     ESP_LOGD("main", "Difference: %f, Abs difference: %f, Tolerance: %f", diff, abs_diff, distance_tolerance);
@@ -186,15 +197,29 @@ sensor:
                       return false;
                     }
                 then:
-                  - logger.log: "The desk reached the target distance. Stopping the actuators..."
+                  - logger.log: "The actuators reached the target extension. Stopping the actuators..."
                   - script.execute: turn_actuators_off_script
                 else:
-                  - logger.log: "The desk didn't reach the target distance yet. Leaving the actuators on..."
+                  - logger.log: "The actuators didn't reach the target extension yet. Leaving the actuators on..."
           else:
-            - logger.log: "The actuators are not moving. Skipping the desk distance check."
+            - logger.log: "The actuators are not moving. Skipping the check."
   - platform: wifi_signal
     name: "WiFi Signal Sensor"
     update_interval: 30s
+  - id: min_smart_desk_distance
+    platform: template
+    icon: "mdi:icon7-circle-arrow-down"
+    internal: true
+    lambda: |-
+      return ${min_desk_distance_from_feet_m} - (${controller_box_height_m} + id(min_distance_offset).state);
+    name: "Minimum distance between the bottom of the desk top and the distance sensor"
+    unit_of_measurement: m
+  - id: smart_desk_actuators_extension
+    lambda: |-
+      return id(ultrasonic_distance_sensor).state - id(min_smart_desk_distance).state;
+    name: "Actuators extension"
+    platform: template
+    unit_of_measurement: m
 
 switch:
   - id: desk_relay_1
@@ -261,7 +286,7 @@ switch:
       - script.execute: turn_actuators_off_script
   - id: smart_desk_automation_switch
     platform: template
-    name: "Smart desk automation"
+    name: "Smart desk automation. Disable to allow fine actuators extension fine tuning."
     optimistic: true
 
 substitutions:
@@ -271,12 +296,12 @@ substitutions:
   lcd_height: "4"
   lcd_width: "20"
   distance_tolerance: "0.01"
-  # 19.5 cm is the distance between the mount point and the desk top if the controller box is placed on the horizontal table reinforcement
-  min_desk_distance: "0.18"
-  max_actuators_extension: "0.35"
-  # 54 cm is the distance between the mount point and the desk top if the controller box is placed on the ground
-  # this is min_desk_distance + max_actuators_extension
-  max_desk_distance: "0.54"
+  # Maximum actuators extension
+  max_actuators_extension_m: "0.35"
+  # Minimum distance between the bottom of the desk top and the feet of the desk
+  min_desk_distance_from_feet_m: "0.67"
+  # Height of the controller box + distance sensor heads when the distance sensor faces the bottom of the desk top
+  controller_box_height_m: "0.165"
   network_domain: edge.lab.ferrari.how
 
 text_sensor:
