@@ -57,9 +57,9 @@
 
 - name: Create Samba share directories
   ansible.builtin.file:
-    group: root
+    group: "{{ item.directory_group }}"
     mode: "{{ item.directory_mask }}"
-    owner: root
+    owner: "{{ item.directory_owner }}"
     path: "{{ item.path }}"
     state: directory
   become: true
