@@ -135,7 +135,7 @@
           service_name: "{{ samba_service_name }}"
           service_state: started
       fact_os_users_to_create:
-        # Here we likely to update the user groups, not to create it so we append groups
+        # Here we likely update the user groups, not create it so we append new groups
         - append: true
           name: "{{ ansible_user }}"
           groups:
