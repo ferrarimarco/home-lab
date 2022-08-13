@@ -16,12 +16,8 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
-  - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring/sense-hat-exporter"
+  - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter"
     package-ecosystem: "pip"
-    schedule:
-      interval: "daily"
-  - directory: "/docker/cloud-init"
-    package-ecosystem: "docker"
     schedule:
       interval: "daily"
   - directory: "/docker/os-image-builder"
