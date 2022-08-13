@@ -12,12 +12,15 @@ disks_to_mount:
 has_argonone_case: true
 samba_shares:
   - comment: "Media"
+    create_mask: "0744"
     directory_group: users
     directory_mask: "0755"
-    directory_owner: pi
+    directory_owner: "{{ ansible_user }}"
     force_group: "users"
+    force_user: "{{ ansible_user }}"
     name: "media"
     path: "/media/data0/media"
     read_only: "yes"
-    valid_users: "@users"
+    valid_users: "@{{ samba_default_readers_group_name }}"
+    write_list: "@{{ samba_default_writers_group_name }}"
 ...

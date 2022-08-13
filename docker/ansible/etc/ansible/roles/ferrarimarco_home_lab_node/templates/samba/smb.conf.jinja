@@ -24,14 +24,11 @@
     # log file size
     max log size = 1000
 
-    # disallow clients with null password
-    null passwords = no
-
-    # encrypt the password, don't store in plaintext
-    encrypt passwords = yes
-
     # synchronize the UNIX password with the SMB password when the encrypted SMB password in the smbpasswd file is changed
     unix password sync = yes
+
+    # set the passwd program
+    passwd program = /bin/passwd %u
 
     # support case sensitive depends on OS. Windows doesn't, *nix does
     case sensitive = auto
@@ -80,6 +77,9 @@
 {% if share.force_group is defined %}
     force group = {{ share.force_group }}
 {% endif %}
+{% if share.force_user is defined %}
+    force user = {{ share.force_user }}
+{% endif %}
 {% if share.create_mask is defined %}
     create mask = {{ share.create_mask }}
 {% endif %}
@@ -88,5 +88,8 @@
 {% endif %}
 {% if share.read_only is defined %}
     read only = {{ share.read_only }}
+{% endif %}
+{% if share.write_list is defined %}
+    write list = {{ share.write_list }}
 {% endif %}
 {% endfor %}

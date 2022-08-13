@@ -14,16 +14,19 @@
   become: true
   with_items: "{{ apt_repositories_to_add | unique }}"
 
-- name: Update APT package index and upgrade APT packages
+- name: Update APT package index, upgrade, autoclean, autoremove APT packages
   ansible.builtin.apt:
+    autoclean: true
+    autoremove: true
     cache_valid_time: "{{ apt_cache_valid_time }}"
     update_cache: true
     upgrade: true
   become: true
 
-- name: Remove APT packages
+- name: Purge APT packages
   ansible.builtin.apt:
     name: "{{ item }}"
+    purge: true
     state: absent
   become: true
   with_items: "{{ apt_packages_to_uninstall | unique }}"
