@@ -15,6 +15,20 @@ ffmpeg:
     - "{{ argument }}"
 {% endfor %}
 
+# Configuration for recordings
+record:
+  enabled: true
+  events:
+    # Maximum length of time to retain video during long events
+    max_seconds: 600
+    # Number of seconds after the event to include
+    post_capture: 10
+    # Number of seconds before the event to include
+    pre_capture: 10
+    retain:
+      # Retention days
+      default: 10
+
 # Configuration for the snapshots written to the clips directory for each event
 snapshots:
   bounding_box: true
@@ -32,15 +46,16 @@ cameras:
   cam-1:
     ffmpeg:
       inputs:
-{% for rtsp_camera_url in frigate_cameras_rtsp_urls %}
-        - path: "{{ rtsp_camera_url }}"
+{% for frigate_camera in frigate_cameras %}
+        - path: "{{ frigate_camera.path }}"
           roles:
-            - detect
-            - rtmp
+{% for role in frigate_camera.roles %}
+            - {{ role }}
+{% endfor %}
     motion:
-      # Exclude elevator light and camera timestamp
       mask:
-        - 925,66,1236,63,1233,31,928,26
-        - 1053,0,1038,0,1039,30,1054,32
+{% for mask in frigate_camera.motion_masks %}
+        - {{ mask }}
+{% endfor %}
 {% endfor %}
 ...

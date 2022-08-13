@@ -36,8 +36,16 @@ enable_prometheus_node_exporter_scraping: true
 has_argonone_case: false
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
-frigate_cameras_rtsp_urls:
-  - rtsp://cam-1.edge.lab.ferrari.how:554/11
+frigate_cameras:
+  - path: rtsp://cam-1.edge.lab.ferrari.how:554/11
+    roles:
+      - detect
+      - record
+      - rtmp
+    # Exclude elevator light and camera timestamp
+    motion_masks:
+      - 925,66,1236,63,1233,31,928,26
+      - 1053,0,1038,0,1039,30,1054,32
 is_raspberry_pi: false
 main_dns_server_address: "10.0.0.1"
 monitoring_backend_dns_records_to_check:
