@@ -11,6 +11,18 @@ disks_to_mount:
     state: mounted
 has_argonone_case: true
 samba_shares:
+  - comment: "Backups-Marco"
+    create_mask: "0744"
+    directory_group: "marco"
+    directory_mask: "0755"
+    directory_owner: "marco"
+    force_group: "marco"
+    force_user: "marco"
+    name: "backups-marco"
+    path: "/media/data0/backups-marco"
+    read_only: "yes"
+    valid_users: "marco"
+    write_list: "marco"
   - comment: "Media"
     create_mask: "0744"
     directory_group: users
@@ -26,6 +38,11 @@ samba_shares:
 samba_os_users_to_create:
   - append: true
     name: "{{ ansible_user }}"
+    groups:
+      - "{{ samba_default_readers_group_name }}"
+      - "{{ samba_default_writers_group_name }}"
+  - append: true
+    name: "marco"
     groups:
       - "{{ samba_default_readers_group_name }}"
       - "{{ samba_default_writers_group_name }}"
