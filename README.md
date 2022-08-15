@@ -181,7 +181,7 @@ To allow access to Samba network shares, do the following:
 1. Add the user to the Samba database:
 
     ```shell
-    sudo smbpasswd -a pi
+    sudo smbpasswd -a "${USER}"
     ```
 
 ## Monitoring
