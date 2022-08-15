@@ -1,0 +1,16 @@
+---
+services:
+  qbittorrent:
+    build:
+      context: .
+    container_name: qbittorrent
+    command:
+      - ""
+    ports:
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
+    restart: always
+    volumes:
+      - /var/lib/node_exporter/textfile_collector:/var/lib/node_exporter/textfile_collector
+...

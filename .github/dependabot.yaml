@@ -20,6 +20,10 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+  - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/qbittorrent"
+    package-ecosystem: "docker"
+    schedule:
+      interval: "daily"
   - directory: "/docker/os-image-builder"
     package-ecosystem: "docker"
     schedule:
