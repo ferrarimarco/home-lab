@@ -81,12 +81,6 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "google.com"
   - "smart-desk.edge.lab.ferrari.how"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
-os_groups_to_create: []
-os_users_to_create:
-  # Don't lock the password here because we want to be sure to set up key-based authentication first
-  - append: true
-    name: "{{ ansible_user }}"
-    groups: "{{ default_user_groups }}"
 raspberry_pi_config_file_values: {}
 samba_additional_interfaces: "10.0.0.0/8"
 samba_default_readers_group_name: "samba-readers"

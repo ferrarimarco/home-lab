@@ -144,8 +144,15 @@ mosquitto_configuration_directories_to_copy:
     docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
 mosquitto_docker_compose_up_items:
   - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+os_groups_to_create: []
 os_services_to_configure: []
 os_services_to_restart: []
+os_users_to_create:
+  # Add the default user groups to ansible_user
+  # Don't lock the password here because we want to be sure to set up key-based authentication first
+  - append: true
+    name: "{{ ansible_user }}"
+    groups: "{{ default_user_groups }}"
 samba_service_name: "smbd"
 sense_hat_exporter_configuration_directories:
   - "{{ sense_hat_exporter_configuration_directory_path }}"
