@@ -23,4 +23,10 @@ samba_shares:
     read_only: "yes"
     valid_users: "@{{ samba_default_readers_group_name }}"
     write_list: "@{{ samba_default_writers_group_name }}"
+samba_os_users_to_create:
+  - append: true
+    name: "{{ ansible_user }}"
+    groups:
+      - "{{ samba_default_readers_group_name }}"
+      - "{{ samba_default_writers_group_name }}"
 ...
