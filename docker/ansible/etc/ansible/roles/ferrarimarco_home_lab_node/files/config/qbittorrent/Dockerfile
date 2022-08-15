@@ -10,4 +10,4 @@ EXPOSE 8080 6881 6881/udp
 
 COPY root/ /
 
-ENTRYPOINT [ "qbittorrent-nox", "-d" ]
+ENTRYPOINT [ "qbittorrent-nox", "--daemon" ]
