@@ -13,6 +13,7 @@ configure_monitoring_backend: false
 configure_mqtt_broker: false
 configure_network_shares: false
 configure_tailscale: false
+configure_torrent: false
 configure_wifi: false
 deb_packages_to_install: []
 default_user_groups: []

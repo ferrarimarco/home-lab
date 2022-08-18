@@ -3,6 +3,7 @@ configure_docker: true
 configure_docker_compose: true
 configure_frigate: true
 configure_network_shares: true
+configure_torrent: true
 disks_to_mount:
   - fstype: ext4
     opts: noatime
@@ -46,4 +47,5 @@ samba_os_users_to_create:
     groups:
       - "{{ samba_default_readers_group_name }}"
       - "{{ samba_default_writers_group_name }}"
+torrent_download_path: "/media/data0/media/downloads"
 ...

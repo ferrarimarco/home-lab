@@ -140,6 +140,12 @@
           dest: "{{ etc_directory_path }}/samba/smb.conf"
           os_services_to_restart:
             - "{{ samba_service_name }}"
+    - enable_custom_fact: "{{ configure_torrent }}"
+      fact_category: "torrent"
+      fact_configuration_directories_to_create: "{{ torrent_configuration_directories }}"
+      fact_configuration_directories_to_copy: "{{ torrent_configuration_directories_to_copy }}"
+      fact_docker_compose_up_items: "{{ torrent_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ torrent_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

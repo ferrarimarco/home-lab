@@ -193,6 +193,19 @@ templates_to_render:
     dest: "{{ systemd_journald_configuration_directory_path }}/001-journald.conf"
     os_services_to_restart:
       - systemd-journald
+torrent_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/qbittorrent"
+torrent_configuration_directories:
+  - "{{ torrent_configuration_directory_path }}"
+torrent_configuration_directories_to_copy:
+  - src: "config/qbittorrent"
+    dest: "{{ torrent_configuration_directory_path }}"
+    docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
+torrent_docker_compose_up_items:
+  - compose_file_path: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+torrent_templates_to_render:
+  - src: "qbittorrent/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
 unattended_upgrades_os_services_to_configure:
   - enabled: true
     service_name: "{{ unattended_upgrades_service_name }}"
