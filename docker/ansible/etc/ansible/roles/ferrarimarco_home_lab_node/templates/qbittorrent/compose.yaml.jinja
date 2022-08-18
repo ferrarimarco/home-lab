@@ -1,16 +1,15 @@
 ---
 services:
-  qbittorrent:
+  qbittorrent-nox:
     build:
       context: .
-    container_name: qbittorrent
-    command:
-      - ""
+    container_name: qbittorrent-nox
     ports:
-      - "8080:8080"
-      - "6881:6881"
+      - "6881:6881/tcp"
       - "6881:6881/udp"
+      - "8080:8080"
     restart: always
+    stop_grace_period: 30m
     volumes:
-      - /var/lib/node_exporter/textfile_collector:/var/lib/node_exporter/textfile_collector
+      - "{{ qbittorrent_download_path }}:/downloads"
 ...
