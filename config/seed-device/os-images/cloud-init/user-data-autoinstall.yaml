@@ -4,11 +4,6 @@
 autoinstall:
   version: 1
 
-  keyboard:
-    layout: us
-    toggle: null
-    variant: ''
-
   network:
     version: 2
     ethernets:
@@ -59,6 +54,9 @@ autoinstall:
     package_update: true
     package_upgrade: true
     package_reboot_if_required: true
+
+    keyboard:
+      layout: us
 
     random_seed:
       file: /dev/urandom
