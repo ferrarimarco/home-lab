@@ -82,8 +82,27 @@ DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}
 echo "Device configuration directory path: ${DEVICE_CONFIG_DIRECTORY}"
 
 CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
-KERNEL_CMDLINE_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/cmdline.txt"
 RASPBERRY_PI_CONFIG_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/raspberry-pi-config.txt"
+
+if [ "${BUILD_DISTRIBUTION}" = "raspberry-pi-os" ]; then
+  # This check is to ensure that we use a known version of the Raspberry Pi bootloader
+  # to update Raspberry Pis when they are running another OS than Raspberry Pi OS,
+  # or when Raspberry Pi OS is not yet installed, or will not be installed such as when
+  # network booting.
+  RASPBERRY_PI_BOOTLOADER_URL="${RASPBERRY_PI_BOOTLOADER_URL:-"https://github.com/raspberrypi/rpi-eeprom/releases/download/v2022.04.26-138a1/rpi-boot-eeprom-recovery-2022-04-26-vl805-000138a1.zip"}"
+  if [ -n "${RASPBERRY_PI_BOOTLOADER_URL}" ]; then
+    RASPBERRY_PI_BOOTLOADER_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${RASPBERRY_PI_BOOTLOADER_URL}")"
+    download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
+  fi
+
+  # Assume that we need to customize the image because Raspberry Pi OS images don't include an automated configuration mechanism
+  BUILD_TYPE="customize-image"
+else
+  echo "[ERROR]: Unsupported build distribution customization. Terminating..."
+  # Ignoring because those are defined in common.sh, and don't need quotes
+  # shellcheck disable=SC2086
+  exit ${ERR_ARGUMENT_EVAL_ERROR}
+fi
 
 echo "Current environment configuration:"
 env | sort
@@ -97,16 +116,6 @@ if [ -n "${OS_IMAGE_URL}" ]; then
   echo "Verifying the integrity of the downloaded files..."
   download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}" "${OS_IMAGE_CHECKSUM_FILE_PATH}"
   sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
-fi
-
-# This check is mainly to ensure that we use a known version of the Raspberry Pi bootloader
-# to update Raspberry Pis when they are running another OS than Raspberry Pi OS,
-# or when Raspberry Pi OS is not yet installed, or will not be installed such as when
-# network booting.
-RASPBERRY_PI_BOOTLOADER_URL="${RASPBERRY_PI_BOOTLOADER_URL:-""}"
-if [ -n "${RASPBERRY_PI_BOOTLOADER_URL}" ]; then
-  RASPBERRY_PI_BOOTLOADER_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${RASPBERRY_PI_BOOTLOADER_URL}")"
-  download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
 fi
 
 OS_IMAGE_FILE_TAG="${OS_IMAGE_FILE_TAG:-"generic"}"
