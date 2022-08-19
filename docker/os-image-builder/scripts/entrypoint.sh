@@ -238,6 +238,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/fstab"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/dhcpcd.conf"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/host.conf"
+  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/hostname"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/hosts"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/ld.so.preload"
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/logrotate.conf"
