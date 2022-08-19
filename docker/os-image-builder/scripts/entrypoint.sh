@@ -99,6 +99,10 @@ if [ -n "${OS_IMAGE_URL}" ]; then
   sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
 fi
 
+# This check is mainly to ensure that we use a known version of the Raspberry Pi bootloader
+# to update Raspberry Pis when they are running another OS than Raspberry Pi OS,
+# or when Raspberry Pi OS is not yet installed, or will not be installed such as when
+# network booting.
 RASPBERRY_PI_BOOTLOADER_URL="${RASPBERRY_PI_BOOTLOADER_URL:-""}"
 if [ -n "${RASPBERRY_PI_BOOTLOADER_URL}" ]; then
   RASPBERRY_PI_BOOTLOADER_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${RASPBERRY_PI_BOOTLOADER_URL}")"
