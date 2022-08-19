@@ -8,11 +8,6 @@ autoinstall:
 {% set user_data_indentation_width = 4 %}
   version: 1
 
-  keyboard:
-    layout: us
-    toggle: null
-    variant: ''
-
 {% if include_autoinstall_network %}
   network:
     version: 2
@@ -86,6 +81,9 @@ packages:
 package_update: {{ package_update | default(true, true) | lower }}
 package_upgrade: {{ package_upgrade | default(true, true) | lower }}
 package_reboot_if_required: {{ package_reboot_if_required | default(true, true) | lower }}
+
+keyboard:
+  layout: us
 
 random_seed:
   file: /dev/urandom
