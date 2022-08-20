@@ -35,10 +35,12 @@ docker_users:
   - "{{ ansible_user }}"
 enable_prometheus_node_exporter_scraping: true
 has_argonone_case: false
+has_raspberry_pi_v2_camera: false
 has_sense_hat: false
 home_lab_node_ssh_public_key_path: ""
 frigate_cameras:
-  - path: rtsp://cam-1.edge.lab.ferrari.how:554/11
+  - name: cam-1
+    path: rtsp://cam-1.edge.lab.ferrari.how:554/11
     roles:
       - detect
       - record
@@ -47,6 +49,18 @@ frigate_cameras:
     motion_masks:
       - 925,66,1236,63,1233,31,928,26
       - 1053,0,1038,0,1039,30,1054,32
+  - name: cam-2
+    detect:
+      height: 1080
+      width: 1920
+    ffmpeg:
+      # The only change to default arguments is the transport (TCP is the default, but we need UDP in this case)
+      input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport udp -stimeout 5000000 -use_wallclock_as_timestamps 1
+    path: rtsp://raspberrypi3.edge.lab.ferrari.how:8554/stream1
+    roles:
+      - detect
+      - record
+      - rtmp
 is_raspberry_pi: false
 main_dns_server_address: "10.0.0.1"
 monitoring_backend_dns_records_to_check:

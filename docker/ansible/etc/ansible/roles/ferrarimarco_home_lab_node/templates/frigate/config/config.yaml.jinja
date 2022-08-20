@@ -43,19 +43,29 @@ timestamp_style:
   position: "tl"
 
 cameras:
-  cam-1:
+{% for frigate_camera in frigate_cameras %}
+  {{ frigate_camera.name }}:
     ffmpeg:
       inputs:
-{% for frigate_camera in frigate_cameras %}
         - path: "{{ frigate_camera.path }}"
+{% if frigate_camera.ffmpeg.input_args is defined %}
+          input_args: "{{ frigate_camera.ffmpeg.input_args }}"
+{% endif %}
           roles:
 {% for role in frigate_camera.roles %}
             - {{ role }}
 {% endfor %}
+{% if frigate_camera.detect is defined %}
+    detect:
+      height: "{{ frigate_camera.detect.height }}"
+      width: "{{ frigate_camera.detect.width }}"
+{% endif %}
+{% if frigate_camera.motion_masks is defined %}
     motion:
       mask:
 {% for mask in frigate_camera.motion_masks %}
         - {{ mask }}
 {% endfor %}
+{% endif %}
 {% endfor %}
 ...

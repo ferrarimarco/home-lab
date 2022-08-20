@@ -146,6 +146,19 @@
       fact_configuration_directories_to_copy: "{{ torrent_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ torrent_docker_compose_up_items }}"
       fact_templates_to_render: "{{ torrent_templates_to_render }}"
+    - enable_custom_fact: "{{ has_raspberry_pi_v2_camera }}"
+      fact_category: "raspberry-pi-v2-camera"
+      fact_os_packages_to_install:
+        - vlc
+      fact_os_services_to_configure:
+        - enabled: true
+          service_name: "raspberry-pi-v2-camera-rtsp.service"
+          service_state: started
+      fact_templates_to_render:
+        - src: "raspberry-pi-camera/raspberry-pi-v2-camera-rtsp.service.jinja"
+          dest: "{{ systemd_system_services_configuration_directory }}/raspberry-pi-v2-camera-rtsp.service"
+          os_services_to_restart:
+            - "raspberry-pi-v2-camera-rtsp"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

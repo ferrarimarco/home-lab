@@ -137,7 +137,7 @@ These examples assume that the current working directory is the root of this rep
 To run `ansible-playbook` against the hosts listed in an inventory:
 
 ```shell
-scripts/run-ansible.sh "ansible-playbook  --inventory docker/ansible/etc/ansible/inventory/hosts.yml docker/ansible/etc/ansible/playbooks/main.yaml"
+scripts/run-ansible.sh "ansible-playbook --inventory docker/ansible/etc/ansible/inventory/hosts.yml docker/ansible/etc/ansible/playbooks/main.yaml"
 ```
 
 To gather all the facts about a single host:

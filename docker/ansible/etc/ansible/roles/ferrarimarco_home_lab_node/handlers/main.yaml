@@ -15,6 +15,12 @@
     name: "{{ docker_service_name }}"
     state: "restarted"
 
+- name: restart journald
+  become: true
+  ansible.builtin.service:
+    name: "systemd-journald"
+    state: "restarted"
+
 - name: restart ssh
   become: true
   ansible.builtin.service:

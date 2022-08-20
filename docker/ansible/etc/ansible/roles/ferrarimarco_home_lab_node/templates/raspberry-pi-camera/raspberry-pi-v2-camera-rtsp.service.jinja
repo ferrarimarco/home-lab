@@ -1,0 +1,13 @@
+[Unit]
+Description=Raspberry Pi v2 Camera RTSP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/bin/sh -c "libcamera-vid -t 0 --nopreview --inline --profile high --width 1920 --height 1080 -o - | cvlc stream:///dev/stdin --sout '#rtp{sdp=rtsp://:8554/stream1}' :demux=h264"
+Group=pi
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
