@@ -30,7 +30,15 @@
         url: >-
           http://raspberrypi2.edge.lab.ferrari.how:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
         caption: >-
-          A {{trigger.payload_json["after"]["label"]}} was detected.
+          A {{trigger.payload_json["after"]["label"]}} was detected. Here is a snapshot of the event.
+        message_tag: >-
+          {{trigger.payload_json["after"]["id"]}}
+    - service: telegram_bot.send_video
+      data:
+        url: >-
+          http://raspberrypi2.edge.lab.ferrari.how:5000/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
+        caption: >-
+          A {{trigger.payload_json["after"]["label"]}} was detected. Here is a recording of the event.
         message_tag: >-
           {{trigger.payload_json["after"]["id"]}}
   mode: queued
