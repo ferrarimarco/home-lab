@@ -15,6 +15,7 @@ configure_network_shares: false
 configure_tailscale: false
 configure_torrent: false
 configure_wifi: false
+configure_zigbee2mqtt: false
 deb_packages_to_install: []
 default_user_groups: []
 delete_systemd_journal_file: false

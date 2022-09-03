@@ -159,6 +159,11 @@
           dest: "{{ systemd_system_services_configuration_directory }}/raspberry-pi-v2-camera-rtsp.service"
           os_services_to_restart:
             - "raspberry-pi-v2-camera-rtsp"
+    - enable_custom_fact: "{{ configure_zigbee2mqtt }}"
+      fact_category: "zigbee2mqtt"
+      fact_configuration_directories_to_create: "{{ zigbee2mqtt_configuration_directories }}"
+      fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

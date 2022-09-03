@@ -215,4 +215,22 @@ unattended_upgrades_templates_to_render:
     dest: "{{ etc_directory_path }}/apt/apt.conf.d/20auto-upgrades"
     os_services_to_restart:
       - "{{ unattended_upgrades_service_name }}"
+zigbee2mqtt_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/zigbee2mqtt"
+zigbee2mqtt_configuration_directories:
+  - "{{ zigbee2mqtt_configuration_directory_path }}"
+  - "{{ zigbee2mqtt_configuration_directory_path }}/data"
+zigbee2mqtt_docker_compose_up_items:
+  - compose_file_path: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+zigbee2mqtt_templates_to_render:
+  - src: "zigbee2mqtt/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
+  - src: "zigbee2mqtt/data/configuration.yaml.jinja"
+    dest: "{{ zigbee2mqtt_configuration_directory_path }}/data/configuration.yaml"
+    docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
+  - src: "zigbee2mqtt/data/secret.yaml.jinja"
+    dest: "{{ zigbee2mqtt_configuration_directory_path }}/data/secret.yaml"
+    docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
+    # Don't force template rendering for secrets.yaml because zigbee2mqtt modifies this file at runtime to store the generate network key
+    force: false
 ...

@@ -1,0 +1,14 @@
+---
+services:
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt:1.27.2
+    restart: always
+    volumes:
+      - ./data:/app/data
+      - /run/udev:/run/udev:ro
+    ports:
+      - 8081:8080
+    devices:
+      - "{{ zigbee_adapter_device_path }}:/dev/ttyACM0"
+...
