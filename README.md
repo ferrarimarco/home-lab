@@ -146,6 +146,20 @@ To gather all the facts about a single host:
 scripts/run-ansible.sh "ansible -m ansible.builtin.setup --user pi -i 'hostname.tld,' all"
 ```
 
+#### Copy Jinja templates as they are
+
+If you need to copy Jinja templates with the Ansible Template Module, you can
+configure Ansible to change the variable start and end prefixes inside the template
+by adding a special header.
+
+For example:
+
+```yaml
+#jinja2:variable_start_string:'[%', variable_end_string:'%]'
+```
+
+Changes the default variable start and end prefixes from `{{` and `}}` to `[%` and `%]`.
+
 ### Add hosts to the Tailscale network
 
 The automated provisioning and configuration process takes care of setting up

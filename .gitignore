@@ -12,3 +12,6 @@ SHA256SUMS
 
 # ESPHome and Home assistant secrets
 secrets.y*ml
+
+# zigbee2mqtt secrets
+secret.yaml

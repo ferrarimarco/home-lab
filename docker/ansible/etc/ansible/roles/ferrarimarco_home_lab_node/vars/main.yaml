@@ -63,7 +63,6 @@ frigate_configuration_app_configuration_directory_path: "{{ frigate_configuratio
 frigate_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/frigate"
 frigate_configuration_directories:
   - "{{ frigate_configuration_directory_path }}"
-  # Create this because we only have templates to render
   - "{{ frigate_configuration_app_configuration_directory_path }}"
 frigate_docker_compose_up_items:
   - compose_file_path: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -77,16 +76,23 @@ frigate_templates_to_render:
 home_assistant_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/home-assistant"
 home_assistant_configuration_directories:
   - "{{ home_assistant_configuration_directory_path }}"
-home_assistant_configuration_directories_to_copy:
-  - src: "config/home-assistant"
-    dest: "{{ home_assistant_configuration_directory_path }}"
-    docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
+  - "{{ home_assistant_configuration_directory_path }}/config"
 home_assistant_docker_compose_up_items:
   - compose_file_path: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 home_assistant_templates_to_render:
+  - src: "home-assistant/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
+  - src: "home-assistant/config/automations.yaml.jinja"
+    dest: "{{ home_assistant_configuration_directory_path }}/config/automations.yaml"
+    docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
   - src: "home-assistant/config/configuration.yaml.jinja"
     dest: "{{ home_assistant_configuration_directory_path }}/config/configuration.yaml"
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
+  - src: "home-assistant/config/secrets.yaml.jinja"
+    dest: "{{ home_assistant_configuration_directory_path }}/config/secrets.yaml"
+    docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
+    force: false
 home_lab_configuration_directory_path: "{{ etc_directory_path }}/ferrarimarco-home-lab"
 monitoring_backend_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring-backend"
 monitoring_backend_configuration_directories:
@@ -138,12 +144,16 @@ monitoring_templates_to_render:
 mosquitto_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/mosquitto"
 mosquitto_configuration_directories:
   - "{{ mosquitto_configuration_directory_path }}"
-mosquitto_configuration_directories_to_copy:
-  - src: "config/mosquitto"
-    dest: "{{ mosquitto_configuration_directory_path }}"
-    docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
+  - "{{ mosquitto_configuration_directory_path }}/config"
 mosquitto_docker_compose_up_items:
   - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+mosquitto_templates_to_render:
+  - src: "mosquitto/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
+  - src: "mosquitto/config/mosquitto.conf.jinja"
+    dest: "{{ mosquitto_configuration_directory_path }}/config/mosquitto.conf"
+    docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
 os_groups_to_create: []
 os_services_to_configure: []
 os_services_to_restart: []
@@ -196,15 +206,14 @@ templates_to_render:
 torrent_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/qbittorrent"
 torrent_configuration_directories:
   - "{{ torrent_configuration_directory_path }}"
-torrent_configuration_directories_to_copy:
-  - src: "config/qbittorrent"
-    dest: "{{ torrent_configuration_directory_path }}"
-    docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
 torrent_docker_compose_up_items:
   - compose_file_path: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 torrent_templates_to_render:
   - src: "qbittorrent/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
+  - src: "qbittorrent/qBittorrent.conf.jinja"
+    dest: "{{ torrent_configuration_directory_path }}/qBittorrent.conf"
     docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
 unattended_upgrades_os_services_to_configure:
   - enabled: true
@@ -231,6 +240,6 @@ zigbee2mqtt_templates_to_render:
   - src: "zigbee2mqtt/data/secret.yaml.jinja"
     dest: "{{ zigbee2mqtt_configuration_directory_path }}/data/secret.yaml"
     docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
-    # Don't force template rendering for secrets.yaml because zigbee2mqtt modifies this file at runtime to store the generate network key
+    # Don't force template rendering because zigbee2mqtt modifies this file at runtime to store the generated network key
     force: false
 ...
