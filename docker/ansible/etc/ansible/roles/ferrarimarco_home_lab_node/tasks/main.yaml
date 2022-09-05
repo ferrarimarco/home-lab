@@ -13,10 +13,10 @@
 
 - name: Create system-wide configuration directories
   ansible.builtin.file:
-    group: root
-    mode: "0755"
-    owner: root
-    path: "{{ item }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+    owner: "{{ item.owner | default('root') }}"
+    path: "{{ item.path }}"
     state: directory
   become: true
   with_items: "{{ configuration_directories_to_create }}"
@@ -38,9 +38,9 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     force: "{{ item.force | default(omit) }}"
-    owner: root
-    group: root
-    mode: "0644"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
   become: true
   register: system_wide_rendered_templates
   with_items: "{{ templates_to_render }}"
