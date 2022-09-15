@@ -56,6 +56,13 @@
   register: system_wide_downloaded_files
   with_items: "{{ files_to_download }}"
 
+- name: Remove files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  become: true
+  with_items: "{{ files_to_remove }}"
+
 - name: Include users setup tasks
   ansible.builtin.include_tasks:
     file: users.yaml

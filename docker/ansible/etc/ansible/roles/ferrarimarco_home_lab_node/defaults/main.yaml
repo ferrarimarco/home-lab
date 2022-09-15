@@ -21,9 +21,8 @@ default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
 docker_apt_release_channel: stable
-docker_compose_version: "v2.10.2"
-docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
-docker_compose_path: "/usr/local/bin/docker-compose"
+# This was used to install the standalone compose executable before switching to the Docker Compose plugin for Docker Engine
+docker_compose_standalone_executable_path: "/usr/local/bin/docker-compose"
 docker_daemon_options: {
   "log-driver": "local",
   "log-opts": {

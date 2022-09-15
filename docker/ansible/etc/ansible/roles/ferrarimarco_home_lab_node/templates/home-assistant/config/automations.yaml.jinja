@@ -21,7 +21,7 @@
 
 - id: frigate_event_notify
   alias: Notify on Frigate events
-  description: "Notify when a Frigate event occurs"
+  description: Notify when a Frigate event occurs
   trigger:
     - platform: mqtt
       topic: frigate/events
@@ -43,4 +43,22 @@
         message_tag: >-
           {{trigger.payload_json["after"]["id"]}}
   mode: queued
+
+- id: send_notification_home_assistant_update
+  alias: Send a notification when a Home Assistant update is available
+  description: ""
+  trigger:
+    - type: update
+      platform: device
+      entity_id: binary_sensor.docker_hub_update_available
+      domain: binary_sensor
+  condition: []
+  action:
+    - service: telegram_bot.send_message
+      data:
+        message: >-
+          There is a Home Assistant update available. Current version: {{
+          states('sensor.current_version') }}. Docker Hub version: {{
+          states('sensor.docker_hub') }}
+  mode: single
 ...

@@ -59,6 +59,7 @@ fail2ban_templates_to_render:
     os_services_to_restart:
       - "{{ fail2ban_service_name }}"
 files_to_download: []
+files_to_remove: []
 frigate_configuration_app_configuration_directory_path: "{{ frigate_configuration_directory_path }}/config"
 frigate_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/frigate"
 frigate_configuration_directories:

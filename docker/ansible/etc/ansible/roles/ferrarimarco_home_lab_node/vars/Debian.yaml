@@ -11,6 +11,7 @@ docker_packages_to_install:
   - apt-transport-https
   - ca-certificates
   - docker-ce
+  - docker-compose-plugin
   - gnupg
 docker_packages_to_uninstall:
   - containerd

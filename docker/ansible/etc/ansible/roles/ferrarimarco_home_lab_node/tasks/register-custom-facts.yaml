@@ -9,6 +9,7 @@
     deb_packages_to_install: "{{ deb_packages_to_install + fact_deb_packages_to_install }}"
     docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items }}"
     files_to_download: "{{ files_to_download + fact_files_to_download }}"
+    files_to_remove: "{{ files_to_remove + fact_files_to_remove }}"
     os_groups_to_create: "{{ os_groups_to_create + fact_os_groups_to_create }}"
     os_services_to_configure: "{{ os_services_to_configure + fact_os_services_to_configure }}"
     os_users_to_create: "{{ os_users_to_create + fact_os_users_to_create }}"

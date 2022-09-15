@@ -30,6 +30,7 @@
         fact_deb_packages_to_install: "{{ item.fact_deb_packages_to_install | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
+        fact_files_to_remove: "{{ item.fact_files_to_remove | default([]) }}"
         fact_os_groups_to_create: "{{ item.fact_os_groups_to_create | default([]) }}"
         fact_os_users_to_create: "{{ item.fact_os_users_to_create | default([]) }}"
         fact_os_package_repositories_to_add: "{{ item.fact_os_package_repositories_to_add | default([]) }}"
@@ -52,6 +53,8 @@
     - enable_custom_fact: "{{ configure_docker }}"
       fact_category: "Docker"
       fact_configuration_directories_to_create: "{{ docker_configuration_directories }}"
+      fact_files_to_remove:
+        - path: "{{ docker_compose_standalone_executable_path }}"
       fact_os_package_repositories_to_add: "{{ docker_repositories_to_add }}"
       fact_os_packages_to_install: "{{ docker_packages_to_install }}"
       fact_os_packages_to_uninstall: "{{ docker_packages_to_uninstall }}"
