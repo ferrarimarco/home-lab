@@ -2,6 +2,7 @@
 ---
 - id: notify_on_device_offline
   alias: Notify when a device goes offline
+  description: Notify when a device goes offline
   mode: parallel
   trigger:
     - platform: state
@@ -46,12 +47,12 @@
 
 - id: send_notification_home_assistant_update
   alias: Send a notification when a Home Assistant update is available
-  description: ""
+  description: Send a notification when a Home Assistant update is available
   trigger:
-    - type: update
-      platform: device
-      entity_id: binary_sensor.docker_hub_update_available
-      domain: binary_sensor
+    - platform: state
+      entity_id:
+        - binary_sensor.docker_hub_update_available
+      to: "on"
   condition: []
   action:
     - service: telegram_bot.send_message
