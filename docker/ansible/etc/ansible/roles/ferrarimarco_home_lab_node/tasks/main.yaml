@@ -160,6 +160,8 @@
     user: "{{ item.user | default(omit) }}"
     weekday: "{{ item.weekday | default(omit) }}"
   become: "{{ item.become | default(omit) }}"
+  tags:
+    - cron_jobs
   with_items: "{{ cron_jobs }}"
 
 - name: Include invoke handlers for system-wide configuration
