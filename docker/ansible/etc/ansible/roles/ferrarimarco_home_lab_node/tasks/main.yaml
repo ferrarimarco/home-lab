@@ -1,6 +1,8 @@
 ---
 - name: Setup variables
   ansible.builtin.import_tasks: include-variables.yaml
+  tags:
+    - always
 
 - name: Set the ownership of system-wide configuration directories
   ansible.builtin.file:
