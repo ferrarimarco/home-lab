@@ -28,6 +28,7 @@ configuration_directories_to_create:
   - path: "{{ home_lab_configuration_directory_path }}"
   - path: "{{ systemd_configuration_directory }}"
   - path: "{{ systemd_journald_configuration_directory_path }}"
+cron_jobs: []
 directories_to_ensure_ownership:
   - "{{ etc_directory_path }}"
 default_docker_compose_file_name: "compose.yaml"

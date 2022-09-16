@@ -139,6 +139,27 @@
       become: true
   when: has_argonone_case
 
+- name: Configure cron jobs
+  ansible.builtin.cron:
+    backup: "{{ item.backup | default(omit) }}"
+    cron_file: "{{ item.cron_file | default(omit) }}"
+    day: "{{ item.day | default(omit) }}"
+    disabled: "{{ item.disabled | default(omit) }}"
+    env: "{{ item.env | default(omit) }}"
+    hour: "{{ item.hour | default(omit) }}"
+    insertafter: "{{ item.insertafter | default(omit) }}"
+    insertbefore: "{{ item.insertbefore | default(omit) }}"
+    job: "{{ item.job | default(omit) }}"
+    minute: "{{ item.minute | default(omit) }}"
+    month: "{{ item.month | default(omit) }}"
+    name: "{{ item.name }}"
+    special_time: "{{ item.special_time | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+    user: "{{ item.user | default(omit) }}"
+    weekday: "{{ item.weekday | default(omit) }}"
+  become: "{{ item.become | default(omit) }}"
+  with_items: "{{ cron_jobs }}"
+
 - name: Include invoke handlers for system-wide configuration
   ansible.builtin.include_tasks:
     file: invoke-system-wide-configuration-handlers.yaml

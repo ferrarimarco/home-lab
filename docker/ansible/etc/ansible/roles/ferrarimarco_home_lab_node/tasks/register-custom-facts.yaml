@@ -6,6 +6,7 @@
     apt_repositories_to_add: "{{ apt_repositories_to_add + fact_os_package_repositories_to_add }}"
     configuration_directories_to_copy: "{{ configuration_directories_to_copy + fact_configuration_directories_to_copy }}"
     configuration_directories_to_create: "{{ configuration_directories_to_create + fact_configuration_directories_to_create }}"
+    cron_jobs: "{{ cron_jobs + fact_cron_jobs }}"
     deb_packages_to_install: "{{ deb_packages_to_install + fact_deb_packages_to_install }}"
     docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items }}"
     files_to_download: "{{ files_to_download + fact_files_to_download }}"
