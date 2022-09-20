@@ -2,6 +2,7 @@
 apt_repositories_to_add: []
 apt_packages_to_install: []
 apt_packages_to_uninstall: []
+cadvisor_exposed_port: 8083
 configure_docker: false
 configure_docker_compose: false
 configure_dphys_swapfile: false

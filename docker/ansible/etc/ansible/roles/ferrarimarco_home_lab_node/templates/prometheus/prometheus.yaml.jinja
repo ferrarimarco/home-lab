@@ -24,6 +24,15 @@ scrape_configs:
 {% endif %}
 {% endfor %}
 
+  - job_name: "cadvisor"
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].configure_docker | default(configure_docker) %}
+        - "{{ host }}:{{ hostvars[host].cadvisor_exposed_port | default(cadvisor_exposed_port) }}"
+{% endif %}
+{% endfor %}
+
   - job_name: blackbox
     static_configs:
       - targets:

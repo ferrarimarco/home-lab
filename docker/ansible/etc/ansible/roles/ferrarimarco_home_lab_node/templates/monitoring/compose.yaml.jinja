@@ -12,4 +12,21 @@ services:
     volumes:
       - "/:/host:ro,rslave"
       - /var/lib/node_exporter/textfile_collector:/var/lib/node_exporter/textfile_collector
+{% if configure_docker %}
+  cadvisor:
+    container_name: cadvisor
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    image: gcr.io/cadvisor/cadvisor:v0.45.0
+    ports:
+      - "{{ cadvisor_exposed_port }}:8080"
+    privileged: true
+    restart: always
+    volumes:
+      - "/:/rootfs:ro"
+      - /var/run:/var/run:ro"
+      - /sys:/sys:ro"
+      - /var/lib/docker/:/var/lib/docker:ro"
+      - /dev/disk/:/dev/disk:ro"
+{% endif %}
 ...

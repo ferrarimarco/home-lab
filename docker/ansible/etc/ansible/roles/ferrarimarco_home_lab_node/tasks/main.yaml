@@ -45,6 +45,8 @@
     mode: "{{ item.mode | default('0644') }}"
   become: true
   register: system_wide_rendered_templates
+  tags:
+    - templates
   with_items: "{{ templates_to_render }}"
 
 - name: Download files
@@ -66,10 +68,8 @@
   with_items: "{{ files_to_remove }}"
 
 - name: Include users setup tasks
-  ansible.builtin.include_tasks:
-    file: users.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: users.yaml
+  become: true
 
 - name: Create Samba share directories
   ansible.builtin.file:
@@ -82,63 +82,47 @@
   with_items: "{{ samba_shares }}"
 
 - name: Include Debian tasks
-  ansible.builtin.include_tasks: setup-Debian.yaml
+  ansible.builtin.import_tasks: setup-Debian.yaml
   when: ansible_facts.os_family == 'Debian'
 
 - name: Include Systemd tasks
-  ansible.builtin.include_tasks:
-    file: setup-systemd.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: setup-systemd.yaml
+  become: true
 
 - name: Include SSH tasks
-  ansible.builtin.include_tasks:
-    file: ssh.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: ssh.yaml
+  become: true
 
 - name: Include Raspberry Pi tasks
-  ansible.builtin.include_tasks: setup-raspberry-pi.yaml
+  ansible.builtin.import_tasks: setup-raspberry-pi.yaml
   when: is_raspberry_pi
 
 - name: Include wifi tasks
-  ansible.builtin.include_tasks:
-    file: wifi.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: wifi.yaml
+  become: true
   when: configure_wifi
 
 - name: Include Docker tasks
-  ansible.builtin.include_tasks:
-    file: docker.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: docker.yaml
+  become: true
   when: configure_docker
 
 - name: Include OS services tasks
-  ansible.builtin.include_tasks:
-    file: os-services.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: os-services.yaml
+  become: true
 
 - name: Include disk setup tasks
-  ansible.builtin.include_tasks:
-    file: setup-disks.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: setup-disks.yaml
+  become: true
 
 - name: Include docker-compose tasks
-  ansible.builtin.include_tasks:
-    file: setup-compose.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: setup-compose.yaml
+  become: true
   when: configure_docker_compose
 
 - name: Include Argon One case tasks
-  ansible.builtin.include_tasks:
-    file: setup-argonone-case.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: setup-argonone-case.yaml
+  become: true
   when: has_argonone_case
 
 - name: Configure cron jobs
@@ -165,8 +149,6 @@
   with_items: "{{ cron_jobs }}"
 
 - name: Include invoke handlers for system-wide configuration
-  ansible.builtin.include_tasks:
-    file: invoke-system-wide-configuration-handlers.yaml
-    apply:
-      become: true
+  ansible.builtin.import_tasks: invoke-system-wide-configuration-handlers.yaml
+  become: true
 ...

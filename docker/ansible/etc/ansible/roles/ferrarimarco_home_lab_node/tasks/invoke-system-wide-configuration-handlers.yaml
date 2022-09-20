@@ -6,7 +6,7 @@
   ansible.builtin.set_fact:
     os_services_to_restart: "{{ os_services_to_restart + item.item.os_services_to_restart }}"
   when: item.changed and item.item.os_services_to_restart is defined
-  with_items: "{{ system_wide_copied_configuration_directories.results + system_wide_rendered_templates.results }}"
+  with_items: "{{ system_wide_copied_configuration_directories.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
 
 - name: Restart OS services
   become: true
@@ -19,7 +19,7 @@
   ansible.builtin.set_fact:
     docker_compose_services_to_restart: "{{ docker_compose_services_to_restart + item.item.docker_compose_services_to_restart }}"
   when: item.changed and item.item.docker_compose_services_to_restart is defined
-  with_items: "{{ system_wide_copied_configuration_directories.results + system_wide_rendered_templates.results }}"
+  with_items: "{{ system_wide_copied_configuration_directories.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
 
 - name: Restart Docker Compose services
   changed_when: '"Started" in docker_compose_restart_result.stdout or "Started" in docker_compose_restart_result.stderr'
