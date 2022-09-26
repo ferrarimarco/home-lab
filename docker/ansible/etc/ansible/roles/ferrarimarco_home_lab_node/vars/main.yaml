@@ -113,6 +113,9 @@ monitoring_backend_dns_a_record_check_template:
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_backend_templates_to_render:
+  - src: "monitoring-backend/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
   - src: "prometheus/{{ default_prometheus_configuration_file_name }}.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_prometheus_configuration_file_name }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"

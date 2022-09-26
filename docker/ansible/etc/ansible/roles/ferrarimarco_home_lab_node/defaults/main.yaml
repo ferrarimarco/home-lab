@@ -96,6 +96,7 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "github.com"
   - "google.com"
   - "smart-desk.edge.lab.ferrari.how"
+# monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
 raspberry_pi_config_file_values: {}
 samba_additional_interfaces: "10.0.0.0/8"
