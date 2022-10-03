@@ -1,6 +1,5 @@
 ---
 configure_docker: true
-configure_docker_compose: true
 configure_frigate: true
 configure_network_shares: true
 configure_torrent: true

@@ -1,6 +1,5 @@
 ---
 configure_docker: true
-configure_docker_compose: true
 configure_home_assistant: true
 configure_monitoring_backend: true
 configure_mqtt_broker: true

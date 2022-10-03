@@ -118,7 +118,6 @@
 - name: Include docker-compose tasks
   ansible.builtin.import_tasks: setup-compose.yaml
   become: true
-  when: configure_docker_compose
 
 - name: Include Argon One case tasks
   ansible.builtin.import_tasks: setup-argonone-case.yaml
