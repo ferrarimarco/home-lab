@@ -1,29 +1,16 @@
 ---
 advanced:
   network_key: '!secret network_key'
-
 availability: true
-
 devices: devices.yaml
-
 frontend: true
-
 groups: groups.yaml
-
 homeassistant: true
-
-# MQTT settings
 mqtt:
-  # MQTT base topic for zigbee2mqtt MQTT messages
   base_topic: zigbee2mqtt
-  # MQTT server URL
   server: "mqtt://{{ mosquitto_server_fqdn }}:1883"
-
-# Enable joinining using the frontend or via MQTT as needed
 permit_join: false
-
 serial:
   adapter: ezsp
-  # Location of the Zigbee adapter
   port: /dev/ttyACM0
 ...
