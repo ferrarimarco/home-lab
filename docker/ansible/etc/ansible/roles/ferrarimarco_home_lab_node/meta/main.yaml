@@ -1,4 +1,5 @@
 ---
 galaxy_info:
+  author: https://github.com/ferrarimarco
   description: Role to configure Home Lab nodes
 ...

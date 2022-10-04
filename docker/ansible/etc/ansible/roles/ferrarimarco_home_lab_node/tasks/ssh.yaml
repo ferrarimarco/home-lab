@@ -7,7 +7,7 @@
     state: present
     validate: "{{ sshd_validation_command }}"
     mode: "0644"
-  notify: restart ssh
+  notify: Restart ssh
   with_items:
     - regexp: "^PermitRootLogin"
       line: "PermitRootLogin {{ security_ssh_permit_root_login }}"
@@ -34,7 +34,7 @@
     state: present
     validate: "{{ sshd_validation_command }}"
     mode: "0644"
-  notify: restart ssh
+  notify: Restart ssh
   when: ansible_password is not defined
 
 - name: Add configured users allowed to connect over ssh
@@ -46,7 +46,7 @@
     create: true
     validate: "{{ sshd_validation_command }}"
     mode: "0644"
-  notify: restart ssh
+  notify: Restart ssh
   when: security_ssh_allowed_users | length > 0
 
 - name: Add configured groups allowed to connect over ssh
@@ -58,6 +58,6 @@
     create: true
     validate: "{{ sshd_validation_command }}"
     mode: "0644"
-  notify: restart ssh
+  notify: Restart ssh
   when: security_ssh_allowed_groups | length > 0
 ...

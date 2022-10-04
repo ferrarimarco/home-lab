@@ -38,11 +38,17 @@ docker_compose_services_to_restart: []
 docker_configuration_directories:
   - path: "{{ docker_daemon_configuration_directory_path }}"
 docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
+docker_daemon_configuration_file_name: "daemon.json"
 docker_os_services_to_configure:
   - enabled: true
     service_name: "{{ docker_service_name }}"
     service_state: started
 docker_repository_url: https://download.docker.com/linux
+docker_templates_to_render:
+  - src: "docker/{{ docker_daemon_configuration_file_name }}.jinja"
+    dest: "{{ docker_daemon_configuration_directory_path }}/daemon.json"
+    os_services_to_restart:
+      - "{{ docker_service_name }}"
 dphys_swapfile_templates_to_render:
   - src: "dphys-swapfile/dphys-swapfile.jinja"
     dest: "{{ etc_directory_path }}/dphys-swapfile"

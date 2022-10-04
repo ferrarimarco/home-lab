@@ -1,0 +1,3 @@
+{% if docker_daemon_options is defined && docker_daemon_options.keys() | length > 0 %}
+{{ docker_daemon_options | to_nice_json }}
+{% endif %}

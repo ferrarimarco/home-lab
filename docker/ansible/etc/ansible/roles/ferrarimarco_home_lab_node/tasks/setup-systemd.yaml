@@ -3,6 +3,6 @@
   ansible.builtin.file:
     path: "{{ systemd_journal_file_path }}"
     state: absent
-  notify: restart journald
+  notify: Restart journald
   when: delete_systemd_journal_file
 ...

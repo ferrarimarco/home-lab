@@ -1,12 +1,4 @@
 ---
-- name: Configure Docker daemon options
-  ansible.builtin.copy:
-    content: "{{ docker_daemon_options | to_nice_json }}"
-    dest: "{{ docker_daemon_configuration_directory_path }}/daemon.json"
-    mode: "0644"
-  notify: restart docker
-  when: docker_daemon_options.keys() | length > 0
-
 - name: Ensure docker users are added to the docker group
   ansible.builtin.user:
     name: "{{ item }}"
