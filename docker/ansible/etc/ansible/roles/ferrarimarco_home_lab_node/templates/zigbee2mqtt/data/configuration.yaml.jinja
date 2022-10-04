@@ -1,6 +1,6 @@
----
 advanced:
   network_key: '!secret network_key'
+  log_level: info
 availability: true
 devices: devices.yaml
 frontend: true
@@ -8,9 +8,8 @@ groups: groups.yaml
 homeassistant: true
 mqtt:
   base_topic: zigbee2mqtt
-  server: "mqtt://{{ mosquitto_server_fqdn }}:1883"
+  server: mqtt://{{ mosquitto_server_fqdn }}:1883
 permit_join: false
 serial:
   adapter: ezsp
   port: /dev/ttyACM0
-...
