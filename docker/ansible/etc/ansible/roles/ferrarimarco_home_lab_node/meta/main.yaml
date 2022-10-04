@@ -1,5 +1,4 @@
 ---
 galaxy_info:
   description: Role to configure Home Lab nodes
-  role_name: ferrarimarco_home_lab_node
 ...

@@ -3,4 +3,5 @@ parseable: true
 skip_list:
   - yaml  # Don't run yamllint because we run it outside ansible-lint
 use_default_rules: true
+verbosity: 2
 ...
