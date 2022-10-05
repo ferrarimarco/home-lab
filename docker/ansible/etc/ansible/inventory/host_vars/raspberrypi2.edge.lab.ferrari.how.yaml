@@ -1,6 +1,7 @@
 ---
 configure_docker: true
 configure_frigate: true
+configure_mqtt_broker: true
 configure_network_shares: true
 configure_torrent: true
 configure_zigbee2mqtt: true
