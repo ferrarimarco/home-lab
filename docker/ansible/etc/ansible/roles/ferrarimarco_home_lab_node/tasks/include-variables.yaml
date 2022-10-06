@@ -61,7 +61,7 @@
           minute: "5"
           hour: "5"
           user: root
-          job: "docker system prune --all --force"
+          job: "docker system prune --all --force --volumes"
           cron_file: ansible_docker-system-prune
       fact_files_to_remove:
         - path: "{{ docker_compose_standalone_executable_path }}"
