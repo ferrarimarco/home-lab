@@ -34,9 +34,11 @@ docker_daemon_options: {
 docker_users:
   - "{{ ansible_user }}"
 enable_prometheus_node_exporter_scraping: true
+frigate_host_port: 5000
 has_argonone_case: false
 has_raspberry_pi_v2_camera: false
 has_sense_hat: false
+home_assistant_user_interface_host_port: 8123
 home_lab_node_ssh_public_key_path: ""
 frigate_cameras:
   - name: cam-1
@@ -84,6 +86,14 @@ monitoring_backend_dns_records_to_check:
   - check_name: "dns_smart_desk_edge_lab_ferrari_how_a"
     query_name: "smart-desk.edge.lab.ferrari.how"
     query_type: "A"
+monitoring_backend_http_endpoints_to_check:
+  - check_target: "http://{{ frigate_http_endpoint_fqdn }}:{{ frigate_host_port }} # Frigate"
+  - check_target: "http://{{ grafana_http_endpoint_fqdn }}:{{ monitoring_backend_grafana_host_port }} # Grafana"
+  - check_target: "http://{{ home_assistant_http_endpoint_fqdn }}:{{ home_assistant_user_interface_host_port }} # Home Assistant"
+  - check_target: "http://{{ prometheus_http_endpoint_fqdn }}:{{ monitoring_backend_prometheus_host_port }} # Prometheus"
+  - check_target: "http://{{ prometheus_blackbox_exporter_http_endpoint_fqdn }}:{{ monitoring_backend_prometheus_node_exporter_host_port }} # Prometheus Node Exporter"
+  - check_target: "http://{{ qbittorrent_http_endpoint_fqdn }}:{{ qbittorrent_user_interface_host_port }} # qBittorrent"
+  - check_target: "http://{{ zigbee2mqtt_http_endpoint_fqdn }}:{{ zigbee2mqtt_user_interface_host_port }} # Zigbee2MQTT"
 monitoring_backend_icmp_ping_hosts_to_check:
   - "1.1.1.1"
   - "8.8.4.4"
@@ -95,8 +105,13 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "github.com"
   - "google.com"
   - "smart-desk.edge.lab.ferrari.how"
+monitoring_backend_grafana_host_port: 3000
+monitoring_backend_prometheus_host_port: 9090
+monitoring_backend_prometheus_node_exporter_container_port: 9115
+monitoring_backend_prometheus_node_exporter_host_port: 9115
 monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
+qbittorrent_user_interface_host_port: 8080
 raspberry_pi_config_file_values: {}
 samba_additional_interfaces: "10.0.0.0/8"
 samba_default_readers_group_name: "samba-readers"
@@ -126,4 +141,5 @@ security_unattended_upgrades_enabled: true
 systemd_journald_runtime_max_memory_use: "64M"
 systemd_journald_system_max_memory_use: "500M"
 tailscale_release_channel: "stable"
+zigbee2mqtt_user_interface_host_port: 8081
 ...

@@ -8,4 +8,20 @@
   ansible.builtin.debug:
     var: monitoring_backend_dns_records_to_check
     verbosity: 1
+
+- name: Add all Prometheus Node Exporter endpoints to the list of HTTP endpoints to check
+  ansible.builtin.set_fact:
+    monitoring_backend_http_endpoints_to_check: "{{ monitoring_backend_http_endpoints_to_check + monitoring_backend_http_prometheus_node_exporter_endpoint_check_template }}"
+  with_items: "{{ groups['all'] }}"
+
+- name: Add all cAdvisor endpoints to the list of HTTP endpoints to check
+  ansible.builtin.set_fact:
+    monitoring_backend_http_endpoints_to_check: "{{ monitoring_backend_http_endpoints_to_check + monitoring_backend_http_cadvisor_endpoint_check_template }}"
+  when: hostvars[item].configure_docker
+  with_items: "{{ groups['all'] }}"
+
+- name: Debug monitoring_backend_http_endpoints_to_check
+  ansible.builtin.debug:
+    var: monitoring_backend_http_endpoints_to_check
+    verbosity: 1
 ...

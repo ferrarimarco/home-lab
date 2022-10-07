@@ -10,7 +10,7 @@ services:
       - "--config.file=/etc/prometheus-blackbox-exporter/config.yaml"
     image: prom/blackbox-exporter:v0.22.0
     ports:
-      - "9115:9115"
+      - "{{ monitoring_backend_prometheus_node_exporter_host_port }}:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
     restart: always
     volumes:
       - ./prometheus-blackbox-exporter-config.yaml:/etc/prometheus-blackbox-exporter/config.yaml
@@ -28,7 +28,7 @@ services:
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
       - grafana_data:/var/lib/grafana
     ports:
-      - "3000:3000"
+      - "{{ monitoring_backend_grafana_host_port }}:3000"
 
   prometheus:
     image: prom/prometheus:v2.38.0
@@ -47,5 +47,5 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
     ports:
-      - "9090:9090"
+      - "{{ monitoring_backend_prometheus_host_port }}:9090"
 ...

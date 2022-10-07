@@ -20,7 +20,7 @@ scrape_configs:
       - targets:
 {% for host in groups['all'] %}
 {% if hostvars[host].enable_prometheus_node_exporter_scraping | default(enable_prometheus_node_exporter_scraping) %}
-        - "{{ host }}:9100"
+        - "{{ host }}:{{ prometheus_node_exporter_port }}"
 {% endif %}
 {% endfor %}
 
@@ -36,7 +36,7 @@ scrape_configs:
   - job_name: blackbox
     static_configs:
       - targets:
-        - "blackbox-exporter:9115"
+        - "blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
 
 {% for dns_record_to_check in monitoring_backend_dns_records_to_check %}
   - job_name: "blackbox-dns-{{ dns_record_to_check.check_name }}"
@@ -47,13 +47,33 @@ scrape_configs:
     static_configs:
       - targets: {{ dns_record_to_check.targets | default(monitoring_backend_default_dns_check_targets) }}
     relabel_configs:
-      - source_labels: [__address__]
+      - source_labels: [__address__] # Add a target parameter of the scrape request URL
         target_label: __param_target
-      - source_labels: [__param_target]
+      - source_labels: [__param_target] # Set the instance label
         target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115 # Blackbox exporter hostname:port.
+      - target_label: __address__ # Set the scrape request address to point to the Blackbox exporter hostname:port
+        replacement: blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }} # Blackbox exporter hostname:port
 {% endfor %}
+
+{% if monitoring_backend_http_endpoints_to_check is defined and monitoring_backend_http_endpoints_to_check | length > 0 %}
+  - job_name: "blackbox-http-2xx"
+    metrics_path: /probe
+    params:
+      module:
+        - "http_2xx"
+    static_configs:
+      - targets:
+{% for http_endpoint_to_check in monitoring_backend_http_endpoints_to_check %}
+        - {{ http_endpoint_to_check.check_target }}
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__] # Add a target parameter of the scrape request URL
+        target_label: __param_target
+      - source_labels: [__param_target] # Set the instance label
+        target_label: instance
+      - target_label: __address__ # Set the scrape request address to point to the Blackbox exporter hostname:port
+        replacement: blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }} # Blackbox exporter hostname:port
+{% endif %}
 
   - job_name: blackbox-ping
     metrics_path: /probe
@@ -69,10 +89,10 @@ scrape_configs:
         - "{{ host }}"
 {% endfor %}
     relabel_configs:
-      - source_labels: [__address__]
+      - source_labels: [__address__] # Add a target parameter of the scrape request URL
         target_label: __param_target
-      - source_labels: [__param_target]
+      - source_labels: [__param_target] # Set the instance label
         target_label: instance
-      - target_label: __address__
-        replacement: blackbox-exporter:9115 # Blackbox exporter hostname:port.
+      - target_label: __address__ # Set the scrape request address to point to the Blackbox exporter hostname:port
+        replacement: blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }} # Blackbox exporter hostname:port
 ...
