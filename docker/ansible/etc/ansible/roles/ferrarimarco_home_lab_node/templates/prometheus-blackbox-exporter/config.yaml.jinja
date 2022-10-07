@@ -14,6 +14,8 @@ modules:
       valid_rcodes:
         - NOERROR
 {% endfor %}
+  http_2xx:
+    prober: http
   icmp:
     prober: icmp
     timeout: 5s

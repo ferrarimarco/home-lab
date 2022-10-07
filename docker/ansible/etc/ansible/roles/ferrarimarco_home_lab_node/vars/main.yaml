@@ -116,6 +116,10 @@ monitoring_backend_dns_a_record_check_template:
   - check_name: "dns_{{ item | lower | replace('.', '_') }}_a"
     query_name: "{{ item }}"
     query_type: "A"
+monitoring_backend_http_cadvisor_endpoint_check_template:
+  - check_target: "http://{{ item }}:{{ cadvisor_exposed_port }} # cAdvisor"
+monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
+  - check_target: "http://{{ item }}:{{ prometheus_node_exporter_port }} # Prometheus Node Exporter"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_backend_templates_to_render:
@@ -182,6 +186,7 @@ os_users_to_create:
   - append: true
     name: "{{ ansible_user }}"
     groups: "{{ default_user_groups }}"
+prometheus_node_exporter_port: 9100
 samba_service_name: "smbd"
 sense_hat_exporter_configuration_directories:
   - path: "{{ sense_hat_exporter_configuration_directory_path }}"
