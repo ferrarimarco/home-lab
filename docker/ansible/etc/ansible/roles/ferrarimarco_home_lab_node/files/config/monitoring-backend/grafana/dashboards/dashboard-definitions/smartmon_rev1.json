@@ -24,8 +24,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 10,
-  "iteration": 1655281874495,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -78,7 +76,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "8.5.5",
+      "pluginVersion": "9.1.5",
       "targets": [
         {
           "datasource": {
@@ -147,12 +145,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "green",
+                "value": 1
               }
             ]
           },
@@ -171,11 +169,12 @@
         "alignValue": "left",
         "legend": {
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "mergeValues": true,
         "rowHeight": 0.9,
-        "showValue": "auto",
+        "showValue": "never",
         "tooltip": {
           "mode": "single",
           "sort": "none"
@@ -188,7 +187,9 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
+          "exemplar": false,
           "expr": "smartmon_device_active{instance=\"$node\",job=\"$job\"}",
+          "instant": false,
           "legendFormat": "{{disk}}",
           "range": true,
           "refId": "A"
@@ -208,6 +209,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -264,7 +267,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -330,8 +334,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -354,7 +357,8 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -376,7 +380,7 @@
     }
   ],
   "refresh": "30s",
-  "schemaVersion": 36,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -464,6 +468,6 @@
   "timezone": "",
   "title": "SMARTmon",
   "uid": "d9h0vDC7k",
-  "version": 11,
+  "version": 12,
   "weekStart": ""
 }
