@@ -31,8 +31,11 @@ docker_daemon_options: {
     "max-file": "3",
   }
 }
-docker_users:
-  - "{{ ansible_user }}"
+docker_os_users_to_create:
+  - append: true
+    name: "{{ ansible_user }}"
+    groups:
+      - "docker"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false

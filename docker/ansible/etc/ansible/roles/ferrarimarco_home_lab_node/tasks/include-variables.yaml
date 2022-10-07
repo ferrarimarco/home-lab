@@ -69,6 +69,7 @@
       fact_os_packages_to_install: "{{ docker_packages_to_install }}"
       fact_os_packages_to_uninstall: "{{ docker_packages_to_uninstall }}"
       fact_os_services_to_configure: "{{ docker_os_services_to_configure }}"
+      fact_os_users_to_create: "{{ docker_os_users_to_create }}"
       fact_templates_to_render: "{{ docker_templates_to_render }}"
     - enable_custom_fact: "{{ security_fail2ban_enabled }}"
       fact_category: "fail2ban"
@@ -176,6 +177,15 @@
       fact_configuration_directories_to_create: "{{ zigbee2mqtt_configuration_directories }}"
       fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
       fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_wifi }}"
+      fact_category: "wifi"
+      fact_templates_to_render: "{{ wifi_templates_to_render }}"
+      fact_os_packages_to_install:
+        - "{{ wpa_supplicant_package_name }}"
+      fact_os_services_to_configure:
+        - enabled: true
+          service_name: "{{ wpa_supplicant_service_name }}"
+          service_state: started
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

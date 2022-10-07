@@ -1,11 +1,11 @@
-country={{ wifi_country }}
+country={{ wifi_country | default('') }}
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 
 network={
     scan_ssid=1
-    ssid="{{ wifi_ssid }}"
-    psk="{{ wifi_password }}"
+    ssid="{{ wifi_ssid | default('') }}"
+    psk="{{ wifi_password | default('') }}"
     proto=RSN
     key_mgmt=WPA-PSK
     pairwise=CCMP

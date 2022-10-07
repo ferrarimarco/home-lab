@@ -258,6 +258,14 @@ unattended_upgrades_templates_to_render:
     dest: "{{ etc_directory_path }}/apt/apt.conf.d/20auto-upgrades"
     os_services_to_restart:
       - "{{ unattended_upgrades_service_name }}"
+wifi_templates_to_render:
+  - src: "wifi/wpa_supplicant.conf.jinja"
+    dest: "{{ etc_directory_path }}/wpa_supplicant/wpa_supplicant.conf"
+    mode: "0600"
+    os_services_to_restart:
+      - "{{ wpa_supplicant_service_name }}"
+    # Don't force template rendering because the user might have manually changed the WiFi network credentials
+    force: false
 zigbee2mqtt_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/zigbee2mqtt"
 zigbee2mqtt_configuration_directories:
   - path: "{{ zigbee2mqtt_configuration_directory_path }}"

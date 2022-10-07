@@ -33,4 +33,6 @@ tailscale_package_repository_key_file_path: /etc/apt/trusted.gpg.d/tailscale-arc
 unattended_upgrades_packages:
   - unattended-upgrades
 unattended_upgrades_service_name: unattended-upgrades
+wpa_supplicant_package_name: wpasupplicant
+wpa_supplicant_service_name: wpa_supplicant
 ...
