@@ -1,10 +1,10 @@
 ---
 name: Renovate
 
-on:
+on:  # yamllint disable-line rule:truthy
   schedule:
-    - cron: "0/15 * * * *"
-  workflow_dispatch:
+    - cron: "0 2 * * *"
+  workflow_dispatch: null
 
 jobs:
   renovate:
