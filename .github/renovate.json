@@ -1,14 +1,18 @@
 {
   "ansible": {
     "fileMatch": [
-      "(^|\/)defaults/[^\/]+\\.ya?ml$",
-      "(^|\/)vars/[^\/]+\\.ya?ml$"
+      "(^|\/)(?:docker-)?compose[^\/]*\\.ya?ml(?:\\.jinja)$"
     ]
   },
   "enabledManagers": [
     "ansible",
     "docker-compose"
   ],
+  "docker-compose": {
+    "fileMatch": [
+      "(^|\/)(?:docker-)?compose[^\/]*\\.ya?ml(?:\\.jinja)$"
+    ]
+  },
   "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
   "includeForks": true,
   "onboarding": false,
