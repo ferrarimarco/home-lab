@@ -17,7 +17,7 @@ jobs:
           set -o errexit
           set -o nounset
 
-          if [ "${ACTIONS_RUNNER_DEBUG}" = "true" ]; then
+          if [ "${ACTIONS_RUNNER_DEBUG:-}" = "true" ]; then
             echo "Enabling Renovatebot debug output..."
             echo "LOG_LEVEL=debug" >> "${GITHUB_ENV}"
           fi
