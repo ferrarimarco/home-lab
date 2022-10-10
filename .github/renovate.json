@@ -13,5 +13,8 @@
   "includeForks": true,
   "onboarding": false,
   "platform": "github",
+  "repositories": [
+    "ferrarimarco/home-lab"
+  ],
   "username": "renovate-release"
 }
