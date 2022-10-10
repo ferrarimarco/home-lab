@@ -1,10 +1,10 @@
 {
-  "dryRun": true,
+  "dryRun": "full",
   "enabledManagers": [
     "ansible",
     "docker-compose"
   ],
-  "dockerfile": {
+  "docker-compose": {
     "fileMatch": [
       "(^|\/)(?:docker-)?compose[^\/]*\\.ya?ml(?:\\.jinja)$"
     ]
