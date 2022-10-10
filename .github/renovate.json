@@ -1,4 +1,10 @@
 {
+  "ansible": {
+    "fileMatch": [
+      "(^|\/)defaults/[^\/]+\\.ya?ml$",
+      "(^|\/)vars/[^\/]+\\.ya?ml$"
+    ]
+  },
   "enabledManagers": [
     "ansible",
     "docker-compose"
