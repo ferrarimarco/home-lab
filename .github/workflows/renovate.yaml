@@ -1,0 +1,20 @@
+---
+name: Renovate
+
+on:  # yamllint disable-line rule:truthy
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch: null
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@v32.229.0
+        with:
+          configurationFile: .github/renovate.json
+          token: ${{ secrets.RENOVATE_TOKEN }}
+...
