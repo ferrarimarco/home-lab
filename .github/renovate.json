@@ -1,5 +1,4 @@
 {
-  "dryRun": "full",
   "enabledManagers": [
     "ansible",
     "docker-compose"
