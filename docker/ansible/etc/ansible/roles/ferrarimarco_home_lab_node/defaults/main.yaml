@@ -60,7 +60,7 @@ frigate_cameras:
       width: 1920
     ffmpeg:
       # The only change to default arguments is the transport (TCP is the default, but we need UDP in this case)
-      input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport udp -stimeout 5000000 -use_wallclock_as_timestamps 1
+      input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport udp -timeout 5000000 -use_wallclock_as_timestamps 1
     path: rtsp://raspberrypi3.edge.lab.ferrari.how:8554/stream1
     roles:
       - detect
