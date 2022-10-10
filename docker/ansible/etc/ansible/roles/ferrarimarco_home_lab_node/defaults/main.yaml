@@ -66,6 +66,7 @@ frigate_cameras:
       - detect
       - record
       - rtmp
+grafana_container_image_id: grafana/grafana-oss:9.1.5
 is_raspberry_pi: false
 main_dns_server_address: "10.0.0.1"
 monitoring_backend_dns_records_to_check:
@@ -115,6 +116,8 @@ monitoring_backend_prometheus_node_exporter_host_port: 9115
 monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
 qbittorrent_user_interface_host_port: 8080
+prometheus_container_image_id: prom/prometheus:v2.38.0
+prometheus_blackbox_exporter_container_image_id: prom/blackbox-exporter:v0.22.0
 raspberry_pi_config_file_values: {}
 samba_additional_interfaces: "10.0.0.0/8"
 samba_default_readers_group_name: "samba-readers"
