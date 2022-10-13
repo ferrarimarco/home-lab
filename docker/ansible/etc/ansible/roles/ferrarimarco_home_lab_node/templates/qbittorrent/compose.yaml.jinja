@@ -7,11 +7,11 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
-      - WEBUI_PORT={{ qbittorrent_user_interface_host_port }}
+      - WEBUI_PORT={{ qbittorrent_user_interface_port }}
     ports:
       - "6881:6881/tcp"
       - "6881:6881/udp"
-      - "{{ qbittorrent_user_interface_host_port }}:8080"
+      - "{{ qbittorrent_user_interface_port }}:{{ qbittorrent_user_interface_port }}"
     restart: always
     stop_grace_period: 30m
     volumes:
