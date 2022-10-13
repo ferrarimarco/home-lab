@@ -40,14 +40,13 @@ is_python_virtual_environment_up_to_date() {
     PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE=1
   else
     activate_python_virtual_environment "${1}"
-    if [ "$(pip list --format freeze --outdated | wc -l)" = 0 ]; then
+    if [ "$(pip list --format freeze --outdated | wc -l)" -eq 0 ]; then
       echo "The Python virtual environment (${1}) is up to date."
     else
       echo "The Python virtual environment (${1}) is not up to date. Outdated packages:"
       pip list --outdated
       PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE=2
     fi
-    unset OUTDATED_PYTHON_PACKAGES_LIST
     deactivate
   fi
 
