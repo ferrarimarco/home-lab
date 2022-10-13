@@ -19,17 +19,6 @@
     "dependencies"
   ],
   "onboarding": false,
-  "packageRules": [
-    {
-      "matchPackagePatterns": [
-        "ansible",
-        "docker-compose"
-      ],
-      "labels": [
-        "docker"
-      ]
-    }
-  ],
   "platform": "github",
   "repositories": [
     "ferrarimarco/home-lab"
