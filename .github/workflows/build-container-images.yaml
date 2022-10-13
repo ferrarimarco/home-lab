@@ -9,8 +9,6 @@ on:  # yamllint disable-line rule:truthy
     paths:
       - ".github/workflows/build-container-images.yaml"
       - "docker/**"
-    tags:
-      - '*'
   pull_request:
     paths:
       - ".github/workflows/build-container-images.yaml"
