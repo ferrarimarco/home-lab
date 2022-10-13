@@ -15,7 +15,21 @@
   },
   "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
   "includeForks": true,
+  "labels": [
+    "dependencies"
+  ],
   "onboarding": false,
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "ansible",
+        "docker-compose"
+      ],
+      "labels": [
+        "docker"
+      ]
+    }
+  ],
   "platform": "github",
   "repositories": [
     "ferrarimarco/home-lab"
