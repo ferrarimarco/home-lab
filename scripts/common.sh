@@ -33,6 +33,27 @@ activate_python_virtual_environment() {
   unset VENV_PATH
 }
 
+is_python_virtual_environment_up_to_date() {
+  PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE=0
+  if [ ! -e "${1}" ]; then
+    # The virtual environment doesn't exist, so it can't be up to date by definition
+    PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE=1
+  else
+    activate_python_virtual_environment "${1}"
+    if [ "$(pip list --format freeze --outdated | wc -l)" = 0 ]; then
+      echo "The Python virtual environment (${1}) is up to date."
+    else
+      echo "The Python virtual environment (${1}) is not up to date. Outdated packages:"
+      pip list --outdated
+      PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE=2
+    fi
+    unset OUTDATED_PYTHON_PACKAGES_LIST
+    deactivate
+  fi
+
+  return ${PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE}
+}
+
 compress_file() {
   SOURCE_FILE_PATH="${1}"
 
@@ -51,6 +72,11 @@ create_and_activate_python_virtual_environment() {
   PYTHON_VIRTUAL_ENVIRONMENT_PATH="${1}"
   PIP_REQUIREMENTS_PATH="${2:-""}"
 
+  if [ -e "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" ] && ! is_python_virtual_environment_up_to_date "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"; then
+    echo "The ${PYTHON_VIRTUAL_ENVIRONMENT_PATH} virtual environment already exists but it's not up to date. Deleting it..."
+    rm -rf "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
+  fi
+
   if [ ! -e "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" ]; then
     echo "Creating a virtual environment in ${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
     python3 -m venv "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
@@ -65,7 +91,7 @@ create_and_activate_python_virtual_environment() {
       pip3 install -r "${PIP_REQUIREMENTS_PATH}"
     fi
   else
-    echo "The virtual environment already exists. Skipping creation."
+    echo "The virtual environment already exists and it's up to date: ${PYTHON_VIRTUAL_ENVIRONMENT_PATH}. Activating it..."
     activate_python_virtual_environment "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
   fi
 
