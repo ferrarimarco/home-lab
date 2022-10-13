@@ -1,4 +1,4 @@
-FROM python:3.10.7-bullseye as base
+FROM python:3.11.0rc2-bullseye as base
 
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random \
