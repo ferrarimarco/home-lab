@@ -5,15 +5,21 @@ services:
     image: "traefik:v2.9.1"
     container_name: "traefik"
     command:
+      - "--api.dashboard=true"
       - "--api.insecure=true"
-      - "--providers.docker=true"
-      # Do not expose containers unless explicitly told so
+      - "--entrypoints.web.address=:{{ traefik_cleartext_http_port }}"
       - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
+      - "--providers.docker=true"
+    environment:
+      - TZ={{ timezone }}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.example.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
     ports:
-      - "443:443"
-      - "80:80"
-      - "8080:8080"
+      - "{{ traefik_secured_http_port }}:{{ traefik_secured_http_port }}"
+      - "{{ traefik_cleartext_http_port }}:{{ traefik_cleartext_http_port }}"
+      - "{{ traefik_api_http_port }}:{{ traefik_api_http_port }}"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 ...
