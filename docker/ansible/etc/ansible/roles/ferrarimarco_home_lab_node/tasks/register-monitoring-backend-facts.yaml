@@ -24,4 +24,17 @@
   ansible.builtin.debug:
     var: monitoring_backend_http_endpoints_to_check
     verbosity: 1
+
+- name: Add upstream DNS servers to the list of hosts to check via ICMP
+  ansible.builtin.set_fact:
+    monitoring_backend_icmp_ping_hosts_to_check: "{{ monitoring_backend_icmp_ping_hosts_to_check + upstream_dns_servers }}"
+
+- name: Sort the list of hosts to check via ICMP
+  ansible.builtin.set_fact:
+    monitoring_backend_icmp_ping_hosts_to_check: "{{ monitoring_backend_icmp_ping_hosts_to_check|sort }}"
+
+- name: Debug monitoring_backend_icmp_ping_hosts_to_check
+  ansible.builtin.debug:
+    var: monitoring_backend_icmp_ping_hosts_to_check
+    verbosity: 1
 ...

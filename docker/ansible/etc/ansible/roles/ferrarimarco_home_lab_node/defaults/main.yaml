@@ -100,8 +100,6 @@ monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ zigbee2mqtt_http_endpoint_fqdn }}:{{ zigbee2mqtt_user_interface_host_port }} # Zigbee2MQTT"
 monitoring_backend_icmp_ping_hosts_to_check:
   - "1.1.1.1"
-  - "8.8.4.4"
-  - "8.8.8.8"
   - "cam-1.{{ root_fqdn }}"
   - "dns.google"
   - "ferrarimarco.info"
@@ -149,5 +147,8 @@ timezone: "Europe/London"
 traefik_api_http_port: 8080
 traefik_cleartext_http_port: 80
 traefik_secured_http_port: 443
+upstream_dns_servers:
+  - "8.8.4.4"
+  - "8.8.8.8"
 zigbee2mqtt_user_interface_host_port: 8081
 ...
