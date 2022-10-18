@@ -1,5 +1,0 @@
-# When a host is requesting an IP address via DHCP also tell it the gateway to use
-dhcp-option={{ key "edge/dnsmasq/etc/dnsmasq/dnsmasq.conf/dhcp-option-router" }}
-
-# Enable PXE booting (put the boot file name in DHCP replies)
-dhcp-option="option:bootfile-name,pxelinux.0"

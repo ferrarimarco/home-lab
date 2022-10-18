@@ -25,6 +25,7 @@
     apply:
       vars:
         fact_category: "{{ item.fact_category }}"
+        fact_cname_records_to_configure: "{{ item.cname_records_to_configure | default([]) }}"
         fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
         fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
         fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
