@@ -176,16 +176,27 @@ To add a device to the Tailscale network, do the following:
     and follow the instructions to authenticate
 2. (optional) Disable [Tailscale key expiration](https://tailscale.com/kb/1028/key-expiry/)
 
-### Managed DNS zone
+### DNS configuration
 
-This environment requires a DNS zone to manage.
+In this section, we describe the configuration of DNS servers, zones, and resource records.
+
+#### DNS servers and zones
+
+This environment contains two private DNS servers:
+
+- A dnsmasq instance (`ns1.lab.ferrari.how`) that acts as the authoritative name server for the main DNS zone: `lab.ferrari.how`.
+- A dnsmasq instance running on the default gateway and responds to DNS queries for the `edge.lab.ferrari.how` zone and returns
+    authoritative answers from the hosts file and from DHCP leases ([source](https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html)),
+    even if it doesn't run as an authoritative name server for the `edge.lab.ferrari.how` zone.
+    This dnsmasq instance also handles DHCP for the main subnet.
+
+#### DNS resource records
 
 To complete the setup, you setup a `NS` DNS record in the
 authoritative name server of your organization for the
 subdomain to point to the managed DNS servers.
 
-For example, follow
-[these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
+For example, follow [these instructions for Google Domains](https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#update-nameservers).
 
 ### Configure network shares
 

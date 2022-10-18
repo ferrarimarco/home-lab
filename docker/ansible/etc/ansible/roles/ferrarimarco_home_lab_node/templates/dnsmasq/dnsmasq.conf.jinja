@@ -18,6 +18,14 @@ cname={{ cname_record.source }},{{ cname_record.destination }}
 # Don't pass short names to the upstream DNS servers
 domain-needed
 
+
+
+# So we can see our local hosts via our home domain without having to repeatedly specify the domain
+expand-hosts
+
+# Log DHCP
+log-dhcp
+
 # Log DNS queries
 log-queries
 
