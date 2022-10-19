@@ -68,8 +68,8 @@ frigate_cameras:
       - detect
       - record
       - rtmp
+gateway_dns_server_ipv4_address: "10.0.0.1"
 is_raspberry_pi: false
-main_dns_server_address: "10.0.0.1"
 monitoring_backend_dns_records_to_check:
   - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
     query_name: "cam-1.{{ root_fqdn }}"
