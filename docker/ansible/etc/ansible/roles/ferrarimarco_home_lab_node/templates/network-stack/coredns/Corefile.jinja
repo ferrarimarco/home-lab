@@ -1,0 +1,24 @@
+(common) {
+  cache
+  cancel
+  chaos
+  errors
+  health
+  local
+  log
+  loop
+  prometheus
+  ready
+  root /etc/coredns
+}
+
+
+{{ root_fqdn }} {
+  file ./zones/{{ root_fqdn }}
+  import common
+}
+
+. {
+  forward . {{ edge_dns_server.fqdn }}
+  import common
+}

@@ -1,0 +1,19 @@
+$ORIGIN {{ root_fqdn }}.
+@   3600 IN     SOA {{ root_dns_servers[0].fqdn }}. {{ dns_root_soa_email_contact }}. 2017042745 86400 7200 4000000 11200
+{% for dns_server in root_dns_servers %}
+                NS {{ dns_server.fqdn }}.
+{% endfor %}
+
+{% for dns_server in root_dns_servers %}
+{{ dns_server.fqdn }}. IN A    {{ dns_server.ipv4_address }}
+{% if dns_server.ipv6_address is defined %}
+{{ dns_server.fqdn }}. IN AAAA {{ dns_server.ipv6_address }}
+{% endif %}
+{% endfor %}
+
+; Set the NS for the edge DNS zone
+{{ edge_environment_root_fqdn }}. IN NS  {{ edge_dns_server.fqdn }}.
+
+{% for cname_record in cname_records_to_configure %}
+{{ cname_record.destination }}. IN CNAME {{ cname_record.source }}.
+{% endfor %}
