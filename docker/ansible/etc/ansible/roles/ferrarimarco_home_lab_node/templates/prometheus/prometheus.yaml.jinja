@@ -45,7 +45,7 @@ scrape_configs:
       module:
         - "{{ dns_record_to_check.check_name }}"
     static_configs:
-      - targets: {{ dns_record_to_check.targets | default(monitoring_backend_default_dns_check_targets) }}
+      - targets: {{ dns_record_to_check.targets | default(monitoring_backend_edge_dns_check_targets) }}
     relabel_configs:
       - source_labels: [__address__] # Add a target parameter of the scrape request URL
         target_label: __param_target

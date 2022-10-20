@@ -110,8 +110,6 @@ monitoring_backend_configuration_directories_to_copy:
     dest: "{{ monitoring_backend_configuration_directory_path }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
 monitoring_backend_configuration_source_directory_path: "config/monitoring-backend"
-monitoring_backend_default_dns_check_targets:
-  - "{{ gateway_dns_server_ipv4_address }}"
 monitoring_backend_dns_a_record_check_template:
   - check_name: "dns_{{ item | lower | replace('.', '_') }}_a"
     query_name: "{{ item }}"

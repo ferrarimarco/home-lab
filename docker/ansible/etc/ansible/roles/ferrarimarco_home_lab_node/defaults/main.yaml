@@ -37,6 +37,11 @@ docker_os_users_to_create:
     name: "{{ ansible_user }}"
     groups:
       - "docker"
+edge_dns_server:
+  fqdn: "{{ edge_gateway_fqdn }}"
+  ipv4_address: "10.0.0.1"
+edge_environment_root_fqdn: "edge.{{ root_fqdn }}"
+edge_gateway_fqdn: "gateway.{{ edge_environment_root_fqdn }}"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -46,7 +51,7 @@ home_assistant_user_interface_host_port: 8123
 home_lab_node_ssh_public_key_path: ""
 frigate_cameras:
   - name: cam-1
-    path: rtsp://cam-1.{{ root_fqdn }}:554/11
+    path: rtsp://cam-1.{{ edge_environment_root_fqdn }}:554/11
     roles:
       - detect
       - record
@@ -62,16 +67,17 @@ frigate_cameras:
     ffmpeg:
       # The only change to default arguments is the transport (TCP is the default, but we need UDP in this case)
       input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport udp -timeout 5000000 -use_wallclock_as_timestamps 1
-    path: rtsp://raspberrypi3.{{ root_fqdn }}:8554/stream1
+    path: rtsp://raspberrypi3.{{ edge_environment_root_fqdn }}:8554/stream1
     roles:
       - detect
       - record
       - rtmp
-gateway_dns_server_ipv4_address: "10.0.0.1"
 is_raspberry_pi: false
+monitoring_backend_edge_dns_check_targets:
+  - "{{ edge_dns_server.ipv4_address }}"
 monitoring_backend_dns_records_to_check:
   - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
-    query_name: "cam-1.{{ root_fqdn }}"
+    query_name: "cam-1.{{ edge_environment_root_fqdn }}"
     query_type: "A"
   - check_name: "dns_ferrari_how_txt"
     query_name: "ferrari.how"
@@ -85,10 +91,10 @@ monitoring_backend_dns_records_to_check:
     query_type: "NS"
     fail_if_not_matches_regexp_value: ".*googledomains.*"
   - check_name: "dns_gateway_edge_lab_ferrari_how_a"
-    query_name: "gateway.{{ root_fqdn }}"
+    query_name: "{{ edge_gateway_fqdn }}"
     query_type: "A"
   - check_name: "dns_smart_desk_edge_lab_ferrari_how_a"
-    query_name: "smart-desk.{{ root_fqdn }}"
+    query_name: "smart-desk.{{ edge_environment_root_fqdn }}"
     query_type: "A"
 monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ frigate_http_endpoint_fqdn }}:{{ frigate_host_port }} # Frigate"
@@ -100,13 +106,13 @@ monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ zigbee2mqtt_http_endpoint_fqdn }}:{{ zigbee2mqtt_user_interface_host_port }} # Zigbee2MQTT"
 monitoring_backend_icmp_ping_hosts_to_check:
   - "1.1.1.1"
-  - "cam-1.{{ root_fqdn }}"
+  - "cam-1.{{ edge_environment_root_fqdn }}"
   - "dns.google"
   - "ferrarimarco.info"
-  - "gateway.{{ root_fqdn }}"
+  - "{{ edge_gateway_fqdn }}"
   - "github.com"
   - "google.com"
-  - "smart-desk.{{ root_fqdn }}"
+  - "smart-desk.{{ edge_environment_root_fqdn }}"
 monitoring_backend_grafana_host_port: 3000
 monitoring_backend_prometheus_host_port: 9090
 monitoring_backend_prometheus_node_exporter_container_port: 9115
