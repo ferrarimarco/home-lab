@@ -4,16 +4,11 @@ $ORIGIN {{ root_fqdn }}.
                 NS {{ dns_server.fqdn }}.
 {% endfor %}
 
-{% for dns_server in root_dns_servers %}
-{{ dns_server.fqdn }}. IN A    {{ dns_server.ipv4_address }}
-{% if dns_server.ipv6_address is defined %}
-{{ dns_server.fqdn }}. IN AAAA {{ dns_server.ipv6_address }}
+{% if dns_records_to_configure is defined and dns_records_to_configure|length > 0 %}
+{% set longest_dns_record_source = dns_records_to_configure|map(attribute='source')|map('length')|max + 1 %}
+{% set longest_dns_query_type = dns_records_to_configure|map(attribute='query_type')|map('length')|max + 1 %}
+{% set fmt = "{:<" + longest_dns_record_source|string + "}    IN    {:<" + longest_dns_query_type|string + "}    {}" %}
+{% for dns_record in dns_records_to_configure %}
+{{ fmt.format(dns_record.source ~ ".", dns_record.query_type, dns_record.destination ~ ".") }}
+{% endfor %}
 {% endif %}
-{% endfor %}
-
-; Set the NS for the edge DNS zone
-{{ edge_environment_root_fqdn }}. IN NS  {{ edge_dns_server.fqdn }}.
-
-{% for cname_record in cname_records_to_configure %}
-{{ cname_record.source }}. IN CNAME {{ cname_record.destination }}.
-{% endfor %}

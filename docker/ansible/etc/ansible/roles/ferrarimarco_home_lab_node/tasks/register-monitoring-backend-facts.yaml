@@ -4,10 +4,10 @@
     monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_a_record_check_template_for_ansible_hosts }}"
   with_items: "{{ groups['all'] }}"
 
-- name: Add all CNAMEs to the list of DNS records to check
+- name: Add the DNS records defined for this and other hosts to the list of DNS records to check
   ansible.builtin.set_fact:
     monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_record_check_template }}"
-  with_items: "{{ cname_records_to_configure }}"
+  with_items: "{{ dns_records_to_configure }}"
 
 - name: Debug monitoring_backend_dns_records_to_check
   ansible.builtin.debug:

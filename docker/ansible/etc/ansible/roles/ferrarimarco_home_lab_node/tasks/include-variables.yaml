@@ -25,7 +25,7 @@
     apply:
       vars:
         fact_category: "{{ item.fact_category }}"
-        fact_cname_records_to_configure: "{{ item.fact_cname_records_to_configure | default([]) }}"
+        fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
         fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
         fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
         fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
@@ -102,7 +102,7 @@
       fact_templates_to_render: "{{ monitoring_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
       fact_category: "monitoring-backend"
-      fact_cname_records_to_configure:
+      fact_dns_records_to_configure:
         - source: "grafana.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
@@ -115,7 +115,7 @@
       fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
     - enable_custom_fact: "{{ configure_home_assistant }}"
       fact_category: "home-assistant"
-      fact_cname_records_to_configure:
+      fact_dns_records_to_configure:
         - source: "home-assistant.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
@@ -124,7 +124,7 @@
       fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
     - enable_custom_fact: "{{ configure_mqtt_broker }}"
       fact_category: "mosquitto"
-      fact_cname_records_to_configure:
+      fact_dns_records_to_configure:
         - source: "mqtt.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
@@ -133,7 +133,7 @@
       fact_templates_to_render: "{{ mosquitto_templates_to_render }}"
     - enable_custom_fact: "{{ configure_frigate }}"
       fact_category: "frigate"
-      fact_cname_records_to_configure:
+      fact_dns_records_to_configure:
         - source: "frigate.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
@@ -176,7 +176,7 @@
             - "{{ samba_service_name }}"
     - enable_custom_fact: "{{ configure_torrent }}"
       fact_category: "torrent"
-      fact_cname_records_to_configure:
+      fact_dns_records_to_configure:
         - source: "qbittorrent.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
@@ -198,7 +198,7 @@
             - "raspberry-pi-v2-camera-rtsp"
     - enable_custom_fact: "{{ configure_zigbee2mqtt }}"
       fact_category: "zigbee2mqtt"
-      fact_cname_records_to_configure:
+      fact_dns_records_to_configure:
         - source: "zigbee2mqtt.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
@@ -224,6 +224,12 @@
   ansible.builtin.include_tasks:
     file: register-raspberry-pi-sense-hat-facts.yaml
   when: has_sense_hat
+
+- name: Register DNS facts
+  ansible.builtin.include_tasks:
+    file: register-network-stack-facts.yaml
+  # The network stack and the monitoring backend both need the same list of DNS records
+  when: configure_network_stack or configure_monitoring_backend
 
 - name: Register monitoring-backend facts
   ansible.builtin.include_tasks:

@@ -4,7 +4,7 @@
     apt_packages_to_install: "{{ apt_packages_to_install + fact_os_packages_to_install }}"
     apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + fact_os_packages_to_uninstall }}"
     apt_repositories_to_add: "{{ apt_repositories_to_add + fact_os_package_repositories_to_add }}"
-    cname_records_to_configure: "{{ cname_records_to_configure + fact_cname_records_to_configure }}"
+    dns_records_to_configure: "{{ dns_records_to_configure + fact_dns_records_to_configure }}"
     configuration_directories_to_copy: "{{ configuration_directories_to_copy + fact_configuration_directories_to_copy }}"
     configuration_directories_to_create: "{{ configuration_directories_to_create + fact_configuration_directories_to_create }}"
     cron_jobs: "{{ cron_jobs + fact_cron_jobs }}"

@@ -1,0 +1,39 @@
+---
+- name: Add the DNS records defined for other hosts to the list of DNS records to configure
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure + hostvars[item].dns_records_to_configure }}"
+  # Exclude the current host because we have direct access to its dns_records_to_configure
+  when:
+    - inventory_hostname != item
+    - hostvars[item].dns_records_to_configure is defined
+  with_items: "{{ groups['all'] }}"
+
+- name: Add DNS records for the root and other zones to the list of DNS records to configure
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure + [ item ] }}"
+  with_items:
+    - source: "{{ edge_environment_root_fqdn }}"
+      destination: "{{ edge_dns_server.fqdn }}"
+      query_type: NS
+
+- name: Add the A records pointing to the root DNS servers to the list of DNS records to configure
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_a_records_to_configure_for_root_dns_template }}"
+  when: item.ipv4_address is defined
+  with_items: "{{ root_dns_servers }}"
+
+- name: Add the AAAA records pointing to the root DNS servers to the list of DNS records to configure
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_aaaa_records_to_configure_for_root_dns_template }}"
+  when: item.ipv6_address is defined
+  with_items: "{{ root_dns_servers }}"
+
+- name: Remove duplicates from the list of DNS records to configure
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure|unique|sort(attribute='query_type,source,destination') }}"
+
+- name: Debug dns_records_to_configure
+  ansible.builtin.debug:
+    var: dns_records_to_configure
+    verbosity: 1
+...

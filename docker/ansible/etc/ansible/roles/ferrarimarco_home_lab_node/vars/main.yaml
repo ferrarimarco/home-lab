@@ -184,6 +184,14 @@ mosquitto_templates_to_render:
 network_stack_configuration_directories:
   - path: "{{ network_stack_configuration_directory_path }}"
 network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
+network_stack_dns_a_records_to_configure_for_root_dns_template:
+  - source: "{{ item.fqdn }}"
+    destination: "{{ item.ipv4_address }}"
+    query_type: A
+network_stack_dns_aaaa_records_to_configure_for_root_dns_template:
+  - source: "{{ item.fqdn }}"
+    destination: "{{ item.ipv6_address }}"
+    query_type: AAAA
 network_stack_docker_compose_up_items:
   - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 network_stack_templates_to_render:

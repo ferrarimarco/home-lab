@@ -3,7 +3,6 @@ apt_repositories_to_add: []
 apt_packages_to_install: []
 apt_packages_to_uninstall: []
 cadvisor_exposed_port: 8083
-cname_records_to_configure: []
 configure_docker: false
 configure_dphys_swapfile: false
 configure_dphys_swapfile_swapfactor: 2
@@ -14,6 +13,7 @@ configure_monitoring_backend: false
 configure_mqtt_broker: false
 configure_network_stack: false
 configure_network_shares: false
+configure_reverse_proxy: false
 configure_tailscale: false
 configure_torrent: false
 configure_wifi: false
@@ -22,6 +22,7 @@ deb_packages_to_install: []
 default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
+dns_records_to_configure: []
 dns_root_soa_email_contact: dns-admin.{{ root_fqdn }}
 docker_apt_release_channel: stable
 # This was used to install the standalone compose executable before switching to the Docker Compose plugin for Docker Engine
