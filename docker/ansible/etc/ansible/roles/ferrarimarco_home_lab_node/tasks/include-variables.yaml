@@ -105,10 +105,10 @@
       fact_cname_records_to_configure:
         - source: "grafana.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
-          check_name_suffix: cname
+          query_type: CNAME
         - source: "prometheus.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
-          check_name_suffix: cname
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ monitoring_backend_configuration_directories }}"
       fact_configuration_directories_to_copy: "{{ monitoring_backend_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
@@ -118,7 +118,7 @@
       fact_cname_records_to_configure:
         - source: "home-assistant.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
-          check_name_suffix: cname
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
       fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
@@ -127,7 +127,7 @@
       fact_cname_records_to_configure:
         - source: "mqtt.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
-          check_name_suffix: cname
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"
       fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
       fact_templates_to_render: "{{ mosquitto_templates_to_render }}"
@@ -136,7 +136,7 @@
       fact_cname_records_to_configure:
         - source: "frigate.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
-          check_name_suffix: cname
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ frigate_configuration_directories }}"
       fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
       fact_templates_to_render: "{{ frigate_templates_to_render }}"
@@ -179,7 +179,7 @@
       fact_cname_records_to_configure:
         - source: "qbittorrent.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
-          check_name_suffix: cname
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ torrent_configuration_directories }}"
       fact_docker_compose_up_items: "{{ torrent_docker_compose_up_items }}"
       fact_templates_to_render: "{{ torrent_templates_to_render }}"
@@ -201,7 +201,7 @@
       fact_cname_records_to_configure:
         - source: "zigbee2mqtt.{{ root_fqdn }}"
           destination: "{{ inventory_hostname }}"
-          check_name_suffix: cname
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ zigbee2mqtt_configuration_directories }}"
       fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
       fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"

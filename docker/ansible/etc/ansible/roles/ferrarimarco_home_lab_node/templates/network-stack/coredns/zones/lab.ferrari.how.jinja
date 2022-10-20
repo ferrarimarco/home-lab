@@ -15,5 +15,5 @@ $ORIGIN {{ root_fqdn }}.
 {{ edge_environment_root_fqdn }}. IN NS  {{ edge_dns_server.fqdn }}.
 
 {% for cname_record in cname_records_to_configure %}
-{{ cname_record.destination }}. IN CNAME {{ cname_record.source }}.
+{{ cname_record.source }}. IN CNAME {{ cname_record.destination }}.
 {% endfor %}
