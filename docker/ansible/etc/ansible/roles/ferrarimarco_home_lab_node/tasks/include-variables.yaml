@@ -227,7 +227,7 @@
 
 - name: Register DNS facts
   ansible.builtin.include_tasks:
-    file: register-network-stack-facts.yaml
+    file: register-dns-facts.yaml
   # The network stack and the monitoring backend both need the same list of DNS records
   when: configure_network_stack or configure_monitoring_backend
 
