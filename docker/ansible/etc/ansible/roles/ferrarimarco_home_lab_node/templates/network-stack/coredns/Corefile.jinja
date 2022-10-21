@@ -19,6 +19,6 @@
 }
 
 . {
-  forward . {{ edge_dns_server.fqdn }}
+  forward . {{ edge_dns_server.ipv4_address }}
   import common
 }

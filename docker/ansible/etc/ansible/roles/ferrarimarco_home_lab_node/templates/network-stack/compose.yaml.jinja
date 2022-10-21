@@ -4,6 +4,9 @@ services:
   coredns:
     image: "coredns/coredns:1.10.0"
     container_name: "coredns"
+    command:
+      - "-conf"
+      - "/etc/coredns/Corefile"
     ports:
       - "53:53"
       - "53:53/udp"
