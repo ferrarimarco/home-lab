@@ -183,6 +183,8 @@ mosquitto_templates_to_render:
     owner: "{{ mosquitto_user_user_id }}"
 network_stack_configuration_directories:
   - path: "{{ network_stack_configuration_directory_path }}"
+  - path: "{{ network_stack_configuration_directory_path }}/coredns"
+  - path: "{{ network_stack_configuration_directory_path }}/coredns/zones"
 network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
 network_stack_dns_a_records_to_configure_for_root_dns_template:
   - source: "{{ item.fqdn }}"
