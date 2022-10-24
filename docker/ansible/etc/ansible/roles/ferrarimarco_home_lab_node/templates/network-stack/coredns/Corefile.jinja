@@ -12,6 +12,10 @@
   root /etc/coredns
 }
 
+{{ edge_environment_root_fqdn }} {
+  forward . {{ edge_dns_server.ipv4_address }}
+  import common
+}
 
 {{ root_fqdn }} {
   file ./zones/{{ root_fqdn }}
