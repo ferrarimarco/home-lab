@@ -1,0 +1,39 @@
+# Force dnsmasq to use this file for lookups
+# It is in the same format as /etc/hosts
+addn-hosts=/etc/dnsmasq/static-hosts.conf
+
+# dnsmasq binds the address of individual interfaces, allowing multiple dnsmasq instances, but if new interfaces or addresses appear, it automatically listens on those
+bind-dynamic
+
+# All reverse lookups for private IPs that are not found in the configured hosts
+# file will be returned as “no such domain” and not forwarded to the upstream
+# servers
+bogus-priv
+
+# Configure CNAME records
+{% for cname_record in cname_records_to_configure %}
+cname={{ cname_record.source }},{{ cname_record.destination }}
+{% endfor %}
+
+# Don't pass short names to the upstream DNS servers
+domain-needed
+
+# Log DNS queries
+log-queries
+
+# Don't poll resolv.conf for changes
+no-poll
+
+# Don’t read resolv.conf for DNS lookups
+no-resolv
+
+# Enable the "arp" and "arp-old" functions in the dhcp-script and dhcp-luascript
+script-arp
+
+# Read upstream DNS servers configuration from the specified file.
+# This file is re-read and the configuration therein is updated when dnsmasq
+# receives SIGHUP.
+servers-file=/etc/dnsmasq/servers.conf
+
+# Set the user that runs dnsmasq
+user=dnsmasq
