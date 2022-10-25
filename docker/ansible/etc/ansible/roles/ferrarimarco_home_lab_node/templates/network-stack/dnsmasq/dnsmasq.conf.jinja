@@ -1,0 +1,10 @@
+# All reverse lookups for private IPs that are not found in the configured hosts
+# file will be returned as “no such domain” and not forwarded to the upstream
+# servers
+bogus-priv
+
+# Don't pass short names to the upstream DNS servers
+domain-needed
+
+# Forward queries to the authoritative DNS server for the main zone
+server=/{{ root_fqdn }}/{{ root_dns_servers[0].ipv4_address }}
