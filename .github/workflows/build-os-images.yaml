@@ -8,12 +8,14 @@ on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-os-images.yaml"
+      - ".github/workflows/lint.yaml"
       - "config/raspberry-pi/**"
       - "config/seed-device/**"
       - "docker/os-image-builder/**"
   pull_request:
     paths:
       - ".github/workflows/build-os-images.yaml"
+      - ".github/workflows/lint.yaml"
       - "config/raspberry-pi/**"
       - "config/seed-device/**"
       - "docker/os-image-builder/**"

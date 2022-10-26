@@ -8,10 +8,12 @@ on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
+      - ".github/workflows/lint.yaml"
       - "config/smart-desk/**"
   pull_request:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
+      - ".github/workflows/lint.yaml"
       - "config/smart-desk/**"
 
 jobs:
