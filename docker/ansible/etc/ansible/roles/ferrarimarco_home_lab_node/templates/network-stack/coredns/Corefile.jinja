@@ -21,8 +21,3 @@
   file ./zones/{{ root_fqdn }}
   import common
 }
-
-. {
-  forward . {{ edge_dns_server.ipv4_address }}
-  import common
-}
