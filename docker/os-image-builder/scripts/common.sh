@@ -230,7 +230,7 @@ setup_cloud_init_nocloud_datasource() {
     if [ -e "${FILE_PATH}" ]; then
       if [ "${FILE}" = "user-data.yaml" ]; then
         echo "Validating cloud-init user-data file (${FILE_PATH})..."
-        cloud-init devel schema --config-file "${FILE_PATH}"
+        cloud-init schema --config-file "${FILE_PATH}"
       fi
       mv --verbose "${FILE_PATH}" "${FILE_PATH%.*}"
     fi
