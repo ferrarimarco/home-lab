@@ -122,6 +122,7 @@ monitoring_backend_prometheus_node_exporter_container_port: 9115
 monitoring_backend_prometheus_node_exporter_host_port: 9115
 monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
+network_stack_coredns_prometheus_metrics_port: 9153
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
 root_fqdn: lab.ferrari.how

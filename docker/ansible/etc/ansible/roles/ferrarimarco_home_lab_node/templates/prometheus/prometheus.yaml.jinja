@@ -95,4 +95,13 @@ scrape_configs:
         target_label: instance
       - target_label: __address__ # Set the scrape request address to point to the Blackbox exporter hostname:port
         replacement: blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }} # Blackbox exporter hostname:port
+
+  - job_name: "network-stack-coredns"
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].configure_network_stack | default(configure_network_stack) %}
+        - "{{ host }}:{{ hostvars[host].network_stack_coredns_prometheus_metrics_port | default(network_stack_coredns_prometheus_metrics_port) }}"
+{% endif %}
+{% endfor %}
 ...

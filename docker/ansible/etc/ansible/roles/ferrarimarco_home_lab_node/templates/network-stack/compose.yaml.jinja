@@ -10,6 +10,7 @@ services:
     ports:
       - "53:53"
       - "53:53/udp"
+      - "{{ network_stack_coredns_prometheus_metrics_port }}:{{ network_stack_coredns_prometheus_metrics_port }}"
     restart: always
     volumes:
       - './coredns:/etc/coredns'

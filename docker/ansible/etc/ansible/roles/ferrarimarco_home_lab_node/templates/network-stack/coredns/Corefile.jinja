@@ -7,7 +7,7 @@
   local
   log
   loop
-  prometheus
+  prometheus localhost:{{ network_stack_coredns_prometheus_metrics_port }}
   ready
   root /etc/coredns
 }
