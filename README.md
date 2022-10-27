@@ -186,7 +186,7 @@ This environment contains two private DNS servers:
 
 - A CoreDNS instance (`ns1.lab.ferrari.how`) that acts as the authoritative name server for the main DNS zone: `lab.ferrari.how`.
 - A dnsmasq instance running on the default gateway and responds to DNS queries for the `edge.lab.ferrari.how` zone and returns
-    authoritative answers from the hosts file and from DHCP leases ([source](https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html)),
+    authoritative answers from DHCP leases ([source](https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html)),
     even if it doesn't run as an authoritative name server for the `edge.lab.ferrari.how` zone.
     This dnsmasq instance also handles DHCP for the main subnet.
 
