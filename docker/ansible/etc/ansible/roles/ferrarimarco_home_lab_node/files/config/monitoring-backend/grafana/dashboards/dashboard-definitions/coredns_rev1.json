@@ -35,6 +35,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
+        "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "editable": true,
@@ -85,10 +86,12 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(coredns_dns_request_count_total{instance=~\"$instance\"}[5m])) by (proto)",
+          "editorMode": "code",
+          "expr": "sum(rate(coredns_dns_requests_total{instance=~\"$instance\"}[5m])) by (proto)",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{proto}}",
+          "range": true,
           "refId": "A",
           "step": 60
         },
@@ -96,10 +99,12 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(coredns_dns_request_count_total{instance=~\"$instance\"}[5m]))",
+          "editorMode": "code",
+          "expr": "sum(rate(coredns_dns_requests_total{instance=~\"$instance\"}[5m]))",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "total",
+          "range": true,
           "refId": "B",
           "step": 60
         }
@@ -142,6 +147,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
+        "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "editable": true,
@@ -196,9 +202,11 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(coredns_dns_request_type_count_total{instance=~\"$instance\"}[5m])) by (type)",
+          "editorMode": "code",
+          "expr": "sum(rate(coredns_dns_requests_total{instance=~\"$instance\"}[5m])) by (type)",
           "intervalFactor": 2,
           "legendFormat": "{{type}}",
+          "range": true,
           "refId": "A",
           "step": 60
         }
@@ -241,6 +249,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
+        "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "editable": true,
@@ -291,9 +300,11 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(coredns_dns_request_count_total{instance=~\"$instance\"}[5m])) by (zone)",
+          "editorMode": "code",
+          "expr": "sum(rate(coredns_dns_requests_total{instance=~\"$instance\"}[5m])) by (zone)",
           "intervalFactor": 2,
           "legendFormat": "{{zone}}",
+          "range": true,
           "refId": "A",
           "step": 60
         },
@@ -301,9 +312,11 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(coredns_dns_request_count_total{instance=~\"$instance\"}[5m]))",
+          "editorMode": "code",
+          "expr": "sum(rate(coredns_dns_requests_total{instance=~\"$instance\"}[5m]))",
           "intervalFactor": 2,
           "legendFormat": "total",
+          "range": true,
           "refId": "B",
           "step": 60
         }
@@ -696,6 +709,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
+        "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "editable": true,
@@ -741,9 +755,11 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(rate(coredns_dns_response_rcode_count_total{instance=~\"$instance\"}[5m])) by (rcode)",
+          "editorMode": "code",
+          "expr": "sum(rate(coredns_dns_responses_total{instance=~\"$instance\"}[5m])) by (rcode)",
           "intervalFactor": 2,
           "legendFormat": "{{rcode}}",
+          "range": true,
           "refId": "A",
           "step": 40
         }
@@ -1150,6 +1166,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
+        "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
       "editable": true,
@@ -1195,9 +1212,11 @@
           "datasource": {
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "sum(coredns_cache_size{instance=~\"$instance\"}) by (type)",
+          "editorMode": "code",
+          "expr": "sum(coredns_cache_entries{instance=~\"$instance\"}) by (type)",
           "intervalFactor": 2,
           "legendFormat": "{{type}}",
+          "range": true,
           "refId": "A",
           "step": 40
         }
@@ -1351,7 +1370,7 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
@@ -1380,7 +1399,7 @@
       },
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "prometheus",
           "value": "prometheus"
         },
@@ -1390,6 +1409,7 @@
         "name": "DS_PROMETHEUS",
         "options": [],
         "query": "prometheus",
+        "queryValue": "",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1430,6 +1450,6 @@
   "timezone": "utc",
   "title": "CoreDNS",
   "uid": "VwdV-oN4k",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
