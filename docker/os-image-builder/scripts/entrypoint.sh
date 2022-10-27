@@ -251,9 +251,6 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
 
   print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/var/lib/cloud"
 
-  SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/var/log/journal"
-  print_or_warn "${SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH}"
-
   echo "Current date (chroot): $(
     echo
     chroot "${ROOT_PARTITION_MOUNT_PATH}" date
@@ -273,11 +270,6 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
   fi
 
-  ETC_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/etc"
-  if [ -e "${ETC_SOURCE_DIRECTORY_PATH}" ]; then
-    append_directory_contents "${ETC_SOURCE_DIRECTORY_PATH}" "${ROOT_PARTITION_MOUNT_PATH}/etc"
-  fi
-
   copy_file_if_available "${KERNEL_CMDLINE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
   copy_file_if_available "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
 
@@ -287,39 +279,12 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
   fi
 
-  if [ "${TEST_CHROOT_CONNECTIVITY:-"true"}" = "true" ]; then
-    TEST_CONNECTIVITY_HOST="${TEST_CONNECTIVITY_HOST:-"google.com"}"
-    echo "Trying to resolve an external domain to check DNS name resolution"
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" host -v "${TEST_CONNECTIVITY_HOST}"
-
-    echo "Establishing a HTTP connection to test network connectivity..."
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" \
-      curl \
-      --silent \
-      --verbose \
-      "${TEST_CONNECTIVITY_HOST}"
-  fi
-
-  if [ "${UPGRADE_APT_PACKAGES:-"false"}" = "true" ]; then
-    echo "Updating the APT index and upgrading the system..."
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any update
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any -y upgrade
-  fi
-
   APT_PACKAGES_TO_INSTALL="${APT_PACKAGES_TO_INSTALL:-""}"
   if [ -n "${APT_PACKAGES_TO_INSTALL}" ]; then
     echo "Installing additional APT packages: ${APT_PACKAGES_TO_INSTALL}"
     chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any update
     chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any -y install \
       "${APT_PACKAGES_TO_INSTALL}"
-  fi
-
-  if [ "${REMOVE_SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY:-"false"}" = "true" ]; then
-    rm \
-      --force \
-      --recursive \
-      --verbose \
-      "${SYSTEMD_JOURNALD_PERSISTENT_LOG_DIRECTORY_PATH}"
   fi
 
   echo "Installed APT packages:"

@@ -161,6 +161,7 @@ download_file_if_necessary() {
   FILE_TO_DOWNLOAD_PATH="${2}"
 
   if [ ! -f "${FILE_TO_DOWNLOAD_PATH}" ]; then
+    echo "Downloading ${FILE_TO_DOWNLOAD_PATH} from ${FILE_TO_DOWNLOAD_URL}"
     curl -L -o "${FILE_TO_DOWNLOAD_PATH}" "${FILE_TO_DOWNLOAD_URL}"
   else
     echo "${FILE_TO_DOWNLOAD_PATH} already exists. Skipping download of ${FILE_TO_DOWNLOAD_URL}"
@@ -229,7 +230,7 @@ setup_cloud_init_nocloud_datasource() {
     if [ -e "${FILE_PATH}" ]; then
       if [ "${FILE}" = "user-data.yaml" ]; then
         echo "Validating cloud-init user-data file (${FILE_PATH})..."
-        cloud-init devel schema --config-file "${FILE_PATH}"
+        cloud-init schema --config-file "${FILE_PATH}"
       fi
       mv --verbose "${FILE_PATH}" "${FILE_PATH%.*}"
     fi

@@ -8,10 +8,12 @@ on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
+      - ".github/workflows/lint.yaml"
       - "config/smart-desk/**"
   pull_request:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
+      - ".github/workflows/lint.yaml"
       - "config/smart-desk/**"
 
 jobs:
@@ -23,7 +25,7 @@ jobs:
         working-directory: config/smart-desk/esphome
     needs:
       - lint
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: "Build the Smart Desk firmware image"
