@@ -78,12 +78,12 @@ create_and_activate_python_virtual_environment() {
 
   if [ ! -e "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" ]; then
     echo "Creating a virtual environment in ${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
-    python3 -m venv "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
+    python3 -m venv "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" --upgrade-deps
 
     activate_python_virtual_environment "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
 
-    echo "Ensure pip, setuptools, and wheel are installed and up to date"
-    pip3 install --upgrade pip setuptools wheel
+    echo "Ensure wheel is installed and up to date"
+    pip3 install --upgrade wheel
 
     if [ -n "${PIP_REQUIREMENTS_PATH}" ] && [ -r "${PIP_REQUIREMENTS_PATH}" ]; then
       echo "Installing dependencies from requirements file: ${PIP_REQUIREMENTS_PATH}"

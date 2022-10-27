@@ -38,7 +38,7 @@ scrape_configs:
       - targets:
         - "blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
 
-{% for dns_record_to_check in monitoring_backend_dns_records_to_check %}
+{% for dns_record_to_check in monitoring_backend_dns_records_to_check|unique %}
   - job_name: "blackbox-dns-{{ dns_record_to_check.check_name }}"
     metrics_path: /probe
     params:

@@ -25,6 +25,9 @@ if ! is_container_runtime_available; then
   export ANSIBLE_ROLES_PATH
 
   COMMAND_TO_RUN="${1}"
+else
+  echo "Not yet implemented"
+  exit 1
 fi
 
 echo "Running command: ${COMMAND_TO_RUN}"
