@@ -19,6 +19,14 @@
     "dependencies"
   ],
   "onboarding": false,
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "linuxserver/qbittorrent"
+      ],
+      "allowedVersions": "!/^20\\.04*$/"
+    }
+  ],
   "platform": "github",
   "repositories": [
     "ferrarimarco/home-lab"
