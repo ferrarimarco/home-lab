@@ -24,7 +24,7 @@
       "matchPackageNames": [
         "linuxserver/qbittorrent"
       ],
-      "allowedVersions": "!/^20\\.04*$/"
+      "allowedVersions": "!/^20\\.04.*$/"
     }
   ],
   "platform": "github",
