@@ -82,21 +82,23 @@ DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}
 echo "Device configuration directory path: ${DEVICE_CONFIG_DIRECTORY}"
 
 CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
-RASPBERRY_PI_CONFIG_FILE_PATH="${DEVICE_CONFIG_DIRECTORY}/raspberry-pi-config.txt"
 
-if [ "${BUILD_DISTRIBUTION}" = "raspberry-pi-os" ]; then
+if [ "${BUILD_DISTRIBUTION-}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
   # This check is to ensure that we use a known version of the Raspberry Pi bootloader
   # to update Raspberry Pis when they are running another OS than Raspberry Pi OS,
   # or when Raspberry Pi OS is not yet installed, or will not be installed such as when
   # network booting.
-  RASPBERRY_PI_BOOTLOADER_URL="${RASPBERRY_PI_BOOTLOADER_URL:-"https://github.com/raspberrypi/rpi-eeprom/releases/download/v2022.04.26-138a1/rpi-boot-eeprom-recovery-2022-04-26-vl805-000138a1.zip"}"
-  if [ -n "${RASPBERRY_PI_BOOTLOADER_URL}" ]; then
-    RASPBERRY_PI_BOOTLOADER_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${RASPBERRY_PI_BOOTLOADER_URL}")"
-    download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
-  fi
+  RASPBERRY_PI_BOOTLOADER_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${RASPBERRY_PI_BOOTLOADER_URL}")"
+  download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
 
   # Assume that we need to customize the image because Raspberry Pi OS images don't include an automated configuration mechanism
   BUILD_TYPE="customize-image"
+
+  # Assume that we need to enable SSH because it's disabled by default on Raspberry Pi OS
+  ENABLE_RASPBERRY_PI_OS_SSH="true"
+
+  # Assume that a device that runs Raspberry Pi OS is a Raspberry Pi
+  IS_RASPBERRY_PI="true"
 else
   echo "[ERROR]: Unsupported build distribution customization. Terminating..."
   # Ignoring because those are defined in common.sh, and don't need quotes
@@ -107,6 +109,8 @@ fi
 echo "Current environment configuration:"
 env | sort
 
+# This check is to ensure that we use a known and verified image version,
+# even if we don't customize it.
 if [ -n "${OS_IMAGE_URL}" ]; then
   OS_IMAGE_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${OS_IMAGE_URL}")"
   download_file_if_necessary "${OS_IMAGE_URL}" "${OS_IMAGE_FILE_PATH}"
@@ -116,12 +120,6 @@ if [ -n "${OS_IMAGE_URL}" ]; then
   echo "Verifying the integrity of the downloaded files..."
   download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}" "${OS_IMAGE_CHECKSUM_FILE_PATH}"
   sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
-fi
-
-OS_IMAGE_FILE_TAG="${OS_IMAGE_FILE_TAG:-"generic"}"
-
-if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
-  register_qemu_static
 
   IMAGE_ARCHIVE_FILE_PATH="${OS_IMAGE_FILE_PATH}"
   if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
@@ -129,6 +127,13 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     echo "Error while decompressing ${IMAGE_ARCHIVE_FILE_PATH}. Terminating..."
     exit ${RET_CODE}
   fi
+fi
+
+OS_IMAGE_FILE_TAG="${OS_IMAGE_FILE_TAG:-"generic"}"
+
+if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
+  # Finalize QEMU setup so we can support running programs built for other archs if needed
+  register_qemu_static
 
   IMAGE_FILE_PATH="$(pwd)/${OS_IMAGE_FILE_NAME}"
   if [ ! -e "${IMAGE_FILE_PATH}" ]; then
@@ -143,16 +148,12 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   echo "${PARTITIONS_INFO}"
 
   # We assume that we want to customize the first partition. On the Ubuntu image for Raspberry Pis and the Raspberry Pi
-  # OS image, p1 is mounted as /boot and cointains configuration files.
+  # OS image, p1 is mounted as /boot and contains configuration files.
   BOOT_PARTITION_INDEX="${BOOT_PARTITION_INDEX:-"1"}"
-  ROOT_PARTITION_INDEX="${ROOT_PARTITION_INDEX:-"2"}"
-
-  echo "Boot partition index: ${BOOT_PARTITION_INDEX}. Root paritition index: ${ROOT_PARTITION_INDEX}"
+  echo "Boot partition index: ${BOOT_PARTITION_INDEX}"
 
   BOOT_PARTITION_OFFSET=$(($(echo "${PARTITIONS_INFO}" | grep "${IMAGE_FILE_PATH}${BOOT_PARTITION_INDEX}" | awk '{print $4-0}') * 512))
-  ROOT_PARTITION_OFFSET=$(($(echo "${PARTITIONS_INFO}" | grep "${IMAGE_FILE_PATH}${ROOT_PARTITION_INDEX}" | awk '{print $4-0}') * 512))
-
-  echo "Boot partition offset: ${BOOT_PARTITION_OFFSET}. Root paritition offset: ${ROOT_PARTITION_OFFSET}"
+  echo "Boot partition offset: ${BOOT_PARTITION_OFFSET}"
 
   echo "Currently used loop devices:"
   losetup --list
@@ -177,132 +178,21 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     --verbose \
     "${BOOT_PARTITION_MOUNT_PATH}"
 
-  ROOT_PARTITION_MOUNT_PATH="${TEMP_WORKING_DIRECTORY}/root"
-  mkdir \
-    --parents \
-    --verbose \
-    "${ROOT_PARTITION_MOUNT_PATH}"
-
-  echo "Mounting the root partition to ${ROOT_PARTITION_MOUNT_PATH}"
-  mount -o loop,offset=${ROOT_PARTITION_OFFSET} "${IMAGE_FILE_PATH}" "${ROOT_PARTITION_MOUNT_PATH}"/
-  if [ "${BOOT_PARTITION_INDEX}" != "${ROOT_PARTITION_INDEX}" ]; then
-    echo "Getting a loop device to mount the boot partition..."
-    losetup --find
-
-    echo "Mounting the boot partition to ${BOOT_PARTITION_MOUNT_PATH}"
-    mount -o loop,offset=${BOOT_PARTITION_OFFSET},sizelimit=$((ROOT_PARTITION_OFFSET - BOOT_PARTITION_OFFSET)) "${IMAGE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
+  if [ "${IS_RASPBERRY_PI:-"false"}" = "true" ]; then
+    if [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
+      if [ "${ENABLE_RASPBERRY_PI_OS_SSH:-"false"}" = "true" ]; then
+        echo "Enabling SSH on Raspberry Pi OS..."
+        # https://www.raspberrypi.com/documentation/computers/configuration.html#ssh-or-ssh-txt
+        touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
+      fi
+    elif [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_UBUNTU}" ]; then
+      # Ubuntu running on a Raspberry Pi uses cloud-init to configure the system.
+      # In this case, cloud-init fetches its configuration from the first partition, so we override that configuration as needed
+      if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
+        setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
+      fi
+    fi
   fi
-
-  echo "Mounting /sys..."
-  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/sys | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/sys" ]; then
-    mount -t sysfs sysfs "${ROOT_PARTITION_MOUNT_PATH}/sys"
-  fi
-
-  echo "Mounting /proc..."
-  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/proc | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/proc" ]; then
-    mount -t proc proc "${ROOT_PARTITION_MOUNT_PATH}/proc"
-  fi
-
-  echo "Mounting /dev"
-  mount -o bind /dev "${ROOT_PARTITION_MOUNT_PATH}/dev"
-
-  echo "Mounting /dev/pts..."
-  mkdir \
-    --parents \
-    --verbose \
-    "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
-
-  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/dev/pts | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/dev/pts" ]; then
-    mount -t devpts devpts "${ROOT_PARTITION_MOUNT_PATH}/dev/pts"
-  fi
-
-  echo "Mounting /run..."
-  mkdir \
-    --parents \
-    --verbose \
-    "${ROOT_PARTITION_MOUNT_PATH}/run"
-
-  if [ "$(mount | grep "${ROOT_PARTITION_MOUNT_PATH}"/run | awk '{print $3}')" != "${ROOT_PARTITION_MOUNT_PATH}/run" ]; then
-    mount -t tmpfs run "${ROOT_PARTITION_MOUNT_PATH}/run"
-  fi
-
-  echo "Current disk space usage:"
-  df \
-    --human-readable \
-    --sync
-
-  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
-
-  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
-  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/syscfg.txt"
-  print_or_warn "${BOOT_PARTITION_MOUNT_PATH}/usercfg.txt"
-
-  CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/etc/cloud"
-  print_or_warn "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}"
-  print_or_warn "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}/cloud.cfg"
-  print_or_warn "${CLOUD_INIT_CONFIGURATION_DIRECTORY_PATH}/cloud.cfg.d" "true"
-
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/apt/apt.conf"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/apt/apt.conf.d" "true"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/fstab"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/dhcpcd.conf"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/host.conf"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/hostname"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/hosts"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/ld.so.preload"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/logrotate.conf"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/logrotate.d" "true"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/network/interfaces"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/network/interfaces.d" "true"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/nsswitch.conf"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/resolv.conf"
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/etc/resolvconf.conf"
-
-  SYSTEMD_CONFIGURATION_DIRECTORY_PATH="${ROOT_PARTITION_MOUNT_PATH}/etc/systemd"
-  print_or_warn "${SYSTEMD_CONFIGURATION_DIRECTORY_PATH}"
-  print_or_warn "${SYSTEMD_CONFIGURATION_DIRECTORY_PATH}/journald.conf"
-  print_or_warn "${SYSTEMD_CONFIGURATION_DIRECTORY_PATH}/journald.conf.d" "true"
-
-  print_or_warn "${ROOT_PARTITION_MOUNT_PATH}/var/lib/cloud"
-
-  echo "Current date (chroot): $(
-    echo
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" date
-  )"
-
-  echo "Network interfaces (chroot): $(
-    echo
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" ip a
-  )"
-
-  echo "APT config dump: $(
-    echo
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-config dump
-  )"
-
-  if [ -e "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" ]; then
-    setup_cloud_init_nocloud_datasource "${CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH}" "${BOOT_PARTITION_MOUNT_PATH}"
-  fi
-
-  copy_file_if_available "${KERNEL_CMDLINE_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/cmdline.txt"
-  copy_file_if_available "${RASPBERRY_PI_CONFIG_FILE_PATH}" "${BOOT_PARTITION_MOUNT_PATH}/config.txt"
-
-  if [ "${ENABLE_RASPBERRY_PI_OS_SSH:-"false"}" = "true" ]; then
-    echo "Enabling SSH on Raspberry Pi OS..."
-    # https://www.raspberrypi.com/documentation/computers/configuration.html#ssh-or-ssh-txt
-    touch "${BOOT_PARTITION_MOUNT_PATH}/ssh.txt"
-  fi
-
-  APT_PACKAGES_TO_INSTALL="${APT_PACKAGES_TO_INSTALL:-""}"
-  if [ -n "${APT_PACKAGES_TO_INSTALL}" ]; then
-    echo "Installing additional APT packages: ${APT_PACKAGES_TO_INSTALL}"
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any update
-    chroot "${ROOT_PARTITION_MOUNT_PATH}" apt-get -o APT::Update::Error-Mode=any -y install \
-      "${APT_PACKAGES_TO_INSTALL}"
-  fi
-
-  echo "Installed APT packages:"
-  chroot "${ROOT_PARTITION_MOUNT_PATH}" dpkg -l | sort
 
   echo "Synchronizing latest filesystem changes..."
   sync
