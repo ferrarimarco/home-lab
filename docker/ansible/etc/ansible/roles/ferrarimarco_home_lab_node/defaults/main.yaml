@@ -77,6 +77,7 @@ frigate_cameras:
       - rtmp
 is_raspberry_pi: false
 monitoring_backend_dns_check_targets:
+  - "{{ edge_dns_server.fqdn }}"
   - "{{ edge_dns_server.ipv4_address }}"
 monitoring_backend_dns_records_to_check:
   - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
