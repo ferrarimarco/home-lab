@@ -24,7 +24,7 @@ ERR_ARCHIVE_NOT_SUPPORTED=5
 
 # Ignoring SC2034 because this variable is used in other scripts
 # shellcheck disable=SC2034
-BUILD_DISTRIBUTION_RASPBERRYPI_OS="raspberrypi-os"
+BUILD_DISTRIBUTION_RASPBERRYPI_OS="raspberry-pi-os"
 
 # Ignoring SC2034 because this variable is used in other scripts
 # shellcheck disable=SC2034
