@@ -20,6 +20,9 @@ trim_trailing_whitespace = true
 spaces_around_operators = true
 spaces_around_brackets = false
 
+[{Corefile,Corefile.jinja}]
+indent_size = 2
+
 [*.{hcl.tpl,json,lock.hcl,sh,tf,tfvars,yml,yaml,yaml.jinja}]
 indent_size = 2
 

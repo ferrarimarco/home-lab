@@ -1,0 +1,43 @@
+---
+services:
+
+  coredns:
+    image: "coredns/coredns:1.10.0"
+    container_name: "coredns"
+    command:
+      - "-conf"
+      - "/etc/coredns/Corefile"
+    ports:
+      - "53:53"
+      - "53:53/udp"
+      - "{{ network_stack_coredns_healthcheck_metrics_port }}:{{ network_stack_coredns_healthcheck_metrics_port }}"
+      - "{{ network_stack_coredns_prometheus_metrics_port }}:{{ network_stack_coredns_prometheus_metrics_port }}"
+    restart: always
+    volumes:
+      - './coredns:/etc/coredns'
+
+{% if configure_reverse_proxy %}
+  traefik:
+    image: "traefik:v2.9.1"
+    container_name: "traefik"
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--entrypoints.web.address=:{{ traefik_cleartext_http_port }}"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker=true"
+    environment:
+      - TZ={{ timezone }}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.example.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+    ports:
+      - "{{ traefik_secured_http_port }}:{{ traefik_secured_http_port }}"
+      - "{{ traefik_cleartext_http_port }}:{{ traefik_cleartext_http_port }}"
+      - "{{ traefik_api_http_port }}:{{ traefik_api_http_port }}"
+    restart: always
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+{% endif %}
+...

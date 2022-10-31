@@ -30,7 +30,7 @@
     - service: telegram_bot.send_photo
       data:
         url: >-
-          http://raspberrypi2.edge.lab.ferrari.how:5000/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
+          http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
         caption: >-
           A {{trigger.payload_json["after"]["label"]}} was detected. Here is a snapshot of the event.
         message_tag: >-
@@ -38,7 +38,7 @@
     - service: telegram_bot.send_video
       data:
         url: >-
-          http://raspberrypi2.edge.lab.ferrari.how:5000/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
+          http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
         caption: >-
           A {{trigger.payload_json["after"]["label"]}} was detected. Here is a recording of the event.
         message_tag: >-

@@ -11,7 +11,9 @@ configure_home_assistant: false
 configure_monitoring: true
 configure_monitoring_backend: false
 configure_mqtt_broker: false
+configure_network_stack: false
 configure_network_shares: false
+configure_reverse_proxy: false
 configure_tailscale: false
 configure_torrent: false
 configure_wifi: false
@@ -20,6 +22,8 @@ deb_packages_to_install: []
 default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
+dns_records_to_configure: []
+dns_root_soa_email_contact: dns-admin.{{ root_fqdn }}
 docker_apt_release_channel: stable
 # This was used to install the standalone compose executable before switching to the Docker Compose plugin for Docker Engine
 docker_compose_standalone_executable_path: "/usr/local/bin/docker-compose"
@@ -36,6 +40,11 @@ docker_os_users_to_create:
     name: "{{ ansible_user }}"
     groups:
       - "docker"
+edge_dns_server:
+  fqdn: "{{ edge_gateway_fqdn }}"
+  ipv4_address: "10.0.0.1"
+edge_environment_root_fqdn: "edge.{{ root_fqdn }}"
+edge_gateway_fqdn: "gateway.{{ edge_environment_root_fqdn }}"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -45,7 +54,7 @@ home_assistant_user_interface_host_port: 8123
 home_lab_node_ssh_public_key_path: ""
 frigate_cameras:
   - name: cam-1
-    path: rtsp://cam-1.edge.lab.ferrari.how:554/11
+    path: rtsp://cam-1.{{ edge_environment_root_fqdn }}:554/11
     roles:
       - detect
       - record
@@ -61,16 +70,18 @@ frigate_cameras:
     ffmpeg:
       # The only change to default arguments is the transport (TCP is the default, but we need UDP in this case)
       input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport udp -timeout 5000000 -use_wallclock_as_timestamps 1
-    path: rtsp://raspberrypi3.edge.lab.ferrari.how:8554/stream1
+    path: rtsp://raspberrypi3.{{ edge_environment_root_fqdn }}:8554/stream1
     roles:
       - detect
       - record
       - rtmp
 is_raspberry_pi: false
-main_dns_server_address: "10.0.0.1"
+monitoring_backend_dns_check_targets:
+  - "{{ edge_dns_server.fqdn }}"
+  - "{{ edge_dns_server.ipv4_address }}"
 monitoring_backend_dns_records_to_check:
   - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
-    query_name: "cam-1.edge.lab.ferrari.how"
+    query_name: "cam-1.{{ edge_environment_root_fqdn }}"
     query_type: "A"
   - check_name: "dns_ferrari_how_txt"
     query_name: "ferrari.how"
@@ -83,11 +94,8 @@ monitoring_backend_dns_records_to_check:
     query_name: "ferrarimarco.info"
     query_type: "NS"
     fail_if_not_matches_regexp_value: ".*googledomains.*"
-  - check_name: "dns_gateway_edge_lab_ferrari_how_a"
-    query_name: "gateway.edge.lab.ferrari.how"
-    query_type: "A"
   - check_name: "dns_smart_desk_edge_lab_ferrari_how_a"
-    query_name: "smart-desk.edge.lab.ferrari.how"
+    query_name: "smart-desk.{{ edge_environment_root_fqdn }}"
     query_type: "A"
 monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ frigate_http_endpoint_fqdn }}:{{ frigate_host_port }} # Frigate"
@@ -95,27 +103,31 @@ monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ home_assistant_http_endpoint_fqdn }}:{{ home_assistant_user_interface_host_port }} # Home Assistant"
   - check_target: "http://{{ prometheus_http_endpoint_fqdn }}:{{ monitoring_backend_prometheus_host_port }} # Prometheus"
   - check_target: "http://{{ prometheus_blackbox_exporter_http_endpoint_fqdn }}:{{ monitoring_backend_prometheus_node_exporter_host_port }} # Prometheus Node Exporter"
-  - check_target: "http://{{ qbittorrent_http_endpoint_fqdn }}:{{ qbittorrent_user_interface_host_port }} # qBittorrent"
+  - check_target: "http://{{ qbittorrent_http_endpoint_fqdn }}:{{ qbittorrent_user_interface_port }} # qBittorrent"
   - check_target: "http://{{ zigbee2mqtt_http_endpoint_fqdn }}:{{ zigbee2mqtt_user_interface_host_port }} # Zigbee2MQTT"
 monitoring_backend_icmp_ping_hosts_to_check:
   - "1.1.1.1"
-  - "8.8.4.4"
-  - "8.8.8.8"
-  - "cam-1.edge.lab.ferrari.how"
+  - "cam-1.{{ edge_environment_root_fqdn }}"
   - "dns.google"
   - "ferrarimarco.info"
-  - "gateway.edge.lab.ferrari.how"
+  - "{{ edge_gateway_fqdn }}"
   - "github.com"
   - "google.com"
-  - "smart-desk.edge.lab.ferrari.how"
+  - "smart-desk.{{ edge_environment_root_fqdn }}"
 monitoring_backend_grafana_host_port: 3000
 monitoring_backend_prometheus_host_port: 9090
 monitoring_backend_prometheus_node_exporter_container_port: 9115
 monitoring_backend_prometheus_node_exporter_host_port: 9115
 monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
+network_stack_coredns_healthcheck_metrics_port: 8085
+network_stack_coredns_prometheus_metrics_port: 9153
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
+root_fqdn: lab.ferrari.how
+root_dns_servers:
+  - fqdn: "ns1.{{ root_fqdn }}"
+    ipv4_address: "10.0.0.2"
 samba_additional_interfaces: "10.0.0.0/8"
 samba_default_readers_group_name: "samba-readers"
 samba_default_writers_group_name: "samba-writers"
@@ -144,5 +156,12 @@ security_unattended_upgrades_enabled: true
 systemd_journald_runtime_max_memory_use: "64M"
 systemd_journald_system_max_memory_use: "500M"
 tailscale_release_channel: "stable"
+timezone: "Europe/London"
+traefik_api_http_port: 8080
+traefik_cleartext_http_port: 80
+traefik_secured_http_port: 443
+upstream_dns_servers:
+  - "8.8.4.4"
+  - "8.8.8.8"
 zigbee2mqtt_user_interface_host_port: 8081
 ...

@@ -1,8 +1,13 @@
 ---
 - name: Add all hosts to the list of DNS A records to check
   ansible.builtin.set_fact:
-    monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_a_record_check_template }}"
+    monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_a_record_check_template_for_ansible_hosts }}"
   with_items: "{{ groups['all'] }}"
+
+- name: Add the DNS records defined for this and other hosts to the list of DNS records to check
+  ansible.builtin.set_fact:
+    monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_record_check_template }}"
+  with_items: "{{ dns_records_to_configure }}"
 
 - name: Debug monitoring_backend_dns_records_to_check
   ansible.builtin.debug:
@@ -24,4 +29,28 @@
   ansible.builtin.debug:
     var: monitoring_backend_http_endpoints_to_check
     verbosity: 1
+
+- name: Add upstream DNS servers to the list of hosts to check via ICMP
+  ansible.builtin.set_fact:
+    monitoring_backend_icmp_ping_hosts_to_check: "{{ monitoring_backend_icmp_ping_hosts_to_check + upstream_dns_servers }}"
+
+- name: Sort the list of hosts to check via ICMP
+  ansible.builtin.set_fact:
+    monitoring_backend_icmp_ping_hosts_to_check: "{{ monitoring_backend_icmp_ping_hosts_to_check|sort }}"
+
+- name: Debug monitoring_backend_icmp_ping_hosts_to_check
+  ansible.builtin.debug:
+    var: monitoring_backend_icmp_ping_hosts_to_check
+    verbosity: 1
+
+- name: Add the root DNS servers to the list of target DNS servers to check
+  ansible.builtin.set_fact:
+    monitoring_backend_dns_check_targets: "{{ monitoring_backend_dns_check_targets + monitoring_backend_dns_check_target_template }}"
+  with_items: "{{ root_dns_servers }}"
+
+- name: Debug monitoring_backend_dns_check_targets
+  ansible.builtin.debug:
+    var: monitoring_backend_dns_check_targets
+    verbosity: 1
+
 ...

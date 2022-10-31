@@ -1,0 +1,23 @@
+(common) {
+  cache
+  cancel
+  chaos
+  errors
+  health :{{ network_stack_coredns_healthcheck_metrics_port }}
+  local
+  log
+  loop
+  prometheus :{{ network_stack_coredns_prometheus_metrics_port }}
+  ready
+  root /etc/coredns
+}
+
+{{ edge_environment_root_fqdn }} {
+  forward . {{ edge_dns_server.ipv4_address }}
+  import common
+}
+
+{{ root_fqdn }} {
+  file ./zones/{{ root_fqdn }}
+  import common
+}

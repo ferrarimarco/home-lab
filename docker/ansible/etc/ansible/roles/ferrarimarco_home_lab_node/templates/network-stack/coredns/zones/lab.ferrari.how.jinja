@@ -1,0 +1,19 @@
+$ORIGIN {{ root_fqdn }}.
+@   3600 IN     SOA {{ root_dns_servers[0].fqdn }}. {{ dns_root_soa_email_contact }}. 2017042745 86400 7200 4000000 11200
+{% for dns_server in root_dns_servers %}
+                NS {{ dns_server.fqdn }}.
+{% endfor %}
+
+{% if dns_records_to_configure is defined and dns_records_to_configure|length > 0 %}
+{% set longest_dns_record_source = dns_records_to_configure|map(attribute='source')|map('length')|max + 1 %}
+{% set longest_dns_query_type = dns_records_to_configure|map(attribute='query_type')|map('length')|max + 1 %}
+{% set fmt = "{:<" + longest_dns_record_source|string + "}    IN    {:<" + longest_dns_query_type|string + "}    {}" %}
+{% for dns_record in dns_records_to_configure %}
+{% if dns_record.query_type != 'A' and dns_record.query_type != 'AAAA' %}
+{% set dns_record_destination = dns_record.destination ~ "." %}
+{% else %}
+{% set dns_record_destination = dns_record.destination %}
+{% endif %}
+{{ fmt.format(dns_record.source ~ ".", dns_record.query_type, dns_record_destination) }}
+{% endfor %}
+{% endif %}

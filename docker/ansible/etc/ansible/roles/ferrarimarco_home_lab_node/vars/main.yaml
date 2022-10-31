@@ -110,12 +110,17 @@ monitoring_backend_configuration_directories_to_copy:
     dest: "{{ monitoring_backend_configuration_directory_path }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
 monitoring_backend_configuration_source_directory_path: "config/monitoring-backend"
-monitoring_backend_default_dns_check_targets:
-  - "{{ main_dns_server_address }}"
-monitoring_backend_dns_a_record_check_template:
+monitoring_backend_dns_a_record_check_template_for_ansible_hosts:
   - check_name: "dns_{{ item | lower | replace('.', '_') }}_a"
     query_name: "{{ item }}"
     query_type: "A"
+monitoring_backend_dns_check_target_template:
+  - "{{ item.fqdn }}"
+  - "{{ item.ipv4_address }}"
+monitoring_backend_dns_record_check_template:
+  - check_name: "dns_{{ item.source | lower | replace('.', '_') }}_{{ item.query_type|lower }}"
+    query_name: "{{ item.source }}"
+    query_type: "{{ item.query_type }}"
 monitoring_backend_http_cadvisor_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ cadvisor_exposed_port }} # cAdvisor"
 monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
@@ -177,6 +182,31 @@ mosquitto_templates_to_render:
     docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
     group: "{{ mosquitto_user_group_id }}"
     owner: "{{ mosquitto_user_user_id }}"
+network_stack_configuration_directories:
+  - path: "{{ network_stack_configuration_directory_path }}"
+  - path: "{{ network_stack_configuration_directory_path }}/coredns"
+  - path: "{{ network_stack_configuration_directory_path }}/coredns/zones"
+network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
+network_stack_dns_a_records_to_configure_for_root_dns_template:
+  - source: "{{ item.fqdn }}"
+    destination: "{{ item.ipv4_address }}"
+    query_type: A
+network_stack_dns_aaaa_records_to_configure_for_root_dns_template:
+  - source: "{{ item.fqdn }}"
+    destination: "{{ item.ipv6_address }}"
+    query_type: AAAA
+network_stack_docker_compose_up_items:
+  - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+network_stack_templates_to_render:
+  - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/coredns/Corefile.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/coredns/Corefile"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/coredns/zones/{{ root_fqdn }}.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_fqdn }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
 os_groups_to_create: []
 os_services_to_configure: []
 os_services_to_restart: []

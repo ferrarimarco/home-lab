@@ -6,7 +6,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/London
+      - TZ={{ timezone }}
       - WEBUI_PORT={{ qbittorrent_user_interface_port }}
     ports:
       - "6881:6881/tcp"

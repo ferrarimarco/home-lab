@@ -38,14 +38,14 @@ scrape_configs:
       - targets:
         - "blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
 
-{% for dns_record_to_check in monitoring_backend_dns_records_to_check %}
+{% for dns_record_to_check in monitoring_backend_dns_records_to_check|unique %}
   - job_name: "blackbox-dns-{{ dns_record_to_check.check_name }}"
     metrics_path: /probe
     params:
       module:
         - "{{ dns_record_to_check.check_name }}"
     static_configs:
-      - targets: {{ dns_record_to_check.targets | default(monitoring_backend_default_dns_check_targets) }}
+      - targets: {{ dns_record_to_check.targets|default(monitoring_backend_dns_check_targets)|sort }}
     relabel_configs:
       - source_labels: [__address__] # Add a target parameter of the scrape request URL
         target_label: __param_target
@@ -95,4 +95,13 @@ scrape_configs:
         target_label: instance
       - target_label: __address__ # Set the scrape request address to point to the Blackbox exporter hostname:port
         replacement: blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }} # Blackbox exporter hostname:port
+
+  - job_name: "network-stack-coredns"
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].configure_network_stack | default(configure_network_stack) %}
+        - "{{ host }}:{{ hostvars[host].network_stack_coredns_prometheus_metrics_port | default(network_stack_coredns_prometheus_metrics_port) }}"
+{% endif %}
+{% endfor %}
 ...

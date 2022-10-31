@@ -29,6 +29,7 @@
         fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
         fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
         fact_deb_packages_to_install: "{{ item.fact_deb_packages_to_install | default([]) }}"
+        fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
         fact_files_to_remove: "{{ item.fact_files_to_remove | default([]) }}"
@@ -101,22 +102,41 @@
       fact_templates_to_render: "{{ monitoring_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
       fact_category: "monitoring-backend"
+      fact_dns_records_to_configure:
+        - source: "grafana.{{ root_fqdn }}"
+          destination: "{{ inventory_hostname }}"
+          query_type: CNAME
+        - source: "prometheus.{{ root_fqdn }}"
+          destination: "{{ inventory_hostname }}"
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ monitoring_backend_configuration_directories }}"
       fact_configuration_directories_to_copy: "{{ monitoring_backend_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
       fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
     - enable_custom_fact: "{{ configure_home_assistant }}"
       fact_category: "home-assistant"
+      fact_dns_records_to_configure:
+        - source: "home-assistant.{{ root_fqdn }}"
+          destination: "{{ inventory_hostname }}"
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
       fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
     - enable_custom_fact: "{{ configure_mqtt_broker }}"
       fact_category: "mosquitto"
+      fact_dns_records_to_configure:
+        - source: "mqtt.{{ root_fqdn }}"
+          destination: "{{ inventory_hostname }}"
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"
       fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
       fact_templates_to_render: "{{ mosquitto_templates_to_render }}"
     - enable_custom_fact: "{{ configure_frigate }}"
       fact_category: "frigate"
+      fact_dns_records_to_configure:
+        - source: "frigate.{{ root_fqdn }}"
+          destination: "{{ inventory_hostname }}"
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ frigate_configuration_directories }}"
       fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
       fact_templates_to_render: "{{ frigate_templates_to_render }}"
@@ -156,6 +176,10 @@
             - "{{ samba_service_name }}"
     - enable_custom_fact: "{{ configure_torrent }}"
       fact_category: "torrent"
+      fact_dns_records_to_configure:
+        - source: "qbittorrent.{{ root_fqdn }}"
+          destination: "{{ inventory_hostname }}"
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ torrent_configuration_directories }}"
       fact_docker_compose_up_items: "{{ torrent_docker_compose_up_items }}"
       fact_templates_to_render: "{{ torrent_templates_to_render }}"
@@ -174,6 +198,10 @@
             - "raspberry-pi-v2-camera-rtsp"
     - enable_custom_fact: "{{ configure_zigbee2mqtt }}"
       fact_category: "zigbee2mqtt"
+      fact_dns_records_to_configure:
+        - source: "zigbee2mqtt.{{ root_fqdn }}"
+          destination: "{{ inventory_hostname }}"
+          query_type: CNAME
       fact_configuration_directories_to_create: "{{ zigbee2mqtt_configuration_directories }}"
       fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
       fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
@@ -186,11 +214,22 @@
         - enabled: true
           service_name: "{{ wpa_supplicant_service_name }}"
           service_state: started
+    - enable_custom_fact: "{{ configure_network_stack }}"
+      fact_category: "network-stack"
+      fact_configuration_directories_to_create: "{{ network_stack_configuration_directories }}"
+      fact_docker_compose_up_items: "{{ network_stack_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ network_stack_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:
     file: register-raspberry-pi-sense-hat-facts.yaml
   when: has_sense_hat
+
+- name: Register DNS facts
+  ansible.builtin.include_tasks:
+    file: register-dns-facts.yaml
+  # The network stack and the monitoring backend both need the same list of DNS records
+  when: configure_network_stack or configure_monitoring_backend
 
 - name: Register monitoring-backend facts
   ansible.builtin.include_tasks:
