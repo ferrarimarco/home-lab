@@ -103,6 +103,8 @@ elif [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_UBUNTU}" ]; then
   if [ "${IS_RASPBERRY_PI}" != "true" ]; then
     # Ubuntu server >= 20.04 uses an automated installer (subiquity)
     # that builds on top of cloud-init
+    # Ignoring SC2034 because this variable is used in other scripts
+    # shellcheck disable=SC2034
     UBUNTU_AUTOINSTALL="true"
   fi
 else
