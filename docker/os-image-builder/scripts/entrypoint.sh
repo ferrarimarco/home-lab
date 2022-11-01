@@ -128,19 +128,13 @@ if [ -n "${OS_IMAGE_URL}" ]; then
   echo "Verifying the integrity of the downloaded files..."
   download_file_if_necessary "${OS_IMAGE_CHECKSUM_FILE_URL}" "${OS_IMAGE_CHECKSUM_FILE_PATH}"
   sha256sum --ignore-missing -c "${OS_IMAGE_CHECKSUM_FILE_PATH}"
+fi
 
-  IMAGE_ARCHIVE_FILE_PATH="${OS_IMAGE_FILE_PATH}"
-  if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
-    RET_CODE=$?
-    echo "Error while decompressing ${IMAGE_ARCHIVE_FILE_PATH}. Terminating..."
-    exit ${RET_CODE}
-  fi
-
-  # This check is to ensure that we use a known version of the Raspberry Pi bootloader
-  # to update Raspberry Pis even if we don't customize it.
-  if [ "${IS_RASPBERRY_PI}" = "true" ]; then
-    download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
-  fi
+# This check is to ensure that we use a known version of the Raspberry Pi bootloader
+# to update Raspberry Pis even if we don't customize it.
+if [ "${IS_RASPBERRY_PI}" = "true" ]; then
+  # We assume that theres a bootloader to download
+  download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
 fi
 
 OS_IMAGE_FILE_TAG="${OS_IMAGE_FILE_TAG:-"generic"}"
@@ -148,6 +142,13 @@ OS_IMAGE_FILE_TAG="${OS_IMAGE_FILE_TAG:-"generic"}"
 if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
   # Finalize QEMU setup so we can support running programs built for other archs if needed
   register_qemu_static
+
+  IMAGE_ARCHIVE_FILE_PATH="${OS_IMAGE_FILE_PATH}"
+  if ! decompress_file "${IMAGE_ARCHIVE_FILE_PATH}"; then
+    RET_CODE=$?
+    echo "Error while decompressing ${IMAGE_ARCHIVE_FILE_PATH}. Terminating..."
+    exit ${RET_CODE}
+  fi
 
   IMAGE_FILE_PATH="$(pwd)/${OS_IMAGE_FILE_NAME}"
   if [ ! -e "${IMAGE_FILE_PATH}" ]; then
