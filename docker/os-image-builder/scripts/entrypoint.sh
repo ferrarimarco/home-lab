@@ -82,8 +82,9 @@ DEVICE_CONFIG_DIRECTORY="$(dirname "${BUILD_ENVIRONMENT_CONFIGURATION_FILE_PATH}
 echo "Device configuration directory path: ${DEVICE_CONFIG_DIRECTORY}"
 
 CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
+BUILD_DISTRIBUTION="${BUILD_DISTRIBUTION:-""}"
 
-if [ "${BUILD_DISTRIBUTION-}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
+if [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
   # This check is to ensure that we use a known version of the Raspberry Pi bootloader
   # to update Raspberry Pis when they are running another OS than Raspberry Pi OS,
   # or when Raspberry Pi OS is not yet installed, or will not be installed such as when
@@ -100,7 +101,7 @@ if [ "${BUILD_DISTRIBUTION-}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
   # Assume that a device that runs Raspberry Pi OS is a Raspberry Pi
   IS_RASPBERRY_PI="true"
 else
-  echo "[ERROR]: Unsupported build distribution customization. Terminating..."
+  echo "[ERROR]: Unsupported build distribution (BUILD_DISTRIBUTION: ${BUILD_DISTRIBUTION}) customization. Terminating..."
   # Ignoring because those are defined in common.sh, and don't need quotes
   # shellcheck disable=SC2086
   exit ${ERR_ARGUMENT_EVAL_ERROR}
