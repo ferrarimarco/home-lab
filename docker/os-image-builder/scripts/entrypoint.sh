@@ -84,13 +84,11 @@ echo "Device configuration directory path: ${DEVICE_CONFIG_DIRECTORY}"
 CLOUD_INIT_DATASOURCE_SOURCE_DIRECTORY_PATH="${DEVICE_CONFIG_DIRECTORY}/cloud-init"
 BUILD_DISTRIBUTION="${BUILD_DISTRIBUTION:-""}"
 
+IS_RASPBERRY_PI="${IS_RASPBERRY_PI:-"false"}"
+
+echo "Setting up build variables..."
 if [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
-  # This check is to ensure that we use a known version of the Raspberry Pi bootloader
-  # to update Raspberry Pis when they are running another OS than Raspberry Pi OS,
-  # or when Raspberry Pi OS is not yet installed, or will not be installed such as when
-  # network booting.
   RASPBERRY_PI_BOOTLOADER_FILE_PATH="${WORKSPACE_DIRECTORY}"/"$(basename "${RASPBERRY_PI_BOOTLOADER_URL}")"
-  download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
 
   # Assume that we need to customize the image because Raspberry Pi OS images don't include an automated configuration mechanism
   BUILD_TYPE="customize-image"
@@ -100,6 +98,13 @@ if [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
 
   # Assume that a device that runs Raspberry Pi OS is a Raspberry Pi
   IS_RASPBERRY_PI="true"
+elif [  "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_UBUNTU}" ]; then
+  # Ubuntu on Raspberry Pi uses cloud-init directly, and not the subiquity installer
+  if [ "${IS_RASPBERRY_PI}" != "true" ]; then
+    # Ubuntu server >= 20.04 uses an automated installer (subiquity)
+    # that builds on top of cloud-init
+    UBUNTU_AUTOINSTALL="true"
+  fi
 else
   echo "[ERROR]: Unsupported build distribution (BUILD_DISTRIBUTION: ${BUILD_DISTRIBUTION}) customization. Terminating..."
   # Ignoring because those are defined in common.sh, and don't need quotes
@@ -127,6 +132,12 @@ if [ -n "${OS_IMAGE_URL}" ]; then
     RET_CODE=$?
     echo "Error while decompressing ${IMAGE_ARCHIVE_FILE_PATH}. Terminating..."
     exit ${RET_CODE}
+  fi
+
+  # This check is to ensure that we use a known version of the Raspberry Pi bootloader
+  # to update Raspberry Pis even if we don't customize it.
+  if [ "${IS_RASPBERRY_PI}" = "true" ]; then
+    download_file_if_necessary "${RASPBERRY_PI_BOOTLOADER_URL}" "${RASPBERRY_PI_BOOTLOADER_FILE_PATH}"
   fi
 fi
 
@@ -179,7 +190,7 @@ if [ "${BUILD_TYPE}" = "${BUILD_TYPE_CUSTOMIZE_IMAGE}" ]; then
     --verbose \
     "${BOOT_PARTITION_MOUNT_PATH}"
 
-  if [ "${IS_RASPBERRY_PI:-"false"}" = "true" ]; then
+  if [ "${IS_RASPBERRY_PI}" = "true" ]; then
     if [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
       if [ "${ENABLE_RASPBERRY_PI_OS_SSH:-"false"}" = "true" ]; then
         echo "Enabling SSH on Raspberry Pi OS..."
