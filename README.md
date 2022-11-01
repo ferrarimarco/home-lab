@@ -52,12 +52,29 @@ device requires:
 
 #### Initialize the seed device
 
-To initialize the seed device, you:
+The current version of the home lab uses a Raspberry Pi 4 as a seed device. To
+initialize the seed device:
 
-- Download the operating system (OS) installer disk image.
-- Prepare the OS installer configuration disk image.
-- Flash both disk images on two distinct removable flash disks.
-- Boot the seed device from the OS installer disk.
+1. Update and configure the bootloader.
+1. Prepare the seed device boot disk and
+1. Boot the seed device.
+
+#### Update and configure the Raspberry Pi 4 bootloader
+
+To update the bootloader on the [Raspberry Pi 4 EEPROM](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-boot-eeprom)
+and configure the [boot order](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#BOOT_ORDER)
+when not using Raspberry Pi OS, do the following:
+
+1. Download the latest release of [rpi-eeprom](https://github.com/raspberrypi/rpi-eeprom/releases).
+    There are different boot order configurations available, as configured
+    [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
+1. Flash the bootloader disk image on a removable flash drive. For more information about flashing Raspberry Pi OS
+    images to a SD card, refer to [Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
+1. Insert the SD card in a powered off Raspberry Pi 4.
+1. Wait for the activity LED to steadily flash green.
+1. Power the Raspberry Pi off.
+
+#### Prepare the seed device boot disk
 
 To initialize the seed device, do the following:
 
@@ -80,27 +97,13 @@ To initialize the seed device, do the following:
 
 1. Download the OS installer configuration disk image.
 1. Flash the OS installer configuration disk image on a dedicated, removable flash drive adapting the commands described
-    in the previous steps.
+    in the previous steps. For more information about flashing Raspberry Pi OS images to a SD card, refer to
+    [Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
 
-For more information about flashing Raspberry Pi OS images to a SD card, refer to
-[Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
+#### Boot the seed device
 
-#### Update and configure the Raspberry Pi 4 bootloader
-
-To update the bootloader on the [Raspberry Pi 4 EEPROM](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-boot-eeprom)
-and configure the [boot order](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#BOOT_ORDER)
-when not using Raspberry Pi OS, do the following:
-
-1. Download the latest release of [rpi-eeprom](https://github.com/raspberrypi/rpi-eeprom/releases).
-    There are different boot order configurations available, as configured
-    [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
-1. Flash the bootloader disk image on a removable flash drive.
-1. Insert the SD card in a powered off Raspberry Pi 4.
-1. Wait for the activity LED to steadily flash green.
-1. Power the Raspberry Pi off.
-
-For more information about flashing Raspberry Pi OS images to a SD card, refer to
-[Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
+After preparing the seed device boot disk, insert it into the seed device and boot the seed device
+for the first time. The seed device will autoconfigure itself.
 
 ### Provision new hosts
 

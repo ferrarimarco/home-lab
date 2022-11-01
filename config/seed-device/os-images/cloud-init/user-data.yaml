@@ -31,6 +31,9 @@ package_update: true
 package_upgrade: true
 package_reboot_if_required: true
 
+keyboard:
+  layout: us
+
 random_seed:
   file: /dev/urandom
   command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
