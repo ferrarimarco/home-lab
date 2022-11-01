@@ -18,7 +18,7 @@ services:
 
 {% if configure_reverse_proxy %}
   traefik:
-    image: "traefik:v2.9.1"
+    image: "traefik:v2.9.4"
     container_name: "traefik"
     command:
       - "--api.dashboard=true"
