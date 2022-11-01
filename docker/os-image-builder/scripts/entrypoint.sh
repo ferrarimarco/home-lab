@@ -98,7 +98,7 @@ if [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_RASPBERRYPI_OS}" ]; then
 
   # Assume that a device that runs Raspberry Pi OS is a Raspberry Pi
   IS_RASPBERRY_PI="true"
-elif [  "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_UBUNTU}" ]; then
+elif [ "${BUILD_DISTRIBUTION}" = "${BUILD_DISTRIBUTION_UBUNTU}" ]; then
   # Ubuntu on Raspberry Pi uses cloud-init directly, and not the subiquity installer
   if [ "${IS_RASPBERRY_PI}" != "true" ]; then
     # Ubuntu server >= 20.04 uses an automated installer (subiquity)
