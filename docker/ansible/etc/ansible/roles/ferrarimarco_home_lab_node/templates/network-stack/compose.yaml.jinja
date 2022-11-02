@@ -8,15 +8,27 @@ services:
       - "-conf"
       - "/etc/coredns/Corefile"
     ports:
-      - "53:53"
-      - "53:53/udp"
-      - "{{ network_stack_coredns_healthcheck_metrics_port }}:{{ network_stack_coredns_healthcheck_metrics_port }}"
+      - "{{ network_stack_coredns_dns_host_port }}:53"
+      - "{{ network_stack_coredns_dns_host_port }}:53/udp"
+      - "{{ network_stack_coredns_healthcheck_port }}:{{ network_stack_coredns_healthcheck_port }}"
       - "{{ network_stack_coredns_prometheus_metrics_port }}:{{ network_stack_coredns_prometheus_metrics_port }}"
     restart: always
     volumes:
       - './coredns:/etc/coredns'
 
-{% if configure_reverse_proxy %}
+{% if network_stack_configure_recursive_dns_resolver %}
+  unbound:
+    image: "klutchell/unbound:1.17.0"
+    container_name: "unbound"
+    ports:
+      - "{{ network_stack_unbound_dns_host_port }}:53"
+      - "{{ network_stack_unbound_dns_host_port }}:53/udp"
+    restart: always
+    volumes:
+      - "./unbound:/etc/unbound/custom.conf.d"
+{% endif %}
+
+{% if network_stack_configure_reverse_proxy %}
   traefik:
     image: "traefik:v2.9.6"
     container_name: "traefik"
