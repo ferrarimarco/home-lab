@@ -15,8 +15,8 @@ services:
     restart: always
     volumes:
       - './coredns:/etc/coredns'
-
 {% if network_stack_configure_recursive_dns_resolver %}
+
   unbound:
     image: "klutchell/unbound:1.17.0"
     container_name: "unbound"
@@ -27,8 +27,8 @@ services:
     volumes:
       - "./unbound:/etc/unbound/custom.conf.d"
 {% endif %}
-
 {% if network_stack_configure_reverse_proxy %}
+
   traefik:
     image: "traefik:v2.9.6"
     container_name: "traefik"
