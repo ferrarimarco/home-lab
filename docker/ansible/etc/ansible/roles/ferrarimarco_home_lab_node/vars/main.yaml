@@ -186,6 +186,7 @@ network_stack_configuration_directories:
   - path: "{{ network_stack_configuration_directory_path }}"
   - path: "{{ network_stack_configuration_directory_path }}/coredns"
   - path: "{{ network_stack_configuration_directory_path }}/coredns/zones"
+  - path: "{{ network_stack_configuration_directory_path }}/unbound"
 network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
 network_stack_dns_a_records_to_configure_for_root_dns_template:
   - source: "{{ item.fqdn }}"
@@ -206,6 +207,9 @@ network_stack_templates_to_render:
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/coredns/zones/{{ root_fqdn }}.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_fqdn }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/unbound/stub-zones.conf.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
 os_groups_to_create: []
 os_services_to_configure: []
