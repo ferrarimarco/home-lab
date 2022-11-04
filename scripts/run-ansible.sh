@@ -24,6 +24,9 @@ if ! is_container_runtime_available; then
   ANSIBLE_ROLES_PATH="${ANSIBLE_ROLES_PATH:-"${ANSIBLE_DIRECTORY}/roles"}"
   export ANSIBLE_ROLES_PATH
 
+  # Install Ansible requirements
+  ansible-galaxy install -r "${WORKING_DIRECTORY}/docker/ansible/etc/ansible/requirements.yml"
+
   COMMAND_TO_RUN="${1}"
 else
   echo "Not yet implemented"

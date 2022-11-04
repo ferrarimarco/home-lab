@@ -36,7 +36,7 @@
 
 - name: Sort the list of hosts to check via ICMP
   ansible.builtin.set_fact:
-    monitoring_backend_icmp_ping_hosts_to_check: "{{ monitoring_backend_icmp_ping_hosts_to_check|sort }}"
+    monitoring_backend_icmp_ping_hosts_to_check: "{{ monitoring_backend_icmp_ping_hosts_to_check | sort }}"
 
 - name: Debug monitoring_backend_icmp_ping_hosts_to_check
   ansible.builtin.debug:

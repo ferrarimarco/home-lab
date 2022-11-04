@@ -1,11 +1,3 @@
 stub-zone:
     name: {{ root_fqdn }}
-{% for dns_server in root_dns_servers %}
-{% if network_stack_coredns_dns_host_port != 53 %}
-{% set dns_server_port = "@" ~ network_stack_coredns_dns_host_port %}
-{% else %}
-{% set dns_server_port = "" %}
-{% endif %}
-    stub-addr: {{ dns_server.ipv4_address }}{{ dns_server_port }}
-    stub-host: {{ dns_server.fqdn }}{{ dns_server_port }}
-{% endfor %}
+    stub-addr: {{ network_stack_container_network_coredns_container_ipv4_address }}

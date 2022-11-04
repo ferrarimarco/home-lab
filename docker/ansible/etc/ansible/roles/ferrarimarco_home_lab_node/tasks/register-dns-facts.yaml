@@ -10,7 +10,7 @@
 
 - name: Add DNS records for the root and other zones to the list of DNS records to configure
   ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + [ item ] }}"
+    dns_records_to_configure: "{{ dns_records_to_configure + [item] }}"
   with_items:
     - source: "{{ edge_dns_server.fqdn }}"
       destination: "{{ edge_dns_server.ipv4_address }}"
@@ -33,7 +33,7 @@
 
 - name: Remove duplicates from the list of DNS records to configure
   ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure|unique|sort(attribute='query_type,source,destination') }}"
+    dns_records_to_configure: "{{ dns_records_to_configure | unique | sort(attribute='query_type,source,destination') }}"
 
 - name: Debug dns_records_to_configure
   ansible.builtin.debug:

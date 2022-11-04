@@ -1,4 +1,10 @@
 ---
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: "{{ network_stack_container_network_subnet }}"
+
 services:
 
   coredns:
@@ -7,6 +13,9 @@ services:
     command:
       - "-conf"
       - "/etc/coredns/Corefile"
+    networks:
+      default:
+        ipv4_address: "{{ network_stack_container_network_coredns_container_ipv4_address }}"
     ports:
       - "{{ network_stack_coredns_dns_host_port }}:53"
       - "{{ network_stack_coredns_dns_host_port }}:53/udp"
@@ -20,6 +29,9 @@ services:
   unbound:
     image: "klutchell/unbound:1.17.0"
     container_name: "unbound"
+    networks:
+      default:
+        ipv4_address: "{{ network_stack_container_network_unbound_container_ipv4_address }}"
     ports:
       - "{{ network_stack_unbound_dns_host_port }}:53"
       - "{{ network_stack_unbound_dns_host_port }}:53/udp"

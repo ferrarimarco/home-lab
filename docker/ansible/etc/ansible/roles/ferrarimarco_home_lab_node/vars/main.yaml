@@ -118,7 +118,7 @@ monitoring_backend_dns_check_target_template:
   - "{{ item.fqdn }}"
   - "{{ item.ipv4_address }}"
 monitoring_backend_dns_record_check_template:
-  - check_name: "dns_{{ item.source | lower | replace('.', '_') }}_{{ item.query_type|lower }}"
+  - check_name: "dns_{{ item.source | lower | replace('.', '_') }}_{{ item.query_type | lower }}"
     query_name: "{{ item.source }}"
     query_type: "{{ item.query_type }}"
 monitoring_backend_http_cadvisor_endpoint_check_template:
@@ -207,6 +207,9 @@ network_stack_templates_to_render:
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/coredns/zones/{{ root_fqdn }}.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_fqdn }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/unbound/server.conf.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/unbound/server.conf"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/unbound/stub-zones.conf.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
