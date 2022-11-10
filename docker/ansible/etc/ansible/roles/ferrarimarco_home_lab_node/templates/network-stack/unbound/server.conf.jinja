@@ -1,2 +1,4 @@
 server:
+    domain-insecure: {{ root_fqdn }}
+    local-zone: "{{ root_fqdn }}." transparent
     verbosity: {{ network_stack_unbound_verbosity | default('1') }}
