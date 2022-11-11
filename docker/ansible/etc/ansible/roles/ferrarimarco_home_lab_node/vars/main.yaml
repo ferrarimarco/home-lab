@@ -114,9 +114,6 @@ monitoring_backend_dns_a_record_check_template_for_ansible_hosts:
   - check_name: "dns_{{ item | lower | replace('.', '_') }}_a"
     query_name: "{{ item }}"
     query_type: "A"
-monitoring_backend_dns_check_target_template:
-  - "{{ item.fqdn }}"
-  - "{{ item.ipv4_address }}"
 monitoring_backend_dns_record_check_template:
   - check_name: "dns_{{ item.source | lower | replace('.', '_') }}_{{ item.query_type | lower }}"
     query_name: "{{ item.source }}"

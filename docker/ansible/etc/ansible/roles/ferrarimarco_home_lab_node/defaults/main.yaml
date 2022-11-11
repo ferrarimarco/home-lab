@@ -42,7 +42,6 @@ docker_os_users_to_create:
 edge_dns_server:
   fqdn: "{{ edge_environment_gateway.fqdn }}"
   ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
-  port: 53
 edge_environment_gateway:
   fqdn: "gateway.{{ edge_environment_root_fqdn }}"
   ipv4_address: "10.0.0.1"
