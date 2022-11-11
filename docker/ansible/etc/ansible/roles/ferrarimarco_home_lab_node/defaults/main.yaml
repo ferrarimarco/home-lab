@@ -40,10 +40,13 @@ docker_os_users_to_create:
     groups:
       - "docker"
 edge_dns_server:
-  fqdn: "{{ edge_gateway_fqdn }}"
+  fqdn: "{{ edge_environment_gateway.fqdn }}"
+  ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
+  port: 53
+edge_environment_gateway:
+  fqdn: "gateway.{{ edge_environment_root_fqdn }}"
   ipv4_address: "10.0.0.1"
 edge_environment_root_fqdn: "edge.{{ root_fqdn }}"
-edge_gateway_fqdn: "gateway.{{ edge_environment_root_fqdn }}"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -75,9 +78,6 @@ frigate_cameras:
       - record
       - rtmp
 is_raspberry_pi: false
-monitoring_backend_dns_check_targets:
-  - "{{ edge_dns_server.fqdn }}"
-  - "{{ edge_dns_server.ipv4_address }}"
 monitoring_backend_dns_records_to_check:
   - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
     query_name: "cam-1.{{ edge_environment_root_fqdn }}"
@@ -109,7 +109,7 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "cam-1.{{ edge_environment_root_fqdn }}"
   - "dns.google"
   - "ferrarimarco.info"
-  - "{{ edge_gateway_fqdn }}"
+  - "{{ edge_environment_gateway.fqdn }}"
   - "github.com"
   - "google.com"
   - "smart-desk.{{ edge_environment_root_fqdn }}"

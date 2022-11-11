@@ -125,6 +125,7 @@ monitoring_backend_http_cadvisor_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ cadvisor_exposed_port }} # cAdvisor"
 monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ prometheus_node_exporter_port }} # Prometheus Node Exporter"
+monitoring_backend_dns_check_targets: []
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_backend_templates_to_render:
@@ -196,6 +197,16 @@ network_stack_dns_aaaa_records_to_configure_for_root_dns_template:
   - source: "{{ item.fqdn }}"
     destination: "{{ item.ipv6_address }}"
     query_type: AAAA
+network_stack_dns_ns_records_to_configure_for_root_dns_template:
+  - source: "{{ root_fqdn }}"
+    destination: "{{ item.fqdn }}"
+    query_type: NS
+network_stack_edge_dns_resolver_template:
+  - fqdn: "{{ item }}"
+    # This assumes that the DNS resolver is listening to the default network interface as well
+    ipv4_address: "{{ hostvars[item].ansible_default_ipv4.address }}"
+    port: "{{ network_stack_unbound_dns_host_port }}"
+network_stack_edge_dns_resolvers: []
 network_stack_docker_compose_up_items:
   - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 network_stack_templates_to_render:

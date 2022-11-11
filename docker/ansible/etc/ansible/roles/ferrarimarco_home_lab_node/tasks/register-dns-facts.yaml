@@ -8,7 +8,7 @@
     - hostvars[item].dns_records_to_configure is defined
   with_items: "{{ groups['all'] }}"
 
-- name: Add DNS records for the root and other zones to the list of DNS records to configure
+- name: Add DNS records for the edge environment zone to the list of DNS records to configure
   ansible.builtin.set_fact:
     dns_records_to_configure: "{{ dns_records_to_configure + [item] }}"
   with_items:
@@ -31,6 +31,11 @@
   when: item.ipv6_address is defined
   with_items: "{{ root_dns_servers }}"
 
+- name: Add the NS records pointing to the root DNS servers to the list of DNS records to configure
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_ns_records_to_configure_for_root_dns_template }}"
+  with_items: "{{ root_dns_servers }}"
+
 - name: Remove duplicates from the list of DNS records to configure
   ansible.builtin.set_fact:
     dns_records_to_configure: "{{ dns_records_to_configure | unique | sort(attribute='query_type,source,destination') }}"
@@ -38,5 +43,26 @@
 - name: Debug dns_records_to_configure
   ansible.builtin.debug:
     var: dns_records_to_configure
+    verbosity: 1
+
+- name: Populate the edge environment DNS resolvers list
+  ansible.builtin.set_fact:
+    network_stack_edge_dns_resolvers: "{{ network_stack_edge_dns_resolvers + [item] }}"
+  with_items:
+    # The dnsmasq instance on the gateway acts both as a resolver and as a DNS
+    # server for the edge environment
+    - "{{ edge_dns_server }}"
+
+- name: Add the edge environment recursive DNS resolvers to the DNS resolvers list
+  ansible.builtin.set_fact:
+    network_stack_edge_dns_resolvers: "{{ network_stack_edge_dns_resolvers + network_stack_edge_dns_resolver_template }}"
+  when:
+    - hostvars[item].network_stack_configure_recursive_dns_resolver is defined
+    - hostvars[item].network_stack_configure_recursive_dns_resolver
+  with_items: "{{ groups['all'] }}"
+
+- name: Debug network_stack_edge_dns_resolvers
+  ansible.builtin.debug:
+    var: network_stack_edge_dns_resolvers
     verbosity: 1
 ...
