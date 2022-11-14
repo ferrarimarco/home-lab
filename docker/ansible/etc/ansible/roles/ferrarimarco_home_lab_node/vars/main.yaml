@@ -194,7 +194,7 @@ network_stack_dns_aaaa_records_to_configure_for_root_dns_template:
     destination: "{{ item.ipv6_address }}"
     query_type: AAAA
 network_stack_dns_ns_records_to_configure_for_root_dns_template:
-  - source: "{{ root_fqdn }}"
+  - source: "{{ root_dns_zone.fqdn }}"
     destination: "{{ item.fqdn }}"
     query_type: NS
 network_stack_edge_dns_resolver_template:
@@ -212,8 +212,8 @@ network_stack_templates_to_render:
   - src: "network-stack/coredns/Corefile.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/coredns/Corefile"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-  - src: "network-stack/coredns/zones/{{ root_fqdn }}.jinja"
-    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_fqdn }}"
+  - src: "network-stack/coredns/zones/{{ root_dns_zone.fqdn }}.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_dns_zone.fqdn }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/unbound/server.conf.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/unbound/server.conf"

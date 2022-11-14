@@ -22,7 +22,6 @@ default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
 dns_records_to_configure: []
-dns_root_soa_email_contact: dns-admin.{{ root_fqdn }}
 docker_apt_release_channel: stable
 # This was used to install the standalone compose executable before switching to the Docker Compose plugin for Docker Engine
 docker_compose_standalone_executable_path: "/usr/local/bin/docker-compose"
@@ -46,7 +45,7 @@ edge_dns_server:
 edge_environment_gateway:
   fqdn: "gateway.{{ edge_environment_root_fqdn }}"
   ipv4_address: "10.0.0.1"
-edge_environment_root_fqdn: "edge.{{ root_fqdn }}"
+edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -132,9 +131,18 @@ network_stack_unbound_dns_host_port: 53
 network_stack_unbound_verbosity: 1
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
-root_fqdn: lab.ferrari.how
+# Set this separately here to avoid an infinite loop when initializing the root_dns_zone variable
+root_dns_zone_fqdn: lab.ferrari.how
+root_dns_zone:
+  dns_administrator_email_address: "dns-admin.{{ root_dns_zone_fqdn }}"
+  fqdn: "{{ root_dns_zone_fqdn }}"
+  expire_time: 4000000
+  minimum_ttl_time: 11200
+  refresh_time: 86400
+  retry_time: 7200
+  serial_number: 2017042745
 root_dns_servers:
-  - fqdn: "ns1.{{ root_fqdn }}"
+  - fqdn: "ns1.{{ root_dns_zone.fqdn }}"
     ipv4_address: "10.0.0.2"
     port: "{{ network_stack_coredns_dns_host_port }}"
 samba_additional_interfaces: "10.0.0.0/8"

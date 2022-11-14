@@ -103,10 +103,10 @@
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
       fact_category: "monitoring-backend"
       fact_dns_records_to_configure:
-        - source: "grafana.{{ root_fqdn }}"
+        - source: "grafana.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
-        - source: "prometheus.{{ root_fqdn }}"
+        - source: "prometheus.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
       fact_configuration_directories_to_create: "{{ monitoring_backend_configuration_directories }}"
@@ -116,7 +116,7 @@
     - enable_custom_fact: "{{ configure_home_assistant }}"
       fact_category: "home-assistant"
       fact_dns_records_to_configure:
-        - source: "home-assistant.{{ root_fqdn }}"
+        - source: "home-assistant.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
       fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
@@ -125,7 +125,7 @@
     - enable_custom_fact: "{{ configure_mqtt_broker }}"
       fact_category: "mosquitto"
       fact_dns_records_to_configure:
-        - source: "mqtt.{{ root_fqdn }}"
+        - source: "mqtt.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
       fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"
@@ -134,7 +134,7 @@
     - enable_custom_fact: "{{ configure_frigate }}"
       fact_category: "frigate"
       fact_dns_records_to_configure:
-        - source: "frigate.{{ root_fqdn }}"
+        - source: "frigate.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
       fact_configuration_directories_to_create: "{{ frigate_configuration_directories }}"
@@ -177,7 +177,7 @@
     - enable_custom_fact: "{{ configure_torrent }}"
       fact_category: "torrent"
       fact_dns_records_to_configure:
-        - source: "qbittorrent.{{ root_fqdn }}"
+        - source: "qbittorrent.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
       fact_configuration_directories_to_create: "{{ torrent_configuration_directories }}"
@@ -199,7 +199,7 @@
     - enable_custom_fact: "{{ configure_zigbee2mqtt }}"
       fact_category: "zigbee2mqtt"
       fact_dns_records_to_configure:
-        - source: "zigbee2mqtt.{{ root_fqdn }}"
+        - source: "zigbee2mqtt.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
       fact_configuration_directories_to_create: "{{ zigbee2mqtt_configuration_directories }}"

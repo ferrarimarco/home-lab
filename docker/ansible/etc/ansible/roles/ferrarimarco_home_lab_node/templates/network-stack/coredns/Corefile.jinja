@@ -17,7 +17,7 @@
   import common
 }
 
-{{ root_fqdn }} {
-  file ./zones/{{ root_fqdn }}
+{{ root_dns_zone.fqdn }} {
+  file ./zones/{{ root_dns_zone.fqdn }}
   import common
 }

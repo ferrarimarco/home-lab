@@ -49,7 +49,7 @@ scrape_configs:
 {% for dns_resolver in network_stack_edge_dns_resolvers %}
         - "{{ dns_resolver.ipv4_address }}{% if dns_resolver.port is defined %}:{{ dns_resolver.port }}{% endif %}"
 {% endfor %}
-{% if dns_record_to_check.query_name.endswith(root_fqdn) %}
+{% if dns_record_to_check.query_name.endswith(root_dns_zone.fqdn) %}
 {% for dns_server in root_dns_servers %}
         - "{{ dns_server.fqdn }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
 {% endfor %}
