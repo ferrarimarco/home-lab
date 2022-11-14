@@ -134,6 +134,7 @@ raspberry_pi_config_file_values: {}
 # Set this separately here to avoid an infinite loop when initializing the root_dns_zone variable
 root_dns_zone_fqdn: lab.ferrari.how
 root_dns_zone:
+  default_record_ttl: 3600
   dns_administrator_email_address: "dns-admin.{{ root_dns_zone_fqdn }}"
   fqdn: "{{ root_dns_zone_fqdn }}"
   expire_time: 4000000
