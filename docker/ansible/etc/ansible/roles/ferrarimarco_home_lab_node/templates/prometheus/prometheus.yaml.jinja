@@ -38,14 +38,25 @@ scrape_configs:
       - targets:
         - "blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
 
-{% for dns_record_to_check in monitoring_backend_dns_records_to_check|unique %}
+{% for dns_record_to_check in monitoring_backend_dns_records_to_check %}
   - job_name: "blackbox-dns-{{ dns_record_to_check.check_name }}"
     metrics_path: /probe
     params:
       module:
         - "{{ dns_record_to_check.check_name }}"
     static_configs:
-      - targets: {{ monitoring_backend_dns_check_targets | unique | sort }}
+      - targets:
+{% for dns_resolver in network_stack_edge_dns_resolvers %}
+        - "{{ dns_resolver.ipv4_address }}{% if dns_resolver.port is defined %}:{{ dns_resolver.port }}{% endif %}"
+{% endfor %}
+{% if dns_record_to_check.query_name.endswith(root_fqdn) %}
+{% for dns_server in root_dns_servers %}
+        - "{{ dns_server.fqdn }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
+{% endfor %}
+{% endif %}
+{% if dns_record_to_check.query_name.endswith(edge_environment_root_fqdn) %}
+        - "{{ edge_dns_server.fqdn }}{% if edge_dns_server.port is defined %}:{{ edge_dns_server.port }}{% endif %}"
+{% endif %}
     relabel_configs:
       - source_labels: [__address__] # Add a target parameter of the scrape request URL
         target_label: __param_target

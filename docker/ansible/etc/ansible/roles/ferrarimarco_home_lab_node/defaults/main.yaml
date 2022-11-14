@@ -42,6 +42,7 @@ docker_os_users_to_create:
 edge_dns_server:
   fqdn: "{{ edge_environment_gateway.fqdn }}"
   ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
+  port: 53
 edge_environment_gateway:
   fqdn: "gateway.{{ edge_environment_root_fqdn }}"
   ipv4_address: "10.0.0.1"
@@ -135,6 +136,7 @@ root_fqdn: lab.ferrari.how
 root_dns_servers:
   - fqdn: "ns1.{{ root_fqdn }}"
     ipv4_address: "10.0.0.2"
+    port: "{{ network_stack_coredns_dns_host_port }}"
 samba_additional_interfaces: "10.0.0.0/8"
 samba_default_readers_group_name: "samba-readers"
 samba_default_writers_group_name: "samba-writers"

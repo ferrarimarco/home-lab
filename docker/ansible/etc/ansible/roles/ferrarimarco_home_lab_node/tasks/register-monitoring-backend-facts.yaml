@@ -42,18 +42,4 @@
   ansible.builtin.debug:
     var: monitoring_backend_icmp_ping_hosts_to_check
     verbosity: 1
-
-- name: Add the edge environment DNS resolvers to the list of target DNS servers and resolvers
-  ansible.builtin.set_fact:
-    monitoring_backend_dns_check_targets: "{{ monitoring_backend_dns_check_targets + [item.ipv4_address] }}"
-  with_items: "{{ network_stack_edge_dns_resolvers }}"
-
-- name: Remove duplicates from the list of target DNS servers and resolvers
-  ansible.builtin.set_fact:
-    monitoring_backend_dns_check_targets: "{{ monitoring_backend_dns_check_targets | unique | sort }}"
-
-- name: Debug monitoring_backend_dns_check_targets
-  ansible.builtin.debug:
-    var: monitoring_backend_dns_check_targets
-    verbosity: 1
 ...

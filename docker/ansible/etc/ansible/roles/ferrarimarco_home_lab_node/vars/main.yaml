@@ -122,7 +122,6 @@ monitoring_backend_http_cadvisor_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ cadvisor_exposed_port }} # cAdvisor"
 monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ prometheus_node_exporter_port }} # Prometheus Node Exporter"
-monitoring_backend_dns_check_targets: []
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 monitoring_backend_templates_to_render:
