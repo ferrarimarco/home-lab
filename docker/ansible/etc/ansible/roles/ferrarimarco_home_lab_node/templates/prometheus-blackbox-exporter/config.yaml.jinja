@@ -8,9 +8,17 @@ modules:
       query_type: "{{ dns_record_to_check.query_type }}"
       validate_answer_rrs:
         fail_if_none_matches_regexp:
-          - "{{ dns_record_to_check.query_name }}.\t{{ dns_record_to_check.ttl | default(root_dns_zone.default_record_ttl) }}\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_none_matches_regexp_value | default('') }}"
+{# Any TTL would be fine if we don't specify one #}
+{% set dns_record_to_check_ttl = dns_record_to_check.ttl | default(".*") %}
+{% if dns_record_to_check.query_name.endswith(edge_environment_root_fqdn) %}
+{# The DNS server for the edge environment sets the TTL to 0 for dynamically assigned names, such as the ones from DHCP leases #}
+{% set dns_record_to_check_ttl = "0" %}
+{% elif dns_record_to_check.query_name.endswith(root_dns_zone.fqdn) %}
+{% set dns_record_to_check_ttl = root_dns_zone.default_record_ttl %}
+{% endif %}
+          - "{{ dns_record_to_check.query_name }}.\t{{ dns_record_to_check_ttl }}\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_none_matches_regexp_value | default('') }}"
         fail_if_not_matches_regexp:
-          - "{{ dns_record_to_check.query_name }}.\t{{ dns_record_to_check.ttl | default(root_dns_zone.default_record_ttl) }}\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_not_matches_regexp_value | default('') }}"
+          - "{{ dns_record_to_check.query_name }}.\t{{ dns_record_to_check_ttl }}\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_not_matches_regexp_value | default('') }}"
       valid_rcodes:
         - NOERROR
 {% endfor %}

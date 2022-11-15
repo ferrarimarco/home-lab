@@ -128,7 +128,8 @@ network_stack_container_network_subnet: "172.21.0.0/24"
 network_stack_container_network_coredns_container_ipv4_address: "{{ network_stack_container_network_subnet | ansible.utils.nthhost(2) }}"
 network_stack_container_network_unbound_container_ipv4_address: "{{ network_stack_container_network_subnet | ansible.utils.nthhost(3) }}"
 network_stack_unbound_dns_host_port: 53
-network_stack_unbound_verbosity: 1
+network_stack_unbound_enable_logs: true
+network_stack_unbound_verbosity: 2
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
 # Set this separately here to avoid an infinite loop when initializing the root_dns_zone variable

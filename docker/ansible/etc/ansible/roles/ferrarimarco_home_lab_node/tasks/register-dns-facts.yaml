@@ -57,7 +57,7 @@
 
 - name: Remove duplicates from the list of DNS records to configure
   ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure | unique | sort(attribute='query_type,source,destination') }}"
+    dns_records_to_configure: "{{ dns_records_to_configure | unique | sort(attribute='source,query_type,destination') }}"
 
 - name: Debug dns_records_to_configure
   ansible.builtin.debug:
