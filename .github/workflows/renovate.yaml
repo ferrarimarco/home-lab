@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v34.21.4
+        uses: renovatebot/github-action@v34.25.1
         env:
           LOG_LEVEL: 'debug'
         with:
