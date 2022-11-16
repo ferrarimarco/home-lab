@@ -8,18 +8,6 @@
     - hostvars[item].dns_records_to_configure is defined
   with_items: "{{ groups['all'] }}"
 
-- name: Add DNS records for the edge environment zone to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + [item] }}"
-  when: network_stack_coredns_configure_edge_dns_records
-  with_items:
-    - source: "{{ edge_dns_server.fqdn }}"
-      destination: "{{ edge_dns_server.ipv4_address }}"
-      query_type: A
-    - source: "{{ edge_environment_root_fqdn }}"
-      destination: "{{ edge_dns_server.fqdn }}"
-      query_type: NS
-
 - name: Add the A records pointing to the root DNS servers to the list of DNS records to configure
   ansible.builtin.set_fact:
     dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_a_records_to_configure_for_root_dns_template }}"
