@@ -11,6 +11,7 @@
 - name: Add DNS records for the edge environment zone to the list of DNS records to configure
   ansible.builtin.set_fact:
     dns_records_to_configure: "{{ dns_records_to_configure + [item] }}"
+  when: network_stack_coredns_configure_edge_dns_records
   with_items:
     - source: "{{ edge_dns_server.fqdn }}"
       destination: "{{ edge_dns_server.ipv4_address }}"
