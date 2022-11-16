@@ -8,42 +8,6 @@
     - hostvars[item].dns_records_to_configure is defined
   with_items: "{{ groups['all'] }}"
 
-- name: Add the A records pointing to the root DNS servers to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_a_records_to_configure_for_root_dns_template }}"
-  when: item.ipv4_address is defined
-  with_items: "{{ root_dns_servers }}"
-
-- name: Add the AAAA records pointing to the root DNS servers to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_aaaa_records_to_configure_for_root_dns_template }}"
-  when: item.ipv6_address is defined
-  with_items: "{{ root_dns_servers }}"
-
-- name: Add the NS records pointing to the root DNS servers to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_ns_records_to_configure_for_root_dns_template }}"
-  with_items: "{{ root_dns_servers }}"
-
-- name: Add the SOA record pointing to the root DNS servers to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + [item] }}"
-  with_items:
-    - source: "{{ root_dns_zone.fqdn }}"
-      destination: "{{ root_dns_servers[0].fqdn }}"
-      query_type: SOA
-      # See https://en.wikipedia.org/wiki/SOA_record
-      # DNS admin email contact
-      # Serial: serial number for this zone. If a secondary name server slaved to this one observes an increase in this number, the slave will assume that the zone has been updated and initiate a zone transfer.
-      # Refresh: Number of seconds after which secondary name servers should query the master for the SOA record, to detect zone changes.
-      # Retry: Number of seconds after which secondary name servers should retry to request the serial number from the master if the master does not respond.
-      # Expire: Number of seconds after which secondary name servers should stop answering request for this zone if the master does not respond.
-      # Minimum: Used in calculating the time to live for purposes of negative caching.
-      #   Authoritative name servers take the smaller of the SOA TTL and the SOA MINIMUM to send as the SOA TTL in negative responses.
-      #   Resolvers use the resulting SOA TTL to understand for how long they are allowed to cache a negative response.
-      additional_record_data: |
-        {{ root_dns_zone.dns_administrator_email_address }}. {{ root_dns_zone.serial_number }} {{ root_dns_zone.refresh_time }} {{ root_dns_zone.retry_time }} {{ root_dns_zone.expire_time }} {{ root_dns_zone.minimum_ttl_time }}
-
 - name: Remove duplicates from the list of DNS records to configure
   ansible.builtin.set_fact:
     dns_records_to_configure: "{{ dns_records_to_configure | unique | sort(attribute='source,query_type,destination') }}"
@@ -60,6 +24,23 @@
     # The dnsmasq instance on the gateway acts both as a resolver and as a DNS
     # server for the edge environment
     - "{{ edge_dns_server }}"
+
+- name: Populate the root DNS servers list
+  ansible.builtin.set_fact:
+    network_stack_root_dns_servers: "{{ network_stack_root_dns_servers + network_stack_root_dns_server_template }}"
+  when:
+    - item.query_type == "NS"
+    - item.source == root_dns_zone.fqdn
+  with_items: "{{ dns_records_to_configure }}"
+
+- name: Remove duplicates from the root DNS servers list
+  ansible.builtin.set_fact:
+    network_stack_root_dns_servers: "{{ network_stack_root_dns_servers | unique | sort(attribute='fqdn,port') }}"
+
+- name: Debug network_stack_root_dns_servers
+  ansible.builtin.debug:
+    var: network_stack_root_dns_servers
+    verbosity: 1
 
 - name: Add the edge environment recursive DNS resolvers to the DNS resolvers list
   ansible.builtin.set_fact:

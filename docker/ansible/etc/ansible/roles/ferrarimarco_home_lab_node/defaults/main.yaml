@@ -143,10 +143,6 @@ root_dns_zone:
   refresh_time: 86400
   retry_time: 7200
   serial_number: 2017042745
-root_dns_servers:
-  - fqdn: "ns1.{{ root_dns_zone.fqdn }}"
-    ipv4_address: "10.0.0.2"
-    port: "{{ network_stack_coredns_dns_host_port }}"
 samba_additional_interfaces: "10.0.0.0/8"
 samba_default_readers_group_name: "samba-readers"
 samba_default_writers_group_name: "samba-writers"
