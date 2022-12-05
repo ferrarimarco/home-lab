@@ -20,3 +20,9 @@
   file ./zones/{{ root_dns_zone.fqdn }}
   import common
 }
+
+# Forward reverse lookups to the edge DNS server instance that also handles DHCP
+in-addr.arpa {
+  forward . {{ edge_dns_server.ipv4_address }}
+  import common
+}
