@@ -8,35 +8,50 @@
     - hostvars[item].dns_records_to_configure is defined
   with_items: "{{ groups['all'] }}"
 
-- name: Add DNS records for the root and other zones to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + [ item ] }}"
-  with_items:
-    - source: "{{ edge_dns_server.fqdn }}"
-      destination: "{{ edge_dns_server.ipv4_address }}"
-      query_type: A
-    - source: "{{ edge_environment_root_fqdn }}"
-      destination: "{{ edge_dns_server.fqdn }}"
-      query_type: NS
-
-- name: Add the A records pointing to the root DNS servers to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_a_records_to_configure_for_root_dns_template }}"
-  when: item.ipv4_address is defined
-  with_items: "{{ root_dns_servers }}"
-
-- name: Add the AAAA records pointing to the root DNS servers to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + network_stack_dns_aaaa_records_to_configure_for_root_dns_template }}"
-  when: item.ipv6_address is defined
-  with_items: "{{ root_dns_servers }}"
-
 - name: Remove duplicates from the list of DNS records to configure
   ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure|unique|sort(attribute='query_type,source,destination') }}"
+    dns_records_to_configure: "{{ dns_records_to_configure | unique | sort(attribute='source,query_type,destination') }}"
 
 - name: Debug dns_records_to_configure
   ansible.builtin.debug:
     var: dns_records_to_configure
+    verbosity: 1
+
+- name: Populate the edge environment DNS resolvers list
+  ansible.builtin.set_fact:
+    network_stack_edge_dns_resolvers: "{{ network_stack_edge_dns_resolvers + [item] }}"
+  with_items:
+    # The dnsmasq instance on the gateway acts both as a resolver and as a DNS
+    # server for the edge environment
+    - "{{ edge_dns_server }}"
+
+- name: Populate the root DNS servers list
+  ansible.builtin.set_fact:
+    network_stack_root_dns_servers: "{{ network_stack_root_dns_servers + network_stack_root_dns_server_template }}"
+  when:
+    - item.query_type == "NS"
+    - item.source == root_dns_zone.fqdn
+  with_items: "{{ dns_records_to_configure }}"
+
+- name: Remove duplicates from the root DNS servers list
+  ansible.builtin.set_fact:
+    network_stack_root_dns_servers: "{{ network_stack_root_dns_servers | unique | sort(attribute='fqdn,port') }}"
+
+- name: Debug network_stack_root_dns_servers
+  ansible.builtin.debug:
+    var: network_stack_root_dns_servers
+    verbosity: 1
+
+- name: Add the edge environment recursive DNS resolvers to the DNS resolvers list
+  ansible.builtin.set_fact:
+    network_stack_edge_dns_resolvers: "{{ network_stack_edge_dns_resolvers + network_stack_edge_dns_resolver_template }}"
+  when:
+    - hostvars[item].network_stack_configure_recursive_dns_resolver is defined
+    - hostvars[item].network_stack_configure_recursive_dns_resolver
+  with_items: "{{ groups['all'] }}"
+
+- name: Debug network_stack_edge_dns_resolvers
+  ansible.builtin.debug:
+    var: network_stack_edge_dns_resolvers
     verbosity: 1
 ...

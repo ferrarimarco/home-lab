@@ -13,7 +13,6 @@ configure_monitoring_backend: false
 configure_mqtt_broker: false
 configure_network_stack: false
 configure_network_shares: false
-configure_reverse_proxy: false
 configure_tailscale: false
 configure_torrent: false
 configure_wifi: false
@@ -23,7 +22,6 @@ default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
 dns_records_to_configure: []
-dns_root_soa_email_contact: dns-admin.{{ root_fqdn }}
 docker_apt_release_channel: stable
 # This was used to install the standalone compose executable before switching to the Docker Compose plugin for Docker Engine
 docker_compose_standalone_executable_path: "/usr/local/bin/docker-compose"
@@ -41,10 +39,13 @@ docker_os_users_to_create:
     groups:
       - "docker"
 edge_dns_server:
-  fqdn: "{{ edge_gateway_fqdn }}"
+  fqdn: "{{ edge_environment_gateway.fqdn }}"
+  ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
+  port: 53
+edge_environment_gateway:
+  fqdn: "gateway.{{ edge_environment_root_fqdn }}"
   ipv4_address: "10.0.0.1"
-edge_environment_root_fqdn: "edge.{{ root_fqdn }}"
-edge_gateway_fqdn: "gateway.{{ edge_environment_root_fqdn }}"
+edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -76,9 +77,6 @@ frigate_cameras:
       - record
       - rtmp
 is_raspberry_pi: false
-monitoring_backend_dns_check_targets:
-  - "{{ edge_dns_server.fqdn }}"
-  - "{{ edge_dns_server.ipv4_address }}"
 monitoring_backend_dns_records_to_check:
   - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
     query_name: "cam-1.{{ edge_environment_root_fqdn }}"
@@ -110,7 +108,7 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "cam-1.{{ edge_environment_root_fqdn }}"
   - "dns.google"
   - "ferrarimarco.info"
-  - "{{ edge_gateway_fqdn }}"
+  - "{{ edge_environment_gateway.fqdn }}"
   - "github.com"
   - "google.com"
   - "smart-desk.{{ edge_environment_root_fqdn }}"
@@ -120,14 +118,31 @@ monitoring_backend_prometheus_node_exporter_container_port: 9115
 monitoring_backend_prometheus_node_exporter_host_port: 9115
 monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
-network_stack_coredns_healthcheck_metrics_port: 8085
+network_stack_configure_recursive_dns_resolver: false
+network_stack_configure_reverse_proxy: false
+network_stack_coredns_dns_host_port: 8053
+network_stack_coredns_healthcheck_port: 8085
 network_stack_coredns_prometheus_metrics_port: 9153
+network_stack_container_network_subnet: "172.21.0.0/24"
+# Skip the first address because the container engine reserves it for the default gateway
+network_stack_container_network_coredns_container_ipv4_address: "{{ network_stack_container_network_subnet | ansible.utils.nthhost(2) }}"
+network_stack_container_network_unbound_container_ipv4_address: "{{ network_stack_container_network_subnet | ansible.utils.nthhost(3) }}"
+network_stack_unbound_dns_host_port: 53
+network_stack_unbound_enable_logs: true
+network_stack_unbound_verbosity: 2
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
-root_fqdn: lab.ferrari.how
-root_dns_servers:
-  - fqdn: "ns1.{{ root_fqdn }}"
-    ipv4_address: "10.0.0.2"
+# Set this separately here to avoid an infinite loop when initializing the root_dns_zone variable
+root_dns_zone_fqdn: lab.ferrari.how
+root_dns_zone:
+  default_record_ttl: 3600
+  dns_administrator_email_address: "dns-admin.{{ root_dns_zone_fqdn }}"
+  fqdn: "{{ root_dns_zone_fqdn }}"
+  expire_time: 4000000
+  minimum_ttl_time: 11200
+  refresh_time: 86400
+  retry_time: 7200
+  serial_number: 2017042745
 samba_additional_interfaces: "10.0.0.0/8"
 samba_default_readers_group_name: "samba-readers"
 samba_default_writers_group_name: "samba-writers"

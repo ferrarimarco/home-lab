@@ -9,6 +9,13 @@
     monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_record_check_template }}"
   with_items: "{{ dns_records_to_configure }}"
 
+- name: Add the edge DNS servers to the list of DNS records to check
+  ansible.builtin.set_fact:
+    monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_record_check_template }}"
+  with_items:
+    - source: "{{ edge_dns_server.fqdn }}"
+      query_type: "A"
+
 - name: Debug monitoring_backend_dns_records_to_check
   ansible.builtin.debug:
     var: monitoring_backend_dns_records_to_check
@@ -36,21 +43,10 @@
 
 - name: Sort the list of hosts to check via ICMP
   ansible.builtin.set_fact:
-    monitoring_backend_icmp_ping_hosts_to_check: "{{ monitoring_backend_icmp_ping_hosts_to_check|sort }}"
+    monitoring_backend_icmp_ping_hosts_to_check: "{{ monitoring_backend_icmp_ping_hosts_to_check | unique | sort }}"
 
 - name: Debug monitoring_backend_icmp_ping_hosts_to_check
   ansible.builtin.debug:
     var: monitoring_backend_icmp_ping_hosts_to_check
     verbosity: 1
-
-- name: Add the root DNS servers to the list of target DNS servers to check
-  ansible.builtin.set_fact:
-    monitoring_backend_dns_check_targets: "{{ monitoring_backend_dns_check_targets + monitoring_backend_dns_check_target_template }}"
-  with_items: "{{ root_dns_servers }}"
-
-- name: Debug monitoring_backend_dns_check_targets
-  ansible.builtin.debug:
-    var: monitoring_backend_dns_check_targets
-    verbosity: 1
-
 ...

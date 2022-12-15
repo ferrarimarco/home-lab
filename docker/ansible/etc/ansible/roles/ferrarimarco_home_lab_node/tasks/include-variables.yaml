@@ -103,12 +103,14 @@
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
       fact_category: "monitoring-backend"
       fact_dns_records_to_configure:
-        - source: "grafana.{{ root_fqdn }}"
+        - source: "grafana.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
-        - source: "prometheus.{{ root_fqdn }}"
+          source_host: "{{ inventory_hostname }}"
+        - source: "prometheus.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
+          source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ monitoring_backend_configuration_directories }}"
       fact_configuration_directories_to_copy: "{{ monitoring_backend_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
@@ -116,27 +118,30 @@
     - enable_custom_fact: "{{ configure_home_assistant }}"
       fact_category: "home-assistant"
       fact_dns_records_to_configure:
-        - source: "home-assistant.{{ root_fqdn }}"
+        - source: "home-assistant.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
+          source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
       fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
     - enable_custom_fact: "{{ configure_mqtt_broker }}"
       fact_category: "mosquitto"
       fact_dns_records_to_configure:
-        - source: "mqtt.{{ root_fqdn }}"
+        - source: "mqtt.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
+          source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"
       fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
       fact_templates_to_render: "{{ mosquitto_templates_to_render }}"
     - enable_custom_fact: "{{ configure_frigate }}"
       fact_category: "frigate"
       fact_dns_records_to_configure:
-        - source: "frigate.{{ root_fqdn }}"
+        - source: "frigate.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
+          source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ frigate_configuration_directories }}"
       fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
       fact_templates_to_render: "{{ frigate_templates_to_render }}"
@@ -177,9 +182,10 @@
     - enable_custom_fact: "{{ configure_torrent }}"
       fact_category: "torrent"
       fact_dns_records_to_configure:
-        - source: "qbittorrent.{{ root_fqdn }}"
+        - source: "qbittorrent.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
+          source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ torrent_configuration_directories }}"
       fact_docker_compose_up_items: "{{ torrent_docker_compose_up_items }}"
       fact_templates_to_render: "{{ torrent_templates_to_render }}"
@@ -199,9 +205,10 @@
     - enable_custom_fact: "{{ configure_zigbee2mqtt }}"
       fact_category: "zigbee2mqtt"
       fact_dns_records_to_configure:
-        - source: "zigbee2mqtt.{{ root_fqdn }}"
+        - source: "zigbee2mqtt.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
+          source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ zigbee2mqtt_configuration_directories }}"
       fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
       fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
@@ -217,6 +224,32 @@
     - enable_custom_fact: "{{ configure_network_stack }}"
       fact_category: "network-stack"
       fact_configuration_directories_to_create: "{{ network_stack_configuration_directories }}"
+      # Set default (unusable) values (='') here so Ansible doesn't complain.
+      # These unusable values aren't going to be used because configure_network_stack will be false in that case
+      fact_dns_records_to_configure:
+        - source: "{{ network_stack_dns_server_hostname | default('') }}.{{ root_dns_zone.fqdn }}"
+          destination: "{{ inventory_hostname }}"
+          query_type: CNAME
+          source_host: "{{ inventory_hostname }}"
+        - source: "{{ root_dns_zone.fqdn }}"
+          destination: "{{ network_stack_dns_server_hostname | default('') }}.{{ root_dns_zone.fqdn }}"
+          query_type: NS
+          source_host: "{{ inventory_hostname }}"
+        - source: "{{ root_dns_zone.fqdn }}"
+          destination: "{{ network_stack_dns_server_hostname | default('') }}.{{ root_dns_zone.fqdn }}"
+          query_type: SOA
+          source_host: "{{ inventory_hostname }}"
+          # See https://en.wikipedia.org/wiki/SOA_record
+          # DNS admin email contact
+          # Serial: serial number for this zone. If a secondary name server slaved to this one observes an increase in this number, the slave will assume that the zone has been updated and initiate a zone transfer.
+          # Refresh: Number of seconds after which secondary name servers should query the master for the SOA record, to detect zone changes.
+          # Retry: Number of seconds after which secondary name servers should retry to request the serial number from the master if the master does not respond.
+          # Expire: Number of seconds after which secondary name servers should stop answering request for this zone if the master does not respond.
+          # Minimum: Used in calculating the time to live for purposes of negative caching.
+          #   Authoritative name servers take the smaller of the SOA TTL and the SOA MINIMUM to send as the SOA TTL in negative responses.
+          #   Resolvers use the resulting SOA TTL to understand for how long they are allowed to cache a negative response.
+          additional_record_data: |
+            {{ root_dns_zone.dns_administrator_email_address }}. {{ root_dns_zone.serial_number }} {{ root_dns_zone.refresh_time }} {{ root_dns_zone.retry_time }} {{ root_dns_zone.expire_time }} {{ root_dns_zone.minimum_ttl_time }}
       fact_docker_compose_up_items: "{{ network_stack_docker_compose_up_items }}"
       fact_templates_to_render: "{{ network_stack_templates_to_render }}"
 

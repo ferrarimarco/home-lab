@@ -1,9 +1,8 @@
 (common) {
-  cache
   cancel
   chaos
   errors
-  health :{{ network_stack_coredns_healthcheck_metrics_port }}
+  health :{{ network_stack_coredns_healthcheck_port }}
   local
   log
   loop
@@ -17,7 +16,13 @@
   import common
 }
 
-{{ root_fqdn }} {
-  file ./zones/{{ root_fqdn }}
+{{ root_dns_zone.fqdn }} {
+  file ./zones/{{ root_dns_zone.fqdn }}
+  import common
+}
+
+# Forward reverse lookups to the edge DNS server instance that also handles DHCP
+in-addr.arpa {
+  forward . {{ edge_dns_server.ipv4_address }}
   import common
 }

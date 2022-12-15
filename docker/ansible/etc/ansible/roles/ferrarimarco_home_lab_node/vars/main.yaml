@@ -114,11 +114,8 @@ monitoring_backend_dns_a_record_check_template_for_ansible_hosts:
   - check_name: "dns_{{ item | lower | replace('.', '_') }}_a"
     query_name: "{{ item }}"
     query_type: "A"
-monitoring_backend_dns_check_target_template:
-  - "{{ item.fqdn }}"
-  - "{{ item.ipv4_address }}"
 monitoring_backend_dns_record_check_template:
-  - check_name: "dns_{{ item.source | lower | replace('.', '_') }}_{{ item.query_type|lower }}"
+  - check_name: "dns_{{ item.source | lower | replace('.', '_') }}_{{ item.query_type | lower }}"
     query_name: "{{ item.source }}"
     query_type: "{{ item.query_type }}"
 monitoring_backend_http_cadvisor_endpoint_check_template:
@@ -186,17 +183,20 @@ network_stack_configuration_directories:
   - path: "{{ network_stack_configuration_directory_path }}"
   - path: "{{ network_stack_configuration_directory_path }}/coredns"
   - path: "{{ network_stack_configuration_directory_path }}/coredns/zones"
+  - path: "{{ network_stack_configuration_directory_path }}/unbound"
 network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
-network_stack_dns_a_records_to_configure_for_root_dns_template:
-  - source: "{{ item.fqdn }}"
-    destination: "{{ item.ipv4_address }}"
-    query_type: A
-network_stack_dns_aaaa_records_to_configure_for_root_dns_template:
-  - source: "{{ item.fqdn }}"
-    destination: "{{ item.ipv6_address }}"
-    query_type: AAAA
+network_stack_edge_dns_resolver_template:
+  - fqdn: "{{ item }}"
+    # This assumes that the DNS resolver is listening to the default network interface as well
+    ipv4_address: "{{ hostvars[item].ansible_default_ipv4.address }}"
+    port: "{{ network_stack_unbound_dns_host_port }}"
+network_stack_edge_dns_resolvers: []
 network_stack_docker_compose_up_items:
   - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+network_stack_root_dns_servers: []
+network_stack_root_dns_server_template:
+  - fqdn: "{{ item.destination }}"
+    port: "{{ hostvars[item.source_host].network_stack_coredns_dns_host_port | default(network_stack_coredns_dns_host_port) }}"
 network_stack_templates_to_render:
   - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -204,8 +204,14 @@ network_stack_templates_to_render:
   - src: "network-stack/coredns/Corefile.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/coredns/Corefile"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-  - src: "network-stack/coredns/zones/{{ root_fqdn }}.jinja"
-    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_fqdn }}"
+  - src: "network-stack/coredns/zones/{{ root_dns_zone.fqdn }}.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_dns_zone.fqdn }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/unbound/server.conf.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/unbound/server.conf"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/unbound/stub-zones.conf.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
 os_groups_to_create: []
 os_services_to_configure: []
