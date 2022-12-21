@@ -26,4 +26,40 @@ repos:
     rev: v1.28.0
     hooks:
       - id: yamllint
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v6.10.0
+    hooks:
+      - id: ansible-lint
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: "2.6.2"
+    hooks:
+      - id: editorconfig-checker
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.32.2
+    hooks:
+      - id: markdownlint-docker
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.9.0
+    hooks:
+    - id: shellcheck
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.6.22
+    hooks:
+      - id: actionlint-docker
+  - repo: https://github.com/psf/black
+    rev: "22.12.0"
+    hooks:
+      - id: black
+  - repo: https://github.com/PyCQA/isort
+    rev: "5.11.3"
+    hooks:
+      - id: isort
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.15.2
+    hooks:
+      - id: gitleaks-docker
 ...
