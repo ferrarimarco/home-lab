@@ -13,7 +13,8 @@ repos:
       - id: check-symlinks
       - id: check-toml
       - id: check-yaml
-        args: "--allow-multiple-documents"
+        args:
+          - "--allow-multiple-documents"
       - id: detect-private-key
       - id: end-of-file-fixer
       - id: fix-byte-order-marker
@@ -21,4 +22,8 @@ repos:
       - id: pretty-format-json
       - id: requirements-txt-fixer
       - id: trailing-whitespace
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.28.0
+    hooks:
+      - id: yamllint
 ...
