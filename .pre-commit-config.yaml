@@ -5,6 +5,9 @@ repos:
     rev: v4.3.0
     hooks:
       - id: check-added-large-files
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-case-conflict
       - id: check-docstring-first
       - id: check-executables-have-shebangs
       - id: check-json
@@ -14,22 +17,30 @@ repos:
       - id: check-toml
       - id: check-yaml
         args:
-          - "--allow-multiple-documents"
+          - "--unsafe"
+      - id: debug-statements
+      - id: destroyed-symlinks
       - id: detect-private-key
       - id: end-of-file-fixer
       - id: fix-byte-order-marker
+      - id: fix-encoding-pragma
       - id: mixed-line-ending
-      - id: pretty-format-json
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.28.0
     hooks:
       - id: yamllint
+        args:
+          - "-c=.yaml-lint.yml"
   - repo: https://github.com/ansible/ansible-lint
     rev: v6.10.0
     hooks:
       - id: ansible-lint
+        args:
+          - "-c"
+          - ".ansible-lint.yml"
+          - "-vv"
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: "2.6.2"
     hooks:
@@ -45,7 +56,7 @@ repos:
   - repo: https://github.com/koalaman/shellcheck-precommit
     rev: v0.9.0
     hooks:
-    - id: shellcheck
+      - id: shellcheck
   - repo: https://github.com/rhysd/actionlint
     rev: v1.6.22
     hooks:
