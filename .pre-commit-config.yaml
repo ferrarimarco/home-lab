@@ -62,4 +62,20 @@ repos:
     rev: v8.15.2
     hooks:
       - id: gitleaks-docker
+  # Local hooks
+  - repo: local
+    hooks:
+      - id: shfmt
+        name: shfmt
+        language: docker_image
+        entry: --net none mvdan/shfmt:v3.6.0
+        types: [shell]
+        exclude_types: [csh, perl, python, ruby, tcsh, zsh]
+        args:
+          - "--diff"
+  # Meta hooks
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
 ...
