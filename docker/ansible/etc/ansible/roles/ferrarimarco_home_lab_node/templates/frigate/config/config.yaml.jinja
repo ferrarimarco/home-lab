@@ -27,6 +27,10 @@ record:
       # Retention days
       default: 10
 
+# Disable RTMP re-streaming to spare resources
+rtmp:
+  enabled: false
+
 # Configuration for the snapshots written to the clips directory for each event
 snapshots:
   bounding_box: true
@@ -45,13 +49,15 @@ cameras:
   {{ frigate_camera.name }}:
     ffmpeg:
       inputs:
-        - path: "{{ frigate_camera.path }}"
-{% if frigate_camera.ffmpeg.input_args is defined %}
-          input_args: "{{ frigate_camera.ffmpeg.input_args }}"
+{% for frigate_camera_input in frigate_camera.inputs %}
+        - path: "{{ frigate_camera_input.path }}"
+{% if frigate_camera_input.ffmpeg.input_args is defined %}
+          input_args: "{{ frigate_camera_input.ffmpeg.input_args }}"
 {% endif %}
           roles:
-{% for role in frigate_camera.roles %}
+{% for role in frigate_camera_input.roles %}
             - {{ role }}
+{% endfor %}
 {% endfor %}
 {% if frigate_camera.detect is defined %}
     detect:
