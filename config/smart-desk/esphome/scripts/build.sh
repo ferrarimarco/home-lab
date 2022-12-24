@@ -13,7 +13,7 @@ echo "This script (name: ${SCRIPT_BASENAME}, directory path: ${SCRIPT_DIRECTORY_
 . ../../../scripts/common.sh
 
 WORKING_DIRECTORY="$(pwd)"
-VIRTUAL_ENVIRONMENT_PATH="${WORKING_DIRECTORY}/.venv"
+VIRTUAL_ENVIRONMENT_PATH="${WORKING_DIRECTORY}/.venv-smart-desk"
 
 create_and_activate_python_virtual_environment "${VIRTUAL_ENVIRONMENT_PATH}" "${WORKING_DIRECTORY}/requirements.txt"
 
