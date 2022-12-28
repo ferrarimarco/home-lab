@@ -37,10 +37,7 @@ repos:
     rev: v6.10.0
     hooks:
       - id: ansible-lint
-        args:
-          - "-c"
-          - ".ansible-lint.yml"
-          - "-vv"
+        entry: "sh -c 'cd docker/ansible/etc/ansible && ansible-lint -c ../../../../.ansible-lint.yml .'"
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: "2.6.2"
     hooks:
@@ -53,6 +50,9 @@ repos:
     rev: v0.32.2
     hooks:
       - id: markdownlint-docker
+        args:
+          - -c
+          - "config/lint/.markdown-lint.yaml"
   - repo: https://github.com/koalaman/shellcheck-precommit
     rev: v0.9.0
     hooks:

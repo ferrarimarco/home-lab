@@ -4,6 +4,10 @@ updates:
     package-ecosystem: "github-actions"
     schedule:
       interval: "daily"
+  - directory: "config/pre-commit"
+    package-ecosystem: "pip"
+    schedule:
+      interval: "daily"
   - directory: "/config/smart-desk/esphome"
     package-ecosystem: "pip"
     schedule:
