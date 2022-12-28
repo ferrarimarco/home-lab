@@ -86,7 +86,11 @@ create_and_activate_python_virtual_environment() {
     echo "Ensure wheel is installed and up to date"
     pip3 install --upgrade wheel
 
-    if [ -n "${PIP_REQUIREMENTS_PATH}" ] && [ -r "${PIP_REQUIREMENTS_PATH}" ]; then
+    if [ -n "${PIP_REQUIREMENTS_PATH}" ]; then
+      if [ ! -r "${PIP_REQUIREMENTS_PATH}" ]; then
+        echo "Error: ${PIP_REQUIREMENTS_PATH} doesn't exist"
+        exit 1
+      fi
       echo "Installing dependencies from requirements file: ${PIP_REQUIREMENTS_PATH}"
       pip3 install -r "${PIP_REQUIREMENTS_PATH}"
     fi
