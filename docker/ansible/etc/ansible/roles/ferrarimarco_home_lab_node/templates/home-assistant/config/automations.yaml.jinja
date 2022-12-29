@@ -24,7 +24,6 @@
         message_tag: >-
           {{trigger.payload_json["after"]["id"]}}
   mode: queued
-
 - id: send_notification_home_assistant_update
   alias: Send a notification when a Home Assistant update is available
   description: Send a notification when a Home Assistant update is available
@@ -41,5 +40,18 @@
           There is a Home Assistant update available. Current version: {{
           states('sensor.current_version') }}. Docker Hub version: {{
           states('sensor.docker_hub') }}
+  mode: single
+- id: '1672339316110'
+  alias: Lavatrice
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.presa_lavatrice_power
+    below: 10
+  condition: []
+  action:
+  - service: telegram_bot.send_message
+    data:
+      message: La lavatrice ha terminato il ciclo di lavaggio
   mode: single
 ...
