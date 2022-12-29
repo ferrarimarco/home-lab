@@ -10,7 +10,8 @@ binary_sensor:
 default_config: null
 
 homeassistant:
-  currency: EUR
+  country: !secret country
+  currency: !secret currency
   internal_url: !secret internal_url_home
   latitude: !secret latitude_home
   longitude: !secret longitude_home
