@@ -1,25 +1,5 @@
 #jinja2:variable_start_string:'[%', variable_end_string:'%]'
 ---
-- id: notify_on_device_offline
-  alias: Notify when a device goes offline
-  description: Notify when a device goes offline
-  mode: parallel
-  trigger:
-    - platform: state
-      entity_id:
-        - button.hdipc_reboot
-        - camera.hdipc_mainstream
-        - device_tracker.cam_1
-      to: "unavailable"
-      for:
-        minutes: 5
-  action:
-    - service: telegram_bot.send_message
-      data:
-        message: >-
-          {{ state_attr(trigger.to_state.entity_id, 'friendly_name') }} is offline since 5 minutes or more.
-        title: "A device is offline!"
-
 - id: frigate_event_notify
   alias: Notify on Frigate events
   description: Notify when a Frigate event occurs
