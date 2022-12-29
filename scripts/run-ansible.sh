@@ -16,7 +16,7 @@ if ! is_container_runtime_available; then
   echo "Container engine not available. Running a non-containerized command"
   WORKING_DIRECTORY="$(pwd)"
 
-  VIRTUAL_ENVIRONMENT_PATH="${WORKING_DIRECTORY}/.venv"
+  VIRTUAL_ENVIRONMENT_PATH="${WORKING_DIRECTORY}/.venv-ansible"
   PIP_REQUIREMENTS_FILE_PATH="${PIP_REQUIREMENTS_FILE_PATH:-"${WORKING_DIRECTORY}/docker/ansible/requirements.txt"}"
   create_and_activate_python_virtual_environment "${VIRTUAL_ENVIRONMENT_PATH}" "${PIP_REQUIREMENTS_FILE_PATH}"
 

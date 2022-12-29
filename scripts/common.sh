@@ -70,8 +70,9 @@ compress_file() {
 create_and_activate_python_virtual_environment() {
   PYTHON_VIRTUAL_ENVIRONMENT_PATH="${1}"
   PIP_REQUIREMENTS_PATH="${2:-""}"
+  _FORCE_UPDATE_PYTHON_VIRTUAL_ENVIRONMENT="${3:-"false"}"
 
-  if [ -e "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" ] && ! is_python_virtual_environment_up_to_date "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"; then
+  if [ -e "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" ] && ! is_python_virtual_environment_up_to_date "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" && [ "${_FORCE_UPDATE_PYTHON_VIRTUAL_ENVIRONMENT}" = "true" ]; then
     echo "The ${PYTHON_VIRTUAL_ENVIRONMENT_PATH} virtual environment already exists but it's not up to date. Deleting it..."
     rm -rf "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
   fi
@@ -90,10 +91,11 @@ create_and_activate_python_virtual_environment() {
       pip3 install -r "${PIP_REQUIREMENTS_PATH}"
     fi
   else
-    echo "The virtual environment already exists and it's up to date: ${PYTHON_VIRTUAL_ENVIRONMENT_PATH}. Activating it..."
+    echo "The virtual environment already exists: ${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
     activate_python_virtual_environment "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}"
   fi
 
   unset PIP_REQUIREMENTS_PATH
   unset PYTHON_VIRTUAL_ENVIRONMENT_PATH
+  unset _FORCE_UPDATE_PYTHON_VIRTUAL_ENVIRONMENT
 }

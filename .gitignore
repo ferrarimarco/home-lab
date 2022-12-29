@@ -15,3 +15,6 @@ secrets.y*ml
 
 # zigbee2mqtt secrets
 secret.yaml
+
+# Python virtual environments
+.venv*

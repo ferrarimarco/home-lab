@@ -54,32 +54,40 @@ has_sense_hat: false
 home_assistant_user_interface_host_port: 8123
 home_lab_node_ssh_public_key_path: ""
 frigate_cameras:
-  - name: cam-1
-    path: rtsp://cam-1.{{ edge_environment_root_fqdn }}:554/11
-    roles:
-      - detect
-      - record
-      - rtmp
-    # Exclude elevator light and camera timestamp
-    motion_masks:
-      - 925,66,1236,63,1233,31,928,26
-      - 1053,0,1038,0,1039,30,1054,32
-  - name: cam-2
-    detect:
-      height: 1080
-      width: 1920
-    ffmpeg:
-      # The only change to default arguments is the transport (TCP is the default, but we need UDP in this case)
-      input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport udp -timeout 5000000 -use_wallclock_as_timestamps 1
-    path: rtsp://raspberrypi3.{{ edge_environment_root_fqdn }}:8554/stream1
-    roles:
-      - detect
-      - record
-      - rtmp
+  # Keeping this as a record if we redeploy cam-1
+  # - name: cam-1
+  #   inputs:
+  #       path: rtsp://cam-1.{{ edge_environment_root_fqdn }}:554/11
+  #       roles:
+  #         - detect
+  #         - record
+  #         - rtmp
+  # Keeping this as a record if we redeploy cam-2
+  # - name: cam-2
+  #   inputs:
+  #     - ffmpeg:
+  #         # The only change to default arguments is the transport (TCP is the default, but we need UDP in this case)
+  #         input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport udp -timeout 5000000 -use_wallclock_as_timestamps 1
+  #       path: rtsp://raspberrypi3.{{ edge_environment_root_fqdn }}:8554/stream1
+  #       roles:
+  #         - detect
+  #         - record
+  - name: cam-3
+    inputs:
+      - path: rtsp://{{ cam_3_rtps_username }}:{{ cam_3_rtps_password }}@cam-3.{{ edge_environment_root_fqdn }}:554/h264Preview_01_sub
+        roles:
+          - detect
+      - path: rtsp://{{ cam_3_rtps_username }}:{{ cam_3_rtps_password }}@cam-3.{{ edge_environment_root_fqdn }}:554/h264Preview_01_main
+        roles:
+          - record
 is_raspberry_pi: false
 monitoring_backend_dns_records_to_check:
-  - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
-    query_name: "cam-1.{{ edge_environment_root_fqdn }}"
+  # Keeping this as a record if we redeploy cam-1
+  # - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
+  #   query_name: "cam-1.{{ edge_environment_root_fqdn }}"
+  #   query_type: "A"
+  - check_name: "dns_cam_3_edge_lab_ferrari_how_a"
+    query_name: "cam-3.{{ edge_environment_root_fqdn }}"
     query_type: "A"
   - check_name: "dns_ferrari_how_txt"
     query_name: "ferrari.how"
@@ -105,7 +113,9 @@ monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ zigbee2mqtt_http_endpoint_fqdn }}:{{ zigbee2mqtt_user_interface_host_port }} # Zigbee2MQTT"
 monitoring_backend_icmp_ping_hosts_to_check:
   - "1.1.1.1"
-  - "cam-1.{{ edge_environment_root_fqdn }}"
+  # Keeping this as a record if we redeploy cam-1
+  # - "cam-1.{{ edge_environment_root_fqdn }}"
+  - "cam-3.{{ edge_environment_root_fqdn }}"
   - "dns.google"
   - "ferrarimarco.info"
   - "{{ edge_environment_gateway.fqdn }}"
