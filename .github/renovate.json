@@ -6,7 +6,8 @@
   },
   "enabledManagers": [
     "ansible",
-    "docker-compose"
+    "docker-compose",
+    "pre-commit"
   ],
   "docker-compose": {
     "fileMatch": [
