@@ -28,6 +28,9 @@
     }
   ],
   "platform": "github",
+  "pre-commit": {
+    "enabled": true
+  },
   "repositories": [
     "ferrarimarco/home-lab"
   ],
