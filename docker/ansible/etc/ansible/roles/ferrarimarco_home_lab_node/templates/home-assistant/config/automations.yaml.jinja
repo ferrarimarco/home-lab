@@ -42,12 +42,16 @@
           states('sensor.docker_hub') }}
   mode: single
 - id: '1672339316110'
-  alias: Lavatrice
+  alias: Washing machine - End cycle
   description: ''
   trigger:
   - platform: numeric_state
     entity_id: sensor.presa_lavatrice_power
-    below: 10
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+    below: 1
   condition: []
   action:
   - service: telegram_bot.send_message
