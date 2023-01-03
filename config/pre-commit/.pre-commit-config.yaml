@@ -81,16 +81,6 @@ repos:
           - "--diff"
           - "--settings-file"
           - "config/lint/.isort.cfg"
-  - repo: https://github.com/zricethezav/gitleaks
-    rev: v8.15.2
-    hooks:
-      - id: gitleaks-docker
-        entry: zricethezav/gitleaks detect
-        args:
-          - --no-banner
-          - --no-git
-          - --redact
-          - --verbose
         pass_filenames: true
   - repo: https://github.com/psf/black
     rev: "22.12.0"
@@ -111,6 +101,15 @@ repos:
   # Local hooks
   - repo: local
     hooks:
+      - id: gitleaks
+        name: gitleaks (Docker)
+        language: docker_image
+        entry: zricethezav/gitleaks:v8.15.2 detect
+        args:
+          - --no-banner
+          - --no-git
+          - --redact
+          - --verbose
       - id: shfmt
         name: shfmt (Docker)
         language: docker_image
