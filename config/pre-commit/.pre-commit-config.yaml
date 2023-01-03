@@ -69,6 +69,11 @@ repos:
     rev: "5.11.3"
     hooks:
       - id: isort
+        args:
+          - "--check"
+          - "--diff"
+          - "--settings-file"
+          - "config/lint/.isort.cfg"
   - repo: https://github.com/zricethezav/gitleaks
     rev: v8.15.2
     hooks:
