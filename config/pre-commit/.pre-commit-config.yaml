@@ -1,7 +1,7 @@
 ---
 exclude: |
   (?x)^(
-      .venv*
+      .*\.venv.*
   )$
 fail_fast: true
 repos:
@@ -108,8 +108,11 @@ repos:
       - id: gitleaks
         name: gitleaks (Docker)
         language: docker_image
+        pass_filenames: false
         entry: zricethezav/gitleaks:v8.15.2 detect
         args:
+          - --config
+          - "config/lint/.gitleaks.toml"
           - --no-banner
           - --no-git
           - --redact
