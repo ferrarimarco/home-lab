@@ -73,6 +73,13 @@ repos:
     rev: v8.15.2
     hooks:
       - id: gitleaks-docker
+  - repo: https://github.com/psf/black
+    rev: "22.12.0"
+    hooks:
+      - id: black
+        args:
+          - "--check"
+          - "--diff"
   # Local hooks
   - repo: local
     hooks:
