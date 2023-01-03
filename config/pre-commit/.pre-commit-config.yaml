@@ -85,6 +85,7 @@ repos:
     rev: v8.15.2
     hooks:
       - id: gitleaks-docker
+        entry: zricethezav/gitleaks detect
         args:
           - --no-banner
           - --no-git
