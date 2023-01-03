@@ -85,6 +85,12 @@ repos:
     rev: v8.15.2
     hooks:
       - id: gitleaks-docker
+        args:
+          - --no-banner
+          - --no-git
+          - --redact
+          - --verbose
+        pass_filenames: true
   - repo: https://github.com/psf/black
     rev: "22.12.0"
     hooks:
