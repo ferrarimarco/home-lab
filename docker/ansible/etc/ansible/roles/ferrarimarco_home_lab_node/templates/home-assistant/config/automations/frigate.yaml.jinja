@@ -1,0 +1,27 @@
+#jinja2:variable_start_string:'[%', variable_end_string:'%]'
+---
+- id: frigate_event_notify
+  alias: Notify on Frigate events
+  description: Notify when a Frigate event occurs
+  trigger:
+    - platform: mqtt
+      topic: frigate/events
+  action:
+    - service: telegram_bot.send_photo
+      data:
+        url: >-
+          http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
+        caption: >-
+          A {{trigger.payload_json["after"]["label"]}} was detected. Here is a snapshot of the event.
+        message_tag: >-
+          {{trigger.payload_json["after"]["id"]}}
+    - service: telegram_bot.send_video
+      data:
+        url: >-
+          http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
+        caption: >-
+          A {{trigger.payload_json["after"]["label"]}} was detected. Here is a recording of the event.
+        message_tag: >-
+          {{trigger.payload_json["after"]["id"]}}
+  mode: queued
+...

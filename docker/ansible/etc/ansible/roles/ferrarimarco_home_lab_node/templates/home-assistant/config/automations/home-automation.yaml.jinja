@@ -1,0 +1,20 @@
+---
+- id: '1672339316110'
+  alias: Washing machine - End cycle
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.presa_lavatrice_power
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+    below: 1
+  condition: []
+  action:
+  - service: telegram_bot.send_message
+    data:
+      message: La lavatrice ha terminato il ciclo di lavaggio
+      target: !secret telegram_bot_allowed_chat_ids
+  mode: single
+...

@@ -1,5 +1,10 @@
 ---
-automation: !include automations.yaml
+# Automatically configured automations
+automation manual: !include_dir_merge_list automations/
+
+# Automations created via the Home Assistant UI
+# (might contain sensitive data!)
+automation ui: !include automations.yaml
 
 binary_sensor:
 {% for host in monitoring_backend_icmp_ping_hosts_to_check + groups['all'] %}

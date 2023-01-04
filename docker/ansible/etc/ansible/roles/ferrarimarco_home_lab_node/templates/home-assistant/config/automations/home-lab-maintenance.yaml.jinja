@@ -1,0 +1,19 @@
+---
+- id: send_notification_home_assistant_update
+  alias: Send a notification when a Home Assistant update is available
+  description: Send a notification when a Home Assistant update is available
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.docker_hub_update_available
+      to: "on"
+  condition: []
+  action:
+    - service: telegram_bot.send_message
+      data:
+        message: >-
+          There is a Home Assistant update available. Current version: {{
+          states('sensor.current_version') }}. Docker Hub version: {{
+          states('sensor.docker_hub') }}
+  mode: single
+...
