@@ -102,6 +102,10 @@ repos:
           - --install-types
           - --non-interactive
           - --verbose
+  - repo: https://github.com/PyCQA/flake8
+    rev: "6.0.0"
+    hooks:
+      - id: flake8
   # Local hooks
   - repo: local
     hooks:
