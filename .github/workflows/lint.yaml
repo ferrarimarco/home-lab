@@ -7,12 +7,13 @@ on:  # yamllint disable-line rule:truthy
   workflow_call: null
 
 jobs:
+
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Super-Linter
-        uses: github/super-linter@v4.9.7
+        uses: github/super-linter@v4.10.0
         env:
           ANSIBLE_DIRECTORY: "docker/ansible/etc/ansible"
           DISABLE_ERRORS: false
@@ -21,4 +22,15 @@ jobs:
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
           VALIDATE_JSCPD_ALL_CODEBASE: true
+
+  pre_commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Run pre-commit"
+        run: |
+          set -o errexit
+          set -o nounset
+
+          scripts/run-pre-commit.sh
 ...
