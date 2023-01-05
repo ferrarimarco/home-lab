@@ -107,7 +107,11 @@ repos:
     hooks:
       - id: flake8
         args:
+          - "--benchmark"
           - "--config=config/lint/.flake8"
+          - "--diff"
+          - "--verbose"
+          - "--statistics"
   # Local hooks
   - repo: local
     hooks:
