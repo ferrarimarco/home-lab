@@ -106,6 +106,8 @@ repos:
     rev: "6.0.0"
     hooks:
       - id: flake8
+        args:
+          - "--config=config/lint/.flake8"
   # Local hooks
   - repo: local
     hooks:
