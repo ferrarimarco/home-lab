@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
@@ -32,7 +33,7 @@ def render_template(
     return output
 
 
-def parse_arguments(args: list[str] = None):
+def parse_arguments(args: list[str] | None = None):
     parser = ArgumentParser(
         description="Render Jinja templates.",
         formatter_class=ArgumentDefaultsHelpFormatter,
