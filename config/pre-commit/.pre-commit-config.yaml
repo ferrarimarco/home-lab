@@ -39,7 +39,7 @@ repos:
           - "-c=config/lint/.yaml-lint.yml"
           - --strict
   - repo: https://github.com/ansible/ansible-lint
-    rev: v6.10.0
+    rev: v6.10.2
     hooks:
       - id: ansible-lint
         entry: "sh -c 'cd docker/ansible/etc/ansible && ansible-lint -c ../../../../config/lint/.ansible-lint.yml .'"
@@ -79,7 +79,7 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/PyCQA/isort
-    rev: "5.11.3"
+    rev: "5.11.4"
     hooks:
       - id: isort
         args:
