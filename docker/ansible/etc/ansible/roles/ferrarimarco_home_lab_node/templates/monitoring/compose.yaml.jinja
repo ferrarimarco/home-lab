@@ -17,7 +17,7 @@ services:
     container_name: cadvisor
     devices:
       - /dev/kmsg:/dev/kmsg
-    image: gcr.io/cadvisor/cadvisor:v0.46.0
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
     ports:
       - "{{ cadvisor_exposed_port }}:8080"
     privileged: true
