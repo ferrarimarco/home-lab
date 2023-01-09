@@ -15,6 +15,22 @@
     state: "restarted"
   with_items: "{{ os_services_to_restart | unique }}"
 
+- name: Pull container images
+  debugger: on_failed
+  changed_when: '"Pull complete" in docker_compose_pull_result.stdout or "Pull complete" in docker_compose_pull_result.stderr'
+  ansible.builtin.command: >
+    docker compose \
+    --file {{ item.compose_file_path }} \
+    pull \
+    --include-deps
+  register: docker_compose_pull_result
+  with_items: "{{ docker_compose_up_items | unique }}"
+
+- name: Debug Docker Compose pull output
+  ansible.builtin.debug:
+    var: docker_compose_pull_result
+    verbosity: 1
+
 - name: Start Docker Compose services
   debugger: on_failed
   changed_when: '"Started" in docker_compose_up_result.stdout or "Started" in docker_compose_up_result.stderr'
