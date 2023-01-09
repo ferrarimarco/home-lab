@@ -42,6 +42,7 @@
     --detach \
     --remove-orphans
   register: docker_compose_up_result
+  when: item.start_containerized_service
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Debug Docker Compose up output
