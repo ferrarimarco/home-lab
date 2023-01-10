@@ -201,7 +201,8 @@ To add a device to the Tailscale network, do the following:
     sudo tailscale up
     ```
 
-    and follow the instructions to authenticate
+    and follow the instructions to authenticate.
+
 2. (optional) Disable [Tailscale key expiration](https://tailscale.com/kb/1028/key-expiry/)
 
 ### DNS configuration
@@ -232,8 +233,8 @@ To allow access to Samba network shares, do the following:
 ## Monitoring
 
 To monitor the status of the home lab, the automated provisioning and configuration
-process deploy a monitoring agent on each home lab node, and a backend to collect
-data coming from the monitoring agents.
+process deploys a monitoring agent on each home lab node and a backend to collect
+data coming from monitoring agents.
 
 ### Import Grafana dashsboards
 
