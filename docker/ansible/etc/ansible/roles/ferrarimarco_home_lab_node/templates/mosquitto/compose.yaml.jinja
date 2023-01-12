@@ -1,8 +1,4 @@
 ---
-volumes:
-  mosquitto_data: {}
-  mosquitto_logs: {}
-
 services:
   mosquitto:
     container_name: mosquitto
@@ -12,8 +8,8 @@ services:
     restart: always
     volumes:
       - ./config:/mosquitto/config
-      - mosquitto_data:/mosquitto/data
-      - mosquitto_logs:/mosquitto/log
+      - {{ mosquitto_data_directory_path }}:/mosquitto/data
+      - {{ mosquitto_log_directory_path }}:/mosquitto/log
     ports:
       - "1883:1883"
 ...
