@@ -1,8 +1,4 @@
 ---
-volumes:
-  grafana_data: {}
-  prometheus_data: {}
-
 services:
   blackbox_exporter:
     container_name: blackbox-exporter
@@ -26,7 +22,7 @@ services:
     volumes:
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
-      - grafana_data:/var/lib/grafana
+      - {{ monitoring_backend_grafana_data_directory }}:/var/lib/grafana
     ports:
       - "{{ monitoring_backend_grafana_host_port }}:3000"
 
@@ -36,7 +32,7 @@ services:
     restart: always
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
-      - prometheus_data:/prometheus
+      - {{ monitoring_backend_prometheus_data_directory }}:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
       - '--storage.tsdb.path=/prometheus'
