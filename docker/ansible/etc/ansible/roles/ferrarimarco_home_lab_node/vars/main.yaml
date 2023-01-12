@@ -72,8 +72,12 @@ frigate_configuration_directory_path: "{{ home_lab_configuration_directory_path 
 frigate_configuration_directories:
   - path: "{{ frigate_configuration_directory_path }}"
   - path: "{{ frigate_configuration_app_configuration_directory_path }}"
+  - path: "{{ frigate_runtime_data_directory_path }}"
+  - path: "{{ frigate_media_directory }}"
 frigate_docker_compose_up_items:
   - compose_file_path: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+frigate_media_directory: "{{ frigate_runtime_data_directory_path }}/media"
+frigate_runtime_data_directory_path: "{{ var_lib_directory_path }}/frigate"
 frigate_templates_to_render:
   - src: "frigate/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -102,9 +106,16 @@ home_assistant_templates_to_render:
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
     force: false
 home_lab_configuration_directory_path: "{{ etc_directory_path }}/ferrarimarco-home-lab"
+monitoring_backend_grafana_user_user_id: "472"
 monitoring_backend_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring-backend"
 monitoring_backend_configuration_directories:
   - path: "{{ monitoring_backend_configuration_directory_path }}"
+  - path: "{{ monitoring_backend_runtime_data_directory }}"
+  - path: "{{ monitoring_backend_grafana_data_directory }}"
+    owner: "{{ monitoring_backend_grafana_user_user_id }}"
+  - path: "{{ monitoring_backend_prometheus_data_directory }}"
+    owner: "nobody"
+    group: "nogroup"
 monitoring_backend_configuration_directories_to_copy:
   - src: "{{ monitoring_backend_configuration_source_directory_path }}"
     dest: "{{ monitoring_backend_configuration_directory_path }}"
@@ -124,6 +135,9 @@ monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ prometheus_node_exporter_port }} # Prometheus Node Exporter"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+monitoring_backend_runtime_data_directory: "{{ var_lib_directory_path }}/monitoring-backend"
+monitoring_backend_grafana_data_directory: "{{ monitoring_backend_runtime_data_directory }}/grafana"
+monitoring_backend_prometheus_data_directory: "{{ monitoring_backend_runtime_data_directory }}/prometheus"
 monitoring_backend_templates_to_render:
   - src: "monitoring-backend/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -159,6 +173,9 @@ monitoring_templates_to_render:
     os_services_to_restart:
       - "{{ monitoring_smartmon_prometheus_exporter_service_name }}"
 mosquitto_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/mosquitto"
+mosquitto_data_directory_path: "{{ mosquitto_runtime_data_directory_path }}/data"
+mosquitto_log_directory_path: "{{ mosquitto_runtime_data_directory_path }}/logs"
+mosquitto_runtime_data_directory_path: "{{ var_lib_directory_path }}/mosquitto"
 # The mosquitto container image creates a user with the specified uid and gid that takes owenership of the configuration directory.
 # Ansible may emit a warning because a user with such ids doesn't exist on the system, but it does in the container.
 mosquitto_user_group_id: "1883"
@@ -168,6 +185,13 @@ mosquitto_configuration_directories:
   - group: "{{ mosquitto_user_group_id }}"
     owner: "{{ mosquitto_user_user_id }}"
     path: "{{ mosquitto_configuration_directory_path }}/config"
+  - path: "{{ mosquitto_runtime_data_directory_path }}"
+  - path: "{{ mosquitto_data_directory_path }}"
+    group: "{{ mosquitto_user_group_id }}"
+    owner: "{{ mosquitto_user_user_id }}"
+  - path: "{{ mosquitto_log_directory_path }}"
+    group: "{{ mosquitto_user_group_id }}"
+    owner: "{{ mosquitto_user_user_id }}"
 mosquitto_docker_compose_up_items:
   - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 mosquitto_templates_to_render:
@@ -302,6 +326,8 @@ wifi_templates_to_render:
       - "{{ wpa_supplicant_service_name }}"
     # Don't force template rendering because the user might have manually changed the WiFi network credentials
     force: false
+var_directory_path: "/var"
+var_lib_directory_path: "{{ var_directory_path }}/lib"
 zigbee2mqtt_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/zigbee2mqtt"
 zigbee2mqtt_configuration_directories:
   - path: "{{ zigbee2mqtt_configuration_directory_path }}"
