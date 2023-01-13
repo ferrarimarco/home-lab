@@ -245,7 +245,7 @@ Examples:
 
 - Copy data from a remote source directory to a remote destination directory in archive mode:
 
-```
+```sh
 rsync \
     --archive \
     -P \
