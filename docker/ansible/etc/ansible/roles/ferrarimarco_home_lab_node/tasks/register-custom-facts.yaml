@@ -25,7 +25,6 @@
     apt_packages_to_install: "{{ apt_packages_to_install + fact_os_packages_to_install }}"
     apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + fact_os_packages_to_uninstall }}"
     apt_repositories_to_add: "{{ apt_repositories_to_add + fact_os_package_repositories_to_add }}"
-    dns_records_to_configure: "{{ dns_records_to_configure + fact_dns_records_to_configure }}"
     configuration_directories_to_copy: "{{ configuration_directories_to_copy + fact_configuration_directories_to_copy }}"
     configuration_directories_to_create: "{{ configuration_directories_to_create + fact_configuration_directories_to_create }}"
     cron_jobs: "{{ cron_jobs + fact_cron_jobs }}"
@@ -37,4 +36,17 @@
     os_services_to_configure: "{{ os_services_to_configure + fact_os_services_to_configure }}"
     os_users_to_create: "{{ os_users_to_create + fact_os_users_to_create }}"
     templates_to_render: "{{ templates_to_render + fact_templates_to_render }}"
+
+# Check if we need to skip the configuration of DNS records.
+# Skipping this configuration may be userful if services are not going to start, and we don't want to update the DNS zone yet.
+# This task eventually skips the DNS records that are explicitly added to fact_dns_records_to_configure
+# because we assume they are for service reachability, but if we're not starting any service there's
+# no point in adding those records to the DNS zone.
+# This task doesn't skip the DNS records that are dynamically generated, from other
+# sources.
+- name: Register DNS records facts for {{ fact_category }}
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure + fact_dns_records_to_configure }}"
+  when:
+    - fact_configure_dns_records
 ...

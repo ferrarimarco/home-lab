@@ -27,6 +27,7 @@
         fact_category: "{{ item.fact_category }}"
         fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
         fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
+        fact_configure_dns_records: "{{ item.fact_configure_dns_records | default(true) }}"
         fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
         fact_deb_packages_to_install: "{{ item.fact_deb_packages_to_install | default([]) }}"
         fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
@@ -103,6 +104,7 @@
       fact_templates_to_render: "{{ monitoring_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
       fact_category: "monitoring-backend"
+      fact_configure_dns_records: "{{ configure_monitoring_backend_dns_records | default(configure_monitoring_backend) }}"
       fact_dns_records_to_configure:
         - source: "grafana.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
@@ -119,6 +121,7 @@
       fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
     - enable_custom_fact: "{{ configure_home_assistant }}"
       fact_category: "home-assistant"
+      fact_configure_dns_records: "{{ configure_home_assistant_dns_records | default(configure_home_assistant) }}"
       fact_dns_records_to_configure:
         - source: "home-assistant.{{ root_dns_zone.fqdn }}"
           destination: "{{ inventory_hostname }}"
