@@ -39,11 +39,4 @@
     update_cache: true
   become: true
   with_items: "{{ apt_packages_to_install + default_os_packages_to_install | unique }}"
-
-- name: Install Deb packages
-  ansible.builtin.apt:
-    deb: "{{ item }}"
-    state: present
-  become: true
-  with_items: "{{ deb_packages_to_install | unique }}"
 ...
