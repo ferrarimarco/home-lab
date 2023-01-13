@@ -29,7 +29,6 @@
         fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
         fact_configure_dns_records: "{{ item.fact_configure_dns_records | default(true) }}"
         fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
-        fact_deb_packages_to_install: "{{ item.fact_deb_packages_to_install | default([]) }}"
         fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
