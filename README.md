@@ -236,3 +236,37 @@ scripts/generate-templated-files.sh
 ```
 
 After the generator produces the files, commit any updates to the generated files.
+
+## Copy data between hosts
+
+To copy data between hosts, you can use `rsync`.
+
+Examples:
+
+- Copy data from a remote source directory to a remote destination directory in archive mode:
+
+```
+rsync \
+    --archive \
+    -P \
+    "${_SOURCE_USER}"@${_SOURCE_HOST}:"${_SOURCE_DIRECTORY}/" \
+    "${_DESTINATION_USER}"@${_DESTINATION_HOST}:"${_DESTINATION_DIRECTORY}"
+```
+
+## Container migration playbook
+
+If you need to migrate containers and data between hosts, do the following:
+
+1. Set the `configure_xxxxx` variable for the target host to `true` to prepare the target host.
+2. Set the `configure_xxxxx_dns_records` variable for the target host to `false` because we don't (likely)
+    want to update the DNS zone yet.
+3. Set the `start_xxxxx` variable for the target host to `false` because we don't want to start any services
+    before copying data.
+4. Run Ansible. With the above configuration, it will prepare the target host without starting any service.
+5. Set the `start_xxxxx` variable for the source host to `false` to stop the service we're migrating.
+6. Run Ansible.
+7. Copy data from the source host to the target host.
+8. Remove the `configure_xxxxx` variable from the source host configuration.
+9. Remove the `configure_xxxxx_dns_records` from the source and the target host configuration.
+10. Remove the `start_xxxxx` from the source and the target host configuration.
+11. Run Ansible.
