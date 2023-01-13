@@ -39,7 +39,7 @@
         fact_os_packages_to_install: "{{ item.fact_os_packages_to_install | default([]) }}"
         fact_os_packages_to_uninstall: "{{ item.fact_os_packages_to_uninstall | default([]) }}"
         fact_os_services_to_configure: "{{ item.fact_os_services_to_configure | default([]) }}"
-        fact_start_containerized_services: "{{ item.fact_start_containerized_services | default(item.enable_custom_fact) }}"
+        fact_start_containerized_services: "{{ item.fact_start_containerized_services | default(true) }}"
         fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
     file: register-custom-facts.yaml
   when: item.enable_custom_fact | default(true)
