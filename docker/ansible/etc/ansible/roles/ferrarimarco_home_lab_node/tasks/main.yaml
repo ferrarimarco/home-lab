@@ -60,7 +60,11 @@
   register: system_wide_downloaded_files
   with_items: "{{ files_to_download }}"
 
-- name: Remove files
+- name: Run system-wide cleanup handlers
+  ansible.builtin.import_tasks: invoke-system-wide-configuration-cleanup-handlers.yaml
+  become: true
+
+- name: Remove files and directories
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
