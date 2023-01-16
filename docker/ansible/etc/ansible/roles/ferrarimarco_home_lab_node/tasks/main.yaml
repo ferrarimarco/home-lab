@@ -133,7 +133,7 @@
     - cron_jobs
   with_items: "{{ cron_jobs }}"
 
-- name: Include invoke handlers for system-wide configuration
+- name: Run system-wide configuration handlers
   ansible.builtin.import_tasks: invoke-system-wide-configuration-handlers.yaml
   become: true
 ...
