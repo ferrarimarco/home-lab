@@ -31,6 +31,7 @@
         fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
         fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
+        fact_enable_custom_fact: "{{ item.enable_custom_fact }}"
         fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
         fact_files_to_remove: "{{ item.fact_files_to_remove | default([]) }}"
         fact_os_groups_to_create: "{{ item.fact_os_groups_to_create | default([]) }}"
@@ -42,7 +43,6 @@
         fact_start_containerized_services: "{{ item.fact_start_containerized_services | default(true) }}"
         fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
     file: register-custom-facts.yaml
-  when: item.enable_custom_fact | default(true)
   with_items:
     - enable_custom_fact: "{{ has_sense_hat }}"
       fact_category: "Raspberry Pi Sense Hat"

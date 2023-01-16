@@ -14,6 +14,8 @@
   with_items: "{{ fact_docker_compose_up_items }}"
   loop_control:
     loop_var: fact_docker_compose_up_items_with_start_flag_item
+  when:
+    - fact_enable_custom_fact
 
 - name: Debug fact_docker_compose_up_items_with_start_flag for {{ fact_category }}
   ansible.builtin.debug:
@@ -35,6 +37,8 @@
     os_services_to_configure: "{{ os_services_to_configure + fact_os_services_to_configure }}"
     os_users_to_create: "{{ os_users_to_create + fact_os_users_to_create }}"
     templates_to_render: "{{ templates_to_render + fact_templates_to_render }}"
+  when:
+    - fact_enable_custom_fact
 
 # Check if we need to skip the configuration of DNS records.
 # Skipping this configuration may be userful if services are not going to start, and we don't want to update the DNS zone yet.
@@ -48,4 +52,5 @@
     dns_records_to_configure: "{{ dns_records_to_configure + fact_dns_records_to_configure }}"
   when:
     - fact_configure_dns_records
+    - fact_enable_custom_fact
 ...
