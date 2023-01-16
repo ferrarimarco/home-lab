@@ -22,17 +22,21 @@
     var: fact_docker_compose_up_items_with_start_flag
     verbosity: 1
 
-- name: Register facts for {{ fact_category }}
+# Those cleanup facts are needed regardless of the flag to enable or disable a given stack
+- name: Register cleanup facts for {{ fact_category }}
+  ansible.builtin.set_fact:
+    apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + fact_os_packages_to_uninstall }}"
+    files_to_remove: "{{ files_to_remove + fact_files_to_remove }}"
+
+- name: Register setup facts for {{ fact_category }}
   ansible.builtin.set_fact:
     apt_packages_to_install: "{{ apt_packages_to_install + fact_os_packages_to_install }}"
-    apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + fact_os_packages_to_uninstall }}"
     apt_repositories_to_add: "{{ apt_repositories_to_add + fact_os_package_repositories_to_add }}"
     configuration_directories_to_copy: "{{ configuration_directories_to_copy + fact_configuration_directories_to_copy }}"
     configuration_directories_to_create: "{{ configuration_directories_to_create + fact_configuration_directories_to_create }}"
     cron_jobs: "{{ cron_jobs + fact_cron_jobs }}"
     docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items_with_start_flag }}"
     files_to_download: "{{ files_to_download + fact_files_to_download }}"
-    files_to_remove: "{{ files_to_remove + fact_files_to_remove }}"
     os_groups_to_create: "{{ os_groups_to_create + fact_os_groups_to_create }}"
     os_services_to_configure: "{{ os_services_to_configure + fact_os_services_to_configure }}"
     os_users_to_create: "{{ os_users_to_create + fact_os_users_to_create }}"
