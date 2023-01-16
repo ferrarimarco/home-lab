@@ -60,6 +60,8 @@
   register: system_wide_downloaded_files
   with_items: "{{ files_to_download }}"
 
+# Run cleanup tasks because we may need to stop processes and services before
+# removing resources on which those processes might depend
 - name: Run system-wide cleanup handlers
   ansible.builtin.import_tasks: invoke-system-wide-configuration-cleanup-handlers.yaml
   become: true
