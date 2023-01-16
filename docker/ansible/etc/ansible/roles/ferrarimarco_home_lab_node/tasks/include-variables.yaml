@@ -40,7 +40,6 @@
         fact_os_packages_to_install: "{{ item.fact_os_packages_to_install | default([]) }}"
         fact_os_packages_to_uninstall: "{{ item.fact_os_packages_to_uninstall | default([]) }}"
         fact_os_services_to_configure: "{{ item.fact_os_services_to_configure | default([]) }}"
-        fact_start_containerized_services: "{{ item.fact_start_containerized_services | default(true) }}"
         fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
     file: register-custom-facts.yaml
   with_items:
@@ -66,6 +65,7 @@
           user: root
           job: "docker system prune --all --force --volumes"
           cron_file: ansible_docker-system-prune
+          state: "{{ configure_docker | ternary('present', 'absent') }}"
       fact_files_to_remove:
         - path: "{{ docker_compose_standalone_executable_path }}"
       fact_os_package_repositories_to_add: "{{ docker_repositories_to_add }}"
@@ -117,7 +117,6 @@
       fact_configuration_directories_to_create: "{{ monitoring_backend_configuration_directories }}"
       fact_configuration_directories_to_copy: "{{ monitoring_backend_configuration_directories_to_copy }}"
       fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
-      fact_start_containerized_services: "{{ start_monitoring_backend | default(configure_monitoring_backend) }}"
       fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
     - enable_custom_fact: "{{ configure_home_assistant }}"
       fact_category: "home-assistant"
@@ -129,7 +128,6 @@
           source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
-      fact_start_containerized_services: "{{ start_home_assistant | default(configure_home_assistant) }}"
       fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
     - enable_custom_fact: "{{ configure_mqtt_broker }}"
       fact_category: "mosquitto"
@@ -140,7 +138,6 @@
           source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"
       fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
-      fact_start_containerized_services: "{{ start_mqtt_broker | default(configure_mqtt_broker) }}"
       fact_templates_to_render: "{{ mosquitto_templates_to_render }}"
     - enable_custom_fact: "{{ configure_frigate }}"
       fact_category: "frigate"
@@ -151,7 +148,6 @@
           source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ frigate_configuration_directories }}"
       fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
-      fact_start_containerized_services: "{{ start_frigate | default(configure_frigate) }}"
       fact_templates_to_render: "{{ frigate_templates_to_render }}"
     - enable_custom_fact: "{{ configure_dphys_swapfile }}"
       fact_category: "dphys-swapfile"
@@ -196,7 +192,6 @@
           source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ torrent_configuration_directories }}"
       fact_docker_compose_up_items: "{{ torrent_docker_compose_up_items }}"
-      fact_start_containerized_services: "{{ start_torrent | default(configure_torrent) }}"
       fact_templates_to_render: "{{ torrent_templates_to_render }}"
     - enable_custom_fact: "{{ has_raspberry_pi_v2_camera }}"
       fact_category: "raspberry-pi-v2-camera"
@@ -220,7 +215,6 @@
           source_host: "{{ inventory_hostname }}"
       fact_configuration_directories_to_create: "{{ zigbee2mqtt_configuration_directories }}"
       fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
-      fact_start_containerized_services: "{{ start_zigbee2mqtt | default(configure_zigbee2mqtt) }}"
       fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
     - enable_custom_fact: "{{ configure_wifi }}"
       fact_category: "wifi"
@@ -261,7 +255,6 @@
           additional_record_data: |
             {{ root_dns_zone.dns_administrator_email_address }}. {{ root_dns_zone.serial_number }} {{ root_dns_zone.refresh_time }} {{ root_dns_zone.retry_time }} {{ root_dns_zone.expire_time }} {{ root_dns_zone.minimum_ttl_time }}
       fact_docker_compose_up_items: "{{ network_stack_docker_compose_up_items }}"
-      fact_start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
       fact_templates_to_render: "{{ network_stack_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts

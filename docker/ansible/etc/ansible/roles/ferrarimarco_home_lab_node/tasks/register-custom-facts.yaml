@@ -1,60 +1,19 @@
 ---
-- name: Debug fact_docker_compose_up_items for {{ fact_category }}
-  ansible.builtin.debug:
-    var: fact_docker_compose_up_items
-    verbosity: 1
-
-- name: Initialize the start containerized services flag list for {{ fact_category }}
-  ansible.builtin.set_fact:
-    fact_docker_compose_up_items_with_start_flag: []
-
-- name: Configure the start containerized services flag for {{ fact_category }}
-  ansible.builtin.set_fact:
-    fact_docker_compose_up_items_with_start_flag: "{{ fact_docker_compose_up_items_with_start_flag + [fact_docker_compose_up_items_with_start_flag_item | combine({'start_containerized_service': fact_start_containerized_services})] }}"
-  with_items: "{{ fact_docker_compose_up_items }}"
-  loop_control:
-    loop_var: fact_docker_compose_up_items_with_start_flag_item
-
-- name: Debug fact_docker_compose_up_items_with_start_flag for {{ fact_category }}
-  ansible.builtin.debug:
-    var: fact_docker_compose_up_items_with_start_flag
-    verbosity: 1
-
-- name: Initialize the cron jobs list for {{ fact_category }}
-  ansible.builtin.set_fact:
-    fact_cron_jobs_with_updated_state: []
-
-- name: Debug fact_cron_jobs for {{ fact_category }}
-  ansible.builtin.debug:
-    var: fact_cron_jobs
-    verbosity: 1
-
-- name: Configure cron jobs state for {{ fact_category }}
-  ansible.builtin.set_fact:
-    fact_cron_jobs_with_updated_state: "{{ fact_cron_jobs_with_updated_state + [fact_cron_jobs_items_with_updated_state_item | combine({'state': fact_enable_custom_fact | ternary('present', 'absent') })] }}"
-  with_items: "{{ fact_cron_jobs }}"
-  loop_control:
-    loop_var: fact_cron_jobs_items_with_updated_state_item
-
-- name: Debug fact_cron_jobs_with_updated_state for {{ fact_category }}
-  ansible.builtin.debug:
-    var: fact_cron_jobs_with_updated_state
-    verbosity: 1
-
-# Those setup facts are needed regardless of the flag to enable or disable a given stack
+# These setup facts are needed regardless of the flag to enable or disable a given stack
 - name: Register setup facts for {{ fact_category }}
   ansible.builtin.set_fact:
-    apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + fact_os_packages_to_install }}"  # No need to define a fact_os_packages_to_uninstall variable
+    apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + fact_os_packages_to_uninstall }}"
     cron_jobs: "{{ cron_jobs + fact_cron_jobs }}"
     files_to_remove: "{{ files_to_remove + fact_files_to_remove }}"
 
+# These setup facts are needed only when a given stack is enabled
 - name: Register in-depth setup facts for {{ fact_category }}
   ansible.builtin.set_fact:
     apt_packages_to_install: "{{ apt_packages_to_install + fact_os_packages_to_install }}"
     apt_repositories_to_add: "{{ apt_repositories_to_add + fact_os_package_repositories_to_add }}"
     configuration_directories_to_copy: "{{ configuration_directories_to_copy + fact_configuration_directories_to_copy }}"
     configuration_directories_to_create: "{{ configuration_directories_to_create + fact_configuration_directories_to_create }}"
-    docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items_with_start_flag }}"
+    docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items }}"
     files_to_download: "{{ files_to_download + fact_files_to_download }}"
     os_groups_to_create: "{{ os_groups_to_create + fact_os_groups_to_create }}"
     os_services_to_configure: "{{ os_services_to_configure + fact_os_services_to_configure }}"

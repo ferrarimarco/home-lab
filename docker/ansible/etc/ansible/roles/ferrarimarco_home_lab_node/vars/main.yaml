@@ -76,6 +76,7 @@ frigate_configuration_directories:
   - path: "{{ frigate_media_directory }}"
 frigate_docker_compose_up_items:
   - compose_file_path: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    start_containerized_services: "{{ start_frigate | default(configure_frigate) }}"
 frigate_media_directory: "{{ frigate_runtime_data_directory_path }}/media"
 frigate_runtime_data_directory_path: "{{ var_lib_directory_path }}/frigate"
 frigate_templates_to_render:
@@ -91,6 +92,7 @@ home_assistant_configuration_directories:
   - path: "{{ home_assistant_configuration_directory_path }}/config"
 home_assistant_docker_compose_up_items:
   - compose_file_path: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    start_containerized_services: "{{ start_home_assistant | default(configure_home_assistant) }}"
 home_assistant_templates_to_render:
   - src: "home-assistant/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -135,6 +137,7 @@ monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ prometheus_node_exporter_port }} # Prometheus Node Exporter"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    start_containerized_services: "{{ start_monitoring_backend | default(configure_monitoring_backend) }}"
 monitoring_backend_runtime_data_directory: "{{ var_lib_directory_path }}/monitoring-backend"
 monitoring_backend_grafana_data_directory: "{{ monitoring_backend_runtime_data_directory }}/grafana"
 monitoring_backend_prometheus_data_directory: "{{ monitoring_backend_runtime_data_directory }}/prometheus"
@@ -194,6 +197,7 @@ mosquitto_configuration_directories:
     owner: "{{ mosquitto_user_user_id }}"
 mosquitto_docker_compose_up_items:
   - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    start_containerized_services: "{{ start_mqtt_broker | default(configure_mqtt_broker) }}"
 mosquitto_templates_to_render:
   - src: "mosquitto/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -217,6 +221,7 @@ network_stack_edge_dns_resolver_template:
 network_stack_edge_dns_resolvers: []
 network_stack_docker_compose_up_items:
   - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
 network_stack_root_dns_servers: []
 network_stack_root_dns_server_template:
   - fqdn: "{{ item.destination }}"
@@ -298,6 +303,7 @@ torrent_configuration_directories:
     path: "{{ torrent_configuration_directory_path }}"
 torrent_docker_compose_up_items:
   - compose_file_path: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    start_containerized_services: "{{ start_torrent | default(configure_torrent) }}"
 torrent_templates_to_render:
   - src: "qbittorrent/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -334,6 +340,7 @@ zigbee2mqtt_configuration_directories:
   - path: "{{ zigbee2mqtt_configuration_directory_path }}/data"
 zigbee2mqtt_docker_compose_up_items:
   - compose_file_path: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    start_containerized_services: "{{ start_zigbee2mqtt | default(configure_zigbee2mqtt) }}"
 zigbee2mqtt_templates_to_render:
   - src: "zigbee2mqtt/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
