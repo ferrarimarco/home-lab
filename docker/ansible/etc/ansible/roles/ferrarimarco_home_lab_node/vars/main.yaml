@@ -76,6 +76,7 @@ frigate_configuration_directories:
   - path: "{{ frigate_media_directory }}"
 frigate_docker_compose_up_items:
   - compose_file_path: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    pull_container_images: "{{ configure_frigate }}"
     start_containerized_services: "{{ start_frigate | default(configure_frigate) }}"
 frigate_media_directory: "{{ frigate_runtime_data_directory_path }}/media"
 frigate_runtime_data_directory_path: "{{ var_lib_directory_path }}/frigate"
@@ -92,6 +93,7 @@ home_assistant_configuration_directories:
   - path: "{{ home_assistant_configuration_directory_path }}/config"
 home_assistant_docker_compose_up_items:
   - compose_file_path: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    pull_container_images: "{{ configure_home_assistant }}"
     start_containerized_services: "{{ start_home_assistant | default(configure_home_assistant) }}"
 home_assistant_templates_to_render:
   - src: "home-assistant/{{ default_docker_compose_file_name }}.jinja"
@@ -137,6 +139,7 @@ monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ prometheus_node_exporter_port }} # Prometheus Node Exporter"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    pull_container_images: "{{ configure_monitoring_backend }}"
     start_containerized_services: "{{ start_monitoring_backend | default(configure_monitoring_backend) }}"
 monitoring_backend_runtime_data_directory: "{{ var_lib_directory_path }}/monitoring-backend"
 monitoring_backend_grafana_data_directory: "{{ monitoring_backend_runtime_data_directory }}/grafana"
@@ -157,6 +160,7 @@ monitoring_configuration_directories:
 monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring"
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    pull_container_images: "{{ configure_monitoring }}"
 monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collector"
 monitoring_prometheus_node_exporter_textfile_collector_directory: "/var/lib/node_exporter/textfile_collector"
 monitoring_smartmon_prometheus_exporter_script_destination_path: "/usr/local/bin/node-exporter-text-smartmon"
@@ -303,6 +307,7 @@ torrent_configuration_directories:
     path: "{{ torrent_configuration_directory_path }}"
 torrent_docker_compose_up_items:
   - compose_file_path: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    pull_container_images: "{{ configure_torrent }}"
     start_containerized_services: "{{ start_torrent | default(configure_torrent) }}"
 torrent_templates_to_render:
   - src: "qbittorrent/{{ default_docker_compose_file_name }}.jinja"
@@ -340,6 +345,7 @@ zigbee2mqtt_configuration_directories:
   - path: "{{ zigbee2mqtt_configuration_directory_path }}/data"
 zigbee2mqtt_docker_compose_up_items:
   - compose_file_path: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    pull_container_images: "{{ configure_zigbee2mqtt }}"
     start_containerized_services: "{{ start_zigbee2mqtt | default(configure_zigbee2mqtt) }}"
 zigbee2mqtt_templates_to_render:
   - src: "zigbee2mqtt/{{ default_docker_compose_file_name }}.jinja"

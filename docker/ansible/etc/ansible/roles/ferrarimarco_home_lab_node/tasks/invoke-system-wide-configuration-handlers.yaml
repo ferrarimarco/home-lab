@@ -24,12 +24,8 @@
     pull \
     --include-deps
   register: docker_compose_pull_result
+  when: item.pull_container_images
   with_items: "{{ docker_compose_up_items | unique }}"
-
-- name: Debug Docker Compose pull output
-  ansible.builtin.debug:
-    var: docker_compose_pull_result
-    verbosity: 1
 
 - name: Start Docker Compose services
   debugger: on_failed
@@ -44,11 +40,6 @@
   register: docker_compose_up_result
   when: item.start_containerized_service
   with_items: "{{ docker_compose_up_items | unique }}"
-
-- name: Debug Docker Compose up output
-  ansible.builtin.debug:
-    var: docker_compose_up_result
-    verbosity: 1
 
 - name: Initialize the list of Docker Compose services to restart
   ansible.builtin.set_fact:
