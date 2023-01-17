@@ -8,6 +8,7 @@
     files_to_remove: "{{ files_to_remove + fact_files_to_remove }}"
     os_groups: "{{ os_groups + fact_os_groups }}"
     os_users: "{{ os_users + fact_os_users }}"
+    os_services: "{{ os_services + fact_os_services }}"
 
 # These setup facts are needed only when a given stack is enabled
 - name: Register in-depth setup facts for {{ fact_category }}
@@ -16,7 +17,6 @@
     configuration_directories_to_create: "{{ configuration_directories_to_create + fact_configuration_directories_to_create }}"
     docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items }}"
     files_to_download: "{{ files_to_download + fact_files_to_download }}"
-    os_services_to_configure: "{{ os_services_to_configure + fact_os_services_to_configure }}"
     templates_to_render: "{{ templates_to_render + fact_templates_to_render }}"
   when:
     - fact_enable_custom_fact

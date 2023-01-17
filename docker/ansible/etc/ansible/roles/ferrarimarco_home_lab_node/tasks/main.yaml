@@ -108,6 +108,8 @@
 - name: Import OS services tasks
   ansible.builtin.import_tasks: os-services.yaml
   become: true
+  tags:
+    - os_services
 
 - name: Import disk setup tasks
   ansible.builtin.import_tasks: setup-disks.yaml

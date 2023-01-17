@@ -8,5 +8,10 @@
     name: "{{ item.service_name }}"
     state: "{{ item.service_state }}"
     enabled: "{{ item.enabled }}"
-  with_items: "{{ os_services_to_configure }}"
+  with_items: "{{ os_services }}"
+  register: stop_os_service
+  # Services to stop might not exist, so we don't fail in that case
+  failed_when:
+    - stop_os_service.failed == true
+    - '"Could not find the requested service" not in stop_os_service.msg'
 ...

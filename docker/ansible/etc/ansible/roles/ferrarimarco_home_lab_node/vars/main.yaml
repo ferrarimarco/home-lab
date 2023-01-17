@@ -19,10 +19,10 @@ argonone_configuration_directories_to_copy:
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
 argonone_configuration_directory: "{{ etc_directory_path }}/argonone-case"
-argonone_os_services_to_configure:
+argonone_os_services:
   - enabled: true
     service_name: "{{ argonone_os_service_name }}"
-    service_state: started
+    service_state: "{{ has_argonone_case | ternary('started', 'stopped') }}"
 configuration_directories_to_copy: []
 configuration_directories_to_create:
   - path: "{{ home_lab_configuration_directory_path }}"
@@ -39,10 +39,10 @@ docker_configuration_directories:
   - path: "{{ docker_daemon_configuration_directory_path }}"
 docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
 docker_daemon_configuration_file_name: "daemon.json"
-docker_os_services_to_configure:
+docker_os_services:
   - enabled: true
     service_name: "{{ docker_service_name }}"
-    service_state: started
+    service_state: "{{ configure_docker | ternary('started', 'stopped') }}"
 docker_repository_url: https://download.docker.com/linux
 docker_templates_to_render:
   - src: "docker/{{ docker_daemon_configuration_file_name }}.jinja"
@@ -56,10 +56,10 @@ dphys_swapfile_templates_to_render:
       - "{{ dphys_swapfile_service_name }}"
 etc_directory_path: "/etc"
 fail2ban_configuration_directory: "{{ etc_directory_path }}/fail2ban"
-fail2ban_os_services_to_configure:
+fail2ban_os_services:
   - enabled: true
     service_name: "{{ fail2ban_service_name }}"
-    service_state: started
+    service_state: "{{ security_fail2ban_enabled | ternary('started', 'stopped') }}"
 fail2ban_templates_to_render:
   - src: "{{ security_fail2ban_custom_configuration_template }}"
     dest: "{{ fail2ban_configuration_directory }}/jail.local"
@@ -243,7 +243,7 @@ network_stack_templates_to_render:
     dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
 os_groups: []
-os_services_to_configure: []
+os_services: []
 os_services_to_restart: []
 os_users:
   # Add the default user groups to ansible_user
@@ -267,19 +267,19 @@ sense_hat_exporter_run_directory_path: "/run/sense-hat-exporter"
 sense_hat_exporter_virtual_env_path: "{{ sense_hat_exporter_run_directory_path }}/.venv"
 sense_hat_exporter_os_service_file_name: "{{ sense_hat_exporter_os_service_name }}.service"
 sense_hat_exporter_os_service_name: "sense-hat-exporter"
-sense_hat_os_services_to_configure:
+sense_hat_os_services:
   - enabled: true
     service_name: "{{ sense_hat_exporter_os_service_file_name }}"
-    service_state: started
+    service_state: "{{ has_sense_hat | ternary('started', 'stopped') }}"
 sense_hat_templates_to_render:
   - src: "sense-hat-exporter/{{ sense_hat_exporter_os_service_file_name }}.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ sense_hat_exporter_os_service_file_name }}"
     os_services_to_restart:
       - "{{ sense_hat_exporter_os_service_name }}"
-ssh_os_services_to_configure:
+ssh_os_services:
   - enabled: true
     service_name: "{{ security_sshd_name }}"
-    service_state: started
+    service_state: "{{ configure_ssh | ternary('started', 'stopped') }}"
 sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
@@ -315,10 +315,10 @@ torrent_templates_to_render:
     docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
     group: "{{ torrent_owner_group_id }}"
     owner: "{{ torrent_owner_user_id }}"
-unattended_upgrades_os_services_to_configure:
+unattended_upgrades_os_services:
   - enabled: true
     service_name: "{{ unattended_upgrades_service_name }}"
-    service_state: started
+    service_state: "{{ security_unattended_upgrades_enabled | ternary('started', 'stopped') }}"
 unattended_upgrades_templates_to_render:
   - src: "unattended-upgrades/20auto-upgrades.jinja"
     dest: "{{ etc_directory_path }}/apt/apt.conf.d/20auto-upgrades"

@@ -38,7 +38,7 @@
         fact_os_users: "{{ item.fact_os_users | default([]) }}"
         fact_os_package_repositories: "{{ item.fact_os_package_repositories | default([]) }}"
         fact_os_packages: "{{ item.fact_os_packages | default([]) }}"
-        fact_os_services_to_configure: "{{ item.fact_os_services_to_configure | default([]) }}"
+        fact_os_services: "{{ item.fact_os_services | default([]) }}"
         fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
     file: register-custom-facts.yaml
   with_items:
@@ -47,11 +47,11 @@
       fact_configuration_directories_to_copy: "{{ sense_hat_exporter_configuration_directories_to_copy }}"
       fact_configuration_directories_to_create: "{{ sense_hat_exporter_configuration_directories }}"
       fact_os_packages: "{{ raspberry_pi_sense_hat_os_packages }}"
-      fact_os_services_to_configure: "{{ sense_hat_os_services_to_configure }}"
+      fact_os_services: "{{ sense_hat_os_services }}"
       fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
     - enable_custom_fact: "{{ configure_ssh }}"
       fact_category: "ssh"
-      fact_os_services_to_configure: "{{ ssh_os_services_to_configure }}"
+      fact_os_services: "{{ ssh_os_services }}"
     - enable_custom_fact: "{{ configure_docker }}"
       fact_category: "Docker"
       fact_configuration_directories_to_create: "{{ docker_configuration_directories }}"
@@ -69,7 +69,7 @@
         - path: "{{ docker_compose_standalone_executable_path }}"
       fact_os_package_repositories: "{{ docker_repositories_to_add }}"
       fact_os_packages: "{{ docker_os_packages }}"
-      fact_os_services_to_configure: "{{ docker_os_services_to_configure }}"
+      fact_os_services: "{{ docker_os_services }}"
       fact_os_users: "{{ docker_os_users }}"
       fact_templates_to_render: "{{ docker_templates_to_render }}"
     - enable_custom_fact: "{{ security_fail2ban_enabled }}"
@@ -77,12 +77,12 @@
       fact_configuration_directories_to_create:
         - path: "{{ fail2ban_configuration_directory }}"
       fact_os_packages: "{{ fail2ban_packages }}"
-      fact_os_services_to_configure: "{{ fail2ban_os_services_to_configure }}"
+      fact_os_services: "{{ fail2ban_os_services }}"
       fact_templates_to_render: "{{ fail2ban_templates_to_render }}"
     - enable_custom_fact: "{{ security_unattended_upgrades_enabled }}"
       fact_category: "unattended-upgrades"
       fact_os_packages: "{{ unattended_upgrades_packages }}"
-      fact_os_services_to_configure: "{{ unattended_upgrades_os_services_to_configure }}"
+      fact_os_services: "{{ unattended_upgrades_os_services }}"
       fact_templates_to_render: "{{ unattended_upgrades_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring }}"
       fact_category: "monitoring"
@@ -95,10 +95,10 @@
           owner: "root"
           group: "root"
       fact_os_packages: "{{ monitoring_os_packages }}"
-      fact_os_services_to_configure:
+      fact_os_services:
         - enabled: true
           service_name: "{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}"
-          service_state: started
+          service_state: "{{ configure_monitoring | ternary('started', 'stopped') }}"
       fact_templates_to_render: "{{ monitoring_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
       fact_category: "monitoring-backend"
@@ -155,7 +155,7 @@
       fact_configuration_directories_to_create: "{{ argonone_configuration_directories }}"
       fact_configuration_directories_to_copy: "{{ argonone_configuration_directories_to_copy }}"
       fact_os_packages: "{{ argonone_case_os_packages }}"
-      fact_os_services_to_configure: "{{ argonone_os_services_to_configure }}"
+      fact_os_services: "{{ argonone_os_services }}"
     - enable_custom_fact: "{{ configure_tailscale }}"
       fact_category: "tailscale"
       fact_os_package_repositories:
@@ -176,10 +176,10 @@
       fact_os_packages:
         - name: samba
           state: "{{ configure_network_shares | ternary('present', 'absent') }}"
-      fact_os_services_to_configure:
+      fact_os_services:
         - enabled: true
           service_name: "{{ samba_service_name }}"
-          service_state: started
+          service_state: "{{ configure_network_shares | ternary('started', 'stopped') }}"
       fact_os_users: "{{ samba_os_users }}"
       fact_templates_to_render:
         - src: "samba/smb.conf.jinja"
@@ -201,10 +201,10 @@
       fact_os_packages:
         - name: vlc
           state: "{{ has_raspberry_pi_v2_camera | ternary('present', 'absent') }}"
-      fact_os_services_to_configure:
+      fact_os_services:
         - enabled: true
           service_name: "raspberry-pi-v2-camera-rtsp.service"
-          service_state: started
+          service_state: "{{ has_raspberry_pi_v2_camera | ternary('started', 'stopped') }}"
       fact_templates_to_render:
         - src: "raspberry-pi-camera/raspberry-pi-v2-camera-rtsp.service.jinja"
           dest: "{{ systemd_system_services_configuration_directory }}/raspberry-pi-v2-camera-rtsp.service"
@@ -224,10 +224,10 @@
       fact_category: "wifi"
       fact_templates_to_render: "{{ wifi_templates_to_render }}"
       fact_os_packages: "{{ wifi_os_packages }}"
-      fact_os_services_to_configure:
+      fact_os_services:
         - enabled: true
           service_name: "{{ wpa_supplicant_service_name }}"
-          service_state: started
+          service_state: "{{ configure_wifi | ternary('started', 'stopped') }}"
     - enable_custom_fact: "{{ configure_network_stack }}"
       fact_category: "network-stack"
       fact_configuration_directories_to_create: "{{ network_stack_configuration_directories }}"
