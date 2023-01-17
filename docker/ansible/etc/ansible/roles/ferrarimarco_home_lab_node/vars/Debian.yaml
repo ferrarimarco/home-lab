@@ -7,6 +7,7 @@ docker_repositories_to_add:
   - repository_key_keyring_file_path: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
     repository_key_url: "{{ docker_repository_url }}/{{ ansible_distribution | lower }}/gpg"
     repository_url: "deb [arch={{ dpkg_architecture }}] {{ docker_repository_url }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
+    state: "{{ configure_docker | ternary('present', 'absent') }}"
 docker_os_packages:
   - name: apt-transport-https
     state: "{{ configure_docker | ternary('present', 'absent') }}"

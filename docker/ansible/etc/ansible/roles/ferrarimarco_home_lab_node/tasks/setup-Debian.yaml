@@ -1,18 +1,18 @@
 ---
-- name: Add APT repository keys
+- name: Setup APT repository keys
   ansible.builtin.apt_key:
     keyring: "{{ item.repository_key_keyring_file_path }}"
-    state: present
+    state: "{{ item.state | default(omit) }}"
     url: "{{ item.repository_key_url }}"
   become: true
-  with_items: "{{ apt_repositories_to_add | unique }}"
+  with_items: "{{ apt_repositories | unique }}"
 
-- name: Add APT repositories
+- name: Setup APT repositories
   ansible.builtin.apt_repository:
     repo: "{{ item.repository_url }}"
-    state: present
+    state: "{{ item.state | default(omit) }}"
   become: true
-  with_items: "{{ apt_repositories_to_add | unique }}"
+  with_items: "{{ apt_repositories | unique }}"
 
 - name: Update APT package index, upgrade, autoclean, autoremove APT packages
   ansible.builtin.apt:

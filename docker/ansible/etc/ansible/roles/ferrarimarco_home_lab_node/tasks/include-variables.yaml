@@ -36,7 +36,7 @@
         fact_files_to_remove: "{{ item.fact_files_to_remove | default([]) }}"
         fact_os_groups_to_create: "{{ item.fact_os_groups_to_create | default([]) }}"
         fact_os_users_to_create: "{{ item.fact_os_users_to_create | default([]) }}"
-        fact_os_package_repositories_to_add: "{{ item.fact_os_package_repositories_to_add | default([]) }}"
+        fact_os_package_repositories: "{{ item.fact_os_package_repositories | default([]) }}"
         fact_os_packages: "{{ item.fact_os_packages | default([]) }}"
         fact_os_services_to_configure: "{{ item.fact_os_services_to_configure | default([]) }}"
         fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
@@ -67,7 +67,7 @@
           state: "{{ configure_docker | ternary('present', 'absent') }}"
       fact_files_to_remove:
         - path: "{{ docker_compose_standalone_executable_path }}"
-      fact_os_package_repositories_to_add: "{{ docker_repositories_to_add }}"
+      fact_os_package_repositories: "{{ docker_repositories_to_add }}"
       fact_os_packages: "{{ docker_os_packages }}"
       fact_os_services_to_configure: "{{ docker_os_services_to_configure }}"
       fact_os_users_to_create: "{{ docker_os_users_to_create }}"
@@ -158,10 +158,11 @@
       fact_os_services_to_configure: "{{ argonone_os_services_to_configure }}"
     - enable_custom_fact: "{{ configure_tailscale }}"
       fact_category: "tailscale"
-      fact_os_package_repositories_to_add:
+      fact_os_package_repositories:
         - repository_key_keyring_file_path: "{{ tailscale_package_repository_key_file_path }}"
           repository_key_url: "{{ tailscale_package_repository_url }}/{{ ansible_distribution_release }}.gpg"
           repository_url: "deb {{ tailscale_package_repository_url }} {{ ansible_distribution_release }} main"
+          state: "{{ configure_tailscale | ternary('present', 'absent') }}"
       fact_os_packages:
         - name: tailscale
           state: "{{ configure_tailscale | ternary('present', 'absent') }}"
