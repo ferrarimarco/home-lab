@@ -149,6 +149,12 @@ To gather all the facts about a single host:
 scripts/run-ansible.sh "ansible -m ansible.builtin.setup --user pi -i 'hostname.tld,' all"
 ```
 
+To list all the available Ansible tags in a play:
+
+```shell
+scripts/run-ansible.sh "ansible-playbook --inventory docker/ansible/etc/ansible/inventory/hosts.yml docker/ansible/etc/ansible/playbooks/main.yaml --list-tags"
+```
+
 #### Copy Jinja templates as they are
 
 If you need to copy Jinja templates with the Ansible Template Module, you can

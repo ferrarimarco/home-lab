@@ -32,7 +32,7 @@ docker_daemon_options: {
     "max-file": "3",
   }
 }
-docker_os_users_to_create:
+docker_os_users:
   - append: true
     name: "{{ ansible_user }}"
     groups:
@@ -158,7 +158,7 @@ samba_default_writers_group_name: "samba-writers"
 samba_enable_homes_share: false
 samba_hosts_allow: "10."
 samba_shares: []
-samba_os_users_to_create: []
+samba_os_users: []
 samba_workgroup: "WORKGROUP"
 security_fail2ban_enabled: true
 security_fail2ban_custom_configuration_template: "fail2ban/jail.local.jinja"

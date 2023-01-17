@@ -76,6 +76,8 @@
 - name: Include users setup tasks
   ansible.builtin.import_tasks: users.yaml
   become: true
+  tags:
+    - os_users
 
 - name: Create Samba share directories
   ansible.builtin.file:

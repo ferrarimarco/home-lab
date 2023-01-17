@@ -242,10 +242,10 @@ network_stack_templates_to_render:
   - src: "network-stack/unbound/stub-zones.conf.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-os_groups_to_create: []
+os_groups: []
 os_services_to_configure: []
 os_services_to_restart: []
-os_users_to_create:
+os_users:
   # Add the default user groups to ansible_user
   # Don't lock the password here because we want to be sure to set up key-based authentication first
   - append: true
