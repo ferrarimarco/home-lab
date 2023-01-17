@@ -1,38 +1,57 @@
 ---
 apt_cache_valid_time: 3600
-default_os_packages_to_install:
-  - python3-venv
-  - xz-utils
+default_os_packages:
+  - name: python3-venv
+  - name: xz-utils
 docker_repositories_to_add:
   - repository_key_keyring_file_path: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
     repository_key_url: "{{ docker_repository_url }}/{{ ansible_distribution | lower }}/gpg"
     repository_url: "deb [arch={{ dpkg_architecture }}] {{ docker_repository_url }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
-docker_packages_to_install:
-  - apt-transport-https
-  - ca-certificates
-  - docker-ce
-  - docker-compose-plugin
-  - gnupg
-docker_packages_to_uninstall:
-  - containerd
-  - docker
-  - docker-engine
-  - docker.io
-  - runc
+docker_os_packages:
+  - name: apt-transport-https
+    state: "{{ configure_docker | ternary('present', 'absent') }}"
+  - name: ca-certificates
+    state: "{{ configure_docker | ternary('present', 'absent') }}"
+  - name: docker-ce
+    state: "{{ configure_docker | ternary('present', 'absent') }}"
+  - name: docker-compose-plugin
+    state: "{{ configure_docker | ternary('present', 'absent') }}"
+  - name: gnupg
+    state: "{{ configure_docker | ternary('present', 'absent') }}"
+  - name: containerd
+    purge: true
+    state: "absent"
+  - name: docker
+    purge: true
+    state: "absent"
+  - name: docker-engine
+    purge: true
+    state: "absent"
+  - name: docker.io
+    purge: true
+    state: "absent"
+  - name: runc
+    purge: true
+    state: "absent"
 docker_service_name: docker
 dphys_swapfile_service_name: dphys-swapfile
 fail2ban_packages:
-  - fail2ban
+  - name: fail2ban
+    state: "{{ security_fail2ban_enabled | ternary('present', 'absent') }}"
 fail2ban_service_name: fail2ban
-monitoring_packages_to_install:
-  - smartmontools
+monitoring_os_packages:
+  - name: smartmontools
+    state: "{{ configure_monitoring | ternary('present', 'absent') }}"
 security_ssh_config_path: /etc/ssh/sshd_config
 security_sshd_name: ssh
 sshd_path: /usr/sbin/sshd
 tailscale_package_repository_key_file_path: /etc/apt/trusted.gpg.d/tailscale-archive-keyring.gpg
 unattended_upgrades_packages:
-  - unattended-upgrades
+  - name: unattended-upgrades
+    state: "{{ security_unattended_upgrades_enabled | ternary('present', 'absent') }}"
 unattended_upgrades_service_name: unattended-upgrades
-wpa_supplicant_package_name: wpasupplicant
+wifi_os_packages:
+  - name: "wpasupplicant"
+    state: "{{ configure_wifi | ternary('present', 'absent') }}"
 wpa_supplicant_service_name: wpa_supplicant
 ...

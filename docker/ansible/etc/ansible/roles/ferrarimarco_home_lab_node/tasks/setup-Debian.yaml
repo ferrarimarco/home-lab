@@ -23,20 +23,13 @@
     upgrade: true
   become: true
 
-- name: Purge APT packages
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    purge: true
-    state: absent
-  become: true
-  with_items: "{{ apt_packages_to_uninstall | unique }}"
-
-- name: Install APT packages
+- name: Setup APT packages
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
-    name: "{{ item }}"
-    state: present
+    name: "{{ item.name }}"
+    purge: "{{ item.purge | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
     update_cache: true
   become: true
-  with_items: "{{ apt_packages_to_install + default_os_packages_to_install | unique }}"
+  with_items: "{{ apt_packages + default_os_packages | unique }}"
 ...
