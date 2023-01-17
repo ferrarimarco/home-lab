@@ -4,6 +4,10 @@
   tags:
     - always
 
+- name: Eventually stop processes and services before cleaning up data and configuration
+  ansible.builtin.import_tasks: stop-services-and-processes.yaml
+  become: true
+
 - name: Set the ownership of system-wide configuration directories
   ansible.builtin.file:
     group: root
@@ -59,12 +63,6 @@
     group: "{{ item.group }}"
   register: system_wide_downloaded_files
   with_items: "{{ files_to_download }}"
-
-# Run cleanup tasks because we may need to stop processes and services before
-# removing resources on which those processes might depend
-- name: Run system-wide cleanup handlers
-  ansible.builtin.import_tasks: invoke-system-wide-configuration-cleanup-handlers.yaml
-  become: true
 
 - name: Remove files and directories
   ansible.builtin.file:
