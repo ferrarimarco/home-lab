@@ -27,7 +27,7 @@ services:
 {% if network_stack_configure_recursive_dns_resolver %}
 
   unbound:
-    image: "klutchell/unbound:1.17.0"
+    image: "klutchell/unbound:v1.17.1"
     container_name: "unbound"
     networks:
       default:
