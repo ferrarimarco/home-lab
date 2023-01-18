@@ -36,6 +36,9 @@ docker_os_packages:
     state: "absent"
 docker_service_name: docker
 dphys_swapfile_service_name: dphys-swapfile
+fail2ban_configuration_directories:
+  - path: "{{ fail2ban_configuration_directory }}"
+    state: "{{ security_fail2ban_enabled | ternary('directory', 'absent') }}"
 fail2ban_packages:
   - name: fail2ban
     state: "{{ security_fail2ban_enabled | ternary('present', 'absent') }}"

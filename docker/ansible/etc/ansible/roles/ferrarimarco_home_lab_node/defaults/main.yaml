@@ -1,6 +1,4 @@
 ---
-apt_repositories: []
-apt_packages: []
 cadvisor_exposed_port: 8083
 configure_docker: false
 configure_dphys_swapfile: false

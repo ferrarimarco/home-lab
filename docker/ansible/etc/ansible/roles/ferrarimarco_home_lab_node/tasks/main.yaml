@@ -17,27 +17,15 @@
   become: true
   with_items: "{{ directories_to_ensure_ownership }}"
 
-- name: Create system-wide configuration directories
+- name: Configure directories
   ansible.builtin.file:
     group: "{{ item.group | default('root') }}"
     mode: "{{ item.mode | default('0755') }}"
     owner: "{{ item.owner | default('root') }}"
     path: "{{ item.path }}"
-    state: directory
+    state: "{{ item.state }}"
   become: true
-  with_items: "{{ configuration_directories_to_create }}"
-
-- name: Copy configuration directories
-  ansible.builtin.copy:
-    src: "{{ item.src }}/"
-    dest: "{{ item.dest }}/"
-    group: root
-    directory_mode: "0755"
-    mode: "0644"
-    owner: root
-  become: true
-  register: system_wide_copied_configuration_directories
-  with_items: "{{ configuration_directories_to_copy }}"
+  with_items: "{{ configuration_directories }}"
 
 - name: Copy system-wide, templated configuration files in place
   ansible.builtin.template:
@@ -49,6 +37,8 @@
     mode: "{{ item.mode | default('0644') }}"
   become: true
   register: system_wide_rendered_templates
+  when:
+    - item.state == 'file'
   tags:
     - templates
   with_items: "{{ templates_to_render }}"
@@ -62,14 +52,37 @@
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
   register: system_wide_downloaded_files
+  when:
+    - item.state == 'file'
   with_items: "{{ files_to_download }}"
 
-- name: Remove files and directories
+- name: Copy configuration files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.path | default(item.dest) }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ item.owner | default('root') }}"
+  become: true
+  register: copied_configuration_files
+  when:
+    - item.state == 'file'
+  with_items: "{{ files_to_configure }}"
+  tags:
+    - configuration_files
+
+- name: Delete files marked for deletion
   ansible.builtin.file:
     path: "{{ item.path | default(item.dest) }}"
-    state: absent
+    state: "{{ item.state }}"
   become: true
-  with_items: "{{ files_to_remove }}"
+  register: configured_files_and_directories_result
+  when:
+    - item.state == 'absent'
+  with_items: "{{ files_to_configure }}"
+  tags:
+    - configuration_directories
+    - configuration_files
 
 - name: Include users setup tasks
   ansible.builtin.import_tasks: users.yaml

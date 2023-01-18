@@ -25,15 +25,14 @@
     apply:
       vars:
         fact_category: "{{ item.fact_category }}"
-        fact_configuration_directories_to_copy: "{{ item.fact_configuration_directories_to_copy | default([]) }}"
-        fact_configuration_directories_to_create: "{{ item.fact_configuration_directories_to_create | default([]) }}"
+        fact_configuration_directories: "{{ item.fact_configuration_directories | default([]) }}"
         fact_configure_dns_records: "{{ item.fact_configure_dns_records | default(true) }}"
         fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
         fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_enable_custom_fact: "{{ item.enable_custom_fact }}"
+        fact_files_to_configure: "{{ item.fact_files_to_configure | default([]) }}"
         fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
-        fact_files_to_remove: "{{ item.fact_files_to_remove | default([]) }}"
         fact_os_groups: "{{ item.fact_os_groups | default([]) }}"
         fact_os_users: "{{ item.fact_os_users | default([]) }}"
         fact_os_package_repositories: "{{ item.fact_os_package_repositories | default([]) }}"
@@ -44,8 +43,8 @@
   with_items:
     - enable_custom_fact: "{{ has_sense_hat }}"
       fact_category: "Raspberry Pi Sense Hat"
-      fact_configuration_directories_to_copy: "{{ sense_hat_exporter_configuration_directories_to_copy }}"
-      fact_configuration_directories_to_create: "{{ sense_hat_exporter_configuration_directories }}"
+      fact_configuration_directories: "{{ sense_hat_exporter_configuration_directories }}"
+      fact_files_to_configure: "{{ sense_hat_exporter_files_to_configure }}"
       fact_os_packages: "{{ raspberry_pi_sense_hat_os_packages }}"
       fact_os_services: "{{ sense_hat_os_services }}"
       fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
@@ -54,7 +53,7 @@
       fact_os_services: "{{ ssh_os_services }}"
     - enable_custom_fact: "{{ configure_docker }}"
       fact_category: "Docker"
-      fact_configuration_directories_to_create: "{{ docker_configuration_directories }}"
+      fact_configuration_directories: "{{ docker_configuration_directories }}"
       fact_cron_jobs:
         - become: true
           name: docker system prune
@@ -65,8 +64,9 @@
           job: "docker system prune --all --force --volumes"
           cron_file: ansible_docker-system-prune
           state: "{{ configure_docker | ternary('present', 'absent') }}"
-      fact_files_to_remove:
+      fact_files_to_configure:
         - path: "{{ docker_compose_standalone_executable_path }}"
+          state: absent
       fact_os_package_repositories: "{{ docker_repositories_to_add }}"
       fact_os_packages: "{{ docker_os_packages }}"
       fact_os_services: "{{ docker_os_services }}"
@@ -74,8 +74,7 @@
       fact_templates_to_render: "{{ docker_templates_to_render }}"
     - enable_custom_fact: "{{ security_fail2ban_enabled }}"
       fact_category: "fail2ban"
-      fact_configuration_directories_to_create:
-        - path: "{{ fail2ban_configuration_directory }}"
+      fact_configuration_directories: "{{ fail2ban_configuration_directories }}"
       fact_os_packages: "{{ fail2ban_packages }}"
       fact_os_services: "{{ fail2ban_os_services }}"
       fact_templates_to_render: "{{ fail2ban_templates_to_render }}"
@@ -86,11 +85,12 @@
       fact_templates_to_render: "{{ unattended_upgrades_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring }}"
       fact_category: "monitoring"
-      fact_configuration_directories_to_create: "{{ monitoring_configuration_directories }}"
+      fact_configuration_directories: "{{ monitoring_configuration_directories }}"
       fact_docker_compose_up_items: "{{ monitoring_docker_compose_up_items }}"
       fact_files_to_download:
         - url: "{{ monitoring_smart_metrics_collection_script_url }}"
           dest: "{{ monitoring_smartmon_prometheus_exporter_script_destination_path }}"
+          state: "{{ configure_monitoring | ternary('file', 'absent') }}"
           mode: "0755"
           owner: "root"
           group: "root"
@@ -112,9 +112,9 @@
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
           source_host: "{{ inventory_hostname }}"
-      fact_configuration_directories_to_create: "{{ monitoring_backend_configuration_directories }}"
-      fact_configuration_directories_to_copy: "{{ monitoring_backend_configuration_directories_to_copy }}"
+      fact_configuration_directories: "{{ monitoring_backend_configuration_directories }}"
       fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
+      fact_files_to_configure: "{{ monitoring_backend_files_to_configure }}"
       fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
     - enable_custom_fact: "{{ configure_home_assistant }}"
       fact_category: "home-assistant"
@@ -124,7 +124,7 @@
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
           source_host: "{{ inventory_hostname }}"
-      fact_configuration_directories_to_create: "{{ home_assistant_configuration_directories }}"
+      fact_configuration_directories: "{{ home_assistant_configuration_directories }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
       fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
     - enable_custom_fact: "{{ configure_mqtt_broker }}"
@@ -134,7 +134,7 @@
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
           source_host: "{{ inventory_hostname }}"
-      fact_configuration_directories_to_create: "{{ mosquitto_configuration_directories }}"
+      fact_configuration_directories: "{{ mosquitto_configuration_directories }}"
       fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
       fact_templates_to_render: "{{ mosquitto_templates_to_render }}"
     - enable_custom_fact: "{{ configure_frigate }}"
@@ -144,7 +144,7 @@
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
           source_host: "{{ inventory_hostname }}"
-      fact_configuration_directories_to_create: "{{ frigate_configuration_directories }}"
+      fact_configuration_directories: "{{ frigate_configuration_directories }}"
       fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
       fact_templates_to_render: "{{ frigate_templates_to_render }}"
     - enable_custom_fact: "{{ configure_dphys_swapfile }}"
@@ -152,8 +152,8 @@
       fact_templates_to_render: "{{ dphys_swapfile_templates_to_render }}"
     - enable_custom_fact: "{{ has_argonone_case }}"
       fact_category: "argonone-case"
-      fact_configuration_directories_to_create: "{{ argonone_configuration_directories }}"
-      fact_configuration_directories_to_copy: "{{ argonone_configuration_directories_to_copy }}"
+      fact_configuration_directories: "{{ argonone_configuration_directories }}"
+      fact_files_to_configure: "{{ argonone_files_to_configure }}"
       fact_os_packages: "{{ argonone_case_os_packages }}"
       fact_os_services: "{{ argonone_os_services }}"
     - enable_custom_fact: "{{ configure_tailscale }}"
@@ -184,6 +184,7 @@
       fact_templates_to_render:
         - src: "samba/smb.conf.jinja"
           dest: "{{ etc_directory_path }}/samba/smb.conf"
+          state: "{{ configure_network_shares | ternary('present', 'absent') }}"
           os_services_to_restart:
             - "{{ samba_service_name }}"
     - enable_custom_fact: "{{ configure_torrent }}"
@@ -193,7 +194,7 @@
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
           source_host: "{{ inventory_hostname }}"
-      fact_configuration_directories_to_create: "{{ torrent_configuration_directories }}"
+      fact_configuration_directories: "{{ torrent_configuration_directories }}"
       fact_docker_compose_up_items: "{{ torrent_docker_compose_up_items }}"
       fact_templates_to_render: "{{ torrent_templates_to_render }}"
     - enable_custom_fact: "{{ has_raspberry_pi_v2_camera }}"
@@ -208,6 +209,7 @@
       fact_templates_to_render:
         - src: "raspberry-pi-camera/raspberry-pi-v2-camera-rtsp.service.jinja"
           dest: "{{ systemd_system_services_configuration_directory }}/raspberry-pi-v2-camera-rtsp.service"
+          state: "{{ has_raspberry_pi_v2_camera | ternary('present', 'absent') }}"
           os_services_to_restart:
             - "raspberry-pi-v2-camera-rtsp"
     - enable_custom_fact: "{{ configure_zigbee2mqtt }}"
@@ -217,7 +219,7 @@
           destination: "{{ inventory_hostname }}"
           query_type: CNAME
           source_host: "{{ inventory_hostname }}"
-      fact_configuration_directories_to_create: "{{ zigbee2mqtt_configuration_directories }}"
+      fact_configuration_directories: "{{ zigbee2mqtt_configuration_directories }}"
       fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
       fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
     - enable_custom_fact: "{{ configure_wifi }}"
@@ -230,7 +232,7 @@
           service_state: "{{ configure_wifi | ternary('started', 'stopped') }}"
     - enable_custom_fact: "{{ configure_network_stack }}"
       fact_category: "network-stack"
-      fact_configuration_directories_to_create: "{{ network_stack_configuration_directories }}"
+      fact_configuration_directories: "{{ network_stack_configuration_directories }}"
       # Set default (unusable) values (='') here so Ansible doesn't complain.
       # These unusable values aren't going to be used because configure_network_stack will be false in that case
       fact_dns_records_to_configure:
