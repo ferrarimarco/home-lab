@@ -20,6 +20,12 @@
     - "register-{{ ansible_os_family }}-facts.yaml"
     - "register-default-facts.yaml"
 
+- name: Register Raspberry Pi OS facts
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - "register-raspberry-pi-os-facts.yaml"
+
 - name: Set custom facts
   ansible.builtin.include_tasks:
     apply:
@@ -45,7 +51,6 @@
       fact_category: "Raspberry Pi Sense Hat"
       fact_configuration_directories: "{{ sense_hat_exporter_configuration_directories }}"
       fact_files_to_configure: "{{ sense_hat_exporter_files_to_configure }}"
-      fact_os_packages: "{{ raspberry_pi_sense_hat_os_packages }}"
       fact_os_services: "{{ sense_hat_os_services }}"
       fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
     - enable_custom_fact: "{{ configure_ssh }}"
@@ -154,7 +159,6 @@
       fact_category: "argonone-case"
       fact_configuration_directories: "{{ argonone_configuration_directories }}"
       fact_files_to_configure: "{{ argonone_files_to_configure }}"
-      fact_os_packages: "{{ argonone_case_os_packages }}"
       fact_os_services: "{{ argonone_os_services }}"
     - enable_custom_fact: "{{ configure_tailscale }}"
       fact_category: "tailscale"
