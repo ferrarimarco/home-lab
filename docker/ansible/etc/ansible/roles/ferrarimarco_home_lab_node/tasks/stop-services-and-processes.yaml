@@ -1,12 +1,45 @@
 ---
-# TODO: handle docker_compose_stop_items if fact_start_containerized_services is false
-# TODO: stop OS services and docker compose services before removing leftovers
+- name: Stop Docker Compose services
+  changed_when: '"Stopped" in docker_compose_stop_result.stdout or "Stopped" in docker_compose_stop_result.stderr'
+  ansible.builtin.command:
+    cmd: >
+      docker compose \
+      --file {{ item.compose_file_path }} \
+      stop
+    # Run only if the compose file exists
+    removes: "{{ item.compose_file_path }}"
+  register: docker_compose_stop_result
+  when:
+    - item.enable_containerized_services
+    - not item.start_containerized_services
+  with_items: "{{ docker_compose_up_items | unique }}"
 
-# If we disabled the stack, we assume that we want to cleanup any leftover.
-# We use the same variables that we would use to configure the stack to remove leftovers.
-# - name: Register in-depth cleanup facts for {{ fact_category }}
-#   ansible.builtin.set_fact:
-#     docker_compose_rm_items: # TODO: implement this
-#   when:
-#     - not fact_enable_custom_fact
+- name: Debug docker_compose_stop_result
+  ansible.builtin.debug:
+    var: docker_compose_stop_result
+    verbosity: 1
+
+# If we disabled the stack, we assume that we want to cleanup any leftover
+- name: Remove Docker Compose services
+  changed_when: '"Removed" in docker_compose_rm_result.stdout or "Removed" in docker_compose_rm_result.stderr'
+  ansible.builtin.command:
+    cmd: >
+      docker compose \
+      --file {{ item.compose_file_path }} \
+      rm \
+      --force \
+      --stop \
+      --volumes
+    # Run only if the compose file exists
+    removes: "{{ item.compose_file_path }}"
+  register: docker_compose_rm_result
+  when:
+    - not item.enable_containerized_services
+    - not item.start_containerized_services
+  with_items: "{{ docker_compose_up_items | unique }}"
+
+- name: Debug docker_compose_rm_result
+  ansible.builtin.debug:
+    var: docker_compose_rm_result
+    verbosity: 1
 ...

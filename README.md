@@ -278,7 +278,7 @@ If you need to migrate containers and data between hosts, do the following:
 5. Set the `start_xxxxx` variable for the source host to `false` to stop the service we're migrating.
 6. Run Ansible.
 7. Copy data from the source host to the target host.
-8. Remove the `configure_xxxxx` variable from the source host configuration.
-9. Remove the `configure_xxxxx_dns_records` from the source and the target host configuration.
-10. Remove the `start_xxxxx` from the source and the target host configuration.
+8. Remove the `configure_xxxxx_dns_records` from the source and the target host configuration.
+9. Remove the `start_xxxxx` from the source and the target host configuration.
+10. Remove the `configure_xxxxx` variable from the source host configuration.
 11. Run Ansible.

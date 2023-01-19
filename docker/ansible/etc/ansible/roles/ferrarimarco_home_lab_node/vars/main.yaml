@@ -93,6 +93,7 @@ frigate_configuration_directories:
     state: "{{ configure_frigate | ternary('directory', 'absent') }}"
 frigate_docker_compose_up_items:
   - compose_file_path: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_frigate }}"
     pull_container_images: "{{ configure_frigate }}"
     start_containerized_services: "{{ start_frigate | default(configure_frigate) }}"
 frigate_media_directory: "{{ frigate_runtime_data_directory_path }}/media"
@@ -114,6 +115,7 @@ home_assistant_configuration_directories:
     state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
 home_assistant_docker_compose_up_items:
   - compose_file_path: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_home_assistant }}"
     pull_container_images: "{{ configure_home_assistant }}"
     start_containerized_services: "{{ start_home_assistant | default(configure_home_assistant) }}"
 home_assistant_templates_to_render:
@@ -201,6 +203,7 @@ monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ prometheus_node_exporter_port }} # Prometheus Node Exporter"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_monitoring_backend }}"
     pull_container_images: "{{ configure_monitoring_backend }}"
     start_containerized_services: "{{ start_monitoring_backend | default(configure_monitoring_backend) }}"
 monitoring_backend_runtime_data_directory: "{{ var_lib_directory_path }}/monitoring-backend"
@@ -227,6 +230,7 @@ monitoring_configuration_directories:
 monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring"
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_monitoring }}"
     pull_container_images: "{{ configure_monitoring }}"
     start_containerized_services: "{{ start_monitoring | default(configure_monitoring) }}"
 monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collector"
@@ -277,6 +281,7 @@ mosquitto_configuration_directories:
     owner: "{{ mosquitto_user_user_id }}"
 mosquitto_docker_compose_up_items:
   - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_mqtt_broker }}"
     pull_container_images: "{{ configure_mqtt_broker }}"
     start_containerized_services: "{{ start_mqtt_broker | default(configure_mqtt_broker) }}"
 mosquitto_templates_to_render:
@@ -308,6 +313,7 @@ network_stack_edge_dns_resolver_template:
 network_stack_edge_dns_resolvers: []
 network_stack_docker_compose_up_items:
   - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_network_stack }}"
     pull_container_images: "{{ configure_network_stack }}"
     start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
 network_stack_root_dns_servers: []
@@ -406,6 +412,7 @@ torrent_configuration_directories:
     state: "{{ configure_torrent | ternary('directory', 'absent') }}"
 torrent_docker_compose_up_items:
   - compose_file_path: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_torrent }}"
     pull_container_images: "{{ configure_torrent }}"
     start_containerized_services: "{{ start_torrent | default(configure_torrent) }}"
 torrent_templates_to_render:
@@ -450,6 +457,7 @@ zigbee2mqtt_configuration_directories:
     state: "{{ configure_zigbee2mqtt | ternary('directory', 'absent') }}"
 zigbee2mqtt_docker_compose_up_items:
   - compose_file_path: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_zigbee2mqtt }}"
     pull_container_images: "{{ configure_zigbee2mqtt }}"
     start_containerized_services: "{{ start_zigbee2mqtt | default(configure_zigbee2mqtt) }}"
 zigbee2mqtt_templates_to_render:
