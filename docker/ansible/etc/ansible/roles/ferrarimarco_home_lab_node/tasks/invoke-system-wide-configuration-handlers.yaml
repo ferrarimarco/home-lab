@@ -16,7 +16,6 @@
   with_items: "{{ os_services_to_restart | unique }}"
 
 - name: Pull container images
-  debugger: on_failed
   changed_when: '"Pull complete" in docker_compose_pull_result.stdout or "Pull complete" in docker_compose_pull_result.stderr'
   ansible.builtin.command: >
     docker compose \
@@ -28,7 +27,6 @@
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Start Docker Compose services
-  debugger: on_failed
   changed_when: '"Started" in docker_compose_up_result.stdout or "Started" in docker_compose_up_result.stderr'
   ansible.builtin.command: >
     docker compose \
@@ -38,7 +36,7 @@
     --detach \
     --remove-orphans
   register: docker_compose_up_result
-  when: item.start_containerized_service
+  when: item.start_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Initialize the list of Docker Compose services to restart
@@ -54,5 +52,6 @@
     --file {{ item.compose_file_path }} \
     restart
   register: docker_compose_restart_result
+  when: item.start_containerized_services
   with_items: "{{ docker_compose_services_to_restart | unique }}"
 ...

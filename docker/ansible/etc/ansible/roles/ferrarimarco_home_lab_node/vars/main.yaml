@@ -228,6 +228,7 @@ monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_pa
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     pull_container_images: "{{ configure_monitoring }}"
+    start_containerized_services: "{{ start_monitoring | default(configure_monitoring) }}"
 monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collector"
 monitoring_prometheus_node_exporter_textfile_collector_directory: "/var/lib/node_exporter/textfile_collector"
 monitoring_smartmon_prometheus_exporter_script_destination_path: "/usr/local/bin/node-exporter-text-smartmon"
@@ -276,6 +277,7 @@ mosquitto_configuration_directories:
     owner: "{{ mosquitto_user_user_id }}"
 mosquitto_docker_compose_up_items:
   - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    pull_container_images: "{{ configure_mqtt_broker }}"
     start_containerized_services: "{{ start_mqtt_broker | default(configure_mqtt_broker) }}"
 mosquitto_templates_to_render:
   - src: "mosquitto/{{ default_docker_compose_file_name }}.jinja"
@@ -306,6 +308,7 @@ network_stack_edge_dns_resolver_template:
 network_stack_edge_dns_resolvers: []
 network_stack_docker_compose_up_items:
   - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    pull_container_images: "{{ configure_network_stack }}"
     start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
 network_stack_root_dns_servers: []
 network_stack_root_dns_server_template:
