@@ -149,6 +149,12 @@ To gather all the facts about a single host:
 scripts/run-ansible.sh "ansible -m ansible.builtin.setup --user pi -i 'hostname.tld,' all"
 ```
 
+To gather all the facts about all hosts, reusing the inventory:
+
+```shell
+scripts/run-ansible.sh "ansible -m ansible.builtin.setup -i docker/ansible/etc/ansible/inventory/hosts.yml all"
+```
+
 To list all the available Ansible tags in a play:
 
 ```shell
