@@ -17,9 +17,11 @@ raspberri_pi_os_os_packages:
   - name: python3-rpi.gpio
   - name: python3-smbus
   - name: raspi-gpio
-  - name: sense-hat
 raspberry_pi_sense_hat_config_txt_values:
   # Force enable the sense hat overlay
   dtoverlay: rpi-sense
+raspberry_pi_sense_hat_apt_packages:
+  - name: sense-hat
+    state: "{{ has_sense_hat | ternary('present', 'absent') }}"
 tailscale_package_repository_url: "{{ tailscale_base_package_repository_url }}/raspbian"
 ...
