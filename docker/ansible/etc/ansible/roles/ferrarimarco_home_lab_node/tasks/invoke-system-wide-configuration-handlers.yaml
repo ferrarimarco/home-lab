@@ -21,6 +21,7 @@
     docker compose \
     --file {{ item.compose_file_path }} \
     pull \
+    --ignore-buildable \
     --include-deps
   register: docker_compose_pull_result
   when: item.pull_container_images
