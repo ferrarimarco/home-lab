@@ -1,11 +1,11 @@
 ---
 - name: Stop Docker Compose services
   changed_when: '"Stopped" in docker_compose_stop_result.stdout or "Stopped" in docker_compose_stop_result.stderr'
-  ansible.builtin.command:
-    cmd: >
-      docker compose \
-      --file {{ item.compose_file_path }} \
-      stop
+  ansible.builtin.command: >
+    docker compose \
+    --file {{ item.compose_file_path }} \
+    stop
+  args:
     # Run only if the compose file exists
     removes: "{{ item.compose_file_path }}"
   register: docker_compose_stop_result
@@ -17,19 +17,19 @@
 - name: Debug docker_compose_stop_result
   ansible.builtin.debug:
     var: docker_compose_stop_result
-    verbosity: 1
+    # verbosity: 1
 
 # If we disabled the stack, we assume that we want to cleanup any leftover
 - name: Remove Docker Compose services
   changed_when: '"Removed" in docker_compose_rm_result.stdout or "Removed" in docker_compose_rm_result.stderr'
-  ansible.builtin.command:
-    cmd: >
-      docker compose \
-      --file {{ item.compose_file_path }} \
-      rm \
-      --force \
-      --stop \
-      --volumes
+  ansible.builtin.command: >
+    docker compose \
+    --file {{ item.compose_file_path }} \
+    rm \
+    --force \
+    --stop \
+    --volumes
+  args:
     # Run only if the compose file exists
     removes: "{{ item.compose_file_path }}"
   register: docker_compose_rm_result
@@ -41,5 +41,5 @@
 - name: Debug docker_compose_rm_result
   ansible.builtin.debug:
     var: docker_compose_rm_result
-    verbosity: 1
+    # verbosity: 1
 ...
