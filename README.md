@@ -249,22 +249,6 @@ scripts/generate-templated-files.sh
 
 After the generator produces the files, commit any updates to the generated files.
 
-## Copy data between hosts
-
-To copy data between hosts, you can use `rsync`.
-
-Examples:
-
-- Copy data from a remote source directory to a remote destination directory in archive mode:
-
-```sh
-rsync \
-    --archive \
-    -P \
-    "${_SOURCE_USER}"@${_SOURCE_HOST}:"${_SOURCE_DIRECTORY}/" \
-    "${_DESTINATION_USER}"@${_DESTINATION_HOST}:"${_DESTINATION_DIRECTORY}"
-```
-
 ## Container migration playbook
 
 If you need to migrate containers and data between hosts, do the following:
