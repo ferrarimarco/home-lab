@@ -90,7 +90,6 @@ def temp_check():
     address = 0x1A
     prevblock = 0
     while True:
-
         try:
             tempfp = open("/sys/class/thermal/thermal_zone0/temp", "r")
             temp = tempfp.readline()
