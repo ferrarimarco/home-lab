@@ -168,6 +168,9 @@ monitoring_backend_configuration_directories:
     owner: "nobody"
     group: "nogroup"
 monitoring_backend_files_to_configure:
+  - src: "{{ monitoring_backend_dashboards_source_directory_path }}/embedded-dashboards.yaml"
+    dest: "{{ monitoring_backend_grafana_dashboards_directory_path }}/embedded-dashboards.yaml"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
   - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/cadvisor-exporter_rev1.json"
     dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/cadvisor-exporter_rev1.json"
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"

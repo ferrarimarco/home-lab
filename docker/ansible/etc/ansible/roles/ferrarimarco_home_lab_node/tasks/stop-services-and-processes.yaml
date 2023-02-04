@@ -17,7 +17,7 @@
 - name: Debug docker_compose_stop_result
   ansible.builtin.debug:
     var: docker_compose_stop_result
-    # verbosity: 1
+    verbosity: 1
 
 # If we disabled the stack, we assume that we want to cleanup any leftover
 - name: Remove Docker Compose services
@@ -41,5 +41,5 @@
 - name: Debug docker_compose_rm_result
   ansible.builtin.debug:
     var: docker_compose_rm_result
-    # verbosity: 1
+    verbosity: 1
 ...
