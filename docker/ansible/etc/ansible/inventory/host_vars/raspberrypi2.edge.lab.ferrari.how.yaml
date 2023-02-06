@@ -1,8 +1,7 @@
 ---
 configure_docker: true
 configure_frigate: true
-# configure_home_assistant_dns_records: false
-# configure_home_assistant: true
+configure_home_assistant: true
 configure_monitoring_backend: true
 configure_mqtt_broker: true
 configure_network_shares: true
@@ -55,7 +54,6 @@ samba_os_users:
     groups:
       - "{{ samba_default_readers_group_name }}"
       - "{{ samba_default_writers_group_name }}"
-# start_home_assistant: false
 torrent_download_path: "/media/data0/media/downloads"
 zigbee_adapter_device_path: "/dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20220708144056-if00"
 ...

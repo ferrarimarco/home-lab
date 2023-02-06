@@ -2,7 +2,7 @@
 ansible_python_interpreter: auto_silent
 frigate_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 grafana_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
-home_assistant_http_endpoint_fqdn: "raspberrypi.{{ edge_environment_root_fqdn }}"
+home_assistant_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 prometheus_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 prometheus_blackbox_exporter_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 qbittorrent_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
