@@ -1,33 +1,42 @@
 ---
+apt_repositories: []
+apt_packages: []
 argonone_configuration_directories:
   - path: "{{ argonone_configuration_directory }}"
-argonone_configuration_directories_to_copy:
-  - src: "config/argonone-case/etc/argonone"
-    dest: "{{ argonone_configuration_directory }}"
+    state: "{{ has_argonone_case | ternary('directory', 'absent') }}"
+argonone_files_to_configure:
+  - src: "config/argonone-case/etc/argonone/argononed.conf"
+    dest: "{{ argonone_configuration_directory }}/argononed.conf"
+    state: "{{ has_argonone_case | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
-  - src: "config/argonone-case/lib/systemd/system"
-    dest: "{{ systemd_system_services_configuration_directory }}"
+  - src: "config/argonone-case/lib/systemd/system/argononed.service"
+    dest: "{{ systemd_system_services_configuration_directory }}/argononed.service"
+    state: "{{ has_argonone_case | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
-  - src: "config/argonone-case/lib/systemd/system-shutdown"
-    dest: "{{ systemd_system_shutdown_configuration_directory }}"
+  - src: "config/argonone-case/lib/systemd/system-shutdown/argononed-poweroff.py"
+    dest: "{{ systemd_system_shutdown_configuration_directory }}/argononed-poweroff.py"
+    state: "{{ has_argonone_case | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
-  - src: "config/argonone-case/usr/local/bin"
-    dest: "/usr/local/bin"
+  - src: "config/argonone-case/usr/local/bin/argononed.py"
+    dest: "/usr/local/bin/argononed.py"
+    state: "{{ has_argonone_case | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
 argonone_configuration_directory: "{{ etc_directory_path }}/argonone-case"
-argonone_os_services_to_configure:
+argonone_os_services:
   - enabled: true
     service_name: "{{ argonone_os_service_name }}"
-    service_state: started
-configuration_directories_to_copy: []
-configuration_directories_to_create:
+    service_state: "{{ has_argonone_case | ternary('started', 'stopped') }}"
+configuration_directories:
   - path: "{{ home_lab_configuration_directory_path }}"
+    state: directory
   - path: "{{ systemd_configuration_directory }}"
+    state: directory
   - path: "{{ systemd_journald_configuration_directory_path }}"
+    state: directory
 cron_jobs: []
 directories_to_ensure_ownership:
   - "{{ etc_directory_path }}"
@@ -37,90 +46,164 @@ docker_compose_up_items: []
 docker_compose_services_to_restart: []
 docker_configuration_directories:
   - path: "{{ docker_daemon_configuration_directory_path }}"
+    state: "{{ configure_docker | ternary('directory', 'absent') }}"
 docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
 docker_daemon_configuration_file_name: "daemon.json"
-docker_os_services_to_configure:
+docker_os_services:
   - enabled: true
     service_name: "{{ docker_service_name }}"
-    service_state: started
+    service_state: "{{ configure_docker | ternary('started', 'stopped') }}"
 docker_repository_url: https://download.docker.com/linux
 docker_templates_to_render:
   - src: "docker/{{ docker_daemon_configuration_file_name }}.jinja"
     dest: "{{ docker_daemon_configuration_directory_path }}/daemon.json"
+    state: "{{ configure_docker | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ docker_service_name }}"
 dphys_swapfile_templates_to_render:
   - src: "dphys-swapfile/dphys-swapfile.jinja"
     dest: "{{ etc_directory_path }}/dphys-swapfile"
+    state: "{{ configure_dphys_swapfile | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ dphys_swapfile_service_name }}"
 etc_directory_path: "/etc"
 fail2ban_configuration_directory: "{{ etc_directory_path }}/fail2ban"
-fail2ban_os_services_to_configure:
+fail2ban_os_services:
   - enabled: true
     service_name: "{{ fail2ban_service_name }}"
-    service_state: started
+    service_state: "{{ security_fail2ban_enabled | ternary('started', 'stopped') }}"
 fail2ban_templates_to_render:
   - src: "{{ security_fail2ban_custom_configuration_template }}"
     dest: "{{ fail2ban_configuration_directory }}/jail.local"
+    state: "{{ security_fail2ban_enabled | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ fail2ban_service_name }}"
+files_to_configure: []
 files_to_download: []
-files_to_remove: []
 frigate_configuration_app_configuration_directory_path: "{{ frigate_configuration_directory_path }}/config"
 frigate_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/frigate"
 frigate_configuration_directories:
   - path: "{{ frigate_configuration_directory_path }}"
+    state: "{{ configure_frigate | ternary('directory', 'absent') }}"
   - path: "{{ frigate_configuration_app_configuration_directory_path }}"
+    state: "{{ configure_frigate | ternary('directory', 'absent') }}"
   - path: "{{ frigate_runtime_data_directory_path }}"
+    state: "{{ configure_frigate | ternary('directory', 'absent') }}"
   - path: "{{ frigate_media_directory }}"
+    state: "{{ configure_frigate | ternary('directory', 'absent') }}"
 frigate_docker_compose_up_items:
   - compose_file_path: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_frigate }}"
+    pull_container_images: "{{ configure_frigate }}"
+    start_containerized_services: "{{ start_frigate | default(configure_frigate) }}"
 frigate_media_directory: "{{ frigate_runtime_data_directory_path }}/media"
 frigate_runtime_data_directory_path: "{{ var_lib_directory_path }}/frigate"
 frigate_templates_to_render:
   - src: "frigate/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ frigate_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_frigate | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ frigate_docker_compose_up_items }}"
   - src: "frigate/config/config.yaml.jinja"
     dest: "{{ frigate_configuration_app_configuration_directory_path }}/config.yaml"
+    state: "{{ configure_frigate | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ frigate_docker_compose_up_items }}"
 home_assistant_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/home-assistant"
 home_assistant_configuration_directories:
   - path: "{{ home_assistant_configuration_directory_path }}"
+    state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
   - path: "{{ home_assistant_configuration_directory_path }}/config"
+    state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
 home_assistant_docker_compose_up_items:
   - compose_file_path: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_home_assistant }}"
+    pull_container_images: "{{ configure_home_assistant }}"
+    start_containerized_services: "{{ start_home_assistant | default(configure_home_assistant) }}"
 home_assistant_templates_to_render:
   - src: "home-assistant/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_home_assistant | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
   - src: "home-assistant/config/automations.yaml.jinja"
     dest: "{{ home_assistant_configuration_directory_path }}/config/automations.yaml"
+    state: "{{ configure_home_assistant | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
   - src: "home-assistant/config/configuration.yaml.jinja"
     dest: "{{ home_assistant_configuration_directory_path }}/config/configuration.yaml"
+    state: "{{ configure_home_assistant | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
   - src: "home-assistant/config/secrets.yaml.jinja"
     dest: "{{ home_assistant_configuration_directory_path }}/config/secrets.yaml"
+    state: "{{ configure_home_assistant | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
     force: false
 home_lab_configuration_directory_path: "{{ etc_directory_path }}/ferrarimarco-home-lab"
 monitoring_backend_grafana_user_user_id: "472"
 monitoring_backend_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring-backend"
+monitoring_backend_grafana_configuration_directory_path: "{{ monitoring_backend_configuration_directory_path }}/grafana"
+monitoring_backend_grafana_dashboards_directory_path: "{{ monitoring_backend_grafana_configuration_directory_path }}/dashboards"
+monitoring_backend_grafana_dashboard_definitions_directory_path: "{{ monitoring_backend_grafana_dashboards_directory_path }}/dashboard-definitions"
+monitoring_backend_grafana_datasources_directory_path: "{{ monitoring_backend_grafana_configuration_directory_path }}/datasources"
 monitoring_backend_configuration_directories:
   - path: "{{ monitoring_backend_configuration_directory_path }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
   - path: "{{ monitoring_backend_runtime_data_directory }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
   - path: "{{ monitoring_backend_grafana_data_directory }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
+    owner: "{{ monitoring_backend_grafana_user_user_id }}"
+  - path: "{{ monitoring_backend_grafana_configuration_directory_path }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
+    owner: "{{ monitoring_backend_grafana_user_user_id }}"
+  - path: "{{ monitoring_backend_grafana_dashboards_directory_path }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
+    owner: "{{ monitoring_backend_grafana_user_user_id }}"
+  - path: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
+    owner: "{{ monitoring_backend_grafana_user_user_id }}"
+  - path: "{{ monitoring_backend_grafana_datasources_directory_path }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
     owner: "{{ monitoring_backend_grafana_user_user_id }}"
   - path: "{{ monitoring_backend_prometheus_data_directory }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
     owner: "nobody"
     group: "nogroup"
-monitoring_backend_configuration_directories_to_copy:
-  - src: "{{ monitoring_backend_configuration_source_directory_path }}"
-    dest: "{{ monitoring_backend_configuration_directory_path }}"
+monitoring_backend_files_to_configure:
+  - src: "{{ monitoring_backend_dashboards_source_directory_path }}/embedded-dashboards.yaml"
+    dest: "{{ monitoring_backend_grafana_dashboards_directory_path }}/embedded-dashboards.yaml"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+  - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/cadvisor-exporter_rev1.json"
+    dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/cadvisor-exporter_rev1.json"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+  - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/coredns_rev1.json"
+    dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/coredns_rev1.json"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+  - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/home-network_rev1.json"
+    dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/home-network_rev1.json"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+  - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/node-exporter-full_rev26.json"
+    dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/node-exporter-full_rev26.json"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+  - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/sensehat_rev1.json"
+    dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/sensehat_rev1.json"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+  - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/smartmon_rev1.json"
+    dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/smartmon_rev1.json"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+  - src: "{{ monitoring_backend_datasources_source_directory_path }}/prometheus.yaml"
+    dest: "{{ monitoring_backend_grafana_datasources_directory_path }}/prometheus.yaml"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
 monitoring_backend_configuration_source_directory_path: "config/monitoring-backend"
+monitoring_backend_grafana_configuration_source_directory_path: "{{ monitoring_backend_configuration_source_directory_path }}/grafana"
+monitoring_backend_dashboards_source_directory_path: "{{ monitoring_backend_grafana_configuration_source_directory_path }}/dashboards"
+monitoring_backend_dashboard_definitions_source_directory_path: "{{ monitoring_backend_dashboards_source_directory_path }}/dashboard-definitions"
+monitoring_backend_datasources_source_directory_path: "{{ monitoring_backend_grafana_configuration_source_directory_path }}/datasources"
 monitoring_backend_dns_a_record_check_template_for_ansible_hosts:
   - check_name: "dns_{{ item | lower | replace('.', '_') }}_a"
     query_name: "{{ item }}"
@@ -135,25 +218,36 @@ monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ prometheus_node_exporter_port }} # Prometheus Node Exporter"
 monitoring_backend_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_monitoring_backend }}"
+    pull_container_images: "{{ configure_monitoring_backend }}"
+    start_containerized_services: "{{ start_monitoring_backend | default(configure_monitoring_backend) }}"
 monitoring_backend_runtime_data_directory: "{{ var_lib_directory_path }}/monitoring-backend"
 monitoring_backend_grafana_data_directory: "{{ monitoring_backend_runtime_data_directory }}/grafana"
 monitoring_backend_prometheus_data_directory: "{{ monitoring_backend_runtime_data_directory }}/prometheus"
 monitoring_backend_templates_to_render:
   - src: "monitoring-backend/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
   - src: "prometheus/{{ default_prometheus_configuration_file_name }}.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_prometheus_configuration_file_name }}"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
   - src: "prometheus-blackbox-exporter/config.yaml.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/prometheus-blackbox-exporter-config.yaml"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
 monitoring_configuration_directories:
   - path: "{{ monitoring_configuration_directory_path }}"
+    state: "{{ configure_monitoring | ternary('directory', 'absent') }}"
   - path: "{{ monitoring_host_metrics_directory_path }}"
+    state: "{{ configure_monitoring | ternary('directory', 'absent') }}"
 monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring"
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_monitoring }}"
+    pull_container_images: "{{ configure_monitoring }}"
+    start_containerized_services: "{{ start_monitoring | default(configure_monitoring) }}"
 monitoring_host_metrics_directory_path: "/var/lib/node_exporter/textfile_collector"
 monitoring_prometheus_node_exporter_textfile_collector_directory: "/var/lib/node_exporter/textfile_collector"
 monitoring_smartmon_prometheus_exporter_script_destination_path: "/usr/local/bin/node-exporter-text-smartmon"
@@ -163,13 +257,16 @@ monitoring_smartmon_prometheus_exporter_timer_file_name: "{{ monitoring_smartmon
 monitoring_templates_to_render:
   - src: "monitoring/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_monitoring | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_docker_compose_up_items }}"
   - src: "monitoring/{{ monitoring_smartmon_prometheus_exporter_service_file_name }}.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_smartmon_prometheus_exporter_service_file_name }}"
+    state: "{{ configure_monitoring | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ monitoring_smartmon_prometheus_exporter_service_name }}"
   - src: "monitoring/{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}"
+    state: "{{ configure_monitoring | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ monitoring_smartmon_prometheus_exporter_service_name }}"
 mosquitto_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/mosquitto"
@@ -182,32 +279,46 @@ mosquitto_user_group_id: "1883"
 mosquitto_user_user_id: "1883"
 mosquitto_configuration_directories:
   - path: "{{ mosquitto_configuration_directory_path }}"
+    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
   - group: "{{ mosquitto_user_group_id }}"
     owner: "{{ mosquitto_user_user_id }}"
     path: "{{ mosquitto_configuration_directory_path }}/config"
+    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
   - path: "{{ mosquitto_runtime_data_directory_path }}"
+    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
   - path: "{{ mosquitto_data_directory_path }}"
+    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
     group: "{{ mosquitto_user_group_id }}"
     owner: "{{ mosquitto_user_user_id }}"
   - path: "{{ mosquitto_log_directory_path }}"
+    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
     group: "{{ mosquitto_user_group_id }}"
     owner: "{{ mosquitto_user_user_id }}"
 mosquitto_docker_compose_up_items:
   - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_mqtt_broker }}"
+    pull_container_images: "{{ configure_mqtt_broker }}"
+    start_containerized_services: "{{ start_mqtt_broker | default(configure_mqtt_broker) }}"
 mosquitto_templates_to_render:
   - src: "mosquitto/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_mqtt_broker | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
   - src: "mosquitto/config/mosquitto.conf.jinja"
     dest: "{{ mosquitto_configuration_directory_path }}/config/mosquitto.conf"
+    state: "{{ configure_mqtt_broker | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
     group: "{{ mosquitto_user_group_id }}"
     owner: "{{ mosquitto_user_user_id }}"
 network_stack_configuration_directories:
   - path: "{{ network_stack_configuration_directory_path }}"
+    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
   - path: "{{ network_stack_configuration_directory_path }}/coredns"
+    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
   - path: "{{ network_stack_configuration_directory_path }}/coredns/zones"
+    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
   - path: "{{ network_stack_configuration_directory_path }}/unbound"
+    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
 network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
 network_stack_edge_dns_resolver_template:
   - fqdn: "{{ item }}"
@@ -217,6 +328,9 @@ network_stack_edge_dns_resolver_template:
 network_stack_edge_dns_resolvers: []
 network_stack_docker_compose_up_items:
   - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_network_stack }}"
+    pull_container_images: "{{ configure_network_stack }}"
+    start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
 network_stack_root_dns_servers: []
 network_stack_root_dns_server_template:
   - fqdn: "{{ item.destination }}"
@@ -224,23 +338,28 @@ network_stack_root_dns_server_template:
 network_stack_templates_to_render:
   - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/coredns/Corefile.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/coredns/Corefile"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/coredns/zones/{{ root_dns_zone.fqdn }}.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_dns_zone.fqdn }}"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/unbound/server.conf.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/unbound/server.conf"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/unbound/stub-zones.conf.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-os_groups_to_create: []
-os_services_to_configure: []
+os_groups: []
+os_services: []
 os_services_to_restart: []
-os_users_to_create:
+os_users:
   # Add the default user groups to ansible_user
   # Don't lock the password here because we want to be sure to set up key-based authentication first
   - append: true
@@ -250,10 +369,17 @@ prometheus_node_exporter_port: 9100
 samba_service_name: "smbd"
 sense_hat_exporter_configuration_directories:
   - path: "{{ sense_hat_exporter_configuration_directory_path }}"
+    state: "{{ has_sense_hat | ternary('directory', 'absent') }}"
 sense_hat_exporter_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/sense-hat-exporter"
-sense_hat_exporter_configuration_directories_to_copy:
-  - src: "config/sense-hat-exporter"
-    dest: "{{ sense_hat_exporter_configuration_directory_path }}"
+sense_hat_exporter_files_to_configure:
+  - src: "config/sense-hat-exporter/requirements.txt"
+    dest: "{{ sense_hat_exporter_requirements_file_path }}"
+    state: "{{ has_sense_hat | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ sense_hat_exporter_os_service_name }}"
+  - src: "config/sense-hat-exporter/sense-hat-exporter.py"
+    dest: "{{ sense_hat_exporter_executable_path }}"
+    state: "{{ has_sense_hat | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ sense_hat_exporter_os_service_name }}"
 sense_hat_exporter_executable_path: "{{ sense_hat_exporter_configuration_directory_path }}/sense-hat-exporter.py"
@@ -262,19 +388,20 @@ sense_hat_exporter_run_directory_path: "/run/sense-hat-exporter"
 sense_hat_exporter_virtual_env_path: "{{ sense_hat_exporter_run_directory_path }}/.venv"
 sense_hat_exporter_os_service_file_name: "{{ sense_hat_exporter_os_service_name }}.service"
 sense_hat_exporter_os_service_name: "sense-hat-exporter"
-sense_hat_os_services_to_configure:
+sense_hat_os_services:
   - enabled: true
     service_name: "{{ sense_hat_exporter_os_service_file_name }}"
-    service_state: started
+    service_state: "{{ has_sense_hat | ternary('started', 'stopped') }}"
 sense_hat_templates_to_render:
   - src: "sense-hat-exporter/{{ sense_hat_exporter_os_service_file_name }}.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ sense_hat_exporter_os_service_file_name }}"
+    state: "{{ has_sense_hat | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ sense_hat_exporter_os_service_name }}"
-ssh_os_services_to_configure:
+ssh_os_services:
   - enabled: true
     service_name: "{{ security_sshd_name }}"
-    service_state: started
+    service_state: "{{ configure_ssh | ternary('started', 'stopped') }}"
 sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
@@ -285,6 +412,7 @@ tailscale_base_package_repository_url: "https://pkgs.tailscale.com/{{ tailscale_
 templates_to_render:
   - src: "systemd/journald/001-journald.conf.jinja"
     dest: "{{ systemd_journald_configuration_directory_path }}/001-journald.conf"
+    state: "file"
     os_services_to_restart:
       - systemd-journald
 torrent_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/qbittorrent"
@@ -296,31 +424,39 @@ torrent_configuration_directories:
   - group: "{{ torrent_owner_group_id }}"
     owner: "{{ torrent_owner_user_id }}"
     path: "{{ torrent_configuration_directory_path }}"
+    state: "{{ configure_torrent | ternary('directory', 'absent') }}"
 torrent_docker_compose_up_items:
   - compose_file_path: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_torrent }}"
+    pull_container_images: "{{ configure_torrent }}"
+    start_containerized_services: "{{ start_torrent | default(configure_torrent) }}"
 torrent_templates_to_render:
   - src: "qbittorrent/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_torrent | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
     group: "{{ torrent_owner_group_id }}"
     owner: "{{ torrent_owner_user_id }}"
   - src: "qbittorrent/qBittorrent.conf.jinja"
     dest: "{{ torrent_configuration_directory_path }}/qBittorrent.conf"
+    state: "{{ configure_torrent | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
     group: "{{ torrent_owner_group_id }}"
     owner: "{{ torrent_owner_user_id }}"
-unattended_upgrades_os_services_to_configure:
+unattended_upgrades_os_services:
   - enabled: true
     service_name: "{{ unattended_upgrades_service_name }}"
-    service_state: started
+    service_state: "{{ security_unattended_upgrades_enabled | ternary('started', 'stopped') }}"
 unattended_upgrades_templates_to_render:
   - src: "unattended-upgrades/20auto-upgrades.jinja"
     dest: "{{ etc_directory_path }}/apt/apt.conf.d/20auto-upgrades"
+    state: "{{ security_unattended_upgrades_enabled | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ unattended_upgrades_service_name }}"
 wifi_templates_to_render:
   - src: "wifi/wpa_supplicant.conf.jinja"
     dest: "{{ etc_directory_path }}/wpa_supplicant/wpa_supplicant.conf"
+    state: "{{ configure_wifi | ternary('file', 'absent') }}"
     mode: "0600"
     os_services_to_restart:
       - "{{ wpa_supplicant_service_name }}"
@@ -331,18 +467,26 @@ var_lib_directory_path: "{{ var_directory_path }}/lib"
 zigbee2mqtt_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/zigbee2mqtt"
 zigbee2mqtt_configuration_directories:
   - path: "{{ zigbee2mqtt_configuration_directory_path }}"
+    state: "{{ configure_zigbee2mqtt | ternary('directory', 'absent') }}"
   - path: "{{ zigbee2mqtt_configuration_directory_path }}/data"
+    state: "{{ configure_zigbee2mqtt | ternary('directory', 'absent') }}"
 zigbee2mqtt_docker_compose_up_items:
   - compose_file_path: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_zigbee2mqtt }}"
+    pull_container_images: "{{ configure_zigbee2mqtt }}"
+    start_containerized_services: "{{ start_zigbee2mqtt | default(configure_zigbee2mqtt) }}"
 zigbee2mqtt_templates_to_render:
   - src: "zigbee2mqtt/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_zigbee2mqtt | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
   - src: "zigbee2mqtt/data/configuration.yaml.jinja"
     dest: "{{ zigbee2mqtt_configuration_directory_path }}/data/configuration.yaml"
+    state: "{{ configure_zigbee2mqtt | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
   - src: "zigbee2mqtt/data/secret.yaml.jinja"
     dest: "{{ zigbee2mqtt_configuration_directory_path }}/data/secret.yaml"
+    state: "{{ configure_zigbee2mqtt | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
     # Don't force template rendering because zigbee2mqtt modifies this file at runtime to store the generated network key
     force: false
