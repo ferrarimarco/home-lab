@@ -272,3 +272,13 @@ If you need to migrate containers and data between hosts, do the following:
 14. Remove the `configure_xxxxx` variable from the source host configuration.
 15. Run Ansible.
 16. Commit the changes in the repository.
+
+### Data migration examples
+
+These examples assume that the current working directory is the root of this repository.
+
+To migrate one directory from one host to another:
+
+```sh
+scripts/migrate-container-data.sh "user@source.host" "/source/directory" "user2@target.host" "/destination"
+```
