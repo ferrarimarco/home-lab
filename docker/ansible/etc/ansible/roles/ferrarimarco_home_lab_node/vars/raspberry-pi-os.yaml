@@ -1,9 +1,4 @@
 ---
-argonone_case_apt_packages_to_install:
-  - i2c-tools
-  - python3-rpi.gpio
-  - python3-smbus
-  - raspi-gpio
 argonone_os_service_name: "argononed"
 configure_dphys_swapfile: true
 # Got those from v4l2-ctl --list-devices
@@ -17,10 +12,16 @@ frigate_ffmpeg_harware_acceleration_arguments:
   - -c:v
   - h264_v4l2m2m
 raspberry_pi_config_file_path: "/boot/config.txt"
-raspberry_pi_sense_hat_apt_packages:
-  - sense-hat
+raspberri_pi_os_os_packages:
+  - name: i2c-tools
+  - name: python3-rpi.gpio
+  - name: python3-smbus
+  - name: raspi-gpio
 raspberry_pi_sense_hat_config_txt_values:
   # Force enable the sense hat overlay
   dtoverlay: rpi-sense
+raspberry_pi_sense_hat_apt_packages:
+  - name: sense-hat
+    state: "{{ has_sense_hat | ternary('present', 'absent') }}"
 tailscale_package_repository_url: "{{ tailscale_base_package_repository_url }}/raspbian"
 ...

@@ -1,12 +1,12 @@
 ---
-- name: Create OS groups
+- name: Setup OS groups
   ansible.builtin.group:
     name: "{{ item.name }}"
-    state: present
+    state: "{{ item.state | default(omit) }}"
     system: "{{ item.system | default(omit) }}"
-  with_items: "{{ os_groups_to_create }}"
+  with_items: "{{ os_groups }}"
 
-- name: Create OS users
+- name: Setup OS users
   ansible.builtin.user:
     append: "{{ item.append | default(omit) }}"
     comment: "{{ item.comment | default(omit) }}"
@@ -16,9 +16,9 @@
     password: "{{ item.password | default(omit) }}"
     password_lock: "{{ item.password_lock | default(omit) }}"
     shell: "{{ item.shell | default(omit) }}"
-    state: present
+    state: "{{ item.state | default(omit) }}"
     system: "{{ item.system | default(omit) }}"
-  with_items: "{{ os_users_to_create }}"
+  with_items: "{{ os_users }}"
 
 - name: "Lock the password of the default user if we authenticated with a key - {{ ansible_user }}"
   ansible.builtin.user:

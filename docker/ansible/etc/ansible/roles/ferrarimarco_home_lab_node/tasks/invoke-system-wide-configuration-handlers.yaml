@@ -6,7 +6,7 @@
   ansible.builtin.set_fact:
     os_services_to_restart: "{{ os_services_to_restart + item.item.os_services_to_restart }}"
   when: item.changed and item.item.os_services_to_restart is defined
-  with_items: "{{ system_wide_copied_configuration_directories.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
+  with_items: "{{ copied_configuration_files.results | default([]) + configured_files_and_directories_result.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
 
 - name: Restart OS services
   become: true
@@ -16,23 +16,18 @@
   with_items: "{{ os_services_to_restart | unique }}"
 
 - name: Pull container images
-  debugger: on_failed
   changed_when: '"Pull complete" in docker_compose_pull_result.stdout or "Pull complete" in docker_compose_pull_result.stderr'
   ansible.builtin.command: >
     docker compose \
     --file {{ item.compose_file_path }} \
     pull \
+    --ignore-buildable \
     --include-deps
   register: docker_compose_pull_result
+  when: item.pull_container_images
   with_items: "{{ docker_compose_up_items | unique }}"
 
-- name: Debug Docker Compose pull output
-  ansible.builtin.debug:
-    var: docker_compose_pull_result
-    verbosity: 1
-
 - name: Start Docker Compose services
-  debugger: on_failed
   changed_when: '"Started" in docker_compose_up_result.stdout or "Started" in docker_compose_up_result.stderr'
   ansible.builtin.command: >
     docker compose \
@@ -42,19 +37,14 @@
     --detach \
     --remove-orphans
   register: docker_compose_up_result
-  when: item.start_containerized_service
+  when: item.start_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
-
-- name: Debug Docker Compose up output
-  ansible.builtin.debug:
-    var: docker_compose_up_result
-    verbosity: 1
 
 - name: Initialize the list of Docker Compose services to restart
   ansible.builtin.set_fact:
     docker_compose_services_to_restart: "{{ docker_compose_services_to_restart + item.item.docker_compose_services_to_restart }}"
   when: item.changed and item.item.docker_compose_services_to_restart is defined
-  with_items: "{{ system_wide_copied_configuration_directories.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
+  with_items: "{{ copied_configuration_files.results | default([]) + configured_files_and_directories_result.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
 
 - name: Restart Docker Compose services
   changed_when: '"Started" in docker_compose_restart_result.stdout or "Started" in docker_compose_restart_result.stderr'
@@ -63,5 +53,6 @@
     --file {{ item.compose_file_path }} \
     restart
   register: docker_compose_restart_result
+  when: item.start_containerized_services
   with_items: "{{ docker_compose_services_to_restart | unique }}"
 ...

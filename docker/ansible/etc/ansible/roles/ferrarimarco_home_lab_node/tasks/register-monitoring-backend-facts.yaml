@@ -16,6 +16,10 @@
     - source: "{{ edge_dns_server.fqdn }}"
       query_type: "A"
 
+- name: Remove duplicates from the list of DNS records to check
+  ansible.builtin.set_fact:
+    monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check | unique }}"
+
 - name: Debug monitoring_backend_dns_records_to_check
   ansible.builtin.debug:
     var: monitoring_backend_dns_records_to_check
