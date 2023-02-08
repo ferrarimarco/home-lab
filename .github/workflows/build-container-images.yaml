@@ -8,22 +8,16 @@ on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-container-images.yaml"
-      - ".github/workflows/lint.yaml"
       - "docker/**"
   pull_request:
     paths:
       - ".github/workflows/build-container-images.yaml"
-      - ".github/workflows/lint.yaml"
       - "docker/**"
 
 jobs:
-  lint:
-    uses: ./.github/workflows/lint.yaml
   build-container-images:
     env:
       CONTAINER_IMAGE_ID: "${{ github.repository }}-${{ matrix.container-image-context-directory }}"
-    needs:
-      - lint
     permissions:
       contents: read
       packages: write

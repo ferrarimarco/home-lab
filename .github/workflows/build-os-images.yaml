@@ -8,26 +8,20 @@ on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-os-images.yaml"
-      - ".github/workflows/lint.yaml"
       - "config/raspberry-pi/**"
       - "config/seed-device/**"
       - "docker/os-image-builder/**"
   pull_request:
     paths:
       - ".github/workflows/build-os-images.yaml"
-      - ".github/workflows/lint.yaml"
       - "config/raspberry-pi/**"
       - "config/seed-device/**"
       - "docker/os-image-builder/**"
 
 jobs:
-  lint:
-    uses: ./.github/workflows/lint.yaml
   customize-preinstalled-os-images:
     env:
       OS_BUILDER_CONTAINER_IMAGE_ID: "ferrarimarco/os-image-builder:latest"
-    needs:
-      - lint
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
