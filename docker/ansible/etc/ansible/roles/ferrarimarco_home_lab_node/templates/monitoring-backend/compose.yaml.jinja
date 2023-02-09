@@ -27,7 +27,7 @@ services:
       - "{{ monitoring_backend_grafana_host_port }}:3000"
 
   prometheus:
-    image: prom/prometheus:v2.41.0
+    image: prom/prometheus:v2.42.0
     container_name: prometheus
     restart: always
     volumes:
