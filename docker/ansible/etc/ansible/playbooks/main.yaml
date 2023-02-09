@@ -2,11 +2,6 @@
 - name: Configure Home Lab node
   hosts: all
   gather_facts: true
-  vars_prompt:
-    - name: cam_3_rtps_username
-      prompt: Enter the cam-3 RTSP username
-    - name: cam_3_rtps_password
-      prompt: Enter the cam-3 RTSP password
   roles:
     - role: ferrarimarco_home_lab_node
       vars:
