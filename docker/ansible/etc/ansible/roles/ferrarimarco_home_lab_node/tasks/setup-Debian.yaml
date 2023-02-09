@@ -1,18 +1,18 @@
 ---
-- name: Add APT repository keys
+- name: Setup APT repository keys
   ansible.builtin.apt_key:
     keyring: "{{ item.repository_key_keyring_file_path }}"
-    state: present
+    state: "{{ item.state | default(omit) }}"
     url: "{{ item.repository_key_url }}"
   become: true
-  with_items: "{{ apt_repositories_to_add | unique }}"
+  with_items: "{{ apt_repositories | unique }}"
 
-- name: Add APT repositories
+- name: Setup APT repositories
   ansible.builtin.apt_repository:
     repo: "{{ item.repository_url }}"
-    state: present
+    state: "{{ item.state | default(omit) }}"
   become: true
-  with_items: "{{ apt_repositories_to_add | unique }}"
+  with_items: "{{ apt_repositories | unique }}"
 
 - name: Update APT package index, upgrade, autoclean, autoremove APT packages
   ansible.builtin.apt:
@@ -23,27 +23,13 @@
     upgrade: true
   become: true
 
-- name: Purge APT packages
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    purge: true
-    state: absent
-  become: true
-  with_items: "{{ apt_packages_to_uninstall | unique }}"
-
-- name: Install APT packages
+- name: Setup APT packages
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
-    name: "{{ item }}"
-    state: present
+    name: "{{ item.name }}"
+    purge: "{{ item.purge | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
     update_cache: true
   become: true
-  with_items: "{{ apt_packages_to_install + default_os_packages_to_install | unique }}"
-
-- name: Install Deb packages
-  ansible.builtin.apt:
-    deb: "{{ item }}"
-    state: present
-  become: true
-  with_items: "{{ deb_packages_to_install | unique }}"
+  with_items: "{{ apt_packages + default_os_packages | unique }}"
 ...

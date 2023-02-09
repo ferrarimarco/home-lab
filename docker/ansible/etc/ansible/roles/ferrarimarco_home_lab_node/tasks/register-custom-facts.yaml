@@ -1,40 +1,43 @@
 ---
-- name: Debug fact_docker_compose_up_items for {{ fact_category }}
-  ansible.builtin.debug:
-    var: fact_docker_compose_up_items
-    verbosity: 1
-
-- name: Initialize the start containerized services flag list for {{ fact_category }}
+# These setup facts are needed regardless of the flag to enable or disable a given stack
+- name: Register setup facts for {{ fact_category }}
   ansible.builtin.set_fact:
-    fact_docker_compose_up_items_with_start_flag: []
-
-- name: Configure the start containerized services flag for {{ fact_category }}
-  ansible.builtin.set_fact:
-    fact_docker_compose_up_items_with_start_flag: "{{ fact_docker_compose_up_items_with_start_flag + [fact_docker_compose_up_items_with_start_flag_item | combine({'start_containerized_service': fact_start_containerized_services})] }}"
-  with_items: "{{ fact_docker_compose_up_items }}"
-  loop_control:
-    loop_var: fact_docker_compose_up_items_with_start_flag_item
-
-- name: Debug fact_docker_compose_up_items_with_start_flag for {{ fact_category }}
-  ansible.builtin.debug:
-    var: fact_docker_compose_up_items_with_start_flag
-    verbosity: 1
-
-- name: Register facts for {{ fact_category }}
-  ansible.builtin.set_fact:
-    apt_packages_to_install: "{{ apt_packages_to_install + fact_os_packages_to_install }}"
-    apt_packages_to_uninstall: "{{ apt_packages_to_uninstall + fact_os_packages_to_uninstall }}"
-    apt_repositories_to_add: "{{ apt_repositories_to_add + fact_os_package_repositories_to_add }}"
-    dns_records_to_configure: "{{ dns_records_to_configure + fact_dns_records_to_configure }}"
-    configuration_directories_to_copy: "{{ configuration_directories_to_copy + fact_configuration_directories_to_copy }}"
-    configuration_directories_to_create: "{{ configuration_directories_to_create + fact_configuration_directories_to_create }}"
+    apt_packages: "{{ apt_packages + fact_os_packages }}"
+    apt_repositories: "{{ apt_repositories + fact_os_package_repositories }}"
+    configuration_directories: "{{ configuration_directories + fact_configuration_directories }}"
     cron_jobs: "{{ cron_jobs + fact_cron_jobs }}"
-    deb_packages_to_install: "{{ deb_packages_to_install + fact_deb_packages_to_install }}"
-    docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items_with_start_flag }}"
+    files_to_configure: "{{ files_to_configure + fact_files_to_configure }}"
     files_to_download: "{{ files_to_download + fact_files_to_download }}"
-    files_to_remove: "{{ files_to_remove + fact_files_to_remove }}"
-    os_groups_to_create: "{{ os_groups_to_create + fact_os_groups_to_create }}"
-    os_services_to_configure: "{{ os_services_to_configure + fact_os_services_to_configure }}"
-    os_users_to_create: "{{ os_users_to_create + fact_os_users_to_create }}"
+    os_groups: "{{ os_groups + fact_os_groups }}"
+    os_users: "{{ os_users + fact_os_users }}"
+    os_services: "{{ os_services + fact_os_services }}"
     templates_to_render: "{{ templates_to_render + fact_templates_to_render }}"
+
+- name: Register additional setup facts if stack is enabled for {{ fact_category }}
+  ansible.builtin.set_fact:
+    docker_compose_up_items: "{{ docker_compose_up_items + fact_docker_compose_up_items }}"
+  when:
+    - fact_enable_custom_fact
+
+# We added a 'state' attribute set to 'absent' if the stack is disabled so those files will
+# eventually get deleted
+- name: Register cleanup facts if stack is disabled for {{ fact_category }}
+  ansible.builtin.set_fact:
+    files_to_configure: "{{ files_to_configure + fact_files_to_download + fact_templates_to_render }}"
+  when:
+    - not fact_enable_custom_fact
+
+# Check if we need to skip the configuration of DNS records.
+# Skipping this configuration may be userful if services are not going to start, and we don't want to update the DNS zone yet.
+# This task eventually skips the DNS records that are explicitly added to fact_dns_records_to_configure
+# because we assume they are for service reachability, but if we're not starting any service there's
+# no point in adding those records to the DNS zone.
+# This task doesn't skip the DNS records that are dynamically generated, from other
+# sources.
+- name: Register DNS records facts for {{ fact_category }}
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure + fact_dns_records_to_configure }}"
+  when:
+    - fact_configure_dns_records
+    - fact_enable_custom_fact
 ...
