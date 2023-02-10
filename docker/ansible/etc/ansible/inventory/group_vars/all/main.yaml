@@ -1,5 +1,7 @@
 ---
 ansible_python_interpreter: auto_silent
+cam_3_rtps_password: "{{ vault_cam_3_rtps_password }}"
+cam_3_rtps_username: "{{ vault_cam_3_rtps_username }}"
 frigate_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 grafana_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 home_assistant_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
