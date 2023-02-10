@@ -152,7 +152,8 @@ scripts/run-ansible.sh "ansible-playbook --inventory docker/ansible/etc/ansible/
 To run `ansible-playbook` against the hosts listed in an inventory, with a vault to decrypt (read the password from a file):
 
 ```shell
-scripts/run-ansible.sh "ansible-playbook --inventory docker/ansible/etc/ansible/inventory/hosts.yml --vault-id home_lab_vault@secrets/ansible/home_lab_vault_password docker/ansible/etc/ansible/playbooks/main.yaml"
+scripts/run-ansible.sh \
+    "ansible-playbook --inventory docker/ansible/etc/ansible/inventory/hosts.yml --vault-id home_lab_vault@secrets/home_lab_vault_pw docker/ansible/etc/ansible/playbooks/main.yaml"
 ```
 
 To gather all the facts about a single host:
