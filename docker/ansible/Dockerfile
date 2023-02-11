@@ -17,12 +17,10 @@ COPY requirements.txt /
 RUN pip3 install --upgrade pip setuptools wheel \
     && pip3 install -r requirements.txt \
     && rm requirements.txt \
-    && ansible --version
+    && ansible --version \
+    && ansible-galaxy --version
 
 COPY etc/ansible/requirements.yml /etc/ansible/requirements.yml
 
-RUN ansible-galaxy install -r /etc/ansible/requirements.yml
-
-COPY etc/ /etc/
-
-CMD [ "ansible" ]
+RUN ansible-galaxy install -r /etc/ansible/requirements.yml \
+    && rm /etc/ansible/requirements.yml
