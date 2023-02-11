@@ -6,6 +6,8 @@
     url: "{{ item.repository_key_url }}"
   become: true
   with_items: "{{ apt_repositories | unique }}"
+  tags:
+    - os_package_repositories
 
 - name: Setup APT repositories
   ansible.builtin.apt_repository:
@@ -13,6 +15,8 @@
     state: "{{ item.state | default(omit) }}"
   become: true
   with_items: "{{ apt_repositories | unique }}"
+  tags:
+    - os_package_repositories
 
 - name: Update APT package index, upgrade, autoclean, autoremove APT packages
   ansible.builtin.apt:
@@ -22,6 +26,9 @@
     update_cache: true
     upgrade: true
   become: true
+  tags:
+    - os_packages
+    - os_packages_update
 
 - name: Setup APT packages
   ansible.builtin.apt:
@@ -32,4 +39,6 @@
     update_cache: true
   become: true
   with_items: "{{ apt_packages + default_os_packages | unique }}"
+  tags:
+    - os_packages
 ...

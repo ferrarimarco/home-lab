@@ -111,6 +111,8 @@
 - name: Import SSH tasks
   ansible.builtin.import_tasks: ssh.yaml
   become: true
+  tags:
+    - ssh
 
 - name: Import Raspberry Pi tasks
   ansible.builtin.import_tasks: setup-raspberry-pi.yaml
