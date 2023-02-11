@@ -6,8 +6,10 @@ set -o nounset
 # Doesn't follow symlinks, but it's likely expected for most users
 SCRIPT_BASENAME="$(basename "${0}")"
 SCRIPT_DIRECTORY_PATH="$(dirname "${0}")"
+CURRENT_WORKING_DIRECTORY="$(pwd)"
 
 echo "This script (name: ${SCRIPT_BASENAME}, directory path: ${SCRIPT_DIRECTORY_PATH}) has been invoked with: ${0} $*"
+echo "Current working directory: ${CURRENT_WORKING_DIRECTORY}"
 
 # shellcheck source=/dev/null
 . "${SCRIPT_DIRECTORY_PATH}/common.sh"
@@ -29,8 +31,23 @@ if ! is_container_runtime_available; then
 
   COMMAND_TO_RUN="${1}"
 else
-  echo "Not yet implemented"
-  exit 1
+  ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH="${CURRENT_WORKING_DIRECTORY}/docker/ansible"
+  ANSIBLE_PIP_REQUIREMENTS_FILE_PATH="${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/requirements.txt"
+  echo "Loading Ansible version from ${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}"
+  ANSIBLE_CONTAINER_IMAGE_TAG="$(grep <"${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}" "ansible" | awk -F '==' '{print $2}')"
+  echo "Ansible container image tag to run: ${ANSIBLE_CONTAINER_IMAGE_TAG}"
+  ANSIBLE_CONTAINER_IMAGE_ID="ferrarimarco/ansible:${ANSIBLE_CONTAINER_IMAGE_TAG}"
+
+  echo "Building Ansible container image (${ANSIBLE_CONTAINER_IMAGE_ID}) from ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
+  docker build \
+    --tag "${ANSIBLE_CONTAINER_IMAGE_ID}" \
+    "${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
+
+  COMMAND_TO_RUN="docker run"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} -it --rm"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --volume ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/etc/ansible:/etc/ansible"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ANSIBLE_CONTAINER_IMAGE_ID}"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${1}"
 fi
 
 echo "Running command: ${COMMAND_TO_RUN}"
