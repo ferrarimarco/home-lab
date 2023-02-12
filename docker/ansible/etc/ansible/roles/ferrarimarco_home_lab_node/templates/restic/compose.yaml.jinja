@@ -1,0 +1,15 @@
+---
+services:
+  restic:
+    image: restic/restic:0.15.1
+    container_name: restic
+    environment:
+      - RESTIC_REPOSITORY_FILE=
+      - RESTIC_PASSWORD_FILE=
+    ports:
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+    entrypoint: /bin/entrypoint.sh
+    command:
+...
