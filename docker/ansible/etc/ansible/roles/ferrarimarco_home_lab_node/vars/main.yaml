@@ -369,6 +369,25 @@ os_users:
     name: "{{ ansible_user }}"
     groups: "{{ default_user_groups }}"
 prometheus_node_exporter_port: 9100
+restic_configuration_directories:
+  - path: "{{ restic_configuration_directory_path }}"
+    state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
+restic_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/restic"
+restic_docker_compose_up_items:
+  - compose_file_path: "{{ restic_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_backup_restic }}"
+    pull_container_images: "{{ configure_backup_restic }}"
+    start_containerized_services: "{{ start_backup_restic | default(configure_backup_restic) }}"
+restic_configuration_source_directory_path: "config/restic"
+restic_files_to_configure:
+  - src: "{{ restic_configuration_source_directory_path }}/entrypoint.sh"
+    dest: "{{ restic_configuration_directory_path }}/entrypoint.sh"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+restic_templates_to_render:
+  - src: "restic/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ restic_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_backup_restic | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ restic_docker_compose_up_items }}"
 samba_service_name: "smbd"
 sense_hat_exporter_configuration_directories:
   - path: "{{ sense_hat_exporter_configuration_directory_path }}"

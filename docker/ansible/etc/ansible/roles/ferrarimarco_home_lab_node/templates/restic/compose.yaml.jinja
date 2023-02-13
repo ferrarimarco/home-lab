@@ -1,15 +1,17 @@
 ---
 services:
-  restic:
+{% for backup_job in restic_backup_jobs %}
+  restic-{{ backup_job.job_name }}:
     image: restic/restic:0.15.1
-    container_name: restic
+    container_name: restic-{{ backup_job.job_name }}
     environment:
-      - RESTIC_REPOSITORY_FILE=
-      - RESTIC_PASSWORD_FILE=
-    ports:
-    restart: unless-stopped
+      - RESTIC_REPOSITORY=/var/lib/restic/repository
+      - RESTIC_PASSWORD_FILE=/etc/restic/repository-password-file
+    restart: on-failure
     volumes:
-      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./entrypoint.sh:/bin/entrypoint.sh
+      - {{ backup_job.restic_repository_host_path }}:/var/lib/restic/repository
+      - {{ backup_job.restic_repository_password_file }}:/etc/restic/repository-password-file
     entrypoint: /bin/entrypoint.sh
-    command:
+{% endfor %}
 ...
