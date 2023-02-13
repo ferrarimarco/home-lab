@@ -18,5 +18,15 @@ if restic snapshots; then
   echo "The ${RESTIC_REPOSITORY_NAME} repository is already initialized."
 else
   echo "Initializing the ${RESTIC_REPOSITORY_NAME} repository"
-  restic init
+  restic --verbose init
+fi
+
+if [ "${RESTIC_ENABLE_BACKUP}" = "true" ]; then
+  echo "Backing up ${RESTIC_DIRECTORY_TO_BACKUP}"
+  restic --verbose backup "${RESTIC_DIRECTORY_TO_BACKUP}"
+fi
+
+if [ "${RESTIC_ENABLE_REPOSITORY_CHECK}" = "true" ]; then
+  echo "Checking the integrity of ${RESTIC_REPOSITORY_NAME}"
+  restic --verbose check
 fi
