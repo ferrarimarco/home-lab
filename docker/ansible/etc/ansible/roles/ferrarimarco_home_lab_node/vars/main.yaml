@@ -383,7 +383,9 @@ restic_docker_compose_up_items:
   - compose_file_path: "{{ restic_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     enable_containerized_services: "{{ configure_backup_restic }}"
     pull_container_images: "{{ configure_backup_restic }}"
-    start_containerized_services: "{{ start_backup_restic | default(configure_backup_restic) }}"
+    # Don't start Restic because we manage it using cron jobs
+    start_containerized_services: false
+    stop_containerized_services: "{{ stop_restic | default(false) }}"
 restic_configuration_source_directory_path: "config/restic"
 restic_docker_compose_destination_file_path: "{{ restic_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 restic_files_to_configure:
