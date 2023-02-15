@@ -1,4 +1,5 @@
 ---
+backups_samba_share_path: "/media/data0/backups-marco"
 configure_docker: true
 configure_frigate: true
 configure_home_assistant: true
@@ -27,7 +28,7 @@ samba_shares:
     force_group: "marco"
     force_user: "marco"
     name: "backups-marco"
-    path: "/media/data0/backups-marco"
+    path: "{{ backups_samba_share_path }}"
     read_only: "yes"
     valid_users: "marco"
     write_list: "marco"
