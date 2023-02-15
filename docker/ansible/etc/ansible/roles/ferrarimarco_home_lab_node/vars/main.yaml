@@ -108,6 +108,7 @@ frigate_templates_to_render:
     dest: "{{ frigate_configuration_app_configuration_directory_path }}/config.yaml"
     state: "{{ configure_frigate | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ frigate_docker_compose_up_items }}"
+    mode: "0640"
 home_assistant_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/home-assistant"
 home_assistant_configuration_config_directory_path: "{{ home_assistant_configuration_directory_path }}/config"
 home_assistant_configuration_directories:
@@ -380,7 +381,7 @@ restic_configuration_directories:
     state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
 restic_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/restic"
 restic_docker_compose_up_items:
-  - compose_file_path: "{{ restic_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+  - compose_file_path: "{{ restic_docker_compose_destination_file_path }}"
     enable_containerized_services: "{{ configure_backup_restic }}"
     pull_container_images: "{{ configure_backup_restic }}"
     # Don't start Restic because we manage it using cron jobs
@@ -397,6 +398,9 @@ restic_templates_to_render:
     dest: "{{ restic_docker_compose_destination_file_path }}"
     state: "{{ configure_backup_restic | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ restic_docker_compose_up_items }}"
+    # This file may contain secrets, so we want to restric access to the owner and group only
+    # (defaults to root:root)
+    mode: "0640"
 samba_service_name: "smbd"
 sense_hat_exporter_configuration_directories:
   - path: "{{ sense_hat_exporter_configuration_directory_path }}"
