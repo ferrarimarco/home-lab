@@ -266,7 +266,7 @@
       fact_docker_compose_up_items: "{{ network_stack_docker_compose_up_items }}"
       fact_templates_to_render: "{{ network_stack_templates_to_render }}"
     - enable_custom_fact: "{{ configure_backup_restic }}"
-      fact_configuration_directories: "{{ restic_configuration_directories }}"
+      fact_configuration_directories: "{{ restic_configuration_directories + restic_backup_target_directories | default([]) }}"
       fact_docker_compose_up_items: "{{ restic_docker_compose_up_items }}"
       fact_files_to_configure: "{{ restic_files_to_configure }}"
       fact_cron_jobs: "{{ restic_backup_cron_jobs | default([]) }}"
