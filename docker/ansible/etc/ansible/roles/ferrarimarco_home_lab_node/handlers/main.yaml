@@ -15,6 +15,12 @@
     name: "{{ docker_service_name }}"
     state: "restarted"
 
+- name: Restart dhcpcd
+  become: true
+  ansible.builtin.service:
+    name: dhcpcd
+    state: "restarted"
+
 - name: Restart journald
   become: true
   ansible.builtin.service:

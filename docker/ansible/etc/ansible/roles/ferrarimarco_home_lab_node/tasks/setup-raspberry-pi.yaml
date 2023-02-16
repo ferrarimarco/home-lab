@@ -6,4 +6,14 @@
     regexp: "^{{ item.key }}="
   notify: Reboot host and wait for it to restart
   with_dict: "{{ raspberry_pi_config_file_values }}"
+
+# Helps avoiding overflowing dhcpcd because it tries to configure virtual network
+# interfaces that Docker sets up for running containers.
+# A few (potentially) related fixes are in dhcpcd 9.2.0, but Raspberry Pi OS
+# is stuck at dhcpcd 8.1.2
+- name: "Configure dhcpcd to ignore Docker virtual network interfaces"
+  ansible.builtin.lineinfile:
+    line: "denyinterfaces veth*"
+    path: /etc/dhcpcd.conf
+  notify: Restart dhcpcd
 ...
