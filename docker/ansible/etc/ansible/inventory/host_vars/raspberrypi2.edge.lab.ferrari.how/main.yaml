@@ -56,7 +56,6 @@ restic_backup_jobs:
 restic_backup_target_directories:
   - path: "{{ restic_backup_workloads_target_directory }}"
     state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
-restic_backup_repository_key_files:
 restic_backup_workloads_target_directory: "{{ backups_samba_share_path }}/{{ restic_backup_workloads_job_name }}"
 samba_shares:
   - comment: "Backups-Marco"
