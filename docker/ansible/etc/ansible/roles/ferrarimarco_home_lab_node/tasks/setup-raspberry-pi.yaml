@@ -11,6 +11,7 @@
 # interfaces that Docker sets up for running containers.
 # A few (potentially) related fixes are in dhcpcd 9.2.0, but Raspberry Pi OS
 # is stuck at dhcpcd 8.1.2
+# Ref: https://github.com/raspberrypi/linux/issues/4092
 - name: "Configure dhcpcd to ignore Docker virtual network interfaces"
   ansible.builtin.lineinfile:
     line: "denyinterfaces veth*"
