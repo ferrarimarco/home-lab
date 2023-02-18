@@ -4,9 +4,9 @@
 
 # Ref: https://github.com/restic/restic/issues/2359
 
-ARG RESTIC_CONTAINER_IMAGE_ID="restic/restic:0.15.1"
-
 FROM debian:bullseye
+
+ARG RESTIC_CONTAINER_IMAGE_ID="restic/restic:0.15.1"
 
 RUN apt-get update \
     && apt-get --assume-yes --no-install-recommends install \
