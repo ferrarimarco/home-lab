@@ -4,6 +4,9 @@
 
 # Ref: https://github.com/restic/restic/issues/2359
 
+# Not really using this now, but it's useful for automated dependency updates
+FROM restic/restic:0.15.1 as restic
+
 FROM debian:bullseye
 
 RUN apt-get update \
