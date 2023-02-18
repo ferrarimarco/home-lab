@@ -61,5 +61,6 @@ jobs:
         container-image-context-directory:
           - ansible
           - os-image-builder
+          - restic
           - template-renderer
 ...
