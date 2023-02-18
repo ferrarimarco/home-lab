@@ -64,6 +64,7 @@ jobs:
           cache-to: type=gha,mode=max
           context: docker/${{ matrix.container-image-context-directory }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
           # push: ${{ github.repository == 'ferrarimarco/home-lab' && (github.ref == 'refs/heads/master' || (github.event_name == 'release' && github.event.action == 'published'))}}
           tags: ${{ steps.meta.outputs.tags }}
     strategy:
