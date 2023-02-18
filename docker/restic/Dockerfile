@@ -4,7 +4,7 @@
 
 # Ref: https://github.com/restic/restic/issues/2359
 
-ARG RESTIC_CONTAINER_IMAGE_ID
+ARG RESTIC_CONTAINER_IMAGE_ID="restic/restic:0.15.1"
 
 FROM debian:bullseye
 
@@ -21,8 +21,11 @@ RUN apt-get update \
     && restic version \
     && restic self-update \
     && restic version \
-    && restic --help \
-    && restic version --help \
-    && restic version --json
+    && echo "Input restic container image version: ${RESTIC_CONTAINER_IMAGE_ID}" \
+    && DESIRED_RESTIC_VERSION="$(echo "${RESTIC_CONTAINER_IMAGE_ID}" | awk -F ':' '{print $2}')" \
+    && echo "Desired restic version: ${DESIRED_RESTIC_VERSION}" \
+    && CURRENT_RESTIC_VERSION="$(restic version | awk -F ' ' '{print $2}')" \
+    && echo "Current restic version: ${CURRENT_RESTIC_VERSION}" \
+    && if [ "${DESIRED_RESTIC_VERSION}" = "${CURRENT_RESTIC_VERSION}" ]; then echo "desired restic version matches with current version"; else echo "desired restic version doesn't match with current version"; exit 1; fi
 
 ENTRYPOINT [ "restic" ]
