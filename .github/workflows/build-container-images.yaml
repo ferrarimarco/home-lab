@@ -36,6 +36,9 @@ jobs:
         with:
           images: |
             ${{ env.CONTAINER_IMAGE_REGISTRY }}/${{ env.CONTAINER_IMAGE_ID }}
+          labels: |
+            org.opencontainers.image.title=home-lab-${{ matrix.container-image-context-directory }}
+            org.opencontainers.image.description=${{ matrix.container-image-context-directory }} container image
           tags: |
             type=ref,event=branch
             type=ref,event=pr
