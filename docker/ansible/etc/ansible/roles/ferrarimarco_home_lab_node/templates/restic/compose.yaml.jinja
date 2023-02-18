@@ -2,7 +2,14 @@
 services:
 {% for backup_job in restic_backup_jobs %}
   {{ backup_job.job_name }}:
-    image: restic/restic:0.15.1
+    build:
+      args:
+        # We pass this argument to rebuild the image with the latest restic version
+        RESTIC_CONTAINER_IMAGE_ID: restic/restic:0.15.0
+      context: .
+      tags:
+        # We also tag the container image so we know what we are running.
+        - restic/restic:0.15.0
     container_name: "{{ backup_job.job_name }}"
     environment:
       - RESTIC_DIRECTORIES_TO_BACKUP="{{ backup_job.directories_to_backup | join(' ') }}"

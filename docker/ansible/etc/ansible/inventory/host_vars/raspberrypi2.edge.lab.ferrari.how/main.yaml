@@ -29,6 +29,7 @@ restic_backup_cron_jobs:
     user: root
     job: >
       docker compose
+      --build
       --file {{ restic_docker_compose_destination_file_path }}
       run {{ restic_backup_workloads_job_name }}
       --env RESTIC_ENABLE_BACKUP="true"
@@ -42,6 +43,7 @@ restic_backup_cron_jobs:
     user: root
     job: >
       docker compose
+      --build
       --file {{ restic_docker_compose_destination_file_path }}
       run {{ restic_backup_workloads_job_name }}
       --env RESTIC_ENABLE_REPOSITORY_CHECK="true"
