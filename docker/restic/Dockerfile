@@ -4,8 +4,7 @@
 
 # Ref: https://github.com/restic/restic/issues/2359
 
-# Not really using this now, but it's useful for automated dependency updates
-FROM restic/restic:0.15.1 as restic
+ARG RESTIC_CONTAINER_IMAGE_ID
 
 FROM debian:bullseye
 
@@ -21,6 +20,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && restic version \
     && restic self-update \
-    && restic version
+    && restic version \
+    && restic --help \
+    && restic version --help \
+    && restic version --json
 
 ENTRYPOINT [ "restic" ]
