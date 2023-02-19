@@ -17,8 +17,6 @@ services:
       - RESTIC_PASSWORD="{{ backup_job.restic_repository_password }}"
     restart: on-failure
     volumes:
-      - ./entrypoint.sh:/bin/entrypoint.sh
       - {{ backup_job.restic_repository_host_path }}:/var/lib/restic/repository
-    entrypoint: /bin/entrypoint.sh
 {% endfor %}
 ...

@@ -30,7 +30,9 @@ RUN apt-get update \
 
 # Create the script here because we build this locally on the host and we need a Dockerfile
 # that doesen't need other files and dependencies
-RUN cat > /bin/entrypoint.sh <<EOF
+RUN touch /bin/entrypoint.sh \
+    && chmod +x "/bin/entrypoint.sh" \
+    && cat > /bin/entrypoint.sh <<EOF
 #!/usr/bin/env sh
 
 set -o errexit
@@ -64,7 +66,6 @@ if [ "${RESTIC_ENABLE_REPOSITORY_CHECK}" = "true" ]; then
   echo "Checking the integrity of ${RESTIC_REPOSITORY}"
   restic --verbose check
 fi
-EOF \
-    && chmod +x "/bin/entrypoint.sh"
+EOF
 
 ENTRYPOINT [ "/bin/entrypoint.sh" ]
