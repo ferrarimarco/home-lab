@@ -29,10 +29,12 @@ restic_backup_cron_jobs:
     user: root
     job: >
       docker compose
-      --build
       --file {{ restic_docker_compose_destination_file_path }}
-      run {{ restic_backup_workloads_job_name }}
+      run
+      --build
       --env RESTIC_ENABLE_BACKUP="true"
+      --rm
+      {{ restic_backup_workloads_job_name }}
     cron_file: "{{ restic_backup_workloads_job_name }}"
     state: "{{ configure_backup_restic | ternary('present', 'absent') }}"
   - become: true
@@ -43,10 +45,12 @@ restic_backup_cron_jobs:
     user: root
     job: >
       docker compose
-      --build
       --file {{ restic_docker_compose_destination_file_path }}
-      run {{ restic_backup_workloads_job_name }}
+      run
+      --build
       --env RESTIC_ENABLE_REPOSITORY_CHECK="true"
+      --rm
+      {{ restic_backup_workloads_job_name }}
     cron_file: "{{ restic_backup_workloads_job_name }}"
     state: "{{ configure_backup_restic | ternary('present', 'absent') }}"
 restic_backup_jobs:
