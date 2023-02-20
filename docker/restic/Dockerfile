@@ -9,31 +9,31 @@ FROM debian:bullseye
 ARG RESTIC_CONTAINER_IMAGE_ID="restic/restic:0.15.1"
 
 RUN apt-get update \
-    && apt-get --assume-yes --no-install-recommends install \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get --assume-yes --no-install-recommends install \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update \
-    && apt-get --assume-yes --no-install-recommends install \
-    restic \
-    tzdata \
-    && rm -rf /var/lib/apt/lists/* \
-    && restic version \
-    && restic self-update \
-    && restic version \
-    && echo "Input restic container image version: ${RESTIC_CONTAINER_IMAGE_ID}" \
-    && DESIRED_RESTIC_VERSION="$(echo "${RESTIC_CONTAINER_IMAGE_ID}" | awk -F ':' '{print $2}')" \
-    && echo "Desired restic version: ${DESIRED_RESTIC_VERSION}" \
-    && CURRENT_RESTIC_VERSION="$(restic version | awk -F ' ' '{print $2}')" \
-    && echo "Current restic version: ${CURRENT_RESTIC_VERSION}" \
-    && if [ "${DESIRED_RESTIC_VERSION}" = "${CURRENT_RESTIC_VERSION}" ]; then echo "desired restic version matches with current version"; else echo "desired restic version doesn't match with current version"; exit 1; fi
+  && apt-get --assume-yes --no-install-recommends install \
+  restic \
+  tzdata \
+  && rm -rf /var/lib/apt/lists/* \
+  && restic version \
+  && restic self-update \
+  && restic version \
+  && echo "Input restic container image version: ${RESTIC_CONTAINER_IMAGE_ID}" \
+  && DESIRED_RESTIC_VERSION="$(echo "${RESTIC_CONTAINER_IMAGE_ID}" | awk -F ':' '{print $2}')" \
+  && echo "Desired restic version: ${DESIRED_RESTIC_VERSION}" \
+  && CURRENT_RESTIC_VERSION="$(restic version | awk -F ' ' '{print $2}')" \
+  && echo "Current restic version: ${CURRENT_RESTIC_VERSION}" \
+  && if [ "${DESIRED_RESTIC_VERSION}" = "${CURRENT_RESTIC_VERSION}" ]; then echo "desired restic version matches with current version"; else echo "desired restic version doesn't match with current version"; exit 1; fi
 
 # Create the script here because we build this locally on the host and we need a Dockerfile
 # that doesen't need other files and dependencies.
 # Also, quote the EOF delmiter to avoid variable expansion
 RUN touch /bin/entrypoint.sh \
-    && chmod +x "/bin/entrypoint.sh" \
-    && cat > /bin/entrypoint.sh <<'EOF'
+  && chmod +x "/bin/entrypoint.sh" \
+  && cat > /bin/entrypoint.sh <<'EOF'
 #!/usr/bin/env sh
 
 set -o errexit
@@ -53,7 +53,8 @@ fi
 
 if [ "${RESTIC_ENABLE_BACKUP:-"false"}" = "true" ]; then
   echo "Backing up ${RESTIC_DIRECTORIES_TO_BACKUP}"
-  restic --verbose backup ${RESTIC_DIRECTORIES_TO_BACKUP}å
+  # Use eval here because restic interprets quotes literally
+  eval "restic --verbose backup ${RESTIC_DIRECTORIES_TO_BACKUP}"
 fi
 
 if [ "${RESTIC_ENABLE_REPOSITORY_CHECK:-"false"}" = "true" ]; then
