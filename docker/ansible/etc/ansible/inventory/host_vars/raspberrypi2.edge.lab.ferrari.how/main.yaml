@@ -58,6 +58,17 @@ restic_backup_jobs:
       - source_host_directory: "{{ frigate_runtime_data_directory_path }}"
         container_mount_destination_directory: "{{ frigate_runtime_data_directory_path }}"
     job_name: "{{ restic_backup_workloads_job_name }}"
+    restic_forget_policy:
+      # Don't remove tagged snapshots
+      - --tag ''
+      # Keep daily snapshots for the last week
+      - --keep-within-daily 7d
+      # Keep weekly snapshots for the last month
+      - --keep-within-weekly 1m
+      # Keep monthly snapshots for the last year
+      - --keep-within-monthly 1y
+      # Keep yearly snapshots for the last century
+      - --keep-within-yearly 100y
     restic_repository_host_path: "{{ restic_backup_workloads_target_directory }}"
     restic_repository_password: "{{ vault_raspberrypi2_workloads_backup_repository_password }}"
 restic_backup_target_directories:

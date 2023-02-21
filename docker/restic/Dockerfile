@@ -57,10 +57,21 @@ if [ "${RESTIC_ENABLE_BACKUP:-"false"}" = "true" ]; then
   eval "restic --verbose backup ${RESTIC_DIRECTORIES_TO_BACKUP}"
 fi
 
+if [ "${RESTIC_ENABLE_PRUNE:-"true"}" = "true" ]; then
+  echo "Pruning ${RESTIC_DIRECTORIES_TO_BACKUP}"
+  # Use eval here because restic interprets quotes literally
+  eval "restic --verbose forget --prune ${RESTIC_FORGET_POLICY}"
+fi
+
 if [ "${RESTIC_ENABLE_REPOSITORY_CHECK:-"false"}" = "true" ]; then
   echo "Checking the integrity of ${RESTIC_REPOSITORY}"
   restic --verbose check
 fi
+
+# Get some information about the repository
+restic stats
+restic snapshots
+
 EOF
 
 ENTRYPOINT [ "/bin/entrypoint.sh" ]
