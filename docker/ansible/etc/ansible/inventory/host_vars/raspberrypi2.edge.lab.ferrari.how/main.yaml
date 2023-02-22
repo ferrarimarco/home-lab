@@ -33,6 +33,7 @@ restic_backup_cron_jobs:
       run
       --build
       --env RESTIC_ENABLE_BACKUP="true"
+      --env RESTIC_ENABLE_PRUNE="true"
       --rm
       {{ restic_backup_workloads_job_name }}
     cron_file: "{{ restic_backup_workloads_job_name }}"
