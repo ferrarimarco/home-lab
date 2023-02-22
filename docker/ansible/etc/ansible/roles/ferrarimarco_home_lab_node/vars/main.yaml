@@ -502,10 +502,11 @@ wifi_templates_to_render:
 var_directory_path: "/var"
 var_lib_directory_path: "{{ var_directory_path }}/lib"
 zigbee2mqtt_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/zigbee2mqtt"
+zigbee2mqtt_data_directory_path: "{{ zigbee2mqtt_configuration_directory_path }}/data"
 zigbee2mqtt_configuration_directories:
   - path: "{{ zigbee2mqtt_configuration_directory_path }}"
     state: "{{ configure_zigbee2mqtt | ternary('directory', 'absent') }}"
-  - path: "{{ zigbee2mqtt_configuration_directory_path }}/data"
+  - path: "{{ zigbee2mqtt_data_directory_path }}"
     state: "{{ configure_zigbee2mqtt | ternary('directory', 'absent') }}"
 zigbee2mqtt_docker_compose_up_items:
   - compose_file_path: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
