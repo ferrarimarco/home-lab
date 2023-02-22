@@ -59,6 +59,8 @@ restic_backup_jobs:
         container_mount_destination_directory: "{{ frigate_runtime_data_directory_path }}"
       - source_host_directory: "{{ home_assistant_configuration_config_directory_path }}"
         container_mount_destination_directory: "{{ home_assistant_configuration_config_directory_path }}"
+      - source_host_directory: "{{ monitoring_backend_runtime_data_directory }}"
+        container_mount_destination_directory: "{{ monitoring_backend_runtime_data_directory }}"
       - source_host_directory: "{{ zigbee2mqtt_data_directory_path }}"
         container_mount_destination_directory: "{{ zigbee2mqtt_data_directory_path }}"
     job_name: "{{ restic_backup_workloads_job_name }}"
