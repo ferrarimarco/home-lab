@@ -9,5 +9,6 @@
     "**/grafana/dashboards/dashboard-definitions/**/*.json",
     "**/user-data*.yaml"
   ],
-  "absolute": true
+  "absolute": true,
+  "noSymlinks": true
 }
