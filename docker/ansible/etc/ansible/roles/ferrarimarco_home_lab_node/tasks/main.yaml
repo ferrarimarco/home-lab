@@ -116,6 +116,7 @@
 
 - name: Import Raspberry Pi tasks
   ansible.builtin.import_tasks: setup-raspberry-pi.yaml
+  become: true
   when: is_raspberry_pi
 
 - name: Import OS services tasks

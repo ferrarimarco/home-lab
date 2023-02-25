@@ -10,6 +10,7 @@ configure_monitoring_backend: false
 configure_mqtt_broker: false
 configure_network_stack: false
 configure_network_shares: false
+configure_backup_restic: false
 configure_ssh: true
 configure_tailscale: false
 configure_torrent: false

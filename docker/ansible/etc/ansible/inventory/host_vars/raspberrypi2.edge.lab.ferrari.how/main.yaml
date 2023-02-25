@@ -1,0 +1,123 @@
+---
+backups_samba_share_path: "/media/data0/backups-marco"
+configure_backup_restic: true
+configure_docker: true
+configure_frigate: true
+configure_home_assistant: true
+configure_monitoring_backend: true
+configure_mqtt_broker: true
+configure_network_shares: true
+configure_network_stack: true
+configure_torrent: true
+configure_wifi: true
+configure_zigbee2mqtt: true
+disks_to_mount:
+  - fstype: ext4
+    opts: noatime
+    path: /media/data0
+    src: UUID=3fb762aa-c397-460b-809c-9ac741ce14f1
+    state: mounted
+has_argonone_case: true
+network_stack_configure_recursive_dns_resolver: true
+network_stack_dns_server_hostname: "ns1"
+restic_backup_workloads_job_name: "restic-backup-workloads"
+restic_backup_cron_jobs:
+  - become: true
+    name: "restic backup {{ restic_backup_workloads_job_name }}"
+    minute: "1"
+    hour: "1"
+    user: root
+    job: >
+      docker compose
+      --file {{ restic_docker_compose_destination_file_path }}
+      run
+      --build
+      --env RESTIC_ENABLE_BACKUP="true"
+      --env RESTIC_ENABLE_PRUNE="true"
+      --rm
+      {{ restic_backup_workloads_job_name }}
+    cron_file: "{{ restic_backup_workloads_job_name }}"
+    state: "{{ configure_backup_restic | ternary('present', 'absent') }}"
+  - become: true
+    name: "restic check {{ restic_backup_workloads_job_name }}"
+    minute: "2"
+    hour: "2"
+    weekday: "2"
+    user: root
+    job: >
+      docker compose
+      --file {{ restic_docker_compose_destination_file_path }}
+      run
+      --build
+      --env RESTIC_ENABLE_REPOSITORY_CHECK="true"
+      --rm
+      {{ restic_backup_workloads_job_name }}
+    cron_file: "{{ restic_backup_workloads_job_name }}"
+    state: "{{ configure_backup_restic | ternary('present', 'absent') }}"
+restic_backup_jobs:
+  - directories_to_backup:
+      - source_host_directory: "{{ frigate_runtime_data_directory_path }}"
+        container_mount_destination_directory: "{{ frigate_runtime_data_directory_path }}"
+      - source_host_directory: "{{ home_assistant_configuration_config_directory_path }}"
+        container_mount_destination_directory: "{{ home_assistant_configuration_config_directory_path }}"
+      - source_host_directory: "{{ monitoring_backend_runtime_data_directory }}"
+        container_mount_destination_directory: "{{ monitoring_backend_runtime_data_directory }}"
+      - source_host_directory: "{{ zigbee2mqtt_data_directory_path }}"
+        container_mount_destination_directory: "{{ zigbee2mqtt_data_directory_path }}"
+    job_name: "{{ restic_backup_workloads_job_name }}"
+    restic_forget_policy:
+      # Don't remove tagged snapshots
+      - --tag ''
+      # Keep daily snapshots for the last week
+      - --keep-within-daily 7d
+      # Keep weekly snapshots for the last month
+      - --keep-within-weekly 1m
+      # Keep monthly snapshots for the last year
+      - --keep-within-monthly 1y
+      # Keep yearly snapshots for the last 10 years
+      - --keep-within-yearly 10y
+    restic_repository_host_path: "{{ restic_backup_workloads_target_directory }}"
+    restic_repository_password: "{{ vault_raspberrypi2_workloads_backup_repository_password }}"
+restic_backup_target_directories:
+  - path: "{{ restic_backup_workloads_target_directory }}"
+    state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
+restic_backup_workloads_target_directory: "{{ backups_samba_share_path }}/{{ restic_backup_workloads_job_name }}"
+samba_shares:
+  - comment: "Backups-Marco"
+    create_mask: "0744"
+    directory_group: "marco"
+    directory_mask: "0755"
+    directory_owner: "marco"
+    force_group: "marco"
+    force_user: "marco"
+    name: "backups-marco"
+    path: "{{ backups_samba_share_path }}"
+    read_only: "yes"
+    valid_users: "marco"
+    write_list: "marco"
+  - comment: "Media"
+    create_mask: "0744"
+    directory_group: users
+    directory_mask: "0755"
+    directory_owner: "{{ ansible_user }}"
+    force_group: "users"
+    force_user: "{{ ansible_user }}"
+    name: "media"
+    path: "/media/data0/media"
+    read_only: "yes"
+    valid_users: "@{{ samba_default_readers_group_name }}"
+    write_list: "@{{ samba_default_writers_group_name }}"
+samba_os_users:
+  - append: true
+    name: "{{ ansible_user }}"
+    groups:
+      - "{{ samba_default_readers_group_name }}"
+      - "{{ samba_default_writers_group_name }}"
+  - append: true
+    name: "marco"
+    groups:
+      - "{{ samba_default_readers_group_name }}"
+      - "{{ samba_default_writers_group_name }}"
+torrent_download_path: "/media/data0/media/downloads"
+zigbee_adapter_device_path: "/dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20220708144056-if00"
+...

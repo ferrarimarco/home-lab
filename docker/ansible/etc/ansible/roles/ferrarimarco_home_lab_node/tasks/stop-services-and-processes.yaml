@@ -11,7 +11,7 @@
   register: docker_compose_stop_result
   when:
     - item.enable_containerized_services
-    - not item.start_containerized_services
+    - item.stop_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Debug docker_compose_stop_result
@@ -35,7 +35,7 @@
   register: docker_compose_rm_result
   when:
     - not item.enable_containerized_services
-    - not item.start_containerized_services
+    - item.stop_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Debug docker_compose_rm_result

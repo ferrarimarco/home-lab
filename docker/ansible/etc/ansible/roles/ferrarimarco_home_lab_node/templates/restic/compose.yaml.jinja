@@ -1,0 +1,25 @@
+---
+services:
+{% for backup_job in restic_backup_jobs %}
+  {{ backup_job.job_name }}:
+    container_name: "{{ backup_job.job_name }}"
+    image: home-lab-restic:latest
+    build:
+      args:
+        # We pass this argument to rebuild the image with the latest restic version
+        RESTIC_CONTAINER_IMAGE_ID: restic/restic:0.15.0
+      context: .
+    container_name: "{{ backup_job.job_name }}"
+    environment:
+      - RESTIC_DIRECTORIES_TO_BACKUP={{ backup_job.directories_to_backup | join(' ', attribute='container_mount_destination_directory') }}
+      - RESTIC_FORGET_POLICY={{ backup_job.restic_forget_policy | join(' ') }}
+      - RESTIC_REPOSITORY=/var/lib/restic/repository
+      - RESTIC_PASSWORD="{{ backup_job.restic_repository_password }}"
+    restart: on-failure
+    volumes:
+      - {{ backup_job.restic_repository_host_path }}:/var/lib/restic/repository
+{% for directory_to_backup in backup_job.directories_to_backup %}
+      - {{ directory_to_backup.source_host_directory }}:{{ directory_to_backup.container_mount_destination_directory }}
+{% endfor %}
+{% endfor %}
+...
