@@ -394,6 +394,9 @@ restic_files_to_configure:
   - src: "{{ restic_configuration_source_directory_path }}/{{ default_dockerfile_file_name }}"
     dest: "{{ restic_configuration_directory_path }}/{{ default_dockerfile_file_name }}"
     state: "{{ configure_backup_restic | ternary('file', 'absent') }}"
+  - src: "{{ restic_configuration_source_directory_path }}/entrypoint.sh"
+    dest: "{{ restic_configuration_directory_path }}/entrypoint.sh"
+    state: "{{ configure_backup_restic | ternary('file', 'absent') }}"
 restic_templates_to_render:
   - src: "restic/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ restic_docker_compose_destination_file_path }}"
