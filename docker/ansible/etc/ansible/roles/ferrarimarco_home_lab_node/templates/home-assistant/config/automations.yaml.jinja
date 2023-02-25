@@ -57,5 +57,6 @@
   - service: telegram_bot.send_message
     data:
       message: La lavatrice ha terminato il ciclo di lavaggio
+      target: !secret telegram_bot_allowed_chat_ids
   mode: single
 ...
