@@ -8,6 +8,8 @@ FROM debian:bullseye
 
 ARG RESTIC_CONTAINER_IMAGE_ID="restic/restic:0.15.1"
 
+SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
+
 RUN apt-get update \
   && apt-get --assume-yes --no-install-recommends install \
   ca-certificates \
