@@ -142,7 +142,6 @@ home_assistant_templates_to_render:
   - src: "home-assistant/config/configuration.yaml.jinja"
     dest: "{{ home_assistant_configuration_config_directory_path }}/configuration.yaml"
     state: "{{ configure_home_assistant | ternary('file', 'absent') }}"
-    force: false
   - src: "home-assistant/config/automations.yaml.jinja"
     dest: "{{ home_assistant_configuration_config_directory_path }}/automations.yaml"
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
