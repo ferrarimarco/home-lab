@@ -1,0 +1,47 @@
+---
+name: Test Ansible roles
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/test-ansible.yaml"
+      - "docker/ansible/**"
+  pull_request:
+    paths:
+      - ".github/workflows/test-ansible.yaml"
+      - "docker/ansible/**"
+
+jobs:
+  build-container-images:
+    env:
+      ANSIBLE_TEST_CONTAINER_IMAGE_ID: "${{ github.repository }}-ansible"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build the ansible container image
+        uses: docker/build-push-action@v4
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: docker/ansible
+          load: true
+          push: false
+          tags: ${{ env.ANSIBLE_TEST_CONTAINER_IMAGE_ID }}
+      - name: Run molecule
+        run: |
+          set -o errexit
+          set -o nounset
+
+          MOLECULE_DISTRO=${{ matrix.test_container_image_id }}
+          export "${MOLECULE_DISTRO}"
+
+          scripts/run-ansible.sh "molecule test"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test_container_image_id:
+          - "debian:bullseye"
+
+...
