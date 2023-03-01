@@ -1,5 +1,5 @@
 ---
-name: Test Ansible roles
+name: Test Ansible collections, roles, playbooks
 
 on:  # yamllint disable-line rule:truthy
   push:
@@ -12,10 +12,9 @@ on:  # yamllint disable-line rule:truthy
       - "docker/ansible/**"
 
 jobs:
-  build-container-images:
+  test-ansible:
     env:
       ANSIBLE_TEST_CONTAINER_IMAGE_ID: "${{ github.repository }}-ansible"
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
@@ -35,7 +34,7 @@ jobs:
           set -o nounset
 
           MOLECULE_DISTRO=${{ matrix.test_container_image_id }}
-          export "${MOLECULE_DISTRO}"
+          export MOLECULE_DISTRO
 
           scripts/run-ansible.sh "molecule test"
     runs-on: ubuntu-latest
@@ -43,5 +42,4 @@ jobs:
       matrix:
         test_container_image_id:
           - "debian:bullseye"
-
 ...
