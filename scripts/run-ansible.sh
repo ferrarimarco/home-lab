@@ -49,6 +49,7 @@ else
   fi
   if [ -z "${MOLECULE_DISTRO}" ]; then
     COMMAND_TO_RUN="${COMMAND_TO_RUN} --env MOLECULE_DISTRO=${MOLECULE_DISTRO}"
+    COMMAND_TO_RUN="${COMMAND_TO_RUN} -v /var/run/docker.sock:/var/run/docker.sock"
   fi
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --rm"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/etc/ansible:/etc/ansible"
