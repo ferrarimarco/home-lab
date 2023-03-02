@@ -47,7 +47,7 @@ else
   if [ -t 0 ]; then
     COMMAND_TO_RUN="${COMMAND_TO_RUN} -it"
   fi
-  if [ -z "${MOLECULE_DISTRO}" ]; then
+  if [ -n "${MOLECULE_DISTRO}" ]; then
     COMMAND_TO_RUN="${COMMAND_TO_RUN} --env MOLECULE_DISTRO=${MOLECULE_DISTRO}"
     COMMAND_TO_RUN="${COMMAND_TO_RUN} -v /var/run/docker.sock:/var/run/docker.sock"
   fi
