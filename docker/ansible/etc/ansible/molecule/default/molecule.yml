@@ -1,7 +1,7 @@
 ---
 dependency:
   name: galaxy
-  requirements-file: requirements.yml
+  requirements-file: /etc/ansible/requirements.yml
 driver:
   name: docker
 platforms:
