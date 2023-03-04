@@ -27,13 +27,16 @@ RUN ansible-galaxy install -r /etc/ansible/requirements.yml \
 
 FROM ansible as molecule
 
+SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
+
 RUN apt-get update \
   && apt-get --assume-yes --no-install-recommends install \
   curl \
   gnupg \
   lsb-release \
   && rm -rf /var/lib/apt/lists/* \
-  && mkdir -m 0755 -p /etc/apt/keyrings \
+  && mkdir -p /etc/apt/keyrings \
+  && chmod 0755 /etc/apt/keyrings \
   && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
   && echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
