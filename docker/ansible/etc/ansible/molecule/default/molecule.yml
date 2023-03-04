@@ -1,7 +1,7 @@
 ---
 dependency:
   name: galaxy
-  requirements-file: /etc/ansible/requirements.yml
+  requirements-file: requirements.yml
 driver:
   name: docker
 platforms:
@@ -16,5 +16,5 @@ platforms:
 provisioner:
   name: ansible
   playbooks:
-    converge: /etc/ansible/playbooks/main.yaml
+    converge: playbooks/main.yaml
 ...

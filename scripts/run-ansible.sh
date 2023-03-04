@@ -41,6 +41,7 @@ else
   echo "Building Ansible container image (${ANSIBLE_CONTAINER_IMAGE_ID}) from ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
   docker build \
     --tag "${ANSIBLE_CONTAINER_IMAGE_ID}" \
+    --target "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-"ansible"}" \
     "${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
 
   COMMAND_TO_RUN="docker run"
