@@ -16,5 +16,5 @@ platforms:
 provisioner:
   name: ansible
   playbooks:
-    converge: playbooks/main.yaml
+    converge: ../../playbooks/main.yaml
 ...
