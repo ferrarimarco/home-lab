@@ -27,9 +27,6 @@ jobs:
           MOLECULE_DISTRO=${{ matrix.test_container_image_id }}
           export MOLECULE_DISTRO
 
-          ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="molecule"
-          export ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET
-
           scripts/run-ansible.sh "molecule test"
     runs-on: ubuntu-latest
     strategy:
