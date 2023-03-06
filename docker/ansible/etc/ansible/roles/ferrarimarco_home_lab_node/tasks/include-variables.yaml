@@ -23,6 +23,7 @@
 - name: Register Raspberry Pi OS facts
   ansible.builtin.include_tasks:
     file: "{{ item }}"
+  when: is_raspberry_pi
   with_first_found:
     - "register-raspberry-pi-os-facts.yaml"
 

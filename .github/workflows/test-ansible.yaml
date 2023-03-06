@@ -32,6 +32,5 @@ jobs:
     strategy:
       matrix:
         test_container_image_id:
-          - "debian:bullseye"
           - "geerlingguy/docker-debian11-ansible:latest"
 ...
