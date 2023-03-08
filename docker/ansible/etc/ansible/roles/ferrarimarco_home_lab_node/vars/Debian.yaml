@@ -50,6 +50,7 @@ security_ssh_config_path: /etc/ssh/sshd_config
 security_sshd_name: ssh
 sshd_path: /usr/sbin/sshd
 tailscale_package_repository_key_file_path: /etc/apt/trusted.gpg.d/tailscale-archive-keyring.gpg
+tailscale_package_repository_url: "{{ tailscale_base_package_repository_url }}/debian"
 unattended_upgrades_packages:
   - name: unattended-upgrades
     state: "{{ security_unattended_upgrades_enabled | ternary('present', 'absent') }}"
