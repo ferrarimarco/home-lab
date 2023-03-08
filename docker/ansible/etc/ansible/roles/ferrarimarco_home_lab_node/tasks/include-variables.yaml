@@ -73,6 +73,9 @@
       fact_files_to_configure:
         - path: "{{ docker_compose_standalone_executable_path }}"
           state: absent
+      fact_os_groups:
+        - name: "{{ docker_default_os_group_name }}"
+          state: "{{ configure_docker | ternary('present', 'absent') }}"
       fact_os_package_repositories: "{{ docker_repositories_to_add }}"
       fact_os_packages: "{{ docker_os_packages }}"
       fact_os_services: "{{ docker_os_services }}"

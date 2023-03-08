@@ -35,7 +35,7 @@ docker_os_users:
   - append: true
     name: "{{ ansible_user }}"
     groups:
-      - "docker"
+      - "{{ docker_default_os_group_name }}"
 edge_dns_server:
   fqdn: "{{ edge_environment_gateway.fqdn }}"
   ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
