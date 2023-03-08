@@ -26,6 +26,7 @@ argonone_files_to_configure:
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
 argonone_configuration_directory: "{{ etc_directory_path }}/argonone-case"
+argonone_os_service_name: "argononed"
 argonone_os_services:
   - enabled: true
     service_name: "{{ argonone_os_service_name }}"
