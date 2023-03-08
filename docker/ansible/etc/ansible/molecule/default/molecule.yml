@@ -15,6 +15,10 @@ platforms:
     pre_build_image: true
 provisioner:
   name: ansible
+  inventory:
+    host_vars:
+      instance:
+        ansible_user: root
   playbooks:
     converge: ../../playbooks/main.yaml
 ...
