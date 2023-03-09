@@ -56,6 +56,7 @@
       fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
     - enable_custom_fact: "{{ configure_ssh }}"
       fact_category: "ssh"
+      fact_os_packages: "{{ ssh_os_packages }}"
       fact_os_services: "{{ ssh_os_services }}"
     - enable_custom_fact: "{{ configure_docker }}"
       fact_category: "Docker"
