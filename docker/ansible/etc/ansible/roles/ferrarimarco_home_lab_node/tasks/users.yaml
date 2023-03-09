@@ -29,7 +29,7 @@
 
 - name: Check if the public keys file for SSH exists - {{ ansible_user }}
   delegate_to: localhost
-  stat:
+  ansible.builtin.stat:
     path: "{{ home_lab_node_ssh_public_key_path }}"
   register: ssh_public_key_path_stat
   when:

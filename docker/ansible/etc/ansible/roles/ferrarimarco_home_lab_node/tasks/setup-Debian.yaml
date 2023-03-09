@@ -1,4 +1,16 @@
 ---
+- name: Install default APT packages
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name: "{{ item.name }}"
+    purge: "{{ item.purge | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+    update_cache: true
+  become: true
+  with_items: "{{ default_os_packages | unique }}"
+  tags:
+    - os_packages
+
 - name: Setup APT repository keys
   ansible.builtin.apt_key:
     keyring: "{{ item.repository_key_keyring_file_path }}"
@@ -38,7 +50,7 @@
     state: "{{ item.state | default(omit) }}"
     update_cache: true
   become: true
-  with_items: "{{ apt_packages + default_os_packages | unique }}"
+  with_items: "{{ apt_packages | unique }}"
   tags:
     - os_packages
 ...
