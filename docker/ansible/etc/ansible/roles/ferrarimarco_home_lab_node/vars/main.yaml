@@ -443,7 +443,6 @@ ssh_os_services:
   - enabled: true
     service_name: "{{ security_sshd_name }}"
     service_state: "{{ configure_ssh | ternary('started', 'stopped') }}"
-sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
 systemd_system_shutdown_configuration_directory: "{{ systemd_configuration_directory }}/system-shutdown"
