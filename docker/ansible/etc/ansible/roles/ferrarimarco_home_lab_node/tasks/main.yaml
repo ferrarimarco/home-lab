@@ -43,6 +43,19 @@
     - templates
   with_items: "{{ templates_to_render }}"
 
+- name: Download files
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  register: system_wide_downloaded_files
+  when:
+    - item.state == 'file'
+  with_items: "{{ files_to_download }}"
+
 - name: Copy configuration files
   ansible.builtin.copy:
     src: "{{ item.src }}"
@@ -90,19 +103,6 @@
 - name: Import Debian tasks
   ansible.builtin.import_tasks: setup-Debian.yaml
   when: ansible_facts.os_family == 'Debian'
-
-- name: Download files
-  become: true
-  ansible.builtin.get_url:
-    url: "{{ item.url }}"
-    dest: "{{ item.dest }}"
-    mode: "{{ item.mode }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
-  register: system_wide_downloaded_files
-  when:
-    - item.state == 'file'
-  with_items: "{{ files_to_download }}"
 
 - name: Import Systemd tasks
   ansible.builtin.import_tasks: setup-systemd.yaml
