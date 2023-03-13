@@ -12,15 +12,12 @@ docker_repositories_to_add:
     state: "{{ configure_docker | ternary('present', 'absent') }}"
 docker_os_packages:
   - name: apt-transport-https
-    state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: ca-certificates
-    state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: docker-ce
     state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: docker-compose-plugin
     state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: gnupg
-    state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: containerd
     purge: true
     state: "absent"
