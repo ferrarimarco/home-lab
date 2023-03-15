@@ -140,6 +140,12 @@ network_stack_unbound_enable_logs: true
 network_stack_unbound_verbosity: 2
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
+# This is an unusual structure. It's aimed at making the value of the "image"
+# key updatable using Renovate Bot, which has a hard-coded rule to scan Ansible
+# YAML files for any key that matches with "image".
+# Ref: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/ansible/extract.ts
+restic_container_image_version:
+  image: restic/restic:0.15.0
 # Set this separately here to avoid an infinite loop when initializing the root_dns_zone variable
 root_dns_zone_fqdn: lab.ferrari.how
 root_dns_zone:
