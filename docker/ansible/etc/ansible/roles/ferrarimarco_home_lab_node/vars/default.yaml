@@ -1,3 +1,2 @@
 ---
-fail2ban_sshd_enable_systemd_backend: false
 ...
