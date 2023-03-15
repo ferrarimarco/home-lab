@@ -1,7 +1,7 @@
 {
   "ansible": {
     "fileMatch": [
-      "(^|\/)(?:docker-)?compose[^\/]*\\.ya?ml(?:\\.jinja)$",
+      "(^|/)(?:docker-)?compose[^/]*\\.ya?ml(?:\\.jinja)$",
       "(^|/)ansible/[^/]+\\.ya?ml$"
     ]
   },
