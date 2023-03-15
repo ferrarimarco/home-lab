@@ -42,6 +42,7 @@ fail2ban_packages:
   - name: fail2ban
     state: "{{ security_fail2ban_enabled | ternary('present', 'absent') }}"
 fail2ban_service_name: fail2ban
+fail2ban_sshd_enable_systemd_backend: true
 monitoring_os_packages:
   - name: smartmontools
     state: "{{ configure_monitoring | ternary('present', 'absent') }}"
