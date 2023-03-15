@@ -37,15 +37,32 @@ else
   ANSIBLE_CONTAINER_IMAGE_TAG="$(grep <"${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}" "ansible" | awk -F '==' '{print $2}')"
   echo "Ansible container image tag to run: ${ANSIBLE_CONTAINER_IMAGE_TAG}"
   ANSIBLE_CONTAINER_IMAGE_ID="ferrarimarco/ansible:${ANSIBLE_CONTAINER_IMAGE_TAG}"
+  echo "Ansible container image id: ${ANSIBLE_CONTAINER_IMAGE_ID}"
+  ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-"ansible"}"
+  echo "Ansible container image build target: ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
+
+  if [ -n "${MOLECULE_DISTRO}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}" = "ansible" ]; then
+    ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="molecule"
+    echo "Set Ansible container image build target to ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
+  fi
 
   echo "Building Ansible container image (${ANSIBLE_CONTAINER_IMAGE_ID}) from ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
   docker build \
     --tag "${ANSIBLE_CONTAINER_IMAGE_ID}" \
+    --target "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-"ansible"}" \
     "${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
 
   COMMAND_TO_RUN="docker run"
-  COMMAND_TO_RUN="${COMMAND_TO_RUN} -it --rm"
-  COMMAND_TO_RUN="${COMMAND_TO_RUN} --volume ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/etc/ansible:/etc/ansible"
+  if [ -t 0 ]; then
+    COMMAND_TO_RUN="${COMMAND_TO_RUN} -it"
+  fi
+  if [ -n "${MOLECULE_DISTRO}" ]; then
+    COMMAND_TO_RUN="${COMMAND_TO_RUN} --env MOLECULE_DISTRO=${MOLECULE_DISTRO}"
+    COMMAND_TO_RUN="${COMMAND_TO_RUN} -v /var/run/docker.sock:/var/run/docker.sock"
+  fi
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --rm"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/etc/ansible:/etc/ansible"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --workdir=/etc/ansible"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ANSIBLE_CONTAINER_IMAGE_ID}"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${1}"
 fi

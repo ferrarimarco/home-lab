@@ -1,6 +1,8 @@
 ---
 apt_cache_valid_time: 3600
 default_os_packages:
+  - name: cron
+  - name: gnupg
   - name: python3-venv
   - name: xz-utils
 docker_repositories_to_add:
@@ -10,15 +12,12 @@ docker_repositories_to_add:
     state: "{{ configure_docker | ternary('present', 'absent') }}"
 docker_os_packages:
   - name: apt-transport-https
-    state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: ca-certificates
-    state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: docker-ce
     state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: docker-compose-plugin
     state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: gnupg
-    state: "{{ configure_docker | ternary('present', 'absent') }}"
   - name: containerd
     purge: true
     state: "absent"
@@ -43,13 +42,18 @@ fail2ban_packages:
   - name: fail2ban
     state: "{{ security_fail2ban_enabled | ternary('present', 'absent') }}"
 fail2ban_service_name: fail2ban
+fail2ban_sshd_enable_systemd_backend: true
 monitoring_os_packages:
   - name: smartmontools
     state: "{{ configure_monitoring | ternary('present', 'absent') }}"
 security_ssh_config_path: /etc/ssh/sshd_config
 security_sshd_name: ssh
+ssh_os_packages:
+  - name: openssh-server
+    state: "{{ configure_ssh | ternary('present', 'absent') }}"
 sshd_path: /usr/sbin/sshd
 tailscale_package_repository_key_file_path: /etc/apt/trusted.gpg.d/tailscale-archive-keyring.gpg
+tailscale_package_repository_url: "{{ tailscale_base_package_repository_url }}/debian"
 unattended_upgrades_packages:
   - name: unattended-upgrades
     state: "{{ security_unattended_upgrades_enabled | ternary('present', 'absent') }}"

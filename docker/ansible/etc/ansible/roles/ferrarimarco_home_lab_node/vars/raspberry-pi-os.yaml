@@ -1,5 +1,4 @@
 ---
-argonone_os_service_name: "argononed"
 configure_dphys_swapfile: true
 # Got those from v4l2-ctl --list-devices
 frigate_gpu_decode_devices:
@@ -8,6 +7,7 @@ frigate_gpu_decode_devices:
   - /dev/video11
   - /dev/video12
   - /dev/video18
+fail2ban_sshd_enable_systemd_backend: false
 frigate_ffmpeg_harware_acceleration_arguments:
   - -c:v
   - h264_v4l2m2m

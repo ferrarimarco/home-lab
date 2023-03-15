@@ -24,7 +24,9 @@
     --ignore-buildable \
     --include-deps
   register: docker_compose_pull_result
-  when: item.pull_container_images
+  when:
+    - configure_docker
+    - item.pull_container_images
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Start Docker Compose services
@@ -37,7 +39,9 @@
     --detach \
     --remove-orphans
   register: docker_compose_up_result
-  when: item.start_containerized_services
+  when:
+    - configure_docker
+    - item.start_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Initialize the list of Docker Compose services to restart
@@ -53,6 +57,8 @@
     --file {{ item.compose_file_path }} \
     restart
   register: docker_compose_restart_result
-  when: item.start_containerized_services
+  when:
+    - configure_docker
+    - item.start_containerized_services
   with_items: "{{ docker_compose_services_to_restart | unique }}"
 ...

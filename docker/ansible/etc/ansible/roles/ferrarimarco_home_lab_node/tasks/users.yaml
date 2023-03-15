@@ -27,13 +27,25 @@
   # Make sure that we authenticated with a key before locking the password
   when: ansible_password is not defined
 
+- name: Check if the public keys file for SSH exists - {{ ansible_user }}
+  delegate_to: localhost
+  ansible.builtin.stat:
+    path: "{{ home_lab_node_ssh_public_key_path }}"
+  register: ssh_public_key_path_stat
+  when:
+    - home_lab_node_ssh_public_key_path is defined
+    - home_lab_node_ssh_public_key_path | length > 0
+
 - name: Set authorized key for the user - {{ ansible_user }}
   ansible.posix.authorized_key:
     exclusive: true
     key: "{{ lookup('file', home_lab_node_ssh_public_key_path) }}"
     state: present
     user: "{{ ansible_user }}"
-  when: home_lab_node_ssh_public_key_path | length > 0
+  when:
+    - home_lab_node_ssh_public_key_path is defined
+    - home_lab_node_ssh_public_key_path | length > 0
+    - ssh_public_key_path_stat.stat.exists
 
 - name: Add configured user accounts to passwordless sudoers
   ansible.builtin.lineinfile:

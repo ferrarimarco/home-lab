@@ -26,6 +26,7 @@ argonone_files_to_configure:
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
 argonone_configuration_directory: "{{ etc_directory_path }}/argonone-case"
+argonone_os_service_name: "argononed"
 argonone_os_services:
   - enabled: true
     service_name: "{{ argonone_os_service_name }}"
@@ -50,6 +51,7 @@ docker_configuration_directories:
     state: "{{ configure_docker | ternary('directory', 'absent') }}"
 docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
 docker_daemon_configuration_file_name: "daemon.json"
+docker_default_os_group_name: "docker"
 docker_os_services:
   - enabled: true
     service_name: "{{ docker_service_name }}"
@@ -441,7 +443,6 @@ ssh_os_services:
   - enabled: true
     service_name: "{{ security_sshd_name }}"
     service_state: "{{ configure_ssh | ternary('started', 'stopped') }}"
-sshd_validation_command: "{{ sshd_path }} -T -f %s"
 systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
 systemd_system_shutdown_configuration_directory: "{{ systemd_configuration_directory }}/system-shutdown"

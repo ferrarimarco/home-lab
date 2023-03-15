@@ -20,6 +20,10 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+  - directory: "/docker/ansible/etc/ansible/molecule"
+    package-ecosystem: "pip"
+    schedule:
+      interval: "daily"
   - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter"
     package-ecosystem: "pip"
     schedule:

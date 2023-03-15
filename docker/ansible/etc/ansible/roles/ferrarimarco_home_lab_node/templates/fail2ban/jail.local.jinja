@@ -1,4 +1,7 @@
 [sshd]
+{% if fail2ban_sshd_enable_systemd_backend %}
+backend = systemd
+{% endif %}
 enabled = true
 port    = {{ security_ssh_port }}
 filter  = sshd

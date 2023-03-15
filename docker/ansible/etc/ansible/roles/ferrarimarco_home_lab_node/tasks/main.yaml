@@ -52,6 +52,9 @@
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
   register: system_wide_downloaded_files
+  delay: 5
+  retries: 10
+  until: system_wide_downloaded_files is not failed
   when:
     - item.state == 'file'
   with_items: "{{ files_to_download }}"
