@@ -145,7 +145,7 @@ raspberry_pi_config_file_values: {}
 # YAML files for any key that matches with "image".
 # Ref: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/ansible/extract.ts
 restic_container_image_version:
-  image: restic/restic:0.15.0
+  image: restic/restic:0.15.1
 # Set this separately here to avoid an infinite loop when initializing the root_dns_zone variable
 root_dns_zone_fqdn: lab.ferrari.how
 root_dns_zone:
