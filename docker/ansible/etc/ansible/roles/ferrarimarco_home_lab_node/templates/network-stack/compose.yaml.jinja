@@ -35,7 +35,7 @@ services:
     command:
       - "--api.dashboard=true"
       - "--api.insecure=true"
-      - "--entrypoints.web.address=:{{ traefik_cleartext_http_port }}"
+      - "--entrypoints.web.address=:{{ network_stack_traefik_cleartext_http_port }}"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker=true"
     environment:
@@ -45,9 +45,9 @@ services:
       - "traefik.http.routers.dashboard.rule=Host(`traefik.example.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       - "traefik.http.routers.dashboard.service=api@internal"
     ports:
-      - "{{ traefik_secured_http_port }}:{{ traefik_secured_http_port }}"
-      - "{{ traefik_cleartext_http_port }}:{{ traefik_cleartext_http_port }}"
-      - "{{ traefik_api_http_port }}:{{ traefik_api_http_port }}"
+      - "{{ network_stack_traefik_secured_http_port }}:{{ network_stack_traefik_secured_http_port }}"
+      - "{{ network_stack_traefik_cleartext_http_port }}:{{ network_stack_traefik_cleartext_http_port }}"
+      - "{{ network_stack_traefik_api_http_port }}:{{ network_stack_traefik_api_http_port }}"
     restart: always
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
