@@ -57,6 +57,9 @@
   - service: telegram_bot.send_message
     data:
       message: La lavatrice ha terminato il ciclo di lavaggio
-      target: !secret telegram_bot_allowed_chat_ids
+{% for chat_id in home_assistant_secrets.telegram_bot_allowed_chat_ids %}
+      target:
+        - "{{ chat_id }}"
+{% endfor %}
   mode: single
 ...
