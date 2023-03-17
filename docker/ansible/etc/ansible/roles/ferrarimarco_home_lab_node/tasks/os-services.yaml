@@ -18,5 +18,5 @@
 - name: Debug stop_os_service
   ansible.builtin.debug:
     var: stop_os_service
-    # verbosity: 1
+    verbosity: 1
 ...
