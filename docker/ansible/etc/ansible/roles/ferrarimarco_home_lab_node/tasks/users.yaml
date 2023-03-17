@@ -28,6 +28,9 @@
   when: ansible_password is not defined
 
 - name: Check if the public keys file for SSH exists - {{ ansible_user }}
+  # No need to use superuser privileges for this because the file should be
+  # available locally to the user running Ansible
+  become: false
   delegate_to: localhost
   ansible.builtin.stat:
     path: "{{ home_lab_node_ssh_public_key_path }}"
