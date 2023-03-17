@@ -131,10 +131,6 @@ network_stack_configure_reverse_proxy: false
 network_stack_coredns_dns_host_port: 8053
 network_stack_coredns_healthcheck_port: 8085
 network_stack_coredns_prometheus_metrics_port: 9153
-network_stack_container_network_subnet: "172.21.0.0/24"
-# Skip the first address because the container engine reserves it for the default gateway
-network_stack_container_network_coredns_container_ipv4_address: "{{ network_stack_container_network_subnet | ansible.utils.nthhost(2) }}"
-network_stack_container_network_unbound_container_ipv4_address: "{{ network_stack_container_network_subnet | ansible.utils.nthhost(3) }}"
 network_stack_unbound_dns_host_port: 53
 network_stack_unbound_enable_logs: true
 network_stack_unbound_verbosity: 2
