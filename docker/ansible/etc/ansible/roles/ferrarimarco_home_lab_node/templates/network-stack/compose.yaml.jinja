@@ -54,4 +54,14 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 {% endif %}
+{% if network_stack_debugger %}
+
+  network_debugger:
+    image: "debian:latest"
+    container_name: "network_debugger"
+    command:
+      - sleep
+      - infinity
+    restart: unless-stopped
+{% endif %}
 ...

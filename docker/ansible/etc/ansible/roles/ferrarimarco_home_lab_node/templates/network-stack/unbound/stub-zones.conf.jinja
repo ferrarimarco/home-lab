@@ -1,8 +1,8 @@
 stub-zone:
     name: {{ root_dns_zone.fqdn }}
-    stub-host: coredns
+    stub-addr: {{ network_stack_root_dns_servers[0].ipv4_address }}@{{ network_stack_root_dns_servers[0].port }}
     stub-no-cache: yes
 stub-zone:
     name: in-addr.arpa
-    stub-host: coredns
+    stub-addr: {{ network_stack_root_dns_servers[0].ipv4_address }}@{{ network_stack_root_dns_servers[0].port }}
     stub-no-cache: yes

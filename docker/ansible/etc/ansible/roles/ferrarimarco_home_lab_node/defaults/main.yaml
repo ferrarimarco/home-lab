@@ -131,6 +131,7 @@ network_stack_configure_reverse_proxy: false
 network_stack_coredns_dns_host_port: 8053
 network_stack_coredns_healthcheck_port: 8085
 network_stack_coredns_prometheus_metrics_port: 9153
+network_stack_debugger: false
 network_stack_traefik_api_http_port: 8080
 network_stack_traefik_cleartext_http_port: 80
 network_stack_traefik_secured_http_port: 443
