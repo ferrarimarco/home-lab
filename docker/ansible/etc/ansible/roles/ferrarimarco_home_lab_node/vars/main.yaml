@@ -347,6 +347,7 @@ network_stack_docker_compose_up_items:
 network_stack_root_dns_servers: []
 network_stack_root_dns_server_template:
   - fqdn: "{{ item.destination }}"
+    ipv4_address: "{{ hostvars[item.source_host].ansible_default_ipv4.address }}"
     port: "{{ hostvars[item.source_host].network_stack_coredns_dns_host_port | default(network_stack_coredns_dns_host_port) }}"
 network_stack_templates_to_render:
   - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
