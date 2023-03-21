@@ -52,6 +52,7 @@ scrape_configs:
 {% if dns_record_to_check.query_name.endswith(root_dns_zone.fqdn) %}
 {% for dns_server in network_stack_root_dns_servers %}
         - "{{ dns_server.fqdn }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
+        - "{{ dns_server.ipv4_address }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
 {% endfor %}
 {% endif %}
 {% if dns_record_to_check.query_name.endswith(edge_environment_root_fqdn) %}

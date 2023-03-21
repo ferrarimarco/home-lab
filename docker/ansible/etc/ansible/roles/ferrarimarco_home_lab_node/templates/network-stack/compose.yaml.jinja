@@ -1,10 +1,4 @@
 ---
-networks:
-  default:
-    ipam:
-      config:
-        - subnet: "{{ network_stack_container_network_subnet }}"
-
 services:
 
   coredns:
@@ -13,12 +7,10 @@ services:
     command:
       - "-conf"
       - "/etc/coredns/Corefile"
-    networks:
-      default:
-        ipv4_address: "{{ network_stack_container_network_coredns_container_ipv4_address }}"
     ports:
       - "{{ network_stack_coredns_dns_host_port }}:53"
-      - "{{ network_stack_coredns_dns_host_port }}:53/udp"
+      # This assumes that the DNS resolver is listening to the default network interface as well
+      - "{{ ansible_default_ipv4.address }}:{{ network_stack_coredns_dns_host_port }}:53/udp"
       - "{{ network_stack_coredns_healthcheck_port }}:{{ network_stack_coredns_healthcheck_port }}"
       - "{{ network_stack_coredns_prometheus_metrics_port }}:{{ network_stack_coredns_prometheus_metrics_port }}"
     restart: always
@@ -29,12 +21,10 @@ services:
   unbound:
     image: "klutchell/unbound:v1.17.1"
     container_name: "unbound"
-    networks:
-      default:
-        ipv4_address: "{{ network_stack_container_network_unbound_container_ipv4_address }}"
     ports:
       - "{{ network_stack_unbound_dns_host_port }}:53"
-      - "{{ network_stack_unbound_dns_host_port }}:53/udp"
+      # This assumes that the DNS resolver is listening to the default network interface as well
+      - "{{ ansible_default_ipv4.address }}:{{ network_stack_unbound_dns_host_port }}:53/udp"
     restart: always
     volumes:
       - "./unbound:/etc/unbound/custom.conf.d"
@@ -47,7 +37,7 @@ services:
     command:
       - "--api.dashboard=true"
       - "--api.insecure=true"
-      - "--entrypoints.web.address=:{{ traefik_cleartext_http_port }}"
+      - "--entrypoints.web.address=:{{ network_stack_traefik_cleartext_http_port }}"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker=true"
     environment:
@@ -57,11 +47,21 @@ services:
       - "traefik.http.routers.dashboard.rule=Host(`traefik.example.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       - "traefik.http.routers.dashboard.service=api@internal"
     ports:
-      - "{{ traefik_secured_http_port }}:{{ traefik_secured_http_port }}"
-      - "{{ traefik_cleartext_http_port }}:{{ traefik_cleartext_http_port }}"
-      - "{{ traefik_api_http_port }}:{{ traefik_api_http_port }}"
+      - "{{ network_stack_traefik_secured_http_port }}:{{ network_stack_traefik_secured_http_port }}"
+      - "{{ network_stack_traefik_cleartext_http_port }}:{{ network_stack_traefik_cleartext_http_port }}"
+      - "{{ network_stack_traefik_api_http_port }}:{{ network_stack_traefik_api_http_port }}"
     restart: always
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+{% endif %}
+{% if network_stack_debugger %}
+
+  network_debugger:
+    image: "debian:latest"
+    container_name: "network_debugger"
+    command:
+      - sleep
+      - infinity
+    restart: unless-stopped
 {% endif %}
 ...
