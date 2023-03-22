@@ -136,6 +136,7 @@
           source_host: "{{ inventory_hostname }}"
       fact_configuration_directories: "{{ home_assistant_configuration_directories }}"
       fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
+      fact_files_to_configure: "{{ home_assistant_files_to_configure }}"
       fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
     - enable_custom_fact: "{{ configure_mqtt_broker }}"
       fact_category: "mosquitto"
