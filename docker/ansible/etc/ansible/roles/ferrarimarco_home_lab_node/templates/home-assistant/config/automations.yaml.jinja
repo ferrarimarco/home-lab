@@ -50,7 +50,7 @@
     for:
       hours: 0
       minutes: 0
-      seconds: 30
+      seconds: 45
     below: 1
   condition: []
   action:
@@ -61,5 +61,19 @@
 {% for chat_id in home_assistant_secrets.telegram_bot_allowed_chat_ids %}
         - "[% chat_id %]"
 {% endfor %}
+  mode: single
+- id: '1679504424560'
+  alias: Alert if a critical switch turns off
+  trigger:
+    - platform: state
+      entity_id:
+        - switch.presa_lavatrice
+        - switch.presa_studio_home_lab_2
+        - switch.presa_frigorifero
+      to: 'off'
+  action:
+    - service: telegram_bot.send_message
+      data:
+        message: The {{ trigger.to_state.attributes.friendly_name }} turned off!
   mode: single
 ...
