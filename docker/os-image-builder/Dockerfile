@@ -1,6 +1,6 @@
 FROM multiarch/qemu-user-static:register AS register
 
-FROM ubuntu:22.04
+FROM ubuntu:23.04
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
