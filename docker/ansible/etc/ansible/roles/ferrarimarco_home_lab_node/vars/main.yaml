@@ -145,7 +145,7 @@ home_assistant_files_to_configure:
   # Remove secrets file because we inject them using Vault
   - path: "{{ home_assistant_configuration_config_directory_path }}/secrets.yaml"
     state: absent
-  - path: "config/home-assistant/custom_components/"
+  - src: "config/home-assistant/custom_components/"
     dest: "{{ home_assistant_configuration_custom_component_directory_path }}/"
     state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
