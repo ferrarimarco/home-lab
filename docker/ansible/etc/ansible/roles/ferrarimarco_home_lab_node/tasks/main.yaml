@@ -69,7 +69,7 @@
   become: true
   register: copied_configuration_files
   when:
-    - item.state == 'file'
+    - item.state == 'file' or item.state == 'directory'
   with_items: "{{ files_to_configure }}"
   tags:
     - configuration_files
