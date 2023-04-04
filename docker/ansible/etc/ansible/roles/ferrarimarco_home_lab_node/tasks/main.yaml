@@ -61,7 +61,7 @@
 
 - name: Copy configuration files
   ansible.builtin.copy:
-    src: "{{ item.src }}"
+    src: "{{ item.src | default(item.path) }}"
     dest: "{{ item.path | default(item.dest) }}"
     group: "{{ item.group | default('root') }}"
     mode: "{{ item.mode | default('0644') }}"
@@ -69,7 +69,7 @@
   become: true
   register: copied_configuration_files
   when:
-    - item.state == 'file'
+    - item.state == 'file' or item.state == 'directory'
   with_items: "{{ files_to_configure }}"
   tags:
     - configuration_files

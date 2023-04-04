@@ -114,12 +114,13 @@ frigate_templates_to_render:
     mode: "0640"
 home_assistant_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/home-assistant"
 home_assistant_configuration_config_directory_path: "{{ home_assistant_configuration_directory_path }}/config"
+home_assistant_configuration_custom_component_directory_path: "{{ home_assistant_configuration_config_directory_path }}/custom_components"
 home_assistant_configuration_directories:
   - path: "{{ home_assistant_configuration_directory_path }}"
     state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
   - path: "{{ home_assistant_configuration_config_directory_path }}"
     state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
-  - path: "{{ home_assistant_configuration_config_directory_path }}/custom_components"
+  - path: "{{ home_assistant_configuration_custom_component_directory_path }}"
     state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
 home_assistant_docker_compose_up_items:
   - compose_file_path: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -144,6 +145,10 @@ home_assistant_files_to_configure:
   # Remove secrets file because we inject them using Vault
   - path: "{{ home_assistant_configuration_config_directory_path }}/secrets.yaml"
     state: absent
+  - path: "config/home-assistant/custom_components/"
+    dest: "{{ home_assistant_configuration_custom_component_directory_path }}/"
+    state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
+    docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
 home_lab_configuration_directory_path: "{{ etc_directory_path }}/ferrarimarco-home-lab"
 monitoring_backend_grafana_user_user_id: "472"
 monitoring_backend_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring-backend"
