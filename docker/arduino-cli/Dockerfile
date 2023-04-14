@@ -14,17 +14,15 @@ RUN apt-get update \
 # https://arduino.github.io/arduino-cli/latest/installation/
 RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/local/bin sh -s "${ARDUINO_CLI_VERSION}"
 
-# Install Arduino libraries
+# Install Arduino libraries for the Arduino 33 BLE Sense
 # https://www.arduino.cc/reference/en/libraries/arduino_apds9960/
 # https://www.arduino.cc/reference/en/libraries/arduinoble/
 # https://www.arduino.cc/reference/en/libraries/arduino_hts221/
 # https://www.arduino.cc/reference/en/libraries/arduino_lsm9ds1/
-# https://docs.arduino.cc/learn/built-in-libraries/pdm
 RUN arduino-cli lib install \
   Arduino_APDS9960 \
   ArduinoBLE \
   Arduino_HTS221 \
-  Arduino_LSM9DS1 \
-  pdm
+  Arduino_LSM9DS1
 
 ENTRYPOINT [ "arduino-cli" ]
