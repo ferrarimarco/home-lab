@@ -6,6 +6,7 @@ ARG ARDUINO_CLI_VERSION="0.32.2"
 
 RUN apt-get update \
   && apt-get --assume-yes --no-install-recommends install \
+  ca-certificates \
   curl \
   && rm -rf /var/lib/apt/lists/*
 
