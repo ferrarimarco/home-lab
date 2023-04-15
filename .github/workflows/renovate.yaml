@@ -2,6 +2,14 @@
 name: Renovate
 
 on:  # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/renovate.yaml"
+      - ".github/renovate.json"
+  pull_request:
+    paths:
+      - ".github/workflows/renovate.yaml"
+      - ".github/renovate.json"
   schedule:
     - cron: "0 2 * * *"
   workflow_dispatch: null
@@ -12,6 +20,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Enable dry run if required
+        if: ${{ github.base_ref != github.event.repository.default_branch }}
+        run: |
+          set -o errexit
+          set -o nounset
+
+          echo "Enable Dependabot dry run"
+          echo "RENOVATE_DRY_RUN=full" >> $GITHUB_ENV
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@v36.0.2
         env:
