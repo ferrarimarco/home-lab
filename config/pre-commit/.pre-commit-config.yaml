@@ -116,6 +116,10 @@ repos:
           - "--config=config/lint/.flake8"
           - "--verbose"
           - "--statistics"
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: "35.50.1"
+    hooks:
+      - id: renovate-config-validator
   # Local hooks
   - repo: local
     hooks:
