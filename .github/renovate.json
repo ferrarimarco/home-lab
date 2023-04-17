@@ -40,7 +40,7 @@
         "^docker/arduino-cli/Dockerfile$"
       ],
       "matchStrings": [
-        "ARDUINO_CLI_VERSION=\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\S+\""
+        "ARG ARDUINO_CLI_VERSION=\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\S*"
       ],
       "depNameTemplate": "arduino/arduino-cli",
       "datasourceTemplate": "github-releases",
