@@ -28,7 +28,7 @@ To provision the edge environment, you use a seed device.
 
 As soon as the seed device detects that the edge environment initialization
 process is completed, and there are enough nodes, servers, and service
-instances to back the seed device up, the seed device loads and the
+instances to back the seed device up, the seed device loads the same
 configuration that non-seed devices use, and applies that configuration to
 itself. This approach has two benefits:
 
