@@ -8,7 +8,8 @@
   "enabledManagers": [
     "ansible",
     "docker-compose",
-    "pre-commit"
+    "pre-commit",
+    "regex"
   ],
   "docker-compose": {
     "fileMatch": [
@@ -33,6 +34,19 @@
   "pre-commit": {
     "enabled": true
   },
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "^docker/arduino-cli/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARDUINO_CLI_VERSION=\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\S+)\""
+      ],
+      "depNameTemplate": "arduino/arduino-cli",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^(?<version>.*)$"
+    }
+  ],
   "repositories": [
     "ferrarimarco/home-lab"
   ],
