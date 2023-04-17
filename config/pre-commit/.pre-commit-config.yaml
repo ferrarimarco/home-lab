@@ -39,7 +39,7 @@ repos:
           - "-c=config/lint/.yaml-lint.yml"
           - --strict
   - repo: https://github.com/ansible/ansible-lint
-    rev: v6.14.2
+    rev: v6.14.6
     hooks:
       - id: ansible-lint
         entry: "sh -c 'cd docker/ansible/etc/ansible && ansible-lint -c ../../../../config/lint/.ansible-lint.yml .'"
