@@ -23,7 +23,7 @@ spaces_around_brackets = false
 [{Corefile,Corefile.jinja,Dockerfile}]
 indent_size = 2
 
-[*.{hcl.tpl,json,lock.hcl,sh,tf,tfvars,yml,yaml,yaml.jinja}]
+[*.{hcl.ino,tpl,json,lock.hcl,sh,tf,tfvars,yml,yaml,yaml.jinja}]
 indent_size = 2
 
 [{Makefile,**.mk,go.mod,go.sum,*.go,.gitmodules}]
