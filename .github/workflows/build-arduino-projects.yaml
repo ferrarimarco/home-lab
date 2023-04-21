@@ -1,0 +1,31 @@
+---
+name: Build Arduino projects
+
+permissions:
+  contents: read
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/build-arduino-projects.yaml"
+      - "config/arduino/**"
+      - "scripts/build-arduino-project.sh"
+  pull_request:
+    paths:
+      - ".github/workflows/build-arduino-projects.yaml"
+      - "config/arduino/**"
+      - "scripts/build-arduino-project.sh"
+
+jobs:
+  build-arduino-projects:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Build the ${{ matrix.arduino-projects.project-id }} Arduino project"
+        run: |
+          scripts/build-arduino-project.sh
+    strategy:
+      matrix:
+        arduino-projects:
+          - project-id: arduino-33-ble-sense
+...

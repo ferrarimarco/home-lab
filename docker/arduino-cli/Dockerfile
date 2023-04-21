@@ -12,7 +12,8 @@ RUN apt-get update \
 
 # Install arduino-cli using the provided installation script
 # https://arduino.github.io/arduino-cli/latest/installation/
-RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/local/bin sh -s "${ARDUINO_CLI_VERSION}"
+RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/local/bin sh -s "${ARDUINO_CLI_VERSION}" \
+  arduino-cli version
 
 # Install Arduino libraries for the Arduino 33 BLE Sense
 # https://www.arduino.cc/reference/en/libraries/arduino_apds9960/
@@ -24,5 +25,9 @@ RUN arduino-cli lib install \
   ArduinoBLE \
   Arduino_HTS221 \
   Arduino_LSM9DS1
+
+# https://www.arduino.cc/reference/en/libraries/dht-sensor-library/
+RUN arduino-cli lib install \
+  "DHT sensor library"
 
 ENTRYPOINT [ "arduino-cli" ]
