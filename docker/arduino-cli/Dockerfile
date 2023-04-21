@@ -13,7 +13,7 @@ RUN apt-get update \
 # Install arduino-cli using the provided installation script
 # https://arduino.github.io/arduino-cli/latest/installation/
 RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/local/bin sh -s "${ARDUINO_CLI_VERSION}" \
-  arduino-cli version
+  && arduino-cli version
 
 # Install Arduino libraries
 # https://www.arduino.cc/reference/en/libraries/arduino_apds9960/
