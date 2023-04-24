@@ -23,9 +23,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: "Build the ${{ matrix.arduino-project.project-id }} Arduino project"
         run: |
-          scripts/build-arduino-project.sh "${{ matrix.arduino-project.project-context-path }}"
+          scripts/build-arduino-project.sh \
+            "${{ matrix.arduino-project.project-context-path }}"
+            "${{ matrix.arduino-board.fqbn }}"
     strategy:
       matrix:
+        arduino-board:
+          - board-name: "Arduino 33 BLE Sense"
+            core-id: "arduino:mbed_nano"
+            fqbn: "arduino:mbed_nano:nano33ble"
         arduino-project:
           - project-id: arduino-33-ble-sense
             project-context-path: config/arduino/arduino-33-ble-sense

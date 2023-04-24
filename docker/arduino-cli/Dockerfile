@@ -26,6 +26,7 @@ RUN arduino-cli lib install \
   ArduinoBLE \
   Arduino_HTS221 \
   Arduino_LSM9DS1 \
-  "DHT sensor library"
+  "DHT sensor library" \
+  && arduino-cli core update-index
 
-ENTRYPOINT [ "arduino-cli" ]
+ENTRYPOINT [ "/bin/bash", "-c" ]
