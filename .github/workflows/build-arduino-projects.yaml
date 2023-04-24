@@ -23,9 +23,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: "Build the ${{ matrix.arduino-projects.project-id }} Arduino project"
         run: |
-          scripts/build-arduino-project.sh
+          scripts/build-arduino-project.sh "${{ matrix.arduino-projects.project-context-path }}"
     strategy:
       matrix:
-        arduino-projects:
+        arduino-project:
           - project-id: arduino-33-ble-sense
+            project-context-path: config/arduino/arduino-33-ble-sense
 ...
