@@ -24,7 +24,7 @@ jobs:
       - name: "Build the ${{ matrix.arduino-project.project-id }} Arduino project"
         run: |
           scripts/build-arduino-project.sh \
-            "${{ matrix.arduino-project.project-context-path }}"
+            "${{ matrix.arduino-project.project-context-path }}" \
             "${{ matrix.arduino-board.fqbn }}"
     strategy:
       matrix:

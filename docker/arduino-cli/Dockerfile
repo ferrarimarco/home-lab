@@ -27,6 +27,7 @@ RUN arduino-cli lib install \
   Arduino_HTS221 \
   Arduino_LSM9DS1 \
   "DHT sensor library" \
-  && arduino-cli core update-index
+  && arduino-cli core update-index \
+  && arduino-cli core install arduino:mbed_nano
 
 ENTRYPOINT [ "/bin/bash", "-c" ]

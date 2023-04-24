@@ -36,6 +36,6 @@ docker run \
   --volume="$(pwd)/${PROJECT_CONTEXT_PATH}:${_PROJECT_CONTEXT_DESTINATION_PATH}" \
   --workdir "${_PROJECT_CONTEXT_DESTINATION_PATH}" \
   "${ARDUINO_CLI_CONTAINER_IMAGE_TAG}" \
-  "arduino-cli board list"
+  "arduino-cli compile --fqbn ${ARDUINO_FQBN}"
 
 unset _PROJECT_CONTEXT_DESTINATION_PATH
