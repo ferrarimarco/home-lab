@@ -21,9 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: "Build the ${{ matrix.arduino-projects.project-id }} Arduino project"
+      - name: "Build the ${{ matrix.arduino-project.project-id }} Arduino project"
         run: |
-          scripts/build-arduino-project.sh "${{ matrix.arduino-projects.project-context-path }}"
+          scripts/build-arduino-project.sh "${{ matrix.arduino-project.project-context-path }}"
     strategy:
       matrix:
         arduino-project:
