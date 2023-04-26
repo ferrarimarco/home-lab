@@ -6,7 +6,7 @@
 
 FROM debian:bullseye
 
-ARG RESTIC_VERSION="0.15.1"
+ARG RESTIC_VERSION="0.15.2"
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
