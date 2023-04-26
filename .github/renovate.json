@@ -45,6 +45,17 @@
       "depNameTemplate": "arduino/arduino-cli",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^(?<version>.*)$"
+    },
+    {
+      "fileMatch": [
+        "^docker/restic/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARG RESTIC_VERSION=\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\S*"
+      ],
+      "depNameTemplate": "restic/restic",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^(?<version>.*)$"
     }
   ],
   "repositories": [

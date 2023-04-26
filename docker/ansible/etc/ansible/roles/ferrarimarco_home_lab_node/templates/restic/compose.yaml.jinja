@@ -5,9 +5,6 @@ services:
     container_name: "{{ backup_job.job_name }}"
     image: home-lab-restic:latest
     build:
-      args:
-        # We pass this argument to rebuild the image with the latest restic version
-        RESTIC_CONTAINER_IMAGE_ID: {{ restic_container_image_version.image }}
       context: .
     container_name: "{{ backup_job.job_name }}"
     environment:
