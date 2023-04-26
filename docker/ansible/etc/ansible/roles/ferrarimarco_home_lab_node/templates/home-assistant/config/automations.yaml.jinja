@@ -1,45 +1,38 @@
 #jinja2:variable_start_string:'[%', variable_end_string:'%]'
----
 - id: frigate_event_notify
   alias: Notify on Frigate events
   description: Notify when a Frigate event occurs
   trigger:
-    - platform: mqtt
-      topic: frigate/events
+  - platform: mqtt
+    topic: frigate/events
   action:
-    - service: telegram_bot.send_photo
-      data:
-        url: >-
-          http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
-        caption: >-
-          A {{trigger.payload_json["after"]["label"]}} was detected. Here is a snapshot of the event.
-        message_tag: >-
-          {{trigger.payload_json["after"]["id"]}}
-    - service: telegram_bot.send_video
-      data:
-        url: >-
-          http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
-        caption: >-
-          A {{trigger.payload_json["after"]["label"]}} was detected. Here is a recording of the event.
-        message_tag: >-
-          {{trigger.payload_json["after"]["id"]}}
+  - service: telegram_bot.send_photo
+    data:
+      url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
+      caption: A {{trigger.payload_json["after"]["label"]}} was detected. Here is
+        a snapshot of the event.
+      message_tag: '{{trigger.payload_json["after"]["id"]}}'
+  - service: telegram_bot.send_video
+    data:
+      url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
+      caption: A {{trigger.payload_json["after"]["label"]}} was detected. Here is
+        a recording of the event.
+      message_tag: '{{trigger.payload_json["after"]["id"]}}'
   mode: queued
 - id: send_notification_home_assistant_update
   alias: Send a notification when a Home Assistant update is available
   description: Send a notification when a Home Assistant update is available
   trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.docker_hub_update_available
-      to: "on"
+  - platform: state
+    entity_id:
+    - binary_sensor.docker_hub_update_available
+    to: 'on'
   condition: []
   action:
-    - service: telegram_bot.send_message
-      data:
-        message: >-
-          There is a Home Assistant update available. Current version: {{
-          states('sensor.current_version') }}. Docker Hub version: {{
-          states('sensor.docker_hub') }}
+  - service: telegram_bot.send_message
+    data:
+      message: 'There is a Home Assistant update available. Current version: {{ states(''sensor.current_version'')
+        }}. Docker Hub version: {{ states(''sensor.docker_hub'') }}'
   mode: single
 - id: '1672339316110'
   alias: Washing machine - End cycle
@@ -59,21 +52,48 @@
       message: La lavatrice ha terminato il ciclo di lavaggio
       target:
 {% for chat_id in home_assistant_secrets.telegram_bot_allowed_chat_ids %}
-        - "[% chat_id %]"
+      - '[% chat_id %]'
 {% endfor %}
   mode: single
 - id: '1679504424560'
   alias: Alert if a critical switch turns off
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - switch.presa_lavatrice
-        - switch.presa_studio_home_lab_2
-        - switch.presa_frigorifero
-      to: 'off'
+  - platform: state
+    entity_id:
+    - switch.presa_lavatrice
+    - switch.presa_studio_home_lab_2
+    - switch.presa_frigorifero
+    to: 'off'
+  condition: []
   action:
-    - service: telegram_bot.send_message
-      data:
-        message: The {{ trigger.to_state.attributes.friendly_name }} turned off!
+  - service: telegram_bot.send_message
+    data:
+      message: The {{ trigger.to_state.attributes.friendly_name }} turned off!
   mode: single
-...
+- id: '1680709031287'
+  alias: Turn off gaming rig when not in use
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.presa_studio_gaming_power
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 45
+    below: 40
+  condition:
+  - condition: device
+    type: is_on
+    device_id: 6449a73377f934da409a21b1a9343f06
+    entity_id: switch.presa_studio_gaming
+    domain: switch
+  action:
+  - service: telegram_bot.send_message
+    data:
+      message: Spengo gaming rig
+  - type: turn_off
+    device_id: 6449a73377f934da409a21b1a9343f06
+    entity_id: switch.presa_studio_gaming
+    domain: switch
+  mode: single

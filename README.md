@@ -123,7 +123,7 @@ before adding it to the set of automatically configured nodes.
 ### Configure hosts with Ansible
 
 For newly provisioned hosts, you might have to authenticate a SSH connection using
-a passowrd instead of a key. To authenticate with a password, add the
+a password instead of a key. To authenticate with a password, add the
 `--ask-pass --connection paramiko` switches to the Ansible command you're running.
 
 Note: Using [Paramiko](https://www.paramiko.org/) lets you use password authentication
