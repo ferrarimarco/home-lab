@@ -55,7 +55,7 @@
       ],
       "depNameTemplate": "restic/restic",
       "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^Restic (?<version>.*)$"
+      "extractVersionTemplate": "^Restic\\s(?<version>.*)$"
     }
   ],
   "repositories": [
