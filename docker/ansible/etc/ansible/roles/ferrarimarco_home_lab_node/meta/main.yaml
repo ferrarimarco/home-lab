@@ -4,4 +4,8 @@ galaxy_info:
   description: Role to configure Home Lab nodes
   license: MIT
   min_ansible_version: "2.13"
+  platforms:
+    - name: Debian
+      versions:
+        - all
 ...
