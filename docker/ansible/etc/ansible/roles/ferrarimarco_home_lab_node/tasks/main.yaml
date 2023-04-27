@@ -74,7 +74,9 @@
   tags:
     - configuration_files
 
-- name: Delete files marked for deletion
+# ansible-lint: ignore the "risky file permission" warning because we're deleting
+# files here, so we don't need to set permissions.
+- name: Delete files marked for deletion  # noqa: risky-file-permissions
   ansible.builtin.file:
     path: "{{ item.path | default(item.dest) }}"
     state: "{{ item.state }}"
