@@ -28,7 +28,27 @@ fi
 
 _PROJECT_CONTEXT_DESTINATION_PATH="/workdir/${PROJECT_CONTEXT_PATH}"
 
-echo "Compiling the ${PROJECT_CONTEXT_PATH} sketch for ${ARDUINO_FQBN}"
+_COMMAND_TO_RUN="arduino-cli compile --fqbn ${ARDUINO_FQBN}"
+
+ARDUINO_BOARD_PORT="${3:-""}"
+
+if [ -n "${ARDUINO_BOARD_PORT}" ]; then
+
+  if [ ! -e "${ARDUINO_BOARD_PORT}" ]; then
+    echo "[ERROR] ${ARDUINO_BOARD_PORT} is not available."
+    exit ${ERR_ARGUMENT_EVAL}
+  fi
+
+  echo "Enabling the upload of the ${PROJECT_CONTEXT_PATH} sketch to ${ARDUINO_FQBN} (${ARDUINO_BOARD_PORT})"
+  _COMMAND_TO_RUN="${_COMMAND_TO_RUN} && arduino-cli upload --fqbn ${ARDUINO_FQBN} --port ${ARDUINO_BOARD_PORT}"
+fi
+
+if [ "${ARDUINO_MONITOR:-""}" = "true" ]; then
+  echo "Enabling the monitoring of ${ARDUINO_FQBN} (${ARDUINO_BOARD_PORT})"
+  _COMMAND_TO_RUN="${_COMMAND_TO_RUN} && arduino-cli monitor --discovery-timeout 30s --fqbn ${ARDUINO_FQBN} --port ${ARDUINO_BOARD_PORT}"
+fi
+
+echo "Running: ${_COMMAND_TO_RUN}"
 docker run \
   ${DOCKER_FLAGS} \
   --rm \
@@ -36,6 +56,9 @@ docker run \
   --volume="$(pwd)/${PROJECT_CONTEXT_PATH}:${_PROJECT_CONTEXT_DESTINATION_PATH}" \
   --workdir "${_PROJECT_CONTEXT_DESTINATION_PATH}" \
   "${ARDUINO_CLI_CONTAINER_IMAGE_TAG}" \
-  "arduino-cli compile --fqbn ${ARDUINO_FQBN}"
+  "${_COMMAND_TO_RUN}"
 
+unset _COMMAND_TO_RUN
 unset _PROJECT_CONTEXT_DESTINATION_PATH
+unset ARDUINO_BOARD_PORT
+unset ARDUINO_MONITOR

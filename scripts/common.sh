@@ -3,6 +3,8 @@
 set -o errexit
 set -o nounset
 
+ERR_ARGUMENT_EVAL=2
+
 is_command_available() {
   if command -v "${1}" >/dev/null 2>&1; then
     return 0

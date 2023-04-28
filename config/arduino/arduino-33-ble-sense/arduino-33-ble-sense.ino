@@ -1,11 +1,13 @@
-#include <Arduino_LSM9DS1.h>
+#define DHT22_PIN 20
 
 void setup() {
-  if (!IMU.begin()) {
-    Serial.println("Failed to initialize IMU!");
-    while (1);
-  }
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(DHT22_PIN, INPUT);
 }
 
 void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(1000);
 }
