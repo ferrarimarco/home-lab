@@ -3,6 +3,7 @@
 set -o errexit
 set -o nounset
 
+# shellcheck disable=SC2034
 ERR_ARGUMENT_EVAL=2
 
 is_command_available() {
