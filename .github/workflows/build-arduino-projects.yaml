@@ -1,0 +1,38 @@
+---
+name: Build Arduino projects
+
+permissions:
+  contents: read
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/build-arduino-projects.yaml"
+      - "config/arduino/**"
+      - "scripts/build-arduino-project.sh"
+  pull_request:
+    paths:
+      - ".github/workflows/build-arduino-projects.yaml"
+      - "config/arduino/**"
+      - "scripts/build-arduino-project.sh"
+
+jobs:
+  build-arduino-projects:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Build the ${{ matrix.arduino-project.project-id }} Arduino project"
+        run: |
+          scripts/build-arduino-project.sh \
+            "${{ matrix.arduino-project.project-context-path }}" \
+            "${{ matrix.arduino-board.fqbn }}"
+    strategy:
+      matrix:
+        arduino-board:
+          - board-name: "Arduino 33 BLE Sense"
+            core-id: "arduino:mbed_nano"
+            fqbn: "arduino:mbed_nano:nano33ble"
+        arduino-project:
+          - project-id: arduino-33-ble-sense
+            project-context-path: config/arduino/arduino-33-ble-sense
+...
