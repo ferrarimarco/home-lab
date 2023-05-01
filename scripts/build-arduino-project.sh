@@ -41,13 +41,15 @@ if [ -n "${ARDUINO_BOARD_PORT}" ]; then
     exit ${ERR_ARGUMENT_EVAL}
   fi
 
-  echo "Enabling the upload of the ${PROJECT_CONTEXT_PATH} sketch to ${ARDUINO_FQBN} (${ARDUINO_BOARD_PORT})"
-  _COMMAND_TO_RUN="${_COMMAND_TO_RUN} && arduino-cli upload --fqbn ${ARDUINO_FQBN} --port ${ARDUINO_BOARD_PORT}"
-fi
+  if [ "${ARDUINO_UPLOAD:-"true"}" = "true" ]; then
+    echo "Enabling the upload of the ${PROJECT_CONTEXT_PATH} sketch to ${ARDUINO_FQBN} (${ARDUINO_BOARD_PORT})"
+    _COMMAND_TO_RUN="${_COMMAND_TO_RUN} && arduino-cli upload --discovery-timeout 30s --fqbn ${ARDUINO_FQBN} --port ${ARDUINO_BOARD_PORT}"
+  fi
 
-if [ "${ARDUINO_MONITOR:-""}" = "true" ]; then
-  echo "Enabling the monitoring of ${ARDUINO_FQBN} (${ARDUINO_BOARD_PORT})"
-  _COMMAND_TO_RUN="${_COMMAND_TO_RUN} && arduino-cli monitor --discovery-timeout 30s --fqbn ${ARDUINO_FQBN} --port ${ARDUINO_BOARD_PORT}"
+  if [ "${ARDUINO_MONITOR:-""}" = "true" ]; then
+    echo "Enabling the monitoring of ${ARDUINO_FQBN} (${ARDUINO_BOARD_PORT})"
+    _COMMAND_TO_RUN="${_COMMAND_TO_RUN} && arduino-cli monitor --discovery-timeout 30s --fqbn ${ARDUINO_FQBN} --port ${ARDUINO_BOARD_PORT}"
+  fi
 fi
 
 echo "Running: ${_COMMAND_TO_RUN}"
