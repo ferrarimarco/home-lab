@@ -2,7 +2,6 @@
 services:
 {% for backup_job in restic_backup_jobs %}
   {{ backup_job.job_name }}:
-    container_name: "{{ backup_job.job_name }}"
     image: home-lab-restic:latest
     build:
       context: .
