@@ -5,7 +5,7 @@ services:
     image: home-lab-restic:latest
     build:
       context: .
-    container_name: "{{ backup_job.job_name }}"
+    container_name: "{{ backup_job.job_name }}-{{ inventory_hostname }}"
     environment:
       - RESTIC_DIRECTORIES_TO_BACKUP={{ backup_job.directories_to_backup | join(' ', attribute='container_mount_destination_directory') }}
       - RESTIC_FORGET_POLICY={{ backup_job.restic_forget_policy | join(' ') }}
