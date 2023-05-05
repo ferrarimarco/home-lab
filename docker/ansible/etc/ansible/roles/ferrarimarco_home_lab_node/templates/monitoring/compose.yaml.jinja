@@ -4,14 +4,14 @@ services:
     image: quay.io/prometheus/node-exporter:v1.5.0
     container_name: node_exporter
     command:
-      - "--collector.textfile.directory=/var/lib/node_exporter/textfile_collector"
+      - "--collector.textfile.directory={{ monitoring_prometheus_node_exporter_textfile_collector_directory }}"
       - "--path.rootfs=/host"
     network_mode: host
     pid: host
     restart: always
     volumes:
       - "/:/host:ro,rslave"
-      - /var/lib/node_exporter/textfile_collector:/var/lib/node_exporter/textfile_collector
+      - {{ monitoring_prometheus_node_exporter_textfile_collector_directory }}:{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}
 {% if configure_docker %}
   cadvisor:
     container_name: cadvisor

@@ -19,7 +19,7 @@ scrape_configs:
     static_configs:
       - targets:
 {% for host in groups['all'] %}
-{% if hostvars[host].enable_prometheus_node_exporter_scraping | default(enable_prometheus_node_exporter_scraping) %}
+{% if hostvars[host].enable_prometheus_node_exporter_scraping | default(true) %}
         - "{{ host }}:{{ prometheus_node_exporter_port }}"
 {% endif %}
 {% endfor %}
@@ -28,7 +28,7 @@ scrape_configs:
     static_configs:
       - targets:
 {% for host in groups['all'] %}
-{% if hostvars[host].configure_docker | default(configure_docker) %}
+{% if hostvars[host].configure_docker | default(false) %}
         - "{{ host }}:{{ hostvars[host].cadvisor_exposed_port | default(cadvisor_exposed_port) }}"
 {% endif %}
 {% endfor %}
@@ -112,7 +112,7 @@ scrape_configs:
     static_configs:
       - targets:
 {% for host in groups['all'] %}
-{% if hostvars[host].configure_network_stack | default(configure_network_stack) %}
+{% if hostvars[host].configure_network_stack | default(false) %}
         - "{{ host }}:{{ hostvars[host].network_stack_coredns_prometheus_metrics_port | default(network_stack_coredns_prometheus_metrics_port) }}"
 {% endif %}
 {% endfor %}
