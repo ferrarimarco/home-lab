@@ -48,6 +48,17 @@
     },
     {
       "fileMatch": [
+        "^docker/template-renderer/Dockerfile$"
+      ],
+      "matchStrings": [
+        "ARG POETRY_VERSION=\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\S*"
+      ],
+      "depNameTemplate": "python-poetry/poetry",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^(?<version>.*)$"
+    },
+    {
+      "fileMatch": [
         "^docker/restic/Dockerfile$"
       ],
       "matchStrings": [
