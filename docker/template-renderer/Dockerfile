@@ -11,8 +11,7 @@ RUN apt-get update \
 
 WORKDIR /usr/src/app
 
-ARG POETRY_VERSION=1.1.12
-ENV POETRY_VERSION="${POETRY_VERSION}"
+ARG POETRY_VERSION=1.4.2
 
 FROM base as build
 
