@@ -1,8 +1,6 @@
 server:
-    domain-insecure: {{ root_dns_zone.fqdn }}
     domain-insecure: in-addr.arpa
     local-zone: "{{ edge_environment_gateway.ipv4_address.split('.')[0] }}.in-addr.arpa" transparent
-    private-domain: {{ root_dns_zone.fqdn }}
     verbosity: {{ network_stack_unbound_verbosity | default('1') }}
 {% if network_stack_unbound_enable_logs is defined and network_stack_unbound_enable_logs %}
     log-queries: yes

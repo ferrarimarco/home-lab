@@ -19,7 +19,6 @@ configure_zigbee2mqtt: false
 default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
-dns_records_to_configure: []
 docker_apt_release_channel: stable
 # This was used to install the standalone compose executable before switching to the Docker Compose plugin for Docker Engine
 docker_compose_standalone_executable_path: "/usr/local/bin/docker-compose"
@@ -36,6 +35,7 @@ docker_os_users:
     name: "{{ ansible_user }}"
     groups:
       - "{{ docker_default_os_group_name }}"
+# This is the DNS server that is authoritative for the edge_environment_root_fqdn zone
 edge_dns_server:
   fqdn: "{{ edge_environment_gateway.fqdn }}"
   ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
@@ -43,7 +43,7 @@ edge_dns_server:
 edge_environment_gateway:
   fqdn: "gateway.{{ edge_environment_root_fqdn }}"
   ipv4_address: "10.0.0.1"
-edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
+edge_environment_root_fqdn: "edge.{{ lab_dns_zone }}"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -79,6 +79,7 @@ frigate_cameras:
         roles:
           - record
 is_raspberry_pi: false
+lab_dns_zone: "lab.{{ root_dns_zone_fqdn }}"
 monitoring_backend_dns_records_to_check:
   # Keeping this as a record if we redeploy cam-1
   # - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
@@ -87,6 +88,10 @@ monitoring_backend_dns_records_to_check:
   - check_name: "dns_cam_3_edge_lab_ferrari_how_a"
     query_name: "cam-3.{{ edge_environment_root_fqdn }}"
     query_type: "A"
+  - check_name: "dns_ferrarimarco_how_ns"
+    query_name: "ferrari.how"
+    query_type: "NS"
+    fail_if_not_matches_regexp_value: ".*googledomains.*"
   - check_name: "dns_ferrari_how_txt"
     query_name: "ferrari.how"
     query_type: "TXT"
@@ -111,6 +116,8 @@ monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ zigbee2mqtt_http_endpoint_fqdn }}:{{ zigbee2mqtt_user_interface_host_port }} # Zigbee2MQTT"
 monitoring_backend_icmp_ping_hosts_to_check:
   - "1.1.1.1"
+  - "8.8.4.4"
+  - "8.8.8.8"
   # Keeping this as a record if we redeploy cam-1
   # - "cam-1.{{ edge_environment_root_fqdn }}"
   - "cam-3.{{ edge_environment_root_fqdn }}"
@@ -128,10 +135,12 @@ monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
 network_stack_configure_recursive_dns_resolver: false
 network_stack_configure_reverse_proxy: false
-network_stack_coredns_dns_host_port: 8053
-network_stack_coredns_healthcheck_port: 8085
-network_stack_coredns_prometheus_metrics_port: 9153
 network_stack_debugger: false
+network_stack_lab_dns_zone_servers:
+  - fqdn: ns-cloud-b1.googledomains.com
+  - fqdn: ns-cloud-b2.googledomains.com
+  - fqdn: ns-cloud-b3.googledomains.com
+  - fqdn: ns-cloud-b4.googledomains.com
 network_stack_traefik_api_http_port: 8080
 network_stack_traefik_cleartext_http_port: 80
 network_stack_traefik_secured_http_port: 443
@@ -140,17 +149,7 @@ network_stack_unbound_enable_logs: true
 network_stack_unbound_verbosity: 2
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
-# Set this separately here to avoid an infinite loop when initializing the root_dns_zone variable
-root_dns_zone_fqdn: lab.ferrari.how
-root_dns_zone:
-  default_record_ttl: 3600
-  dns_administrator_email_address: "dns-admin.{{ root_dns_zone_fqdn }}"
-  fqdn: "{{ root_dns_zone_fqdn }}"
-  expire_time: 4000000
-  minimum_ttl_time: 11200
-  refresh_time: 86400
-  retry_time: 7200
-  serial_number: 2017042745
+root_dns_zone_fqdn: "ferrari.how"
 samba_additional_interfaces: "10.0.0.0/8"
 samba_default_readers_group_name: "samba-readers"
 samba_default_writers_group_name: "samba-writers"
@@ -180,8 +179,5 @@ systemd_journald_runtime_max_memory_use: "64M"
 systemd_journald_system_max_memory_use: "500M"
 tailscale_release_channel: "stable"
 timezone: "Europe/London"
-upstream_dns_servers:
-  - "8.8.4.4"
-  - "8.8.8.8"
 zigbee2mqtt_user_interface_host_port: 8081
 ...

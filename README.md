@@ -210,13 +210,19 @@ In this section, we describe the configuration of DNS servers, zones, and resour
 
 #### DNS servers and zones
 
-This environment contains two private DNS servers:
+This environment contains two DNS servers:
 
-- A CoreDNS instance (`ns1.lab.ferrari.how`) that acts as the authoritative name server for the main DNS zone: `lab.ferrari.how`.
-- A dnsmasq instance running on the default gateway and responds to DNS queries for the `edge.lab.ferrari.how` zone and returns
+- [Google Domains DNS servers](https://support.google.com/domains/answer/3290309?hl=en) that acts as the authoritative name server for the main DNS zone: `lab.ferrari.how`.
+- A [dnsmasq](https://thekelleys.org.uk/dnsmasq/doc.html) instance running on the default gateway and responds to DNS queries for the `edge.lab.ferrari.how` zone and returns
     authoritative answers from DHCP leases ([source](https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html)),
     even if it doesn't run as an authoritative name server for the `edge.lab.ferrari.how` zone.
     This dnsmasq instance also handles DHCP for the main subnet.
+
+#### DNS resolvers
+
+- A dnsmasq instance running on the default gateway acts as a private, non recursive, caching, DNS resolver that uses
+    [Google Public DNS](https://developers.google.com/speed/public-dns), as a public, recursive, caching DNS resolver.
+- An [unbound](https://nlnetlabs.nl/projects/unbound/about/) instance acts as a private, recursive, caching DNS resolver.
 
 ### Configure network shares
 

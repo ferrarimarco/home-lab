@@ -1,8 +1,4 @@
 stub-zone:
-    name: {{ root_dns_zone.fqdn }}
-    stub-addr: {{ network_stack_root_dns_servers[0].ipv4_address }}@{{ network_stack_root_dns_servers[0].port }}
-    stub-no-cache: yes
-stub-zone:
     name: in-addr.arpa
-    stub-addr: {{ network_stack_root_dns_servers[0].ipv4_address }}@{{ network_stack_root_dns_servers[0].port }}
+    stub-addr: {{ edge_dns_server.ipv4_address }}@{{ edge_dns_server.port }}
     stub-no-cache: yes
