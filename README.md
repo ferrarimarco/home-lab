@@ -212,9 +212,11 @@ In this section, we describe the configuration of DNS servers, zones, and resour
 
 This environment contains two DNS servers:
 
-- [Google Domains DNS servers](https://support.google.com/domains/answer/3290309?hl=en) that acts as the authoritative name server for the main DNS zone: `lab.ferrari.how`.
-- A [dnsmasq](https://thekelleys.org.uk/dnsmasq/doc.html) instance running on the default gateway and responds to DNS queries for the `edge.lab.ferrari.how` zone and returns
-    authoritative answers from DHCP leases ([source](https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html)),
+- [Google Domains DNS servers](https://support.google.com/domains/answer/3290309?hl=en) that acts as the authoritative
+    name server for the main DNS zone: `lab.ferrari.how`.
+- A [dnsmasq](https://thekelleys.org.uk/dnsmasq/doc.html) instance running on the default gateway and responds to DNS
+    queries for the `edge.lab.ferrari.how` zone and returns authoritative answers from DHCP leases
+    ([source](https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html)),
     even if it doesn't run as an authoritative name server for the `edge.lab.ferrari.how` zone.
     This dnsmasq instance also handles DHCP for the main subnet.
 
