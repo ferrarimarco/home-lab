@@ -1,22 +1,4 @@
 ---
-- name: Add the DNS records defined for other hosts to the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure + hostvars[item].dns_records_to_configure }}"
-  # Exclude the current host because we have direct access to its dns_records_to_configure
-  when:
-    - inventory_hostname != item
-    - hostvars[item].dns_records_to_configure is defined
-  with_items: "{{ groups['all'] }}"
-
-- name: Remove duplicates from the list of DNS records to configure
-  ansible.builtin.set_fact:
-    dns_records_to_configure: "{{ dns_records_to_configure | unique | sort(attribute='source,query_type,destination') }}"
-
-- name: Debug dns_records_to_configure
-  ansible.builtin.debug:
-    var: dns_records_to_configure
-    verbosity: 1
-
 - name: Populate the edge environment DNS resolvers list
   ansible.builtin.set_fact:
     network_stack_edge_dns_resolvers: "{{ network_stack_edge_dns_resolvers + [item] }}"
@@ -24,23 +6,6 @@
     # The dnsmasq instance on the gateway acts both as a resolver and as a DNS
     # server for the edge environment
     - "{{ edge_dns_server }}"
-
-- name: Populate the root DNS servers list
-  ansible.builtin.set_fact:
-    network_stack_root_dns_servers: "{{ network_stack_root_dns_servers + network_stack_root_dns_server_template }}"
-  when:
-    - item.query_type == "NS"
-    - item.source == root_dns_zone.fqdn
-  with_items: "{{ dns_records_to_configure }}"
-
-- name: Remove duplicates from the root DNS servers list
-  ansible.builtin.set_fact:
-    network_stack_root_dns_servers: "{{ network_stack_root_dns_servers | unique | sort(attribute='fqdn,port') }}"
-
-- name: Debug network_stack_root_dns_servers
-  ansible.builtin.debug:
-    var: network_stack_root_dns_servers
-    verbosity: 1
 
 - name: Add the edge environment recursive DNS resolvers to the DNS resolvers list
   ansible.builtin.set_fact:

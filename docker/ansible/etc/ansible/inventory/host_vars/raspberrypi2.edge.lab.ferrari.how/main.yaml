@@ -19,7 +19,6 @@ disks_to_mount:
     state: mounted
 has_argonone_case: true
 network_stack_configure_recursive_dns_resolver: true
-network_stack_dns_server_hostname: "ns1"
 restic_backup_workloads_job_name: "restic-backup-workloads"
 restic_backup_cron_jobs:
   - become: true

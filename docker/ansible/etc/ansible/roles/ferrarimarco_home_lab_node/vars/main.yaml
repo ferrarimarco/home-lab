@@ -188,9 +188,9 @@ monitoring_backend_files_to_configure:
     dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/cadvisor-exporter_rev1.json"
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
-  - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/coredns_rev1.json"
-    dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/coredns_rev1.json"
-    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
+  # CoreDNS is deprecated for now
+  - path: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/coredns_rev1.json"
+    state: "absent"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
   - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/home-network_rev1.json"
     dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/home-network_rev1.json"
@@ -333,10 +333,12 @@ mosquitto_templates_to_render:
 network_stack_configuration_directories:
   - path: "{{ network_stack_configuration_directory_path }}"
     state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
+  # CoreDNS is deprecated for now
   - path: "{{ network_stack_configuration_directory_path }}/coredns"
-    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
+    state: "absent"
+  # CoreDNS is deprecated for now
   - path: "{{ network_stack_configuration_directory_path }}/coredns/zones"
-    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
+    state: "absent"
   - path: "{{ network_stack_configuration_directory_path }}/unbound"
     state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
 network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
@@ -352,23 +354,18 @@ network_stack_docker_compose_up_items:
     pull_container_images: "{{ configure_network_stack }}"
     start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
     stop_containerized_services: "{{ stop_network_stack | default(false) }}"
-network_stack_root_dns_servers: []
-network_stack_root_dns_server_template:
-  - fqdn: "{{ item.destination }}"
-    ipv4_address: "{{ hostvars[item.source_host].ansible_default_ipv4.address }}"
-    port: "{{ hostvars[item.source_host].network_stack_coredns_dns_host_port | default(network_stack_coredns_dns_host_port) }}"
 network_stack_templates_to_render:
   - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-  - src: "network-stack/coredns/Corefile.jinja"
-    dest: "{{ network_stack_configuration_directory_path }}/coredns/Corefile"
-    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
+  # CoreDNS is deprecated for now
+  - path: "{{ network_stack_configuration_directory_path }}/coredns/Corefile"
+    state: "absent"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-  - src: "network-stack/coredns/zones/{{ root_dns_zone.fqdn }}.jinja"
-    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_dns_zone.fqdn }}"
-    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
+  # CoreDNS is deprecated for now
+  - path: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ lab_dns_zone }}"
+    state: "absent"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/unbound/server.conf.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/unbound/server.conf"

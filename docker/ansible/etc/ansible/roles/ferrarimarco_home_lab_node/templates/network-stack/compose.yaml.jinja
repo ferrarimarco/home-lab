@@ -1,21 +1,5 @@
 ---
 services:
-
-  coredns:
-    image: "coredns/coredns:1.10.1"
-    container_name: "coredns"
-    command:
-      - "-conf"
-      - "/etc/coredns/Corefile"
-    ports:
-      - "{{ network_stack_coredns_dns_host_port }}:53"
-      # This assumes that the DNS resolver is listening to the default network interface as well
-      - "{{ ansible_default_ipv4.address }}:{{ network_stack_coredns_dns_host_port }}:53/udp"
-      - "{{ network_stack_coredns_healthcheck_port }}:{{ network_stack_coredns_healthcheck_port }}"
-      - "{{ network_stack_coredns_prometheus_metrics_port }}:{{ network_stack_coredns_prometheus_metrics_port }}"
-    restart: always
-    volumes:
-      - './coredns:/etc/coredns'
 {% if network_stack_configure_recursive_dns_resolver %}
 
   unbound:
