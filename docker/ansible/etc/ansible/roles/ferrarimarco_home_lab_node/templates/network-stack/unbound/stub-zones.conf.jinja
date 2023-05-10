@@ -1,4 +1,8 @@
 stub-zone:
+    name: {{ edge_environment_root_fqdn }}
+    stub-addr: {{ edge_dns_server.ipv4_address }}@{{ edge_dns_server.port }}
+    stub-no-cache: yes
+stub-zone:
     name: in-addr.arpa
     stub-addr: {{ edge_dns_server.ipv4_address }}@{{ edge_dns_server.port }}
     stub-no-cache: yes

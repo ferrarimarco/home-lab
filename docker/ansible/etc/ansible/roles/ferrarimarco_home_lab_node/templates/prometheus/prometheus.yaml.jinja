@@ -49,16 +49,6 @@ scrape_configs:
 {% for dns_resolver in network_stack_edge_dns_resolvers %}
         - "{{ dns_resolver.ipv4_address }}{% if dns_resolver.port is defined %}:{{ dns_resolver.port }}{% endif %}"
 {% endfor %}
-{% if dns_record_to_check.query_name.endswith(lab_dns_zone) %}
-{% for dns_server in network_stack_lab_dns_zone_servers %}
-{% if dns_server.fqdn is defined %}
-        - "{{ dns_server.fqdn }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
-{% endif %}
-{% if dns_server.ipv4_address is defined %}
-        - "{{ dns_server.ipv4_address }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
-{% endif %}
-{% endfor %}
-{% endif %}
 {% if dns_record_to_check.query_name.endswith(edge_environment_root_fqdn) %}
 {% if edge_dns_server.fqdn is defined %}
         - "{{ edge_dns_server.fqdn }}{% if edge_dns_server.port is defined %}:{{ edge_dns_server.port }}{% endif %}"

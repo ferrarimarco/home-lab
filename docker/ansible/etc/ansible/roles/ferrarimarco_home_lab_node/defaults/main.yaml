@@ -136,11 +136,6 @@ monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.c
 network_stack_configure_recursive_dns_resolver: false
 network_stack_configure_reverse_proxy: false
 network_stack_debugger: false
-network_stack_lab_dns_zone_servers:
-  - fqdn: ns-cloud-b1.googledomains.com
-  - fqdn: ns-cloud-b2.googledomains.com
-  - fqdn: ns-cloud-b3.googledomains.com
-  - fqdn: ns-cloud-b4.googledomains.com
 network_stack_traefik_api_http_port: 8080
 network_stack_traefik_cleartext_http_port: 80
 network_stack_traefik_secured_http_port: 443
