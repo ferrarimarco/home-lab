@@ -76,6 +76,8 @@ restic_backup_jobs:
       - --keep-within-monthly 1y
       # Keep yearly snapshots for the last 10 years
       - --keep-within-yearly 10y
+     # In seconds
+    restic_monitoring_refresh_interval: 43200
     restic_prometheus_exporter_port: 9300
     restic_repository_host_path: "{{ restic_backup_workloads_target_directory }}"
     restic_repository_password: "{{ vault_raspberrypi2_workloads_backup_repository_password }}"

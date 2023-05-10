@@ -25,7 +25,7 @@ services:
       - TZ={{ timezone }}
       - RESTIC_REPO_URL={{ restic_repository_container_destination_path }}
       - RESTIC_REPO_PASSWORD="{{ backup_job.restic_repository_password }}"
-      - REFRESH_INTERVAL=1800 # 30 min
+      - REFRESH_INTERVAL={{ backup_job.restic_monitoring_refresh_interval }}
     volumes:
       - /host_path/restic/data:/data
       - {{ backup_job.restic_repository_host_path }}:{{ restic_repository_container_destination_path }}
