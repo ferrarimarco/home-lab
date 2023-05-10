@@ -9,14 +9,28 @@ services:
     environment:
       - RESTIC_DIRECTORIES_TO_BACKUP={{ backup_job.directories_to_backup | join(' ', attribute='container_mount_destination_directory') }}
       - RESTIC_FORGET_POLICY={{ backup_job.restic_forget_policy | join(' ') }}
-      - RESTIC_REPOSITORY=/var/lib/restic/repository
+      - RESTIC_REPOSITORY={{ restic_repository_container_destination_path }}
       - RESTIC_PASSWORD="{{ backup_job.restic_repository_password }}"
     hostname: "{{ backup_job.job_name }}-{{ inventory_hostname }}"
     restart: on-failure
     volumes:
-      - {{ backup_job.restic_repository_host_path }}:/var/lib/restic/repository
+      - {{ backup_job.restic_repository_host_path }}:{{ restic_repository_container_destination_path }}
 {% for directory_to_backup in backup_job.directories_to_backup %}
       - {{ directory_to_backup.source_host_directory }}:{{ directory_to_backup.container_mount_destination_directory }}
 {% endfor %}
+  {{ backup_job.job_name }}-restic-exporter:
+    image: ngosang/restic-exporter:1.2.2
+    container_name: {{ backup_job.job_name }}-restic-exporter
+    environment:
+      - TZ={{ timezone }}
+      - RESTIC_REPO_URL={{ restic_repository_container_destination_path }}
+      - RESTIC_REPO_PASSWORD="{{ backup_job.restic_repository_password }}"
+      - REFRESH_INTERVAL={{ backup_job.restic_monitoring_refresh_interval }}
+    volumes:
+      - /host_path/restic/data:/data
+      - {{ backup_job.restic_repository_host_path }}:{{ restic_repository_container_destination_path }}
+    ports:
+      - "{{ backup_job.restic_prometheus_exporter_port }}:8001"
+    restart: unless-stopped
 {% endfor %}
 ...

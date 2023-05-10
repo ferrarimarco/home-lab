@@ -116,4 +116,15 @@ scrape_configs:
         - "{{ host }}:{{ hostvars[host].network_stack_coredns_prometheus_metrics_port | default(network_stack_coredns_prometheus_metrics_port) }}"
 {% endif %}
 {% endfor %}
+
+  - job_name: "restic"
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].configure_backup_restic | default(false) %}
+{% for backup_job in hostvars[host].restic_backup_jobs %}
+        - "{{ host }}:{{ backup_job.restic_prometheus_exporter_port }}"
+{% endfor %}
+{% endif %}
+{% endfor %}
 ...
