@@ -1,8 +1,6 @@
 ---
 # Enable Home Assistant API
-api:
-  encryption:
-    key: !secret esphome_api_encryption_key
+api: null
 
 captive_portal: null
 
