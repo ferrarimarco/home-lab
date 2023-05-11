@@ -1,7 +1,8 @@
 ---
 # Enable Home Assistant API
 api:
-  password: !secret home_assistant_api_key
+  encryption:
+    key: !secret esphome_api_encryption_key
 
 captive_portal: null
 
@@ -94,7 +95,7 @@ number:
     unit_of_measurement: m
 
 ota:
-  password: !secret home_assistant_api_key
+  password: !secret esphome_ota_password
 
 prometheus: null
 
