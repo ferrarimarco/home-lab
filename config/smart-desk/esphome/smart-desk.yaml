@@ -80,16 +80,6 @@ number:
     unit_of_measurement: m
     on_value:
       - script.execute: operate_actuators
-  - id: min_distance_offset
-    platform: template
-    icon: "mdi:icon7-resize-small"
-    name: "Offset to adjust the minimum distance between the bottom of the table top and the distance sensor"
-    min_value: 0
-    max_value: ${min_desk_distance_from_feet_m}
-    optimistic: true
-    restore_value: true
-    step: 0.01
-    unit_of_measurement: m
 
 ota:
   password: !secret esphome_ota_password
@@ -213,7 +203,7 @@ sensor:
     platform: template
     icon: "mdi:icon7-circle-arrow-down"
     lambda: |-
-      return ${min_desk_distance_from_feet_m} - (${controller_box_height_m} + id(min_distance_offset).state);
+      return ${min_desk_distance_from_feet_m} - ${controller_box_height_m};
     name: "Minimum distance between the bottom of the desk top and the distance sensor"
     unit_of_measurement: m
   - id: smart_desk_actuators_extension
