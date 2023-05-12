@@ -106,7 +106,7 @@ script:
       - switch.turn_on: desk_relay_1
       - switch.turn_on: desk_relay_3
       # Turn the actuators off anyway as a safety measure
-      - delay: 1min
+      - delay: 90s
       - logger.log: "Safety timer expired. Stopping the actuators. Stopping the actuators in any case."
       - script.execute: turn_actuators_off_script
   - id: retract_actuators_script
@@ -116,7 +116,7 @@ script:
       - switch.turn_on: desk_relay_2
       - switch.turn_on: desk_relay_4
       # Turn the actuators off anyway as a safety measure
-      - delay: 1min
+      - delay: 90s
       - logger.log: "Safety timer expired. Stopping the actuators in any case."
       - script.execute: turn_actuators_off_script
   - id: turn_actuators_off_script
