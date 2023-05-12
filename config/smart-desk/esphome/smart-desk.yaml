@@ -50,9 +50,6 @@ esp32:
 
 esphome:
   name: smart-desk
-  on_boot:
-    then:
-      - switch.turn_on: smart_desk_automation_switch
 
 i2c:
   frequency: 100kHz
@@ -183,7 +180,7 @@ sensor:
       - if:
           condition:
             lambda: |-
-              return id(smart_desk_automation_switch).state && (id(extend_actuators).state || id(retract_actuators).state);
+              return id(extend_actuators).state || id(retract_actuators).state;
           then:
             - logger.log: "The actuators are moving. Checking if the they reached the target extension..."
             - if:
@@ -291,10 +288,6 @@ switch:
       - script.execute: retract_actuators_script
     turn_off_action:
       - script.execute: turn_actuators_off_script
-  - id: smart_desk_automation_switch
-    platform: template
-    name: "Smart desk automation. Disable to allow fine actuators extension tuning."
-    optimistic: true
 
 substitutions:
   device_name_upper: Smart Desk
