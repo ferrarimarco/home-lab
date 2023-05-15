@@ -69,12 +69,12 @@ logger:
     ultrasonic.sensor: INFO
 
 number:
-  - id: target_smart_desk_actuators_extension
+  - id: target_smart_desk_height
     platform: template
     icon: "mdi:icon7-resize-vertical"
-    name: "Desired actuators extension"
-    min_value: 0
-    max_value: ${max_actuators_extension_m}
+    name: "Desired desk height"
+    min_value: ${min_desk_height_m}
+    max_value: ${max_desk_height_m}
     optimistic: true
     step: 0.01
     unit_of_measurement: m
@@ -92,12 +92,12 @@ script:
       - if:
           condition:
             lambda: |-
-              return id(smart_desk_actuators_extension).state < id(target_smart_desk_actuators_extension).state;
+              return id(smart_desk_height).state < id(target_smart_desk_height).state;
           then:
-            - logger.log: "Current actuators extension < requested extension. Extending the actuators."
+            - logger.log: "Current desk height < requested height. Extending the actuators."
             - script.execute: extend_actuators_script
           else:
-            - logger.log: "Current actuators extension > requested extension. Retracting the actuators."
+            - logger.log: "Current desk height > requested height. Retracting the actuators."
             - script.execute: retract_actuators_script
   - id: extend_actuators_script
     then:
@@ -172,11 +172,11 @@ sensor:
             lambda: |-
               return id(extend_actuators).state || id(retract_actuators).state;
           then:
-            - logger.log: "The actuators are moving. Checking if the they reached the target extension..."
+            - logger.log: "The actuators are moving. Checking if the desk reached the target height..."
             - if:
                 condition:
                   lambda: |-
-                    float diff = id(smart_desk_actuators_extension).state - id(target_smart_desk_actuators_extension).state;
+                    float diff = id(smart_desk_height).state - id(target_smart_desk_height).state;
                     float abs_diff = abs(diff);
                     float distance_tolerance = ${distance_tolerance};
                     ESP_LOGD("main", "Difference: %f, Abs difference: %f, Tolerance: %f", diff, abs_diff, distance_tolerance);
@@ -188,10 +188,10 @@ sensor:
                       return false;
                     }
                 then:
-                  - logger.log: "The actuators reached the target extension. Stopping the actuators..."
+                  - logger.log: "The desk reached the target height. Stopping the actuators..."
                   - script.execute: turn_actuators_off_script
                 else:
-                  - logger.log: "The actuators didn't reach the target extension yet. Leaving the actuators on..."
+                  - logger.log: "The desk didn't reach the target height yet. Leaving the actuators on..."
           else:
             - logger.log:
                 format: "The actuators are not moving. Skipping the check."
@@ -199,21 +199,34 @@ sensor:
   - platform: wifi_signal
     name: "WiFi Signal Sensor"
     update_interval: 30s
-  - id: min_smart_desk_distance
-    platform: template
-    icon: "mdi:icon7-circle-arrow-down"
-    lambda: |-
-      return ${min_desk_distance_from_feet_m} - ${controller_box_height_m};
-    name: "Minimum distance between the bottom of the desk top and the distance sensor"
-    unit_of_measurement: m
-  - id: smart_desk_actuators_extension
+  - id: smart_desk_height
     accuracy_decimals: 2
     lambda: |-
-      return id(ultrasonic_distance_sensor).state - id(min_smart_desk_distance).state;
-    name: "Actuators extension"
+      return id(ultrasonic_distance_sensor).state + ${desk_feet_height_m} + ${controller_box_height_m};
+    name: "Desk height"
     platform: template
     unit_of_measurement: m
     update_interval: 5s
+  - id: ultrasonic_distance_sensor_filtered_quantile
+    accuracy_decimals: 2
+    lambda: |-
+      return id(ultrasonic_distance_sensor).state;
+    name: "Ultrasonic distance sensor (filtered, quantile)"
+    platform: template
+    unit_of_measurement: m
+    update_interval: 5s
+    filters:
+      - quantile: null
+  - id: ultrasonic_distance_sensor_filtered_delta
+    accuracy_decimals: 2
+    lambda: |-
+      return id(ultrasonic_distance_sensor).state;
+    name: "Ultrasonic distance sensor (filtered, delta 1)"
+    platform: template
+    unit_of_measurement: m
+    update_interval: 5s
+    filters:
+      - delta: 0.01
 
 switch:
   - id: desk_relay_1
@@ -285,13 +298,14 @@ substitutions:
   fqdn: ${device_name}.${network_domain}
   lcd_height: "4"
   lcd_width: "20"
-  distance_tolerance: "0.01"
-  # Maximum actuators extension
-  max_actuators_extension_m: "0.35"
-  # Minimum distance between the bottom of the desk top and the feet of the desk
-  min_desk_distance_from_feet_m: "0.67"
   # Height of the controller box + distance sensor heads when the distance sensor faces the bottom of the desk top
   controller_box_height_m: "0.165"
+  desk_feet_height_m: "0.04"
+  distance_tolerance: "0.01"
+  max_actuators_extension_m: "0.35"
+  # max_desk_height_m = ${min_desk_height_m} + ${max_actuators_extension_m}
+  max_desk_height_m: "1.085"
+  min_desk_height_m: "0.735"
   network_domain: edge.lab.ferrari.how
 
 text_sensor:
