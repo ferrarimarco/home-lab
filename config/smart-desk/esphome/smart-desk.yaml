@@ -207,26 +207,17 @@ sensor:
     platform: template
     unit_of_measurement: m
     update_interval: 5s
-  - id: ultrasonic_distance_sensor_filtered_quantile
-    accuracy_decimals: 2
-    lambda: |-
-      return id(ultrasonic_distance_sensor).state;
-    name: "Ultrasonic distance sensor (filtered, quantile)"
-    platform: template
-    unit_of_measurement: m
-    update_interval: 5s
-    filters:
-      - quantile: null
   - id: ultrasonic_distance_sensor_filtered_delta
     accuracy_decimals: 2
     lambda: |-
       return id(ultrasonic_distance_sensor).state;
-    name: "Ultrasonic distance sensor (filtered, delta 1)"
+    name: "Ultrasonic distance sensor (filtered, delta 0.01, throttle 0.5s)"
     platform: template
     unit_of_measurement: m
     update_interval: 5s
     filters:
       - delta: 0.01
+      - throttle: 0.5s
 
 switch:
   - id: desk_relay_1
