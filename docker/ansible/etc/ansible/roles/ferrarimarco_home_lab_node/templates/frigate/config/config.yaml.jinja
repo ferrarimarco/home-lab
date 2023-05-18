@@ -9,11 +9,17 @@ detectors:
     device: usb
 
 ffmpeg:
+{% if frigate_ffmpeg_harware_acceleration_arguments is defined %}
   # Enable acceleration
-  hwaccel_args:
+{% if frigate_ffmpeg_harware_acceleration_arguments is iterable %}
 {% for argument in frigate_ffmpeg_harware_acceleration_arguments %}
+  hwaccel_args:
     - "{{ argument }}"
 {% endfor %}
+{% else %}
+  hwaccel_args: {{ frigate_ffmpeg_harware_acceleration_arguments }}
+{% endif %}
+{% endif %}
 
 # Configuration for recordings
 record:

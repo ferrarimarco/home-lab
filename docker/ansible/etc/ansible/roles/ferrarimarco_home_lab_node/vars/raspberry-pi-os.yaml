@@ -21,6 +21,10 @@ frigate_gpu_decode_devices:
   - /dev/video23
   - /dev/video31
 fail2ban_sshd_enable_systemd_backend: false
+# Uncomment this after upgrading to Frigate >= 0.12.1...
+# Ref: https://github.com/blakeblackshear/frigate/issues/6461
+# frigate_ffmpeg_harware_acceleration_arguments: preset-rpi-64-h264
+# ...and remove this
 frigate_ffmpeg_harware_acceleration_arguments:
   - -c:v
   - h264_v4l2m2m
