@@ -9,7 +9,7 @@ services:
       - PGID=1000
     volumes:
       - {{ media_directory_path }}:{{ media_directory_path }}
-      - {{ syncthing_configuration_directory_path }}:/var/syncthing/.config
+      - {{ syncthing_configuration_directory_path }}:/var/syncthing
     ports:
       - 8384:8384 # Web UI
       - 22000:22000/tcp # TCP file transfers
