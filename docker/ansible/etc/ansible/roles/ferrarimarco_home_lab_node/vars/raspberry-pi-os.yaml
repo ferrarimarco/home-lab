@@ -26,7 +26,7 @@ fail2ban_sshd_enable_systemd_backend: false
 # frigate_ffmpeg_harware_acceleration_arguments: preset-rpi-64-h264
 # ...and remove this
 frigate_ffmpeg_harware_acceleration_arguments:
-  - -c:v
+  - -c:v:1
   - h264_v4l2m2m
 raspberry_pi_config_file_path: "/boot/config.txt"
 raspberri_pi_os_os_packages:
