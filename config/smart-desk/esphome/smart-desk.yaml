@@ -202,7 +202,7 @@ sensor:
   - id: smart_desk_height
     accuracy_decimals: 2
     lambda: |-
-      return id(ultrasonic_distance_sensor).state + ${desk_feet_height_m} + ${controller_box_height_m};
+      return id(ultrasonic_distance_sensor_filtered_delta).state + ${desk_feet_height_m} + ${controller_box_height_m};
     name: "Desk height"
     platform: template
     unit_of_measurement: m
@@ -211,13 +211,13 @@ sensor:
     accuracy_decimals: 2
     lambda: |-
       return id(ultrasonic_distance_sensor).state;
-    name: "Ultrasonic distance sensor (filtered, delta 0.01, throttle 0.5s)"
+    name: "Ultrasonic distance sensor (filtered)"
     platform: template
     unit_of_measurement: m
     update_interval: 5s
     filters:
       - delta: 0.01
-      - throttle: 0.5s
+      - throttle: 0.2s
 
 switch:
   - id: desk_relay_1
