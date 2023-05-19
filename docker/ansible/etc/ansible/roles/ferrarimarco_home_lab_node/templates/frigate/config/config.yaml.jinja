@@ -12,9 +12,9 @@ ffmpeg:
 {% if frigate_ffmpeg_harware_acceleration_arguments is defined %}
   # Enable acceleration
 {% if frigate_ffmpeg_harware_acceleration_arguments is iterable %}
-{% for argument in frigate_ffmpeg_harware_acceleration_arguments %}
   hwaccel_args:
-    - "{{ argument }}"
+{% for argument in frigate_ffmpeg_harware_acceleration_arguments %}
+    - {{ argument }}
 {% endfor %}
 {% else %}
   hwaccel_args: {{ frigate_ffmpeg_harware_acceleration_arguments }}
