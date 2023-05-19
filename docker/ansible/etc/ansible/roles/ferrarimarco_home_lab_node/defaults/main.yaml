@@ -12,6 +12,7 @@ configure_network_stack: false
 configure_network_shares: false
 configure_backup_restic: false
 configure_ssh: true
+configure_syncthing: false
 configure_tailscale: false
 configure_torrent: false
 configure_wifi: false
@@ -117,6 +118,7 @@ monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ prometheus_http_endpoint_fqdn }}:{{ monitoring_backend_prometheus_host_port }} # Prometheus"
   - check_target: "http://{{ prometheus_blackbox_exporter_http_endpoint_fqdn }}:{{ monitoring_backend_prometheus_node_exporter_host_port }} # Prometheus Node Exporter"
   - check_target: "http://{{ qbittorrent_http_endpoint_fqdn }}:{{ qbittorrent_user_interface_port }} # qBittorrent"
+  - check_target: "http://{{ syncthing_user_interface_http_endpoint_fqdn }}:{{ syncthing_user_interface_port }} # Syncthing GUI"
   - check_target: "http://{{ zigbee2mqtt_http_endpoint_fqdn }}:{{ zigbee2mqtt_user_interface_host_port }} # Zigbee2MQTT"
 monitoring_backend_icmp_ping_hosts_to_check:
   - "1.1.1.1"
@@ -174,6 +176,7 @@ security_sudoers_passworded: []
 security_sudoers_passwordless:
   - "{{ ansible_user }}"
 security_unattended_upgrades_enabled: true
+syncthing_user_interface_port: 8384
 systemd_journald_runtime_max_memory_use: "64M"
 systemd_journald_system_max_memory_use: "500M"
 tailscale_release_channel: "stable"

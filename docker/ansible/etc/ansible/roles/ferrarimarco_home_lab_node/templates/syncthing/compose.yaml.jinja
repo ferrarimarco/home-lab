@@ -7,13 +7,16 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+    network_mode: host
     volumes:
       - {{ media_directory_path }}:{{ media_directory_path }}
+      # The following mount destination directory is hardcoded in the Dockerfile
       - {{ syncthing_configuration_directory_path }}:/var/syncthing
-    ports:
-      - 8384:8384 # Web UI
-      - 22000:22000/tcp # TCP file transfers
-      - 22000:22000/udp # QUIC file transfers
-      - 21027:21027/udp # Receive local discovery broadcasts
+    # Ports are ignored when host networking is enabled. Keeping this for reference
+    # ports:
+    #   - {{ syncthing_user_interface_port }}:8384 # Web UI
+    #   - 22000:22000/tcp # TCP file transfers
+    #   - 22000:22000/udp # QUIC file transfers
+    #   - 21027:21027/udp # Receive local discovery broadcasts
     restart: unless-stopped
 ...

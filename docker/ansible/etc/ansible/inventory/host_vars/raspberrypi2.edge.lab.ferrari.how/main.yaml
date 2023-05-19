@@ -8,6 +8,7 @@ configure_monitoring_backend: true
 configure_mqtt_broker: true
 configure_network_shares: true
 configure_network_stack: true
+configure_syncthing: true
 configure_torrent: true
 configure_wifi: true
 configure_zigbee2mqtt: true
@@ -62,6 +63,8 @@ restic_backup_jobs:
         container_mount_destination_directory: "{{ home_assistant_configuration_config_directory_path }}"
       - source_host_directory: "{{ monitoring_backend_runtime_data_directory }}"
         container_mount_destination_directory: "{{ monitoring_backend_runtime_data_directory }}"
+      - source_host_directory: "{{ syncthing_configuration_directory_path }}"
+        container_mount_destination_directory: "{{ syncthing_configuration_directory_path }}"
       - source_host_directory: "{{ zigbee2mqtt_data_directory_path }}"
         container_mount_destination_directory: "{{ zigbee2mqtt_data_directory_path }}"
     job_name: "{{ restic_backup_workloads_job_name }}"

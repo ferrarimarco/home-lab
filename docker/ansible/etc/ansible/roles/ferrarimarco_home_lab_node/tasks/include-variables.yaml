@@ -213,6 +213,10 @@
       fact_files_to_configure: "{{ restic_files_to_configure }}"
       fact_cron_jobs: "{{ restic_backup_cron_jobs | default([]) }}"
       fact_templates_to_render: "{{ restic_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_syncthing }}"
+      fact_configuration_directories: "{{ syncthing_configuration_directories }}"
+      fact_docker_compose_up_items: "{{ syncthing_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ syncthing_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:
