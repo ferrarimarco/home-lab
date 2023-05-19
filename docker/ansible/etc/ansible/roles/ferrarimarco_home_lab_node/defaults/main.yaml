@@ -71,6 +71,10 @@ frigate_cameras:
   #         - detect
   #         - record
   - name: cam-3
+    # Uncomment if the Frigate host can handle the camera stream at its full resolution
+    # detect:
+    #   height: 1920
+    #   width: 2560
     inputs:
       - path: rtsp://{{ cam_3_rtps_username }}:{{ cam_3_rtps_password }}@cam-3.{{ edge_environment_root_fqdn }}:554/h264Preview_01_sub
         roles:
