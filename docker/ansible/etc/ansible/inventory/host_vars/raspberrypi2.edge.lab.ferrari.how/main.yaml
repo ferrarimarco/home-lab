@@ -8,6 +8,7 @@ configure_monitoring_backend: true
 configure_mqtt_broker: true
 configure_network_shares: true
 configure_network_stack: true
+configure_syncthing: true
 configure_torrent: true
 configure_wifi: true
 configure_zigbee2mqtt: true
@@ -18,6 +19,7 @@ disks_to_mount:
     src: UUID=3fb762aa-c397-460b-809c-9ac741ce14f1
     state: mounted
 has_argonone_case: true
+media_directory_path: "/media/data0/media"
 network_stack_configure_recursive_dns_resolver: true
 restic_backup_workloads_job_name: "restic-backup-workloads"
 restic_backup_cron_jobs:
@@ -63,6 +65,8 @@ restic_backup_jobs:
         container_mount_destination_directory: "{{ monitoring_backend_runtime_data_directory }}"
       - source_host_directory: "{{ zigbee2mqtt_data_directory_path }}"
         container_mount_destination_directory: "{{ zigbee2mqtt_data_directory_path }}"
+      - source_host_directory: "{{ syncthing_configuration_directory_path }}"
+        container_mount_destination_directory: "{{ syncthing_configuration_directory_path }}"
     job_name: "{{ restic_backup_workloads_job_name }}"
     restic_forget_policy:
       # Don't remove tagged snapshots
@@ -105,7 +109,7 @@ samba_shares:
     force_group: "users"
     force_user: "{{ ansible_user }}"
     name: "media"
-    path: "/media/data0/media"
+    path: "{{ media_directory_path }}"
     read_only: "yes"
     valid_users: "@{{ samba_default_readers_group_name }}"
     write_list: "@{{ samba_default_writers_group_name }}"
@@ -120,6 +124,6 @@ samba_os_users:
     groups:
       - "{{ samba_default_readers_group_name }}"
       - "{{ samba_default_writers_group_name }}"
-torrent_download_path: "/media/data0/media/downloads"
+torrent_download_path: "{{ media_directory_path }}/downloads"
 zigbee_adapter_device_path: "/dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20220708144056-if00"
 ...

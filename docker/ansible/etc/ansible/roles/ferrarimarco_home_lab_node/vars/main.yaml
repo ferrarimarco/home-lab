@@ -450,6 +450,22 @@ ssh_os_services:
   - enabled: true
     service_name: "{{ security_sshd_name }}"
     service_state: "{{ configure_ssh | ternary('started', 'stopped') }}"
+syncthing_docker_compose_destination_file_path: "{{ syncthing_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+syncthing_configuration_directories:
+  - path: "{{ syncthing_configuration_directory_path }}"
+    state: "{{ configure_syncthing | ternary('directory', 'absent') }}"
+syncthing_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/syncthing"
+syncthing_docker_compose_up_items:
+  - compose_file_path: "{{ syncthing_docker_compose_destination_file_path }}"
+    enable_containerized_services: "{{ configure_syncthing }}"
+    pull_container_images: "{{ configure_syncthing }}"
+    start_containerized_services: "{{ start_yncthing | default(configure_syncthing) }}"
+    stop_containerized_services: "{{ stop_syncthing | default(false) }}"
+syncthing_templates_to_render:
+  - src: "syncthing/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ syncthing_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_syncthing | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ syncthing_docker_compose_up_items }}"
 systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
 systemd_system_shutdown_configuration_directory: "{{ systemd_configuration_directory }}/system-shutdown"
