@@ -68,37 +68,12 @@ logger:
     sensor: INFO
     ultrasonic.sensor: INFO
 
-number:
-  - id: target_smart_desk_height
-    platform: template
-    icon: "mdi:icon7-resize-vertical"
-    name: "Desired desk height"
-    min_value: ${min_desk_height_m}
-    max_value: ${max_desk_height_m}
-    optimistic: true
-    step: 0.01
-    unit_of_measurement: m
-    on_value:
-      - script.execute: operate_actuators
-
 ota:
   password: !secret esphome_ota_password
 
 prometheus: null
 
 script:
-  - id: operate_actuators
-    then:
-      - if:
-          condition:
-            lambda: |-
-              return id(smart_desk_height).state < id(target_smart_desk_height).state;
-          then:
-            - logger.log: "Current desk height < requested height. Extending the actuators."
-            - script.execute: extend_actuators_script
-          else:
-            - logger.log: "Current desk height > requested height. Retracting the actuators."
-            - script.execute: retract_actuators_script
   - id: extend_actuators_script
     then:
       - logger.log: "Extending the actuators..."
@@ -163,39 +138,10 @@ sensor:
     trigger_pin: GPIO27
     echo_pin: GPIO15
     name: "Ultrasonic distance sensor"
+    # Minimum recommended is 60ms (source: HC-SR04 datasheet)
     update_interval: 100ms
     # The number of meters for the sensor to timeout
     timeout: 4m
-    on_value:
-      - if:
-          condition:
-            lambda: |-
-              return id(extend_actuators).state || id(retract_actuators).state;
-          then:
-            - logger.log: "The actuators are moving. Checking if the desk reached the target height..."
-            - if:
-                condition:
-                  lambda: |-
-                    float diff = id(smart_desk_height).state - id(target_smart_desk_height).state;
-                    float abs_diff = abs(diff);
-                    float distance_tolerance = ${distance_tolerance};
-                    ESP_LOGD("main", "Difference: %f, Abs difference: %f, Tolerance: %f", diff, abs_diff, distance_tolerance);
-                    if (abs_diff < distance_tolerance){
-                      ESP_LOGD("main", "Abs difference is in the tolerance range. Condition matched.");
-                      return true;
-                    } else {
-                      ESP_LOGD("main", "Abs difference is not in the tolerance range. Condition not matched.");
-                      return false;
-                    }
-                then:
-                  - logger.log: "The desk reached the target height. Stopping the actuators..."
-                  - script.execute: turn_actuators_off_script
-                else:
-                  - logger.log: "The desk didn't reach the target height yet. Leaving the actuators on..."
-          else:
-            - logger.log:
-                format: "The actuators are not moving. Skipping the check."
-                level: VERBOSE
   - platform: wifi_signal
     name: "WiFi Signal Sensor"
     update_interval: 30s
@@ -206,7 +152,7 @@ sensor:
     name: "Desk height"
     platform: template
     unit_of_measurement: m
-    update_interval: 5s
+    update_interval: 500ms
   - id: ultrasonic_distance_sensor_filtered_delta
     accuracy_decimals: 2
     lambda: |-
@@ -214,10 +160,23 @@ sensor:
     name: "Ultrasonic distance sensor (filtered)"
     platform: template
     unit_of_measurement: m
-    update_interval: 5s
+    update_interval: 500ms
     filters:
+      # Don't publish updates if the actuators are not moving
+      - lambda: |-
+          if (id(extend_actuators).state || id(retract_actuators).state) {
+            return x;
+          } else {
+            return {};
+          }
+      # We know max and min allowed reads
+      - lambda: |-
+          if (x > 0.5 && x < 0.85) {
+            return x;
+          } else {
+            return {};
+          }
       - delta: 0.01
-      - throttle: 0.2s
 
 switch:
   - id: desk_relay_1
@@ -292,7 +251,6 @@ substitutions:
   # Height of the controller box + distance sensor heads when the distance sensor faces the bottom of the desk top
   controller_box_height_m: "0.165"
   desk_feet_height_m: "0.04"
-  distance_tolerance: "0.01"
   max_actuators_extension_m: "0.35"
   # max_desk_height_m = ${min_desk_height_m} + ${max_actuators_extension_m}
   max_desk_height_m: "1.085"
