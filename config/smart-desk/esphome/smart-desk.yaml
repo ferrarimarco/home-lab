@@ -162,13 +162,6 @@ sensor:
     unit_of_measurement: m
     update_interval: 500ms
     filters:
-      # Don't publish updates if the actuators are not moving
-      - lambda: |-
-          if (id(extend_actuators).state || id(retract_actuators).state) {
-            return x;
-          } else {
-            return {};
-          }
       # We know max and min allowed reads
       - lambda: |-
           if (x > 0.5 && x < 0.85) {
@@ -176,6 +169,9 @@ sensor:
           } else {
             return {};
           }
+      - median:
+          window_size: 3
+          send_every: 1
       - delta: 0.01
 
 switch:
