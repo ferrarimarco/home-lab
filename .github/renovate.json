@@ -11,12 +11,15 @@
     "pre-commit",
     "regex"
   ],
+  "extends": [
+    "config:base"
+  ],
   "docker-compose": {
     "fileMatch": [
       "(^|/)(?:docker-)?compose[^/]*\\.ya?ml(?:\\.jinja)$"
     ]
   },
-  "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+  "gitAuthor": "github-actions[bot] <noreply@github.com>",
   "includeForks": true,
   "labels": [
     "dependencies"
@@ -72,5 +75,5 @@
   "repositories": [
     "ferrarimarco/home-lab"
   ],
-  "username": "renovate-release"
+  "username": "github-actions[bot]"
 }
