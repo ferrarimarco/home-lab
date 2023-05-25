@@ -25,7 +25,4 @@ jobs:
       - name: "Build the Smart Desk firmware image"
         run: |
           scripts/build.sh
-  update-release-draft:
-    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
-    uses: ./.github/workflows/draft-release.yaml
 ...

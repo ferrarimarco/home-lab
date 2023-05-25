@@ -21,7 +21,6 @@ echo "Getting ESPHome version"
 esphome --verbose version
 
 ESPHOME_CONFIGURATION_FILE_NAME="smart-desk.yaml"
-ESPHOME_NODE_NAME="smart-desk"
 
 if [ ! -r secrets.yaml ]; then
   echo "No secrets file available. Creating one from the template..."
@@ -34,7 +33,6 @@ esphome --verbose config "${ESPHOME_CONFIGURATION_FILE_NAME}"
 if [ "${CI:-}" = "true" ]; then
   echo "Continuous integration environment detected. Compiling the firmware without pushing it to the ESPHome node."
   esphome compile "${ESPHOME_CONFIGURATION_FILE_NAME}"
-  compress_file ".esphome/build/${ESPHOME_NODE_NAME}/.pioenvs/${ESPHOME_NODE_NAME}/firmware-factory.bin"
 else
   esphome run "${ESPHOME_CONFIGURATION_FILE_NAME}"
 fi

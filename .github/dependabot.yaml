@@ -28,20 +28,8 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
-  - directory: "/docker/os-image-builder"
-    package-ecosystem: "docker"
-    schedule:
-      interval: "daily"
   - directory: "/docker/restic"
     package-ecosystem: "docker"
-    schedule:
-      interval: "daily"
-  - directory: "/docker/template-renderer"
-    package-ecosystem: "docker"
-    schedule:
-      interval: "daily"
-  - directory: "/docker/template-renderer"
-    package-ecosystem: "pip"
     schedule:
       interval: "daily"
 version: 2
