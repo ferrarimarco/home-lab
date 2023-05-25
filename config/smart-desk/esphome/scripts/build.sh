@@ -21,7 +21,6 @@ echo "Getting ESPHome version"
 esphome --verbose version
 
 ESPHOME_CONFIGURATION_FILE_NAME="smart-desk.yaml"
-ESPHOME_NODE_NAME="smart-desk"
 
 if [ ! -r secrets.yaml ]; then
   echo "No secrets file available. Creating one from the template..."
