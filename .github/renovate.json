@@ -11,6 +11,9 @@
     "pre-commit",
     "regex"
   ],
+  "extends": [
+    "config:base"
+  ],
   "docker-compose": {
     "fileMatch": [
       "(^|/)(?:docker-)?compose[^/]*\\.ya?ml(?:\\.jinja)$"
