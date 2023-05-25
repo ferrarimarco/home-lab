@@ -56,7 +56,7 @@ The current version of the home lab uses a Raspberry Pi 4 as a seed device. To
 initialize the seed device:
 
 1. Update and configure the bootloader.
-1. Prepare the seed device boot disk and
+1. Prepare the seed device boot disk.
 1. Boot the seed device.
 
 #### Update and configure the Raspberry Pi 4 bootloader
@@ -258,17 +258,6 @@ Grafana dashboards that ship with a datasource, do the following:
 ## Development environment
 
 In this section, you set up a development environment for the home lab.
-
-### Generate the templated files
-
-To avoid duplications, a template generator produces files from templates.
-To generate templated files, do the following:
-
-```sh
-scripts/generate-templated-files.sh
-```
-
-After the generator produces the files, commit any updates to the generated files.
 
 ## Container migration playbook
 

@@ -56,20 +56,6 @@ is_python_virtual_environment_up_to_date() {
   return ${PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE}
 }
 
-compress_file() {
-  SOURCE_FILE_PATH="${1}"
-
-  echo "Compressing ${SOURCE_FILE_PATH}..."
-  xz -9 \
-    --compress \
-    --force \
-    --threads=0 \
-    --verbose \
-    "${SOURCE_FILE_PATH}"
-
-  unset SOURCE_FILE_PATH
-}
-
 create_and_activate_python_virtual_environment() {
   PYTHON_VIRTUAL_ENVIRONMENT_PATH="${1}"
   PIP_REQUIREMENTS_PATH="${2:-""}"
