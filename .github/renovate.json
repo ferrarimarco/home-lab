@@ -19,7 +19,7 @@
       "(^|/)(?:docker-)?compose[^/]*\\.ya?ml(?:\\.jinja)$"
     ]
   },
-  "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+  "gitAuthor": "github-actions[bot] <noreply@github.com>",
   "includeForks": true,
   "labels": [
     "dependencies"
@@ -74,5 +74,6 @@
   ],
   "repositories": [
     "ferrarimarco/home-lab"
-  ]
+  ],
+  "username": "github-actions[bot]"
 }
