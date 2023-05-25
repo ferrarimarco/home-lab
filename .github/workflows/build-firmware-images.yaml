@@ -19,37 +19,13 @@ jobs:
     defaults:
       run:
         working-directory: config/smart-desk/esphome
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: "Build the Smart Desk firmware image"
         run: |
           scripts/build.sh
-      - uses: actions/upload-artifact@v3
-        with:
-          if-no-files-found: error
-          name: smart-desk.bin.xz
-          # working-directory has no effect on this action, so we need to set the full path anyway.
-          # See https://github.com/actions/upload-artifact/issues/246
-          path: |
-            config/smart-desk/esphome/.esphome/build/smart-desk/.pioenvs/smart-desk/firmware-factory.bin.xz
   update-release-draft:
     if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/draft-release.yaml
-  upload-images-to-release:
-    needs:
-      - build-smart-desk
-      - update-release-draft
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Download artifacts to upload
-        uses: actions/download-artifact@v3
-      - name: "Upload artifacts to the ${{ needs.update-release-draft.outputs.release-tag-name }} release"
-        run: |
-          ls ./**/*.${{ matrix.artifact-file-extension }}  >/dev/null && gh release upload "${{ needs.update-release-draft.outputs.release-tag-name }}" ./**/*.${{ matrix.artifact-file-extension }} --clobber
-    strategy:
-      matrix:
-        artifact-file-extension:
-          - xz
 ...

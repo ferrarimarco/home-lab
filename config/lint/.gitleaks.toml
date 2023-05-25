@@ -2,4 +2,4 @@
 useDefault = true
 
 [allowlist]
-paths = ['''\.venv''', '''.*\/\.venv.*\/.*''']
+paths = ['''\.venv''', '''.*\/\.venv.*\/.*''', '''secrets-template.yaml''']
