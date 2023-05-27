@@ -20,6 +20,12 @@ ffmpeg:
   hwaccel_args: {{ frigate_ffmpeg_harware_acceleration_arguments }}
 {% endif %}
 {% endif %}
+{% if frigate_ffmpeg_output_arguments is defined %}
+  output_args:
+{% if frigate_ffmpeg_output_arguments.record is defined %}
+    record: {{ frigate_ffmpeg_output_arguments.record }}
+{% endif %}
+{% endif %}
 
 # Configuration for recordings
 record:
