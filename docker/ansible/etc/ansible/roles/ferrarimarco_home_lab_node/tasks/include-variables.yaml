@@ -47,7 +47,7 @@
     file: register-custom-facts.yaml
   with_items:
     - enable_custom_fact: "{{ has_sense_hat }}"
-      fact_category: "Raspberry Pi Sense Hat"
+      fact_category: "raspberry_pi_sense_hat"
       fact_configuration_directories: "{{ sense_hat_exporter_configuration_directories }}"
       fact_files_to_configure: "{{ sense_hat_exporter_files_to_configure }}"
       fact_os_services: "{{ sense_hat_os_services }}"
@@ -57,7 +57,7 @@
       fact_os_packages: "{{ ssh_os_packages }}"
       fact_os_services: "{{ ssh_os_services }}"
     - enable_custom_fact: "{{ configure_docker }}"
-      fact_category: "Docker"
+      fact_category: "docker"
       fact_configuration_directories: "{{ docker_configuration_directories }}"
       fact_cron_jobs:
         - become: true
