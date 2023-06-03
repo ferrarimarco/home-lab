@@ -1,0 +1,27 @@
+---
+jellyfin_cache_directory_path: "{{ jellyfin_runtime_data_directory_path }}/cache"
+jellyfin_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/jellyfin"
+jellyfin_port: 8096
+jellyfin_runtime_data_directory_path: "{{ var_lib_directory_path }}/jellyfin"
+media_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/media-stack"
+media_stack_configuration_directories:
+  - path: "{{ media_stack_configuration_directory_path }}"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  - path: "{{ jellyfin_configuration_directory_path }}"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  - path: "{{ jellyfin_runtime_data_directory_path }}"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  - path: "{{ jellyfin_cache_directory_path }}"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+media_stack_docker_compose_up_items:
+  - compose_file_path: "{{ media_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_media_stack }}"
+    pull_container_images: "{{ configure_media_stack }}"
+    start_containerized_services: "{{ start_media_stack | default(configure_media_stack) }}"
+    stop_containerized_services: "{{ stop_media_stack | default(false) }}"
+media_stack_templates_to_render:
+  - src: "media-stack/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ media_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_media_stack | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ media_stack_docker_compose_up_items }}"
+...

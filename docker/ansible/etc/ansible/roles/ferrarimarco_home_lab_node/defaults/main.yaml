@@ -5,6 +5,7 @@ configure_dphys_swapfile: false
 configure_dphys_swapfile_swapfactor: 2
 configure_frigate: false
 configure_home_assistant: false
+configure_media_stack: false
 configure_monitoring: true
 configure_monitoring_backend: false
 configure_mqtt_broker: false
@@ -115,6 +116,7 @@ monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ frigate_http_endpoint_fqdn }}:{{ frigate_host_port }} # Frigate"
   - check_target: "http://{{ grafana_http_endpoint_fqdn }}:{{ monitoring_backend_grafana_host_port }} # Grafana"
   - check_target: "http://{{ home_assistant_http_endpoint_fqdn }}:{{ home_assistant_user_interface_host_port }} # Home Assistant"
+  - check_target: "http://{{ media_stack_jellyfin_http_endpoint_fqdn }}:{{ jellyfin_port }} # Jellyfin"
   - check_target: "http://{{ prometheus_http_endpoint_fqdn }}:{{ monitoring_backend_prometheus_host_port }} # Prometheus"
   - check_target: "http://{{ prometheus_blackbox_exporter_http_endpoint_fqdn }}:{{ monitoring_backend_prometheus_node_exporter_host_port }} # Prometheus Node Exporter"
   - check_target: "http://{{ qbittorrent_http_endpoint_fqdn }}:{{ qbittorrent_user_interface_port }} # qBittorrent"

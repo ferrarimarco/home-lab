@@ -1,0 +1,13 @@
+---
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:10.8.10
+    container_name: jellyfin
+    volumes:
+      - {{ jellyfin_configuration_directory_path }}:/config
+      - {{ jellyfin_cache_directory_path }}:/cache
+      - {{ media_directory_path }}:/media:ro
+    ports:
+      - {{ jellyfin_port }}:8096
+    restart: unless-stopped
+...
