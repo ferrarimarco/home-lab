@@ -1,4 +1,9 @@
 ---
+- name: Check if fact_category is defined
+  ansible.builtin.assert:
+    that:
+      - fact_category is defined
+
 # These setup facts are needed regardless of the flag to enable or disable a given stack
 - name: Register setup facts for {{ fact_category }}
   ansible.builtin.set_fact:
@@ -11,6 +16,8 @@
     os_groups: "{{ os_groups + fact_os_groups }}"
     os_services: "{{ os_services + fact_os_services }}"
     templates_to_render: "{{ templates_to_render + fact_templates_to_render }}"
+  when:
+    - fact_category in ansible_run_tags or "all" in ansible_run_tags
 
 - name: Register additional setup facts if stack is enabled for {{ fact_category }}
   ansible.builtin.set_fact:
@@ -18,6 +25,7 @@
     os_users: "{{ os_users + fact_os_users }}"
   when:
     - fact_enable_custom_fact
+    - fact_category in ansible_run_tags or "all" in ansible_run_tags
 
 # We added a 'state' attribute set to 'absent' if the stack is disabled so those files will
 # eventually get deleted
@@ -26,4 +34,5 @@
     files_to_configure: "{{ files_to_configure + fact_files_to_download + fact_templates_to_render }}"
   when:
     - not fact_enable_custom_fact
+    - fact_category in ansible_run_tags or "all" in ansible_run_tags
 ...
