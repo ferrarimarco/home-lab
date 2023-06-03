@@ -18,6 +18,17 @@
       caption: A {{trigger.payload_json["after"]["label"]}} was detected. Here is
         a recording of the event.
       message_tag: '{{trigger.payload_json["after"]["id"]}}'
+  - if:
+    - condition: template
+      value_template: '{{trigger.payload_json["after"]["end_time"] is not none}}'
+    then:
+    - service: telegram_bot.send_message
+      data:
+        message: There's no recording yet because the event is still in progress.
+    else:
+    - service: telegram_bot.send_message
+      data:
+        message: Send the recording (test message)
   mode: queued
 - id: send_notification_home_assistant_update
   alias: Send a notification when a Home Assistant update is available
