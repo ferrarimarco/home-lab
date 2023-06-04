@@ -27,6 +27,11 @@
   with_first_found:
     - "register-raspberry-pi-os-facts.yaml"
 
+- name: Load variables for each stack
+  ansible.builtin.include_vars:
+    dir: vars
+    files_matching: "^(.*)-stack.yaml"
+
 - name: Set custom facts
   ansible.builtin.include_tasks:
     apply:
@@ -219,6 +224,11 @@
       fact_configuration_directories: "{{ syncthing_configuration_directories }}"
       fact_docker_compose_up_items: "{{ syncthing_docker_compose_up_items }}"
       fact_templates_to_render: "{{ syncthing_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_media_stack }}"
+      fact_category: "media-stack"
+      fact_configuration_directories: "{{ media_stack_configuration_directories }}"
+      fact_docker_compose_up_items: "{{ media_stack_docker_compose_up_items }}"
+      fact_templates_to_render: "{{ media_stack_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

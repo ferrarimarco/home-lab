@@ -18,6 +18,7 @@ home_assistant_secrets:
   telegram_bot_api_key: "{{ vault_home_assistant_secrets.telegram_bot_api_key }}"
   telegram_bot_allowed_chat_ids: "{{ vault_home_assistant_secrets.telegram_bot_allowed_chat_ids }}"
   timezone_home: "{{ vault_home_assistant_secrets.timezone_home }}"
+media_stack_jellyfin_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 prometheus_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 prometheus_blackbox_exporter_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 qbittorrent_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
