@@ -21,6 +21,16 @@ disks_to_mount:
     state: mounted
 has_argonone_case: true
 media_directory_path: "/media/data0/media"
+monitoring_nut_server_admin_password: "{{ vault_raspberrypi2_monitoring_nut_server_admin_password }}"
+monitoring_nut_server_admin_username: "{{ vault_raspberrypi2_monitoring_nut_server_admin_username }}"
+monitoring_nut_devices:
+  - id: eaton-ellipse-pro-1600-din-1
+    description: Eaton Ellipse PRO 1600 DIN
+    driver: usbhid-ups
+    port: auto
+    vendorid: "0463"
+    productId: "FFFF"
+    bus: "001"
 network_stack_configure_recursive_dns_resolver: true
 restic_backup_workloads_job_name: "restic-backup-workloads"
 restic_backup_cron_jobs:
