@@ -30,4 +30,18 @@ services:
       - /dev/disk/:/dev/disk:ro"
       - /etc/machine-id:/etc/machine-id:ro
 {% endif %}
+{% if configure_monitoring_nut %}
+  nut-exporter:
+    image: ghcr.io/DRuggeri/nut_exporter:3.0.0
+    container_name: nut-exporter
+    restart: unless-stopped
+    command:
+      - "--nut.username={{ monitoring_nut_server_admin_username }}"
+      - --nut.vars_enable=""
+      - "--web.listen-address=:{{ monitoring_nut_exporter_port }}"
+    environment:
+      - NUT_EXPORTER_PASSWORD="{{ monitoring_nut_server_admin_password }}"
+    ports:
+      - {{ monitoring_nut_exporter_port }}:{{ monitoring_nut_exporter_port }}/tcp
+{% endif %}
 ...

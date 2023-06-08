@@ -119,4 +119,23 @@ scrape_configs:
 {% endfor %}
 {% endif %}
 {% endfor %}
+
+{% if configure_monitoring_nut %}
+  - job_name: ups
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].configure_monitoring_nut | default(false) %}
+        - "{{ host }}:{{ hostvars[host].monitoring_nut_exporter_port | default(monitoring_nut_exporter_port) }}"
+{% endif %}
+{% endfor %}
+    metrics_path: /ups_metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_server
+      - source_labels: [__param_server]
+        target_label: instance
+      - target_label: __address__
+        replacement: nut-exporter.local:9199
+{% endif %}
 ...
