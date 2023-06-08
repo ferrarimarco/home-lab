@@ -29,7 +29,7 @@ monitoring_nut_devices:
     description: Eaton Ellipse PRO 1600 DIN
     driver: usbhid-ups
     port: auto
-    vendorid: "0463"
+    vendorId: "0463"
     productId: "FFFF"
     bus: "001"
 network_stack_configure_recursive_dns_resolver: true

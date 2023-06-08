@@ -23,7 +23,7 @@ monitoring_nut_templates_to_render:
     state: "{{ configure_monitoring_nut | ternary('file', 'absent') }}"
     os_services_to_restart: "{{ monitoring_nut_os_services_to_restart }}"
 monitoring_nut_os_packages:
-  - nut
+  - name: nut
 monitoring_nut_os_services_to_restart:
   - nut-server
   - nut-client
