@@ -116,6 +116,7 @@
     - enable_custom_fact: "{{ configure_monitoring_nut }}"
       fact_category: "monitoring-nut"
       fact_os_packages: "{{ monitoring_nut_os_packages }}"
+      fact_templates_to_render: "{{ monitoring_nut_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
       fact_category: "monitoring-backend"
       fact_configuration_directories: "{{ monitoring_backend_configuration_directories }}"

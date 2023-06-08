@@ -7,6 +7,7 @@ configure_home_assistant: true
 configure_media_stack: true
 configure_monitoring_backend: true
 configure_mqtt_broker: true
+configure_monitoring_nut: true
 configure_network_shares: true
 configure_network_stack: true
 configure_syncthing: true

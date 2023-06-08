@@ -1,8 +1,6 @@
 ---
+# The package installer takes care of creating this directory
 monitoring_nut_configuration_directory_path: "{{ etc_directory_path }}/nut"
-monitoring_nut_configuration_directories:
-  - path: "{{ monitoring_nut_configuration_directory_path }}"
-    state: "{{ configure_monitoring_nut | ternary('directory', 'absent') }}"
 monitoring_nut_templates_to_render:
   - src: "monitoring-nut/nut.conf.jinja"
     dest: "{{ monitoring_nut_configuration_directory_path }}/nut.conf"
