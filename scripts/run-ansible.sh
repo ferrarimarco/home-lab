@@ -16,10 +16,9 @@ echo "Current working directory: ${CURRENT_WORKING_DIRECTORY}"
 
 if ! is_container_runtime_available; then
   echo "Container engine not available. Running a non-containerized command"
-  WORKING_DIRECTORY="$(pwd)"
 
-  VIRTUAL_ENVIRONMENT_PATH="${WORKING_DIRECTORY}/.venv-ansible"
-  PIP_REQUIREMENTS_FILE_PATH="${PIP_REQUIREMENTS_FILE_PATH:-"${WORKING_DIRECTORY}/docker/ansible/requirements.txt"}"
+  VIRTUAL_ENVIRONMENT_PATH="${CURRENT_WORKING_DIRECTORY}/.venv-ansible"
+  PIP_REQUIREMENTS_FILE_PATH="${PIP_REQUIREMENTS_FILE_PATH:-"${CURRENT_WORKING_DIRECTORY}/docker/ansible/requirements.txt"}"
   create_and_activate_python_virtual_environment "${VIRTUAL_ENVIRONMENT_PATH}" "${PIP_REQUIREMENTS_FILE_PATH}"
 
   ANSIBLE_DIRECTORY="${WORKING_DIRECTORY}/docker/ansible/etc/ansible"
@@ -27,9 +26,7 @@ if ! is_container_runtime_available; then
   export ANSIBLE_ROLES_PATH
 
   # Install Ansible requirements
-  ansible-galaxy install -r "${WORKING_DIRECTORY}/docker/ansible/etc/ansible/requirements.yml"
-
-  COMMAND_TO_RUN="${1}"
+  ansible-galaxy install -r "${CURRENT_WORKING_DIRECTORY}/docker/ansible/etc/ansible/requirements.yml"
 else
   ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH="${CURRENT_WORKING_DIRECTORY}/docker/ansible"
   ANSIBLE_PIP_REQUIREMENTS_FILE_PATH="${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/requirements.txt"
@@ -41,7 +38,7 @@ else
   ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-"ansible"}"
   echo "Ansible container image build target: ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
 
-  if [ -n "${MOLECULE_DISTRO}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}" = "ansible" ]; then
+  if [ -n "${MOLECULE_DISTRO:-}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-}" = "ansible" ]; then
     ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="molecule"
     echo "Set Ansible container image build target to ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
   fi
@@ -56,7 +53,7 @@ else
   if [ -t 0 ]; then
     COMMAND_TO_RUN="${COMMAND_TO_RUN} -it"
   fi
-  if [ -n "${MOLECULE_DISTRO}" ]; then
+  if [ -n "${MOLECULE_DISTRO:-}" ]; then
     COMMAND_TO_RUN="${COMMAND_TO_RUN} --env MOLECULE_DISTRO=${MOLECULE_DISTRO}"
     COMMAND_TO_RUN="${COMMAND_TO_RUN} -v /var/run/docker.sock:/var/run/docker.sock"
   fi
@@ -64,7 +61,31 @@ else
   COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/etc/ansible:/etc/ansible"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --workdir=/etc/ansible"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ANSIBLE_CONTAINER_IMAGE_ID}"
-  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${1}"
+fi
+
+ANSIBLE_PLAYBOOK_PATH="${ANSIBLE_PLAYBOOK_PATH:-"docker/ansible/etc/ansible/playbooks/main.yaml"}"
+ANSIBLE_INVENTORY_PATH="${ANSIBLE_INVENTORY_PATH:-"docker/ansible/etc/ansible/inventory/hosts.yml"}"
+ANSIBLE_VAULT_ID="${ANSIBLE_VAULT_ID:-"home_lab_vault"}"
+ANSIBLE_VAULT_DECRYPT_MODE="${ANSIBLE_VAULT_DECRYPT_MODE:-"prompt"}"
+
+DEFAULT_ANSIBLE_COMMAND_TO_RUN="ansible-playbook"
+DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --inventory ${ANSIBLE_INVENTORY_PATH}"
+DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --vault-id ${ANSIBLE_VAULT_ID}@${ANSIBLE_VAULT_DECRYPT_MODE}"
+DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ANSIBLE_PLAYBOOK_PATH}"
+
+ANSIBLE_COMMAND_GATHER_FACTS_INVENTORY="ansible -m ansible.builtin.setup --inventory ${ANSIBLE_INVENTORY_PATH} all"
+
+if [ -n "${1:-}" ]; then
+  COMMAND_TO_RUN="${COMMAND_TO_RUN:-""} ${1}"
+elif [ "${ANSIBLE_GATHER_FACTS_INVENTORY:-"false"}" = "true" ]; then
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ANSIBLE_COMMAND_GATHER_FACTS_INVENTORY}"
+else
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${DEFAULT_ANSIBLE_COMMAND_TO_RUN}"
+fi
+
+# --list-tags: list the defined Ansible tags
+if [ -n "${ADDITIONAL_ANSIBLE_FLAGS:-""}" ]; then
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ADDITIONAL_ANSIBLE_FLAGS:-""}"
 fi
 
 echo "Running command: ${COMMAND_TO_RUN}"
