@@ -75,7 +75,7 @@ DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ANSIBLE_PLAY
 
 ANSIBLE_COMMAND_GATHER_FACTS_INVENTORY="ansible -m ansible.builtin.setup --inventory ${ANSIBLE_INVENTORY_PATH} all"
 
-COMMAND_TO_RUN=""
+COMMAND_TO_RUN="${COMMAND_TO_RUN:-""}"
 
 if [ -n "${1:-}" ]; then
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${1}"
@@ -85,6 +85,8 @@ else
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${DEFAULT_ANSIBLE_COMMAND_TO_RUN}"
 fi
 
+# --check: enable check mode (dry-run)
+# --diff: enable diff mode
 # --list-tags: list the defined Ansible tags
 if [ -n "${ADDITIONAL_ANSIBLE_FLAGS:-""}" ]; then
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ADDITIONAL_ANSIBLE_FLAGS:-""}"
