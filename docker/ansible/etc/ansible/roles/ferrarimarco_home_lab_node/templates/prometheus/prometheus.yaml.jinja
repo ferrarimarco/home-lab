@@ -126,7 +126,7 @@ scrape_configs:
       - targets:
 {% for host in groups['all'] %}
 {% if hostvars[host].configure_monitoring_nut | default(false) %}
-        - "{{ host }}:{{ hostvars[host].monitoring_nut_exporter_port | default(monitoring_nut_exporter_port) }}"
+        - "{{ host }}"
 {% endif %}
 {% endfor %}
     metrics_path: /ups_metrics
@@ -136,6 +136,6 @@ scrape_configs:
       - source_labels: [__param_server]
         target_label: instance
       - target_label: __address__
-        replacement: nut-exporter.local:9199
+        replacement: {{ monitoring_nut_http_endpoint_fqdn }}:{{ monitoring_nut_exporter_port }}
 {% endif %}
 ...
