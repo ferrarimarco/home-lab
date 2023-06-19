@@ -21,7 +21,7 @@ if ! is_container_runtime_available; then
   PIP_REQUIREMENTS_FILE_PATH="${PIP_REQUIREMENTS_FILE_PATH:-"${CURRENT_WORKING_DIRECTORY}/docker/ansible/requirements.txt"}"
   create_and_activate_python_virtual_environment "${VIRTUAL_ENVIRONMENT_PATH}" "${PIP_REQUIREMENTS_FILE_PATH}"
 
-  ANSIBLE_DIRECTORY="${WORKING_DIRECTORY}/docker/ansible/etc/ansible"
+  ANSIBLE_DIRECTORY="${CURRENT_WORKING_DIRECTORY}/docker/ansible/etc/ansible"
   ANSIBLE_ROLES_PATH="${ANSIBLE_ROLES_PATH:-"${ANSIBLE_DIRECTORY}/roles"}"
   export ANSIBLE_ROLES_PATH
 
@@ -75,8 +75,10 @@ DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ANSIBLE_PLAY
 
 ANSIBLE_COMMAND_GATHER_FACTS_INVENTORY="ansible -m ansible.builtin.setup --inventory ${ANSIBLE_INVENTORY_PATH} all"
 
+COMMAND_TO_RUN=""
+
 if [ -n "${1:-}" ]; then
-  COMMAND_TO_RUN="${COMMAND_TO_RUN:-""} ${1}"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${1}"
 elif [ "${ANSIBLE_GATHER_FACTS_INVENTORY:-"false"}" = "true" ]; then
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ANSIBLE_COMMAND_GATHER_FACTS_INVENTORY}"
 else
