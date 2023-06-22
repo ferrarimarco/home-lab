@@ -36,8 +36,9 @@ services:
     container_name: nut-exporter
     restart: unless-stopped
     command:
+      - "--log.level=debug"
       - "--nut.username={{ monitoring_nut_server_admin_username }}"
-      - --nut.vars_enable=""
+      - "--nut.vars_enable="
       - "--web.listen-address=:{{ monitoring_nut_exporter_port }}"
     environment:
       - NUT_EXPORTER_PASSWORD="{{ monitoring_nut_server_admin_password }}"
