@@ -74,10 +74,11 @@ frigate_cameras:
   #         - detect
   #         - record
   - name: cam-3
-    # Uncomment if the Frigate host can handle the camera stream at its full resolution
-    # detect:
-    #   height: 1920
-    #   width: 2560
+    detect:
+      # Keep the fps setting for reference
+      # fps: 10
+      height: 480
+      width: 640
     inputs:
       - path: rtsp://{{ cam_3_rtps_username }}:{{ cam_3_rtps_password }}@cam-3.{{ edge_environment_root_fqdn }}:554/h264Preview_01_sub
         roles:
@@ -85,6 +86,8 @@ frigate_cameras:
       - path: rtsp://{{ cam_3_rtps_username }}:{{ cam_3_rtps_password }}@cam-3.{{ edge_environment_root_fqdn }}:554/h264Preview_01_main
         roles:
           - record
+frigate_ffmpeg_output_arguments:
+  record: preset-record-generic-audio-copy
 is_raspberry_pi: false
 lab_dns_zone: "lab.{{ root_dns_zone_fqdn }}"
 monitoring_backend_dns_records_to_check:

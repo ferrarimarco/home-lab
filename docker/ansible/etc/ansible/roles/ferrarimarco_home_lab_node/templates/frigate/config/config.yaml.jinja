@@ -20,18 +20,32 @@ ffmpeg:
   hwaccel_args: {{ frigate_ffmpeg_harware_acceleration_arguments }}
 {% endif %}
 {% endif %}
+{% if frigate_ffmpeg_output_arguments is defined %}
+  output_args:
+{% if frigate_ffmpeg_output_arguments.record is defined %}
+    record: {{ frigate_ffmpeg_output_arguments.record }}
+{% endif %}
+{% endif %}
 
 # Configuration for recordings
 record:
   enabled: true
   events:
-    # Number of seconds after the event to include
-    post_capture: 10
-    # Number of seconds before the event to include
-    pre_capture: 10
+    # Number of seconds after the event to include.
+    # Doesn't have effect if record.events.retain.mode is not set to "all"
+    post_capture: 30
+    # Number of seconds before the event to include.
+    # Doesn't have effect if record.events.retain.mode is not set to "all"
+    pre_capture: 30
     retain:
       # Retention days
       default: 10
+      # Recording retention mode for events.
+      # all - save all recording segments for events regardless of activity
+      # motion - save all recordings segments for events with any detected motion
+      # active_objects - save all recording segments for event with active/moving objects
+      # Default is "motion" (Frigate 0.12.0)
+      mode: all
 
 # Disable RTMP re-streaming to spare resources
 rtmp:
