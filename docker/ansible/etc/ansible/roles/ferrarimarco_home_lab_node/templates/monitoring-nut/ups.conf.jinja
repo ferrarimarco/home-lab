@@ -1,0 +1,9 @@
+{% for nut_device in monitoring_nut_devices | default([]) %}
+[{{ nut_device.id }}]
+    desc = "{{ nut_device.description }}"
+    driver = "{{ nut_device.driver }}"
+    port = "{{ nut_device.port }}"
+    vendorid = "{{ nut_device.vendorId }}"
+    productid = "{{ nut_device.productId }}"
+    bus = "{{ nut_device.bus }}"
+{% endfor %}

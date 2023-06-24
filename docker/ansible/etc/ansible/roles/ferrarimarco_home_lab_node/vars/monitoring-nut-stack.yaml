@@ -1,0 +1,42 @@
+---
+# The package installer takes care of creating this directory
+monitoring_nut_configuration_directory_path: "{{ etc_directory_path }}/nut"
+monitoring_nut_exporter_port: 9133
+monitoring_nut_templates_to_render:
+  - src: "monitoring-nut/nut.conf.jinja"
+    dest: "{{ monitoring_nut_configuration_directory_path }}/nut.conf"
+    state: "{{ configure_monitoring_nut | ternary('file', 'absent') }}"
+    os_services_to_restart: "{{ monitoring_nut_os_services_to_restart }}"
+    group: nut
+    mode: "0640"
+  - src: "monitoring-nut/ups.conf.jinja"
+    dest: "{{ monitoring_nut_configuration_directory_path }}/ups.conf"
+    state: "{{ configure_monitoring_nut | ternary('file', 'absent') }}"
+    os_services_to_restart: "{{ monitoring_nut_os_services_to_restart }}"
+    group: nut
+    mode: "0640"
+  - src: "monitoring-nut/upsd.conf.jinja"
+    dest: "{{ monitoring_nut_configuration_directory_path }}/upsd.conf"
+    state: "{{ configure_monitoring_nut | ternary('file', 'absent') }}"
+    os_services_to_restart: "{{ monitoring_nut_os_services_to_restart }}"
+    group: nut
+    mode: "0640"
+  - src: "monitoring-nut/upsd.users.jinja"
+    dest: "{{ monitoring_nut_configuration_directory_path }}/upsd.users"
+    state: "{{ configure_monitoring_nut | ternary('file', 'absent') }}"
+    os_services_to_restart: "{{ monitoring_nut_os_services_to_restart }}"
+    group: nut
+    mode: "0640"
+  - src: "monitoring-nut/upsmon.conf.jinja"
+    dest: "{{ monitoring_nut_configuration_directory_path }}/upsmon.conf"
+    state: "{{ configure_monitoring_nut | ternary('file', 'absent') }}"
+    os_services_to_restart: "{{ monitoring_nut_os_services_to_restart }}"
+    group: nut
+    mode: "0640"
+monitoring_nut_os_packages:
+  - name: nut
+monitoring_nut_os_services_to_restart:
+  - nut-server
+  - nut-client
+  - nut-monitor
+...

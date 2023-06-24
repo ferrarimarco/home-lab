@@ -18,7 +18,5 @@
     user: "{{ item.user | default(omit) }}"
     weekday: "{{ item.weekday | default(omit) }}"
   become: "{{ item.become | default(omit) }}"
-  tags:
-    - cron_jobs
   with_items: "{{ cron_jobs | default([]) }}"
 ...

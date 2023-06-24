@@ -8,6 +8,7 @@ configure_home_assistant: false
 configure_media_stack: false
 configure_monitoring: true
 configure_monitoring_backend: false
+configure_monitoring_nut: false
 configure_mqtt_broker: false
 configure_network_stack: false
 configure_network_shares: false

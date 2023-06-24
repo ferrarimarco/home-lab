@@ -1,0 +1,4 @@
+RUN_AS_USER root
+{% for nut_device in monitoring_nut_devices | default([]) %}
+MONITOR {{ nut_device.id }}@{{ nut_device.hostname | default("localhost") }} 1 {{ monitoring_nut_server_admin_username }} {{ monitoring_nut_server_admin_password }} master
+{% endfor %}
