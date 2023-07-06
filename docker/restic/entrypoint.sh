@@ -27,6 +27,17 @@ if [ "${RESTIC_ENABLE_PRUNE:-"false"}" = "true" ]; then
   eval "restic --verbose forget --prune ${RESTIC_FORGET_POLICY}"
 fi
 
+if [ "${RESTIC_ENABLE_PRUNE_UNTAGGED_SNAPSHOTS:-"false"}" = "true" ]; then
+  echo "Pruning untagged snapshots"
+  # Use eval here because restic interprets quotes literally
+  eval "restic --verbose forget --prune --keep-last 1 --group tags --tag ''"
+
+  if [ -n "${RESTIC_TAG_TO_PRUNE:-""}" ]; then
+    echo "Pruning specific tag: ${RESTIC_TAG_TO_PRUNE}"
+    eval "restic --verbose forget --prune ${RESTIC_TAG_TO_PRUNE}"
+  fi
+fi
+
 if [ "${RESTIC_ENABLE_REPOSITORY_CHECK:-"false"}" = "true" ]; then
   echo "Checking the integrity of ${RESTIC_REPOSITORY}"
   restic --verbose check
