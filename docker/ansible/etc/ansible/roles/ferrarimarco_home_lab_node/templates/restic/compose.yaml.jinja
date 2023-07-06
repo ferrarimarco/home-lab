@@ -7,6 +7,7 @@ services:
       context: .
     container_name: "{{ backup_job.job_name }}"
     environment:
+      - RESTIC_BACKUP_TAGS="{{ backup_job.job_name }}"
       - RESTIC_DIRECTORIES_TO_BACKUP={{ backup_job.directories_to_backup | join(' ', attribute='container_mount_destination_directory') }}
       - RESTIC_FORGET_POLICY={{ backup_job.restic_forget_policy | join(' ') }}
       - RESTIC_REPOSITORY={{ restic_repository_container_destination_path }}

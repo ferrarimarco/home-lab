@@ -16,9 +16,9 @@ else
 fi
 
 if [ "${RESTIC_ENABLE_BACKUP:-"false"}" = "true" ]; then
-  echo "Backing up ${RESTIC_DIRECTORIES_TO_BACKUP}"
+  echo "Backing up ${RESTIC_DIRECTORIES_TO_BACKUP}. Tags: ${RESTIC_BACKUP_TAGS}"
   # Use eval here because restic interprets quotes literally
-  eval "restic --verbose backup ${RESTIC_DIRECTORIES_TO_BACKUP}"
+  eval "restic --verbose backup ${RESTIC_DIRECTORIES_TO_BACKUP} --tag ${RESTIC_BACKUP_TAGS}"
 fi
 
 if [ "${RESTIC_ENABLE_PRUNE:-"false"}" = "true" ]; then
