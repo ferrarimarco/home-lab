@@ -108,3 +108,17 @@
     entity_id: switch.presa_studio_gaming
     domain: switch
   mode: single
+- id: '1685788425243'
+  alias: Notify if entity is unavailable
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - camera.e1_ingresso_sub
+    to: unavailable
+  condition: []
+  action:
+  - service: telegram_bot.send_message
+    data:
+      message: '{{ trigger.event.data.entity_id }} entity is unavailable.'
+  mode: single
