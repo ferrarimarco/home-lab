@@ -88,6 +88,9 @@ fi
 # --check: enable check mode (dry-run)
 # --diff: enable diff mode
 # --list-tags: list the defined Ansible tags
+# --tags: run tagged tasks. Example: --tags='tag1,tag2'. To run untagged tasks: --tags untagged
+#   When running tasks related to specific stacks, you need to also run untagged tasks.
+#   Example: --tags='monitoring,monitoring-backend,monitoring-nut' --tags untagged
 if [ -n "${ADDITIONAL_ANSIBLE_FLAGS:-""}" ]; then
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ADDITIONAL_ANSIBLE_FLAGS:-""}"
 fi
