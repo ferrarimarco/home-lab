@@ -133,47 +133,6 @@ To run Ansible, use the `scripts/run-ansible.sh` script. This script provides a
 thin wrapper that takes care of setting up either a container (preferred) or a
 Python virtual environment to run Ansible.
 
-#### Ansible execution examples
-
-These examples assume that the current working directory is the root of this repository.
-
-To run `ansible-playbook` against the hosts listed in an inventory:
-
-```shell
-scripts/run-ansible.sh "ansible-playbook --inventory docker/ansible/etc/ansible/inventory/hosts.yml docker/ansible/etc/ansible/playbooks/main.yaml"
-```
-
-To run `ansible-playbook` against the hosts listed in an inventory, with a vault to decrypt (prompt for password):
-
-```shell
-scripts/run-ansible.sh "ansible-playbook --inventory docker/ansible/etc/ansible/inventory/hosts.yml --vault-id home_lab_vault@prompt docker/ansible/etc/ansible/playbooks/main.yaml"
-```
-
-To run `ansible-playbook` against the hosts listed in an inventory, with a vault to decrypt (read the password from a file):
-
-```shell
-scripts/run-ansible.sh \
-    "ansible-playbook --inventory docker/ansible/etc/ansible/inventory/hosts.yml --vault-id home_lab_vault@secrets/home_lab_vault_pw docker/ansible/etc/ansible/playbooks/main.yaml"
-```
-
-To gather all the facts about a single host:
-
-```shell
-scripts/run-ansible.sh "ansible -m ansible.builtin.setup --user pi -i 'hostname.tld,' all"
-```
-
-To gather all the facts about all hosts, reusing the inventory:
-
-```shell
-scripts/run-ansible.sh "ansible -m ansible.builtin.setup -i docker/ansible/etc/ansible/inventory/hosts.yml all"
-```
-
-To list all the available Ansible tags in a play:
-
-```shell
-scripts/run-ansible.sh "ansible-playbook --inventory docker/ansible/etc/ansible/inventory/hosts.yml docker/ansible/etc/ansible/playbooks/main.yaml --list-tags"
-```
-
 #### Copy Jinja templates as they are
 
 If you need to copy Jinja templates with the Ansible Template Module, you can
