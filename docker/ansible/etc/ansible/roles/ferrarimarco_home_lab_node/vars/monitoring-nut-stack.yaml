@@ -35,6 +35,7 @@ monitoring_nut_templates_to_render:
     mode: "0640"
 monitoring_nut_os_packages:
   - name: nut
+    state: "{{ configure_monitoring_nut | ternary('present', 'absent') }}"
 monitoring_nut_os_services_to_restart:
   - nut-server
   - nut-client
