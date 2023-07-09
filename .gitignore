@@ -7,6 +7,9 @@
 *.xz
 SHA256SUMS
 
+# Generated prometheus metrics
+*.prom
+
 # ESPHome build path
 .esphome
 
