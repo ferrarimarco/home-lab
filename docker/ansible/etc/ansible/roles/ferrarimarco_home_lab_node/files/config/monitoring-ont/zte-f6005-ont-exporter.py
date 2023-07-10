@@ -611,7 +611,7 @@ def main():
         help="Ethernet interface of the router to which the ONT is connected",
     )
     parser.add_argument(
-        "--seconds_between_reads",
+        "--seconds-between-reads",
         help="Seconds to wait between reads",
         default=30,
         type=int,
