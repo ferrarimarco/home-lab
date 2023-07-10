@@ -244,6 +244,12 @@
           group: "root"
       fact_os_services: "{{ asuswrt_chkwan_os_services }}"
       fact_templates_to_render: "{{ asuswrt_chkwan_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_monitoring_ont }}"
+      fact_category: "{{ monitoring_ont_tag }}"
+      fact_configuration_directories: "{{ monitoring_ont_configuration_directories }}"
+      fact_files_to_configure: "{{ monitoring_ont_files_to_configure }}"
+      fact_os_services: "{{ monitoring_ont_os_services }}"
+      fact_templates_to_render: "{{ monitoring_ont_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:

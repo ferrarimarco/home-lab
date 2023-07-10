@@ -393,7 +393,7 @@ def login(session, username, password, ip_address):
         verify=False,
     )
 
-    print(login_response.text)
+    logger.info(login_response.text)
 
 
 def collect_device_info(session, ip_address):
@@ -613,7 +613,7 @@ def main():
     parser.add_argument(
         "--seconds_between_reads",
         help="Seconds to wait between reads",
-        default=60,
+        default=30,
         type=int,
     )
     parser.add_argument(
