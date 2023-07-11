@@ -3,7 +3,7 @@ Description=Run the ChkWAN script against a remote Asus router runnint AsusWRT
 
 [Service]
 Nice=-10
-ExecStart=sh -c 'ssh -p {{ asuswrt_administration_ssh_port }} {{ asuswrt_administrator_username }}@{{ edge_environment_gateway.fqdn }} "cat > {{ asuswrt_chkwan_script_destination_path_on_asus_router }} && chmod a+x {{ asuswrt_chkwan_script_destination_path_on_asus_router }} && {{ asuswrt_chkwan_script_destination_path_on_asus_router }} once nowait wan tries=1 fails=1" < {{ asuswrt_chkwan_script_destination_path }}'
+ExecStart=sh -c 'ssh -v -p {{ asuswrt_administration_ssh_port }} {{ asuswrt_administrator_username }}@{{ edge_environment_gateway.fqdn }} "cat > {{ asuswrt_chkwan_script_destination_path_on_asus_router }} && chmod a+x {{ asuswrt_chkwan_script_destination_path_on_asus_router }} && {{ asuswrt_chkwan_script_destination_path_on_asus_router }} once nowait wan tries=1 fails=1" < {{ asuswrt_chkwan_script_destination_path }}'
 # Write nothing on the filesystem
 ProtectSystem=strict
 User={{ asuswrt_chkwan_user }}
