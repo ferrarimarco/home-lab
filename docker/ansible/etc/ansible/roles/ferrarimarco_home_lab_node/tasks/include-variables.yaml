@@ -235,11 +235,10 @@
       fact_templates_to_render: "{{ media_stack_templates_to_render }}"
     - enable_custom_fact: "{{ configure_asuswrt_chkwan }}"
       fact_category: "{{ asuswrt_chkwan_stack_tag }}"
-      fact_configuration_directories: "{{ asuswrt_chkwan_configuration_directories }}"
       fact_files_to_download:
         - url: "{{ asuswrt_chkwan_script_url }}"
           dest: "{{ asuswrt_chkwan_script_destination_path }}"
-          state: "{{ asuswrt_chkwan_configuration_directories | ternary('file', 'absent') }}"
+          state: "{{ configure_asuswrt_chkwan | ternary('file', 'absent') }}"
           mode: "0755"
           owner: "root"
           group: "root"
