@@ -70,9 +70,17 @@
     mode: "0644"
   with_items: "{{ security_sudoers_passworded }}"
 
+- name: Create a directory for OpenSSH configuration - {{ ansible_user }}
+  ansible.builtin.file:
+    path: "{{ ansible_user_ssh_configuration_directory_path }}"
+    state: directory
+    group: "{{ ansible_user }}"
+    owner: "{{ ansible_user }}"
+    mode: "0700"
+
 - name: Generate an OpenSSH keypair - {{ ansible_user }}
   community.crypto.openssh_keypair:
     group: "{{ ansible_user }}"
     owner: "{{ ansible_user }}"
-    path: "/home/{{ ansible_user }}/.ssh/id_rsa"
+    path: "{{ ansible_user_ssh_configuration_directory_path }}/id_rsa"
 ...
