@@ -388,6 +388,7 @@ os_users:
   - append: true
     name: "{{ ansible_user }}"
     groups: "{{ default_user_groups }}"
+    generate_ssh_keypair: true
 prometheus_node_exporter_port: 9100
 restic_configuration_directories:
   - path: "{{ restic_configuration_directory_path }}"

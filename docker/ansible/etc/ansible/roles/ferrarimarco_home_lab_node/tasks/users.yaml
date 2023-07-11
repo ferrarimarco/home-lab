@@ -18,6 +18,7 @@
     shell: "{{ item.shell | default(omit) }}"
     state: "{{ item.state | default(omit) }}"
     system: "{{ item.system | default(omit) }}"
+  register: configured_os_users
   with_items: "{{ os_users }}"
 
 - name: "Lock the password of the default user if we authenticated with a key - {{ ansible_user }}"
@@ -69,4 +70,12 @@
     validate: 'visudo -cf %s'
     mode: "0644"
   with_items: "{{ security_sudoers_passworded }}"
+
+- name: Generate an OpenSSH keypair - {{ ansible_user }}
+  community.crypto.openssh_keypair:
+    group: "{{ item.name }}"
+    owner: "{{ item.name }}"
+    path: "{{ configured_os_users[item.name]["home"] }}/.ssh/id_ssh_rsa"
+  with_items: "{{ os_users }}"
+  when: {{ item.generate_ssh_keypair | default(false) }}
 ...

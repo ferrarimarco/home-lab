@@ -1,0 +1,26 @@
+---
+asuswrt_administrator_username: "{{ vault_asuswrt_administrator_username }}"
+asuswrt_administration_ssh_port: "{{ vault_asuswrt_administration_ssh_port }}"
+asuswrt_chkwan_stack_tag: "asuswrt-chkwan"
+asuswrt_chkwan_os_services:
+  - enabled: true
+    service_name: "{{ asuswrt_chkwan_timer_file_name }}"
+    service_state: "{{ configure_asuswrt_chkwan | ternary('started', 'stopped') }}"
+asuswrt_chkwan_script_destination_path: "/usr/local/bin/ChkWAN.sh"
+asuswrt_chkwan_script_destination_path_on_asus_router: "/tmp/ChkWAN.sh"
+asuswrt_chkwan_script_url: "https://raw.githubusercontent.com/MartineauUK/Chk-WAN/81ca28a24644cce8679472b72e1913c1885535ca/ChkWAN.sh"
+asuswrt_chkwan_service_file_name: "{{ asuswrt_chkwan_service_name }}.service"
+asuswrt_chkwan_service_name: "{{ asuswrt_chkwan_stack_tag }}"
+asuswrt_chkwan_templates_to_render:
+  - src: "{{ asuswrt_chkwan_stack_tag }}/{{ asuswrt_chkwan_service_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ asuswrt_chkwan_service_file_name }}"
+    state: "{{ configure_asuswrt_chkwan | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ asuswrt_chkwan_service_name }}"
+  - src: "{{ asuswrt_chkwan_stack_tag }}/{{ asuswrt_chkwan_timer_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ asuswrt_chkwan_timer_file_name }}"
+    state: "{{ configure_asuswrt_chkwan | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ asuswrt_chkwan_service_name }}"
+asuswrt_chkwan_timer_file_name: "{{ asuswrt_chkwan_service_name }}.timer"
+...

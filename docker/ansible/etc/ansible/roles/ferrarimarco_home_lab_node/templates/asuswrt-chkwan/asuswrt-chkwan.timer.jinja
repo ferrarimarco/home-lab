@@ -1,0 +1,8 @@
+[Unit]
+Description=Run ChkWAN service as scheduled
+
+[Timer]
+OnCalendar=*:0/1
+
+[Install]
+WantedBy=timers.target

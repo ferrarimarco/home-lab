@@ -1,6 +1,7 @@
 ---
 backups_samba_share_path: "/media/data0/backups-marco"
 configure_backup_restic: true
+configure_asuswrt_chkwan: true
 configure_docker: true
 configure_frigate: true
 configure_home_assistant: true
