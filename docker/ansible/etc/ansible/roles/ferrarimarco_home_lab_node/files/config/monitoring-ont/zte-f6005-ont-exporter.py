@@ -326,7 +326,7 @@ class AdminInterfaceHTMLParser(HTMLParser):
         super().__init__(convert_charrefs=convert_charrefs)
 
     def handle_data(self, data):
-        page_name_instruction = "var pagename=\"{page_name}\"".format(
+        page_name_instruction = 'var pagename="{page_name}"'.format(
             page_name=self.page_name
         )
         logger.debug(
@@ -336,9 +336,7 @@ class AdminInterfaceHTMLParser(HTMLParser):
         )
         if page_name_instruction in data:
             logger.debug(
-                "Found script data for {page_name}".format(
-                    page_name=self.page_name
-                )
+                "Found script data for {page_name}".format(page_name=self.page_name)
             )
             self.script_tag_content = data
 
@@ -353,7 +351,7 @@ def _get_script_tag_content(response, page_name, field_names):
 
     matched_data = {}
 
-    for field_name,field_name_js in field_names.items():
+    for field_name, field_name_js in field_names.items():
         javascript_data_re = re.compile(
             r"^{field_name}=\"(?P<data>\S*)\";$".format(field_name=field_name_js)
         )
@@ -369,12 +367,12 @@ def _get_script_tag_content(response, page_name, field_names):
                 )
             )
             matches = javascript_data_re.match(line)
-            if matches != None:
+            if matches is not None:
                 matches_groups = matches.groupdict()
                 match = matches_groups["data"]
                 logger.debug(
                     "Found match ({field_name},{field_name_js}): {match}".format(
-                        field_name=field_name, field_name_js=field_name_js,match=match
+                        field_name=field_name, field_name_js=field_name_js, match=match
                     )
                 )
                 if match.isnumeric():
@@ -383,7 +381,7 @@ def _get_script_tag_content(response, page_name, field_names):
 
     logger.info(
         "Matched data for {page_name}: {matched_data}".format(
-            page_name=page_name,matched_data=matched_data
+            page_name=page_name, matched_data=matched_data
         )
     )
 
