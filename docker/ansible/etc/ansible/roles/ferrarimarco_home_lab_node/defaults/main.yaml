@@ -1,5 +1,6 @@
 ---
 cadvisor_exposed_port: 8083
+configure_asuswrt_chkwan: false
 configure_docker: false
 configure_dphys_swapfile: false
 configure_dphys_swapfile_swapfactor: 2
