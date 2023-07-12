@@ -3,12 +3,11 @@
 import argparse
 import logging
 import re
-import requests
 import sys
 import time
-
 from html.parser import HTMLParser
 
+import requests
 from prometheus_client import CollectorRegistry, Gauge, Summary, write_to_textfile
 
 logging.basicConfig()
@@ -54,7 +53,7 @@ metrics = {
         ],
         namespace=namespace,
         registry=registry,
-        unit="dbm"
+        unit="dbm",
     ),
     "optical_rx_power": Gauge(
         name="optical_rx_power",
@@ -64,7 +63,7 @@ metrics = {
         ],
         namespace=namespace,
         registry=registry,
-        unit="dbm"
+        unit="dbm",
     ),
     "optical_interface_voltage": Gauge(
         name="optical_interface_voltage",
@@ -74,7 +73,7 @@ metrics = {
         ],
         namespace=namespace,
         registry=registry,
-        unit="volts"
+        unit="volts",
     ),
     "optical_interface_current": Gauge(
         name="optical_interface_current",
@@ -84,7 +83,7 @@ metrics = {
         ],
         namespace=namespace,
         registry=registry,
-        unit="amperes"
+        unit="amperes",
     ),
     "optical_interface_temperature": Gauge(
         name="optical_interface_temperature",
@@ -322,7 +321,6 @@ ethernet_network_interface_field_names = {
 
 
 class AdminInterfaceHTMLParser(HTMLParser):
-
     def __init__(self, page_name, convert_charrefs: bool = True) -> None:
         self.page_name = page_name
         super().__init__(convert_charrefs=convert_charrefs)
@@ -640,5 +638,5 @@ def main():
         time.sleep(args.seconds_between_reads)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
