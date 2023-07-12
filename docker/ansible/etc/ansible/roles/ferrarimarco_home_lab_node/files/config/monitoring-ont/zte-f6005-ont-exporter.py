@@ -93,7 +93,7 @@ metrics = {
         ],
         namespace=namespace,
         registry=registry,
-        unit="celsius"
+        unit="celsius",
     ),
     "ethernet_interface_link_status": Gauge(
         name="ethernet_interface_link_up",
@@ -136,7 +136,7 @@ metrics = {
         ],
         namespace=namespace,
         registry=registry,
-        unit="bytes"
+        unit="bytes",
     ),
     "ethernet_interface_rx_packets": Gauge(
         name="ethernet_interface_rx_packets",
@@ -197,7 +197,7 @@ metrics = {
         ],
         namespace=namespace,
         registry=registry,
-        unit="bytes"
+        unit="bytes",
     ),
     "ethernet_interface_tx_packets": Gauge(
         name="ethernet_interface_tx_packets",
@@ -326,10 +326,20 @@ class AdminInterfaceHTMLParser(HTMLParser):
         super().__init__(convert_charrefs=convert_charrefs)
 
     def handle_data(self, data):
-        page_name_instruction = "var pagename=\"{page_name}\"".format(page_name=self.page_name)
-        logger.debug("Check if {page_name} is in data: {page_name_instruction}".format(page_name=self.page_name, page_name_instruction=page_name_instruction))
+        page_name_instruction = "var pagename=\"{page_name}\"".format(
+            page_name=self.page_name
+        )
+        logger.debug(
+            "Check if {page_name} is in data: {page_name_instruction}".format(
+                page_name=self.page_name, page_name_instruction=page_name_instruction
+            )
+        )
         if page_name_instruction in data:
-            logger.debug("Found script data for {page_name}".format(page_name=self.page_name))
+            logger.debug(
+                "Found script data for {page_name}".format(
+                    page_name=self.page_name
+                )
+            )
             self.script_tag_content = data
 
 
@@ -343,21 +353,39 @@ def _get_script_tag_content(response, page_name, field_names):
 
     matched_data = {}
 
-    for (field_name,field_name_js) in field_names.items():
-        javascript_data_re = re.compile(r"^{field_name}=\"(?P<data>\S*)\";$".format(field_name=field_name_js))
-        logger.debug("Matching content to regex: {regex}. Content:\n{content}".format(regex=javascript_data_re, content=script_tag_content))
+    for field_name,field_name_js in field_names.items():
+        javascript_data_re = re.compile(
+            r"^{field_name}=\"(?P<data>\S*)\";$".format(field_name=field_name_js)
+        )
+        logger.debug(
+            "Matching content to regex: {regex}. Content:\n{content}".format(
+                regex=javascript_data_re, content=script_tag_content
+            )
+        )
         for line in script_tag_content.splitlines():
-            logger.debug("Check if {line} matches {regex}".format(line=line, regex=javascript_data_re))
+            logger.debug(
+                "Check if {line} matches {regex}".format(
+                    line=line, regex=javascript_data_re
+                )
+            )
             matches = javascript_data_re.match(line)
             if matches != None:
                 matches_groups = matches.groupdict()
                 match = matches_groups["data"]
-                logger.debug("Found match ({field_name},{field_name_js}): {match}".format(field_name=field_name, field_name_js=field_name_js,match=match))
+                logger.debug(
+                    "Found match ({field_name},{field_name_js}): {match}".format(
+                        field_name=field_name, field_name_js=field_name_js,match=match
+                    )
+                )
                 if match.isnumeric():
                     match = int(match)
                 matched_data[field_name] = match
 
-    logger.info("Matched data for {page_name}: {matched_data}".format(page_name=page_name,matched_data=matched_data))
+    logger.info(
+        "Matched data for {page_name}: {matched_data}".format(
+            page_name=page_name,matched_data=matched_data
+        )
+    )
 
     return matched_data
 
@@ -375,7 +403,7 @@ def login(session, username, password, ip_address):
 
     login_headers = {
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Referer": "https://{ip_address}/login.html".format(ip_address=ip_address)
+        "Referer": "https://{ip_address}/login.html".format(ip_address=ip_address),
     }
 
     login_payload = {
@@ -404,7 +432,9 @@ def collect_device_info(session, ip_address):
         verify=False,
     )
 
-    script_tag_content = _get_script_tag_content(device_info_response, "devinfo", device_info_field_names)
+    script_tag_content = _get_script_tag_content(
+        device_info_response, "devinfo", device_info_field_names
+    )
 
     pon_serial_number = script_tag_content["pon_serial_number"]
 
@@ -426,7 +456,9 @@ def collect_network_interface_metrics(session, pon_serial_number, ip_address):
         verify=False,
     )
 
-    script_tag_content = _get_script_tag_content(gpon_info_response, "gponinfo", optical_interface_field_names)
+    script_tag_content = _get_script_tag_content(
+        gpon_info_response, "gponinfo", optical_interface_field_names
+    )
 
     gpon_status_index = script_tag_content["gpon_status_index"]
 
@@ -477,12 +509,16 @@ def collect_user_network_interface_metrics(session, pon_serial_number, ip_addres
         verify=False,
     )
 
-    script_tag_content = _get_script_tag_content(user_info_response, "userinfo", ethernet_network_interface_field_names)
+    script_tag_content = _get_script_tag_content(
+        user_info_response, "userinfo", ethernet_network_interface_field_names
+    )
 
     link_up = script_tag_content["link_up"]
     link_mode = script_tag_content["link_mode"]
 
-    ethernet_interface_mac_address = script_tag_content["ethernet_interface_mac_address"]
+    ethernet_interface_mac_address = script_tag_content[
+        "ethernet_interface_mac_address"
+    ]
     metrics["ethernet_interface_mac_address"].labels(
         ethernet_interface_mac_address,
         pon_serial_number,
@@ -522,13 +558,17 @@ def collect_user_network_interface_metrics(session, pon_serial_number, ip_addres
         pon_serial_number,
     ).set(ethernet_interface_rx_packets)
 
-    ethernet_interface_rx_unicast_packets = script_tag_content["ethernet_interface_rx_unicast_packets"]
+    ethernet_interface_rx_unicast_packets = script_tag_content[
+        "ethernet_interface_rx_unicast_packets"
+    ]
     metrics["ethernet_interface_rx_unicast_packets"].labels(
         ethernet_interface_mac_address,
         pon_serial_number,
     ).set(ethernet_interface_rx_unicast_packets)
 
-    ethernet_interface_rx_multicast_packets = script_tag_content["ethernet_interface_rx_multicast_packets"]
+    ethernet_interface_rx_multicast_packets = script_tag_content[
+        "ethernet_interface_rx_multicast_packets"
+    ]
     metrics["ethernet_interface_rx_multicast_packets"].labels(
         ethernet_interface_mac_address,
         pon_serial_number,
@@ -558,13 +598,17 @@ def collect_user_network_interface_metrics(session, pon_serial_number, ip_addres
         pon_serial_number,
     ).set(ethernet_interface_tx_packets)
 
-    ethernet_interface_tx_unicast_packets = script_tag_content["ethernet_interface_tx_unicast_packets"]
+    ethernet_interface_tx_unicast_packets = script_tag_content[
+        "ethernet_interface_tx_unicast_packets"
+    ]
     metrics["ethernet_interface_tx_unicast_packets"].labels(
         ethernet_interface_mac_address,
         pon_serial_number,
     ).set(ethernet_interface_tx_unicast_packets)
 
-    ethernet_interface_tx_multicast_packets = script_tag_content["ethernet_interface_tx_multicast_packets"]
+    ethernet_interface_tx_multicast_packets = script_tag_content[
+        "ethernet_interface_tx_multicast_packets"
+    ]
     metrics["ethernet_interface_tx_multicast_packets"].labels(
         ethernet_interface_mac_address,
         pon_serial_number,
@@ -633,7 +677,9 @@ def main():
         )
         pon_serial_number = collect_device_info(session, ont_ip_address)
         collect_network_interface_metrics(session, pon_serial_number, ont_ip_address)
-        collect_user_network_interface_metrics(session, pon_serial_number, ont_ip_address)
+        collect_user_network_interface_metrics(
+            session, pon_serial_number, ont_ip_address
+        )
         write_to_textfile(args.metrics_textfile_path, registry)
         time.sleep(args.seconds_between_reads)
 
