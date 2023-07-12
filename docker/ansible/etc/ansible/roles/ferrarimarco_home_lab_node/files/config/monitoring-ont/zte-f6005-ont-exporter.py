@@ -36,7 +36,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "gpon_status" : Gauge(
+    "gpon_status": Gauge(
         name="gpon_status",
         documentation="GPON status",
         labelnames=[
@@ -46,7 +46,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "optical_tx_power" : Gauge(
+    "optical_tx_power": Gauge(
         name="optical_tx_power",
         documentation="Optical network interface transmit power",
         labelnames=[
@@ -56,7 +56,7 @@ metrics = {
         registry=registry,
         unit="dbm"
     ),
-    "optical_rx_power" : Gauge(
+    "optical_rx_power": Gauge(
         name="optical_rx_power",
         documentation="Optical network interface receive power",
         labelnames=[
@@ -66,7 +66,7 @@ metrics = {
         registry=registry,
         unit="dbm"
     ),
-    "optical_interface_voltage" : Gauge(
+    "optical_interface_voltage": Gauge(
         name="optical_interface_voltage",
         documentation="Optical network interface voltage",
         labelnames=[
@@ -76,7 +76,7 @@ metrics = {
         registry=registry,
         unit="volts"
     ),
-    "optical_interface_current" : Gauge(
+    "optical_interface_current": Gauge(
         name="optical_interface_current",
         documentation="Optical network interface current",
         labelnames=[
@@ -86,7 +86,7 @@ metrics = {
         registry=registry,
         unit="amperes"
     ),
-    "optical_interface_temperature" : Gauge(
+    "optical_interface_temperature": Gauge(
         name="optical_interface_temperature",
         documentation="Optical network interface temperature",
         labelnames=[
@@ -96,7 +96,7 @@ metrics = {
         registry=registry,
         unit="celsius"
     ),
-    "ethernet_interface_link_status" : Gauge(
+    "ethernet_interface_link_status": Gauge(
         name="ethernet_interface_link_up",
         documentation="Ethernet network interface link status",
         labelnames=[
@@ -107,7 +107,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_link_type" : Gauge(
+    "ethernet_interface_link_type": Gauge(
         name="ethernet_interface_link_type",
         documentation="Ethernet network interface link type",
         labelnames=[
@@ -118,7 +118,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_mac_address" : Gauge(
+    "ethernet_interface_mac_address": Gauge(
         name="ethernet_interface_mac_address",
         documentation="Ethernet network interface MAC address",
         labelnames=[
@@ -128,7 +128,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_rx_bytes" : Gauge(
+    "ethernet_interface_rx_bytes": Gauge(
         name="ethernet_interface_rx_bytes",
         documentation="Ethernet network interface received bytes",
         labelnames=[
@@ -139,7 +139,7 @@ metrics = {
         registry=registry,
         unit="bytes"
     ),
-    "ethernet_interface_rx_packets" : Gauge(
+    "ethernet_interface_rx_packets": Gauge(
         name="ethernet_interface_rx_packets",
         documentation="Ethernet network interface received packets",
         labelnames=[
@@ -149,7 +149,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_rx_unicast_packets" : Gauge(
+    "ethernet_interface_rx_unicast_packets": Gauge(
         name="ethernet_interface_rx_unicast_packets",
         documentation="Ethernet network interface received unicast packets",
         labelnames=[
@@ -159,7 +159,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_rx_multicast_packets" : Gauge(
+    "ethernet_interface_rx_multicast_packets": Gauge(
         name="ethernet_interface_rx_multicast_packets",
         documentation="Ethernet network interface received multicast packets",
         labelnames=[
@@ -169,7 +169,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_rx_errors" : Gauge(
+    "ethernet_interface_rx_errors": Gauge(
         name="ethernet_interface_rx_errors",
         documentation="Ethernet network interface received errors",
         labelnames=[
@@ -179,7 +179,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_rx_drops" : Gauge(
+    "ethernet_interface_rx_drops": Gauge(
         name="ethernet_interface_rx_drops",
         documentation="Ethernet network interface received dropped packets",
         labelnames=[
@@ -189,7 +189,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_tx_bytes" : Gauge(
+    "ethernet_interface_tx_bytes": Gauge(
         name="ethernet_interface_tx_bytes",
         documentation="Ethernet network interface transmitted bytes",
         labelnames=[
@@ -200,7 +200,7 @@ metrics = {
         registry=registry,
         unit="bytes"
     ),
-    "ethernet_interface_tx_packets" : Gauge(
+    "ethernet_interface_tx_packets": Gauge(
         name="ethernet_interface_tx_packets",
         documentation="Ethernet network interface transmitted packets",
         labelnames=[
@@ -210,7 +210,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_tx_unicast_packets" : Gauge(
+    "ethernet_interface_tx_unicast_packets": Gauge(
         name="ethernet_interface_tx_unicast_packets",
         documentation="Ethernet network interface transmitted unicast packets",
         labelnames=[
@@ -220,7 +220,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_tx_multicast_packets" : Gauge(
+    "ethernet_interface_tx_multicast_packets": Gauge(
         name="ethernet_interface_tx_multicast_packets",
         documentation="Ethernet network interface transmitted multicast packets",
         labelnames=[
@@ -230,7 +230,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_tx_errors" : Gauge(
+    "ethernet_interface_tx_errors": Gauge(
         name="ethernet_interface_tx_errors",
         documentation="Ethernet network interface transmitted errors",
         labelnames=[
@@ -240,7 +240,7 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
-    "ethernet_interface_tx_drops" : Gauge(
+    "ethernet_interface_tx_drops": Gauge(
         name="ethernet_interface_tx_drops",
         documentation="Ethernet network interface transmitted dropped packets",
         labelnames=[
