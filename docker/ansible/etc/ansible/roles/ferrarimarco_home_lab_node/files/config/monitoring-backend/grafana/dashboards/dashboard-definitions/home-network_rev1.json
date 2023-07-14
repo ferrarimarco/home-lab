@@ -719,7 +719,7 @@
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "ztef6005ont_optical_interface_current_amperes",
+          "expr": "ztef6005ont_optical_interface_current_amperes / 1000",
           "legendFormat": "{{__name__}} - {{pon_serial_number}}",
           "range": true,
           "refId": "A"
