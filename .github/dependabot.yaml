@@ -28,6 +28,10 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+  - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/zte-f6005-ont-exporter"
+    package-ecosystem: "pip"
+    schedule:
+      interval: "daily"
   - directory: "/docker/restic"
     package-ecosystem: "docker"
     schedule:

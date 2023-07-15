@@ -1,0 +1,34 @@
+---
+monitoring_ont_tag: "monitoring-ont"
+monitoring_ont_configuration_directories:
+  - path: "{{ monitoring_ont_configuration_directory_path }}"
+    state: "{{ configure_monitoring_ont | ternary('directory', 'absent') }}"
+monitoring_ont_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/{{ monitoring_ont_tag }}"
+monitoring_ont_files_to_configure:
+  - src: "config/{{ monitoring_ont_tag }}/requirements.txt"
+    dest: "{{ monitoring_ont_requirements_file_path }}"
+    state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_ont_os_service_name }}"
+  - src: "config/{{ monitoring_ont_tag }}/zte-f6005-ont-exporter.py"
+    dest: "{{ monitoring_ont_executable_path }}"
+    state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_ont_os_service_name }}"
+monitoring_ont_executable_path: "{{ monitoring_ont_configuration_directory_path }}/zte-f6005-ont-exporter.py"
+monitoring_ont_requirements_file_path: "{{ monitoring_ont_configuration_directory_path }}/requirements.txt"
+monitoring_ont_run_directory_path: "/run/{{ monitoring_ont_tag }}"
+monitoring_ont_virtual_env_path: "{{ monitoring_ont_run_directory_path }}/.venv"
+monitoring_ont_os_service_file_name: "{{ monitoring_ont_os_service_name }}.service"
+monitoring_ont_os_service_name: "zte-f6005-ont-exporter"
+monitoring_ont_os_services:
+  - enabled: true
+    service_name: "{{ monitoring_ont_os_service_file_name }}"
+    service_state: "{{ configure_monitoring_ont | ternary('started', 'stopped') }}"
+monitoring_ont_templates_to_render:
+  - src: "{{ monitoring_ont_tag }}/{{ monitoring_ont_os_service_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_ont_os_service_file_name }}"
+    state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_ont_os_service_name }}"
+...
