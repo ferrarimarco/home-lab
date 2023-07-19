@@ -49,14 +49,15 @@ jobs:
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          context: docker/${{ matrix.container-image-context-directory }}
+          context: ${{ matrix.container-image-context-directory }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
     strategy:
       matrix:
         container-image-context-directory:
-          - ansible
-          - arduino-cli
-          - restic
+          - docker/ansible
+          - docker/arduino-cli
+          - docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
+          - docker/restic
 ...

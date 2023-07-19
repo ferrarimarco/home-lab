@@ -11,6 +11,10 @@
   ansible.builtin.include_vars: "raspberry-pi-os.yaml"
   when: is_raspberry_pi
 
+- name: Load container image versions
+  ansible.builtin.include_tasks:
+    file: "register-container-image-versions-facts.yaml"
+
 - name: Register facts based on the OS type, or a default if not found
   ansible.builtin.include_tasks:
     file: "{{ item }}"

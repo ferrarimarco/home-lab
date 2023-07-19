@@ -32,6 +32,10 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+  - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper"
+    package-ecosystem: "docker"
+    schedule:
+      interval: "daily"
   - directory: "/docker/restic"
     package-ecosystem: "docker"
     schedule:

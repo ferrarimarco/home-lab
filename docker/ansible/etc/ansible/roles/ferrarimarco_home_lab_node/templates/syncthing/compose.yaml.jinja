@@ -1,7 +1,7 @@
 ---
 services:
   syncthing:
-    image: syncthing/syncthing:1.23.6
+    image: {{ container_images_ids["syncthing"] }}
     container_name: syncthing
     hostname: syncthing.{{ inventory_hostname }}
     environment:
