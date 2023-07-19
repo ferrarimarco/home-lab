@@ -32,6 +32,10 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+  - directory: "/docker/dependency-updates-helper"
+    package-ecosystem: "docker"
+    schedule:
+      interval: "daily"
   - directory: "/docker/restic"
     package-ecosystem: "docker"
     schedule:

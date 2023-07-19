@@ -58,5 +58,6 @@ jobs:
         container-image-context-directory:
           - ansible
           - arduino-cli
+          - dependency-updates-helper
           - restic
 ...

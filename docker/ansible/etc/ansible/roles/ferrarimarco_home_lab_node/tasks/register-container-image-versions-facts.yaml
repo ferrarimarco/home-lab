@@ -1,0 +1,21 @@
+---
+- name: Load the contents of the dependency helper Dockerfile
+  ansible.builtin.set_fact:
+    dependency_updates_helper_dockerfile: "{{ lookup('file', 'config/dependency-updates-helper/Dockerfile').splitlines() }}"
+    container_images_ids: {}
+
+- name: Debug dependency_updates_helper_dockerfile
+  ansible.builtin.debug:
+    var: dependency_updates_helper_dockerfile
+    verbosity: 1
+
+- name: Create the dictionary entry
+  set_fact:
+    container_images_ids: "{{ container_images_ids | combine({item.split()[3]: item.split()[1]}) }}"
+  with_items: "{{ dependency_updates_helper_dockerfile }}"
+
+- name: Debug container_images_ids
+  ansible.builtin.debug:
+    var: container_images_ids
+    verbosity: 1
+...
