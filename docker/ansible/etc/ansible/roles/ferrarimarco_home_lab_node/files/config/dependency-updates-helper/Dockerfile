@@ -15,7 +15,7 @@ FROM ghcr.io/home-assistant/home-assistant:2023.7.1 as home-assistant
 FROM jellyfin/jellyfin:10.8.10 as jellyfin
 
 # monitoring
-FROM gcr.io/cadvisor/cadvisor:v0.47.1 as cadvisor
+FROM gcr.io/cadvisor/cadvisor:v0.47.2 as cadvisor
 FROM ghcr.io/druggeri/nut_exporter:3.0.0 as nut-exporter
 FROM prom/blackbox-exporter:v0.24.0 as prometheus-blackbox-exporter
 FROM prom/prometheus:v2.45.0 as prometheus
