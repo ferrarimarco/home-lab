@@ -56,8 +56,8 @@ jobs:
     strategy:
       matrix:
         container-image-context-directory:
-          - ansible
-          - arduino-cli
-          - dependency-updates-helper
-          - restic
+          - docker/ansible
+          - docker/arduino-cli
+          - docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
+          - docker/restic
 ...
