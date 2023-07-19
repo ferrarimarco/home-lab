@@ -1,7 +1,7 @@
 ---
 services:
   qbittorrent-nox:
-    image: linuxserver/qbittorrent:4.5.4
+    image: {{ container_images_ids["qbittorrent"] }}
     container_name: qbittorrent-nox
     environment:
       - PUID=1000

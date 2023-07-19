@@ -20,7 +20,7 @@ services:
       - {{ directory_to_backup.source_host_directory }}:{{ directory_to_backup.container_mount_destination_directory }}
 {% endfor %}
   {{ backup_job.job_name }}-restic-exporter:
-    image: ngosang/restic-exporter:1.2.2
+    image: {{ container_images_ids["restic-exporter"] }}
     container_name: {{ backup_job.job_name }}-restic-exporter
     environment:
       - TZ={{ timezone }}

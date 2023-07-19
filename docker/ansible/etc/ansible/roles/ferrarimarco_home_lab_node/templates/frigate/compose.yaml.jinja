@@ -4,7 +4,7 @@ services:
     container_name: frigate
     privileged: true
     restart: always
-    image: ghcr.io/blakeblackshear/frigate:0.12.0
+    image: {{ container_images_ids["frigate"] }}
     shm_size: "64mb"
     # Got those from
     devices:

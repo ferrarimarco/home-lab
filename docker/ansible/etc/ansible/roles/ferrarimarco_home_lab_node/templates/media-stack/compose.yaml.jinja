@@ -1,7 +1,7 @@
 ---
 services:
   jellyfin:
-    image: jellyfin/jellyfin:10.8.10
+    image: {{ container_images_ids["jellyfin"] }}
     container_name: jellyfin
     volumes:
       - {{ jellyfin_configuration_directory_path }}:/config

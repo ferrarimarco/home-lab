@@ -12,6 +12,8 @@
 - name: Create the dictionary entry
   set_fact:
     container_images_ids: "{{ container_images_ids | combine({item.split()[3]: item.split()[1]}) }}"
+  when:
+    - item.startswith("FROM")
   with_items: "{{ dependency_updates_helper_dockerfile }}"
 
 - name: Debug container_images_ids
