@@ -38,7 +38,7 @@ jobs:
             org.opencontainers.image.title=home-lab-${{ matrix.container-image-context-directory }}
             org.opencontainers.image.description=${{ matrix.container-image-context-directory }} container image
           tags: |
-            type=ref,event=branch
+            type=ref,event=branch,enable={{is_default_branch}}
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
