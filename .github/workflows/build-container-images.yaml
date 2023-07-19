@@ -49,7 +49,7 @@ jobs:
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          context: docker/${{ matrix.container-image-context-directory }}
+          context: ${{ matrix.container-image-context-directory }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
