@@ -29,13 +29,13 @@ jobs:
       - name: Enable auto-merge for patch updates PR
         if: >
           steps.metadata.outputs.update-type == 'version-update:semver-patch'
-          || steps.metadata.outputs.dependency-name == 'docker/metadata-action'
-          || steps.metadata.outputs.dependency-name == 'esphome'
-          || steps.metadata.outputs.dependency-name == 'molecule'
-          || steps.metadata.outputs.dependency-name == 'molecule-plugins[docker]'
-          || steps.metadata.outputs.dependency-name == 'paramiko'
-          || steps.metadata.outputs.dependency-name == 'pre-commit'
-          || steps.metadata.outputs.dependency-name == 'python'
-          || steps.metadata.outputs.dependency-name == 'renovatebot/github-action'
+          || steps.metadata.outputs.dependency-names == 'docker/metadata-action'
+          || steps.metadata.outputs.dependency-names == 'esphome'
+          || steps.metadata.outputs.dependency-names == 'molecule'
+          || steps.metadata.outputs.dependency-names == 'molecule-plugins[docker]'
+          || steps.metadata.outputs.dependency-names == 'paramiko'
+          || steps.metadata.outputs.dependency-names == 'pre-commit'
+          || steps.metadata.outputs.dependency-names == 'python'
+          || steps.metadata.outputs.dependency-namess == 'renovatebot/github-action'
         run: gh pr merge --auto --squash --delete-branch "${PR_URL}"
 ...
