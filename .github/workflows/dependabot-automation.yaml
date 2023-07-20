@@ -17,7 +17,7 @@ jobs:
       PR_URL: ${{github.event.pull_request.html_url}}
       GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if: github.actor == 'dependabot[bot]'
     steps:
       - name: Fetch Dependabot metadata
         id: metadata
@@ -28,14 +28,14 @@ jobs:
         run: gh pr review --approve "${PR_URL}"
       - name: Enable auto-merge for patch updates PR
         if: >
-          ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
-          || ${{ steps.metadata.outputs.dependency-name == 'docker/metadata-action' }}
-          || ${{ steps.metadata.outputs.dependency-name == 'esphome' }}
-          || ${{ steps.metadata.outputs.dependency-name == 'molecule' }}
-          || ${{ steps.metadata.outputs.dependency-name == 'molecule-plugins[docker]' }}
-          || ${{ steps.metadata.outputs.dependency-name == 'paramiko' }}
-          || ${{ steps.metadata.outputs.dependency-name == 'pre-commit' }}
-          || ${{ steps.metadata.outputs.dependency-name == 'python' }}
-          || ${{ steps.metadata.outputs.dependency-name == 'renovatebot/github-action' }}
+          steps.metadata.outputs.update-type == 'version-update:semver-patch'
+          || steps.metadata.outputs.dependency-name == 'docker/metadata-action'
+          || steps.metadata.outputs.dependency-name == 'esphome'
+          || steps.metadata.outputs.dependency-name == 'molecule'
+          || steps.metadata.outputs.dependency-name == 'molecule-plugins[docker]'
+          || steps.metadata.outputs.dependency-name == 'paramiko'
+          || steps.metadata.outputs.dependency-name == 'pre-commit'
+          || steps.metadata.outputs.dependency-name == 'python'
+          || steps.metadata.outputs.dependency-name == 'renovatebot/github-action'
         run: gh pr merge --auto --squash --delete-branch "${PR_URL}"
 ...
