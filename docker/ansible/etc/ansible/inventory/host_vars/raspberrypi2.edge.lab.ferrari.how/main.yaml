@@ -83,8 +83,6 @@ restic_backup_jobs:
         container_mount_destination_directory: "{{ syncthing_configuration_directory_path }}"
     job_name: "{{ restic_backup_workloads_job_name }}"
     restic_forget_policy:
-      # Don't remove tagged snapshots
-      - --tag ''
       # Keep daily snapshots for the last week
       - --keep-within-daily 7d
       # Keep weekly snapshots for the last month
