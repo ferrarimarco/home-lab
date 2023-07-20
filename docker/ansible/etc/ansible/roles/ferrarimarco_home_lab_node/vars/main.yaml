@@ -464,6 +464,8 @@ syncthing_docker_compose_destination_file_path: "{{ syncthing_configuration_dire
 syncthing_configuration_directories:
   - path: "{{ syncthing_configuration_directory_path }}"
     state: "{{ configure_syncthing | ternary('directory', 'absent') }}"
+    owner: "1000"
+    group: "1000"
 syncthing_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/syncthing"
 syncthing_docker_compose_up_items:
   - compose_file_path: "{{ syncthing_docker_compose_destination_file_path }}"
