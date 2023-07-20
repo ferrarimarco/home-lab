@@ -122,3 +122,33 @@
     data:
       message: '{{ trigger.event.data.entity_id }} entity is unavailable.'
   mode: single
+- id: '1688838976875'
+  alias: HA online notification
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /15
+  condition: []
+  action:
+  - service: telegram_bot.send_message
+    data:
+      message: Home Assistant is online
+  mode: single
+- id: '1688839189440'
+  alias: Notify when cannot ping external services
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.ping_google_com
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.notify
+    data:
+      message: Cannot ping external services. Check the internet connection.
+  mode: single
