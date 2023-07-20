@@ -36,6 +36,6 @@ jobs:
           || steps.metadata.outputs.dependency-names == 'paramiko'
           || steps.metadata.outputs.dependency-names == 'pre-commit'
           || steps.metadata.outputs.dependency-names == 'python'
-          || steps.metadata.outputs.dependency-namess == 'renovatebot/github-action'
+          || steps.metadata.outputs.dependency-names == 'renovatebot/github-action'
         run: gh pr merge --auto --squash --delete-branch "${PR_URL}"
 ...
