@@ -1,0 +1,12 @@
+---
+tailscale_base_package_repository_url: "https://pkgs.tailscale.com/{{ tailscale_release_channel }}"
+tailscale_os_package_repositories:
+  - repository_key_keyring_file_path: "{{ tailscale_package_repository_key_file_path }}"
+    repository_key_url: "{{ tailscale_package_repository_url }}/{{ ansible_distribution_release }}.gpg"
+    repository_url: "deb {{ tailscale_package_repository_url }} {{ ansible_distribution_release }} main"
+    state: "{{ configure_tailscale | ternary('present', 'absent') }}"
+tailscale_os_packages:
+  - name: tailscale
+    state: "{{ configure_tailscale | ternary('present', 'absent') }}"
+tailscale_up_command: tailscale up --accept-routes
+...

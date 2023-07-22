@@ -147,7 +147,11 @@ For example:
 
 Changes the default variable start and end prefixes from `{{` and `}}` to `[%` and `%]`.
 
-### Add hosts to the Tailscale network
+### Tailscale configuration
+
+In this section, you configure new nodes to join a Tailscale network.
+
+#### Add hosts to the Tailscale network
 
 The automated provisioning and configuration process takes care of setting up
 the Tailscale CLI.
@@ -162,6 +166,12 @@ To add a device to the Tailscale network, do the following:
 
     and follow the instructions to authenticate
 2. (optional) Disable [Tailscale key expiration](https://tailscale.com/kb/1028/key-expiry/)
+
+#### Enable subnet routes in the Tailscale console
+
+If a Tailscale node advertises routes, you need to enable them in the Tailscale
+console or using the Tailscale API. For more information, see
+[Tailscale subnet routers and traffic relay nodes](https://tailscale.com/kb/1019/subnets).
 
 ### DNS configuration
 

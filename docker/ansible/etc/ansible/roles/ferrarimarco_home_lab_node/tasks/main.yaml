@@ -129,6 +129,10 @@
 - name: Import Cron Job tasks
   ansible.builtin.import_tasks: setup-cron.yaml
 
+- name: Import Tailscale tasks
+  ansible.builtin.import_tasks: setup-tailscale.yaml
+  when: configure_tailscale and ("tailscale" in ansible_run_tags or "all" in ansible_run_tags)
+
 - name: Run system-wide configuration handlers
   ansible.builtin.import_tasks: invoke-system-wide-configuration-handlers.yaml
   become: true
