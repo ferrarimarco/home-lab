@@ -151,8 +151,17 @@ Changes the default variable start and end prefixes from `{{` and `}}` to `[%` a
 
 In this section, you configure new nodes to join a Tailscale network.
 
-If you prefer that the key for a particular host doesn't expire, you can
-disable [Tailscale key expiration](https://tailscale.com/kb/1028/key-expiry/).
+#### Tailscale authnetication keys
+
+- If you want to automate authentication, you can specify an authentication key
+    for each node using the `tailscale_authkey` variable. For more information
+    about Tailscale authentication keys, see
+    [Authentication keys](https://tailscale.com/kb/1085/auth-keys/).
+    The alternative is to manually run the `tailscale up` command on the node,
+    and follow the instructions.
+- If you prefer that the key for a particular host doesn't expire, you can
+    disable
+    [Tailscale key expiration](https://tailscale.com/kb/1028/key-expiry/).
 
 #### Enable subnet routes or exit nodes in the Tailscale console
 

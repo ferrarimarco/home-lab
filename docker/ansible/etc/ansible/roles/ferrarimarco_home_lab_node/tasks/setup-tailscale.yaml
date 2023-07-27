@@ -1,11 +1,30 @@
 ---
 - name: Get Tailscale status
+  changed_when: false
+  # Run in check mode because this command doesn't modify the system
+  check_mode: false
   command: tailscale status --json
   register: tailscale_status
 
 - name: Debug tailscale_status
   ansible.builtin.debug:
     var: tailscale_status
+    verbosity: 1
+
+- name: Parse Tailscale status
+  vars:
+    status: "{{ tailscale_status.stdout | from_json }}"
+  ansible.builtin.set_fact:
+    tailscale_is_online: "{{ status.Self.Online }}"
+    tailscale_primary_routes: "{{ status.Self.PrimaryRoutes | default([]) }}"
+    tailscale_version: "{{ status.Version }}"
+
+- name: Debug Tailscale status
+  ansible.builtin.debug:
+    msg:
+      - "tailscale_is_online: {{ tailscale_is_online }}"
+      - "tailscale_primary_routes: {{ tailscale_primary_routes }}"
+      - "tailscale_version: {{ tailscale_version }}"
     verbosity: 1
 
 - name: Enable IP packet forwarding
@@ -22,24 +41,30 @@
     - net.ipv4.ip_forward
     - net.ipv6.conf.all.forwarding
 
+- name: Configure the tailscale up command to configure an authentication key
+  ansible.builtin.set_fact:
+    tailscale_up_command: "{{ tailscale_up_command }} --authkey={{ tailscale_authkey }}"
+  when:
+    - tailscale_authkey is defined
+
 - name: Configure the tailscale up command to advertise edge environment routes
   ansible.builtin.set_fact:
     tailscale_up_command: "{{ tailscale_up_command }} --advertise-routes={{ edge_environment_subnet }}"
   when:
     - tailscale_up_advertise_edge_environment_routes
 
-- name: Debug tailscale_up_command
-  ansible.builtin.debug:
-    var: tailscale_up_command
-    verbosity: 1
-
 - name: Run Tailscale up
   become: true
   command: "{{ tailscale_up_command }}"
   register: tailscale_up_output
+  when:
+    - not tailscale_is_online
 
 - name: Debug tailscale_up_output
   ansible.builtin.debug:
-    var: tailscale_up_output
-    verbosity: 1
+    msg: "{{ tailscale_up_output.stdout | replace(tailscale_authkey, 'REDACTED') | regex_replace('\\t', '') | split('\n') }}"
+  when:
+    - tailscale_up_output is failed
+    - tailscale_up_output.stdout | length > 0
+  register: nonsensitive_stdout
 ...
