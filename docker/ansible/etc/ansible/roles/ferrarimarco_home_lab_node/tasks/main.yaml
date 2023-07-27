@@ -85,6 +85,7 @@
 - name: Include users setup tasks
   ansible.builtin.import_tasks: users.yaml
   become: true
+  when: ("users" in ansible_run_tags or "all" in ansible_run_tags)
 
 - name: Create Samba share directories
   ansible.builtin.file:
@@ -94,6 +95,7 @@
     path: "{{ item.path }}"
     state: directory
   become: true
+  when: configure_network_shares and ("samba" in ansible_run_tags or "all" in ansible_run_tags)
   with_items: "{{ samba_shares }}"
 
 - name: Import Debian tasks
@@ -107,6 +109,7 @@
 - name: Import SSH tasks
   ansible.builtin.import_tasks: ssh.yaml
   become: true
+  when: configure_ssh and ("ssh" in ansible_run_tags or "all" in ansible_run_tags)
 
 - name: Import Raspberry Pi tasks
   ansible.builtin.import_tasks: setup-raspberry-pi.yaml
