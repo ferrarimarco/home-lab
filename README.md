@@ -151,27 +151,17 @@ Changes the default variable start and end prefixes from `{{` and `}}` to `[%` a
 
 In this section, you configure new nodes to join a Tailscale network.
 
-#### Add hosts to the Tailscale network
+If you prefer that the key for a particular host doesn't expire, you can
+disable [Tailscale key expiration](https://tailscale.com/kb/1028/key-expiry/).
 
-The automated provisioning and configuration process takes care of setting up
-the Tailscale CLI.
+#### Enable subnet routes or exit nodes in the Tailscale console
 
-To add a device to the Tailscale network, do the following:
+If a Tailscale node advertises routes or advertises itself as an exit node, you
+need to enable these features in the Tailscale console or using the Tailscale
+API. For more information, see:
 
-1. From a shell on the host to add to the Tailscale network, run:
-
-    ```shell
-    sudo tailscale up
-    ```
-
-    and follow the instructions to authenticate
-2. (optional) Disable [Tailscale key expiration](https://tailscale.com/kb/1028/key-expiry/)
-
-#### Enable subnet routes in the Tailscale console
-
-If a Tailscale node advertises routes, you need to enable them in the Tailscale
-console or using the Tailscale API. For more information, see
-[Tailscale subnet routers and traffic relay nodes](https://tailscale.com/kb/1019/subnets).
+- [Subnet routers and traffic relay nodes](https://tailscale.com/kb/1019/subnets)
+- [Exit nodes](https://tailscale.com/kb/1103/exit-nodes/)
 
 ### DNS configuration
 
