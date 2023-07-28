@@ -1,9 +1,9 @@
 ---
 - name: Get Tailscale status
-  changed_when: false
+  changed_when: false # noqa: no-changed-when
   # Run in check mode because this command doesn't modify the system
   check_mode: false
-  command: tailscale status --json
+  ansible.builtin.command: tailscale status --json
   register: tailscale_status
 
 - name: Debug tailscale_status
@@ -55,7 +55,7 @@
 
 - name: Run Tailscale up
   become: true
-  command: "{{ tailscale_up_command }}"
+  ansible.builtin.command: "{{ tailscale_up_command }}"
   register: tailscale_up_output
   when:
     - not tailscale_is_online
