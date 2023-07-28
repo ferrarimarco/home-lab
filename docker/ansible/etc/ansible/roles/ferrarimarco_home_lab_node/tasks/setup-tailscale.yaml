@@ -1,6 +1,6 @@
 ---
 - name: Get Tailscale status
-  changed_when: false  # noqa: no-changed-when
+  changed_when: false
   # Run in check mode because this command doesn't modify the system
   check_mode: false
   ansible.builtin.command: tailscale status --json
@@ -53,7 +53,7 @@
   when:
     - tailscale_up_advertise_edge_environment_routes
 
-- name: Run Tailscale up
+- name: Run Tailscale up  # noqa: no-changed-when
   become: true
   ansible.builtin.command: "{{ tailscale_up_command }}"
   register: tailscale_up_output
