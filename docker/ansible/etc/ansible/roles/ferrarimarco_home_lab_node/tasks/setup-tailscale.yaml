@@ -1,6 +1,6 @@
 ---
 - name: Get Tailscale status
-  changed_when: false # noqa: no-changed-when
+  changed_when: false  # noqa: no-changed-when
   # Run in check mode because this command doesn't modify the system
   check_mode: false
   ansible.builtin.command: tailscale status --json
