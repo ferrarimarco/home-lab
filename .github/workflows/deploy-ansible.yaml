@@ -5,6 +5,8 @@ permissions:
   contents: read
 
 on:  # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
   workflow_dispatch: null
 
 jobs:
