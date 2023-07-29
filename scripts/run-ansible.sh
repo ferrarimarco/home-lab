@@ -14,22 +14,27 @@ echo "Current working directory: ${CURRENT_WORKING_DIRECTORY}"
 # shellcheck source=/dev/null
 . "${SCRIPT_DIRECTORY_PATH}/common.sh"
 
+ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH="${CURRENT_WORKING_DIRECTORY}/docker/ansible"
+echo "ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH: ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
+
+ANSIBLE_PIP_REQUIREMENTS_FILE_PATH="${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/requirements.txt"
+echo "ANSIBLE_PIP_REQUIREMENTS_FILE_PATH: ${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}"
+
+ANSIBLE_DIRECTORY="${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/etc/ansible"
+echo "ANSIBLE_DIRECTORY: ${ANSIBLE_DIRECTORY}"
+
 if ! is_container_runtime_available; then
   echo "Container engine not available. Running a non-containerized command"
 
-  VIRTUAL_ENVIRONMENT_PATH="${CURRENT_WORKING_DIRECTORY}/.venv-ansible"
-  PIP_REQUIREMENTS_FILE_PATH="${PIP_REQUIREMENTS_FILE_PATH:-"${CURRENT_WORKING_DIRECTORY}/docker/ansible/requirements.txt"}"
-  create_and_activate_python_virtual_environment "${VIRTUAL_ENVIRONMENT_PATH}" "${PIP_REQUIREMENTS_FILE_PATH}"
+  create_and_activate_python_virtual_environment "${CURRENT_WORKING_DIRECTORY}/.venv-ansible" "${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}"
 
-  ANSIBLE_DIRECTORY="${CURRENT_WORKING_DIRECTORY}/docker/ansible/etc/ansible"
   ANSIBLE_ROLES_PATH="${ANSIBLE_ROLES_PATH:-"${ANSIBLE_DIRECTORY}/roles"}"
+  echo "ANSIBLE_ROLES_PATH: ${ANSIBLE_ROLES_PATH}"
   export ANSIBLE_ROLES_PATH
 
-  # Install Ansible requirements
-  ansible-galaxy install -r "${CURRENT_WORKING_DIRECTORY}/docker/ansible/etc/ansible/requirements.yml"
+  echo "Installing Ansible requirements"
+  ansible-galaxy install -r "${ANSIBLE_DIRECTORY}/requirements.yml"
 else
-  ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH="${CURRENT_WORKING_DIRECTORY}/docker/ansible"
-  ANSIBLE_PIP_REQUIREMENTS_FILE_PATH="${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/requirements.txt"
   echo "Loading Ansible version from ${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}"
   ANSIBLE_CONTAINER_IMAGE_TAG="$(grep <"${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}" "ansible" | awk -F '==' '{print $2}')"
   echo "Ansible container image tag to run: ${ANSIBLE_CONTAINER_IMAGE_TAG}"
@@ -57,14 +62,20 @@ else
     COMMAND_TO_RUN="${COMMAND_TO_RUN} --env MOLECULE_DISTRO=${MOLECULE_DISTRO}"
     COMMAND_TO_RUN="${COMMAND_TO_RUN} -v /var/run/docker.sock:/var/run/docker.sock"
   fi
+
+  ANSIBLE_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH="/etc/ansible"
+
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --rm"
-  COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}/etc/ansible:/etc/ansible"
-  COMMAND_TO_RUN="${COMMAND_TO_RUN} --workdir=/etc/ansible"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${ANSIBLE_DIRECTORY}:${ANSIBLE_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH}"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --workdir=${ANSIBLE_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH}"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ANSIBLE_CONTAINER_IMAGE_ID}"
+
+  echo "Setting ANSIBLE_DIRECTORY to ${ANSIBLE_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH}"
+  ANSIBLE_DIRECTORY="${ANSIBLE_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH}"
 fi
 
-ANSIBLE_PLAYBOOK_PATH="${ANSIBLE_PLAYBOOK_PATH:-"docker/ansible/etc/ansible/playbooks/main.yaml"}"
-ANSIBLE_INVENTORY_PATH="${ANSIBLE_INVENTORY_PATH:-"docker/ansible/etc/ansible/inventory/hosts.yml"}"
+ANSIBLE_PLAYBOOK_PATH="${ANSIBLE_PLAYBOOK_PATH:-"${ANSIBLE_DIRECTORY}/playbooks/main.yaml"}"
+ANSIBLE_INVENTORY_PATH="${ANSIBLE_INVENTORY_PATH:-"${ANSIBLE_DIRECTORY}/inventory/hosts.yml"}"
 ANSIBLE_VAULT_ID="${ANSIBLE_VAULT_ID:-"home_lab_vault"}"
 ANSIBLE_VAULT_DECRYPT_MODE="${ANSIBLE_VAULT_DECRYPT_MODE:-"prompt"}"
 

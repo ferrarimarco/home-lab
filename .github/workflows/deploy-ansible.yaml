@@ -9,6 +9,10 @@ on:  # yamllint disable-line rule:truthy
   pull_request: null
   workflow_dispatch: null
 
+concurrency:
+  group: Home lab
+  cancel-in-progress: true
+
 jobs:
   run-ansible:
     environment: Home lab
