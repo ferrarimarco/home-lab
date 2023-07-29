@@ -136,6 +136,7 @@ samba_os_users:
     groups:
       - "{{ samba_default_readers_group_name }}"
       - "{{ samba_default_writers_group_name }}"
+tailscale_up_advertise_edge_environment_routes: true
 torrent_download_path: "{{ media_directory_path }}/downloads"
 zigbee_adapter_device_path: "/dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20220708144056-if00"
 ...

@@ -49,6 +49,7 @@ edge_environment_gateway:
   fqdn: "gateway.{{ edge_environment_root_fqdn }}"
   ipv4_address: "10.0.0.1"
 edge_environment_root_fqdn: "edge.{{ lab_dns_zone }}"
+edge_environment_subnet: "10.0.0.0/8"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -159,7 +160,7 @@ network_stack_unbound_verbosity: 2
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
 root_dns_zone_fqdn: "ferrari.how"
-samba_additional_interfaces: "10.0.0.0/8"
+samba_additional_interfaces: "{{ edge_environment_subnet }}"
 samba_default_readers_group_name: "samba-readers"
 samba_default_writers_group_name: "samba-writers"
 samba_enable_homes_share: false
@@ -188,6 +189,7 @@ syncthing_user_interface_port: 8384
 systemd_journald_runtime_max_memory_use: "64M"
 systemd_journald_system_max_memory_use: "500M"
 tailscale_release_channel: "stable"
+tailscale_up_advertise_edge_environment_routes: false
 timezone: "Europe/London"
 zigbee2mqtt_user_interface_host_port: 8081
 ...

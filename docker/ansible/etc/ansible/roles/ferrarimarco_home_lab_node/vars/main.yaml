@@ -483,7 +483,6 @@ systemd_system_services_configuration_directory: "{{ systemd_configuration_direc
 systemd_system_shutdown_configuration_directory: "{{ systemd_configuration_directory }}/system-shutdown"
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"
 systemd_journal_file_path: /var/log/journal
-tailscale_base_package_repository_url: "https://pkgs.tailscale.com/{{ tailscale_release_channel }}"
 templates_to_render:
   - src: "systemd/journald/001-journald.conf.jinja"
     dest: "{{ systemd_journald_configuration_directory_path }}/001-journald.conf"
