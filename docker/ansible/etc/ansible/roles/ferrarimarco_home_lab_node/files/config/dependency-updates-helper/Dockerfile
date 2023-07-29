@@ -18,7 +18,7 @@ FROM jellyfin/jellyfin:10.8.10 as jellyfin
 FROM gcr.io/cadvisor/cadvisor:v0.47.2 as cadvisor
 FROM ghcr.io/druggeri/nut_exporter:3.0.0 as nut-exporter
 FROM prom/blackbox-exporter:v0.24.0 as prometheus-blackbox-exporter
-FROM prom/prometheus:v2.45.0 as prometheus
+FROM prom/prometheus:v2.46.0 as prometheus
 FROM quay.io/prometheus/node-exporter:v1.6.1 as prometheus-node-exporter
 
 # monitoring-backend
