@@ -90,7 +90,7 @@ if [ "${ANSIBLE_VAULT_DECRYPT_MODE}" != "prompt" ]; then
   if [ -n "${ANSIBLE_VAULT_PASSWORD:-""}" ]; then
     echo "The ANSIBLE_VAULT_PASSWORD environment variable is defined and not empty."
     echo "Copying the contents of the ANSIBLE_VAULT_PASSWORD variable to ${ANSIBLE_VAULT_DECRYPT_MODE}"
-    cat "${ANSIBLE_VAULT_PASSWORD}" >"${ANSIBLE_VAULT_DECRYPT_MODE}"
+    echo "${ANSIBLE_VAULT_PASSWORD}" >"${ANSIBLE_VAULT_DECRYPT_MODE}"
   fi
 fi
 
