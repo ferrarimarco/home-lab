@@ -3,6 +3,14 @@ mqtt:
   host: "{{ mosquitto_server_fqdn }}"
   port: 1883
 
+detect:
+  stationary:
+    # Frequency for confirming stationary objects
+    # When set to 0, object detection will not confirm stationary objects until movement is detected.
+    # If set to 10, object detection will run to confirm the object still exists on every 10th frame.
+    # Default is 0 (Frigate 0.12.0)
+    interval: 50
+
 detectors:
   coral:
     type: edgetpu
