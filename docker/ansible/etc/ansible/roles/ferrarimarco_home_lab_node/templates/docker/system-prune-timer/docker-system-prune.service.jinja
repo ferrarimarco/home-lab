@@ -1,0 +1,9 @@
+[Unit]
+Description=Run docker system prune
+Requires=docker.service
+
+[Service]
+ExecStart=docker system prune --all --force --volumes
+
+[Install]
+WantedBy=multi-user.target
