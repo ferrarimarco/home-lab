@@ -1,0 +1,8 @@
+[Unit]
+Description=Run docker-system-prune service as scheduled
+
+[Timer]
+OnCalendar=Mon *-*-* 05:05:00
+
+[Install]
+WantedBy=timers.target

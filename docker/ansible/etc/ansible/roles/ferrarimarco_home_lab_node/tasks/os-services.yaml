@@ -6,7 +6,7 @@
 - name: Configure OS services
   ansible.builtin.systemd:
     name: "{{ item.service_name }}"
-    state: "{{ item.service_state }}"
+    state: "{{ item.service_state | default(omit) }}"
     enabled: "{{ item.enabled }}"
   with_items: "{{ os_services }}"
   register: stop_os_service

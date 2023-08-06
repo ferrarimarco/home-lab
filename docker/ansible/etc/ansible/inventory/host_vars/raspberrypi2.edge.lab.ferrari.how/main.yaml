@@ -39,36 +39,14 @@ restic_backup_workloads_job_name: "restic-backup-workloads"
 restic_backup_cron_jobs:
   - become: true
     name: "restic backup {{ restic_backup_workloads_job_name }}"
-    minute: "1"
-    hour: "1"
-    user: root
-    job: >
-      docker compose
-      --file {{ restic_docker_compose_destination_file_path }}
-      run
-      --build
-      --env RESTIC_ENABLE_BACKUP="true"
-      --env RESTIC_ENABLE_PRUNE="true"
-      --rm
-      {{ restic_backup_workloads_job_name }}
     cron_file: "{{ restic_backup_workloads_job_name }}"
-    state: "{{ configure_backup_restic | ternary('present', 'absent') }}"
+    # We migrated to systemd timers
+    state: absent
   - become: true
     name: "restic check {{ restic_backup_workloads_job_name }}"
-    minute: "2"
-    hour: "2"
-    weekday: "2"
-    user: root
-    job: >
-      docker compose
-      --file {{ restic_docker_compose_destination_file_path }}
-      run
-      --build
-      --env RESTIC_ENABLE_REPOSITORY_CHECK="true"
-      --rm
-      {{ restic_backup_workloads_job_name }}
     cron_file: "{{ restic_backup_workloads_job_name }}"
-    state: "{{ configure_backup_restic | ternary('present', 'absent') }}"
+    # We migrated to systemd timers
+    state: absent
 restic_backup_jobs:
   - directories_to_backup:
       - source_host_directory: "{{ frigate_runtime_data_directory_path }}"
@@ -82,6 +60,7 @@ restic_backup_jobs:
       - source_host_directory: "{{ syncthing_configuration_directory_path }}"
         container_mount_destination_directory: "{{ syncthing_configuration_directory_path }}"
     job_name: "{{ restic_backup_workloads_job_name }}"
+    job_schedule: "01:00:00"
     restic_forget_policy:
       # Keep daily snapshots for the last week
       - --keep-within-daily 7d

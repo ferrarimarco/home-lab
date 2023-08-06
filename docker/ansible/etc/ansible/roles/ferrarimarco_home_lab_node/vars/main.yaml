@@ -45,25 +45,6 @@ directories_to_ensure_ownership:
 default_docker_compose_file_name: "compose.yaml"
 default_dockerfile_file_name: "Dockerfile"
 default_prometheus_configuration_file_name: "prometheus.yaml"
-docker_compose_up_items: []
-docker_compose_services_to_restart: []
-docker_configuration_directories:
-  - path: "{{ docker_daemon_configuration_directory_path }}"
-    state: "{{ configure_docker | ternary('directory', 'absent') }}"
-docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
-docker_daemon_configuration_file_name: "daemon.json"
-docker_default_os_group_name: "docker"
-docker_os_services:
-  - enabled: true
-    service_name: "{{ docker_service_name }}"
-    service_state: "{{ configure_docker | ternary('started', 'stopped') }}"
-docker_repository_url: https://download.docker.com/linux
-docker_templates_to_render:
-  - src: "docker/{{ docker_daemon_configuration_file_name }}.jinja"
-    dest: "{{ docker_daemon_configuration_directory_path }}/daemon.json"
-    state: "{{ configure_docker | ternary('file', 'absent') }}"
-    os_services_to_restart:
-      - "{{ docker_service_name }}"
 dphys_swapfile_templates_to_render:
   - src: "dphys-swapfile/dphys-swapfile.jinja"
     dest: "{{ etc_directory_path }}/dphys-swapfile"
@@ -395,35 +376,6 @@ os_users:
     groups: "{{ default_user_groups }}"
     generate_ssh_keypair: true
 prometheus_node_exporter_port: 9100
-restic_configuration_directories:
-  - path: "{{ restic_configuration_directory_path }}"
-    state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
-restic_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/restic"
-restic_docker_compose_up_items:
-  - compose_file_path: "{{ restic_docker_compose_destination_file_path }}"
-    enable_containerized_services: "{{ configure_backup_restic }}"
-    pull_container_images: "{{ configure_backup_restic }}"
-    # Don't start Restic because we manage it using cron jobs
-    start_containerized_services: false
-    stop_containerized_services: "{{ stop_restic | default(false) }}"
-restic_configuration_source_directory_path: "config/restic"
-restic_docker_compose_destination_file_path: "{{ restic_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-restic_files_to_configure:
-  - src: "{{ restic_configuration_source_directory_path }}/{{ default_dockerfile_file_name }}"
-    dest: "{{ restic_configuration_directory_path }}/{{ default_dockerfile_file_name }}"
-    state: "{{ configure_backup_restic | ternary('file', 'absent') }}"
-  - src: "{{ restic_configuration_source_directory_path }}/entrypoint.sh"
-    dest: "{{ restic_configuration_directory_path }}/entrypoint.sh"
-    state: "{{ configure_backup_restic | ternary('file', 'absent') }}"
-restic_repository_container_destination_path: /var/lib/restic/repository
-restic_templates_to_render:
-  - src: "restic/{{ default_docker_compose_file_name }}.jinja"
-    dest: "{{ restic_docker_compose_destination_file_path }}"
-    state: "{{ configure_backup_restic | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ restic_docker_compose_up_items }}"
-    # This file may contain secrets, so we want to restric access to the owner and group only
-    # (defaults to root:root)
-    mode: "0640"
 samba_service_name: "smbd"
 sense_hat_exporter_configuration_directories:
   - path: "{{ sense_hat_exporter_configuration_directory_path }}"

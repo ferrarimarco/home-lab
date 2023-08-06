@@ -1,0 +1,9 @@
+[Unit]
+Description=Run {{ restic_backup_job_name }} Restic backup job
+Requires=docker.service
+
+[Service]
+ExecStart= docker compose --file {{ restic_docker_compose_destination_file_path }} run --build --env RESTIC_ENABLE_BACKUP="true" --env RESTIC_ENABLE_REPOSITORY_CHECK="true" --env RESTIC_ENABLE_PRUNE="true" --rm {{ restic_backup_job_name }}
+
+[Install]
+WantedBy=multi-user.target

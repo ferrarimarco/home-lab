@@ -1,0 +1,59 @@
+---
+- name: Setup Restic services
+  ansible.builtin.template:
+    src: "{{ restic_templates_source_directory_path }}/restic-backup-timer/restic-backup.service.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    restic_backup_job_name: "{{ item.job_name }}"
+    restic_backup_job_timer_definition: "{{ item.job_schedule }}"
+  when:
+    - configure_backup_restic
+  with_items: "{{ restic_backup_jobs }}"
+
+- name: Setup Restic timers
+  ansible.builtin.template:
+    src: "{{ restic_templates_source_directory_path }}/restic-backup-timer/restic-backup.timer.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.timer"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    restic_backup_job_name: "{{ item.job_name }}"
+    restic_backup_job_timer_definition: "{{ item.job_schedule }}"
+  when:
+    - configure_backup_restic
+  with_items: "{{ restic_backup_jobs }}"
+
+- name: Reload the systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Configure Restic services
+  ansible.builtin.systemd:
+    name: "{{ item.job_name }}.timer"
+    state: "{{ configure_backup_restic | ternary('started', 'stopped') }}"
+    enabled: "{{ configure_backup_restic | ternary(true, false) }}"
+  with_items: "{{ restic_backup_jobs }}"
+  register: stop_os_service
+  # Services to stop might not exist, so we don't fail in that case
+  failed_when:
+    - stop_os_service.failed == true
+    - '"Could not find the requested service" not in stop_os_service.msg'
+
+- name: Delete Restic services
+  ansible.builtin.file:
+    path: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.service"
+    state: absent
+  when: not configure_backup_restic
+  with_items: "{{ restic_backup_jobs }}"
+
+- name: Delete Restic timers
+  ansible.builtin.file:
+    path: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.timer"
+    state: absent
+  when: not configure_backup_restic
+  with_items: "{{ restic_backup_jobs }}"
+...

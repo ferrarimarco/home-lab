@@ -71,13 +71,9 @@
       fact_cron_jobs:
         - become: true
           name: docker system prune
-          weekday: "1"
-          minute: "5"
-          hour: "5"
-          user: root
-          job: "docker system prune --all --force --volumes"
           cron_file: ansible_docker-system-prune
-          state: "{{ configure_docker | ternary('present', 'absent') }}"
+          # Remove because we refactored this job as a systemd timer
+          state: absent
       fact_files_to_configure:
         - path: "{{ docker_compose_standalone_executable_path }}"
           state: absent

@@ -136,6 +136,10 @@
   ansible.builtin.import_tasks: setup-tailscale.yaml
   when: configure_tailscale and ("tailscale" in ansible_run_tags or "all" in ansible_run_tags)
 
+- name: Import restic tasks
+  ansible.builtin.import_tasks: setup-restic.yaml
+  become: true
+
 - name: Run system-wide configuration handlers
   ansible.builtin.import_tasks: invoke-system-wide-configuration-handlers.yaml
   become: true

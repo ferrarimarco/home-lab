@@ -1,0 +1,8 @@
+[Unit]
+Description=Run {{ restic_backup_job_name }} Restic backup job service as scheduled
+
+[Timer]
+OnCalendar={{ restic_backup_job_timer_definition }}
+
+[Install]
+WantedBy=timers.target
