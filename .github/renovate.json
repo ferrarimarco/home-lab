@@ -25,14 +25,7 @@
     "dependencies"
   ],
   "onboarding": false,
-  "packageRules": [
-    {
-      "matchPackageNames": [
-        "linuxserver/qbittorrent"
-      ],
-      "allowedVersions": "<=13.0.0"
-    }
-  ],
+  "packageRules": [],
   "platform": "github",
   "pre-commit": {
     "enabled": true
@@ -48,17 +41,6 @@
       "depNameTemplate": "arduino/arduino-cli",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^(?<version>.*)$"
-    },
-    {
-      "fileMatch": [
-        "^docker/restic/Dockerfile$"
-      ],
-      "matchStrings": [
-        "ARG RESTIC_VERSION=\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\S*"
-      ],
-      "depNameTemplate": "restic/restic",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^v(?<version>.*)$"
     }
   ],
   "repositories": [
