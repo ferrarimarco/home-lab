@@ -4,29 +4,7 @@
 
 # Ref: https://github.com/restic/restic/issues/2359
 
-FROM debian:bullseye
-
-ARG RESTIC_VERSION="0.15.2"
-
-SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
-
-RUN apt-get update \
-  && apt-get --assume-yes --no-install-recommends install \
-  ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update \
-  && apt-get --assume-yes --no-install-recommends install \
-  restic \
-  tzdata \
-  && rm -rf /var/lib/apt/lists/* \
-  && restic version \
-  && restic self-update \
-  && restic version \
-  && echo "Desired restic version: ${RESTIC_VERSION}" \
-  && CURRENT_RESTIC_VERSION="$(restic version | awk -F ' ' '{print $2}')" \
-  && echo "Current restic version: ${CURRENT_RESTIC_VERSION}" \
-  && if [ "${RESTIC_VERSION}" = "${CURRENT_RESTIC_VERSION}" ]; then echo "desired restic version matches with current version"; else echo "desired restic version doesn't match with current version"; exit 1; fi
+FROM ghcr.io/restic/restic:0.16.0
 
 COPY ./entrypoint.sh /bin/entrypoint.sh
 
