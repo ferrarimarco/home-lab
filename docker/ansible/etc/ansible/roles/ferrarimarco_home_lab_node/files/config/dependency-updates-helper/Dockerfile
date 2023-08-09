@@ -32,7 +32,7 @@ FROM klutchell/unbound:v1.17.1 as unbound
 FROM traefik:2.10.4 as traefik
 
 # syncthing
-FROM syncthing/syncthing:1.23.6 as syncthing
+FROM syncthing/syncthing:1.23.7 as syncthing
 
 # torrent
 FROM linuxserver/qbittorrent:4.5.4 as qbittorrent
