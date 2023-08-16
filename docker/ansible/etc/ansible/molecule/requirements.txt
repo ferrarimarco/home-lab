@@ -1,2 +1,2 @@
-molecule==6.0.0
+molecule==6.0.1
 molecule-plugins[docker]==23.5.0
