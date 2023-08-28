@@ -1,4 +1,4 @@
-FROM python:3.11.4-bullseye as ansible
+FROM python:3.11.5-bullseye as ansible
 
 ENV PYTHONFAULTHANDLER=1 \
   PYTHONHASHSEED=random \
