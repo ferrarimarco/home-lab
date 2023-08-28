@@ -3,7 +3,7 @@
 # We then fetch these identifiers for use in templates.
 
 # backup
-FROM ngosang/restic-exporter:1.2.2 as restic-exporter
+FROM ngosang/restic-exporter:1.3.0 as restic-exporter
 
 # frigate
 FROM ghcr.io/blakeblackshear/frigate:0.12.1 as frigate
