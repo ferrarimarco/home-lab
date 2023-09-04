@@ -2,6 +2,7 @@
 apt_cache_valid_time: 3600
 default_os_packages:
   - name: cron
+  - name: dnsutils
   - name: gnupg
   - name: python3-venv
   - name: xz-utils
