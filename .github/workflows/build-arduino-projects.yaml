@@ -20,7 +20,7 @@ jobs:
   build-arduino-projects:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: "Build the ${{ matrix.arduino-project.project-id }} Arduino project"
         run: |
           scripts/build-arduino-project.sh \
