@@ -11,7 +11,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Super-Linter
         uses: super-linter/super-linter@v5.2.1
         env:
@@ -26,7 +26,7 @@ jobs:
   pre_commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: "Run pre-commit"
         run: |
           set -o errexit
