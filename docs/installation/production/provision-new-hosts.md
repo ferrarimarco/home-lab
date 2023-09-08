@@ -6,11 +6,11 @@ for the home lab. We define this process as `provisioning new hosts`.
 The provisioning process is as follows:
 
 - Gather information about the host:
-    - Unique name to assign to the host.
-    - MAC address of each network interface.
-    - Name of each network interface.
-    - Static IP address to assign to each network interface.
-    - Boot disk name.
+  - Unique name to assign to the host.
+  - MAC address of each network interface.
+  - Name of each network interface.
+  - Static IP address to assign to each network interface.
+  - Boot disk name.
 - Update the BIOS and UEFI firmware to the latest available version.
 - Enable network boot.
 - Enable [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN).
