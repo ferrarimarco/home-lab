@@ -20,6 +20,9 @@ RUN pip3 install --upgrade pip setuptools wheel \
   && ansible --version \
   && ansible-galaxy --version
 
+# Hadolint has no way of knowing that this --from doesn't reference a FROM statement
+# so we disable this check
+# hadolint ignore=DL3022
 COPY --from=ansible-configuration requirements.yml /etc/ansible/requirements.yml
 
 RUN ansible-galaxy install -r /etc/ansible/requirements.yml \

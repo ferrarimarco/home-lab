@@ -51,7 +51,7 @@ jobs:
       - name: Build the ${{ matrix.container-images.name }} container image
         uses: docker/build-push-action@v4
         with:
-          build-contexts: ${{ matrix.container-images.build-contexts }}
+          build-contexts: ${{ fromJSON(matrix.container-images.build-contexts) }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: ${{ matrix.container-images.context-directory }}
@@ -63,8 +63,7 @@ jobs:
       matrix:
         container-images:
           - name: ansible
-            build-contexts:
-              - ansible-configuration="config/ansible"
+            build-contexts: ["ansible-configuration="config/ansible"]
             context-directory: docker/ansible
             file: Dockerfile
           - name: arduino-cli
