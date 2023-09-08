@@ -1,1 +1,1 @@
-../../../../../../../../restic/entrypoint.sh
+../../../../../../../docker/restic/entrypoint.sh
