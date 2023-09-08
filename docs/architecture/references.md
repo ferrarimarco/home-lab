@@ -1,3 +1,3 @@
 # References
 
-- https://github.com/khuedoan/homelab
+- [khuedoan/homelab](https://github.com/khuedoan/homelab)
