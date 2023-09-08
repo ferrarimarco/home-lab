@@ -19,7 +19,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
   build-container-images:
     env:
-      CONTAINER_IMAGE_ID: "${{ github.repository }}-${{ matrix.container-image-context-directory }}"
+      CONTAINER_IMAGE_ID: "${{ github.repository }}-${{ matrix.container-images.name }}"
     permissions:
       contents: read
       packages: write
