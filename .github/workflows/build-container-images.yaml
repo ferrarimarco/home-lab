@@ -37,8 +37,8 @@ jobs:
           images: |
             ${{ env.CONTAINER_IMAGE_REGISTRY }}/${{ env.CONTAINER_IMAGE_ID }}
           labels: |
-            org.opencontainers.image.title=home-lab-${{ matrix.container-image-context-directory }}
-            org.opencontainers.image.description=${{ matrix.container-image-context-directory }} container image
+            org.opencontainers.image.title=home-lab-${{ matrix.container-images.name }}
+            org.opencontainers.image.description=${{ matrix.container-images.name }} container image
           tags: |
             type=edge,enable={{is_default_branch}}
             type=ref,event=branch,enable={{is_default_branch}}
@@ -48,20 +48,35 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha
-      - name: Build the ${{ matrix.container-image-context-directory }} container image
+      - name: Build the ${{ matrix.container-images.name }} container image
         uses: docker/build-push-action@v4
         with:
+          build-contexts: ${{ matrix.container-images.build-contexts }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          context: ${{ matrix.container-image-context-directory }}
+          context: ${{ matrix.container-images.context-directory }}
+          file: ${{ matrix.container-images.file }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
     strategy:
       matrix:
-        container-image-context-directory:
-          - docker/ansible
-          - docker/arduino-cli
-          - config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
-          - docker/restic
+        container-images:
+          - name: ansible
+            build-contexts:
+              - ansible-configuration="config/ansible"
+            context-directory: docker/ansible
+            file: Dockerfile
+          - name: arduino-cli
+            build-contexts: []
+            context-directory: docker/arduino-cli
+            file: Dockerfile
+          - name: dependency-updates-helper
+            build-contexts: []
+            context-directory: config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
+            file: Dockerfile
+          - name: restic
+            build-contexts: []
+            context-directory: docker/restic
+            file: Dockerfile
 ...
