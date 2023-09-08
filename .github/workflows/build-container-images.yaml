@@ -63,7 +63,7 @@ jobs:
       matrix:
         container-images:
           - name: ansible
-            build-contexts: ['ansible-configuration="config/ansible"']
+            build-contexts: '[ansible-configuration="config/ansible"]'
             context-directory: docker/ansible
             file: Dockerfile
           - name: arduino-cli
