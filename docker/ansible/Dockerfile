@@ -20,7 +20,7 @@ RUN pip3 install --upgrade pip setuptools wheel \
   && ansible --version \
   && ansible-galaxy --version
 
-COPY etc/ansible/requirements.yml /etc/ansible/requirements.yml
+COPY requirements.yml /etc/ansible/requirements.yml
 
 RUN ansible-galaxy install -r /etc/ansible/requirements.yml \
   && rm /etc/ansible/requirements.yml
@@ -50,7 +50,7 @@ RUN apt-get update \
   docker-compose-plugin \
   && rm -rf /var/lib/apt/lists/*
 
-COPY etc/ansible/molecule/requirements.txt /
+COPY molecule/requirements.txt /
 
 RUN pip3 install -r requirements.txt \
   && rm requirements.txt \

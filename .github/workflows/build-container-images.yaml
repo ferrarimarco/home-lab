@@ -9,10 +9,12 @@ on:  # yamllint disable-line rule:truthy
     paths:
       - ".github/workflows/build-container-images.yaml"
       - "docker/**"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/**"
   pull_request:
     paths:
       - ".github/workflows/build-container-images.yaml"
       - "docker/**"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/**"
 
 jobs:
   build-container-images:
@@ -60,6 +62,6 @@ jobs:
         container-image-context-directory:
           - docker/ansible
           - docker/arduino-cli
-          - docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
+          - config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
           - docker/restic
 ...
