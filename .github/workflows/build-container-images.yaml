@@ -51,11 +51,11 @@ jobs:
       - name: Build the ${{ matrix.container-images.name }} container image
         uses: docker/build-push-action@v4
         with:
-          build-contexts:
-            - ansible-configuration="config/ansible"
+          build-contexts: ${{ matrix.container-images.build-contexts }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: ${{ matrix.container-images.context-directory }}
+          file: ${{ matrix.container-images.file }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
@@ -63,11 +63,20 @@ jobs:
       matrix:
         container-images:
           - name: ansible
+            build-contexts: |
+              ansible-configuration="config/ansible"
             context-directory: docker/ansible
+            file: Dockerfile
           - name: arduino-cli
+            build-contexts: null
             context-directory: docker/arduino-cli
+            file: Dockerfile
           - name: dependency-updates-helper
+            build-contexts: null
             context-directory: config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
+            file: Dockerfile
           - name: restic
+            build-contexts: null
             context-directory: docker/restic
+            file: Dockerfile
 ...
