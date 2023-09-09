@@ -51,6 +51,7 @@ fi
 # Check if the Ansible vault password file exists if we're not running tests
 if [ ! -f "${ANSIBLE_VAULT_PASSWORD_FILE_PATH}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}" != "molecule" ]; then
   echo "The Ansible vault password file does not exist: ${ANSIBLE_VAULT_PASSWORD_FILE_PATH}"
+  # shellcheck disable=SC2086
   exit ${ERR_ANSIBLE_MISSING_PASSWORD_FILE}
 fi
 
