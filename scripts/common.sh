@@ -3,9 +3,9 @@
 set -o errexit
 set -o nounset
 
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034,SC2086
 ERR_ARGUMENT_EVAL=2
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034,SC2086
 ERR_ANSIBLE_MISSING_PASSWORD_FILE=3
 
 is_command_available() {
