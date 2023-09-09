@@ -48,13 +48,6 @@ if [ -n "${MOLECULE_DISTRO:-}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-}
   echo "Set Ansible container image build target to ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
 fi
 
-# Check if the Ansible vault password file exists if we're not running tests
-if [ ! -f "${ANSIBLE_VAULT_PASSWORD_FILE_PATH}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}" != "molecule" ]; then
-  echo "The Ansible vault password file does not exist: ${ANSIBLE_VAULT_PASSWORD_FILE_PATH}"
-  # shellcheck disable=SC2086
-  exit ${ERR_ANSIBLE_MISSING_PASSWORD_FILE}
-fi
-
 echo "Building Ansible container image (${ANSIBLE_CONTAINER_IMAGE_ID}) from ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
 docker build \
   --build-context=ansible-configuration="${ANSIBLE_DIRECTORY}" \
@@ -74,6 +67,12 @@ else
   SSH_AUTH_SOCKET_DESTINATION_PATH="/ssh-agent"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env SSH_AUTH_SOCK=${SSH_AUTH_SOCKET_DESTINATION_PATH}"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCKET_DESTINATION_PATH}"
+
+  if [ ! -f "${ANSIBLE_VAULT_PASSWORD_FILE_PATH}" ]; then
+    echo "The Ansible vault password file does not exist: ${ANSIBLE_VAULT_PASSWORD_FILE_PATH}"
+    # shellcheck disable=SC2086
+    exit ${ERR_ANSIBLE_MISSING_PASSWORD_FILE}
+  fi
 fi
 
 ANSIBLE_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH="/etc/ansible"
@@ -95,8 +94,6 @@ DEFAULT_ANSIBLE_COMMAND_TO_RUN="ansible-playbook"
 DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --inventory ${ANSIBLE_INVENTORY_PATH}"
 DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --vault-id ${ANSIBLE_VAULT_ID}@${ANSIBLE_VAULT_PASSWORD_FILE_DESTINATION_PATH}"
 DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ANSIBLE_PLAYBOOK_PATH}"
-
-COMMAND_TO_RUN="${COMMAND_TO_RUN:-""}"
 
 if [ -n "${1:-}" ]; then
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${1}"
