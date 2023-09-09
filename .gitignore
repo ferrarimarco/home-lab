@@ -23,4 +23,5 @@ secret.yaml
 .venv*
 
 # Ansible Vault
+home_lab_vault_password_file
 vault.y*ml*
