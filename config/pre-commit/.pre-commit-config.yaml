@@ -42,7 +42,7 @@ repos:
     rev: v6.17.2
     hooks:
       - id: ansible-lint
-        entry: "sh -c 'cd docker/ansible/etc/ansible && ansible-lint -c ../../../../config/lint/.ansible-lint.yml .'"
+        entry: "sh -c 'cd config/ansible && ansible-lint -c ../lint/.ansible-lint.yml .'"
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: "2.7.2"
     hooks:
