@@ -5,11 +5,17 @@ on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/test-ansible.yaml"
+      - "config/ansible/**"
       - "docker/ansible/**"
+      - "scripts/common.sh"
+      - "scripts/run-ansible.sh"
   pull_request:
     paths:
       - ".github/workflows/test-ansible.yaml"
+      - "config/ansible/**"
       - "docker/ansible/**"
+      - "scripts/common.sh"
+      - "scripts/run-ansible.sh"
 
 jobs:
   test-ansible:
