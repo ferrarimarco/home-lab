@@ -117,7 +117,7 @@ repos:
           - "--verbose"
           - "--statistics"
   - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: "36.25.5"
+    rev: "36.89.0"
     hooks:
       - id: renovate-config-validator
   # Local hooks
