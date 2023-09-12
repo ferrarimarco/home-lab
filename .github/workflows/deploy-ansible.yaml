@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   test-ansible:
-    uses: ./.github/workflows/test-ansible.yml
+    uses: ./.github/workflows/test-ansible.yaml
   run-ansible:
     environment: Home lab
     needs:
