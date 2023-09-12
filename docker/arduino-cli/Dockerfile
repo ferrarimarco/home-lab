@@ -2,7 +2,7 @@ FROM debian:bullseye
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
-ARG ARDUINO_CLI_VERSION="0.33.1"
+ARG ARDUINO_CLI_VERSION="0.34.2"
 
 RUN apt-get update \
   && apt-get --assume-yes --no-install-recommends install \
