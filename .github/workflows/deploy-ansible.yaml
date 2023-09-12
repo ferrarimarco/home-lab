@@ -14,8 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test-ansible:
+    uses: ./.github/workflows/test-ansible.yml
   run-ansible:
     environment: Home lab
+    needs:
+      - test-ansible
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -33,7 +37,6 @@ jobs:
         env:
           ADDITIONAL_ANSIBLE_FLAGS: "-CD"
           ANSIBLE_VAULT_PASSWORD: "${{ secrets.ANSIBLE_VAULT_PASSWORD }}"
-          ANSIBLE_VAULT_DECRYPT_MODE: "home-lab-vault-password-file"
         run: |
           scripts/run-ansible.sh
 ...

@@ -16,6 +16,7 @@ on:  # yamllint disable-line rule:truthy
       - "docker/ansible/**"
       - "scripts/common.sh"
       - "scripts/run-ansible.sh"
+  workflow_call: null
 
 jobs:
   test-ansible:
