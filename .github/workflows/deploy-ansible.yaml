@@ -18,6 +18,7 @@ jobs:
     uses: ./.github/workflows/test-ansible.yaml
   run-ansible:
     environment: Home lab
+    if: github.repository == 'ferrarimarco/home-lab'
     needs:
       - test-ansible
     runs-on: ubuntu-latest
