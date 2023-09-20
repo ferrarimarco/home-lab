@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Super-Linter
-        uses: super-linter/super-linter@v5.2.2
+        uses: super-linter/super-linter@v5.3.0
         env:
           ANSIBLE_DIRECTORY: "docker/ansible/etc/ansible"
           DISABLE_ERRORS: false
