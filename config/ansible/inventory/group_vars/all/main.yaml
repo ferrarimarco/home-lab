@@ -1,5 +1,7 @@
 ---
 ansible_python_interpreter: auto_silent
+# Automatically accept new host keys for hosts in the inventory
+ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new"
 cam_3_rtps_password: "{{ vault_cam_3_rtps_password }}"
 cam_3_rtps_username: "{{ vault_cam_3_rtps_username }}"
 frigate_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
