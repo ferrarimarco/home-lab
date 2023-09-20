@@ -120,6 +120,8 @@ repos:
     rev: "36.89.0"
     hooks:
       - id: renovate-config-validator
+        args:
+          - "--strict"
   # Local hooks
   - repo: local
     hooks:
