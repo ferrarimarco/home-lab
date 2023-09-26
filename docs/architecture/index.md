@@ -30,7 +30,10 @@ The scope of each layer is as follows:
 - `Hardware management`: manage physical hardware.
 - `Physical hardware`: provide hardware resources.
 
-## Support contents
+## Support content
+
+This repository includes the following content to support provisioning,
+configuration, and deployment processes:
 
 - GitHub-specific configuration in the `.github` directory.
 - Configuration for each architectural layer and support tooling in the `config` directory.
