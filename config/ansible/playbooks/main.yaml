@@ -1,5 +1,11 @@
 ---
-- name: Configure Home Lab node
+- name: Bootstrap the Home Lab
+  hosts: seeds
+  gather_facts: true
+  roles:
+    - role: ferrarimarco_home_lab_bootstrap
+
+- name: Configure Home Lab nodes
   hosts: all
   gather_facts: true
   roles:
