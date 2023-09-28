@@ -30,8 +30,11 @@ jobs:
           set -o errexit
           set -o nounset
 
-          MOLECULE_DISTRO=${{ matrix.test_container_image_id }}
-          export MOLECULE_DISTRO
+          ANSIBLE_TEST_DISTRO=${{ matrix.test_container_image_id }}
+          export ANSIBLE_TEST_DISTRO
+
+          ANSIBLE_TEST_PLAYBOOK_NAME=${{ matrix.test_playbook_name }}
+          export ANSIBLE_TEST_PLAYBOOK_NAME
 
           scripts/run-ansible.sh "molecule test"
     runs-on: ubuntu-latest
@@ -39,4 +42,7 @@ jobs:
       matrix:
         test_container_image_id:
           - "geerlingguy/docker-debian11-ansible:latest"
+        test_playbook_name:
+          - bootstrap
+          - main
 ...

@@ -43,7 +43,7 @@ echo "Ansible container image id: ${ANSIBLE_CONTAINER_IMAGE_ID}"
 ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-"ansible"}"
 echo "Ansible container image build target: ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
 
-if [ -n "${MOLECULE_DISTRO:-}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-}" = "ansible" ]; then
+if [ -n "${ANSIBLE_TEST_DISTRO:-}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-}" = "ansible" ]; then
   ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="molecule"
   echo "Set Ansible container image build target to ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
 fi
@@ -60,8 +60,18 @@ if [ -t 0 ]; then
   COMMAND_TO_RUN="${COMMAND_TO_RUN} -it"
 fi
 
-if [ -n "${MOLECULE_DISTRO:-}" ]; then
-  COMMAND_TO_RUN="${COMMAND_TO_RUN} --env MOLECULE_DISTRO=${MOLECULE_DISTRO}"
+if [ -n "${ANSIBLE_TEST_DISTRO:-}" ]; then
+  ANSIBLE_TEST_PLAYBOOK_PATH="../../playbooks/${ANSIBLE_TEST_PLAYBOOK_NAME}.yaml"
+  ANSIBLE_TEST_PLAYBOOK_FULL_PATH="config/ansible/molecule/default/${ANSIBLE_TEST_PLAYBOOK_PATH}"
+  if [ ! -f "${ANSIBLE_TEST_PLAYBOOK_FULL_PATH}" ]; then
+    echo "The playbook file does not exist: ${ANSIBLE_TEST_PLAYBOOK_FULL_PATH}"
+    # shellcheck disable=SC2086
+    exit ${ERR_ANSIBLE_TEST_MISSING_PLAYBOOK}
+  fi
+
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_DISTRO=${ANSIBLE_TEST_DISTRO}"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_PLAYBOOK_PATH=${ANSIBLE_TEST_PLAYBOOK_PATH}"
+
   COMMAND_TO_RUN="${COMMAND_TO_RUN} -v /var/run/docker.sock:/var/run/docker.sock"
 else
   SSH_AUTH_SOCKET_DESTINATION_PATH="/ssh-agent"

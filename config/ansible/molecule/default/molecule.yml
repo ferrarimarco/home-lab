@@ -6,8 +6,8 @@ driver:
   name: docker
 platforms:
   - name: instance
-    image: "${MOLECULE_DISTRO}"
-    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    image: "${ANSIBLE_TEST_DISTRO}"
+    command: ${ANSIBLE_TEST_DOCKER_COMMAND}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
@@ -20,5 +20,5 @@ provisioner:
       instance:
         ansible_user: root
   playbooks:
-    converge: ../../playbooks/main.yaml
+    converge: "${ANSIBLE_TEST_PLAYBOOK_PATH}"
 ...

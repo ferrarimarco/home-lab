@@ -1,5 +1,5 @@
 ---
-- name: Configure Home Lab node
+- name: Configure Home Lab nodes
   hosts: all
   gather_facts: true
   roles:

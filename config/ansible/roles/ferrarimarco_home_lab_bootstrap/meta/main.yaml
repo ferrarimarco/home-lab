@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: https://github.com/ferrarimarco
+  description: |
+    Role to bootstrap my home lab.
+    This role configures automated configuration management and deployment
+    processes so that hosts that are part of the lab can automatically
+    configure themselves.
+  license: MIT
+  min_ansible_version: "2.13"
+  platforms:
+    - name: Debian
+      versions:
+        - all
+...
