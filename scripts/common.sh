@@ -7,6 +7,8 @@ set -o nounset
 ERR_ARGUMENT_EVAL=2
 # shellcheck disable=SC2034
 ERR_ANSIBLE_MISSING_PASSWORD_FILE=3
+# shellcheck disable=SC2034
+ERR_ANSIBLE_TEST_MISSING_PLAYBOOK=4
 
 is_command_available() {
   if command -v "${1}" >/dev/null 2>&1; then

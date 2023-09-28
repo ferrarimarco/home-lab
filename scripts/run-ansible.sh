@@ -62,8 +62,10 @@ fi
 
 if [ -n "${ANSIBLE_TEST_DISTRO:-}" ]; then
   ANSIBLE_TEST_PLAYBOOK_PATH="../../playbooks/${ANSIBLE_TEST_PLAYBOOK_NAME}.yaml"
-  if [ ! -f "${ANSIBLE_TEST_PLAYBOOK_PATH}" ]; then
-    echo "The playbook file does not exist: ${ANSIBLE_TEST_PLAYBOOK_PATH}"
+  ANSIBLE_TEST_PLAYBOOK_FULL_PATH="config/ansible/molecule/default/${ANSIBLE_TEST_PLAYBOOK_PATH}"
+  if [ ! -f "${ANSIBLE_TEST_PLAYBOOK_FULL_PATH}" ]; then
+    echo "The playbook file does not exist: ${ANSIBLE_TEST_PLAYBOOK_FULL_PATH}"
+    # shellcheck disable=SC2086
     exit ${ERR_ANSIBLE_TEST_MISSING_PLAYBOOK}
   fi
 
