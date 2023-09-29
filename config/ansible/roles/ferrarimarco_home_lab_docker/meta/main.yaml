@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: https://github.com/ferrarimarco
+  description: |
+    Role to install Docker.
+  license: MIT
+  min_ansible_version: "2.13"
+  platforms:
+    - name: Debian
+      versions:
+        - all
+...

@@ -1,0 +1,17 @@
+---
+configure_docker: false
+docker_apt_release_channel: stable
+docker_daemon_options: {
+  "log-driver": "local",
+  "log-opts": {
+    "compress": "true",
+    "max-size": "10m",
+    "max-file": "3",
+  }
+}
+docker_os_users:
+  - append: true
+    name: "{{ ansible_user }}"
+    groups:
+      - "{{ docker_default_os_group_name }}"
+...

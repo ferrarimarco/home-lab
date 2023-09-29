@@ -1,0 +1,37 @@
+---
+# This was used to install the standalone compose executable before switching to the Docker Compose plugin for Docker Engine
+docker_compose_standalone_executable_path: "/usr/local/bin/docker-compose"
+
+docker_configuration_directories:
+  - path: "{{ docker_daemon_configuration_directory_path }}"
+    state: "{{ configure_docker | ternary('directory', 'absent') }}"
+docker_daemon_configuration_directory_path: "{{ etc_directory_path }}/docker"
+docker_daemon_configuration_file_name: "daemon.json"
+docker_default_os_group_name: "docker"
+docker_system_prune_service_name: docker-system-prune
+docker_system_prune_timer_file_name: "{{ docker_system_prune_service_name }}.timer"
+docker_os_services:
+  - enabled: true
+    service_name: "{{ docker_service_name }}"
+    service_state: "{{ configure_docker | ternary('started', 'stopped') }}"
+  - enabled: true
+    service_name: "{{ docker_system_prune_timer_file_name }}"
+    service_state: "{{ configure_monitoring | ternary('started', 'stopped') }}"
+docker_repository_url: https://download.docker.com/linux
+docker_templates_to_render:
+  - src: "docker/{{ docker_daemon_configuration_file_name }}.jinja"
+    dest: "{{ docker_daemon_configuration_directory_path }}/daemon.json"
+    state: "{{ configure_docker | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ docker_service_name }}"
+  - src: "docker/system-prune-timer/{{ docker_system_prune_service_name }}.service.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ docker_system_prune_service_name }}.service"
+    state: "{{ configure_docker | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ docker_system_prune_service_name }}"
+  - src: "docker/system-prune-timer/{{ docker_system_prune_timer_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ docker_system_prune_timer_file_name }}"
+    state: "{{ configure_docker | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ docker_system_prune_service_name }}"
+...
