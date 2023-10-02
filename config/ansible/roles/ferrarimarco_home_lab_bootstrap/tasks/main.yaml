@@ -44,6 +44,17 @@
     - path: "{{ home_lab_configuration_directory_path }}"
     - path: "{{ home_lab_runtime_directory_path }}"
 
+- name: Clone the Home Lab configuration repository
+  ansible.builtin.git:
+    accept_newhostkey: true
+    clone: true
+    dest: "{{ home_lab_main_repository_path }}"
+    # Discard local modifications by default
+    force: true
+    recursive: true
+    repo: "{{ home_lab_configuration_repository_url }}"
+    update: true
+
 - name: Setup systemd
   ansible.builtin.import_tasks: setup-systemd.yaml
   when:

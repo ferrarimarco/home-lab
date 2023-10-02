@@ -1,4 +1,5 @@
 ---
 home_lab_configuration_directory_path: "/etc/ferrarimarco-home-lab"
+home_lab_configuration_repository_url: "https://github.com/ferrarimarco/home-lab.git"
 home_lab_runtime_directory_path: "/var/lib/ferrarimarco-home-lab"
 ...
