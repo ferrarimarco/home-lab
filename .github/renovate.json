@@ -7,6 +7,7 @@
   },
   "enabledManagers": [
     "ansible",
+    "ansible-galaxy",
     "docker-compose",
     "pre-commit",
     "regex"
