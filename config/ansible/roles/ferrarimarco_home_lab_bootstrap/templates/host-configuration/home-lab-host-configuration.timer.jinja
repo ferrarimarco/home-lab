@@ -1,0 +1,8 @@
+[Unit]
+Description=Run the home lab node configuration service as scheduled
+
+[Timer]
+OnCalendar={{ home_lab_host_configuration_timer_definition }}
+
+[Install]
+WantedBy=timers.target

@@ -55,6 +55,28 @@
     repo: "{{ home_lab_configuration_repository_url }}"
     update: true
 
+- name: Configure host configuration OS services
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    force: "{{ item.force | default(omit) }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+  notify: restart host configuration service
+  with_items:
+    - src: "host-configuration/{{ host_configuration_service_name }}.service.jinja"
+      dest: "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.service"
+    - src: "host-configuration/{{ host_configuration_service_name }}.timer.jinja"
+      dest: "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.timer"
+
+- name: Ensure that the host configuration services are started and enabled at boot
+  service:
+    name: "{{ host_configuration_service_name }}"
+    state: started
+    enabled: true
+  ignore_errors: "{{ ansible_check_mode }}"
+
 - name: Setup systemd
   ansible.builtin.import_tasks: setup-systemd.yaml
   when:
