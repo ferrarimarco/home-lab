@@ -54,9 +54,6 @@ jobs:
           ANSIBLE_TEST_PLAYBOOK_NAME=${{ matrix.test_playbook_name }}
           export ANSIBLE_TEST_PLAYBOOK_NAME
 
-          ADDITIONAL_ANSIBLE_FLAGS="--diff"
-          export ADDITIONAL_ANSIBLE_FLAGS
-
           scripts/run-ansible.sh "molecule test"
     runs-on: ubuntu-latest
     strategy:
