@@ -3,7 +3,7 @@
   hosts: all
   gather_facts: true
   roles:
+    - role: ferrarimarco_home_lab_bootstrap
     - role: geerlingguy.docker
       become: true
-    - role: ferrarimarco_home_lab_bootstrap
 ...
