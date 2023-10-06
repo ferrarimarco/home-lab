@@ -1,3 +1,5 @@
 ---
 host_configuration_service_name: home-lab-host-configuration
+systemd_configuration_directory: /etc/systemd
+systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
 ...
