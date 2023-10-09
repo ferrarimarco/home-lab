@@ -35,6 +35,8 @@ jobs:
           || steps.metadata.outputs.dependency-names == 'docker/setup-buildx-action'
           || steps.metadata.outputs.dependency-names == 'docker/setup-qemu-action'
           || steps.metadata.outputs.dependency-names == 'esphome'
+          || steps.metadata.outputs.dependency-names == 'github/codeql-action'
+          || steps.metadata.outputs.dependency-names == 'ossf/scorecard-action'
           || steps.metadata.outputs.dependency-names == 'molecule-plugins[docker]'
           || steps.metadata.outputs.dependency-names == 'molecule'
           || steps.metadata.outputs.dependency-names == 'paramiko'
