@@ -31,7 +31,7 @@
   "pre-commit": {
     "enabled": true
   },
-  "regexManagers": [
+  "customManagers": [
     {
       "customType": "regex",
       "fileMatch": [
