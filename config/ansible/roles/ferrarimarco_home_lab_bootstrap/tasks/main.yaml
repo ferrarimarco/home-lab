@@ -70,10 +70,10 @@
     - src: "host-configuration/{{ host_configuration_service_name }}.timer.jinja"
       dest: "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.timer"
 
-- name: Ensure that the host configuration services are started and enabled at boot
-  service:
+# Don't start services because timers take care of that
+- name: Ensure that the host configuration services are enabled at boot
+  ansible.builtin.service:
     name: "{{ host_configuration_service_name }}"
-    state: started
     enabled: true
   ignore_errors: "{{ ansible_check_mode }}"
 
