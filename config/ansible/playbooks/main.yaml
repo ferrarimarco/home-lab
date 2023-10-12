@@ -8,9 +8,6 @@
 - name: Configure Home Lab nodes
   hosts: all
   gather_facts: true
-  pre_tasks:
-    - name: Include the bootstrap playbook
-      ansible.builtin.include_playbook: bootstrap.yaml
   roles:
     - role: ferrarimarco_home_lab_node
 ...
