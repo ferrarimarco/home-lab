@@ -9,8 +9,8 @@
   hosts: all
   gather_facts: true
   pre_tasks:
-    - name: Import the bootstrap playbook
-      ansible.builtin.import_playbook: bootstrap.yaml
+    - name: Include the bootstrap playbook
+      ansible.builtin.include_playbook: bootstrap.yaml
   roles:
     - role: ferrarimarco_home_lab_node
 ...
