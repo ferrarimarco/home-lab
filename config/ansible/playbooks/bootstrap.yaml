@@ -1,6 +1,6 @@
 ---
 - name: Bootstrap the Home Lab
-  hosts: "{{ home_lab_hosts | default('all') }}"
+  hosts: all
   gather_facts: true
   roles:
     - role: geerlingguy.docker

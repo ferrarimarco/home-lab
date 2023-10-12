@@ -6,8 +6,11 @@
   ansible.builtin.import_playbook: container-engine.yaml
 
 - name: Configure Home Lab nodes
-  hosts: "{{ home_lab_hosts | default('all') }}"
+  hosts: all
   gather_facts: true
+  pre_tasks:
+    - name: Import the bootstrap playbook
+      ansible.builtin.import_playbook: bootstrap.yaml
   roles:
     - role: ferrarimarco_home_lab_node
 ...
