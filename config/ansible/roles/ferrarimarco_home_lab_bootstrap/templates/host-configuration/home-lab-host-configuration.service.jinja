@@ -3,6 +3,7 @@ Description=Run the home lab node configuration service
 Requires=docker.service
 
 [Service]
+Environment="ADDITIONAL_ANSIBLE_FLAGS=-CD"
 ExecStart={{ home_lab_configuration_directory_path }}/scripts/run-ansible.sh
 WorkingDirectory={{ home_lab_configuration_directory_path }}
 
