@@ -4,6 +4,7 @@ Requires=docker.service
 
 [Service]
 Environment="ADDITIONAL_ANSIBLE_FLAGS=-CD"
+Environment="HOME_LAB_TARGET_CONTAINER_HOST=true"
 ExecStart={{ home_lab_configuration_directory_path }}/scripts/run-ansible.sh
 WorkingDirectory={{ home_lab_configuration_directory_path }}
 

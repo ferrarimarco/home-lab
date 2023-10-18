@@ -1,4 +1,10 @@
 ---
+- name: Configure the connection plugin to connect to the host running Docker
+  ansible.builtin.set_fact:
+    ansible_connection: community.docker.nsenter
+  when:
+    - lookup('ansible.builtin.env', 'HOME_LAB_TARGET_CONTAINER_HOST', default=false) | bool
+
 - name: Bootstrap the Home Lab
   hosts: all
   gather_facts: true
