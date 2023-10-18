@@ -42,6 +42,8 @@ ANSIBLE_CONTAINER_IMAGE_ID="ferrarimarco/ansible:${ANSIBLE_CONTAINER_IMAGE_TAG}"
 echo "Ansible container image id: ${ANSIBLE_CONTAINER_IMAGE_ID}"
 ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-"ansible"}"
 echo "Ansible container image build target: ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
+HOME_LAB_TARGET_CONTAINER_HOST="${HOME_LAB_TARGET_CONTAINER_HOST:-"false"}"
+echo "HOME_LAB_TARGET_CONTAINER_HOST: ${HOME_LAB_TARGET_CONTAINER_HOST}"
 
 if [ -n "${ANSIBLE_TEST_DISTRO:-}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-}" = "ansible" ]; then
   ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="molecule"
@@ -119,6 +121,10 @@ else
   #   Example: --tags='monitoring,monitoring-backend,monitoring-nut' --tags untagged
   if [ -n "${ADDITIONAL_ANSIBLE_FLAGS:-""}" ]; then
     DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ADDITIONAL_ANSIBLE_FLAGS:-""}"
+  fi
+  if [ "${HOME_LAB_TARGET_CONTAINER_HOST}" = "true" ]; then
+    echo "Configure Ansible to target the container host."
+    DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --extra-vars 'ansible_connection=community.docker.nsenter'"
   fi
 
   DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ANSIBLE_PLAYBOOK_PATH}"
