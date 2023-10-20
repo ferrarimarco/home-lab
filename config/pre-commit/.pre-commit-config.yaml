@@ -44,7 +44,7 @@ repos:
       - id: ansible-lint
         entry: "sh -c 'cd config/ansible && ansible-lint -c ../lint/.ansible-lint.yml .'"
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: "2.7.2"
+    rev: "2.7.3"
     hooks:
       - id: editorconfig-checker
         args:
