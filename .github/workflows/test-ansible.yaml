@@ -42,6 +42,7 @@ jobs:
       matrix:
         test_container_image_id:
           - "geerlingguy/docker-debian11-ansible:latest"
+          - "geerlingguy/docker-debian12-ansible:latest"
         test_playbook_name:
           - bootstrap
           - main
