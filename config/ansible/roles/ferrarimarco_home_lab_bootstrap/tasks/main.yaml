@@ -55,7 +55,6 @@
     repo: "{{ home_lab_configuration_repository_url }}"
     update: true
 
-# Don't restart services because timers take care of that
 - name: Configure host configuration OS services files
   ansible.builtin.template:
     src: "{{ item.src }}"
@@ -70,12 +69,10 @@
     - src: "host-configuration/{{ host_configuration_service_name }}.timer.jinja"
       dest: "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.timer"
 
-# Don't start services because timers take care of that
-- name: Ensure that the host configuration services are enabled at boot
-  ansible.builtin.service:
-    name: "{{ host_configuration_service_name }}"
-    enabled: true
-  ignore_errors: "{{ ansible_check_mode }}"
+# Don't enable or start services because timers take care of that
+- name: Reload systemd configuration
+  ansible.builtin.systemd_service:
+    daemon_reload: true
 
 - name: Setup systemd
   ansible.builtin.import_tasks: setup-systemd.yaml
