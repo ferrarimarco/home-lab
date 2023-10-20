@@ -55,7 +55,8 @@
     repo: "{{ home_lab_configuration_repository_url }}"
     update: true
 
-- name: Configure host configuration OS services
+# Don't restart services because timers take care of that
+- name: Configure host configuration OS services files
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -63,7 +64,6 @@
     owner: "{{ item.owner | default('root') }}"
     group: "{{ item.group | default('root') }}"
     mode: "{{ item.mode | default('0644') }}"
-  notify: restart host configuration service
   with_items:
     - src: "host-configuration/{{ host_configuration_service_name }}.service.jinja"
       dest: "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.service"
