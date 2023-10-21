@@ -24,11 +24,11 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
-  - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter"
+  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
-  - directory: "/docker/ansible/etc/ansible/roles/ferrarimarco_home_lab_node/files/config/zte-f6005-ont-exporter"
+  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/zte-f6005-ont-exporter"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
