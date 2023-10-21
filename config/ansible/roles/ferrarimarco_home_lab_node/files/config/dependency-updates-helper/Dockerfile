@@ -25,7 +25,7 @@ FROM quay.io/prometheus/node-exporter:v1.6.1 as prometheus-node-exporter
 FROM grafana/grafana-oss:10.1.1 as grafana
 
 # mosquitto
-FROM eclipse-mosquitto:2.0.17-openssl as mosquitto
+FROM eclipse-mosquitto:2.0.18-openssl as mosquitto
 
 # network-stack
 FROM klutchell/unbound:v1.17.1 as unbound
