@@ -159,6 +159,7 @@ network_stack_unbound_enable_logs: true
 network_stack_unbound_verbosity: 2
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
+restic_backup_jobs: []
 root_dns_zone_fqdn: "ferrari.how"
 samba_additional_interfaces: "{{ edge_environment_subnet }}"
 samba_default_readers_group_name: "samba-readers"

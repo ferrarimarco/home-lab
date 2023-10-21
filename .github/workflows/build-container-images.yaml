@@ -73,5 +73,5 @@ jobs:
             context-directory: config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
           - name: restic
             build-contexts: null
-            context-directory: docker/restic
+            context-directory: config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
 ...

@@ -19,6 +19,7 @@ provisioner:
     host_vars:
       instance:
         ansible_user: root
+        configure_backup_restic: true
   playbooks:
     converge: "${ANSIBLE_TEST_PLAYBOOK_PATH}"
 ...

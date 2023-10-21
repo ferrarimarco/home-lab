@@ -36,7 +36,7 @@ updates:
     package-ecosystem: "docker"
     schedule:
       interval: "daily"
-  - directory: "/docker/restic"
+  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic"
     package-ecosystem: "docker"
     schedule:
       interval: "daily"

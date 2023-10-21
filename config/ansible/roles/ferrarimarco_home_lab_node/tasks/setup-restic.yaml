@@ -36,7 +36,7 @@
     name: "{{ item.job_name }}.timer"
     state: "{{ configure_backup_restic | ternary('started', 'stopped') }}"
     enabled: "{{ configure_backup_restic | ternary(true, false) }}"
-  with_items: "{{ restic_backup_jobs | default([]) }}"
+  with_items: "{{ restic_backup_jobs }}"
   register: stop_os_service
   # Services to stop might not exist, so we don't fail in that case
   failed_when:
@@ -48,12 +48,12 @@
     path: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.service"
     state: absent
   when: not configure_backup_restic
-  with_items: "{{ restic_backup_jobs | default([]) }}"
+  with_items: "{{ restic_backup_jobs }}"
 
 - name: Delete Restic timers
   ansible.builtin.file:
     path: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.timer"
     state: absent
   when: not configure_backup_restic
-  with_items: "{{ restic_backup_jobs | default([]) }}"
+  with_items: "{{ restic_backup_jobs }}"
 ...
