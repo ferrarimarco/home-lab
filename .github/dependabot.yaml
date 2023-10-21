@@ -28,7 +28,7 @@ updates:
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
-  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/zte-f6005-ont-exporter"
+  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
