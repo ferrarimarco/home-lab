@@ -12,6 +12,12 @@
       caption: A {{trigger.payload_json["after"]["label"]}} was detected. Here is
         a snapshot of the event.
       message_tag: '{{trigger.payload_json["after"]["id"]}}'
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+    alias: Wait for the recording to be available
   - service: telegram_bot.send_video
     data:
       url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
@@ -92,7 +98,7 @@
       hours: 0
       minutes: 0
       seconds: 45
-    below: 40
+    below: 43
   condition:
   - condition: device
     type: is_on
@@ -102,7 +108,8 @@
   action:
   - service: telegram_bot.send_message
     data:
-      message: Spengo gaming rig
+      message: Turn off {{ device_attr(device_id(trigger.to_state.entity_id), 'name')
+        }}
   - type: turn_off
     device_id: 6449a73377f934da409a21b1a9343f06
     entity_id: switch.presa_studio_gaming
@@ -116,11 +123,23 @@
     entity_id:
     - camera.e1_ingresso_sub
     to: unavailable
+  - platform: state
+    entity_id:
+    - sensor.eaton_ellipse_pro_1600_din_1_status
+    to: unavailable
+  - platform: state
+    entity_id:
+    - light.luce_comodino_ilaria_2
+    to: unavailable
+  - platform: state
+    entity_id:
+    - light.luce_comodino_marco_2
+    to: unavailable
   condition: []
   action:
   - service: telegram_bot.send_message
     data:
-      message: '{{ trigger.event.data.entity_id }} entity is unavailable.'
+      message: '{{ trigger.to_state.attributes.friendly_name }} entity is unavailable.'
   mode: single
 - id: '1688838976875'
   alias: HA online notification
@@ -151,4 +170,46 @@
   - service: notify.notify
     data:
       message: Cannot ping external services. Check the internet connection.
+  mode: single
+- id: '1690487850440'
+  alias: Notify when UPS status changes
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.eaton_ellipse_pro_1600_din_1_status
+  condition: []
+  action:
+  - service: telegram_bot.send_message
+    data:
+      message: '{{ trigger.to_state.attributes.friendly_name }}: {{ trigger.to_state.state
+        }}'
+  mode: single
+- id: '1695033345128'
+  alias: Turn off gaming rig when not in use (living room)
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.presa_sala_gaming_power
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 45
+    below: 13
+  condition:
+  - condition: device
+    type: is_on
+    device_id: 87f43ce91a0ed169ac75a705db7156e2
+    entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
+    domain: switch
+  action:
+  - service: telegram_bot.send_message
+    data:
+      message: Turn off {{ device_attr(device_id(trigger.to_state.entity_id), 'name')
+        }}
+    enabled: true
+  - type: turn_off
+    device_id: 87f43ce91a0ed169ac75a705db7156e2
+    entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
+    domain: switch
   mode: single
