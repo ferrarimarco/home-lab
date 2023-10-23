@@ -12,7 +12,7 @@ FROM ghcr.io/blakeblackshear/frigate:0.12.1 as frigate
 FROM ghcr.io/home-assistant/home-assistant:2023.9.1 as home-assistant
 
 # media-stack
-FROM jellyfin/jellyfin:10.8.10 as jellyfin
+FROM jellyfin/jellyfin:10.8.11 as jellyfin
 
 # monitoring
 FROM gcr.io/cadvisor/cadvisor:v0.47.2 as cadvisor
