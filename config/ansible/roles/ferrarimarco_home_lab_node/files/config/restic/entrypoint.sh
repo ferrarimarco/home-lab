@@ -15,6 +15,15 @@ else
   restic init --verbose
 fi
 
+echo "Getting the list of Restic locks that are currently active."
+restic list locks --no-lock --verbose
+
+echo "Removing eventual stale Restic locks..."
+restic unlock --verbose
+
+echo "Getting the list of Restic locks that are currently active again."
+restic list locks --no-lock --verbose
+
 if [ "${RESTIC_ENABLE_BACKUP:-"false"}" = "true" ]; then
   echo "Backing up ${RESTIC_DIRECTORIES_TO_BACKUP}. Tags: ${RESTIC_BACKUP_TAGS}"
   # Use eval here because restic interprets quotes literally
