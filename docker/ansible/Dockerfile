@@ -18,8 +18,7 @@ RUN pip3 install --upgrade pip setuptools wheel \
   && pip3 install -r requirements.txt \
   && rm requirements.txt \
   && ansible --version \
-  && ansible-galaxy --version \
-  && nsenter --version
+  && ansible-galaxy --version
 
 # Hadolint has no way of knowing that this --from doesn't reference a FROM statement
 # so we disable this check
