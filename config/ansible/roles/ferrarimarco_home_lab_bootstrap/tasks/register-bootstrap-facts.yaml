@@ -5,4 +5,8 @@
     # across roles and plays.
     home_lab_configuration_directory_path: "{{ home_lab_configuration_directory_path }}"
     home_lab_runtime_directory_path: "{{ home_lab_runtime_directory_path }}"
+    home_lab_main_repository_path: "{{ home_lab_configuration_directory_path }}/home-lab"
+    home_lab_runtime_directory_path: "/var/lib/ferrarimarco-home-lab"
+    home_lab_host_configuration_service_runtime_directory_path: "{{ home_lab_runtime_directory_path }}/host-configuration-service"
+    home_lab_host_configuration_service_environment_file_destination_path : "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.env"
 ...

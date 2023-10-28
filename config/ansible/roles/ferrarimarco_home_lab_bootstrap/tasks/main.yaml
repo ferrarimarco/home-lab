@@ -43,6 +43,7 @@
   with_items:
     - path: "{{ home_lab_configuration_directory_path }}"
     - path: "{{ home_lab_runtime_directory_path }}"
+    - path: "{{ home_lab_host_configuration_service_runtime_directory_path }}"
 
 - name: Clone the Home Lab configuration repository
   ansible.builtin.git:
@@ -55,7 +56,7 @@
     repo: "{{ home_lab_configuration_repository_url }}"
     update: true
 
-- name: Configure host configuration OS services files
+- name: Configure host configuration templated files
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -64,10 +65,24 @@
     group: "{{ item.group | default('root') }}"
     mode: "{{ item.mode | default('0644') }}"
   with_items:
+    - src: "host-configuration/{{ host_configuration_service_name }}.env.jinja"
+      dest: "{{ home_lab_host_configuration_service_environment_file_destination_path }}"
     - src: "host-configuration/{{ host_configuration_service_name }}.service.jinja"
       dest: "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.service"
     - src: "host-configuration/{{ host_configuration_service_name }}.timer.jinja"
       dest: "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.timer"
+
+- name: Configure host configuration files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.path | default(item.dest) }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+    owner: "{{ item.owner | default('root') }}"
+  with_items:
+    - src: "host-configuration/setup-{{ host_configuration_service_name }}.sh.jinja"
+      dest: "/usr/local/bin/setup-{{ host_configuration_service_name }}.sh"
+      mode: "0755"
 
 # Don't enable or start services because timers take care of that
 - name: Reload systemd configuration
