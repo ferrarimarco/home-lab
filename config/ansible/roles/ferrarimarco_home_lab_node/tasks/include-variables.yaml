@@ -168,7 +168,7 @@
       fact_os_users: "{{ samba_os_users }}"
       fact_templates_to_render:
         - src: "samba/smb.conf.jinja"
-          dest: "{{ etc_directory_path }}/samba/smb.conf"
+          dest: "/etc/samba/smb.conf"
           state: "{{ configure_network_shares | ternary('present', 'absent') }}"
           os_services_to_restart:
             - "{{ samba_service_name }}"
