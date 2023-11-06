@@ -15,11 +15,22 @@ platforms:
     pre_build_image: true
 provisioner:
   name: ansible
+  # Molecule doesn't currently support reusing an existing ansible.cfg file
+  # so we need to repeat ourselves
+  # Ref: https://ansible.readthedocs.io/projects/molecule/configuration/#molecule.provisioner.ansible.Ansible
+  config_options:
+    defaults:
+      callbacks_enabled: ansible.posix.profile_roles,ansible.posix.profile_tasks,ansible.posix.timer
+      stdout_callback: ansible.posix.debug
+      stderr_callback: ansible.posix.debug
   inventory:
     host_vars:
       instance:
         ansible_user: root
         configure_backup_restic: true
+  options:
+    # Enable Ansible diff mode
+    D: true
   playbooks:
     converge: "${ANSIBLE_TEST_PLAYBOOK_PATH}"
 ...
