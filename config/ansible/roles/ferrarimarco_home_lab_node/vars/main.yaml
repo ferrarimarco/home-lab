@@ -26,7 +26,7 @@ argonone_files_to_configure:
     state: "{{ has_argonone_case | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
-argonone_configuration_directory: "{{ etc_directory_path }}/argonone-case"
+argonone_configuration_directory: "/etc/argonone-case"
 argonone_os_service_name: "argononed"
 argonone_os_services:
   - enabled: true
@@ -41,18 +41,17 @@ configuration_directories:
     state: directory
 cron_jobs: []
 directories_to_ensure_ownership:
-  - "{{ etc_directory_path }}"
+  - "/etc"
 default_docker_compose_file_name: "compose.yaml"
 default_dockerfile_file_name: "Dockerfile"
 default_prometheus_configuration_file_name: "prometheus.yaml"
 dphys_swapfile_templates_to_render:
   - src: "dphys-swapfile/dphys-swapfile.jinja"
-    dest: "{{ etc_directory_path }}/dphys-swapfile"
+    dest: "/etc/dphys-swapfile"
     state: "{{ configure_dphys_swapfile | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ dphys_swapfile_service_name }}"
-etc_directory_path: "/etc"
-fail2ban_configuration_directory: "{{ etc_directory_path }}/fail2ban"
+fail2ban_configuration_directory: "/etc/fail2ban"
 fail2ban_os_services:
   - enabled: true
     service_name: "{{ fail2ban_service_name }}"
@@ -131,7 +130,7 @@ home_assistant_files_to_configure:
     dest: "{{ home_assistant_configuration_custom_component_directory_path }}/"
     state: "{{ configure_home_assistant | ternary('directory', 'absent') }}"
     docker_compose_services_to_restart: "{{ home_assistant_docker_compose_up_items }}"
-home_lab_configuration_directory_path: "{{ etc_directory_path }}/ferrarimarco-home-lab"
+home_lab_configuration_directory_path: "/etc/ferrarimarco-home-lab"
 monitoring_backend_grafana_user_user_id: "472"
 monitoring_backend_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring-backend"
 monitoring_backend_grafana_configuration_directory_path: "{{ monitoring_backend_configuration_directory_path }}/grafana"
@@ -476,13 +475,13 @@ unattended_upgrades_os_services:
     service_state: "{{ security_unattended_upgrades_enabled | ternary('started', 'stopped') }}"
 unattended_upgrades_templates_to_render:
   - src: "unattended-upgrades/20auto-upgrades.jinja"
-    dest: "{{ etc_directory_path }}/apt/apt.conf.d/20auto-upgrades"
+    dest: "/etc/apt/apt.conf.d/20auto-upgrades"
     state: "{{ security_unattended_upgrades_enabled | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ unattended_upgrades_service_name }}"
 wifi_templates_to_render:
   - src: "wifi/wpa_supplicant.conf.jinja"
-    dest: "{{ etc_directory_path }}/wpa_supplicant/wpa_supplicant.conf"
+    dest: "/etc/wpa_supplicant/wpa_supplicant.conf"
     state: "{{ configure_wifi | ternary('file', 'absent') }}"
     mode: "0600"
     os_services_to_restart:
