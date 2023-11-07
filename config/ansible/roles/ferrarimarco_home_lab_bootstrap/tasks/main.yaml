@@ -1,0 +1,11 @@
+---
+- name: Print information about the target host
+  ansible.builtin.import_tasks: print-host-info.yaml
+  tags:
+    - always
+
+- name: Validate the runtime environment before running the configuration process
+  ansible.builtin.import_tasks: pre-flight-checks.yaml
+  tags:
+    - always
+...

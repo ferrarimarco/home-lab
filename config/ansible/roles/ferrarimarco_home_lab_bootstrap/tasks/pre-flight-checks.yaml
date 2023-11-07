@@ -1,0 +1,11 @@
+---
+- ansible.builtin.assert:
+    that:
+      - home_lab_configuration_directory_path is defined
+      - home_lab_configuration_directory_path | length > 0
+    fail_msg: |
+      Define the home_lab_configuration_directory_path variable and set it to
+      the path of the main configuration directory to set up.
+    success_msg: |
+      home_lab_configuration_directory_path is defined and not empty.
+...

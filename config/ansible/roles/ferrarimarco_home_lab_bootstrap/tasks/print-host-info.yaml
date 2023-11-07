@@ -1,0 +1,18 @@
+---
+- name: Print information about host - {{ inventory_hostname }}
+  changed_when: false
+  ansible.builtin.debug:
+    msg: |
+      Ansible connection: {{ ansible_connection }}
+      Ansible distribution release: {{ ansible_distribution_release }}
+      Ansible distribution version: {{ ansible_distribution_version }}
+      Ansible distribution: {{ ansible_distribution }}
+      Ansible domain: {{ ansible_domain }}
+      Ansible FQDN: {{ ansible_fqdn }}
+      Ansible host: {{ ansible_host }}
+      Ansible hostname: {{ ansible_hostname }}
+      Ansible kernel: {{ ansible_kernel }}
+      Ansible OS family: {{ ansible_os_family }}
+      Inventory hostname: {{ inventory_hostname }}
+      Inventory hostname short: {{ inventory_hostname_short }}
+...
