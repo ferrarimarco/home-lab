@@ -1,0 +1,34 @@
+---
+# See https://github.com/geerlingguy/ansible-role-docker/blob/master/defaults/main.yml
+
+docker_edition: ce
+
+docker_packages:
+  - "docker-{{ docker_edition }}"
+  - "docker-{{ docker_edition }}-cli"
+  - "docker-{{ docker_edition }}-rootless-extras"
+  - "docker-buildx-plugin"
+  - "containerd.io"
+
+# Don't ignore APT key errors
+docker_apt_ignore_key_error: false
+
+# Don't install Docker Compose because we install the Docker Compose plugin
+docker_install_compose: false
+docker_install_compose_plugin: true
+
+# A list of users who will be added to the docker group.
+docker_users:
+  - "{{ ansible_user }}"
+
+# Docker daemon options as a dict
+docker_daemon_options: {
+  "live-restore": true,
+  "log-driver": "local",
+  "log-opts": {
+    "compress": "true",
+    "max-size": "10m",
+    "max-file": "3",
+  }
+}
+...
