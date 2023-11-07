@@ -2,6 +2,26 @@
 - name: Bootstrap the Home Lab
   hosts: all
   gather_facts: true
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        cache_valid_time: 3600
+        update_cache: true
+      when: ansible_os_family == 'Debian'
+
+    - name: Wait for systemd to complete initialization.  # noqa 303
+      ansible.builtin.command: systemctl is-system-running
+      register: systemctl_status
+      until: >
+        'running' in systemctl_status.stdout or
+        'degraded' in systemctl_status.stdout
+      retries: 30
+      delay: 5
+      when:
+        - not ansible_check_mode
+        - ansible_service_mgr == 'systemd'
+      changed_when: false
+      failed_when: systemctl_status.rc > 1
   roles:
     - role: ferrarimarco_home_lab_bootstrap
 ...
