@@ -67,7 +67,6 @@
       fact_os_services: "{{ ssh_os_services }}"
     - enable_custom_fact: "{{ configure_docker }}"
       fact_category: "docker"
-      fact_configuration_directories: "{{ docker_configuration_directories }}"
       fact_cron_jobs:
         - become: true
           name: docker system prune
@@ -75,15 +74,13 @@
           # Remove because we refactored this job as a systemd timer
           state: absent
       fact_files_to_configure:
-        - path: "{{ docker_compose_standalone_executable_path }}"
+        # Remove because we use the Docker Compose plugin
+        - path: /usr/local/bin/docker-compose
           state: absent
-      fact_os_groups:
-        - name: "{{ docker_default_os_group_name }}"
-          state: "{{ configure_docker | ternary('present', 'absent') }}"
-      fact_os_package_repositories: "{{ docker_repositories_to_add }}"
-      fact_os_packages: "{{ docker_os_packages }}"
-      fact_os_services: "{{ docker_os_services }}"
-      fact_os_users: "{{ docker_os_users }}"
+        - path: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
+          state: absent
+        - path: /etc/apt/sources.list.d/download_docker_com_linux_debian.list
+          state: absent
       fact_templates_to_render: "{{ docker_templates_to_render }}"
     - enable_custom_fact: "{{ security_fail2ban_enabled }}"
       fact_category: "fail2ban"
