@@ -20,8 +20,8 @@ if [ ! -f "${_PIP_REQUIREMENTS_FILE_HASH_PATH}" ] || [ "$(sha256sum "${HOST_CONF
 
   pip install --upgrade wheel
   pip install -r "${HOST_CONFIGURATION_SERVICE_PIP_REQUIREMENTS_FILE_PATH}"
+else
+  # Activate the virtual environment in case we reuse an existing one
+  # shellcheck source=/dev/null
+  . "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}/bin/activate"
 fi
-
-# Activate the virtual environment in case we reuse an existing one
-# shellcheck source=/dev/null
-. "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}/bin/activate"
