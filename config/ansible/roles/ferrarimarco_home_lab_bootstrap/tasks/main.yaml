@@ -72,18 +72,6 @@
     - src: "host-configuration/{{ host_configuration_service_name }}.timer.jinja"
       dest: "{{ systemd_system_services_configuration_directory }}/{{ host_configuration_service_name }}.timer"
 
-- name: Configure host configuration files
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.path | default(item.dest) }}"
-    group: "{{ item.group | default('root') }}"
-    mode: "{{ item.mode | default('0644') }}"
-    owner: "{{ item.owner | default('root') }}"
-  with_items:
-    - src: "host-configuration/setup-home-lab-host-configuration.sh"
-      dest: "/usr/local/bin/setup-home-lab-host-configuration.sh"
-      mode: "0755"
-
 # Don't enable or start services because timers take care of that
 - name: Reload systemd configuration
   ansible.builtin.systemd_service:

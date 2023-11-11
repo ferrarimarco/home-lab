@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 EnvironmentFile="{{ home_lab_host_configuration_service_environment_file_destination_path }}"
-ExecStart={{ home_lab_configuration_directory_path }}/scripts/run-ansible.sh
+ExecStart={{ home_lab_host_configuration_service_script_path }}
 WorkingDirectory={{ home_lab_configuration_directory_path }}
 
 [Install]
