@@ -80,8 +80,8 @@
     mode: "{{ item.mode | default('0644') }}"
     owner: "{{ item.owner | default('root') }}"
   with_items:
-    - src: "host-configuration/setup-{{ host_configuration_service_name }}.sh.jinja"
-      dest: "/usr/local/bin/setup-{{ host_configuration_service_name }}.sh"
+    - src: "host-configuration/setup-home-lab-host-configuration.sh"
+      dest: "/usr/local/bin/setup-home-lab-host-configuration.sh"
       mode: "0755"
 
 # Don't enable or start services because timers take care of that
