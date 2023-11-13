@@ -4,7 +4,7 @@ collections:
   - name: ansible.utils
   - name: community.crypto
   - name: community.docker
-    version: "3.4.10"
+    version: "3.4.11"
   - name: community.general
 
 roles:
