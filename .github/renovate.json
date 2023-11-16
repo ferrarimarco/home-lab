@@ -10,7 +10,7 @@
     "ansible-galaxy",
     "docker-compose",
     "pre-commit",
-    "regex"
+    "custom.regex"
   ],
   "extends": [
     "config:recommended"
