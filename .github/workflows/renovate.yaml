@@ -29,7 +29,7 @@ jobs:
           echo "Enable Dependabot dry run"
           echo "RENOVATE_DRY_RUN=full" >>"${GITHUB_ENV}"
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v39.1.2
+        uses: renovatebot/github-action@v39.1.3
         env:
           LOG_LEVEL: 'debug'
         with:
