@@ -1,0 +1,12 @@
+---
+- name: Setup APT packages
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name: "{{ package }}"
+    state: present
+    update_cache: true
+  become: true
+  with_items: "{{ bootstrap_os_packages }}"
+  loop_control:
+    loop_var: package
+...

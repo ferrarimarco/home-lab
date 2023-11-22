@@ -8,4 +8,47 @@
   ansible.builtin.import_tasks: pre-flight-checks.yaml
   tags:
     - always
+
+- name: Load a variable file based on the OS type, or a default if not found.
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+    - "{{ ansible_distribution }}.yaml"
+    - "{{ ansible_os_family }}.yaml"
+    - "default.yaml"
+  tags:
+    - always
+
+- name: Register facts
+  ansible.builtin.import_tasks:
+    file: register-bootstrap-facts.yaml
+  tags:
+    - always
+
+- name: Setup OS
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - "setup-{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
+    - "setup-{{ ansible_distribution }}.yaml"
+    - "setup-{{ ansible_os_family }}.yaml"
+
+- name: Configure Home Lab configuration directories
+  ansible.builtin.file:
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+    owner: "{{ item.owner | default('root') }}"
+    path: "{{ item.path }}"
+    state: directory
+  with_items:
+    - path: "{{ home_lab_configuration_directory_path }}"
+    - path: "{{ home_lab_runtime_directory_path }}"
+
+- name: Setup systemd
+  ansible.builtin.import_tasks: setup-systemd.yaml
+  when:
+    - ansible_service_mgr == 'systemd'
+
+- name: Ensure handlers are notified now
+  ansible.builtin.meta: flush_handlers
 ...
