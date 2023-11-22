@@ -1,13 +1,6 @@
 ---
 home_lab_configuration_directory_path: "/etc/ferrarimarco-home-lab"
 home_lab_configuration_repository_url: "https://github.com/ferrarimarco/home-lab.git"
-<<<<<<< HEAD
-home_lab_runtime_directory_path: "/var/lib/ferrarimarco-home-lab"
-=======
 home_lab_host_configuration_timer_definition: "02:00:00"
-<<<<<<< HEAD
->>>>>>> f313b4a (Randomize delay)
-=======
 home_lab_runtime_directory_path: "/var/lib/ferrarimarco-home-lab"
->>>>>>> 640bd11 (Move vars to vars file)
 ...

@@ -120,10 +120,6 @@ else
   if [ -n "${ADDITIONAL_ANSIBLE_FLAGS:-""}" ]; then
     DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ADDITIONAL_ANSIBLE_FLAGS:-""}"
   fi
-  if [ "${HOME_LAB_TARGET_CONTAINER_HOST}" = "true" ]; then
-    echo "Configure Ansible to target the container host."
-    DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --extra-vars 'ansible_connection=community.docker.nsenter'"
-  fi
 
   DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ANSIBLE_PLAYBOOK_PATH}"
 
