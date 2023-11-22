@@ -49,7 +49,7 @@ when not using Raspberry Pi OS, do the following:
 1. Wait for the activity LED to steadily flash green.
 1. Power the Raspberry Pi off.
 
-### Configure Raspberry Pi hosts
+### Configure Raspberry Pi hosts running Raspberry Pi OS
 
 To update the configuration of a Raspberry Pis running Raspberry Pi OS, refer to
 [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/computers/configuration.html).
@@ -57,7 +57,7 @@ To update the configuration of a Raspberry Pis running Raspberry Pi OS, refer to
 For example, you may need to change the hostname of a newly provisioned node
 before adding it to the set of automatically configured nodes.
 
-### Configure hosts with Ansible
+### Configure SSH authentication
 
 For newly provisioned Raspberry Pis, you might have to authenticate a SSH
 connection using a password instead of a key. To authenticate with a password,
