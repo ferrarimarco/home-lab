@@ -13,5 +13,5 @@ To initialize the home lab, do the following:
 
 1. Clone this repository.
 1. Change the working directory to the root of the cloned repository.
-1. [Provision new, physical hosts](./production/provision-new-hosts.md).
+1. [Provision new, physical hosts](./provision-new-hosts.md).
 1. Run the `scripts/run-ansible.sh` script.
