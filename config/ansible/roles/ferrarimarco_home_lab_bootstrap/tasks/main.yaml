@@ -44,9 +44,10 @@
     - path: "{{ home_lab_configuration_directory_path }}"
     - path: "{{ home_lab_runtime_directory_path }}"
 
-- name: Reload systemd configuration
-  ansible.builtin.systemd_service:
-    daemon_reload: true
+- name: Setup systemd
+  ansible.builtin.import_tasks: setup-systemd.yaml
+  when:
+    - ansible_service_mgr == 'systemd'
 
 - name: Ensure handlers are notified now
   ansible.builtin.meta: flush_handlers
