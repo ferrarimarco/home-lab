@@ -9,5 +9,11 @@ configuration changes to the environments.
 
 ## Get started
 
-For more information, see
-[initialize the home lab on physical hardware](./docs/installation/production/README.md).
+For more information about how to set up the lab, see:
+
+- [Initialize the home lab on physical hardware](./docs/installation/README.md).
+
+## Architecture
+
+For more information about the architecture of the lab, see
+[Architecture](./docs/architecture/README.md).
