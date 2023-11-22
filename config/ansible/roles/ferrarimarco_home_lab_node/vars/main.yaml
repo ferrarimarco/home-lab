@@ -33,8 +33,6 @@ argonone_os_services:
     service_name: "{{ argonone_os_service_name }}"
     service_state: "{{ has_argonone_case | ternary('started', 'stopped') }}"
 configuration_directories:
-  - path: "{{ home_lab_configuration_directory_path }}"
-    state: directory
   - path: "{{ systemd_configuration_directory }}"
     state: directory
   - path: "{{ systemd_journald_configuration_directory_path }}"
