@@ -111,19 +111,19 @@ else
   DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --inventory ${ANSIBLE_INVENTORY_PATH}"
   DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --vault-id ${ANSIBLE_VAULT_ID}@${ANSIBLE_VAULT_PASSWORD_FILE_DESTINATION_PATH}"
 
+  # --check: enable check mode (dry-run)
+  # --diff: enable diff mode
+  # --list-tags: list the defined Ansible tags
+  # --tags: run tagged tasks. Example: --tags='tag1,tag2'. To run untagged tasks: --tags untagged
+  #   When running tasks related to specific stacks, you need to also run untagged tasks.
+  #   Example: --tags='monitoring,monitoring-backend,monitoring-nut' --tags untagged
+  if [ -n "${ADDITIONAL_ANSIBLE_FLAGS:-""}" ]; then
+    DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ADDITIONAL_ANSIBLE_FLAGS:-""}"
+  fi
+
   DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} ${ANSIBLE_PLAYBOOK_PATH}"
 
   COMMAND_TO_RUN="${COMMAND_TO_RUN} ${DEFAULT_ANSIBLE_COMMAND_TO_RUN}"
-fi
-
-# --check: enable check mode (dry-run)
-# --diff: enable diff mode
-# --list-tags: list the defined Ansible tags
-# --tags: run tagged tasks. Example: --tags='tag1,tag2'. To run untagged tasks: --tags untagged
-#   When running tasks related to specific stacks, you need to also run untagged tasks.
-#   Example: --tags='monitoring,monitoring-backend,monitoring-nut' --tags untagged
-if [ -n "${ADDITIONAL_ANSIBLE_FLAGS:-""}" ]; then
-  COMMAND_TO_RUN="${COMMAND_TO_RUN} ${ADDITIONAL_ANSIBLE_FLAGS:-""}"
 fi
 
 echo "Running command: ${COMMAND_TO_RUN}"
