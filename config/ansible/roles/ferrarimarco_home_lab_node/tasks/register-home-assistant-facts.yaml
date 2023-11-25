@@ -1,0 +1,34 @@
+---
+- name: Load the paths of Home Assistant custom components manifests
+  ansible.builtin.find:
+    paths: "{{ home_assistant_configuration_custom_component_directory_path }}"
+    patterns: "manifest.json"
+    recurse: true
+  register: home_assistant_custom_component_manifests
+
+- name: Debug home_assistant_custom_component_manifests
+  ansible.builtin.debug:
+    var: home_assistant_custom_component_manifests
+    verbosity: 1
+
+- name: Load the contents of each manifest
+  ansible.builtin.slurp:
+    src: "{{ item.path }}"
+  loop: "{{ home_assistant_custom_component_manifests.files }}"
+  register: home_assistant_custom_component_manifest_contents
+
+- name: Debug home_assistant_custom_component_manifest_contents
+  ansible.builtin.debug:
+    var: home_assistant_custom_component_manifest_contents
+    verbosity: 1
+
+- name: Decode the manifest contents
+  ansible.builtin.set_fact:
+    home_assistant_custom_component_manifest_decoded_contents: "{{ home_assistant_custom_component_manifest_decoded_contents | default({}) | combine( { item.source: item.content | b64decode | from_json } ) }}"
+  loop: "{{ home_assistant_custom_component_manifest_contents.results }}"
+
+- name: Debug home_assistant_custom_component_manifest_decoded_contents
+  ansible.builtin.debug:
+    var: home_assistant_custom_component_manifest_decoded_contents
+    verbosity: 1
+...

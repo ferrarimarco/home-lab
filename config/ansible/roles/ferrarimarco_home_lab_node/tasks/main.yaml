@@ -141,6 +141,10 @@
   become: true
   when: configure_backup_restic and ("restic" in ansible_run_tags or "all" in ansible_run_tags)
 
+- name: Register Home Assistant facts
+  ansible.builtin.import_tasks: register-home-assistant-facts.yaml
+  when: configure_home_assistant and ("home-assistant" in ansible_run_tags or "all" in ansible_run_tags)
+
 - name: Run system-wide configuration handlers
   ansible.builtin.import_tasks: invoke-system-wide-configuration-handlers.yaml
   become: true
