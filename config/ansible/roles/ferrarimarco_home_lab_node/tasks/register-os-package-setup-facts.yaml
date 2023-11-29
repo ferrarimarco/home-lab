@@ -1,0 +1,25 @@
+---
+- name: Register facts for the Debian packages to install
+  ansible.builtin.set_fact:
+    debian_packages_to_install: "{{ (debian_packages_to_install | default([]) + [item.name]) | unique }}"
+  when:
+    - item.state is not defined or item.state == "present"
+  with_items: "{{ default_os_packages + apt_packages | sort(attribute='name') }}"
+
+- name: Debug debian_packages_to_install
+  ansible.builtin.debug:
+    var: debian_packages_to_install
+    verbosity: 1
+
+- name: Register facts for the Debian packages to uninstall
+  ansible.builtin.set_fact:
+    debian_packages_to_uninstall: "{{ (debian_packages_to_install | default([]) + [item.name]) | unique }}"
+  when:
+    - item.state is defined and item.state == "absent"
+  with_items: "{{ default_os_packages + apt_packages | sort(attribute='name') }}"
+
+- name: Debug debian_packages_to_uninstall
+  ansible.builtin.debug:
+    var: debian_packages_to_uninstall
+    verbosity: 1
+...
