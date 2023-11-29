@@ -29,7 +29,7 @@ FROM eclipse-mosquitto:2.0.18-openssl as mosquitto
 
 # network-stack
 FROM klutchell/unbound:1.19.0 as unbound
-FROM traefik:2.10.5 as traefik
+FROM traefik:2.10.6 as traefik
 
 # syncthing
 FROM syncthing/syncthing:1.26.1 as syncthing
