@@ -1,7 +1,7 @@
 ---
 - name: Uninstall Debian packages
   ansible.builtin.apt:
-    name: "{{ debian_packages_to_uninstall }}"
+    name: "{{ debian_packages_to_uninstall | default([]) }}"
     purge: true
     state: absent
     update_cache: true
@@ -35,7 +35,7 @@
 - name: Install Debian packages
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
-    name: "{{ debian_packages_to_install }}"
+    name: "{{ debian_packages_to_install | default([]) }}"
     state: present
     update_cache: true
   become: true
