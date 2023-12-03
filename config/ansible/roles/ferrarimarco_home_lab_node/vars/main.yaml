@@ -477,13 +477,9 @@ unattended_upgrades_templates_to_render:
     state: "{{ security_unattended_upgrades_enabled | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ unattended_upgrades_service_name }}"
-wpa_supplicant_configuration_directory: "/etc/wpa_supplicant"
-wifi_configuration_directories:
-  - path: "{{ wpa_supplicant_configuration_directory }}"
-    state: "{{ configure_wifi | ternary('directory', 'absent') }}"
 wifi_templates_to_render:
   - src: "wifi/wpa_supplicant.conf.jinja"
-    dest: "{{ wpa_supplicant_configuration_directory }}/wpa_supplicant.conf"
+    dest: "/etc/wpa_supplicant/wpa_supplicant.conf"
     state: "{{ configure_wifi | ternary('file', 'absent') }}"
     mode: "0600"
     os_services_to_restart:

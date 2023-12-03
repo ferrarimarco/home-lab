@@ -112,7 +112,6 @@
       fact_templates_to_render: "{{ monitoring_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_nut }}"
       fact_category: "monitoring-nut"
-      fact_configuration_directories: "{{ monitoring_nut_configuration_directories }}"
       fact_os_packages: "{{ monitoring_nut_os_packages }}"
       fact_templates_to_render: "{{ monitoring_nut_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_backend }}"
@@ -197,7 +196,6 @@
       fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
     - enable_custom_fact: "{{ configure_wifi }}"
       fact_category: "wifi"
-      fact_configuration_directories: "{{ wifi_configuration_directories }}"
       fact_templates_to_render: "{{ wifi_templates_to_render }}"
       fact_os_packages: "{{ wifi_os_packages }}"
       fact_os_services:
