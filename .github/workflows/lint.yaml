@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Run lint script
         run: |
-          tests/lint.sh
+          scripts/lint.sh
 
   pre_commit:
     runs-on: ubuntu-latest
