@@ -1,0 +1,7 @@
+---
+- name: Configure Home Lab nodes
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: ferrarimarco_home_lab_node
+...
