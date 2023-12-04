@@ -32,7 +32,7 @@ jobs:
           dotnet: true
           haskell: true
           large-packages: true
-          docker-images: false
+          docker-images: true
           swap-storage: false
       - uses: actions/checkout@v4
       - name: Set up Docker Buildx
