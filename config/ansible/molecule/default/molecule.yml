@@ -97,7 +97,7 @@ provisioner:
         zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
         vault_asuswrt_administrator_username: "vault_asuswrt_administrator_username"
         vault_asuswrt_administration_ssh_port: "1234"
-        zigbee_adapter_device_path: /tmp
+        zigbee_adapter_device_path: /dev/console
   options:
     # Enable Ansible diff mode
     D: true
