@@ -8,8 +8,6 @@ platforms:
   - name: instance
     image: "${ANSIBLE_TEST_DISTRO}"
     command: ${ANSIBLE_TEST_DOCKER_COMMAND}
-    devices:
-      - /dev/console:/dev/console
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host

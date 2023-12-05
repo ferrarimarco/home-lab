@@ -15,4 +15,6 @@
       Ansible OS family: {{ ansible_os_family }}
       Inventory hostname: {{ inventory_hostname }}
       Inventory hostname short: {{ inventory_hostname_short }}
+
+      Ansible devices: {{ ansible_devices }}
 ...
