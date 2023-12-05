@@ -34,9 +34,6 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: false
-      - name: List devices
-        run: |
-          ls -al /dev
       - uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
