@@ -1,4 +1,11 @@
 ---
+# Force a cache update in case we don't install any package
+- name: Update apt cache
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    update_cache: true
+  become: true
+
 - name: Setup APT packages
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
