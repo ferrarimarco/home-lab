@@ -1,0 +1,8 @@
+config/ansible/molecule/default/molecule.yml:hashicorp-tf-password:30
+config/smart-desk/esphome/secrets-template.yaml:hashicorp-tf-password:4
+config/smart-desk/esphome/secrets-template.yaml:hashicorp-tf-password:6
+config/smart-desk/esphome/secrets-template.yaml:generic-api-key:3
+/github/workspace/config/ansible/molecule/default/molecule.yml:hashicorp-tf-password:30
+/github/workspace/config/smart-desk/esphome/secrets-template.yaml:hashicorp-tf-password:4
+/github/workspace/config/smart-desk/esphome/secrets-template.yaml:hashicorp-tf-password:6
+/github/workspace/config/smart-desk/esphome/secrets-template.yaml:generic-api-key:3
