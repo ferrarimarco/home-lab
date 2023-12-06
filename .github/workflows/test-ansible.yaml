@@ -57,5 +57,6 @@ jobs:
           - "geerlingguy/docker-debian12-ansible:latest"
         test_playbook_name:
           - bootstrap
+          - container-engine
           - main
 ...

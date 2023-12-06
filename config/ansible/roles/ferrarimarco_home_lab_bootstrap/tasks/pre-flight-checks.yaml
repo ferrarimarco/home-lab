@@ -8,4 +8,18 @@
       the path of the main configuration directory to set up.
     success_msg: |
       home_lab_configuration_directory_path is defined and not empty.
+
+- name: Wait for systemd to complete initialization.  # noqa 303
+  ansible.builtin.command: systemctl is-system-running
+  register: systemctl_status
+  until: >
+    'running' in systemctl_status.stdout or
+    'degraded' in systemctl_status.stdout
+  retries: 30
+  delay: 5
+  when:
+    - not ansible_check_mode
+    - ansible_service_mgr == 'systemd'
+  changed_when: false
+  failed_when: systemctl_status.rc > 1
 ...
