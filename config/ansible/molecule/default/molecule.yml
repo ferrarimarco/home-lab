@@ -27,7 +27,75 @@ provisioner:
     host_vars:
       instance:
         ansible_user: root
+        cam_3_rtps_password: "cam_3_rtps_password"
+        cam_3_rtps_username: "cam_3_rtps_username"
+        configure_asuswrt_chkwan: true
         configure_backup_restic: true
+        configure_docker: true
+        configure_frigate: true
+        configure_home_assistant: true
+        configure_media_stack: true
+        configure_monitoring_backend: true
+        # TODO: Enable configure_monitoring_nut after we install packages before rendering templates
+        # configure_monitoring_nut: true
+        configure_monitoring_ont: true
+        configure_mqtt_broker: true
+        configure_network_shares: true
+        configure_network_stack: true
+        configure_ssh: true
+        configure_syncthing: true
+        configure_tailscale: true
+        configure_torrent: true
+        # TODO: Enable configure_wifi after we install packages before rendering templates
+        # configure_wifi: true
+        configure_zigbee2mqtt: true
+        frigate_http_endpoint_fqdn: "frigate"
+        grafana_http_endpoint_fqdn: "grafana"
+        home_assistant_http_endpoint_fqdn: "home-assistant"
+        home_assistant_internal_url_home: "http://home-assistant"
+        home_assistant_secrets:
+          country: "country"
+          currency: "currency"
+          elevation_home: "elevation_home"
+          latitude_home: "latitude_home"
+          longitude_home: "longitude_home"
+          name_home: "name_home"
+          spotify_client_id: "spotify_client_id"
+          spotify_client_secret: "spotify_client_secret"
+          telegram_bot_api_key: "telegram_bot_api_key"
+          telegram_bot_allowed_chat_ids:
+            - "telegram_bot_allowed_chat_id_1"
+            - "telegram_bot_allowed_chat_id_2"
+          timezone_home: "timezone_home"
+        media_directory_path: "/media"
+        media_stack_jellyfin_http_endpoint_fqdn: "jellyfin"
+        monitoring_nut_http_endpoint_fqdn: "nut"
+        monitoring_nut_server_admin_password: "monitoring-nut-password"
+        monitoring_nut_server_admin_username: "monitoring-nut-user"
+        mosquitto_server_fqdn: "mosquitto"
+        network_stack_configure_recursive_dns_resolver: true
+        network_stack_configure_reverse_proxy: true
+        network_stack_debugger: true
+        prometheus_blackbox_exporter_http_endpoint_fqdn: "prometheus-blackbox-exporter"
+        prometheus_http_endpoint_fqdn: "prometheus"
+        restic_backup_jobs:
+          - directories_to_backup:
+              - source_host_directory: "/tmp"
+                container_mount_destination_directory: "/tmp"
+            job_name: "restic-backup-job-name"
+            job_schedule: "01:00:00"
+            restic_forget_policy:
+              - --keep-within-daily 7d
+            restic_monitoring_refresh_interval: 1234
+            restic_prometheus_exporter_port: 5678
+            restic_repository_host_path: "/restic-repository-host-path"
+            restic_repository_password: "restic-repository-password"
+        qbittorrent_http_endpoint_fqdn: "qbittorrent"
+        syncthing_user_interface_http_endpoint_fqdn: "syncthing"
+        torrent_download_path: "/torrent-download-path"
+        zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
+        vault_asuswrt_administrator_username: "vault_asuswrt_administrator_username"
+        vault_asuswrt_administration_ssh_port: "1234"
   options:
     # Enable Ansible diff mode
     D: true
