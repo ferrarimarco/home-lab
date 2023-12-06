@@ -9,6 +9,8 @@ services:
       - /run/udev:/run/udev:ro
     ports:
       - {{ zigbee2mqtt_user_interface_host_port }}:8080
+{% if zigbee_adapter_device_path is defined %}
     devices:
       - "{{ zigbee_adapter_device_path }}:/dev/ttyACM0"
+{% endif %}
 ...
