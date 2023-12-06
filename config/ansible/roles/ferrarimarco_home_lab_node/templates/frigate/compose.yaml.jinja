@@ -9,7 +9,7 @@ services:
     # Got those from
     devices:
       - /dev/bus/usb:/dev/bus/usb
-{% for device in frigate_gpu_decode_devices %}
+{% for device in frigate_gpu_decode_devices | default([]) %}
       - "{{ device }}:{{ device }}"
 {% endfor %}
     # We need host networking because Mosquitto listens on localhost only
