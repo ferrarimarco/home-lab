@@ -13,7 +13,7 @@ if [ -t 0 ]; then
   _DOCKER_INTERACTIVE_TTY_OPTION="-it"
 fi
 
-LINT_CI_JOB_PATH=".github/workflows/lint.yml"
+LINT_CI_JOB_PATH=".github/workflows/lint.yaml"
 DEFAULT_LINTER_CONTAINER_IMAGE_VERSION="$(grep <"${LINT_CI_JOB_PATH}" "super-linter/super-linter" | awk -F '@' '{print $2}')"
 
 LINTER_CONTAINER_IMAGE="ghcr.io/super-linter/super-linter:${LINTER_CONTAINER_IMAGE_VERSION:-${DEFAULT_LINTER_CONTAINER_IMAGE_VERSION}}"
