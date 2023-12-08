@@ -4,6 +4,11 @@
   tags:
     - always
 
+- name: Validate the runtime environment before running the configuration process
+  ansible.builtin.import_tasks: pre-flight-checks.yaml
+  tags:
+    - always
+
 - name: Eventually stop processes and services before cleaning up data and configuration
   ansible.builtin.import_tasks: stop-services-and-processes.yaml
   become: true

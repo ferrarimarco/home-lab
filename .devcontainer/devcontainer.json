@@ -5,6 +5,7 @@
   "customizations": {
     "vscode": {
       "settings": {
+        "ansible.python.interpreterPath": "/usr/local/bin/python",
         "editor.formatOnSave": true,
         "editor.formatOnSaveMode": "file",
         "editor.wordWrap": "off",
