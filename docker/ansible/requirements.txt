@@ -1,3 +1,4 @@
 ansible==9.2.0
+fqdn==1.5.1
 netaddr==1.2.1
 paramiko==3.4.0
