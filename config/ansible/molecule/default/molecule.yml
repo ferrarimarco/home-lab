@@ -50,9 +50,6 @@ provisioner:
         # TODO: Enable configure_wifi after we install packages before rendering templates
         # configure_wifi: true
         configure_zigbee2mqtt: true
-        frigate_http_endpoint_fqdn: "frigate"
-        grafana_http_endpoint_fqdn: "grafana"
-        home_assistant_http_endpoint_fqdn: "home-assistant"
         home_assistant_internal_url_home: "http://home-assistant"
         home_assistant_secrets:
           country: "country"
@@ -69,16 +66,11 @@ provisioner:
             - "telegram_bot_allowed_chat_id_2"
           timezone_home: "timezone_home"
         media_directory_path: "/media"
-        media_stack_jellyfin_http_endpoint_fqdn: "jellyfin"
-        monitoring_nut_http_endpoint_fqdn: "nut"
         monitoring_nut_server_admin_password: "monitoring-nut-password"
         monitoring_nut_server_admin_username: "monitoring-nut-user"
-        mosquitto_server_fqdn: "mosquitto"
         network_stack_configure_recursive_dns_resolver: true
         network_stack_configure_reverse_proxy: true
         network_stack_debugger: true
-        prometheus_blackbox_exporter_http_endpoint_fqdn: "prometheus-blackbox-exporter"
-        prometheus_http_endpoint_fqdn: "prometheus"
         restic_backup_jobs:
           - directories_to_backup:
               - source_host_directory: "/tmp"
@@ -91,10 +83,7 @@ provisioner:
             restic_prometheus_exporter_port: 5678
             restic_repository_host_path: "/restic-repository-host-path"
             restic_repository_password: "restic-repository-password"
-        qbittorrent_http_endpoint_fqdn: "qbittorrent"
-        syncthing_user_interface_http_endpoint_fqdn: "syncthing"
         torrent_download_path: "/torrent-download-path"
-        zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
         vault_asuswrt_administrator_username: "vault_asuswrt_administrator_username"
         vault_asuswrt_administration_ssh_port: "1234"
   options:
