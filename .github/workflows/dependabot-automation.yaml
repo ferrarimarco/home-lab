@@ -40,6 +40,7 @@ jobs:
           || steps.metadata.outputs.dependency-names == 'ossf/scorecard-action'
           || steps.metadata.outputs.dependency-names == 'molecule-plugins[docker]'
           || steps.metadata.outputs.dependency-names == 'molecule'
+          || steps.metadata.outputs.dependency-names == 'netaddr'
           || steps.metadata.outputs.dependency-names == 'paramiko'
           || steps.metadata.outputs.dependency-names == 'pre-commit'
           || steps.metadata.outputs.dependency-names == 'python'
