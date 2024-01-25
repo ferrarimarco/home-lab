@@ -16,6 +16,12 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   build-smart-desk:
+    concurrency:
+      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      # github.head_ref: head_ref or source branch of the pull request
+      # github.ref: ref of the branch that triggered the workflow
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      cancel-in-progress: true
     defaults:
       run:
         working-directory: config/smart-desk/esphome

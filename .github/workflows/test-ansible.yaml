@@ -19,6 +19,12 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   test-ansible:
+    concurrency:
+      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      # github.head_ref: head_ref or source branch of the pull request
+      # github.ref: ref of the branch that triggered the workflow
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}-${{ github.event_name }}-${{ matrix.test_container_image_id }}-${{ matrix.test_playbook_name }}
+      cancel-in-progress: true
     env:
       ANSIBLE_TEST_CONTAINER_IMAGE_ID: "${{ github.repository }}-ansible"
     steps:
