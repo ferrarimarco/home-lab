@@ -51,27 +51,6 @@
       message: 'There is a Home Assistant update available. Current version: {{ states(''sensor.current_version'')
         }}. Docker Hub version: {{ states(''sensor.docker_hub'') }}'
   mode: single
-- id: '1672339316110'
-  alias: Washing machine - End cycle
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.presa_lavatrice_power
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 45
-    below: 1
-  condition: []
-  action:
-  - service: telegram_bot.send_message
-    data:
-      message: La lavatrice ha terminato il ciclo di lavaggio
-      target:
-{% for chat_id in home_assistant_secrets.telegram_bot_allowed_chat_ids %}
-      - '[% chat_id %]'
-{% endfor %}
-  mode: single
 - id: '1679504424560'
   alias: Alert if a critical switch turns off
   description: ''
