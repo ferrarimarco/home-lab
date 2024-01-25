@@ -1,0 +1,21 @@
+---
+- ansible.builtin.assert:
+    that:
+      - edge_environment_root_fqdn is community.general.fqdn_valid(min_labels=4)
+      - edge_environment_gateway.fqdn is community.general.fqdn_valid(min_labels=4)
+      - lab_dns_zone is community.general.fqdn_valid(min_labels=3)
+      - frigate_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+      - grafana_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+      - home_assistant_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+      - media_stack_jellyfin_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+      - prometheus_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+      - prometheus_blackbox_exporter_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+      - qbittorrent_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+      - root_dns_zone_fqdn is community.general.fqdn_valid(min_labels=2)
+      - syncthing_user_interface_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+      - zigbee2mqtt_http_endpoint_fqdn is community.general.fqdn_valid(min_labels=4)
+    fail_msg: |
+      Fully qualified domain name is not valid.
+    success_msg: |
+      Fully qualified domain names are valid.
+...

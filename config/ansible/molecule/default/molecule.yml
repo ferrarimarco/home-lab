@@ -53,7 +53,6 @@ provisioner:
         frigate_http_endpoint_fqdn: "frigate"
         grafana_http_endpoint_fqdn: "grafana"
         home_assistant_http_endpoint_fqdn: "home-assistant"
-        home_assistant_internal_url_home: "http://home-assistant"
         home_assistant_secrets:
           country: "country"
           currency: "currency"
