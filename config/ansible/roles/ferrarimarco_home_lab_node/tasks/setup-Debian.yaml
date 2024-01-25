@@ -1,14 +1,12 @@
 ---
-- name: Install default Debian packages
+- name: Uninstall Debian packages
   ansible.builtin.apt:
-    cache_valid_time: "{{ apt_cache_valid_time }}"
-    name: "{{ item.name }}"
-    purge: "{{ item.purge | default(omit) }}"
-    state: "{{ item.state | default(omit) }}"
+    name: "{{ debian_packages_to_uninstall | default([]) }}"
+    purge: true
+    state: absent
     update_cache: true
   become: true
-  when: ("install-default-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
-  with_items: "{{ default_os_packages | unique }}"
+  when: ("uninstall-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
 
 - name: Setup APT repository keys
   ansible.builtin.apt_key:
@@ -34,13 +32,12 @@
     upgrade: true
   become: true
 
-- name: Setup APT packages
+- name: Install Debian packages
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
-    name: "{{ item.name }}"
-    purge: "{{ item.purge | default(omit) }}"
-    state: "{{ item.state | default(omit) }}"
+    name: "{{ debian_packages_to_install | default([]) }}"
+    state: present
     update_cache: true
   become: true
-  with_items: "{{ apt_packages | unique }}"
+  when: ("install-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
 ...
