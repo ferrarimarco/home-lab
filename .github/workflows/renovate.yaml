@@ -14,9 +14,15 @@ on:  # yamllint disable-line rule:truthy
     - cron: "0 2 * * *"
   workflow_dispatch: null
 
+permissions:
+  contents: read
+
 jobs:
   renovate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4

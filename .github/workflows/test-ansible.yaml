@@ -17,6 +17,9 @@ on:  # yamllint disable-line rule:truthy
       - "scripts/common.sh"
       - "scripts/run-ansible.sh"
 
+permissions:
+  contents: read
+
 jobs:
   test-ansible:
     concurrency:
