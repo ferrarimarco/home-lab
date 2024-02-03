@@ -58,6 +58,40 @@
                     ]
                 }
             ]
+        },
+        {
+            "file": "/config/ansible/molecule/default/molecule.yml",
+            "findings": [
+                {
+                    "resource": "9a87d72784574f27fa7c089fed57fbcd6e4f7964",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                },
+                {
+                    "resource": "40a699d042a93f1491fad32da19623d6a8bfafe7",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                },
+                {
+                    "resource": "d37a83917ca2b254464876aa6659fd71a056348e",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                }
+            ]
+        },
+        {
+            "file": "/config/smart-desk/esphome/secrets.yaml",
+            "findings": [
+                {
+                    "resource": "87c8e24f5a7ab2c7fa2d2afc50dc83e4c6520a89",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                }
+            ]
         }
     ]
 }
