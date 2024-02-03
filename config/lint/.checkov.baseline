@@ -52,7 +52,7 @@
             "file": "/config/ansible/roles/ferrarimarco_home_lab_node/tasks/main.yaml",
             "findings": [
                 {
-                    "resource": "/config/ansible/roles/ferrarimarco_home_lab_node/tasks/main.yaml.",
+                    "resource": "tasks.ansible.builtin.get_url.Download files",
                     "check_ids": [
                         "CKV2_ANSIBLE_2"
                     ]
