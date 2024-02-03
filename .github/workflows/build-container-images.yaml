@@ -4,6 +4,9 @@ name: Build and push container images
 env:
   CONTAINER_IMAGE_REGISTRY: ghcr.io
 
+permissions:
+  contents: read
+
 on:  # yamllint disable-line rule:truthy
   push:
     paths:

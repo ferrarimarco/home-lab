@@ -1,0 +1,8 @@
+---
+# Options reference: https://www.checkov.io/2.Basics/CLI%20Command%20Reference.html
+
+baseline: config/lint/.checkov.baseline
+
+# Report skipped baseline checks in the output
+output-baseline-as-skipped: true
+...

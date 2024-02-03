@@ -6,6 +6,9 @@ on:  # yamllint disable-line rule:truthy
   pull_request: null
   workflow_call: null
 
+permissions:
+  contents: read
+
 jobs:
 
   lint:
@@ -15,13 +18,19 @@ jobs:
       # github.ref: ref of the branch that triggered the workflow
       group: ${{ github.workflow }}-lint-${{ github.head_ref || github.ref }}-${{ github.event_name }}
       cancel-in-progress: true
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Load super-linter configuration
         run: cat config/lint/super-linter.env >> "$GITHUB_ENV"
       - name: Super-Linter
-        uses: super-linter/super-linter@v5.7.2
+        uses: super-linter/super-linter@v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -35,6 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Run lint script
         run: |
           scripts/lint.sh

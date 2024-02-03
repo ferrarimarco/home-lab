@@ -1,0 +1,97 @@
+{
+    "failed_checks": [
+        {
+            "file": "/docker/arduino-cli/Dockerfile",
+            "findings": [
+                {
+                    "resource": "/docker/arduino-cli/Dockerfile.",
+                    "check_ids": [
+                        "CKV_DOCKER_2",
+                        "CKV_DOCKER_3"
+                    ]
+                }
+            ]
+        },
+        {
+            "file": "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic/Dockerfile",
+            "findings": [
+                {
+                    "resource": "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic/Dockerfile.",
+                    "check_ids": [
+                        "CKV_DOCKER_2",
+                        "CKV_DOCKER_3"
+                    ]
+                }
+            ]
+        },
+        {
+            "file": "/docker/ansible/Dockerfile",
+            "findings": [
+                {
+                    "resource": "/docker/ansible/Dockerfile.",
+                    "check_ids": [
+                        "CKV_DOCKER_2",
+                        "CKV_DOCKER_3"
+                    ]
+                }
+            ]
+        },
+        {
+            "file": "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/Dockerfile",
+            "findings": [
+                {
+                    "resource": "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/Dockerfile.",
+                    "check_ids": [
+                        "CKV_DOCKER_2",
+                        "CKV_DOCKER_3"
+                    ]
+                }
+            ]
+        },
+        {
+            "file": "/config/ansible/roles/ferrarimarco_home_lab_node/tasks/main.yaml",
+            "findings": [
+                {
+                    "resource": "tasks.ansible.builtin.get_url.Download files",
+                    "check_ids": [
+                        "CKV2_ANSIBLE_2"
+                    ]
+                }
+            ]
+        },
+        {
+            "file": "/config/ansible/molecule/default/molecule.yml",
+            "findings": [
+                {
+                    "resource": "9a87d72784574f27fa7c089fed57fbcd6e4f7964",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                },
+                {
+                    "resource": "40a699d042a93f1491fad32da19623d6a8bfafe7",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                },
+                {
+                    "resource": "d37a83917ca2b254464876aa6659fd71a056348e",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                }
+            ]
+        },
+        {
+            "file": "/config/smart-desk/esphome/secrets.yaml",
+            "findings": [
+                {
+                    "resource": "87c8e24f5a7ab2c7fa2d2afc50dc83e4c6520a89",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                }
+            ]
+        }
+    ]
+}

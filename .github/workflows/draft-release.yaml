@@ -1,6 +1,9 @@
 ---
 name: Draft release
 
+permissions:
+  contents: read
+
 on:  # yamllint disable-line rule:truthy
   push:
     branches:
@@ -14,6 +17,9 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   update-release-draft:
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       release-tag-name: ${{ steps.draft-release.outputs.tag_name }}
     runs-on: ubuntu-latest
