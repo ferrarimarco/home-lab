@@ -53,7 +53,15 @@ fi
 
 if [ "${RESTIC_ENABLE_REPOSITORY_CHECK:-"false"}" = "true" ]; then
   echo "Checking the integrity of ${RESTIC_REPOSITORY}"
-  restic --no-cache --verbose check
+  restic check --no-cache --verbose
+fi
+
+if [ "${RESTIC_ENABLE_REPOSITORY_CHECK_ALL_DATA:-"false"}" = "true" ]; then
+  echo "Checking the integrity of ${RESTIC_REPOSITORY}"
+  restic check \
+    --no-cache \
+    --read-data \
+    --verbose
 fi
 
 echo "Get information about the ${RESTIC_REPOSITORY} repository"

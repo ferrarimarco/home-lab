@@ -40,6 +40,7 @@
     owner: "{{ item.owner | default('root') }}"
     path: "{{ item.path }}"
     state: directory
+  become: true
   with_items:
     - path: "{{ home_lab_configuration_directory_path }}"
     - path: "{{ home_lab_runtime_directory_path }}"
