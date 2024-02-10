@@ -8,8 +8,8 @@ permissions:
   contents: read
 
 on:  # yamllint disable-line rule:truthy
-  push:
-  pull_request:
+  push: null
+  pull_request: null
 
 jobs:
   build-container-images:
