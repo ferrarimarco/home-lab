@@ -8,16 +8,8 @@ permissions:
   contents: read
 
 on:  # yamllint disable-line rule:truthy
-  push:
-    paths:
-      - ".github/workflows/build-container-images.yaml"
-      - "docker/**"
-      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/**"
-  pull_request:
-    paths:
-      - ".github/workflows/build-container-images.yaml"
-      - "docker/**"
-      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/**"
+  push: null
+  pull_request: null
 
 jobs:
   build-container-images:

@@ -56,4 +56,11 @@
     state: absent
   when: not configure_backup_restic
   with_items: "{{ restic_backup_jobs }}"
+
+- name: Delete unneeded Restic files and directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /host_path/restic/data
 ...

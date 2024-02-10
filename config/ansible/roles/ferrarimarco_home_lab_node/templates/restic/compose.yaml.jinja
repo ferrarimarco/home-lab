@@ -24,11 +24,10 @@ services:
     container_name: {{ backup_job.job_name }}-restic-exporter
     environment:
       - TZ={{ timezone }}
-      - RESTIC_REPO_URL={{ restic_repository_container_destination_path }}
-      - RESTIC_REPO_PASSWORD="{{ backup_job.restic_repository_password }}"
+      - RESTIC_REPOSITORY={{ restic_repository_container_destination_path }}
+      - RESTIC_PASSWORD="{{ backup_job.restic_repository_password }}"
       - REFRESH_INTERVAL={{ backup_job.restic_monitoring_refresh_interval }}
     volumes:
-      - /host_path/restic/data:/data
       - {{ backup_job.restic_repository_host_path }}:{{ restic_repository_container_destination_path }}
     ports:
       - "{{ backup_job.restic_prometheus_exporter_port }}:8001"
