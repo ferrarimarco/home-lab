@@ -41,6 +41,11 @@
     - item.state == 'file'
   with_items: "{{ templates_to_render }}"
 
+- name: Debug system_wide_rendered_templates
+  ansible.builtin.debug:
+    var: system_wide_rendered_templates
+    verbosity: 1
+
 - name: Download files
   become: true
   ansible.builtin.get_url:
