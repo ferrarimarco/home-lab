@@ -44,11 +44,37 @@
     - item.start_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
 
+- name: Debug docker_compose_up_result
+  ansible.builtin.debug:
+    var: docker_compose_up_result
+    verbosity: 1
+
+- name: Initialize the list of the 'just started' Docker Compose services
+  ansible.builtin.set_fact:
+    started_docker_compose_services: "{{ started_docker_compose_services | default([]) + [ item.item.compose_file_path ] }}"
+  when:
+    - item.changed
+  with_items: "{{ docker_compose_up_result.results }}"
+
+- name: Debug started_docker_compose_services
+  ansible.builtin.debug:
+    var: started_docker_compose_services
+    verbosity: 1
+
 - name: Initialize the list of Docker Compose services to restart
   ansible.builtin.set_fact:
-    docker_compose_services_to_restart: "{{ docker_compose_services_to_restart + item.item.docker_compose_services_to_restart }}"
-  when: item.changed and item.item.docker_compose_services_to_restart is defined
+    docker_compose_services_to_restart: "{{ docker_compose_services_to_restart | default([]) + item.item.docker_compose_services_to_restart }}"
+  when:
+    - item.changed
+    - item.item.docker_compose_services_to_restart is defined
+    # Don't add items if we modified the compose file because Docker Compose already handles this case
+    - item.item.dest is not search(".+compose\.yaml$")
   with_items: "{{ copied_configuration_files.results | default([]) + configured_files_and_directories_result.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
+
+- name: Debug docker_compose_services_to_restart
+  ansible.builtin.debug:
+    var: docker_compose_services_to_restart
+    verbosity: 1
 
 - name: Restart Docker Compose services
   changed_when: '"Started" in docker_compose_restart_result.stdout or "Started" in docker_compose_restart_result.stderr'
@@ -60,5 +86,7 @@
   when:
     - configure_docker
     - item.start_containerized_services
+    # Don't restart this Docker Compose service if we just started it
+    - item.compose_file_path not in started_docker_compose_services
   with_items: "{{ docker_compose_services_to_restart | unique }}"
 ...
