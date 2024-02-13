@@ -28,7 +28,7 @@ FROM grafana/grafana-oss:10.3.3 as grafana
 FROM eclipse-mosquitto:2.0.18-openssl as mosquitto
 
 # network-stack
-FROM klutchell/unbound:1.19.0 as unbound
+FROM klutchell/unbound:1.19.1 as unbound
 FROM traefik:2.11.0 as traefik
 
 # syncthing
