@@ -19,7 +19,7 @@ detectors:
 ffmpeg:
 {% if frigate_ffmpeg_harware_acceleration_arguments is defined %}
   # Enable acceleration
-{% if frigate_ffmpeg_harware_acceleration_arguments is iterable %}
+{% if frigate_ffmpeg_harware_acceleration_arguments is iterable and (frigate_ffmpeg_harware_acceleration_arguments is not string and frigate_ffmpeg_harware_acceleration_arguments is not mapping) %}
   hwaccel_args:
 {% for argument in frigate_ffmpeg_harware_acceleration_arguments %}
     - {{ argument }}

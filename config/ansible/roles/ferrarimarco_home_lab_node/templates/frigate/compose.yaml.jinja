@@ -16,6 +16,6 @@ services:
     network_mode: host
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ./config/config.yaml:/config/config.yml:ro
+      - ./config:/config
       - {{ frigate_media_directory }}:/media/frigate
 ...
