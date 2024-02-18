@@ -8,11 +8,6 @@ set -o nounset
 
 echo "Running lint checks"
 
-_DOCKER_INTERACTIVE_TTY_OPTION=
-if [ -t 0 ]; then
-  _DOCKER_INTERACTIVE_TTY_OPTION="-it"
-fi
-
 LINT_CI_JOB_PATH=".github/workflows/lint.yaml"
 DEFAULT_LINTER_CONTAINER_IMAGE_VERSION="$(grep <"${LINT_CI_JOB_PATH}" "super-linter/super-linter" | awk -F '@' '{print $2}')"
 
@@ -34,5 +29,3 @@ docker run \
   --workdir /tmp/lint \
   "${LINTER_CONTAINER_IMAGE}" \
   "$@"
-
-unset _DOCKER_INTERACTIVE_TTY_OPTION

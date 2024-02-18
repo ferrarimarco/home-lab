@@ -25,3 +25,6 @@ secret.yaml
 # Ansible Vault
 home_lab_vault_password_file
 vault.y*ml*
+
+# Developer credentials
+.github-personal-access-token
