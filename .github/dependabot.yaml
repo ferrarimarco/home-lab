@@ -1,44 +1,95 @@
 ---
 updates:
+  - package-ecosystem: "devcontainers"
+    commit-message:
+      prefix: "deps(devcontainers)"
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 100
   - directory: "/"
+    commit-message:
+      prefix: "deps(ci)"
     package-ecosystem: "github-actions"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "config/pre-commit"
+    commit-message:
+      prefix: "deps(ci)"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "/config/smart-desk/esphome"
+    commit-message:
+      prefix: "deps(home-lab)"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "/docker/ansible"
+    commit-message:
+      prefix: "deps(ansible)"
     package-ecosystem: "docker"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "/docker/ansible"
+    commit-message:
+      prefix: "deps(ansible)"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "/docker/ansible/molecule"
+    commit-message:
+      prefix: "deps(ansible)"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
+  - directory: "/docker/release-please-commitlint"
+    commit-message:
+      prefix: "deps(cd)"
+    package-ecosystem: "docker"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 100
+  - directory: "/docker/release-please-commitlint"
+    commit-message:
+      prefix: "deps(cd)"
+    package-ecosystem: "npm"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter"
+    commit-message:
+      prefix: "deps(home-lab)"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont"
+    commit-message:
+      prefix: "deps(home-lab)"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper"
+    commit-message:
+      prefix: "deps(home-lab)"
     package-ecosystem: "docker"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
   - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic"
+    commit-message:
+      prefix: "deps(home-lab)"
     package-ecosystem: "docker"
     schedule:
       interval: "daily"
+    open-pull-requests-limit: 100
 version: 2
 ...

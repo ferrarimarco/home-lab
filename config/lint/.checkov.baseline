@@ -25,6 +25,17 @@
             ]
         },
         {
+            "file": "/docker/release-please-commitlint/Dockerfile",
+            "findings": [
+                {
+                    "resource": "/docker/release-please-commitlint/Dockerfile.",
+                    "check_ids": [
+                        "CKV_DOCKER_2"
+                    ]
+                }
+            ]
+        },
+        {
             "file": "/docker/ansible/Dockerfile",
             "findings": [
                 {

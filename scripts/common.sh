@@ -9,6 +9,16 @@ ERR_ARGUMENT_EVAL=2
 ERR_ANSIBLE_MISSING_PASSWORD_FILE=3
 # shellcheck disable=SC2034
 ERR_ANSIBLE_TEST_MISSING_PLAYBOOK=4
+ERR_MISSING_GITHUB_TOKEN_FILE=5
+
+CD_CONTAINER_URL="ferrarimarco/home-lab-cd:latest"
+
+GITHUB_TOKEN_PATH="$(pwd)/.github-personal-access-token"
+
+_DOCKER_INTERACTIVE_TTY_OPTION=
+if [ -t 0 ]; then
+  _DOCKER_INTERACTIVE_TTY_OPTION="-it"
+fi
 
 is_command_available() {
   if command -v "${1}" >/dev/null 2>&1; then
@@ -95,4 +105,18 @@ create_and_activate_python_virtual_environment() {
   unset PIP_REQUIREMENTS_PATH
   unset PYTHON_VIRTUAL_ENVIRONMENT_PATH
   unset _FORCE_UPDATE_PYTHON_VIRTUAL_ENVIRONMENT
+}
+
+build_cd_container() {
+  echo "Build CD container: ${CD_CONTAINER_URL}"
+  docker build \
+    --tag "${CD_CONTAINER_URL}" \
+    docker/release-please-commitlint
+}
+
+check_github_token_file() {
+  if [ ! -f "${GITHUB_TOKEN_PATH}" ]; then
+    echo "Error: ${GITHUB_TOKEN_PATH} doesn't exist, or is not a file."
+    exit "${ERR_MISSING_GITHUB_TOKEN_FILE}"
+  fi
 }
