@@ -1,0 +1,7 @@
+[MASTER]
+errors-only=
+
+[MESSAGES CONTROL]
+
+# Don't check imports because super-linter doesn't install requirements
+disable=import-error
