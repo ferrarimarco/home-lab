@@ -3,5 +3,6 @@ apt_cache_valid_time: 3600
 bootstrap_os_packages:
   - apt-transport-https
   - ca-certificates
+  - git
   - gnupg2
 ...
