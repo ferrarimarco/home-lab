@@ -18,6 +18,7 @@
     shell: "{{ item.shell | default(omit) }}"
     state: "{{ item.state | default(omit) }}"
     system: "{{ item.system | default(omit) }}"
+    uid: "{{ item.uid | default(omit) }}"
   with_items: "{{ os_users }}"
 
 - name: "Lock the password of the default user if we authenticated with a key - {{ ansible_user }}"

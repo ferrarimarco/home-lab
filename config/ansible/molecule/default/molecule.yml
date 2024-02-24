@@ -69,7 +69,12 @@ provisioner:
             - "telegram_bot_allowed_chat_id_2"
           timezone_home: "timezone_home"
         media_directory_path: "/media"
+        media_stack_flaresolverr_http_endpoint_fqdn: "Flaresolverr"
         media_stack_jellyfin_http_endpoint_fqdn: "jellyfin"
+        media_stack_jellyseerr_http_endpoint_fqdn: "jellyseerr"
+        media_stack_prowlarr_http_endpoint_fqdn: "prowlarr"
+        media_stack_radarr_http_endpoint_fqdn: "radarr"
+        media_stack_sonarr_http_endpoint_fqdn: "sonarr"
         monitoring_nut_http_endpoint_fqdn: "nut"
         monitoring_nut_server_admin_password: "monitoring-nut-password"
         monitoring_nut_server_admin_username: "monitoring-nut-user"
@@ -79,6 +84,7 @@ provisioner:
         network_stack_debugger: true
         prometheus_blackbox_exporter_http_endpoint_fqdn: "prometheus-blackbox-exporter"
         prometheus_http_endpoint_fqdn: "prometheus"
+        media_stack_qbittorrent_webui_password: "media_stack_qbittorrent_webui_password"
         restic_backup_jobs:
           - directories_to_backup:
               - source_host_directory: "/tmp"
@@ -97,6 +103,7 @@ provisioner:
         zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
         vault_asuswrt_administrator_username: "vault_asuswrt_administrator_username"
         vault_asuswrt_administration_ssh_port: "1234"
+        vault_media_stack_qbittorrent_webui_password: "vault_media_stack_qbittorrent_webui_password"
   options:
     # Enable Ansible diff mode
     D: true
