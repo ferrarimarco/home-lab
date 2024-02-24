@@ -10,4 +10,21 @@ services:
     ports:
       - {{ jellyfin_port }}:8096
     restart: unless-stopped
+  qbittorrent-nox:
+    image: {{ container_images_ids["qbittorrent"] }}
+    container_name: qbittorrent-nox
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ={{ timezone }}
+      - WEBUI_PORT={{ qbittorrent_user_interface_port }}
+    ports:
+      - "6881:6881/tcp"
+      - "6881:6881/udp"
+      - "{{ qbittorrent_user_interface_port }}:{{ qbittorrent_user_interface_port }}"
+    restart: unless-stopped
+    stop_grace_period: 30m
+    volumes:
+      - "{{ torrent_configuration_directory_path }}:/config"
+      - "{{ torrent_download_path }}:/downloads"
 ...
