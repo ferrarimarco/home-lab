@@ -18,7 +18,6 @@ configure_backup_restic: false
 configure_ssh: true
 configure_syncthing: false
 configure_tailscale: false
-configure_torrent: false
 configure_wifi: false
 configure_zigbee2mqtt: false
 default_user_groups: []

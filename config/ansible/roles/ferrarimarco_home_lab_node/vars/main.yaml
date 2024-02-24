@@ -438,35 +438,6 @@ templates_to_render:
     state: "file"
     os_services_to_restart:
       - systemd-journald
-torrent_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/qbittorrent"
-# The qbittorrent container image creates a user with the specified uid and gid that takes owenership of the configuration directory.
-# Ansible may emit a warning because a user with such ids doesn't exist on the system, but it does in the container.
-torrent_owner_group_id: "1000"
-torrent_owner_user_id: "1000"
-torrent_configuration_directories:
-  - group: "{{ torrent_owner_group_id }}"
-    owner: "{{ torrent_owner_user_id }}"
-    path: "{{ torrent_configuration_directory_path }}"
-    state: "{{ configure_torrent | ternary('directory', 'absent') }}"
-torrent_docker_compose_up_items:
-  - compose_file_path: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-    enable_containerized_services: "{{ configure_torrent }}"
-    pull_container_images: "{{ configure_torrent }}"
-    start_containerized_services: "{{ start_torrent | default(configure_torrent) }}"
-    stop_containerized_services: "{{ stop_torrent | default(false) }}"
-torrent_templates_to_render:
-  - src: "qbittorrent/{{ default_docker_compose_file_name }}.jinja"
-    dest: "{{ torrent_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-    state: "{{ configure_torrent | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
-    group: "{{ torrent_owner_group_id }}"
-    owner: "{{ torrent_owner_user_id }}"
-  - src: "qbittorrent/qBittorrent.conf.jinja"
-    dest: "{{ torrent_configuration_directory_path }}/qBittorrent.conf"
-    state: "{{ configure_torrent | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ torrent_docker_compose_up_items }}"
-    group: "{{ torrent_owner_group_id }}"
-    owner: "{{ torrent_owner_user_id }}"
 unattended_upgrades_os_services:
   - enabled: true
     service_name: "{{ unattended_upgrades_service_name }}"

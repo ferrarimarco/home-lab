@@ -47,7 +47,6 @@ provisioner:
         configure_syncthing: true
         # TODO: Enable after we support configuring Tailscale and running it separately
         # configure_tailscale: true
-        configure_torrent: true
         # TODO: Enable configure_wifi after we install packages before rendering templates
         # configure_wifi: true
         configure_zigbee2mqtt: true

@@ -13,6 +13,10 @@ media_stack_configuration_directories:
     state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - path: "{{ jellyfin_cache_directory_path }}"
     state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  - group: "{{ torrent_owner_group_id }}"
+    owner: "{{ torrent_owner_user_id }}"
+    path: "{{ torrent_configuration_directory_path }}"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
 media_stack_docker_compose_up_items:
   - compose_file_path: "{{ media_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     enable_containerized_services: "{{ configure_media_stack }}"
@@ -24,4 +28,15 @@ media_stack_templates_to_render:
     dest: "{{ media_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     state: "{{ configure_media_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ media_stack_docker_compose_up_items }}"
+  - src: "media-stack/qbittorrent/qBittorrent.conf.jinja"
+    dest: "{{ torrent_configuration_directory_path }}/qBittorrent.conf"
+    state: "{{ configure_media_stack | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ media_stack_docker_compose_up_items }}"
+    group: "{{ torrent_owner_group_id }}"
+    owner: "{{ torrent_owner_user_id }}"
+torrent_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/qbittorrent"
+# The qbittorrent container image creates a user with the specified uid and gid that takes owenership of the configuration directory.
+# Ansible may emit a warning because a user with such ids doesn't exist on the system, but it does in the container.
+torrent_owner_group_id: "1000"
+torrent_owner_user_id: "1000"
 ...
