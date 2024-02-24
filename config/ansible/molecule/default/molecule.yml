@@ -32,8 +32,9 @@ provisioner:
         configure_asuswrt_chkwan: true
         configure_backup_restic: true
         configure_docker: true
-        configure_frigate: true
-        configure_home_assistant: true
+        # TODO: Enable after we have more space on the GitHub Actions runner
+        # configure_frigate: true
+        # configure_home_assistant: true
         configure_media_stack: true
         configure_monitoring_backend: true
         # TODO: Enable configure_monitoring_nut after we install packages before rendering templates
