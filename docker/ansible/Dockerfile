@@ -10,6 +10,7 @@ ENV PYTHONFAULTHANDLER=1 \
 RUN apt-get update \
   && apt-get --assume-yes --no-install-recommends install \
   ca-certificates \
+  vim \
   && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /

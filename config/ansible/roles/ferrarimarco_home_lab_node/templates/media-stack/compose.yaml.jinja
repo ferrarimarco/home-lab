@@ -1,21 +1,53 @@
 ---
 services:
+  flaresolverr:
+    image: {{ container_images_ids["flaresolverr"] }}
+    container_name: flaresolverr
+    environment:
+      - PUID={{ media_stack_owner_group_id }}
+      - PGID={{ media_stack_owner_user_id }}
+      - TZ={{ timezone }}
+    ports:
+      - {{ media_stack_flaresolverr_port }}:8191
+    restart: unless-stopped
   jellyfin:
     image: {{ container_images_ids["jellyfin"] }}
     container_name: jellyfin
     volumes:
       - {{ jellyfin_configuration_directory_path }}:/config
       - {{ jellyfin_cache_directory_path }}:/cache
-      - {{ media_directory_path }}:/media:ro
+      - {{ media_stack_media_library_path }}:/media:ro
     ports:
-      - {{ jellyfin_port }}:8096
+      - {{ media_stack_jellyfin_port }}:8096
+    restart: unless-stopped
+  jellyseerr:
+      image: {{ container_images_ids["jellyseerr"] }}
+      container_name: jellyseerr
+      environment:
+        - PUID={{ media_stack_owner_group_id }}
+        - PGID={{ media_stack_owner_user_id }}
+        - TZ={{ timezone }}
+      ports:
+        - {{ media_stack_jellyseerr_port }}:5055
+      volumes:
+        - "{{ media_stack_jellyseerr_configuration_directory_path }}:/app/config"
+      restart: unless-stopped
+  prowlarr:
+    image: {{ container_images_ids["prowlarr"] }}
+    container_name: prowlarr
+    environment:
+      - PUID={{ media_stack_owner_group_id }}
+      - PGID={{ media_stack_owner_user_id }}
+      - TZ={{ timezone }}
+    ports:
+      - {{ media_stack_prowlarr_port }}:9696
     restart: unless-stopped
   qbittorrent-nox:
     image: {{ container_images_ids["qbittorrent"] }}
     container_name: qbittorrent-nox
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID={{ media_stack_owner_group_id }}
+      - PGID={{ media_stack_owner_user_id }}
       - TZ={{ timezone }}
       - WEBUI_PORT={{ qbittorrent_user_interface_port }}
     ports:
@@ -25,6 +57,30 @@ services:
     restart: unless-stopped
     stop_grace_period: 30m
     volumes:
-      - "{{ torrent_configuration_directory_path }}:/config"
-      - "{{ torrent_download_path }}:/downloads"
+      - "{{ media_stack_torrent_configuration_directory_path }}:/config"
+      - "{{ media_stack_torrent_download_path }}:{{ media_stack_torrent_map_destination_download_path }}"
+  radarr:
+    image: {{ container_images_ids["radarr"] }}
+    environment:
+      - PUID={{ media_stack_owner_group_id }}
+      - PGID={{ media_stack_owner_user_id }}
+      - UMASK={{ media_stack_umask }}
+      - TZ={{ timezone }}
+    ports:
+      - {{ media_stack_radarr_port }}:7878
+    volumes:
+      - "{{ media_stack_radarr_configuration_directory_path }}:/config"
+      - "{{ media_directory_path }}:/data"
+  sonarr:
+    image: {{ container_images_ids["sonarr"] }}
+    environment:
+      - PUID={{ media_stack_owner_group_id }}
+      - PGID={{ media_stack_owner_user_id }}
+      - UMASK={{ media_stack_umask }}
+      - TZ={{ timezone }}
+    ports:
+      - {{ media_stack_sonarr_port }}:8989
+    volumes:
+      - "{{ media_stack_sonarr_configuration_directory_path }}:/config"
+      - "{{ media_directory_path }}:/data"
 ...
