@@ -21,17 +21,17 @@ services:
       - {{ media_stack_jellyfin_port }}:8096
     restart: unless-stopped
   jellyseerr:
-      image: {{ container_images_ids["jellyseerr"] }}
-      container_name: jellyseerr
-      environment:
-        - PUID={{ media_stack_owner_group_id }}
-        - PGID={{ media_stack_owner_user_id }}
-        - TZ={{ timezone }}
-      ports:
-        - {{ media_stack_jellyseerr_port }}:5055
-      volumes:
-        - "{{ media_stack_jellyseerr_configuration_directory_path }}:/app/config"
-      restart: unless-stopped
+    image: {{ container_images_ids["jellyseerr"] }}
+    container_name: jellyseerr
+    environment:
+      - PUID={{ media_stack_owner_group_id }}
+      - PGID={{ media_stack_owner_user_id }}
+      - TZ={{ timezone }}
+    ports:
+      - {{ media_stack_jellyseerr_port }}:5055
+    volumes:
+      - "{{ media_stack_jellyseerr_configuration_directory_path }}:/app/config"
+    restart: unless-stopped
   prowlarr:
     image: {{ container_images_ids["prowlarr"] }}
     container_name: prowlarr
@@ -68,6 +68,7 @@ services:
       - TZ={{ timezone }}
     ports:
       - {{ media_stack_radarr_port }}:7878
+    restart: unless-stopped
     volumes:
       - "{{ media_stack_radarr_configuration_directory_path }}:/config"
       - "{{ media_directory_path }}:/data"
@@ -80,6 +81,7 @@ services:
       - TZ={{ timezone }}
     ports:
       - {{ media_stack_sonarr_port }}:8989
+    restart: unless-stopped
     volumes:
       - "{{ media_stack_sonarr_configuration_directory_path }}:/config"
       - "{{ media_directory_path }}:/data"
