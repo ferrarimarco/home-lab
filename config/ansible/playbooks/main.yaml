@@ -5,9 +5,6 @@
 - name: Import the container engine playbook
   ansible.builtin.import_playbook: container-engine.yaml
 
-- name: Configure Home Lab nodes
-  hosts: all
-  gather_facts: true
-  roles:
-    - role: ferrarimarco_home_lab_node
+- name: Import the home lab node playbook
+  ansible.builtin.import_playbook: home-lab-node.yaml
 ...
