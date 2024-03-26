@@ -7,7 +7,17 @@
       Define the home_lab_configuration_directory_path variable and set it to
       the path of the main configuration directory to set up.
     success_msg: |
-      home_lab_configuration_directory_path is defined and not empty.
+      home_lab_configuration_directory_path is defined and not empty: {{ home_lab_configuration_directory_path }}
+
+- ansible.builtin.assert:
+    that:
+      - home_lab_runtime_directory_path is defined
+      - home_lab_runtime_directory_path | length > 0
+    fail_msg: |
+      Define the home_lab_runtime_directory_path variable and set it to
+      the path of the main runtime directory to set up.
+    success_msg: |
+      home_lab_runtime_directory_path is defined and not empty: {{ home_lab_runtime_directory_path }}
 
 - name: Wait for systemd to complete initialization.  # noqa 303
   ansible.builtin.command: systemctl is-system-running
