@@ -1,0 +1,5 @@
+---
+- name: Turn host on
+  ansible.builtin.import_tasks:
+    file: wake.yaml
+...

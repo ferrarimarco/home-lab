@@ -65,7 +65,9 @@ jobs:
           - "geerlingguy/docker-debian11-ansible:latest"
           - "geerlingguy/docker-debian12-ansible:latest"
         test_playbook_name:
+          - boot-bare-metal
           - bootstrap
           - container-engine
+          - home-lab-node
           - main
 ...
