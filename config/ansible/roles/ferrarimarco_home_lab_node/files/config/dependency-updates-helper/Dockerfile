@@ -43,4 +43,4 @@ FROM syncthing/syncthing:1.27.4 as syncthing
 FROM linuxserver/qbittorrent:4.6.4 as qbittorrent
 
 # zigbee2mqtt
-FROM koenkk/zigbee2mqtt:1.35.3 as zigbee2mqtt
+FROM koenkk/zigbee2mqtt:1.36.0 as zigbee2mqtt
