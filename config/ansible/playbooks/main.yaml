@@ -1,4 +1,7 @@
 ---
+- name: Import the boot bare metal playbook
+  ansible.builtin.import_playbook: boot-bare-metal.yaml
+
 - name: Import the bootstrap playbook
   ansible.builtin.import_playbook: bootstrap.yaml
 

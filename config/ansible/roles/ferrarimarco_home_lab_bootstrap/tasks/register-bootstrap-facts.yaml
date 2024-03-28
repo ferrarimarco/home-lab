@@ -1,8 +1,0 @@
----
-- name: Register bootstrap facts
-  ansible.builtin.set_fact:
-    # Set the main configuration directories as facts so we can reuse them
-    # across roles and plays.
-    home_lab_configuration_directory_path: "{{ home_lab_configuration_directory_path }}"
-    home_lab_runtime_directory_path: "{{ home_lab_runtime_directory_path }}"
-...
