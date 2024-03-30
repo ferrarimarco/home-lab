@@ -1,0 +1,42 @@
+---
+- name: Disable PVE enterprise repositories
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    uris: "{{ item.uris }}"
+    suites: "{{ ansible_distribution_release }}"
+    components: enterprise
+    state: absent
+    types: deb
+  become: true
+  with_items:
+    - name: pve-enterprise
+      uris: https://enterprise.proxmox.com/debian/pve
+    - name: ceph
+      uris: https://enterprise.proxmox.com/debian/ceph-quincy
+
+- name: Remove enterprise APT repository files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  become: true
+  with_items:
+    - /etc/apt/sources.list.d/ceph.list
+    - /etc/apt/sources.list.d/pve-enterprise.list
+
+- name: Enable PVE no-subscription repositories
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    uris: "{{ item.uris }}"
+    suites: "{{ ansible_distribution_release }}"
+    components: "{{ item.components }}"
+    signed_by: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+    types: deb
+  become: true
+  with_items:
+    - name: pve-no-subscription
+      uris: http://download.proxmox.com/debian/pve
+      components: pve-no-subscription
+    - name: ceph
+      uris: http://download.proxmox.com/debian/ceph-reef
+      components: no-subscription
+...

@@ -13,6 +13,14 @@
       Ansible hostname: {{ ansible_hostname }}
       Ansible kernel: {{ ansible_kernel }}
       Ansible OS family: {{ ansible_os_family }}
+      Ansible user: {{ ansible_user }}
       Inventory hostname: {{ inventory_hostname }}
       Inventory hostname short: {{ inventory_hostname_short }}
+
+- name: Print gathered facts - {{ inventory_hostname }}
+  ansible.builtin.debug:
+    msg: |
+      Facts for {{ inventory_hostname }}:
+      {{ hostvars[inventory_hostname] | to_nice_json }}
+    verbosity: 1
 ...
