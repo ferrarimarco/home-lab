@@ -1,19 +1,4 @@
 ---
-- name: Disable PVE enterprise repositories
-  ansible.builtin.deb822_repository:
-    name: "{{ item.name }}"
-    uris: "{{ item.uris }}"
-    suites: "{{ ansible_distribution_release }}"
-    components: enterprise
-    state: absent
-    types: deb
-  become: true
-  with_items:
-    - name: pve-enterprise
-      uris: https://enterprise.proxmox.com/debian/pve
-    - name: ceph
-      uris: https://enterprise.proxmox.com/debian/ceph-quincy
-
 - name: Remove enterprise APT repository files
   ansible.builtin.file:
     path: "{{ item }}"

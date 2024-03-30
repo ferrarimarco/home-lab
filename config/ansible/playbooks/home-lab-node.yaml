@@ -1,4 +1,7 @@
 ---
+- name: Import the container engine playbook
+  ansible.builtin.import_playbook: container-engine.yaml
+
 - name: Configure Home Lab nodes
   hosts: all
   gather_facts: true

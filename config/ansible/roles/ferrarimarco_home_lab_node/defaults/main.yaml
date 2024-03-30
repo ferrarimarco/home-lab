@@ -39,7 +39,6 @@ has_argonone_case: false
 has_raspberry_pi_v2_camera: false
 has_sense_hat: false
 home_assistant_user_interface_host_port: 8123
-home_lab_node_ssh_public_key_path: "~/.ssh/id_ed25519_home_lab.pub"
 frigate_cameras:
   # Keeping this as a record if we redeploy cam-1
   # - name: cam-1

@@ -6,6 +6,7 @@ collections:
   - name: community.docker
     version: "3.7.0"
   - name: community.general
+    version: "8.5.0"
 
 roles:
   - name: geerlingguy.docker

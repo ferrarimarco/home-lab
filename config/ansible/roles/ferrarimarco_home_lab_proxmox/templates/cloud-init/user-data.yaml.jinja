@@ -1,0 +1,33 @@
+#cloud-config
+---
+chpasswd:
+  # Expire all the passwords configured by this module, including the default user
+  expire: true
+
+# Trust the DHCP to get the FQDN
+# fqdn: {{ cloud_init_instance_hostname }}
+
+hostname: {{ cloud_init_instance_hostname }}
+
+locale: en_US
+
+# update the contents of /etc/hosts based on the hostname and fqdn specified
+manage_etc_hosts: true
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+packages:
+  - qemu-guest-agent
+
+ssh_authorized_keys:
+{% for ssh_key in cloud_init_instance_ssh_authorized_keys %}
+  - {{ ssh_key }}
+{% endfor %}
+timezone: "Etc/UTC"
+
+users:
+  # Hardcoded value which represents the primary admin user
+  - default
+...

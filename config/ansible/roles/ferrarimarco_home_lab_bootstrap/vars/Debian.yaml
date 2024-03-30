@@ -4,4 +4,6 @@ bootstrap_os_packages:
   - apt-transport-https
   - ca-certificates
   - gnupg2
+  # We need this for the ansible.builtin.deb822_repository task
+  - python3-debian
 ...

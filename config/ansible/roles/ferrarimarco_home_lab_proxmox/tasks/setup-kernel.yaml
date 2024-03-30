@@ -1,0 +1,32 @@
+---
+- name: Append IOMMU options to kernel command line
+  ansible.builtin.lineinfile:
+    backrefs: true
+    insertafter: EOF
+    line: '\1 {{ intel_iommu_kernel_options }}'  # Append to the matched line
+    path: /etc/kernel/cmdline
+    regexp: "^(.*) {{ intel_iommu_kernel_options }}$"  # Match the entire line
+    state: present
+  notify:
+    - Update proxmox boot config
+    - Reboot the host
+  when:
+    - is_intel_platform | default(true)
+    - is_iommu_supported | default(true)
+
+# Proxmox needs these modules to enable PCI passthrough
+- name: Load VFIO kernel modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    persistent: present
+    state: present
+  notify:
+    - Reboot the host
+  with_items:
+    - vfio
+    - vfio_iommu_type1
+    - vfio_pci
+
+- name: Flush handlers after configuring the kernel
+  ansible.builtin.meta: flush_handlers
+...

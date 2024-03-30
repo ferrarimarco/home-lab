@@ -19,12 +19,6 @@
   tags:
     - always
 
-- name: Setup Proxmox
-  ansible.builtin.include_tasks:
-    file: setup-Proxmox.yaml
-  when:
-    - is_proxmox_node
-
 - name: Setup OS
   ansible.builtin.include_tasks:
     file: "{{ item }}"

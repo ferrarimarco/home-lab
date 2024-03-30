@@ -1,0 +1,15 @@
+---
+intel_iommu_kernel_options: intel_iommu=on iommu=pt
+
+proxmox_state_directory_path: /var/lib/vz
+
+proxmox_snippets_directory_path: "{{ proxmox_state_directory_path }}/snippets"
+proxmox_template_directory_path: "{{ proxmox_state_directory_path }}/template"
+
+proxmox_isos_directory_path: "{{ proxmox_template_directory_path }}/iso"
+proxmox_raws_directory_path: "{{ proxmox_template_directory_path }}/raw"
+
+proxmox_cloud_init_snippets_directory_path: "{{ proxmox_snippets_directory_path }}/cloud-init"
+
+cloud_init_instance_ssh_authorized_keys: "{{ lookup('ansible.builtin.file', home_lab_node_ssh_public_key_path).splitlines() }}"
+...

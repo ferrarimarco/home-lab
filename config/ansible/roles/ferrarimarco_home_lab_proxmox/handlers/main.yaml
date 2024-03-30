@@ -1,0 +1,7 @@
+---
+- name: Update proxmox boot config
+  ansible.builtin.command: proxmox-boot-tool refresh
+
+- name: Reboot the host
+  ansible.builtin.reboot: null
+...
