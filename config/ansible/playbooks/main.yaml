@@ -8,6 +8,9 @@
 - name: Import the container engine playbook
   ansible.builtin.import_playbook: container-engine.yaml
 
+- name: Import the proxmox node playbook
+  ansible.builtin.import_playbook: proxmox-node.yaml
+
 - name: Import the home lab node playbook
   ansible.builtin.import_playbook: home-lab-node.yaml
 ...

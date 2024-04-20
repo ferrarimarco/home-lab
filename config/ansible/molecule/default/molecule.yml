@@ -68,6 +68,9 @@ provisioner:
             - "telegram_bot_allowed_chat_id_1"
             - "telegram_bot_allowed_chat_id_2"
           timezone_home: "timezone_home"
+        home_lab_configuration_directory_path: /etc/home-lab
+        home_lab_runtime_directory_path: /var/lib/home-lab
+        is_proxmox_node: true
         media_directory_path: "/media"
         media_stack_flaresolverr_http_endpoint_fqdn: "Flaresolverr"
         media_stack_jellyfin_http_endpoint_fqdn: "jellyfin"

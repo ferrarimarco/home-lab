@@ -69,5 +69,6 @@ jobs:
           - bootstrap
           - container-engine
           - home-lab-node
+          - proxmox-node
           - main
 ...

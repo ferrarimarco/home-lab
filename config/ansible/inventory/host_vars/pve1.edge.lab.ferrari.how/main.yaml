@@ -1,0 +1,7 @@
+---
+network_interfaces:
+  - mac_address: "7c:83:34:be:3f:23"
+    interface_name: enp1s0
+  - mac_address: "7c:83:34:be:3f:24"
+    interface_name: enp2s0
+...
