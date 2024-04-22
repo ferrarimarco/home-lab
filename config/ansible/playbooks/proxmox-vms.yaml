@@ -15,8 +15,14 @@
 # Resize: qm disk resize 100 scsi0 8G
 # Set boot order: qm set 100 --boot order=scsi0
 # Enable UEFI and create a UEFI disk volume: qm set 100 --bios ovmf
-# Configure UEFI disk volume: qm set 100 --efidisk0 local-zfs:0,efitype=4m,pre-enrolled-keys=1
+
+# Configure UEFI disk volume: qm set 100 --efidisk0 local-zfs:0,efitype=4m
+# If you need Secure Boot, add the "pre-enrolled-keys=1" option
+
 # Configure cloud-init datasource: qm set 100 --cicustom "user=local:snippets/cloud-init-hl01-user-data.yaml,network=local:snippets/cloud-init-hl01-network.yaml"
 # Configure cloud-init drive: qm set 100 --ide2 local-zfs:cloudinit,media=cdrom
-# Pass the Coral PCIe module to the VM: qm set 100 --hostpci0 0000:03:00,pcie=1
+
+# Pass the Coral PCIe module to the VM, mark it as a PCIe device: qm set 100 --hostpci0 0000:03:00,pcie=1
+# Pass the iGPU to the VM, mark it as a PCIe device, make the firmware ROM visible to the guest, set it as the primary GPU: qm set 100 -hostpci1 00:02,pcie=on,rombar=on,x-vga=on
+
 # Start the VM: qm start 100

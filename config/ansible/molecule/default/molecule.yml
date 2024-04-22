@@ -52,6 +52,7 @@ provisioner:
         configure_zigbee2mqtt: true
         frigate_http_endpoint_fqdn: "frigate"
         grafana_http_endpoint_fqdn: "grafana"
+        has_coral_pci_accelerator: true
         home_assistant_http_endpoint_fqdn: "home-assistant"
         home_assistant_internal_url_home: "http://home-assistant"
         home_assistant_secrets:

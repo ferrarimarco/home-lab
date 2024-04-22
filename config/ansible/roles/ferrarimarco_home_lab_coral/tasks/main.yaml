@@ -1,0 +1,7 @@
+---
+- name: Setup Proxmox OS packages and repositories
+  ansible.builtin.include_tasks:
+    file: setup-coral-os-packages.yaml
+  when:
+    - has_coral_pci_accelerator
+...
