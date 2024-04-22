@@ -1,0 +1,4 @@
+---
+ansible_user: debian
+has_coral_pci_accelerator: true
+...

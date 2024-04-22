@@ -1,0 +1,10 @@
+---
+- name: Import the bootstrap playbook
+  ansible.builtin.import_playbook: bootstrap.yaml
+
+- name: Configure Coral devices
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: ferrarimarco_home_lab_coral
+...

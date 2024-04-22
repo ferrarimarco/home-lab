@@ -68,6 +68,7 @@ jobs:
           - boot-bare-metal
           - bootstrap
           - container-engine
+          - coral
           - home-lab-node
           - proxmox-node
           - main

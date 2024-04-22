@@ -1,6 +1,6 @@
 ---
 configure_dphys_swapfile: true
-# Got those from v4l2-ctl --list-devices
+# Got those using: v4l2-ctl --list-devices
 frigate_gpu_decode_devices:
   - /dev/media0
   - /dev/media1

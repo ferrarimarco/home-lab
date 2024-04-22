@@ -1,0 +1,30 @@
+---
+- name: Enable the Coral APT repository
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    uris: "{{ item.uris }}"
+    suites: "{{ item.suites }}"
+    components: "{{ item.components }}"
+    signed_by: "{{ item.key }}"
+    types: deb
+  become: true
+  with_items:
+    - name: coral-edgetpu-stable
+      components: main
+      key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      suites: coral-edgetpu-stable
+      uris: https://packages.cloud.google.com/apt
+
+- name: Install Coral packages
+  # Don't set cache_valid_time because we want to force a cache update after we
+  # added the Coral APT repository
+  ansible.builtin.apt:
+    name:
+      - gasket-dkms
+      - libedgetpu1-std
+    state: present
+    update_cache: true
+  become: true
+  notify:
+    - Reboot the host
+...
