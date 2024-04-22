@@ -58,7 +58,7 @@
     line: '{{ item }} ALL=(ALL) NOPASSWD: ALL'
     state: present
     validate: 'visudo -cf %s'
-    mode: "0644"
+    mode: "0440"
   with_items: "{{ security_sudoers_passwordless }}"
 
 - name: Add configured user accounts to passworded sudoers
@@ -68,7 +68,7 @@
     line: '{{ item }} ALL=(ALL) ALL'
     state: present
     validate: 'visudo -cf %s'
-    mode: "0644"
+    mode: "0440"
   with_items: "{{ security_sudoers_passworded }}"
 
 - name: Create a directory for OpenSSH configuration - {{ ansible_user }}

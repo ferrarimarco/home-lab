@@ -1,16 +1,73 @@
 ---
-# Force a cache update in case we don't install any package
-- name: Update apt cache
-  ansible.builtin.apt:
-    cache_valid_time: "{{ apt_cache_valid_time }}"
-    update_cache: true
-  become: true
-
-- name: Setup APT packages
+- name: Install APT packages
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
     name: "{{ bootstrap_os_packages }}"
     state: present
     update_cache: true
   become: true
+
+- name: Check if the Debian mirrors file exists
+  ansible.builtin.stat:
+    path: "{{ debian_package_repository_mirrors_file }}"
+  register: debian_package_repository_mirrors_file_stat_result
+
+- name: Enable Debian non-free-firmware repository
+  ansible.builtin.deb822_repository:
+    name: debian-non-free-firmware
+    uris: "{{ debian_package_repository_mirrors_file_stat_result.stat.exists | ternary('mirror+file://' ~ debian_package_repository_mirrors_file, 'http://deb.debian.org/debian') }}"
+    suites:
+      - bookworm
+      - bookworm-updates
+      - bookworm-backports
+    components:
+      - non-free-firmware
+    types:
+      - deb
+      - deb-src
+  become: true
+  notify:
+    - Update APT cache
+
+- name: Ensure handlers are notified now
+  ansible.builtin.meta: flush_handlers
+
+- name: Force a cache update in case we didn't install any package
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    update_cache: true
+  become: true
+
+- name: Install non-free firmware
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name:
+      - firmware-misc-nonfree
+    update_cache: true
+  become: true
+  notify:
+    - Reboot the host
+
+- name: Install Intel CPU microcode update
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name:
+      - intel-microcode
+    update_cache: true
+  become: true
+  notify:
+    - Reboot the host
+  when:
+    - "'GenuineIntel' in ansible_processor[1]"
+    - enable_intel_microcode_update | default(false)
+
+- name: Install Intel iGPU packages
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name:
+      - intel-gpu-tools
+    update_cache: true
+  become: true
+  when:
+    - has_intel_igpu
 ...

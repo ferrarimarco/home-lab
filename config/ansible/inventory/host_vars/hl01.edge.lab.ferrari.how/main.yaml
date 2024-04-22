@@ -1,4 +1,8 @@
 ---
 ansible_user: debian
+configure_docker: true
+configure_frigate: true
+configure_monitoring_sata: false
 has_coral_pci_accelerator: true
+has_intel_igpu: true
 ...

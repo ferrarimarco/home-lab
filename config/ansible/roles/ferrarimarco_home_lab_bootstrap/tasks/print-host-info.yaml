@@ -13,6 +13,7 @@
       Ansible hostname: {{ ansible_hostname }}
       Ansible kernel: {{ ansible_kernel }}
       Ansible OS family: {{ ansible_os_family }}
+      Ansible processor: {{ ansible_processor }}
       Ansible user: {{ ansible_user }}
       Inventory hostname: {{ inventory_hostname }}
       Inventory hostname short: {{ inventory_hostname_short }}

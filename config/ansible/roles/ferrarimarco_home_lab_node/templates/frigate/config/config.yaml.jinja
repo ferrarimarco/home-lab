@@ -3,18 +3,16 @@ mqtt:
   host: "{{ mosquitto_server_fqdn }}"
   port: 1883
 
-detect:
-  stationary:
-    # Frequency for confirming stationary objects
-    # When set to 0, object detection will not confirm stationary objects until movement is detected.
-    # If set to 10, object detection will run to confirm the object still exists on every 10th frame.
-    # Default is 0 (Frigate 0.12.0)
-    interval: 50
-
 detectors:
+{% if has_coral_usb_accelerator | default(false) or has_coral_pci_accelerator | default(false) %}
   coral:
     type: edgetpu
+{% if has_coral_usb_accelerator | default(false) %}
     device: usb
+{% elif has_coral_pci_accelerator | default(false) %}
+    device: pci
+{% endif %}
+{% endif %}
 
 ffmpeg:
 {% if frigate_ffmpeg_harware_acceleration_arguments is defined %}
@@ -87,10 +85,13 @@ cameras:
             - {{ role }}
 {% endfor %}
 {% endfor %}
+{% if frigate_camera.input_args is defined %}
+      input_args: {{ frigate_camera.input_args }}
+{% endif %}
 {% if frigate_camera.detect is defined %}
     detect:
-      height: "{{ frigate_camera.detect.height }}"
-      width: "{{ frigate_camera.detect.width }}"
+      height: {{ frigate_camera.detect.height }}
+      width: {{ frigate_camera.detect.width }}
 {% endif %}
 {% if frigate_camera.motion_masks is defined %}
     motion:

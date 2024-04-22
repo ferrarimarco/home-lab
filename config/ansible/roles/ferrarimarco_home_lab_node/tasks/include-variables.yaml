@@ -11,6 +11,10 @@
   ansible.builtin.include_vars: "raspberry-pi-os.yaml"
   when: is_raspberry_pi
 
+- name: Load Intel GPU variables.
+  ansible.builtin.include_vars: intel-gpu.yaml
+  when: has_intel_igpu | default(false)
+
 - name: Load container image versions
   ansible.builtin.include_tasks:
     file: "register-container-image-versions-facts.yaml"
@@ -100,7 +104,7 @@
       fact_files_to_download:
         - url: "{{ monitoring_smart_metrics_collection_script_url }}"
           dest: "{{ monitoring_smartmon_prometheus_exporter_script_destination_path }}"
-          state: "{{ configure_monitoring | ternary('file', 'absent') }}"
+          state: "{{ configure_monitoring_sata | ternary('file', 'absent') }}"
           mode: "0755"
           owner: "root"
           group: "root"
@@ -108,7 +112,7 @@
       fact_os_services:
         - enabled: true
           service_name: "{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}"
-          service_state: "{{ configure_monitoring | ternary('started', 'stopped') }}"
+          service_state: "{{ configure_monitoring_sata | ternary('started', 'stopped') }}"
       fact_templates_to_render: "{{ monitoring_templates_to_render }}"
     - enable_custom_fact: "{{ configure_monitoring_nut }}"
       fact_category: "monitoring-nut"
