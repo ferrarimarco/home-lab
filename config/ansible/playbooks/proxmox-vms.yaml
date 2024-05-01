@@ -7,7 +7,7 @@
 # TODO: convert this to an Ansible playbook if it becomes more common
 # Notes to create the 100 VM:
 # Create VM: qm create 100 --name hl01 --net0 virtio=BC:24:11:D4:F6:64,bridge=vmbr0,firewall=1 --scsihw virtio-scsi-single --machine q35 --ostype l26
-# Configure CPU and memory: qm set 100 --cpu host --cores 2 --memory 4096
+# Configure CPU and memory: qm set 100 --cpu host --cores 2 --memory 8192
 # Configure the VM to start at boot: qm set 100 --onboot 1
 # Enable QEMU guest agent: qm set 100 --agent enabled=1
 # Import raw disk: qm disk import 100 /var/lib/vz/template/raw/debian-12-generic-amd64-20240211-1654.raw local-zfs
@@ -23,6 +23,6 @@
 # Configure cloud-init drive: qm set 100 --ide2 local-zfs:cloudinit,media=cdrom
 
 # Pass the Coral PCIe module to the VM, mark it as a PCIe device: qm set 100 --hostpci0 0000:03:00,pcie=1
-# Pass the iGPU to the VM, mark it as a PCIe device, make the firmware ROM visible to the guest, set it as the primary GPU: qm set 100 -hostpci1 00:02,pcie=on,rombar=on,x-vga=on
+# Pass the iGPU to the VM, mark it as a PCIe device, make the firmware ROM visible to the guest, set it as the primary GPU: qm set 100 -hostpci1 0000:00:02.0,pcie=on,rombar=on,x-vga=on
 
 # Start the VM: qm start 100

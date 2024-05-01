@@ -1,2 +1,4 @@
 ---
+enable_intel_microcode_update: false
+has_intel_igpu: false
 ...

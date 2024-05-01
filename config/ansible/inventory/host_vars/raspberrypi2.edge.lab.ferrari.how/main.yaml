@@ -3,7 +3,6 @@ backups_samba_share_path: "/media/data0/backups-marco"
 configure_backup_restic: true
 configure_asuswrt_chkwan: true
 configure_docker: true
-configure_frigate: true
 configure_home_assistant: true
 configure_media_stack: true
 configure_monitoring_backend: true
@@ -22,6 +21,7 @@ disks_to_mount:
     src: UUID=3fb762aa-c397-460b-809c-9ac741ce14f1
     state: mounted
 has_argonone_case: true
+has_coral_usb_accelerator: true
 media_directory_path: "/media/data0/media"
 monitoring_nut_server_admin_password: "{{ vault_raspberrypi2_monitoring_nut_server_admin_password }}"
 monitoring_nut_server_admin_username: "{{ vault_raspberrypi2_monitoring_nut_server_admin_username }}"

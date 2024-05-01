@@ -103,6 +103,18 @@
   when: configure_network_shares and ("samba" in ansible_run_tags or "all" in ansible_run_tags)
   with_items: "{{ samba_shares }}"
 
+# Frigate needs this to monitor GPU stats
+- name: Configure perf_event_paranoid kernel parameter
+  ansible.posix.sysctl:
+    name: kernel.perf_event_paranoid
+    reload: true
+    state: present
+    sysctl_set: true
+    value: 2
+  become: true
+  when:
+    - configure_frigate
+
 - name: Import Debian tasks
   ansible.builtin.import_tasks: setup-Debian.yaml
   when: ansible_facts.os_family == 'Debian'

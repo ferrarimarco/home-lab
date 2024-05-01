@@ -57,9 +57,9 @@
   trigger:
   - platform: state
     entity_id:
-    - switch.presa_lavatrice
     - switch.presa_studio_home_lab_2
     - switch.presa_frigorifero
+    - switch.presa_studio_home_lab_2_2
     to: 'off'
   condition: []
   action:
@@ -72,12 +72,13 @@
   description: ''
   trigger:
   - platform: numeric_state
-    entity_id: sensor.presa_studio_gaming_power
+    entity_id:
+    - sensor.presa_studio_gaming_power
     for:
       hours: 0
       minutes: 0
       seconds: 45
-    below: 43
+    below: 25
   condition:
   - condition: device
     type: is_on
@@ -163,32 +164,4 @@
     data:
       message: '{{ trigger.to_state.attributes.friendly_name }}: {{ trigger.to_state.state
         }}'
-  mode: single
-- id: '1695033345128'
-  alias: Turn off gaming rig when not in use (living room)
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.presa_sala_gaming_power
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 45
-    below: 13
-  condition:
-  - condition: device
-    type: is_on
-    device_id: 87f43ce91a0ed169ac75a705db7156e2
-    entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
-    domain: switch
-  action:
-  - service: telegram_bot.send_message
-    data:
-      message: Turn off {{ device_attr(device_id(trigger.to_state.entity_id), 'name')
-        }}
-    enabled: true
-  - type: turn_off
-    device_id: 87f43ce91a0ed169ac75a705db7156e2
-    entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
-    domain: switch
   mode: single

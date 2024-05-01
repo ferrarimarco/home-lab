@@ -28,7 +28,7 @@
 - name: Add all cAdvisor endpoints to the list of HTTP endpoints to check
   ansible.builtin.set_fact:
     monitoring_backend_http_endpoints_to_check: "{{ monitoring_backend_http_endpoints_to_check + monitoring_backend_http_cadvisor_endpoint_check_template }}"
-  when: hostvars[item].configure_docker
+  when: hostvars[item].configure_docker | default(configure_docker)
   with_items: "{{ groups['all'] }}"
 
 - name: Debug monitoring_backend_http_endpoints_to_check
