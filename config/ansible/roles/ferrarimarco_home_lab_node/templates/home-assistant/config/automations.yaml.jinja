@@ -94,6 +94,10 @@
     device_id: 6449a73377f934da409a21b1a9343f06
     entity_id: switch.presa_studio_gaming
     domain: switch
+  - type: turn_off
+    device_id: 4c6026026fac1d1e1f021fb35d2a1e61
+    entity_id: b46d837fd384ebe48793a8c560a83803
+    domain: switch
   mode: single
 - id: '1685788425243'
   alias: Notify if entity is unavailable
@@ -164,4 +168,53 @@
     data:
       message: '{{ trigger.to_state.attributes.friendly_name }}: {{ trigger.to_state.state
         }}'
+  mode: single
+- id: '1695033345128'
+  alias: Turn off gaming rig when not in use (living room)
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.presa_sala_gaming_power
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 45
+    below: 13
+  condition:
+  - condition: device
+    type: is_on
+    device_id: 87f43ce91a0ed169ac75a705db7156e2
+    entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
+    domain: switch
+  action:
+  - service: telegram_bot.send_message
+    data:
+      message: Turn off {{ device_attr(device_id(trigger.to_state.entity_id), 'name')
+        }}
+    enabled: true
+  - type: turn_off
+    device_id: 87f43ce91a0ed169ac75a705db7156e2
+    entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
+    domain: switch
+  mode: single
+- id: '1710950436245'
+  alias: Turn on gaming monitor when gaming rig is on
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 6449a73377f934da409a21b1a9343f06
+    entity_id: bb2a9e962c4ef2b8a0687660bdbf5b13
+    domain: switch
+  condition:
+  - condition: device
+    type: is_off
+    device_id: 4c6026026fac1d1e1f021fb35d2a1e61
+    entity_id: b46d837fd384ebe48793a8c560a83803
+    domain: switch
+  action:
+  - type: turn_on
+    device_id: 4c6026026fac1d1e1f021fb35d2a1e61
+    entity_id: b46d837fd384ebe48793a8c560a83803
+    domain: switch
   mode: single
