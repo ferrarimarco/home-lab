@@ -32,6 +32,7 @@ argonone_os_services:
   - enabled: true
     service_name: "{{ argonone_os_service_name }}"
     service_state: "{{ has_argonone_case | ternary('started', 'stopped') }}"
+build_python_venv_script_destination_path: "/usr/local/bin/build-python-venv"
 configuration_directories:
   - path: "{{ systemd_configuration_directory }}"
     state: directory
@@ -60,7 +61,11 @@ fail2ban_templates_to_render:
     state: "{{ security_fail2ban_enabled | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ fail2ban_service_name }}"
-files_to_configure: []
+files_to_configure:
+  - src: scripts/build-python-venv.sh
+    dest: "{{ build_python_venv_script_destination_path }}"
+    mode: "0755"
+    state: file
 files_to_download: []
 frigate_configuration_app_configuration_directory_path: "{{ frigate_configuration_directory_path }}/config"
 frigate_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/frigate"

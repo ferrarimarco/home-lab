@@ -39,7 +39,8 @@ provisioner:
         configure_monitoring_backend: true
         # TODO: Enable configure_monitoring_nut after we install packages before rendering templates
         # configure_monitoring_nut: true
-        configure_monitoring_ont: true
+        # TODO: Enable configure_monitoring_ont after we don't fail running the service if the ONT is not reachable
+        # configure_monitoring_ont: true
         configure_mqtt_broker: true
         configure_network_shares: true
         configure_network_stack: true

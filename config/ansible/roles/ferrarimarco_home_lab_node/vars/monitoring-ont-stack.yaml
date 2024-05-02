@@ -15,15 +15,27 @@ monitoring_ont_files_to_configure:
     state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ monitoring_ont_os_service_name }}"
+  - src: "config/{{ monitoring_ont_tag }}/{{ monitoring_ont_network_config_script_name }}"
+    dest: "{{ monitoring_ont_configure_route_to_ont_script_destination_path }}"
+    mode: "0755"
+    state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_ont_os_service_name }}"
+monitoring_ont_configure_route_to_ont_script_destination_path: "/usr/local/bin/{{ monitoring_ont_network_config_script_name }}"
+monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router: "/tmp/{{ monitoring_ont_network_config_script_name }}"
 monitoring_ont_executable_path: "{{ monitoring_ont_configuration_directory_path }}/zte-f6005-ont-exporter.py"
+monitoring_ont_network_config_script_name: configure-route-to-ont.sh
 monitoring_ont_requirements_file_path: "{{ monitoring_ont_configuration_directory_path }}/requirements.txt"
 monitoring_ont_run_directory_path: "/run/{{ monitoring_ont_tag }}"
-monitoring_ont_virtual_env_path: "{{ monitoring_ont_run_directory_path }}/.venv"
 monitoring_ont_os_service_file_name: "{{ monitoring_ont_os_service_name }}.service"
 monitoring_ont_os_service_name: "zte-f6005-ont-exporter"
+monitoring_ont_network_config_timer_file_name: "{{ monitoring_ont_network_config_service_name }}.timer"
 monitoring_ont_os_services:
   - enabled: true
     service_name: "{{ monitoring_ont_os_service_file_name }}"
+    service_state: "{{ configure_monitoring_ont | ternary('started', 'stopped') }}"
+  - enabled: true
+    service_name: "{{ monitoring_ont_network_config_service_file_name }}"
     service_state: "{{ configure_monitoring_ont | ternary('started', 'stopped') }}"
 monitoring_ont_templates_to_render:
   - src: "{{ monitoring_ont_tag }}/{{ monitoring_ont_os_service_file_name }}.jinja"
@@ -31,4 +43,16 @@ monitoring_ont_templates_to_render:
     state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ monitoring_ont_os_service_name }}"
+  - src: "{{ monitoring_ont_tag }}/{{ monitoring_ont_network_config_service_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_ont_network_config_service_file_name }}"
+    state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_ont_network_config_service_name }}"
+  - src: "{{ monitoring_ont_tag }}/{{ monitoring_ont_network_config_timer_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_ont_network_config_timer_file_name }}"
+    state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_ont_network_config_service_name }}"
+monitoring_ont_network_config_service_file_name: "{{ monitoring_ont_network_config_service_name }}.service"
+monitoring_ont_network_config_service_name: "{{ monitoring_ont_tag }}-network-config"
 ...
