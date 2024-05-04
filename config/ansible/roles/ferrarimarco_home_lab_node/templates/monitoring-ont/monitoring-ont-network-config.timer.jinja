@@ -1,0 +1,8 @@
+[Unit]
+Description=Run {{ monitoring_ont_network_config_service_name }} service as scheduled
+
+[Timer]
+OnCalendar=*:0/30
+
+[Install]
+WantedBy=timers.target
