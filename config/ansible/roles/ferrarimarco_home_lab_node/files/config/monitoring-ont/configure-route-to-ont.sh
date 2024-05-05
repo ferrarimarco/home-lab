@@ -17,15 +17,15 @@ WAN_INTERFACE_NAME="$(nvram get wan_ifname)"
 Say "WAN interface name: ${WAN_INTERFACE_NAME}"
 
 WAN_INTERFACE_MEDIA_TYPE="$(ethctl "${WAN_INTERFACE_NAME}" media-type)"
-Say "WAN interface media type: ${WAN_INTERFACE_MEDIA_TYPE}"
+Say "WAN interface media type:\n${WAN_INTERFACE_MEDIA_TYPE}"
 
 Say "Check if the ONT is reachable at the datalink layer:\n$(arping -I "${WAN_INTERFACE_NAME}" -c 2 "${ONT_IP_ADDRESS}")"
 
 Say "Check if there's a route to the ONT (${ONT_IP_ADDRESS}) via ${WAN_INTERFACE_NAME}"
 if ip route get "${ONT_IP_ADDRESS}" | grep -q "dev ${WAN_INTERFACE_NAME}"; then
-  echo "A route to the ONT (${ONT_IP_ADDRESS}) through ${WAN_INTERFACE_NAME} exists"
+  Say "A route to the ONT (${ONT_IP_ADDRESS}) through ${WAN_INTERFACE_NAME} exists"
 else
-  echo "A route to the ONT (${ONT_IP_ADDRESS}) through ${WAN_INTERFACE_NAME} doesn't exist"
+  Say "A route to the ONT (${ONT_IP_ADDRESS}) through ${WAN_INTERFACE_NAME} doesn't exist"
   # Add a route to a single address because we might have a default gateway
   # configured through a VLAN on another interface
   ip route add "${ONT_IP_ADDRESS}/32" dev "${WAN_INTERFACE_NAME}"
