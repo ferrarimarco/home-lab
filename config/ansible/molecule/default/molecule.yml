@@ -103,6 +103,9 @@ provisioner:
             restic_repository_host_path: "/restic-repository-host-path"
             restic_repository_password: "restic-repository-password"
         qbittorrent_http_endpoint_fqdn: "qbittorrent"
+        # Don't start restic because it also starts a backup job every time,
+        # breaking idempotence
+        start_restic: false
         syncthing_user_interface_http_endpoint_fqdn: "syncthing"
         torrent_download_path: "/torrent-download-path"
         zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
