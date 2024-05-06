@@ -20,7 +20,7 @@ monitoring_ont_files_to_configure:
     mode: "0755"
     state: "{{ configure_monitoring_ont | ternary('file', 'absent') }}"
     os_services_to_restart:
-      - "{{ monitoring_ont_os_service_name }}"
+      - "{{ monitoring_ont_network_config_service_name }}"
 monitoring_ont_configure_route_to_ont_script_destination_path: "/usr/local/bin/{{ monitoring_ont_network_config_script_name }}"
 monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router: "/tmp/{{ monitoring_ont_network_config_script_name }}"
 monitoring_ont_executable_path: "{{ monitoring_ont_configuration_directory_path }}/zte-f6005-ont-exporter.py"
@@ -55,4 +55,6 @@ monitoring_ont_templates_to_render:
       - "{{ monitoring_ont_network_config_service_name }}"
 monitoring_ont_network_config_service_file_name: "{{ monitoring_ont_network_config_service_name }}.service"
 monitoring_ont_network_config_service_name: "{{ monitoring_ont_tag }}-network-config"
+monitoring_ont_user: "{{ ansible_user }}"
+monitoring_ont_user_group: "{{ ansible_user }}"
 ...
