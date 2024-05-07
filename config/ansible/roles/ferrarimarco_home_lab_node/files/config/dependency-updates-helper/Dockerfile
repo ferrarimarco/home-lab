@@ -24,7 +24,7 @@ FROM gcr.io/cadvisor/cadvisor:v0.47.2 as cadvisor
 FROM ghcr.io/druggeri/nut_exporter:3.1.1 as nut-exporter
 FROM prom/blackbox-exporter:v0.24.0 as prometheus-blackbox-exporter
 FROM prom/prometheus:v2.49.1 as prometheus
-FROM quay.io/prometheus/node-exporter:v1.7.0 as prometheus-node-exporter
+FROM quay.io/prometheus/node-exporter:v1.8.0 as prometheus-node-exporter
 
 # monitoring-backend
 FROM grafana/grafana-oss:10.3.3 as grafana
