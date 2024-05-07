@@ -20,7 +20,7 @@ FROM lscr.io/linuxserver/radarr:5.3.6 as radarr
 FROM lscr.io/linuxserver/sonarr:4.0.4 as sonarr
 
 # monitoring
-FROM gcr.io/cadvisor/cadvisor:v0.47.2 as cadvisor
+FROM gcr.io/cadvisor/cadvisor:v0.49.1 as cadvisor
 FROM ghcr.io/druggeri/nut_exporter:3.1.1 as nut-exporter
 FROM prom/blackbox-exporter:v0.25.0 as prometheus-blackbox-exporter
 FROM prom/prometheus:v2.51.2 as prometheus
