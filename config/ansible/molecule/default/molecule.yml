@@ -74,7 +74,7 @@ provisioner:
         home_lab_runtime_directory_path: /var/lib/home-lab
         is_proxmox_node: true
         media_directory_path: "/media"
-        media_stack_flaresolverr_http_endpoint_fqdn: "Flaresolverr"
+        media_stack_flaresolverr_http_endpoint_fqdn: "flaresolverr"
         media_stack_jellyfin_http_endpoint_fqdn: "jellyfin"
         media_stack_jellyseerr_http_endpoint_fqdn: "jellyseerr"
         media_stack_prowlarr_http_endpoint_fqdn: "prowlarr"
