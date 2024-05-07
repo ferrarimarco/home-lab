@@ -17,7 +17,7 @@ FROM fallenbagel/jellyseerr:1.7.0 as jellyseerr
 FROM ghcr.io/flaresolverr/flaresolverr:v3.3.17 as flaresolverr
 FROM lscr.io/linuxserver/prowlarr:1.13.3 as prowlarr
 FROM lscr.io/linuxserver/radarr:5.3.6 as radarr
-FROM lscr.io/linuxserver/sonarr:4.0.3 as sonarr
+FROM lscr.io/linuxserver/sonarr:4.0.4 as sonarr
 
 # monitoring
 FROM gcr.io/cadvisor/cadvisor:v0.47.2 as cadvisor
