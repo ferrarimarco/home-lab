@@ -1,8 +1,34 @@
 ---
+restic_backup_workloads_job_name: "restic-backup-workloads"
 restic_configuration_directories:
   - path: "{{ restic_configuration_directory_path }}"
     state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
 restic_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/restic"
+restic_default_backup_jobs:
+  - directories_to_backup:
+      - source_host_directory: "{{ home_lab_configuration_directory_path }}"
+        container_mount_destination_directory: "{{ home_lab_configuration_directory_path }}"
+      - source_host_directory: "{{ home_lab_runtime_directory_path }}"
+        container_mount_destination_directory: "{{ home_lab_runtime_directory_path }}"
+    job_name: "{{ restic_backup_workloads_job_name }}"
+    job_schedule: "01:00:00"
+    restic_forget_policy:
+      # Keep daily snapshots for the last week
+      - --keep-within-daily 7d
+      # Keep weekly snapshots for the last month
+      - --keep-within-weekly 1m
+      # Keep monthly snapshots for the last year
+      - --keep-within-monthly 1y
+      # Keep yearly snapshots for the last 10 years
+      - --keep-within-yearly 10y
+    # In seconds
+    restic_monitoring_refresh_interval: 43200
+    restic_prometheus_exporter_port: 9300
+    restic_repository_host_path: "{{ restic_backup_default_backup_job_target_directory }}"
+    restic_repository_password: "{{ restic_backup_default_backup_job_repository_password }}"
+restic_default_backup_target_directories:
+  - path: "{{ restic_backup_default_backup_job_target_directory }}"
+    state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
 restic_docker_compose_up_items:
   - compose_file_path: "{{ restic_docker_compose_destination_file_path }}"
     enable_containerized_services: "{{ configure_backup_restic }}"

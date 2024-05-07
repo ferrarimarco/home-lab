@@ -11,7 +11,7 @@
     restic_backup_job_timer_definition: "{{ item.job_schedule }}"
   when:
     - configure_backup_restic
-  with_items: "{{ restic_backup_jobs }}"
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
 
 - name: Setup Restic timers
   ansible.builtin.template:
@@ -25,7 +25,7 @@
     restic_backup_job_timer_definition: "{{ item.job_schedule }}"
   when:
     - configure_backup_restic
-  with_items: "{{ restic_backup_jobs }}"
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
 
 - name: Reload the systemd daemon
   ansible.builtin.systemd:
@@ -36,7 +36,7 @@
     name: "{{ item.job_name }}.timer"
     state: "{{ configure_backup_restic | ternary('started', 'stopped') }}"
     enabled: "{{ configure_backup_restic | ternary(true, false) }}"
-  with_items: "{{ restic_backup_jobs }}"
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
   register: stop_os_service
   # Services to stop might not exist, so we don't fail in that case
   failed_when:
@@ -48,14 +48,14 @@
     path: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.service"
     state: absent
   when: not configure_backup_restic
-  with_items: "{{ restic_backup_jobs }}"
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
 
 - name: Delete Restic timers
   ansible.builtin.file:
     path: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.timer"
     state: absent
   when: not configure_backup_restic
-  with_items: "{{ restic_backup_jobs }}"
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
 
 - name: Delete unneeded Restic files and directories
   ansible.builtin.file:

@@ -114,7 +114,7 @@ scrape_configs:
       - targets:
 {% for host in groups['all'] %}
 {% if hostvars[host].configure_backup_restic | default(false) %}
-{% for backup_job in hostvars[host].restic_backup_jobs %}
+{% for backup_job in hostvars[host].restic_backup_jobs | default([]) + restic_default_backup_jobs %}
         - "{{ host }}:{{ backup_job.restic_prometheus_exporter_port }}"
 {% endfor %}
 {% endif %}

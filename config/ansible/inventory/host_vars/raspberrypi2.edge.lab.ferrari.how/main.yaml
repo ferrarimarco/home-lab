@@ -34,48 +34,8 @@ monitoring_nut_devices:
     productId: "FFFF"
     bus: "001"
 network_stack_configure_recursive_dns_resolver: true
-restic_backup_workloads_job_name: "restic-backup-workloads"
-restic_backup_cron_jobs:
-  - become: true
-    name: "restic backup {{ restic_backup_workloads_job_name }}"
-    cron_file: "{{ restic_backup_workloads_job_name }}"
-    # We migrated to systemd timers
-    state: absent
-  - become: true
-    name: "restic check {{ restic_backup_workloads_job_name }}"
-    cron_file: "{{ restic_backup_workloads_job_name }}"
-    # We migrated to systemd timers
-    state: absent
-restic_backup_jobs:
-  - directories_to_backup:
-      - source_host_directory: "{{ home_assistant_configuration_config_directory_path }}"
-        container_mount_destination_directory: "{{ home_assistant_configuration_config_directory_path }}"
-      - source_host_directory: "{{ monitoring_backend_runtime_data_directory }}"
-        container_mount_destination_directory: "{{ monitoring_backend_runtime_data_directory }}"
-      - source_host_directory: "{{ zigbee2mqtt_data_directory_path }}"
-        container_mount_destination_directory: "{{ zigbee2mqtt_data_directory_path }}"
-      - source_host_directory: "{{ syncthing_configuration_directory_path }}"
-        container_mount_destination_directory: "{{ syncthing_configuration_directory_path }}"
-    job_name: "{{ restic_backup_workloads_job_name }}"
-    job_schedule: "01:00:00"
-    restic_forget_policy:
-      # Keep daily snapshots for the last week
-      - --keep-within-daily 7d
-      # Keep weekly snapshots for the last month
-      - --keep-within-weekly 1m
-      # Keep monthly snapshots for the last year
-      - --keep-within-monthly 1y
-      # Keep yearly snapshots for the last 10 years
-      - --keep-within-yearly 10y
-    # In seconds
-    restic_monitoring_refresh_interval: 43200
-    restic_prometheus_exporter_port: 9300
-    restic_repository_host_path: "{{ restic_backup_workloads_target_directory }}"
-    restic_repository_password: "{{ vault_raspberrypi2_workloads_backup_repository_password }}"
-restic_backup_target_directories:
-  - path: "{{ restic_backup_workloads_target_directory }}"
-    state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
-restic_backup_workloads_target_directory: "{{ backups_samba_share_path }}/{{ restic_backup_workloads_job_name }}"
+restic_backup_default_backup_job_target_directory: "{{ backups_samba_share_path }}/{{ restic_backup_workloads_job_name }}"
+restic_backup_default_backup_job_repository_password: "{{ vault_raspberrypi2_workloads_backup_repository_password }}"
 samba_shares:
   - comment: "Backups-Marco"
     create_mask: "0744"

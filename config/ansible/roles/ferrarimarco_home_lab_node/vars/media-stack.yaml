@@ -10,7 +10,7 @@ media_stack_torrent_configuration_directory_path: "{{ home_lab_configuration_dir
 
 # Runtime data directories
 jellyfin_cache_directory_path: "{{ jellyfin_runtime_data_directory_path }}/cache"
-jellyfin_runtime_data_directory_path: "{{ var_lib_directory_path }}/jellyfin"
+jellyfin_runtime_data_directory_path: "{{ home_lab_runtime_directory_path }}/jellyfin"
 media_stack_media_library_path: "{{ media_directory_path }}/media"
 media_stack_torrent_download_path: "{{ media_directory_path }}/downloads"
 

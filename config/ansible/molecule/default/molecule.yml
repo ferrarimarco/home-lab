@@ -90,18 +90,8 @@ provisioner:
         prometheus_blackbox_exporter_http_endpoint_fqdn: "prometheus-blackbox-exporter"
         prometheus_http_endpoint_fqdn: "prometheus"
         media_stack_qbittorrent_webui_password: "media_stack_qbittorrent_webui_password"
-        restic_backup_jobs:
-          - directories_to_backup:
-              - source_host_directory: "/tmp"
-                container_mount_destination_directory: "/tmp"
-            job_name: "restic-backup-job-name"
-            job_schedule: "01:00:00"
-            restic_forget_policy:
-              - --keep-within-daily 7d
-            restic_monitoring_refresh_interval: 1234
-            restic_prometheus_exporter_port: 5678
-            restic_repository_host_path: "/restic-repository-host-path"
-            restic_repository_password: "restic-repository-password"
+        restic_backup_default_backup_job_repository_password: restic_backup_default_backup_job_repository_password
+        restic_backup_default_backup_job_target_directory: /tmp/restic-backup-default-backup-job-target-directory
         qbittorrent_http_endpoint_fqdn: "qbittorrent"
         # Don't start restic because it also starts a backup job every time,
         # breaking idempotence
