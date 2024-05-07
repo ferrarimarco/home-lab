@@ -7,8 +7,8 @@ restic_docker_compose_up_items:
   - compose_file_path: "{{ restic_docker_compose_destination_file_path }}"
     enable_containerized_services: "{{ configure_backup_restic }}"
     pull_container_images: "{{ configure_backup_restic }}"
-    # Don't start Restic because we manage it using systemd timers
-    start_containerized_services: false
+    # Start restic so we know if backup and monitoring jobs work
+    start_containerized_services: "{{ start_restic | default(configure_backup_restic) }}"
     stop_containerized_services: "{{ stop_restic | default(false) }}"
 restic_configuration_source_directory_path: "config/restic"
 restic_docker_compose_destination_file_path: "{{ restic_configuration_directory_path }}/{{ default_docker_compose_file_name }}"

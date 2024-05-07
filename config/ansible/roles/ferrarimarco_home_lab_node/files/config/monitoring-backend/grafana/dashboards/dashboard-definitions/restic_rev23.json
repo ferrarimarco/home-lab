@@ -26,6 +26,7 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 9846,
   "graphTooltip": 0,
+  "id": 30,
   "links": [
     {
       "icon": "external link",
@@ -76,13 +77,14 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unitScale": true
         },
         "overrides": []
       },
       "gridPos": {
         "h": 3,
-        "w": 24,
+        "w": 18,
         "x": 0,
         "y": 0
       },
@@ -99,10 +101,12 @@
           "fields": "",
           "values": false
         },
+        "showPercentChange": false,
         "text": {},
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -117,6 +121,77 @@
         }
       ],
       "title": "Repository Check",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          },
+          "unitScale": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 42,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.3.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "restic_locks_total",
+          "interval": "",
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Repository Locks",
       "type": "stat"
     },
     {
@@ -147,7 +222,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": [
           {
@@ -211,7 +287,7 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 15,
+        "w": 18,
         "x": 0,
         "y": 3
       },
@@ -237,7 +313,7 @@
           }
         ]
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -287,7 +363,7 @@
               "client_id": true,
               "client_os_version": true,
               "client_username": true,
-              "client_version": true,
+              "client_version": false,
               "instance": true,
               "job": true,
               "snapshot_hash": true,
@@ -333,14 +409,15 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
       "gridPos": {
         "h": 9,
-        "w": 9,
-        "x": 15,
+        "w": 6,
+        "x": 18,
         "y": 3
       },
       "id": 32,
@@ -365,13 +442,14 @@
           }
         ]
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
+          "editorMode": "code",
           "exemplar": true,
           "expr": "restic_backup_snapshots_total",
           "format": "table",
@@ -440,7 +518,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": [
           {
@@ -459,7 +538,7 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 9,
+        "w": 18,
         "x": 0,
         "y": 12
       },
@@ -485,7 +564,7 @@
           }
         ]
       },
-      "pluginVersion": "9.5.1",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -500,31 +579,70 @@
           "intervalFactor": 1,
           "legendFormat": "{{client_hostname}}",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "restic_backup_files_total",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{client_hostname}}",
+          "refId": "B"
         }
       ],
-      "title": "Total backup size",
+      "title": "Total backup size & files",
       "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "client_hostname",
+            "mode": "outer"
+          }
+        },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
               "Time": true,
+              "Time 1": true,
+              "Time 2": true,
               "__name__": true,
+              "__name__ 1": true,
               "backup_id": true,
               "backup_type": true,
               "client_hostname": false,
               "client_id": true,
               "client_os_version": true,
               "client_username": true,
+              "client_username 1": true,
+              "client_username 2": true,
               "client_version": true,
+              "client_version 1": true,
+              "client_version 2": true,
               "instance": true,
+              "instance 1": true,
+              "instance 2": true,
               "job": true,
+              "job 1": true,
+              "job 2": true,
               "snapshot_hash": true,
+              "snapshot_hash 1": true,
+              "snapshot_hash 2": true,
               "snapshot_id": true
             },
             "indexByName": {},
             "renameByName": {
-              "Value": "total_backup_size"
+              "Time 2": "",
+              "Value": "total_backup_size",
+              "Value #A": "total_backup_size",
+              "Value #B": "total_backup_files"
             }
           }
         }
@@ -550,14 +668,15 @@
             }
           },
           "mappings": [],
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
       "gridPos": {
         "h": 9,
         "w": 6,
-        "x": 9,
+        "x": 18,
         "y": 12
       },
       "id": 35,
@@ -633,119 +752,13 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 9,
-        "x": 15,
-        "y": 12
-      },
-      "id": 33,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "frameIndex": 1,
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "client_hostname"
-          }
-        ]
-      },
-      "pluginVersion": "9.5.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "exemplar": true,
-          "expr": "restic_backup_files_total",
-          "format": "table",
-          "instant": true,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "{{client_hostname}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Total backup files",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "backup_id": true,
-              "backup_type": true,
-              "client_hostname": false,
-              "client_id": true,
-              "client_os_version": true,
-              "client_username": true,
-              "client_version": true,
-              "instance": true,
-              "job": true,
-              "snapshot_hash": true,
-              "snapshot_id": true
-            },
-            "indexByName": {},
-            "renameByName": {
-              "Value": "total_backup_files"
-            }
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -759,6 +772,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -782,7 +796,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -790,7 +805,8 @@
               }
             ]
           },
-          "unit": "decbytes"
+          "unit": "decbytes",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -844,6 +860,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -857,6 +874,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -888,7 +906,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -942,6 +961,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -955,6 +975,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -986,7 +1007,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -1030,9 +1052,8 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "refresh": "1m",
+  "schemaVersion": 39,
   "tags": [
     "system"
   ],
@@ -1040,9 +1061,9 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "prometheus",
-          "value": "prometheus"
+          "value": "P1809F7CD0C75ACF3"
         },
         "hide": 0,
         "includeAll": false,
@@ -1050,7 +1071,6 @@
         "name": "DS_PROMETHEUS",
         "options": [],
         "query": "prometheus",
-        "queryValue": "",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1088,7 +1108,7 @@
     ]
   },
   "timezone": "",
-  "title": "Restic Exporter",
+  "title": "Restic Exporter import",
   "uid": "2JzZl3B7k",
   "version": 1,
   "weekStart": ""
