@@ -52,7 +52,7 @@ restic_templates_to_render:
     dest: "{{ restic_docker_compose_destination_file_path }}"
     state: "{{ configure_backup_restic | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ restic_docker_compose_up_items }}"
-    # This file may contain secrets, so we want to restric access to the owner and group only
+    # This file may contain secrets, so we want to restrict access to the owner and group only
     # (defaults to root:root)
     mode: "0640"
 ...
