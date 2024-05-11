@@ -5,4 +5,19 @@ configure_frigate: true
 configure_monitoring_sata: false
 has_coral_pci_accelerator: true
 has_intel_igpu: true
+
+# Storage
+data_disk_device: /dev/sdb
+disks_to_mount:
+  - fstype: ext4
+    opts: discard
+    path: /media/data0
+    src: PARTUUID="739594b9-01"
+    state: mounted
+filesystems_to_create:
+  - fstype: ext4
+    dev: "{{ data_disk_device }}{{ partitions_to_create[lookup('ansible.utils.index_of', data=partitions_to_create, test='eq', value=data_disk_device, key='device', fail_on_missing=true)].partition_number }}"
+partitions_to_create:
+  - device: "{{ data_disk_device }}"
+    partition_number: 1
 ...

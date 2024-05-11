@@ -1,4 +1,20 @@
 ---
+- name: Create partitions
+  community.general.parted:
+    device: "{{ item.device }}"
+    fs_type: "{{ item.fs_type | default('ext4') }}"
+    number: "{{ item.partition_number }}"
+    resize: "{{ item.resize | default(true) }}"
+    state: present
+  with_items: "{{ partitions_to_create | default([]) }}"
+
+- name: Create filesystems
+  community.general.filesystem:
+    fstype: "{{ item.fstype }}"
+    dev: "{{ item.dev }}"
+    resizefs: "{{ item.resizefs | default(omit) }}"
+  with_items: "{{ filesystems_to_create | default([]) }}"
+
 - name: Mount devices
   ansible.posix.mount:
     fstype: "{{ item.fstype }}"
@@ -6,5 +22,5 @@
     path: "{{ item.path }}"
     src: "{{ item.src }}"
     state: "{{ item.state }}"
-  with_items: "{{ disks_to_mount }}"
+  with_items: "{{ disks_to_mount | default([]) }}"
 ...

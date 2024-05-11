@@ -4,6 +4,7 @@ default_os_packages:
   - name: cron
   - name: dnsutils
   - name: gnupg
+  - name: parted
   - name: python3-venv
   - name: xz-utils
 dphys_swapfile_service_name: dphys-swapfile
