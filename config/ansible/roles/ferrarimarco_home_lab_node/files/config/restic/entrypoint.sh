@@ -27,13 +27,13 @@ restic list locks --no-lock --verbose
 if [ "${RESTIC_ENABLE_BACKUP:-"false"}" = "true" ]; then
   echo "Backing up ${RESTIC_DIRECTORIES_TO_BACKUP}. Tags: ${RESTIC_BACKUP_TAGS}"
   # Use eval here because restic interprets quotes literally
-  eval "restic backup --tag ${RESTIC_BACKUP_TAGS} --verbose ${RESTIC_DIRECTORIES_TO_BACKUP}"
+  eval "restic backup --group-by host,tags --tag ${RESTIC_BACKUP_TAGS} --verbose ${RESTIC_DIRECTORIES_TO_BACKUP}"
 fi
 
 if [ "${RESTIC_ENABLE_PRUNE:-"false"}" = "true" ]; then
   echo "Pruning ${RESTIC_REPOSITORY}"
   # Use eval here because restic interprets quotes literally
-  eval "restic forget --no-cache --prune --verbose ${RESTIC_FORGET_POLICY}"
+  eval "restic forget --group-by host,tags --no-cache --prune --verbose ${RESTIC_FORGET_POLICY}"
 fi
 
 if [ "${RESTIC_ENABLE_PRUNE_UNTAGGED_SNAPSHOTS:-"false"}" = "true" ]; then
