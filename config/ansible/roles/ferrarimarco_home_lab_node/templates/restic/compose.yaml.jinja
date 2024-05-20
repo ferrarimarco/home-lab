@@ -13,6 +13,11 @@ services:
       - RESTIC_REPOSITORY={{ restic_repository_container_destination_path }}
       - RESTIC_PASSWORD="{{ backup_job.restic_repository_password }}"
     hostname: "{{ backup_job.job_name }}-{{ inventory_hostname }}"
+    # Define a profile so we don't start the backup job every time we start the Docker Compose stack
+    # unless we activate the profile. This avoids breaking the idempotence check when running
+    # Ansible to start Docker Compose services.
+    profiles:
+      - "{{ restic_backup_default_backup_job_docker_compose_profile }}"
     restart: on-failure
     volumes:
       - {{ backup_job.restic_repository_host_path }}:{{ restic_repository_container_destination_path }}

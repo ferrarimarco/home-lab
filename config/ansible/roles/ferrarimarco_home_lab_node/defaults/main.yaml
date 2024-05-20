@@ -141,7 +141,6 @@ monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
 network_stack_configure_recursive_dns_resolver: false
 network_stack_configure_reverse_proxy: false
-network_stack_debugger: false
 network_stack_traefik_api_http_port: 8080
 network_stack_traefik_cleartext_http_port: 80
 network_stack_traefik_secured_http_port: 443

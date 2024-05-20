@@ -86,16 +86,12 @@ provisioner:
         mosquitto_server_fqdn: "mosquitto"
         network_stack_configure_recursive_dns_resolver: true
         network_stack_configure_reverse_proxy: true
-        network_stack_debugger: true
         prometheus_blackbox_exporter_http_endpoint_fqdn: "prometheus-blackbox-exporter"
         prometheus_http_endpoint_fqdn: "prometheus"
         media_stack_qbittorrent_webui_password: "media_stack_qbittorrent_webui_password"
         restic_backup_default_backup_job_repository_password: restic_backup_default_backup_job_repository_password
         restic_backup_repositories_default_path: /tmp/restic-backup-default-backup-job-target-directory
         qbittorrent_http_endpoint_fqdn: "qbittorrent"
-        # Don't start restic because it also starts a backup job every time,
-        # breaking idempotence
-        start_restic: false
         syncthing_user_interface_http_endpoint_fqdn: "syncthing"
         torrent_download_path: "/torrent-download-path"
         zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
