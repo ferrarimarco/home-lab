@@ -91,7 +91,7 @@ provisioner:
         prometheus_http_endpoint_fqdn: "prometheus"
         media_stack_qbittorrent_webui_password: "media_stack_qbittorrent_webui_password"
         restic_backup_default_backup_job_repository_password: restic_backup_default_backup_job_repository_password
-        restic_backup_default_backup_job_target_directory: /tmp/restic-backup-default-backup-job-target-directory
+        restic_backup_repositories_default_path: /tmp/restic-backup-default-backup-job-target-directory
         qbittorrent_http_endpoint_fqdn: "qbittorrent"
         # Don't start restic because it also starts a backup job every time,
         # breaking idempotence

@@ -1,4 +1,5 @@
 ---
+restic_backup_default_backup_job_target_directory: "{{ restic_backup_repositories_default_path }}/{{ restic_backup_workloads_job_name }}"
 restic_backup_workloads_job_name: "restic-backup-workloads"
 restic_configuration_directories:
   - path: "{{ restic_configuration_directory_path }}"

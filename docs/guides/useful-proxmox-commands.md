@@ -1,4 +1,4 @@
-# Useful Proxmox commands
+# Proxmox admin notes
 
 - Check if there are cloud-init datasource updates: `qm cloudinit pending <VM_ID>`
 - Update cloud-init datasource: `qm cloudinit update <VM_ID>`
@@ -15,3 +15,7 @@ Notes:
 
 - Secure Boot prevents unsigned kernel modules from loading.
     Example: Coral PCIe modules (`apex`, `gasket`)
+
+## Expand disk, filesystem, and partition
+
+See: <https://pve.proxmox.com/wiki/Resize_disks>.

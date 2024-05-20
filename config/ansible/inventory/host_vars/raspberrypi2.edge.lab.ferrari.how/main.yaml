@@ -34,8 +34,8 @@ monitoring_nut_devices:
     productId: "FFFF"
     bus: "001"
 network_stack_configure_recursive_dns_resolver: true
-restic_backup_default_backup_job_target_directory: "{{ backups_samba_share_path }}/{{ restic_backup_workloads_job_name }}"
-restic_backup_default_backup_job_repository_password: "{{ vault_raspberrypi2_workloads_backup_repository_password }}"
+restic_backup_repositories_default_path: "{{ backups_samba_share_path }}"
+restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"
 samba_shares:
   - comment: "Backups-Marco"
     create_mask: "0744"
