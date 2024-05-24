@@ -31,6 +31,8 @@ else
   ip route add "${ONT_IP_ADDRESS}/32" dev "${WAN_INTERFACE_NAME}"
 fi
 
+Say "IP routes:\n$(ip route)"
+
 Say "Configure NAT because the ONT doesn't have a route back to the gateway, and sends all traffic to the optical interface by default"
 if iptables -t nat -L POSTROUTING -n -v | grep "${WAN_INTERFACE_NAME}" | grep -q "MASQUERADE"; then
   Say "MASQUERADE is enabled for POSTROUTING on ${WAN_INTERFACE_NAME}"
@@ -50,3 +52,4 @@ else
 fi
 
 Say "Check if the ONT is reachable at the network layer:\n$(ping -I "${WAN_INTERFACE_NAME}" -c 2 "${ONT_IP_ADDRESS}")"
+Say "If the ONT is reachable, and the admin user interface doesn't load at this point, try rebooting the ONT."
