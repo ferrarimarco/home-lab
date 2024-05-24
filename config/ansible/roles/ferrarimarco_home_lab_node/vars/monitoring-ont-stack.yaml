@@ -34,9 +34,9 @@ monitoring_ont_os_services:
   - enabled: true
     service_name: "{{ monitoring_ont_os_service_file_name }}"
     service_state: "{{ configure_monitoring_ont | ternary('started', 'stopped') }}"
-  # Don't start this service because a timer takes care of that
   - enabled: true
-    service_name: "{{ monitoring_ont_network_config_service_file_name }}"
+    service_name: "{{ monitoring_ont_network_config_timer_file_name }}"
+    service_state: "{{ configure_monitoring_ont | ternary('started', 'stopped') }}"
 monitoring_ont_templates_to_render:
   - src: "{{ monitoring_ont_tag }}/{{ monitoring_ont_os_service_file_name }}.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_ont_os_service_file_name }}"
