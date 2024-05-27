@@ -76,6 +76,12 @@ if [ -n "${ANSIBLE_TEST_DISTRO:-}" ]; then
 else
   SSH_AUTH_SOCKET_DESTINATION_PATH="/ssh-agent"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env SSH_AUTH_SOCK=${SSH_AUTH_SOCKET_DESTINATION_PATH}"
+
+  if [ -z "${SSH_AUTH_SOCK-:}" ]; then
+    echo "SSH_AUTH_SOCK is not set. Ensure that the SSH agent is running, and that you added the private keys to connect to nodes to the agent."
+    exit 1
+  fi
+
   COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${SSH_AUTH_SOCK}:${SSH_AUTH_SOCKET_DESTINATION_PATH}"
 
   if [ ! -f "${ANSIBLE_VAULT_PASSWORD_FILE_PATH}" ]; then

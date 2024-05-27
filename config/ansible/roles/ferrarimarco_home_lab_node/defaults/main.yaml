@@ -24,16 +24,6 @@ configure_zigbee2mqtt: false
 default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
-# This is the DNS server that is authoritative for the edge_environment_root_fqdn zone
-edge_dns_server:
-  fqdn: "{{ edge_environment_gateway.fqdn }}"
-  ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
-  port: 53
-edge_environment_gateway:
-  fqdn: "gateway.{{ edge_environment_root_fqdn }}"
-  ipv4_address: "10.0.0.1"
-edge_environment_root_fqdn: "edge.{{ lab_dns_zone }}"
-edge_environment_subnet: "10.0.0.0/8"
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -78,7 +68,6 @@ frigate_cameras:
 frigate_ffmpeg_output_arguments:
   record: preset-record-generic-audio-copy
 is_raspberry_pi: false
-lab_dns_zone: "lab.{{ root_dns_zone_fqdn }}"
 monitoring_backend_dns_records_to_check:
   # Keeping this as a record if we redeploy cam-1
   # - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
@@ -87,24 +76,21 @@ monitoring_backend_dns_records_to_check:
   - check_name: "dns_cam_3_edge_lab_ferrari_how_a"
     query_name: "cam-3.{{ edge_environment_root_fqdn }}"
     query_type: "A"
-  - check_name: "dns_ferrarimarco_how_ns"
+  - check_name: "dns_ferrarimarco_how_ns_public"
     query_name: "ferrari.how"
     query_type: "NS"
-    fail_if_not_matches_regexp_value: ".*ns.cloudflare.com"
-  - check_name: "dns_ferrari_how_txt"
+    fail_if_answer_not_matches_regexp_value: ".*ns.cloudflare.com"
+  - check_name: "dns_ferrari_how_txt_public"
     query_name: "ferrari.how"
     query_type: "TXT"
-    fail_if_none_matches_regexp_value: ".*google-site-verification.*"
+    fail_if_answer_none_matches_regexp_value: ".*google-site-verification.*"
   - check_name: "dns_ferrarimarco_info_a"
     query_name: "ferrarimarco.info"
     query_type: "A"
   - check_name: "dns_ferrarimarco_info_ns"
     query_name: "ferrarimarco.info"
     query_type: "NS"
-    fail_if_not_matches_regexp_value: ".*ns.cloudflare.com"
-  - check_name: "dns_smart_desk_edge_lab_ferrari_how_a"
-    query_name: "smart-desk.{{ edge_environment_root_fqdn }}"
-    query_type: "A"
+    fail_if_answer_not_matches_regexp_value: ".*ns.cloudflare.com"
 monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ frigate_http_endpoint_fqdn }}:{{ frigate_host_port }} # Frigate"
   - check_target: "http://{{ grafana_http_endpoint_fqdn }}:{{ monitoring_backend_grafana_host_port }} # Grafana"
@@ -132,21 +118,12 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "{{ edge_environment_gateway.fqdn }}"
   - "github.com"
   - "google.com"
-  - "smart-desk.{{ edge_environment_root_fqdn }}"
 monitoring_backend_grafana_host_port: 3000
 monitoring_backend_prometheus_host_port: 9090
 monitoring_backend_prometheus_node_exporter_container_port: 9115
 monitoring_backend_prometheus_node_exporter_host_port: 9115
 monitoring_backend_prometheus_metrics_retention_time: "60d"
 monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/23b0aa0d5b0db999795c752685b8b38d7a61e91a/smartmon.sh"
-network_stack_configure_recursive_dns_resolver: false
-network_stack_configure_reverse_proxy: false
-network_stack_traefik_api_http_port: 8080
-network_stack_traefik_cleartext_http_port: 80
-network_stack_traefik_secured_http_port: 443
-network_stack_unbound_dns_host_port: 53
-network_stack_unbound_enable_logs: true
-network_stack_unbound_verbosity: 2
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
 restic_backup_jobs: []

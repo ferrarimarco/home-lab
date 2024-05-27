@@ -46,7 +46,9 @@
       vars:
         fact_category: "{{ item.fact_category }}"
         fact_configuration_directories: "{{ item.fact_configuration_directories | default([]) }}"
+        fact_configure_dns_records: "{{ item.fact_configure_dns_records | default(true) }}"
         fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
+        fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_enable_custom_fact: "{{ item.enable_custom_fact }}"
         fact_files_to_configure: "{{ item.fact_files_to_configure | default([]) }}"
@@ -203,6 +205,7 @@
           service_state: "{{ configure_wifi | ternary('started', 'stopped') }}"
     - enable_custom_fact: "{{ configure_network_stack }}"
       fact_category: "network-stack"
+      fact_dns_records_to_configure: "{{ network_stack_dns_records_to_configure }}"
       fact_configuration_directories: "{{ network_stack_configuration_directories }}"
       fact_docker_compose_up_items: "{{ network_stack_docker_compose_up_items }}"
       fact_templates_to_render: "{{ network_stack_templates_to_render }}"

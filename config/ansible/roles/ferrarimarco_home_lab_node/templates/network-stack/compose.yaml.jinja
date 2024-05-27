@@ -1,51 +1,38 @@
 ---
 services:
-{% if network_stack_configure_recursive_dns_resolver %}
+
+  coredns:
+    image: "{{ container_images_ids["coredns"] }}"
+    container_name: "coredns"
+    command:
+      - "-conf"
+      - "/etc/coredns/Corefile"
+    dns_search: {{ edge_environment_root_fqdn }}
+    ports:
+      - "{{ network_stack_coredns_dns_host_port }}:53"
+      # Bind to a specific IP and network interface in case of UDP because
+      # we need to send responses via a specific network interface.
+      # If we don't set a specific network interface, the binding is 0.0.0.0:port/udp,
+      # but the docker proxy doesn't set the source IP address correctly, in this
+      # case.
+      # Ref: https://github.com/moby/libnetwork/issues/1729
+      # Ref: https://github.com/moby/moby/issues/15127
+      - "{{ root_dns_zone_server.ipv4_address }}:{{ network_stack_coredns_dns_host_port }}:53/udp"
+      - "{{ network_stack_coredns_healthcheck_port }}:{{ network_stack_coredns_healthcheck_port }}"
+      - "{{ network_stack_coredns_prometheus_metrics_port }}:{{ network_stack_coredns_prometheus_metrics_port }}"
+    restart: always
+    volumes:
+      - './coredns:/etc/coredns'
 
   unbound:
     image: "{{ container_images_ids["unbound"] }}"
     container_name: "unbound"
+    dns_search: {{ edge_environment_root_fqdn }}
     ports:
-      - "{{ network_stack_unbound_dns_host_port }}:53"
-      # This assumes that the DNS resolver is listening to the default network interface as well
-      - "{{ ansible_default_ipv4.address }}:{{ network_stack_unbound_dns_host_port }}:53/udp"
+      - "{{ network_stack_unbound_host_port }}:53"
+      # See above about port mapping for UDP ports
+      - "{{ lab_dns_resolver.ipv4_address }}:{{ network_stack_unbound_host_port }}:53/udp"
     restart: always
     volumes:
       - "./unbound:/etc/unbound/custom.conf.d"
-{% endif %}
-{% if network_stack_configure_reverse_proxy %}
-
-  traefik:
-    image: "{{ container_images_ids["traefik"] }}"
-    container_name: "traefik"
-    command:
-      - "--api.dashboard=true"
-      - "--api.insecure=true"
-      - "--entrypoints.web.address=:{{ network_stack_traefik_cleartext_http_port }}"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker=true"
-    environment:
-      - TZ={{ timezone }}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.example.com`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-      - "traefik.http.routers.dashboard.service=api@internal"
-    ports:
-      - "{{ network_stack_traefik_secured_http_port }}:{{ network_stack_traefik_secured_http_port }}"
-      - "{{ network_stack_traefik_cleartext_http_port }}:{{ network_stack_traefik_cleartext_http_port }}"
-      - "{{ network_stack_traefik_api_http_port }}:{{ network_stack_traefik_api_http_port }}"
-    restart: always
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-{% endif %}
-
-  network_debugger:
-    image: "debian:latest"
-    container_name: "network_debugger"
-    command:
-      - sleep
-      - infinity
-    profiles:
-      - network-debug
-    restart: unless-stopped
 ...

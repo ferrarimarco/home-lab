@@ -1,0 +1,125 @@
+---
+network_stack_configuration_directories:
+  - path: "{{ network_stack_configuration_directory_path }}"
+    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
+  - path: "{{ network_stack_configuration_directory_path }}/coredns"
+    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
+  - path: "{{ network_stack_configuration_directory_path }}/coredns/zones"
+    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
+  - path: "{{ network_stack_configuration_directory_path }}/unbound"
+    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
+network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
+network_stack_docker_compose_up_items:
+  - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    enable_containerized_services: "{{ configure_network_stack }}"
+    pull_container_images: "{{ configure_network_stack }}"
+    start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
+    stop_containerized_services: "{{ stop_network_stack | default(false) }}"
+network_stack_templates_to_render:
+  - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/coredns/Corefile.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/coredns/Corefile"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/coredns/zones/lab-dns-zone.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_dns_zone.fqdn }}"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/unbound/server.conf.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/unbound/server.conf"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+  - src: "network-stack/unbound/stub-zones.conf.jinja"
+    dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
+    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
+    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+
+network_stack_coredns_dns_host_port: 8053
+network_stack_coredns_healthcheck_port: 8085
+network_stack_coredns_prometheus_metrics_port: 9153
+network_stack_traefik_api_http_port: 8080
+network_stack_traefik_cleartext_http_port: 80
+network_stack_traefik_secured_http_port: 443
+network_stack_unbound_host_port: 53
+
+dns_records_to_configure: []
+
+root_dns_zone:
+  default_record_ttl: 3600
+  dns_administrator_email_address: "dns-admin.{{ root_dns_zone_fqdn }}"
+  fqdn: "{{ root_dns_zone_fqdn }}"
+  expire_time: 4000000
+  minimum_ttl_time: 11200
+  refresh_time: 86400
+  retry_time: 7200
+  serial_number: 2017042745
+
+# Lab DNS zone configuration
+lab_dns_zone_fqdn: "lab.{{ root_dns_zone.fqdn }}"
+edge_environment_root_fqdn: "edge.{{ lab_dns_zone_fqdn }}"
+
+# IP subnets and address ranges
+edge_environment_subnet: "10.0.0.0/8"
+
+network_stack_dns_records_to_configure:
+  - source: "{{ root_dns_zone_server.fqdn }}"
+    destination: "{{ root_dns_zone_server.ipv4_address }}"
+    query_type: A
+  - source: "{{ root_dns_zone.fqdn }}"
+    destination: "{{ root_dns_zone_server.fqdn }}"
+    query_type: NS
+  - source: "{{ root_dns_zone.fqdn }}"
+    destination: "{{ root_dns_zone_server.fqdn }}"
+    query_type: SOA
+    # See https://en.wikipedia.org/wiki/SOA_record
+    # DNS admin email contact
+    # Serial: serial number for this zone. If a secondary name server slaved to this one observes an increase in this number, the slave will assume that the zone has been updated and initiate a zone transfer.
+    # Refresh: Number of seconds after which secondary name servers should query the master for the SOA record, to detect zone changes.
+    # Retry: Number of seconds after which secondary name servers should retry to request the serial number from the master if the master does not respond.
+    # Expire: Number of seconds after which secondary name servers should stop answering request for this zone if the master does not respond.
+    # Minimum: Used in calculating the time to live for purposes of negative caching.
+    #   Authoritative name servers take the smaller of the SOA TTL and the SOA MINIMUM to send as the SOA TTL in negative responses.
+    #   Resolvers use the resulting SOA TTL to understand for how long they are allowed to cache a negative response.
+    additional_record_data: |
+      {{ root_dns_zone.dns_administrator_email_address }}. {{ root_dns_zone.serial_number }} {{ root_dns_zone.refresh_time }} {{ root_dns_zone.retry_time }} {{ root_dns_zone.expire_time }} {{ root_dns_zone.minimum_ttl_time }}
+
+# Container network configuration
+network_stack_network_subnet: "{{ edge_environment_subnet }}"
+network_stack_network_gateway: "{{ edge_environment_gateway.ipv4_address }}"
+network_stack_parent_network_interface_name: "{{ network_interfaces[0].interface_name }}"
+
+# Lab zone DNS server configuration
+root_dns_zone_server:
+  fqdn: "ns1.{{ root_dns_zone.fqdn }}"
+  # Get the first IP address in the subnet
+  ipv4_address: "{{ network_interfaces[0].ipv4_address }}"
+  port: "{{ network_stack_coredns_dns_host_port }}"
+
+# Edge zone DNS server configuration
+edge_dns_server:
+  fqdn: "{{ edge_environment_gateway.fqdn }}"
+  ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
+  port: 53
+
+# Lab DNS resolver configuration
+lab_dns_resolver:
+  ipv4_address: "{{ network_interfaces[0].ipv4_address }}"
+  port: "{{ network_stack_unbound_host_port }}"
+
+# Edge environment default gateway
+edge_environment_gateway:
+  fqdn: "gateway.{{ edge_environment_root_fqdn }}"
+  ipv4_address: "{{ edge_environment_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+
+network_stack_edge_dns_resolvers:
+  # The dnsmasq instance on the gateway acts both as a resolver and as a DNS
+  # server for the edge environment
+  - "{{ edge_dns_server }}"
+  - "{{ lab_dns_resolver }}"
+
+network_stack_lab_dns_servers:
+  - "{{ root_dns_zone_server }}"
+...
