@@ -1,8 +1,15 @@
+# Configure stub zones to pointing to authoritative name servers that may
+# not be reachable over the public internet.
+# Ref: https://nlnetlabs.nl/documentation/unbound/unbound.conf/
+
+# Lab DNS zone
 stub-zone:
-    name: {{ edge_environment_root_fqdn }}
-    stub-addr: {{ edge_dns_server.ipv4_address }}@{{ edge_dns_server.port }}
+    name: {{ root_dns_zone.fqdn }}
+    stub-addr: {{ root_dns_zone_server.ipv4_address }}@{{ root_dns_zone_server.port }}
     stub-no-cache: yes
+
+# Reverse lookups zone
 stub-zone:
     name: in-addr.arpa
-    stub-addr: {{ edge_dns_server.ipv4_address }}@{{ edge_dns_server.port }}
+    stub-addr: {{ root_dns_zone_server.ipv4_address }}@{{ root_dns_zone_server.port }}
     stub-no-cache: yes
