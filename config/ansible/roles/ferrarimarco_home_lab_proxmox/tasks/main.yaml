@@ -27,6 +27,11 @@
   become: true
   vars:
     cloud_init_instance_mac_address: "{{ item.default_network_interface_mac_address }}"
+    cloud_init_network_interface_addresses: [ "{{ todo }}" ]
+    cloud_init_network_interface_default_ipv4_gateway: "{{ todo }}"
+    cloud_init_network_interface_dns_addresses: [ "{{ todo }}" ]
+    cloud_init_network_interface_name: "{{ item.default_network_interface_name }}"
+    cloud_init_network_interface_search: [ "{{ todo }}" ]
   with_items: "{{ proxmox_vms | default([]) }}"
 
 - name: Render cloud-init user-data snippets
