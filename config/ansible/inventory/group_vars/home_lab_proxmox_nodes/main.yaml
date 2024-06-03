@@ -3,3 +3,4 @@ is_proxmox_node: true
 proxmox_vms:
   - hostname: hl01
     default_network_interface_mac_address: "bc:24:11:d4:f6:64"
+    default_network_interface_name: eth0
