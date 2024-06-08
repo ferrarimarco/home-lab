@@ -32,6 +32,19 @@ services:
     volumes:
       - "{{ media_stack_jellyseerr_configuration_directory_path }}:/app/config"
     restart: unless-stopped
+  lidarr:
+    image: {{ container_images_ids["lidarr"] }}
+    container_name: lidarr
+    environment:
+      - PUID={{ media_stack_owner_group_id }}
+      - PGID={{ media_stack_owner_user_id }}
+      - TZ={{ timezone }}
+    ports:
+      - {{ media_stack_lidarr_port }}:8686
+    restart: unless-stopped
+    volumes:
+      - "{{ media_stack_lidarr_configuration_directory_path }}:/config"
+      - "{{ media_directory_path }}:/data"
   prowlarr:
     image: {{ container_images_ids["prowlarr"] }}
     container_name: prowlarr
@@ -71,6 +84,20 @@ services:
     restart: unless-stopped
     volumes:
       - "{{ media_stack_radarr_configuration_directory_path }}:/config"
+      - "{{ media_directory_path }}:/data"
+  readarr:
+    image: {{ container_images_ids["readarr"] }}
+    container_name: readarr
+    environment:
+      - PUID={{ media_stack_owner_group_id }}
+      - PGID={{ media_stack_owner_user_id }}
+      - UMASK={{ media_stack_umask }}
+      - TZ={{ timezone }}
+    ports:
+      - {{ media_stack_readarr_port }}:8787
+    restart: unless-stopped
+    volumes:
+      - "{{ media_stack_readarr_configuration_directory_path }}:/config"
       - "{{ media_directory_path }}:/data"
   sonarr:
     image: {{ container_images_ids["sonarr"] }}

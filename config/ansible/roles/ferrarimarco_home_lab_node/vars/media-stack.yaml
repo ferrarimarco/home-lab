@@ -4,7 +4,9 @@ media_stack_configuration_directory_path: "{{ home_lab_configuration_directory_p
 
 jellyfin_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/jellyfin"
 media_stack_jellyseerr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/jellyseerr"
+media_stack_lidarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/lidarr"
 media_stack_radarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/radarr"
+media_stack_readarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/readarr"
 media_stack_sonarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/sonarr"
 media_stack_torrent_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/qbittorrent"
 
@@ -29,7 +31,15 @@ media_stack_configuration_directories:
     state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_stack_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_lidarr_configuration_directory_path }}"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  - group: "{{ media_stack_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_radarr_configuration_directory_path }}"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  - group: "{{ media_stack_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_readarr_configuration_directory_path }}"
     state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_stack_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
@@ -70,9 +80,11 @@ media_stack_torrent_map_destination_download_path: /data/downloads
 
 # Ports
 media_stack_flaresolverr_port: 8191
+media_stack_lidarr_port: 8686
 media_stack_jellyfin_port: 8096
 media_stack_jellyseerr_port: 5055
 media_stack_prowlarr_port: 9696
 media_stack_radarr_port: 7878
+media_stack_readarr_port: 8787
 media_stack_sonarr_port: 8989
 ...
