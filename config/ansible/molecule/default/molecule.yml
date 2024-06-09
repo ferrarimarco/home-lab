@@ -92,6 +92,10 @@ provisioner:
         restic_backup_default_backup_job_repository_password: restic_backup_default_backup_job_repository_password
         restic_backup_repositories_default_path: /tmp/restic-backup-default-backup-job-target-directory
         qbittorrent_http_endpoint_fqdn: "qbittorrent"
+        # Don't start restic because we can't start the restic exporter against a non-existing repository
+        start_restic: false
+        # Don't start zigbee2mqtt because it fails due to missing hardware
+        start_zigbee2mqtt: false
         syncthing_user_interface_http_endpoint_fqdn: "syncthing"
         torrent_download_path: "/torrent-download-path"
         zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
