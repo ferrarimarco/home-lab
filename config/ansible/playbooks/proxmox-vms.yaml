@@ -15,7 +15,7 @@
 # Resize: qm disk resize 100 scsi0 8G
 # Set boot order: qm set 100 --boot order=scsi0
 
-# Attach and configure a second disk from the rpool-sata pool: qm set 100 -scsi1 rpool-sata:vm-100-disk-0,discard=on,iothread=1,size=30G,ssd=1,aio=io_uring
+# Attach and configure a second disk from the rpool-sata pool: qm set 100 -scsi1 rpool-sata:vm-100-disk-0,discard=on,iothread=1,size=50G,ssd=1,aio=io_uring
 
 # Enable UEFI and create a UEFI disk volume: qm set 100 --bios ovmf
 

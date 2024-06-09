@@ -65,5 +65,14 @@ if [ "${RESTIC_ENABLE_REPOSITORY_CHECK_ALL_DATA:-"false"}" = "true" ]; then
 fi
 
 echo "Get information about the ${RESTIC_REPOSITORY} repository"
+
+# Default mode is restore-size: counts the size of the restored files
 restic stats --no-cache
+
+# raw-data mode: counts the size of the blobs in the repository, regardless of
+# how many files reference them. This tells you how much restic has reduced all
+# your original data down to (either for a single snapshot or across all your
+# backups), and compared to the size given by the restore-size mode, can tell
+# you how much deduplication is helping you.
+restic stats --mode raw-data --no-cache
 restic snapshots --no-cache
