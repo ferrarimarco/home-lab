@@ -32,7 +32,7 @@ FROM quay.io/prometheus/node-exporter@sha256:8a57af80a4c77ffb97749b4489524856361
 FROM grafana/grafana-oss@sha256:b7fcb534f7b3512801bb3f4e658238846435804deb479d105b5cdc680847c272 as grafana
 
 # mosquitto
-FROM eclipse-mosquitto@sha256:0953ddaaeb90a9df827a79459265f270888e0e9c1bb96f08b70687be2d583c9a as mosquitto
+FROM eclipse-mosquitto@sha256:bf5fb92712be8660ef6a204bf7a966c8f81f37d2b91a91432b9faaebf49c49d3 as mosquitto
 
 # network-stack
 FROM klutchell/unbound@sha256:7f8bd396b3b82e0502803f0b1c2e7a635ec8bccd973763a5a95a3c9d2b72e07d as unbound
