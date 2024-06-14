@@ -9,7 +9,7 @@ FROM ngosang/restic-exporter:1.5.0@sha256:920271a90bfc7396024d76bff780a80b90da7c
 FROM ghcr.io/blakeblackshear/frigate@sha256:2906991ccad85035b176941f9dedfd35088ff710c39d45ef1baa9a49f2b16734 as frigate
 
 # home-assistant
-FROM ghcr.io/home-assistant/home-assistant@sha256:031d355a2e52e82fc33cd6854753fb19fc5d6a31af6f0f54c277d6f118ad993e as home-assistant
+FROM ghcr.io/home-assistant/home-assistant@sha256:c35d4d5e2902172c7f7f3af6ab301d4f545130c85e050d66924d9045a1326502 as home-assistant
 
 # media-stack
 FROM jellyfin/jellyfin@sha256:918f993047ad43e6f240f78bc83734f6478c673d73cbebd50fdc8802ab05e6a1 as jellyfin
