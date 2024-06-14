@@ -3,46 +3,46 @@
 # We then fetch these identifiers for use in templates.
 
 # backup
-FROM ngosang/restic-exporter:1.5.0 as restic-exporter
+FROM ngosang/restic-exporter:1.5.0@sha256:630a878c727ffaa61bf2319c342e4934116316233429f654f5a977d61b5222db as restic-exporter
 
 # frigate
-FROM ghcr.io/blakeblackshear/frigate:0.13.2 as frigate
+FROM ghcr.io/blakeblackshear/frigate@sha256:2906991ccad85035b176941f9dedfd35088ff710c39d45ef1baa9a49f2b16734 as frigate
 
 # home-assistant
-FROM ghcr.io/home-assistant/home-assistant:2024.5.5 as home-assistant
+FROM ghcr.io/home-assistant/home-assistant@sha256:031d355a2e52e82fc33cd6854753fb19fc5d6a31af6f0f54c277d6f118ad993e as home-assistant
 
 # media-stack
-FROM jellyfin/jellyfin:10.9.6.20240606-184155 as jellyfin
-FROM fallenbagel/jellyseerr:1.9.2 as jellyseerr
-FROM ghcr.io/flaresolverr/flaresolverr:v3.3.19 as flaresolverr
-FROM lscr.io/linuxserver/lidarr:2.3.3 as lidarr
-FROM lscr.io/linuxserver/prowlarr:1.18.0 as prowlarr
-FROM lscr.io/linuxserver/radarr:5.6.0 as radarr
-FROM lscr.io/linuxserver/readarr:0.3.29-nightly as readarr
-FROM lscr.io/linuxserver/sonarr:4.0.5 as sonarr
+FROM jellyfin/jellyfin@sha256:918f993047ad43e6f240f78bc83734f6478c673d73cbebd50fdc8802ab05e6a1 as jellyfin
+FROM fallenbagel/jellyseerr@sha256:8f708df0ce3f202056bde5d7bff625eb59efe38f4ee47bdddc7560b6e4a5a214 as jellyseerr
+FROM ghcr.io/flaresolverr/flaresolverr@sha256:0bdf9ed48f3c54c998bc160be46244ce3a88a7783b6cfd31eec9c1667786152f as flaresolverr
+FROM lscr.io/linuxserver/lidarr@sha256:a7d0282dcdbf5b11306cc4054c11b42252106b5e8494375231322822d31ac9f6 as lidarr
+FROM lscr.io/linuxserver/prowlarr@sha256:237e9a72c11c5350bf22e355759436ecd4fd660e820d5b556d9a9e436f25f6b9 as prowlarr
+FROM lscr.io/linuxserver/radarr@sha256:594fab7afdb1de2f61a82835f3f2377a6220d4940d4b49bfa95e82d8a6b13a95 as radarr
+FROM lscr.io/linuxserver/readarr@sha256:10ab3c5ff69ce9f4ed04941d631a359190508bf238aef39f6b6931f7db223e7f as readarr
+FROM lscr.io/linuxserver/sonarr@sha256:30432d9faf9e8fbb7c6336806ee061ed426204e1f9718d9659a2642a6e3a7c59 as sonarr
 
 # monitoring
-FROM gcr.io/cadvisor/cadvisor:v0.49.1 as cadvisor
-FROM ghcr.io/druggeri/nut_exporter:3.1.1 as nut-exporter
-FROM prom/blackbox-exporter:v0.25.0 as prometheus-blackbox-exporter
-FROM prom/prometheus:v2.52.0 as prometheus
-FROM quay.io/prometheus/node-exporter:v1.8.0 as prometheus-node-exporter
+FROM gcr.io/cadvisor/cadvisor@sha256:3cde6faf0791ebf7b41d6f8ae7145466fed712ea6f252c935294d2608b1af388 as cadvisor
+FROM ghcr.io/druggeri/nut_exporter@sha256:0d9a0a00554081876178369ab9d46717e002fcf550b18dcd85f98c315438b524 as nut-exporter
+FROM prom/blackbox-exporter@sha256:b04a9fef4fa086a02fc7fcd8dcdbc4b7b35cc30cdee860fdc6a19dd8b208d63e as prometheus-blackbox-exporter
+FROM prom/prometheus@sha256:5c435642ca4d8427ca26f4901c11114023004709037880cd7860d5b7176aa731 as prometheus
+FROM quay.io/prometheus/node-exporter@sha256:8a57af80a4c77ffb97749b44895248563616fcfd405b5370d5db35fe6c15e4ec as prometheus-node-exporter
 
 # monitoring-backend
-FROM grafana/grafana-oss:10.4.3 as grafana
+FROM grafana/grafana-oss@sha256:b7fcb534f7b3512801bb3f4e658238846435804deb479d105b5cdc680847c272 as grafana
 
 # mosquitto
-FROM eclipse-mosquitto:2.0.18-openssl as mosquitto
+FROM eclipse-mosquitto@sha256:0953ddaaeb90a9df827a79459265f270888e0e9c1bb96f08b70687be2d583c9a as mosquitto
 
 # network-stack
-FROM klutchell/unbound:1.20.0 as unbound
-FROM traefik:3.0.2 as traefik
+FROM klutchell/unbound@sha256:7f8bd396b3b82e0502803f0b1c2e7a635ec8bccd973763a5a95a3c9d2b72e07d as unbound
+FROM traefik@sha256:022f4662751b720c61ca2ba4322728117a8173280c4678261a48dba07a2b9bfd as traefik
 
 # syncthing
-FROM syncthing/syncthing:1.27.8 as syncthing
+FROM syncthing/syncthing@sha256:c1fdac67e9a5dd4fa0388b240bbaf387dddb2909466923a721d66463b76fba39 as syncthing
 
 # torrent
-FROM linuxserver/qbittorrent:4.6.5 as qbittorrent
+FROM linuxserver/qbittorrent@sha256:e46f9b5daf0435c24b238211c06b3fb669830a464ef2b8538328332ff48206a3 as qbittorrent
 
 # zigbee2mqtt
-FROM koenkk/zigbee2mqtt:1.37.1 as zigbee2mqtt
+FROM koenkk/zigbee2mqtt@sha256:d37f2f8227d9c2763ddbe06e48328f9ec3a9b8cf081dfcbda44c9b0af4c0c634 as zigbee2mqtt
