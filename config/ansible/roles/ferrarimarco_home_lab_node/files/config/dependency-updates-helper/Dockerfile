@@ -3,7 +3,7 @@
 # We then fetch these identifiers for use in templates.
 
 # backup
-FROM ngosang/restic-exporter:1.5.0@sha256:630a878c727ffaa61bf2319c342e4934116316233429f654f5a977d61b5222db as restic-exporter
+FROM ngosang/restic-exporter:1.5.0@sha256:920271a90bfc7396024d76bff780a80b90da7c907937d36ac3d71900df1bf86c as restic-exporter
 
 # frigate
 FROM ghcr.io/blakeblackshear/frigate@sha256:2906991ccad85035b176941f9dedfd35088ff710c39d45ef1baa9a49f2b16734 as frigate
