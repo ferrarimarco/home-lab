@@ -19,7 +19,7 @@ FROM lscr.io/linuxserver/lidarr@sha256:a7d0282dcdbf5b11306cc4054c11b42252106b5e8
 FROM lscr.io/linuxserver/prowlarr@sha256:237e9a72c11c5350bf22e355759436ecd4fd660e820d5b556d9a9e436f25f6b9 as prowlarr
 FROM lscr.io/linuxserver/radarr@sha256:594fab7afdb1de2f61a82835f3f2377a6220d4940d4b49bfa95e82d8a6b13a95 as radarr
 FROM lscr.io/linuxserver/readarr@sha256:10ab3c5ff69ce9f4ed04941d631a359190508bf238aef39f6b6931f7db223e7f as readarr
-FROM lscr.io/linuxserver/sonarr@sha256:30432d9faf9e8fbb7c6336806ee061ed426204e1f9718d9659a2642a6e3a7c59 as sonarr
+FROM lscr.io/linuxserver/sonarr@sha256:275467ba17d990bbc6301dec3cc76b042969836749de39067818759d0f3b407f as sonarr
 
 # monitoring
 FROM gcr.io/cadvisor/cadvisor@sha256:3cde6faf0791ebf7b41d6f8ae7145466fed712ea6f252c935294d2608b1af388 as cadvisor
