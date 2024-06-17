@@ -50,7 +50,7 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
       - name: Build the ${{ matrix.container-images.name }} container image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           build-contexts: ${{ matrix.container-images.build-contexts }}
           cache-from: type=gha
