@@ -36,7 +36,7 @@ FROM eclipse-mosquitto@sha256:0953ddaaeb90a9df827a79459265f270888e0e9c1bb96f08b7
 
 # network-stack
 FROM klutchell/unbound@sha256:7f8bd396b3b82e0502803f0b1c2e7a635ec8bccd973763a5a95a3c9d2b72e07d as unbound
-FROM traefik@sha256:022f4662751b720c61ca2ba4322728117a8173280c4678261a48dba07a2b9bfd as traefik
+FROM traefik@sha256:8f06c4e042b9f3ac02dde655a1e8b65ed40ba6ff8f3a40c61cf6eca4b997e17d as traefik
 
 # syncthing
 FROM syncthing/syncthing@sha256:c1fdac67e9a5dd4fa0388b240bbaf387dddb2909466923a721d66463b76fba39 as syncthing
