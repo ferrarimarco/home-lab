@@ -5,10 +5,12 @@ on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/renovate.yaml"
+      - ".github/renovate-global-config.js"
       - ".github/renovate.json"
   pull_request:
     paths:
       - ".github/workflows/renovate.yaml"
+      - ".github/renovate-global-config.js"
       - ".github/renovate.json"
   schedule:
     - cron: "0 2 * * *"
@@ -40,6 +42,6 @@ jobs:
         env:
           LOG_LEVEL: 'debug'
         with:
-          configurationFile: .github/renovate.json
+          configurationFile: .github/renovate-global-config.js
           token: ${{ secrets.GITHUB_TOKEN }}
 ...

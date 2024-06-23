@@ -6,29 +6,25 @@
       "(^|/)ansible/(?:.*/)*.+\\.ya?ml$"
     ]
   },
+  "configMigration": true,
   "enabledManagers": [
     "ansible",
     "ansible-galaxy",
+    "dockerfile",
     "docker-compose",
+    "pip_requirements",
     "pre-commit",
     "custom.regex"
   ],
   "extends": [
     "config:recommended"
   ],
-  "docker-compose": {
-    "fileMatch": [
-      "(^|/)(?:docker-)?compose[^/]*\\.ya?ml(?:\\.jinja)$"
-    ]
-  },
   "forkProcessing": "enabled",
   "gitAuthor": "github-actions[bot] <noreply@github.com>",
   "labels": [
     "dependencies"
   ],
-  "onboarding": false,
   "packageRules": [],
-  "platform": "github",
   "pre-commit": {
     "enabled": true
   },
@@ -45,9 +41,5 @@
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^(?<version>.*)$"
     }
-  ],
-  "repositories": [
-    "ferrarimarco/home-lab"
-  ],
-  "username": "github-actions[bot]"
+  ]
 }
