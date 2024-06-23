@@ -10,6 +10,7 @@
   "enabledManagers": [
     "ansible",
     "ansible-galaxy",
+    "devcontainer",
     "dockerfile",
     "docker-compose",
     "pip_requirements",
@@ -17,7 +18,7 @@
     "custom.regex"
   ],
   "extends": [
-    "config:recommended"
+    "config:best-practices"
   ],
   "forkProcessing": "enabled",
   "gitAuthor": "github-actions[bot] <noreply@github.com>",
