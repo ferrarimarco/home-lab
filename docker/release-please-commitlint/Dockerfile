@@ -24,7 +24,7 @@ RUN commitlint --version \
   && release-please --version \
   && git config --global --add safe.directory /source-repository
 
-ARG USERNAME=super-linter-dev
+ARG USERNAME=home-lab-dev
 ARG UID=1000
 ARG GID=1000
 RUN groupadd -g ${GID} -o "${USERNAME}" \
