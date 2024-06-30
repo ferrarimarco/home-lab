@@ -27,6 +27,20 @@
     - fact_enable_custom_fact
     - fact_category in ansible_run_tags or "all" in ansible_run_tags
 
+# Check if we need to skip the configuration of DNS records.
+# Skipping this configuration may be userful if services are not going to start, and we don't want to update the DNS zone yet.
+# This task eventually skips the DNS records that are explicitly added to fact_dns_records_to_configure
+# because we assume they are for service reachability, but if we're not starting any service there's
+# no point in adding those records to the DNS zone.
+# This task doesn't skip the DNS records that are dynamically generated, from other
+# sources.
+- name: Register DNS records facts for {{ fact_category }}
+  ansible.builtin.set_fact:
+    dns_records_to_configure: "{{ dns_records_to_configure + fact_dns_records_to_configure }}"
+  when:
+    - fact_configure_dns_records
+    - fact_enable_custom_fact
+
 # We added a 'state' attribute set to 'absent' if the stack is disabled so those files will
 # eventually get deleted
 - name: Register cleanup facts if stack is disabled for {{ fact_category }}
