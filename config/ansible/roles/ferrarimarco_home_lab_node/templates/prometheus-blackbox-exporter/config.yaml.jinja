@@ -15,9 +15,20 @@ modules:
 {% set dns_record_to_check_ttl = "0" %}
 {% endif %}
         fail_if_none_matches_regexp:
-          - "{{ dns_record_to_check.query_name }}.\t{{ dns_record_to_check_ttl }}\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_none_matches_regexp_value | default('') }}"
+          - "{{ dns_record_to_check.query_name }}.\t{{ dns_record_to_check_ttl }}\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_answer_none_matches_regexp_value | default('') }}"
         fail_if_not_matches_regexp:
-          - "{{ dns_record_to_check.query_name }}.\t{{ dns_record_to_check_ttl }}\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_not_matches_regexp_value | default('') }}"
+          - "{{ dns_record_to_check.query_name }}.\t{{ dns_record_to_check_ttl }}\tIN\t{{ dns_record_to_check.query_type }}\t{{ dns_record_to_check.fail_if_answer_not_matches_regexp_value | default('') }}"
+      validate_authority_rrs:
+        fail_if_not_matches_regexp:
+{# Validate the lab authority section only if it's a lab DNS record and not a dynamically assigned name #}
+{# Don't check the authority section for records for which it's empty. #}
+{% if (
+  dns_record_to_check.query_name.endswith(root_dns_zone.fqdn)
+  and not dns_record_to_check.query_name.endswith(edge_environment_root_fqdn)
+  and not (dns_record_to_check.query_type == 'NS' and dns_record_to_check.query_name == root_dns_zone.fqdn)
+) %}
+          - "{{ root_dns_zone.fqdn }}.\t{{ root_dns_zone.default_record_ttl }}\tIN\tNS\t{{ root_dns_zone_server.fqdn }}"
+{% endif %}
       valid_rcodes:
         - NOERROR
 {% endfor %}

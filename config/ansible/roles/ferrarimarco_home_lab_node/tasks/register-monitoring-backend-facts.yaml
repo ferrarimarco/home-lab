@@ -4,12 +4,18 @@
     monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_a_record_check_template_for_ansible_hosts }}"
   with_items: "{{ groups['all'] }}"
 
+- name: Add the DNS records defined for this and other hosts to the list of DNS records to check
+  ansible.builtin.set_fact:
+    monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_record_check_template }}"
+  with_items: "{{ dns_records_to_configure }}"
+
 - name: Add the edge DNS servers to the list of DNS records to check
   ansible.builtin.set_fact:
     monitoring_backend_dns_records_to_check: "{{ monitoring_backend_dns_records_to_check + monitoring_backend_dns_record_check_template }}"
   with_items:
     - source: "{{ edge_dns_server.fqdn }}"
       query_type: "A"
+      destination: "{{ edge_dns_server.ipv4_address }}"
 
 - name: Remove duplicates from the list of DNS records to check
   ansible.builtin.set_fact:

@@ -1,12 +1,44 @@
+# Reference: https://nlnetlabs.nl/documentation/unbound/unbound.conf/
+
 server:
-    domain-insecure: {{ edge_environment_root_fqdn }}
+
+    # Don't require DNSSEC validation for local zones:
+    #   - Main DNS zone
+    domain-insecure: {{ root_dns_zone.fqdn }}
+    #   - Reverse lookups zone
     domain-insecure: in-addr.arpa
+
+    # Allow these domains and all their subdomains to have private addresses
+    private-domain: {{ root_dns_zone.fqdn }}
+
+    # Disallow private addresses to be returned from public names to enable DNS rebinding protection
+    private-address: 192.168.0.0/16
+    private-address: 169.254.0.0/16
+    private-address: 172.16.0.0/12
+    private-address: 10.0.0.0/8
+    private-address: fd00::/8
+    private-address: fe80::/10
+
+    # Configure a local zone in transparent mode for reverse lookups
+    # transparent:
+    #   - If there is a match from local data, the query is answered.
+    #   - Otherwise if the query has a different name, the query is resolved normally.
     local-zone: "{{ edge_environment_gateway.ipv4_address.split('.')[0] }}.in-addr.arpa" transparent
-    private-domain: {{ edge_environment_root_fqdn }}
-    verbosity: {{ network_stack_unbound_verbosity | default('1') }}
-{% if network_stack_unbound_enable_logs is defined and network_stack_unbound_enable_logs %}
+
+    # Trust glue records only if they are within the servers authority
+    harden-glue: yes
+
+    # Require DNSSEC data for trust-anchored zones
+    harden-dnssec-stripped: yes
+
+    # Enable logging and configure verbosity
     log-queries: yes
     log-replies: yes
     log-servfail: yes
     log-tag-queryreply: yes
-{% endif %}
+    log-time-ascii: yes
+    verbosity: {{ network_stack_unbound_verbosity | default('1') }}
+
+    # Perform prefetching of close to expired message cache entries
+    # This only applies to domains that have been frequently queried
+    prefetch: yes

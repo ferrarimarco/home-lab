@@ -172,9 +172,9 @@ monitoring_backend_files_to_configure:
     dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/cadvisor-exporter_rev1.json"
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
-  # CoreDNS is deprecated for now
-  - path: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/coredns_rev1.json"
-    state: "absent"
+  - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/coredns_rev2.json"
+    dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/coredns_rev2.json"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
   - src: "{{ monitoring_backend_dashboard_definitions_source_directory_path }}/home-network_rev1.json"
     dest: "{{ monitoring_backend_grafana_dashboard_definitions_directory_path }}/home-network_rev1.json"
@@ -221,6 +221,8 @@ monitoring_backend_dns_record_check_template:
   - check_name: "dns_{{ item.source | lower | replace('.', '_') }}_{{ item.query_type | lower }}"
     query_name: "{{ item.source }}"
     query_type: "{{ item.query_type }}"
+    fail_if_answer_none_matches_regexp_value: "{{ item.fail_if_answer_none_matches_regexp_value | default(item.destination) }}"
+    fail_if_answer_not_matches_regexp_value: "{{ item.fail_if_answer_not_matches_regexp_value | default(item.destination) }}"
 monitoring_backend_http_cadvisor_endpoint_check_template:
   - check_target: "http://{{ item }}:{{ cadvisor_exposed_port }} # cAdvisor"
 monitoring_backend_http_prometheus_node_exporter_endpoint_check_template:
@@ -323,51 +325,6 @@ mosquitto_templates_to_render:
     docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
     group: "{{ mosquitto_user_group_id }}"
     owner: "{{ mosquitto_user_user_id }}"
-network_stack_configuration_directories:
-  - path: "{{ network_stack_configuration_directory_path }}"
-    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
-  # CoreDNS is deprecated for now
-  - path: "{{ network_stack_configuration_directory_path }}/coredns"
-    state: "absent"
-  # CoreDNS is deprecated for now
-  - path: "{{ network_stack_configuration_directory_path }}/coredns/zones"
-    state: "absent"
-  - path: "{{ network_stack_configuration_directory_path }}/unbound"
-    state: "{{ configure_network_stack | ternary('directory', 'absent') }}"
-network_stack_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/network-stack"
-network_stack_edge_dns_resolver_template:
-  - fqdn: "{{ item }}"
-    # This assumes that the DNS resolver is listening to the default network interface as well
-    ipv4_address: "{{ hostvars[item].ansible_default_ipv4.address }}"
-    port: "{{ network_stack_unbound_dns_host_port }}"
-network_stack_edge_dns_resolvers: []
-network_stack_docker_compose_up_items:
-  - compose_file_path: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-    enable_containerized_services: "{{ configure_network_stack }}"
-    pull_container_images: "{{ configure_network_stack }}"
-    start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
-    stop_containerized_services: "{{ stop_network_stack | default(false) }}"
-network_stack_templates_to_render:
-  - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
-    dest: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-  # CoreDNS is deprecated for now
-  - path: "{{ network_stack_configuration_directory_path }}/coredns/Corefile"
-    state: "absent"
-    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-  # CoreDNS is deprecated for now
-  - path: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ lab_dns_zone }}"
-    state: "absent"
-    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-  - src: "network-stack/unbound/server.conf.jinja"
-    dest: "{{ network_stack_configuration_directory_path }}/unbound/server.conf"
-    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
-  - src: "network-stack/unbound/stub-zones.conf.jinja"
-    dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
-    state: "{{ configure_network_stack | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
 os_groups: []
 os_services: []
 os_services_to_restart: []
