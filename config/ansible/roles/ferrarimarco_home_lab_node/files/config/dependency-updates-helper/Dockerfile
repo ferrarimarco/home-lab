@@ -12,7 +12,7 @@ FROM ghcr.io/blakeblackshear/frigate:0.13.2 as frigate
 FROM ghcr.io/home-assistant/home-assistant:2024.6.4 as home-assistant
 
 # media-stack
-FROM jellyfin/jellyfin:10.9.7.20240625-002012 as jellyfin
+FROM jellyfin/jellyfin:10.9.8.20240721-051228 as jellyfin
 FROM fallenbagel/jellyseerr:1.9.2 as jellyseerr
 FROM ghcr.io/flaresolverr/flaresolverr:v3.3.21 as flaresolverr
 FROM lscr.io/linuxserver/lidarr:2.3.3 as lidarr
