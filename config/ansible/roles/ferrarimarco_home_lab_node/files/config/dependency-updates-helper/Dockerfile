@@ -25,7 +25,7 @@ FROM lscr.io/linuxserver/sonarr:4.0.8 as sonarr
 FROM gcr.io/cadvisor/cadvisor:v0.49.1 as cadvisor
 FROM ghcr.io/druggeri/nut_exporter:3.1.1 as nut-exporter
 FROM prom/blackbox-exporter:v0.25.0 as prometheus-blackbox-exporter
-FROM prom/prometheus:v2.52.0 as prometheus
+FROM prom/prometheus:v2.53.1 as prometheus
 FROM quay.io/prometheus/node-exporter:v1.8.2 as prometheus-node-exporter
 
 # monitoring-backend
