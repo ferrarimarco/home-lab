@@ -16,7 +16,7 @@ FROM jellyfin/jellyfin:10.9.9.20240805-020219 as jellyfin
 FROM fallenbagel/jellyseerr:1.9.2 as jellyseerr
 FROM ghcr.io/flaresolverr/flaresolverr:v3.3.21 as flaresolverr
 FROM lscr.io/linuxserver/lidarr:2.3.3 as lidarr
-FROM lscr.io/linuxserver/prowlarr:1.18.0 as prowlarr
+FROM lscr.io/linuxserver/prowlarr:1.21.2 as prowlarr
 FROM lscr.io/linuxserver/radarr:5.6.0 as radarr
 FROM lscr.io/linuxserver/readarr:0.3.32-nightly as readarr
 FROM lscr.io/linuxserver/sonarr:4.0.8 as sonarr
