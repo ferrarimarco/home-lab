@@ -1,7 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -o errexit
 set -o nounset
+set -o pipefail
 
 # shellcheck disable=SC1091,SC1094
 . ./scripts/common.sh
@@ -15,17 +16,36 @@ LINTER_CONTAINER_IMAGE="ghcr.io/super-linter/super-linter:${LINTER_CONTAINER_IMA
 
 echo "Running linter container image: ${LINTER_CONTAINER_IMAGE}"
 
-# shellcheck disable=SC2086
-docker run \
-  ${_DOCKER_INTERACTIVE_TTY_OPTION} \
-  --env ACTIONS_RUNNER_DEBUG="${ACTIONS_RUNNER_DEBUG:-"false"}" \
-  --env MULTI_STATUS="false" \
-  --env RUN_LOCAL="true" \
-  --env-file "config/lint/super-linter.env" \
-  --name "super-linter" \
-  --rm \
-  --volume "$(pwd)":/tmp/lint \
-  --volume /etc/localtime:/etc/localtime:ro \
-  --workdir /tmp/lint \
-  "${LINTER_CONTAINER_IMAGE}" \
+SUPER_LINTER_COMMAND=(
+  docker run
+)
+
+if [ -t 0 ]; then
+  SUPER_LINTER_COMMAND+=(
+    --interactive
+    --tty
+  )
+fi
+
+if [ "${LINTER_CONTAINER_OPEN_SHELL:-}" == "true" ]; then
+  SUPER_LINTER_COMMAND+=(
+    --entrypoint "/bin/bash"
+  )
+fi
+
+SUPER_LINTER_COMMAND+=(
+  --env ACTIONS_RUNNER_DEBUG="${ACTIONS_RUNNER_DEBUG:-"false"}"
+  --env MULTI_STATUS="false"
+  --env RUN_LOCAL="true"
+  --env-file "config/lint/super-linter.env"
+  --name "super-linter"
+  --rm
+  --volume "$(pwd)":/tmp/lint
+  --volume /etc/localtime:/etc/localtime:ro
+  --workdir /tmp/lint
+  "${LINTER_CONTAINER_IMAGE}"
   "$@"
+)
+
+echo "Super-linter command: ${SUPER_LINTER_COMMAND[*]}"
+"${SUPER_LINTER_COMMAND[@]}"

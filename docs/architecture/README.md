@@ -38,7 +38,7 @@ configuration, and deployment processes:
 - GitHub-specific configuration in the `.github` directory.
 - Configuration for each architectural layer and support tooling in the `config` directory.
 - Container image descriptors in the `docker` directory.
-- Documentation in the `docs` directory and in the [main README](../../README.md).
+- Documentation in the `docs` directory and in the [main readme](../../README.md).
 - Operational scripts in the `scripts` directory.
 
 ## Further reading

@@ -1,7 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -o errexit
 set -o nounset
+set -o pipefail
 
 # shellcheck disable=SC1091,SC1094
 . ./scripts/common.sh
@@ -18,14 +19,28 @@ fi
 
 build_cd_container
 
-# shellcheck disable=SC2086
-docker run \
-  ${_DOCKER_INTERACTIVE_TTY_OPTION} \
-  -v "$(pwd):/source-repository" \
-  "${CD_CONTAINER_URL}" \
-  commitlint \
-  --config config/lint/commitlint.config.js \
-  --cwd /source-repository \
-  --from ${FROM_INTERVAL_COMMITLINT} \
-  --to ${TO_INTERVAL_COMMITLINT} \
+LINT_COMMITS_COMMAND=(
+  docker run
+)
+
+if [ -t 0 ]; then
+  LINT_COMMITS_COMMAND+=(
+    --interactive
+    --tty
+  )
+fi
+
+# shellcheck disable=SC2206
+LINT_COMMITS_COMMAND+=(
+  --volume "$(pwd):/source-repository"
+  "${CD_CONTAINER_URL}"
+  commitlint
+  --config config/lint/commitlint.config.js
+  --cwd /source-repository
+  --from ${FROM_INTERVAL_COMMITLINT}
+  --to ${TO_INTERVAL_COMMITLINT}
   --verbose
+)
+
+echo "Lint commits command: ${LINT_COMMITS_COMMAND[*]}"
+"${LINT_COMMITS_COMMAND[@]}"
