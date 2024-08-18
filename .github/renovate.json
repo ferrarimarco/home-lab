@@ -29,13 +29,13 @@
   "packageRules": [
     {
       "matchFileNames": [
-        "config/ansible/**"
+        "config/ansible/**/requirements.yml"
       ],
       "groupName": "ansible"
     },
     {
       "matchFileNames": [
-        "config/lint/**"
+        "config/pre-commit/**"
       ],
       "groupName": "ci"
     }
