@@ -94,6 +94,9 @@ provisioner:
         restic_backup_default_backup_job_repository_password: restic_backup_default_backup_job_repository_password
         restic_backup_repositories_default_path: /tmp/restic-backup-default-backup-job-target-directory
         qbittorrent_http_endpoint_fqdn: "qbittorrent"
+        # Don't start network stack because we cannot bind certain ports (53)
+        # on hosts in the CI environment
+        start_network_stack: false
         # Don't start restic because we can't start the restic exporter against a non-existing repository
         start_restic: false
         # Don't start zigbee2mqtt because it fails due to missing hardware
