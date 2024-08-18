@@ -1,12 +1,17 @@
 ---
+# Ref: https://cloudinit.readthedocs.io/en/latest/reference/network-config-format-v2.html
 network:
   version: 2
   ethernets:
-    eth0:
-      dhcp4: true
-      dhcp4-overrides:
-        use-domains: true
+    {{ cloud_init_network_interface_name }}:
+      addresses:
+      nameservers: {{ cloud_init_network_interface_addresses }}
+        addresses: {{ cloud_init_network_interface_dns_addresses }}
+        search: {{ cloud_init_network_interface_search }}
       match:
         macaddress: {{ cloud_init_instance_mac_address }}
-      set-name: eth0
+      routes:
+        - to: 0.0.0.0/0
+          via: {{ cloud_init_network_interface_default_ipv4_gateway }}
+      set-name: {{ cloud_init_network_interface_name }}
 ...
