@@ -18,14 +18,28 @@
     "custom.regex"
   ],
   "extends": [
-    "config:best-practices"
+    "config:best-practices",
+    ":semanticCommits"
   ],
   "forkProcessing": "enabled",
   "gitAuthor": "github-actions[bot] <noreply@github.com>",
   "labels": [
     "dependencies"
   ],
-  "packageRules": [],
+  "packageRules": [
+    {
+      "matchFileNames": [
+        "config/ansible/**"
+      ],
+      "groupName": "ansible"
+    },
+    {
+      "matchFileNames": [
+        "config/lint/**"
+      ],
+      "groupName": "ci"
+    }
+  ],
   "pre-commit": {
     "enabled": true
   },
@@ -41,6 +55,18 @@
       "depNameTemplate": "arduino/arduino-cli",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update _VERSION variables in Dockerfiles, and shell scripts",
+      "fileMatch": [
+        "(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$",
+        "(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$",
+        "(^|/)*.sh"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z-]+?))?\\s(?:ENV|ARG)?\\s*.+?_VERSION=\"?(?<currentValue>.+?)\"?\\s"
+      ]
     }
   ]
 }
