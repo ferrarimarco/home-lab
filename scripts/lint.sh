@@ -33,6 +33,21 @@ if [ "${LINTER_CONTAINER_OPEN_SHELL:-}" == "true" ]; then
   )
 fi
 
+if [ "${LINTER_CONTAINER_FIX_MODE:-}" == "true" ]; then
+  SUPER_LINTER_COMMAND+=(
+    --env FIX_ANSIBLE="true"
+    --env FIX_ENV="true"
+    --env FIX_JAVASCRIPT_ES="true"
+    --env FIX_JAVASCRIPT_PRETTIER="true"
+    --env FIX_JSON="true"
+    --env FIX_JSON_PRETTIER="true"
+    --env FIX_MARKDOWN="true"
+    --env FIX_MARKDOWN_PRETTIER="true"
+    --env FIX_SHELL_SHFMT="true"
+    --env FIX_YAML_PRETTIER="true"
+  )
+fi
+
 SUPER_LINTER_COMMAND+=(
   --env ACTIONS_RUNNER_DEBUG="${ACTIONS_RUNNER_DEBUG:-"false"}"
   --env MULTI_STATUS="false"
