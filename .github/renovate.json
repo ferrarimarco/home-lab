@@ -17,26 +17,17 @@
     "pre-commit",
     "custom.regex"
   ],
-  "extends": [
-    "config:best-practices",
-    ":semanticCommits"
-  ],
+  "extends": ["config:best-practices", ":semanticCommits"],
   "forkProcessing": "enabled",
   "gitAuthor": "github-actions[bot] <noreply@github.com>",
-  "labels": [
-    "dependencies"
-  ],
+  "labels": ["dependencies"],
   "packageRules": [
     {
-      "matchFileNames": [
-        "config/ansible/**/requirements.yml"
-      ],
+      "matchFileNames": ["config/ansible/**/requirements.yml"],
       "groupName": "ansible"
     },
     {
-      "matchFileNames": [
-        "config/pre-commit/**"
-      ],
+      "matchFileNames": ["config/pre-commit/**"],
       "groupName": "ci"
     }
   ],
@@ -46,9 +37,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "^docker/arduino-cli/Dockerfile$"
-      ],
+      "fileMatch": ["^docker/arduino-cli/Dockerfile$"],
       "matchStrings": [
         "ARG ARDUINO_CLI_VERSION=\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\S*"
       ],
