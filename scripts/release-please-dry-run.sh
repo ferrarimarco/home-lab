@@ -23,5 +23,5 @@ docker run \
   --manifest-file .github/release-please/.release-please-manifest.json \
   --repo-url ferrarimarco/home-lab \
   --target-branch "${RELEASE_PLEASE_TARGET_BRANCH}" \
-  --token "$(cat "$(pwd)/.github-personal-access-token")" \
+  --token "$(cat "${GITHUB_TOKEN_PATH}")" \
   --trace
