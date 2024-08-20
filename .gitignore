@@ -1,5 +1,6 @@
 # Log files
 *.log
+renovate.log.*
 
 # Downloaded artifacts
 *.img
