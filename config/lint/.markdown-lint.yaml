@@ -1,6 +1,16 @@
 ---
-MD007:
-  indent: 4
-MD013:
-  line_length: 150
+extends: "markdownlint/style/prettier"
+
+# Disable the following rules because Prettier handles them, but keep this
+# configuration as a (commented) reference
+
+# ul-indent
+# Ref: https://github.com/DavidAnson/markdownlint/blob/main/doc/md007.md
+# MD007:
+#   indent: 4
+
+# line-length
+# Ref: https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md
+# MD013:
+#   line_length: 150
 ...
