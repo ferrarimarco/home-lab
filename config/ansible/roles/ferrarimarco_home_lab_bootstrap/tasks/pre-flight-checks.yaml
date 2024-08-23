@@ -19,7 +19,7 @@
     success_msg: |
       home_lab_runtime_directory_path is defined and not empty: {{ home_lab_runtime_directory_path }}
 
-- name: Wait for systemd to complete initialization.  # noqa 303
+- name: Wait for systemd to complete initialization. # noqa 303
   ansible.builtin.command: systemctl is-system-running
   register: systemctl_status
   until: >
@@ -32,4 +32,3 @@
     - ansible_service_mgr == 'systemd'
   changed_when: false
   failed_when: systemctl_status.rc > 1
-...

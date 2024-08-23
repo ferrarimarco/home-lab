@@ -11,4 +11,4 @@
 ## Networking
 
 - Get the list of open ports on a system (with superuser privileges, it also
-    returns process information): `sudo netstat -nlp`
+  returns process information): `sudo netstat -nlp`

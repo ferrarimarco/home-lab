@@ -27,4 +27,3 @@ filesystems_to_create:
 partitions_to_create:
   - device: "{{ data_disk_device }}"
     partition_number: 1
-...

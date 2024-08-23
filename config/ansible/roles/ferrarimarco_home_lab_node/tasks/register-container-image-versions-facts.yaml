@@ -20,4 +20,3 @@
   ansible.builtin.debug:
     var: container_images_ids
     verbosity: 1
-...

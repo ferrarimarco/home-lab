@@ -3,4 +3,3 @@ configure_docker: true
 configure_wifi: true
 delete_systemd_journal_file: true
 has_raspberry_pi_v2_camera: true
-...

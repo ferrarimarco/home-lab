@@ -89,4 +89,3 @@
     # Don't restart this Docker Compose service if we just started it
     - item.compose_file_path not in started_docker_compose_services | default([])
   with_items: "{{ docker_compose_services_to_restart | unique }}"
-...

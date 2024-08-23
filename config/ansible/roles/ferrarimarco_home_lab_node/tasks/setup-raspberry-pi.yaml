@@ -17,4 +17,3 @@
     line: "denyinterfaces veth*"
     path: /etc/dhcpcd.conf
   notify: Restart dhcpcd
-...

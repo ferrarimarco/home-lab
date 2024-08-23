@@ -30,9 +30,7 @@
   "links": [
     {
       "icon": "external link",
-      "tags": [
-        "system"
-      ],
+      "tags": ["system"],
       "type": "dashboards"
     }
   ],
@@ -95,9 +93,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -164,9 +160,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -299,9 +293,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "frameIndex": 1,
@@ -428,9 +420,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "frameIndex": 1,
@@ -550,9 +540,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "frameIndex": 1,
@@ -683,9 +671,7 @@
       "links": [],
       "maxDataPoints": 100,
       "options": {
-        "displayLabels": [
-          "percent"
-        ],
+        "displayLabels": ["percent"],
         "legend": {
           "displayMode": "list",
           "placement": "bottom",
@@ -694,9 +680,7 @@
         },
         "pieType": "donut",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "/^Value$/",
           "values": true
         },
@@ -1054,9 +1038,7 @@
   ],
   "refresh": "1m",
   "schemaVersion": 39,
-  "tags": [
-    "system"
-  ],
+  "tags": ["system"],
   "templating": {
     "list": [
       {
@@ -1095,17 +1077,7 @@
       "2h",
       "1d"
     ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ]
+    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
   },
   "timezone": "",
   "title": "Restic Exporter import",

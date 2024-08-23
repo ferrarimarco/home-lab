@@ -23,4 +23,3 @@
     src: "{{ item.src }}"
     state: "{{ item.state }}"
   with_items: "{{ disks_to_mount | default([]) }}"
-...

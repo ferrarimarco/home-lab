@@ -25,4 +25,3 @@ asuswrt_chkwan_templates_to_render:
 asuswrt_chkwan_timer_file_name: "{{ asuswrt_chkwan_service_name }}.timer"
 asuswrt_chkwan_user: "{{ ansible_user }}"
 asuswrt_chkwan_user_group: "{{ ansible_user }}"
-...

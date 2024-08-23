@@ -8,4 +8,3 @@
   roles:
     - role: geerlingguy.docker
       become: true
-...

@@ -31,4 +31,3 @@
   ansible.builtin.debug:
     var: home_assistant_custom_component_manifest_decoded_contents
     verbosity: 1
-...

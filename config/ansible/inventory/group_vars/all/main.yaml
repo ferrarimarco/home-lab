@@ -38,4 +38,3 @@ qbittorrent_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 syncthing_user_interface_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 zigbee2mqtt_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 mosquitto_server_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
-...

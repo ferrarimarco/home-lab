@@ -87,4 +87,3 @@ media_stack_prowlarr_port: 9696
 media_stack_radarr_port: 7878
 media_stack_readarr_port: 8787
 media_stack_sonarr_port: 8989
-...

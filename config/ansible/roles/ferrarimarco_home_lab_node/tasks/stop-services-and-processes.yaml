@@ -42,4 +42,3 @@
   ansible.builtin.debug:
     var: docker_compose_rm_result
     verbosity: 1
-...

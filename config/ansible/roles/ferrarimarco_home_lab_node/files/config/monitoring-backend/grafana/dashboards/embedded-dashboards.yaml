@@ -2,7 +2,7 @@
 apiVersion: 1
 
 providers:
-  - name: 'embedded dashboards'
+  - name: "embedded dashboards"
     orgId: 1
     type: file
     disableDeletion: true
@@ -11,4 +11,3 @@ providers:
     options:
       path: /etc/grafana/provisioning/dashboards/dashboard-definitions
       foldersFromFilesStructure: true
-...

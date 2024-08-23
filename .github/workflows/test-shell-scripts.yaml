@@ -1,7 +1,7 @@
 ---
 name: Test shell scripts
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push: null
   pull_request: null
 
@@ -28,4 +28,3 @@ jobs:
       matrix:
         test_script_path:
           - test/scripts/build-python-venv-test.sh
-...

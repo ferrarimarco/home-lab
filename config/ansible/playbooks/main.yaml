@@ -13,4 +13,3 @@
 
 - name: Import the home lab node playbook
   ansible.builtin.import_playbook: home-lab-node.yaml
-...

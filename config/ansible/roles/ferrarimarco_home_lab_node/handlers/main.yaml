@@ -32,4 +32,3 @@
   ansible.builtin.service:
     name: "{{ security_sshd_name }}"
     state: "restarted"
-...

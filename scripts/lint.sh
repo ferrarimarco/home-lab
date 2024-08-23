@@ -10,7 +10,7 @@ set -o pipefail
 echo "Running lint checks"
 
 LINT_CI_JOB_PATH=".github/workflows/lint.yaml"
-DEFAULT_LINTER_CONTAINER_IMAGE_VERSION="$(grep <"${LINT_CI_JOB_PATH}" "super-linter/super-linter" | awk -F '@' '{print $2}')"
+DEFAULT_LINTER_CONTAINER_IMAGE_VERSION="$(grep <"${LINT_CI_JOB_PATH}" "super-linter/super-linter" | awk -F '@' '{print $2}' | head --lines=1)"
 
 LINTER_CONTAINER_IMAGE="ghcr.io/super-linter/super-linter:${LINTER_CONTAINER_IMAGE_VERSION:-${DEFAULT_LINTER_CONTAINER_IMAGE_VERSION}}"
 
@@ -35,16 +35,7 @@ fi
 
 if [ "${LINTER_CONTAINER_FIX_MODE:-}" == "true" ]; then
   SUPER_LINTER_COMMAND+=(
-    --env FIX_ANSIBLE="true"
-    --env FIX_ENV="true"
-    --env FIX_JAVASCRIPT_ES="true"
-    --env FIX_JAVASCRIPT_PRETTIER="true"
-    --env FIX_JSON="true"
-    --env FIX_JSON_PRETTIER="true"
-    --env FIX_MARKDOWN="true"
-    --env FIX_MARKDOWN_PRETTIER="true"
-    --env FIX_SHELL_SHFMT="true"
-    --env FIX_YAML_PRETTIER="true"
+    --env-file "config/lint/super-linter-fix-mode.env"
   )
 fi
 

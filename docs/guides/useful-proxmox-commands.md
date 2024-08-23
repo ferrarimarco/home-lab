@@ -14,7 +14,7 @@ EFI disk, and recreate it without the `pre-enrolled-keys=1` option.
 Notes:
 
 - Secure Boot prevents unsigned kernel modules from loading.
-    Example: Coral PCIe modules (`apex`, `gasket`)
+  Example: Coral PCIe modules (`apex`, `gasket`)
 
 ## Expand disk, filesystem, and partition
 

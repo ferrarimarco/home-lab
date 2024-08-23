@@ -7,7 +7,7 @@ env:
 permissions:
   contents: read
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push: null
   pull_request: null
 
@@ -78,4 +78,3 @@ jobs:
           - name: cd-container
             build-contexts: null
             context-directory: docker/release-please-commitlint
-...

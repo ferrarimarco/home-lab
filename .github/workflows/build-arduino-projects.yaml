@@ -4,7 +4,7 @@ name: Build Arduino projects
 permissions:
   contents: read
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-arduino-projects.yaml"
@@ -41,4 +41,3 @@ jobs:
         arduino-project:
           - project-id: arduino-33-ble-sense
             project-context-path: config/arduino/arduino-33-ble-sense
-...

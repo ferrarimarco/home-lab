@@ -3,9 +3,9 @@
   ansible.builtin.lineinfile:
     backrefs: true
     insertafter: EOF
-    line: '\1 {{ intel_iommu_kernel_options }}'  # Append to the matched line
+    line: '\1 {{ intel_iommu_kernel_options }}' # Append to the matched line
     path: /etc/kernel/cmdline
-    regexp: "^(.*) {{ intel_iommu_kernel_options }}$"  # Match the entire line
+    regexp: "^(.*) {{ intel_iommu_kernel_options }}$" # Match the entire line
     state: present
   notify:
     - Update proxmox boot config
@@ -29,4 +29,3 @@
 
 - name: Flush handlers after configuring the kernel
   ansible.builtin.meta: flush_handlers
-...

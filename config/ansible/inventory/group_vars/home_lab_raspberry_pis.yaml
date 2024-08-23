@@ -2,4 +2,3 @@
 ansible_user: pi
 configure_tailscale: true
 is_raspberry_pi: true
-...

@@ -53,7 +53,7 @@
   when:
     - tailscale_up_advertise_edge_environment_routes
 
-- name: Run Tailscale up  # noqa: no-changed-when
+- name: Run Tailscale up # noqa: no-changed-when
   become: true
   ansible.builtin.command: "{{ tailscale_up_command }}"
   register: tailscale_up_output
@@ -67,4 +67,3 @@
     - tailscale_up_output is failed
     - tailscale_up_output.stdout | length > 0
   register: nonsensitive_stdout
-...

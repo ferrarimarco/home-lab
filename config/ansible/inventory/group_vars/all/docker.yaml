@@ -22,13 +22,9 @@ docker_users:
   - "{{ ansible_user }}"
 
 # Docker daemon options as a dict
-docker_daemon_options: {
-  "live-restore": true,
-  "log-driver": "local",
-  "log-opts": {
-    "compress": "true",
-    "max-size": "10m",
-    "max-file": "3",
+docker_daemon_options:
+  {
+    "live-restore": true,
+    "log-driver": "local",
+    "log-opts": { "compress": "true", "max-size": "10m", "max-file": "3" },
   }
-}
-...

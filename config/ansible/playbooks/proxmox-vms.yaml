@@ -3,7 +3,7 @@
   hosts: pve1.edge.lab.ferrari.how
   gather_facts: true
   tasks: null
-...
+---
 # TODO: convert this to an Ansible playbook if it becomes more common
 # Notes to create the 100 VM:
 # Create VM: qm create 100 --name hl01 --net0 virtio=BC:24:11:D4:F6:64,bridge=vmbr0,firewall=1 --scsihw virtio-scsi-single --machine q35 --ostype l26

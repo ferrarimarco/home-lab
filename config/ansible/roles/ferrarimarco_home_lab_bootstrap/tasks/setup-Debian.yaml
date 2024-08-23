@@ -70,4 +70,3 @@
   become: true
   when:
     - has_intel_igpu
-...

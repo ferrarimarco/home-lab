@@ -2,4 +2,3 @@
 - name: Register facts for Raspberry Pi OS
   ansible.builtin.set_fact:
     default_os_packages: "{{ default_os_packages + raspberri_pi_os_os_packages }}"
-...

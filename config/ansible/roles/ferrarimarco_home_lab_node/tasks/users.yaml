@@ -54,20 +54,20 @@
 - name: Add configured user accounts to passwordless sudoers
   ansible.builtin.lineinfile:
     dest: /etc/sudoers
-    regexp: '^{{ item }}'
-    line: '{{ item }} ALL=(ALL) NOPASSWD: ALL'
+    regexp: "^{{ item }}"
+    line: "{{ item }} ALL=(ALL) NOPASSWD: ALL"
     state: present
-    validate: 'visudo -cf %s'
+    validate: "visudo -cf %s"
     mode: "0440"
   with_items: "{{ security_sudoers_passwordless }}"
 
 - name: Add configured user accounts to passworded sudoers
   ansible.builtin.lineinfile:
     dest: /etc/sudoers
-    regexp: '^{{ item }}'
-    line: '{{ item }} ALL=(ALL) ALL'
+    regexp: "^{{ item }}"
+    line: "{{ item }} ALL=(ALL) ALL"
     state: present
-    validate: 'visudo -cf %s'
+    validate: "visudo -cf %s"
     mode: "0440"
   with_items: "{{ security_sudoers_passworded }}"
 
@@ -84,4 +84,3 @@
     group: "{{ ansible_user }}"
     owner: "{{ ansible_user }}"
     path: "{{ ansible_user_ssh_configuration_directory_path }}/id_rsa"
-...

@@ -79,4 +79,3 @@ network_interfaces:
     interface_name: eth0
     # Assigned using DHCP address reservation
     ipv4_address: "10.0.0.2"
-...

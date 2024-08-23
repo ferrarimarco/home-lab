@@ -9,4 +9,3 @@
 - name: Save the current dpkg architecture in a fact
   ansible.builtin.set_fact:
     dpkg_architecture: "{{ dpkg_architecture_result.stdout }}"
-...

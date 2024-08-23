@@ -644,9 +644,7 @@
       "options": {
         "footer": {
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -706,10 +704,7 @@
   ],
   "schemaVersion": 37,
   "style": "dark",
-  "tags": [
-    "cadvisor",
-    "docker"
-  ],
+  "tags": ["cadvisor", "docker"],
   "templating": {
     "list": [
       {
