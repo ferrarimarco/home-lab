@@ -69,7 +69,8 @@ logger:
     ultrasonic.sensor: INFO
 
 ota:
-  password: !secret esphome_ota_password
+  - platform: esphome
+    password: !secret esphome_ota_password
 
 prometheus: null
 
