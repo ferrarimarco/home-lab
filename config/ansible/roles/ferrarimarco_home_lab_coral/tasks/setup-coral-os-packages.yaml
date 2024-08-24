@@ -27,4 +27,3 @@
   become: true
   notify:
     - Reboot the host
-...

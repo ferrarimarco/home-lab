@@ -448,4 +448,3 @@ zigbee2mqtt_templates_to_render:
     docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
     # Don't force template rendering because zigbee2mqtt modifies this file at runtime to store the generated network key
     force: false
-...

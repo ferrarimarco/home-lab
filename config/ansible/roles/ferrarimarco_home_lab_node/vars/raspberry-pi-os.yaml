@@ -35,4 +35,3 @@ raspberry_pi_sense_hat_apt_packages:
   - name: sense-hat
     state: "{{ has_sense_hat | ternary('present', 'absent') }}"
 tailscale_package_repository_url: "{{ tailscale_base_package_repository_url }}/raspbian"
-...

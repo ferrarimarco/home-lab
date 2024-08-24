@@ -1,6 +1,5 @@
 ---
 extends: "markdownlint/style/prettier"
-
 # Disable the following rules because Prettier handles them, but keep this
 # configuration as a (commented) reference
 
@@ -13,4 +12,3 @@ extends: "markdownlint/style/prettier"
 # Ref: https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md
 # MD013:
 #   line_length: 150
-...

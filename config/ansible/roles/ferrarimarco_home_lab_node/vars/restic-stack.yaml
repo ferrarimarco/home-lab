@@ -57,4 +57,3 @@ restic_templates_to_render:
     # This file may contain secrets, so we want to restrict access to the owner and group only
     # (defaults to root:root)
     mode: "0640"
-...

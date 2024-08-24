@@ -57,4 +57,3 @@ monitoring_ont_network_config_service_file_name: "{{ monitoring_ont_network_conf
 monitoring_ont_network_config_service_name: "{{ monitoring_ont_tag }}-network-config"
 monitoring_ont_user: "{{ ansible_user }}"
 monitoring_ont_user_group: "{{ ansible_user }}"
-...

@@ -112,4 +112,3 @@ provisioner:
     D: true
   playbooks:
     converge: "${ANSIBLE_TEST_PLAYBOOK_PATH}"
-...

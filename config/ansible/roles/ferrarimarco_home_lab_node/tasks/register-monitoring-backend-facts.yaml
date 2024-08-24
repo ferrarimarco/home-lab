@@ -50,4 +50,3 @@
   ansible.builtin.debug:
     var: monitoring_backend_icmp_ping_hosts_to_check
     verbosity: 1
-...

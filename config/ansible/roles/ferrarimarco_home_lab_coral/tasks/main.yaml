@@ -4,4 +4,3 @@
     file: setup-coral-os-packages.yaml
   when:
     - has_coral_pci_accelerator
-...

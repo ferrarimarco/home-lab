@@ -63,4 +63,3 @@
     state: absent
   with_items:
     - /host_path/restic/data
-...

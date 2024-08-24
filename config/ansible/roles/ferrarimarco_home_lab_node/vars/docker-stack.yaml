@@ -18,4 +18,3 @@ docker_templates_to_render:
     state: "{{ configure_docker | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ docker_system_prune_service_name }}"
-...

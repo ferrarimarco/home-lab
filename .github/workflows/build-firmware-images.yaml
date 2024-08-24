@@ -7,7 +7,7 @@ env:
 permissions:
   contents: read
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/build-firmware-images.yaml"
@@ -34,4 +34,3 @@ jobs:
       - name: "Build the Smart Desk firmware image"
         run: |
           scripts/build.sh
-...

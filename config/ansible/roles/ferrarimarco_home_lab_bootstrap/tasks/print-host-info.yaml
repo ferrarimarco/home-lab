@@ -24,4 +24,3 @@
       Facts for {{ inventory_hostname }}:
       {{ hostvars[inventory_hostname] | to_nice_json }}
     verbosity: 1
-...

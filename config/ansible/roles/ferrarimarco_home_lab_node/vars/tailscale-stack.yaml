@@ -9,4 +9,3 @@ tailscale_os_packages:
   - name: tailscale
     state: "{{ configure_tailscale | ternary('present', 'absent') }}"
 tailscale_up_command: tailscale up --accept-routes
-...

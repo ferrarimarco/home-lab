@@ -122,4 +122,3 @@ network_stack_edge_dns_resolvers:
 
 network_stack_lab_dns_servers:
   - "{{ root_dns_zone_server }}"
-...

@@ -34,4 +34,3 @@
   changed_when: enable_serial_output.stdout == "0"
   register: enable_serial_output
   when: raspi_config_serial_output.stdout != "0"
-...

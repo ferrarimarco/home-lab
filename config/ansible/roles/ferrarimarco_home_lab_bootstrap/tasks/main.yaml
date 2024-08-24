@@ -46,4 +46,3 @@
 
 - name: Ensure handlers are notified now
   ansible.builtin.meta: flush_handlers
-...

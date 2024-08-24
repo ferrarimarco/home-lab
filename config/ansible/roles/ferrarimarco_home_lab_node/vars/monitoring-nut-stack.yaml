@@ -40,4 +40,3 @@ monitoring_nut_os_services_to_restart:
   - nut-server
   - nut-client
   - nut-monitor
-...

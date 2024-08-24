@@ -24,4 +24,3 @@
     - name: ceph
       uris: http://download.proxmox.com/debian/ceph-reef
       components: no-subscription
-...

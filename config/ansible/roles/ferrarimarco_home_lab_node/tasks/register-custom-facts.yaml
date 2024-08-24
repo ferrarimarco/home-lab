@@ -49,4 +49,3 @@
   when:
     - not fact_enable_custom_fact
     - fact_category in ansible_run_tags or "all" in ansible_run_tags
-...

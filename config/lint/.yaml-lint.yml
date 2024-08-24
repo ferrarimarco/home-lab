@@ -4,6 +4,11 @@ extends: default
 locale: "en_US.UTF-8"
 
 rules:
+  braces:
+    max-spaces-inside: 1
+    max-spaces-inside-empty: 0
+    min-spaces-inside: 1
+    min-spaces-inside-empty: 0
   colons:
     max-spaces-after: 1
   comments:
@@ -14,9 +19,9 @@ rules:
       **/cloud-init/**/user-data.yaml
       **/cloud-init/**/user-data-autoinstall.yaml
     level: error
+    # As required by prettier
+    min-spaces-from-content: 1
   comments-indentation:
-    level: error
-  document-end:
     level: error
   document-start:
     level: error
@@ -27,4 +32,3 @@ rules:
   octal-values: enable
   truthy:
     level: error
-...

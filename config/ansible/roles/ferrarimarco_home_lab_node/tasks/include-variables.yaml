@@ -262,4 +262,3 @@
 - name: Register OS package setup tasks
   ansible.builtin.include_tasks:
     file: register-os-package-setup-facts.yaml
-...

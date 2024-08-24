@@ -4,4 +4,3 @@
   gather_facts: false
   roles:
     - role: ferrarimarco_home_lab_boot_bare_metal
-...

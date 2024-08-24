@@ -6,11 +6,11 @@ for the home lab. We define this process as `provisioning new hosts`.
 The provisioning process is as follows:
 
 - Gather information about the host:
-    - Unique name to assign to the host.
-    - MAC address of each network interface.
-    - Name of each network interface.
-    - Static IP address to assign to each network interface.
-    - Boot disk name.
+  - Unique name to assign to the host.
+  - MAC address of each network interface.
+  - Name of each network interface.
+  - Static IP address to assign to each network interface.
+  - Boot disk name.
 - Update the BIOS and UEFI firmware to the latest available version.
 - Enable network boot.
 - Enable [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN).
@@ -20,7 +20,7 @@ The provisioning process is as follows:
 For hosts that support it, we automate the setup using an
 out-of-band configuration mechanisms, such as
 [Intelligent Platform Management Interface (IPMI)](https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface),
-or [Redfish](https://en.wikipedia.org/wiki/Redfish_(specification)).
+or [Redfish](<https://en.wikipedia.org/wiki/Redfish_(specification)>).
 Off-the-shelf, consumer hardware rarely support these configuration mechanisms,
 so you may need to manually complete some configuration steps to prepare a host
 to join the home lab.
@@ -41,10 +41,10 @@ and configure the [boot order](https://www.raspberrypi.com/documentation/compute
 when not using Raspberry Pi OS, do the following:
 
 1. Download the latest release of [rpi-eeprom](https://github.com/raspberrypi/rpi-eeprom/releases).
-    There are different boot order configurations available, as configured
-    [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
+   There are different boot order configurations available, as configured
+   [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
 1. Flash the bootloader disk image on a removable flash drive. For more information about flashing Raspberry Pi OS
-    images to a SD card, refer to [Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
+   images to a SD card, refer to [Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
 1. Insert the SD card in a powered off Raspberry Pi 4.
 1. Wait for the activity LED to steadily flash green.
 1. Power the Raspberry Pi off.

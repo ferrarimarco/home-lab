@@ -22,4 +22,3 @@
   ansible.builtin.debug:
     var: debian_packages_to_uninstall
     verbosity: 1
-...

@@ -1,7 +1,7 @@
 ---
 name: Renovate
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/renovate.yaml"
@@ -41,8 +41,7 @@ jobs:
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@v40.2.6
         env:
-          LOG_LEVEL: 'debug'
+          LOG_LEVEL: "debug"
         with:
           configurationFile: .github/renovate-global-config.js
           token: ${{ secrets.GITHUB_TOKEN }}
-...

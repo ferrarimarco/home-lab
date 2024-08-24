@@ -30,6 +30,12 @@ indent_size = 2
 indent_size = 4
 indent_style = tab
 
+[*.md]
+
+# Indentation in Markdown files might not be constant, or a multiple of 2.
+# Prettier takes care of formatting Markdown files.
+indent_size = unset
+
 # Don't try to format binary files
 [*.tfvars.enc]
 charset = unset

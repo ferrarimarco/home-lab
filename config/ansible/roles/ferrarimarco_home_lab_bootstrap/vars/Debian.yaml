@@ -7,4 +7,3 @@ bootstrap_os_packages:
   # We need this for the ansible.builtin.deb822_repository task
   - python3-debian
 debian_package_repository_mirrors_file: /etc/apt/mirrors/debian.list
-...

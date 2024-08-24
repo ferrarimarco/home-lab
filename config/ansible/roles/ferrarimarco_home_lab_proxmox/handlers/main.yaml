@@ -15,4 +15,3 @@
   when:
     # Skip rebooting the host when running a Molecule test because we can't reboot a container
     - molecule_yml is not defined
-...

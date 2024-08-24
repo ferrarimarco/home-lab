@@ -35,4 +35,3 @@ wifi_os_packages:
   - name: "wpasupplicant"
     state: "{{ configure_wifi | ternary('present', 'absent') }}"
 wpa_supplicant_service_name: wpa_supplicant
-...

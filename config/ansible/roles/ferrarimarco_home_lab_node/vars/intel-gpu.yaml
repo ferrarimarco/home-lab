@@ -3,4 +3,3 @@ frigate_gpu_decode_devices:
   - /dev/dri/renderD128
 # Ref: https://github.com/blakeblackshear/frigate/issues/6008#issuecomment-2061446932
 frigate_ffmpeg_harware_acceleration_arguments: preset-vaapi
-...
