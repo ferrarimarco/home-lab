@@ -12,3 +12,11 @@
 
 - Get the list of open ports on a system (with superuser privileges, it also
   returns process information): `sudo netstat -nlp`
+
+## Restic
+
+- Open a shell in the Restic container:
+
+  ```sh
+  sudo docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml run --build --interactive --rm --entrypoint /bin/bash restic-backup-workloads
+  ```

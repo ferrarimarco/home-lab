@@ -1,4 +1,4 @@
-FROM python:3.13.0rc1-bookworm as ansible
+FROM python:3.13.0rc1-bookworm AS ansible
 
 ENV PYTHONFAULTHANDLER=1 \
   PYTHONHASHSEED=random \
@@ -29,7 +29,7 @@ COPY --from=ansible-configuration requirements.yml /etc/ansible/requirements.yml
 RUN ansible-galaxy install -r /etc/ansible/requirements.yml \
   && rm /etc/ansible/requirements.yml
 
-FROM ansible as molecule
+FROM ansible AS molecule
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
