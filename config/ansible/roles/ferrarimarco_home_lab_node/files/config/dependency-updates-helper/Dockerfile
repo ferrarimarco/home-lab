@@ -19,7 +19,7 @@ FROM lscr.io/linuxserver/lidarr:2.3.3 as lidarr
 FROM lscr.io/linuxserver/prowlarr:1.18.0 as prowlarr
 FROM lscr.io/linuxserver/radarr:5.9.1 as radarr
 FROM lscr.io/linuxserver/readarr:0.3.32-nightly as readarr
-FROM lscr.io/linuxserver/sonarr:4.0.8 as sonarr
+FROM lscr.io/linuxserver/sonarr:4.0.9 as sonarr
 
 # monitoring
 FROM gcr.io/cadvisor/cadvisor:v0.49.1 as cadvisor
