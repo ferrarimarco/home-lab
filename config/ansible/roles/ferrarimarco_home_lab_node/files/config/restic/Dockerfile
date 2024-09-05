@@ -1,4 +1,4 @@
-FROM ghcr.io/restic/restic:0.16.5
+FROM ghcr.io/restic/restic:0.17.1
 
 COPY ./entrypoint.sh /bin/entrypoint.sh
 
