@@ -40,7 +40,7 @@ FROM coredns/coredns:1.11.3 as coredns
 FROM traefik:3.0.4 as traefik
 
 # syncthing
-FROM syncthing/syncthing:1.27.11 as syncthing
+FROM syncthing/syncthing:1.27.12 as syncthing
 
 # torrent
 FROM linuxserver/qbittorrent:4.6.6 as qbittorrent
