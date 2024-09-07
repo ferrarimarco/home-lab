@@ -22,7 +22,7 @@ FROM lscr.io/linuxserver/readarr:0.3.32-nightly AS readarr
 FROM lscr.io/linuxserver/sonarr:4.0.9 AS sonarr
 
 # monitoring
-FROM gcr.io/cadvisor/cadvisor:v0.49.1 AS cadvisor
+FROM gcr.io/cadvisor/cadvisor:v0.50.0@sha256:2f3ea45c7ee3d7a0ce9f9d55a5053bd12285b02aca307ce9657af8e3ea7f6761 AS cadvisor
 FROM ghcr.io/druggeri/nut_exporter:3.1.1 AS nut-exporter
 FROM prom/blackbox-exporter:v0.25.0 AS prometheus-blackbox-exporter
 FROM prom/prometheus:v2.52.0 AS prometheus
