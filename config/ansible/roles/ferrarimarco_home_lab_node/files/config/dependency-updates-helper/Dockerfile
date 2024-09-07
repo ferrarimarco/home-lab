@@ -35,7 +35,7 @@ FROM grafana/grafana-oss:10.4.3 AS grafana
 FROM eclipse-mosquitto:2.0.18-openssl AS mosquitto
 
 # network-stack
-FROM klutchell/unbound:1.20.0 AS unbound
+FROM klutchell/unbound:v1.21.0@sha256:41a37ebbfc522155cc68c21b783f7b30f041438ae1c3c1ab011cd2e73c1624c5 AS unbound
 FROM coredns/coredns:1.11.3 AS coredns
 FROM traefik:3.0.4 AS traefik
 
