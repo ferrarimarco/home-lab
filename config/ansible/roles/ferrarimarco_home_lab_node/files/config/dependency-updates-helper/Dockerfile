@@ -9,7 +9,7 @@ FROM ngosang/restic-exporter:1.5.0 AS restic-exporter
 FROM ghcr.io/blakeblackshear/frigate:0.13.2 AS frigate
 
 # home-assistant
-FROM ghcr.io/home-assistant/home-assistant:2024.6.4 AS home-assistant
+FROM ghcr.io/home-assistant/home-assistant:2024.9.1@sha256:f1a96b632ea6f2b96f882ea17e2ed3660a741d5e45a5278ef0f38abe8e1df6c8 AS home-assistant
 
 # media-stack
 FROM jellyfin/jellyfin:10.9.10.20240825-063525 AS jellyfin
