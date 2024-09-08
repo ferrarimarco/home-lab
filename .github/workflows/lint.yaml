@@ -33,22 +33,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  lint-script:
-    concurrency:
-      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
-      # github.head_ref: head_ref or source branch of the pull request
-      # github.ref: ref of the branch that triggered the workflow
-      group: ${{ github.workflow }}-lint-script-${{ github.head_ref || github.ref }}-${{ github.event_name }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Run lint script
-        run: |
-          scripts/lint.sh
-
   pre_commit:
     concurrency:
       # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
