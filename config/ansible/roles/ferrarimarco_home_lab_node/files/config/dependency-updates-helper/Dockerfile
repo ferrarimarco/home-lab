@@ -15,7 +15,7 @@ FROM ghcr.io/home-assistant/home-assistant:2024.6.4 AS home-assistant
 FROM jellyfin/jellyfin:10.9.10.20240825-063525 AS jellyfin
 FROM fallenbagel/jellyseerr:1.9.2 AS jellyseerr
 FROM ghcr.io/flaresolverr/flaresolverr:v3.3.21 AS flaresolverr
-FROM lscr.io/linuxserver/lidarr:2.3.3 AS lidarr
+FROM lscr.io/linuxserver/lidarr:2.5.3@sha256:a77af413426b8509fad2d02f5b89104a5766ee6ebb13497d73993e74f6cfa0a8 AS lidarr
 FROM lscr.io/linuxserver/prowlarr:1.23.1 AS prowlarr
 FROM lscr.io/linuxserver/radarr:5.9.1 AS radarr
 FROM lscr.io/linuxserver/readarr:0.3.32-nightly AS readarr
