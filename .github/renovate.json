@@ -7,16 +7,7 @@
     ]
   },
   "configMigration": true,
-  "enabledManagers": [
-    "ansible",
-    "ansible-galaxy",
-    "devcontainer",
-    "dockerfile",
-    "docker-compose",
-    "pip_requirements",
-    "pre-commit",
-    "custom.regex"
-  ],
+  "dependencyDashboardApproval": true,
   "extends": ["config:best-practices", ":semanticCommits"],
   "forkProcessing": "enabled",
   "gitAuthor": "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
@@ -24,10 +15,15 @@
   "packageRules": [
     {
       "matchFileNames": ["config/ansible/**/requirements.yml"],
-      "groupName": "ansible"
+      "groupName": "ansible-requirements"
     },
     {
-      "matchFileNames": ["config/pre-commit/**"],
+      "matchFileNames": [
+        "config/pre-commit/**",
+        ".github/**",
+        "docker/release-please-commitlint/**",
+        "scripts/run-renovate.sh"
+      ],
       "groupName": "ci"
     }
   ],
@@ -35,16 +31,6 @@
     "enabled": true
   },
   "customManagers": [
-    {
-      "customType": "regex",
-      "fileMatch": ["^docker/arduino-cli/Dockerfile$"],
-      "matchStrings": [
-        "ARG ARDUINO_CLI_VERSION=\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\S*"
-      ],
-      "depNameTemplate": "arduino/arduino-cli",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^(?<version>.*)$"
-    },
     {
       "customType": "regex",
       "description": "Update _VERSION variables in Dockerfiles, and shell scripts",
@@ -57,5 +43,6 @@
         "# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z-]+?))?\\s(?:ENV|ARG)?\\s*.+?_VERSION=\"?(?<currentValue>.+?)\"?\\s"
       ]
     }
-  ]
+  ],
+  "rangeStrategy": "bump"
 }

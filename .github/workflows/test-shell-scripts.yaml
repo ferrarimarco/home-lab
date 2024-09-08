@@ -2,8 +2,15 @@
 name: Test shell scripts
 
 on: # yamllint disable-line rule:truthy
-  push: null
-  pull_request: null
+  push:
+    paths:
+      - ".github/workflows/test-shell-scripts.yaml"
+      - "scripts/**"
+      - "test/scripts/**"
+  pull_request:
+    paths:
+      - "scripts/common.sh"
+      - "scripts/run-ansible.sh"
 
 permissions:
   contents: read
@@ -18,6 +25,8 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Run ${{ matrix.test_script_path }}
         run: |
           set -o errexit
@@ -27,4 +36,5 @@ jobs:
     strategy:
       matrix:
         test_script_path:
+          - scripts/lint.sh
           - test/scripts/build-python-venv-test.sh

@@ -2,6 +2,7 @@ FROM debian:bullseye
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
+# renovate: datasource=github-releases packageName=arduino/arduino-cli versioning=semver-coerced
 ARG ARDUINO_CLI_VERSION="0.34.2"
 
 RUN apt-get update \
