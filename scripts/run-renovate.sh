@@ -10,7 +10,7 @@ set -o pipefail
 echo "Run renovate"
 
 # renovate: datasource=docker packageName=renovate/renovate versioning=docker
-DEFAULT_RENOVATE_CONTAINER_IMAGE_VERSION="38.44.3"
+DEFAULT_RENOVATE_CONTAINER_IMAGE_VERSION="38.72.0"
 
 RENOVATE_CONTAINER_IMAGE="renovate/renovate:${RENOVATE_CONTAINER_IMAGE_VERSION:-${DEFAULT_RENOVATE_CONTAINER_IMAGE_VERSION}}"
 
