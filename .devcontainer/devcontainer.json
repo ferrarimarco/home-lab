@@ -5,7 +5,6 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
         "editor.formatOnSaveMode": "file",
         "editor.wordWrap": "off",
