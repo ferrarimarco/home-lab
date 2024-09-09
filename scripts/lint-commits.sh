@@ -32,6 +32,7 @@ fi
 
 # shellcheck disable=SC2206
 LINT_COMMITS_COMMAND+=(
+  --rm
   --volume "$(pwd):/source-repository"
   "${CD_CONTAINER_URL}"
   commitlint

@@ -14,6 +14,7 @@ check_github_token_file
 
 echo "Running release-please against branch: ${RELEASE_PLEASE_TARGET_BRANCH}"
 docker run \
+  --rm \
   --volume "$(pwd):/source-repository" \
   "${CD_CONTAINER_URL}" \
   release-please \
