@@ -43,7 +43,7 @@ FROM traefik:3.1.2 AS traefik
 FROM syncthing/syncthing:1.27.12 AS syncthing
 
 # torrent
-FROM linuxserver/qbittorrent:4.6.6 AS qbittorrent
+FROM linuxserver/qbittorrent:4.6.7 AS qbittorrent
 
 # zigbee2mqtt
 FROM koenkk/zigbee2mqtt:1.40.1 AS zigbee2mqtt
