@@ -17,7 +17,7 @@ FROM fallenbagel/jellyseerr:1.9.2 AS jellyseerr
 FROM ghcr.io/flaresolverr/flaresolverr:v3.3.21 AS flaresolverr
 FROM lscr.io/linuxserver/lidarr:2.5.3 AS lidarr
 FROM lscr.io/linuxserver/prowlarr:1.23.1 AS prowlarr
-FROM lscr.io/linuxserver/radarr:5.9.1 AS radarr
+FROM lscr.io/linuxserver/radarr:5.11.0 AS radarr
 FROM lscr.io/linuxserver/readarr:0.4.0-nightly AS readarr
 FROM lscr.io/linuxserver/sonarr:4.0.9 AS sonarr
 
