@@ -32,7 +32,7 @@ FROM quay.io/prometheus/node-exporter:v1.8.2 AS prometheus-node-exporter
 FROM grafana/grafana-oss:11.2.0 AS grafana
 
 # mosquitto
-FROM eclipse-mosquitto:2.0.18-openssl AS mosquitto
+FROM eclipse-mosquitto:2.0.19-openssl AS mosquitto
 
 # network-stack
 FROM klutchell/unbound:1.21.0 AS unbound
