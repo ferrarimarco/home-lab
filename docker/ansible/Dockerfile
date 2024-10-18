@@ -1,4 +1,4 @@
-FROM python:3.13.0rc1-bookworm AS ansible
+FROM python:3.13.0rc1-bookworm@sha256:22006922ed6d76d176dbd2bfb86a0fa7e1cb0c7d53bd8c3bf6f17bcbe56c34c5 AS ansible
 
 ENV PYTHONFAULTHANDLER=1 \
   PYTHONHASHSEED=random \
