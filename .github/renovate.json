@@ -21,7 +21,7 @@
       "matchFileNames": [
         "config/pre-commit/**",
         ".github/**",
-        "docker/release-please-commitlint/**",
+        "docker/ci-cd-tools/**",
         "scripts/run-renovate.sh"
       ],
       "groupName": "ci"

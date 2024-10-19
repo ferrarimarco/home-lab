@@ -25,10 +25,10 @@
             ]
         },
         {
-            "file": "/docker/release-please-commitlint/Dockerfile",
+            "file": "/docker/ci-cd-tools/Dockerfile",
             "findings": [
                 {
-                    "resource": "/docker/release-please-commitlint/Dockerfile.",
+                    "resource": "/docker/ci-cd-tools/Dockerfile.",
                     "check_ids": [
                         "CKV_DOCKER_2"
                     ]

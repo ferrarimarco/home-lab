@@ -101,4 +101,4 @@ jobs:
             context-directory: config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
           - name: cd-container
             build-contexts: null
-            context-directory: docker/release-please-commitlint
+            context-directory: docker/ci-cd-tools
