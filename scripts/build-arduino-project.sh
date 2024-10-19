@@ -37,8 +37,7 @@ if [ -n "${ARDUINO_BOARD_PORT}" ]; then
   if [ ! -e "${ARDUINO_BOARD_PORT}" ]; then
     echo "[ERROR] ${ARDUINO_BOARD_PORT} is not available."
     # Ignoring because those are defined in common.sh, and don't need quotes
-    # shellcheck disable=SC2086
-    exit ${ERR_ARGUMENT_EVAL}
+    exit "${ERR_ARGUMENT_EVAL}"
   fi
 
   if [ "${ARDUINO_UPLOAD:-"true"}" = "true" ]; then

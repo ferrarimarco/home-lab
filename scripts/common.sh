@@ -15,6 +15,9 @@ CD_CONTAINER_URL="ferrarimarco/home-lab-cd:latest"
 
 GITHUB_TOKEN_PATH="$(pwd)/.github-personal-access-token"
 
+# shellcheck disable=SC2034
+HOME_LAB_DOCS_CONFIGURATION_FILE_PATH="config/mkdocs/home-lab-docs/mkdocs.yml"
+
 _DOCKER_INTERACTIVE_TTY_OPTION=
 if [ -t 0 ]; then
   _DOCKER_INTERACTIVE_TTY_OPTION="-it"
