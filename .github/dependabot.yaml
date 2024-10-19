@@ -2,14 +2,14 @@
 updates:
   - package-ecosystem: "devcontainers"
     commit-message:
-      prefix: "deps(devcontainers)"
+      prefix: "deps"
     directory: "/"
     schedule:
       interval: weekly
     open-pull-requests-limit: 100
   - directory: "/"
     commit-message:
-      prefix: "deps(ci)"
+      prefix: "deps"
     package-ecosystem: "github-actions"
     schedule:
       interval: "daily"
@@ -31,7 +31,7 @@ updates:
       - /docker/ansible
       - /docker/ansible/molecule
     commit-message:
-      prefix: "deps(ci)"
+      prefix: "deps"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
@@ -46,6 +46,7 @@ updates:
         applies-to: version-updates
         patterns:
           - ansible
+          - molecule
           - pre-commit
           - paramiko
   - directories:
@@ -54,7 +55,7 @@ updates:
       - /docker/ansible
       - /docker/release-please-commitlint
     commit-message:
-      prefix: "deps(ansible)"
+      prefix: "deps"
     package-ecosystem: "docker"
     schedule:
       interval: "daily"
@@ -63,16 +64,16 @@ updates:
       home-lab-workloads:
         applies-to: version-updates
         patterns:
-          - home-assistant/home-assistant
           - eclipse-mosquitto
           - fallenbagel/jellyseerr
-          - syncthing/syncthing
-          - linuxserver/*
-          - traefik
-          - klutchell/unbound
           - grafana/grafana-oss
-          - koenkk/zigbee2mqtt
+          - home-assistant/home-assistant
           - jellyfin/jellyfin
+          - klutchell/unbound
+          - koenkk/zigbee2mqtt
+          - linuxserver/*
+          - syncthing/syncthing
+          - traefik
       ci-cd-tooling:
         applies-to: version-updates
         patterns:
@@ -81,7 +82,7 @@ updates:
   - directories:
       - /docker/release-please-commitlint
     commit-message:
-      prefix: "deps(cd)"
+      prefix: "deps"
     package-ecosystem: "npm"
     schedule:
       interval: "daily"
