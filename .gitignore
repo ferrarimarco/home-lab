@@ -36,3 +36,5 @@ super-linter.log
 
 # GitHub Actions leftovers
 github_conf
+
+node_modules

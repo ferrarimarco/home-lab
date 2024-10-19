@@ -56,7 +56,7 @@ updates:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
       - /docker/ansible
-      - /docker/release-please-commitlint
+      - /docker/ci-cd-tools
     commit-message:
       prefix: "deps"
     package-ecosystem: "docker"
@@ -87,7 +87,7 @@ updates:
           - node
           - python
   - directories:
-      - /docker/release-please-commitlint
+      - /docker/ci-cd-tools
     commit-message:
       prefix: "deps"
     package-ecosystem: "npm"

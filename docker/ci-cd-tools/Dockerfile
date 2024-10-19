@@ -13,13 +13,11 @@ WORKDIR "${APP_DIR}"
 COPY package.json package-lock.json ./
 
 RUN npm ci \
+  && npm audit \
   && rm -rf ~/.npm
 
 ENV NODE_PATH="${APP_DIR}/node_modules"
 ENV PATH="${NODE_PATH}/.bin:${PATH}"
-
-RUN commitlint --version \
-  && release-please --version
 
 ARG USERNAME=home-lab-dev
 ARG UID=1000

@@ -40,7 +40,7 @@ if [ "${LINTER_CONTAINER_FIX_MODE:-}" == "true" ]; then
 fi
 
 SUPER_LINTER_COMMAND+=(
-  --env ACTIONS_RUNNER_DEBUG="${ACTIONS_RUNNER_DEBUG:-"false"}"
+  --env LOG_LEVEL="${LOG_LEVEL:-"INFO"}"
   --env MULTI_STATUS="false"
   --env RUN_LOCAL="true"
   --env-file "config/lint/super-linter.env"
