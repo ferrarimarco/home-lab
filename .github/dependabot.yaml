@@ -14,80 +14,75 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 100
-  - directory: "config/pre-commit"
+    groups:
+      dev-ci-tools:
+        applies-to: version-updates
+        patterns:
+          - actions/*
+          - docker/*
+          - github/*
+          - googleapis/*
+          - renovatebot/*
+  - directories:
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter
+      - /config/pre-commit
+      - /config/smart-desk/esphome
+      - /docker/ansible
+      - /docker/ansible/molecule
     commit-message:
       prefix: "deps(ci)"
     package-ecosystem: "pip"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 100
-  - directory: "/config/smart-desk/esphome"
-    commit-message:
-      prefix: "deps(home-lab)"
-    package-ecosystem: "pip"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-  - directory: "/docker/ansible"
+    groups:
+      home-lab-workloads:
+        applies-to: version-updates
+        patterns:
+          - esphome
+          - prometheus-client
+      ci-cd-tooling:
+        applies-to: version-updates
+        patterns:
+          - ansible
+          - pre-commit
+          - paramiko
+  - directories:
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
+      - /docker/ansible
+      - /docker/release-please-commitlint
     commit-message:
       prefix: "deps(ansible)"
     package-ecosystem: "docker"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 100
-  - directory: "/docker/ansible"
-    commit-message:
-      prefix: "deps(ansible)"
-    package-ecosystem: "pip"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-  - directory: "/docker/ansible/molecule"
-    commit-message:
-      prefix: "deps(ansible)"
-    package-ecosystem: "pip"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-  - directory: "/docker/release-please-commitlint"
-    commit-message:
-      prefix: "deps(cd)"
-    package-ecosystem: "docker"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-  - directory: "/docker/release-please-commitlint"
+    groups:
+      home-lab-workloads:
+        applies-to: version-updates
+        patterns:
+          - home-assistant/home-assistant
+          - eclipse-mosquitto
+          - fallenbagel/jellyseerr
+          - syncthing/syncthing
+          - linuxserver/*
+          - traefik
+          - klutchell/unbound
+          - grafana/grafana-oss
+          - koenkk/zigbee2mqtt
+          - jellyfin/jellyfin
+      ci-cd-tooling:
+        applies-to: version-updates
+        patterns:
+          - node
+          - python
+  - directories:
+      - /docker/release-please-commitlint
     commit-message:
       prefix: "deps(cd)"
     package-ecosystem: "npm"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter"
-    commit-message:
-      prefix: "deps(home-lab)"
-    package-ecosystem: "pip"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont"
-    commit-message:
-      prefix: "deps(home-lab)"
-    package-ecosystem: "pip"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper"
-    commit-message:
-      prefix: "deps(home-lab)"
-    package-ecosystem: "docker"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-  - directory: "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic"
-    commit-message:
-      prefix: "deps(home-lab)"
-    package-ecosystem: "docker"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 100
