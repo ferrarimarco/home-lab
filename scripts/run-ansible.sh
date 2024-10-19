@@ -65,8 +65,7 @@ if [ -n "${ANSIBLE_TEST_DISTRO:-}" ]; then
   ANSIBLE_TEST_PLAYBOOK_FULL_PATH="config/ansible/molecule/default/${ANSIBLE_TEST_PLAYBOOK_PATH}"
   if [ ! -f "${ANSIBLE_TEST_PLAYBOOK_FULL_PATH}" ]; then
     echo "The playbook file does not exist: ${ANSIBLE_TEST_PLAYBOOK_FULL_PATH}"
-    # shellcheck disable=SC2086
-    exit ${ERR_ANSIBLE_TEST_MISSING_PLAYBOOK}
+    exit "${ERR_ANSIBLE_TEST_MISSING_PLAYBOOK}"
   fi
 
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_DISTRO=${ANSIBLE_TEST_DISTRO}"
@@ -86,8 +85,7 @@ else
 
   if [ ! -f "${ANSIBLE_VAULT_PASSWORD_FILE_PATH}" ]; then
     echo "The Ansible vault password file does not exist: ${ANSIBLE_VAULT_PASSWORD_FILE_PATH}"
-    # shellcheck disable=SC2086
-    exit ${ERR_ANSIBLE_MISSING_PASSWORD_FILE}
+    exit "${ERR_ANSIBLE_MISSING_PASSWORD_FILE}"
   fi
 fi
 
