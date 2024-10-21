@@ -5,6 +5,7 @@
     "**/.esphome/**",
     "**/.venv*/**",
     "**/grafana/dashboards/dashboard-definitions/**/*.json",
+    "**/site/**",
     "**/user-data*.yaml"
   ],
   "absolute": true,

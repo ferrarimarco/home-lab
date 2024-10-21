@@ -1,0 +1,35 @@
+---
+name: Build and publish documentation site
+
+on: # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/documentation.yaml"
+      - "docs/**"
+      - "config/mkdocs/home-lab-docs/**"
+      - scripts/run-mkdocs.sh
+  pull_request:
+    paths:
+      - ".github/workflows/documentation.yaml"
+      - "docs/**"
+      - "config/mkdocs/home-lab-docs/**"
+      - scripts/run-mkdocs.sh
+  workflow_call: null
+
+permissions:
+  contents: read
+
+jobs:
+  build-documentation-site:
+    concurrency:
+      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      # github.head_ref: head_ref or source branch of the pull request
+      # github.ref: ref of the branch that triggered the workflow
+      group: ${{ github.workflow }}-build-documentation-sites-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the documentation site
+        run: |
+          scripts/run-mkdocs.sh "build"

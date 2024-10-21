@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://json.schemastore.org/pre-commit-config.json
 exclude: |
   (?x)^(
       .*\.venv.*
@@ -27,7 +28,6 @@ repos:
       - id: detect-private-key
       - id: end-of-file-fixer
       - id: fix-byte-order-marker
-      - id: fix-encoding-pragma
       - id: mixed-line-ending
       - id: requirements-txt-fixer
       - id: trailing-whitespace
