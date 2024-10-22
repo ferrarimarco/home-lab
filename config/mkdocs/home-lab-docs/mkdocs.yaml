@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+docs_dir: "../../../docs"
+repo_url: https://github.com/ferrarimarco/home-lab
+site_dir: "../../../site"
+site_name: Home Lab docs
+site_url: https://ferrarimarco.github.io/home-lab
+strict: true
+theme:
+  name: material
+  features:
+    - navigation.top
+    - navigation.tracking
