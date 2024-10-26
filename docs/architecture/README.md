@@ -1,4 +1,4 @@
-# Architecture
+# Home lab architecture overview
 
 This document describes the architecture of the lab.
 
@@ -38,10 +38,5 @@ configuration, and deployment processes:
 - GitHub-specific configuration in the `.github` directory.
 - Configuration for each architectural layer and support tooling in the `config` directory.
 - Container image descriptors in the `docker` directory.
-- Documentation in the `docs` directory and in the [main readme](../../README.md).
+- Documentation in the `docs` directory.
 - Operational scripts in the `scripts` directory.
-
-## Further reading
-
-- [DNS zones, servers, and resolvers](./dns-zones-servers-resolvers.md)
-- [References](./references.md)
