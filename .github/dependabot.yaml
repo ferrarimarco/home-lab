@@ -72,6 +72,7 @@ updates:
           - klutchell/unbound
           - koenkk/zigbee2mqtt
           - linuxserver/*
+          - prom/prometheus
           - syncthing/syncthing
           - traefik
       ci-cd-tooling:
