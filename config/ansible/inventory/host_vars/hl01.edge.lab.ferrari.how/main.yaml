@@ -9,6 +9,10 @@ has_intel_igpu: true
 
 data_directory: "/media/data0"
 
+network_interfaces:
+  - mac_address: "bc:24:11:d4:f6:64"
+    interface_name: eth0
+
 # Backup
 restic_backup_repositories_default_path: "{{ data_directory }}"
 restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"

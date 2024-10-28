@@ -127,7 +127,7 @@ monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.c
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
 restic_backup_jobs: []
-root_dns_zone_fqdn: "ferrari.how"
+root_dns_zone_fqdn: "lab.ferrari.how"
 samba_additional_interfaces: "{{ edge_environment_subnet }}"
 samba_default_readers_group_name: "samba-readers"
 samba_default_writers_group_name: "samba-writers"

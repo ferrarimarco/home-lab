@@ -17,7 +17,7 @@
           "extends": "${workspaceFolder}/config/lint/.markdown-lint.yaml"
         },
         "prettier.resolveGlobalModules": true,
-        "pylint.args": ["--rcfile=${workspaceFolder}/config/lint/python-lint"],
+        "pylint.args": ["--rcfile=${workspaceFolder}/config/lint/.python-lint"],
         "redhat.telemetry.enabled": false,
         "[css]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"

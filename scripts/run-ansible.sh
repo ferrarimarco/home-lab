@@ -76,7 +76,7 @@ else
   SSH_AUTH_SOCKET_DESTINATION_PATH="/ssh-agent"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env SSH_AUTH_SOCK=${SSH_AUTH_SOCKET_DESTINATION_PATH}"
 
-  if [ -z "${SSH_AUTH_SOCK-:}" ]; then
+  if [ -z "${SSH_AUTH_SOCK:-}" ]; then
     echo "SSH_AUTH_SOCK is not set. Ensure that the SSH agent is running, and that you added the private keys to connect to nodes to the agent."
     exit 1
   fi
@@ -118,8 +118,11 @@ else
   DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --inventory ${ANSIBLE_INVENTORY_PATH}"
   DEFAULT_ANSIBLE_COMMAND_TO_RUN="${DEFAULT_ANSIBLE_COMMAND_TO_RUN} --vault-id ${ANSIBLE_VAULT_FULL_ID}"
 
+  # --ask-pass: ask for password to connect to hosts
+  # --connection paramiko: use paramiko to connect to the host (useful to connect to hosts using SSH and authenticating with a password)
   # --check: enable check mode (dry-run)
   # --diff: enable diff mode
+  # --limit "host1": only run against host1. host1 must be in the inventory
   # --list-tags: list the defined Ansible tags
   # --tags: run tagged tasks. Example: --tags='tag1,tag2'. To run untagged tasks: --tags untagged
   #   When running tasks related to specific stacks, you need to also run untagged tasks.
