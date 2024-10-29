@@ -73,6 +73,7 @@ updates:
           - koenkk/zigbee2mqtt
           - linuxserver/*
           - prom/prometheus
+          - restic/restic
           - syncthing/syncthing
           - traefik
       ci-cd-tooling:
