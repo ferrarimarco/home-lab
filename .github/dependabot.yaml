@@ -64,6 +64,7 @@ updates:
       home-lab-workloads:
         applies-to: version-updates
         patterns:
+          - cadvisor/cadvisor
           - eclipse-mosquitto
           - fallenbagel/jellyseerr
           - grafana/grafana-oss
