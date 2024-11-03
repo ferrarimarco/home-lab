@@ -46,7 +46,9 @@ updates:
         applies-to: version-updates
         patterns:
           - ansible
+          - fqdn
           - molecule
+          - netaddr
           - pre-commit
           - paramiko
   - directories:
