@@ -112,6 +112,7 @@ home_assistant_docker_compose_up_items:
     pull_container_images: "{{ configure_home_assistant }}"
     start_containerized_services: "{{ start_home_assistant | default(configure_home_assistant) }}"
     stop_containerized_services: "{{ stop_home_assistant | default(false) }}"
+home_assistant_internal_url_home: "http://{{ home_assistant_http_endpoint_fqdn }}:{{ home_assistant_user_interface_host_port }}"
 home_assistant_templates_to_render:
   - src: "home-assistant/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ home_assistant_configuration_directory_path }}/{{ default_docker_compose_file_name }}"

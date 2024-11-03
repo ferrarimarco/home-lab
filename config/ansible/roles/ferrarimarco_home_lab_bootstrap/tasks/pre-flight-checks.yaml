@@ -7,7 +7,7 @@
       Define the home_lab_configuration_directory_path variable and set it to
       the path of the main configuration directory to set up.
     success_msg: |
-      home_lab_configuration_directory_path is defined and not empty: {{ home_lab_configuration_directory_path }}
+      home_lab_configuration_directory_path is defined and not empty: {{ home_lab_configuration_directory_path | default() }}
 
 - ansible.builtin.assert:
     that:
@@ -17,7 +17,17 @@
       Define the home_lab_runtime_directory_path variable and set it to
       the path of the main runtime directory to set up.
     success_msg: |
-      home_lab_runtime_directory_path is defined and not empty: {{ home_lab_runtime_directory_path }}
+      home_lab_runtime_directory_path is defined and not empty: {{ home_lab_runtime_directory_path | default() }}
+
+- ansible.builtin.assert:
+    that:
+      - network_interfaces is defined
+      - network_interfaces | length > 0
+    fail_msg: |
+      Define the network_interfaces variable and initialize it with the list
+      of the network interfaces.
+    success_msg: |
+      network_interfaces is defined and not empty: {{ network_interfaces | default() }}
 
 - name: Wait for systemd to complete initialization. # noqa 303
   ansible.builtin.command: systemctl is-system-running

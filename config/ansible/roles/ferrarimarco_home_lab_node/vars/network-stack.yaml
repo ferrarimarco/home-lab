@@ -49,17 +49,10 @@ dns_records_to_configure: []
 
 root_dns_zone:
   default_record_ttl: 3600
-  dns_administrator_email_address: "dns-admin.{{ root_dns_zone_fqdn }}"
   fqdn: "{{ root_dns_zone_fqdn }}"
-  expire_time: 4000000
-  minimum_ttl_time: 11200
-  refresh_time: 86400
-  retry_time: 7200
-  serial_number: 2017042745
 
-# Lab DNS zone configuration
-lab_dns_zone_fqdn: "lab.{{ root_dns_zone.fqdn }}"
-edge_environment_root_fqdn: "edge.{{ lab_dns_zone_fqdn }}"
+# Edge environment DNS zone configuration
+edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
 
 # IP subnets and address ranges
 edge_environment_subnet: "10.0.0.0/8"
@@ -76,15 +69,29 @@ network_stack_dns_records_to_configure:
     query_type: SOA
     # See https://en.wikipedia.org/wiki/SOA_record
     # DNS admin email contact
-    # Serial: serial number for this zone. If a secondary name server slaved to this one observes an increase in this number, the slave will assume that the zone has been updated and initiate a zone transfer.
-    # Refresh: Number of seconds after which secondary name servers should query the master for the SOA record, to detect zone changes.
-    # Retry: Number of seconds after which secondary name servers should retry to request the serial number from the master if the master does not respond.
-    # Expire: Number of seconds after which secondary name servers should stop answering request for this zone if the master does not respond.
-    # Minimum: Used in calculating the time to live for purposes of negative caching.
-    #   Authoritative name servers take the smaller of the SOA TTL and the SOA MINIMUM to send as the SOA TTL in negative responses.
-    #   Resolvers use the resulting SOA TTL to understand for how long they are allowed to cache a negative response.
-    additional_record_data: |
-      {{ root_dns_zone.dns_administrator_email_address }}. {{ root_dns_zone.serial_number }} {{ root_dns_zone.refresh_time }} {{ root_dns_zone.retry_time }} {{ root_dns_zone.expire_time }} {{ root_dns_zone.minimum_ttl_time }}
+    # Serial: serial number for this zone. If a secondary name server to this
+    # one observes an increase in this number, the secondary name server will
+    # assume that the zone has been updated and initiate a zone transfer.
+    # Refresh: Number of seconds after which secondary name servers should query
+    # the master for the SOA record, to detect zone changes.
+    # Retry: Number of seconds after which secondary name servers should retry
+    # to request the serial number from the master if the master does not
+    # respond.
+    # Expire: Number of seconds after which secondary name servers should stop
+    #   answering request for this zone if the master does not respond.
+    # Minimum: Used in calculating the time to live for purposes of negative
+    #   caching.
+    #   Authoritative name servers take the smaller of the SOA TTL and the SOA
+    #   MINIMUM to send as the SOA TTL in negative responses.
+    #   Resolvers use the resulting SOA TTL to understand for how long they are
+    #   allowed to cache a negative response.
+    additional_record_data: >
+      dns-admin.{{ root_dns_zone_fqdn }}.
+      2017042745
+      86400
+      7200
+      4000000
+      11200
 
 # Container network configuration
 network_stack_network_subnet: "{{ edge_environment_subnet }}"
