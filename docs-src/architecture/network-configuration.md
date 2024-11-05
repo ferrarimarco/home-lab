@@ -1,15 +1,23 @@
-# DNS zones, DNS servers, DNS resolvers, and DHCP servers
+# Network configuration
+
+## Network subnets
+
+Network subnet planning strategy: `10.SITE_ID.VLAN_ID.HOST/24`
+
+- Main subnet: `10.0.0.0/8`
+
+## DNS zones, DNS servers, DNS resolvers, and DHCP servers
 
 In this section, we describe the configuration of DNS zones, DNS servers, and
 DNS resolvers.
 
-## DNS zones
+### DNS zones
 
-- Root DNS zone: `ferrari.how`.
-- Home lab subdomain: `lab.ferrari.how`.
-- Edge home lab subdomain: `edge.lab.ferrari.how`.
+- Root DNS zone: `ferrari.how`
+- Home lab subdomain: `lab.ferrari.how`
+- Edge home lab subdomain: `edge.lab.ferrari.how`
 
-## DNS servers
+### DNS servers
 
 This environment contains the following DNS servers:
 
@@ -23,7 +31,7 @@ This environment contains the following DNS servers:
   even if it doesn't run as an authoritative name server for the
   `edge.lab.ferrari.how` zone.
 
-## DNS resolvers
+### DNS resolvers
 
 This environment contains the following DNS resolvers:
 
@@ -34,7 +42,7 @@ This environment contains the following DNS resolvers:
 - An [unbound](https://nlnetlabs.nl/projects/unbound/about/) instance acts as a
   private, recursive, caching DNS resolver.
 
-## DHCP servers
+### DHCP servers
 
 This environment contains the following DHCP servers:
 

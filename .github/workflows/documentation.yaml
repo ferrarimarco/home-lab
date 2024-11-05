@@ -5,13 +5,13 @@ on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/documentation.yaml"
-      - "docs/**"
+      - "docs-src/**"
       - "config/mkdocs/home-lab-docs/**"
       - scripts/run-mkdocs.sh
   pull_request:
     paths:
       - ".github/workflows/documentation.yaml"
-      - "docs/**"
+      - "docs-src/**"
       - "config/mkdocs/home-lab-docs/**"
       - scripts/run-mkdocs.sh
   workflow_call: null
