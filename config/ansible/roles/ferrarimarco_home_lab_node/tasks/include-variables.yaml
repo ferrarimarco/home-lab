@@ -208,6 +208,7 @@
       fact_dns_records_to_configure: "{{ network_stack_dns_records_to_configure }}"
       fact_configuration_directories: "{{ network_stack_configuration_directories }}"
       fact_docker_compose_up_items: "{{ network_stack_docker_compose_up_items }}"
+      fact_files_to_configure: "{{ network_stack_files_to_configure }}"
       fact_templates_to_render: "{{ network_stack_templates_to_render }}"
     - enable_custom_fact: "{{ configure_backup_restic }}"
       fact_category: "restic"

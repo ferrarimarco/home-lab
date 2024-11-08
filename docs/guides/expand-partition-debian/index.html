@@ -766,29 +766,29 @@
 <ol>
 <li>Backup the current partition table:</li>
 </ol>
-<p><code>sh
-   sfdisk -d /dev/sda &gt; sda_partition_bakup.dmp</code></p>
+<div class="highlight"><pre><span></span><code>sfdisk<span class="w"> </span>-d<span class="w"> </span>/dev/sda<span class="w"> </span>&gt;<span class="w"> </span>sda_partition_bakup.dmp
+</code></pre></div>
 <ol>
 <li>Get details about the changes to the partition table to apply (dry-run) to
    see what will be changed:</li>
 </ol>
-<p><code>sh
-   growpart -N /dev/sda 1</code></p>
+<div class="highlight"><pre><span></span><code>growpart<span class="w"> </span>-N<span class="w"> </span>/dev/sda<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
 <ol>
 <li>Apply changes to the partition table:</li>
 </ol>
-<p><code>sh
-   growpart /dev/sda 1</code></p>
+<div class="highlight"><pre><span></span><code>growpart<span class="w"> </span>/dev/sda<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
 <ol>
 <li>Resize the file system:</li>
 </ol>
-<p><code>sh
-   resize2fs /dev/sdb1</code></p>
+<div class="highlight"><pre><span></span><code>resize2fs<span class="w"> </span>/dev/sdb1
+</code></pre></div>
 <ol>
 <li>Check the file system size:</li>
 </ol>
-<p><code>sh
-   df -h</code></p>
+<div class="highlight"><pre><span></span><code>df<span class="w"> </span>-h
+</code></pre></div>
 
 
 

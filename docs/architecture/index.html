@@ -821,7 +821,7 @@
 <h1 id="home-lab-architecture-overview">Home lab architecture overview</h1>
 <p>This document describes the architecture of the lab.</p>
 <p>The following diagram shows the architectural layers that compose the lab:</p>
-<pre><code class="language-text">+---------------------+
+<div class="highlight"><pre><span></span><code>+---------------------+
 |      Workloads      |
 |---------------------|
 |       Platform      |
@@ -834,7 +834,7 @@
 |---------------------|
 |  Physical hardware  |
 +---------------------+
-</code></pre>
+</code></pre></div>
 <p>The scope of each layer is as follows:</p>
 <ul>
 <li><code>Workloads</code>: manage user-facing applications.</li>
@@ -842,18 +842,21 @@
 <li><code>External</code>: manage external services.</li>
 <li><code>System</code>: manage critical system components.</li>
 <li><code>Bootstrap</code>: manage automated configuration and deployment processes.</li>
-<li><code>Hardware management</code>: manage physical hardware.</li>
+<li><code>Hardware management</code>: manage physical hardware. Example: IPMI, Redfish, KVM.</li>
 <li><code>Physical hardware</code>: provide hardware resources.</li>
 </ul>
 <h2 id="support-content">Support content</h2>
 <p>This repository includes the following content to support provisioning,
 configuration, and deployment processes:</p>
 <ul>
+<li>Development environment container configuration in the <code>.devcontainer</code> directory.</li>
 <li>GitHub-specific configuration in the <code>.github</code> directory.</li>
 <li>Configuration for each architectural layer and support tooling in the <code>config</code> directory.</li>
 <li>Container image descriptors in the <code>docker</code> directory.</li>
-<li>Documentation in the <code>docs</code> directory.</li>
+<li>Documentation site in the <code>docs</code> directory.</li>
+<li>Source of the documentation site in the <code>docs-src</code> directory.</li>
 <li>Operational scripts in the <code>scripts</code> directory.</li>
+<li>Tests in the <code>test</code> directory.</li>
 </ul>
 
 
