@@ -15,6 +15,7 @@ network_stack_docker_compose_up_items:
     pull_container_images: "{{ configure_network_stack }}"
     start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
     stop_containerized_services: "{{ stop_network_stack | default(false) }}"
+network_stack_files_to_configure: []
 network_stack_templates_to_render:
   - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ network_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -25,7 +26,7 @@ network_stack_templates_to_render:
     state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/coredns/zones/lab-dns-zone.jinja"
-    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ root_dns_zone.fqdn }}"
+    dest: "{{ network_stack_configuration_directory_path }}/coredns/zones/{{ network_stack_lab_dns_zone_configuration_destination_file_name }}"
     state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
   - src: "network-stack/unbound/server.conf.jinja"
@@ -36,6 +37,8 @@ network_stack_templates_to_render:
     dest: "{{ network_stack_configuration_directory_path }}/unbound/stub-zones.conf"
     state: "{{ configure_network_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ network_stack_docker_compose_up_items }}"
+
+network_stack_lab_dns_zone_configuration_destination_file_name: "lab-dns-zone"
 
 network_stack_coredns_dns_host_port: 8053
 network_stack_coredns_healthcheck_port: 8085

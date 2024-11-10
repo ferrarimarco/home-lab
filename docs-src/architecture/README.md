@@ -27,7 +27,7 @@ The scope of each layer is as follows:
 - `External`: manage external services.
 - `System`: manage critical system components.
 - `Bootstrap`: manage automated configuration and deployment processes.
-- `Hardware management`: manage physical hardware.
+- `Hardware management`: manage physical hardware. Example: IPMI, Redfish, KVM.
 - `Physical hardware`: provide hardware resources.
 
 ## Support content
@@ -35,8 +35,11 @@ The scope of each layer is as follows:
 This repository includes the following content to support provisioning,
 configuration, and deployment processes:
 
+- Development environment container configuration in the `.devcontainer` directory.
 - GitHub-specific configuration in the `.github` directory.
 - Configuration for each architectural layer and support tooling in the `config` directory.
 - Container image descriptors in the `docker` directory.
-- Documentation in the `docs` directory.
+- Documentation site in the `docs` directory.
+- Source of the documentation site in the `docs-src` directory.
 - Operational scripts in the `scripts` directory.
+- Tests in the `test` directory.

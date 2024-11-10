@@ -17,7 +17,7 @@
 }
 
 {{ root_dns_zone.fqdn }} {
-  file ./zones/{{ root_dns_zone.fqdn }}
+  file ./zones/{{ network_stack_lab_dns_zone_configuration_destination_file_name }}
   import common
 }
 
