@@ -23,6 +23,7 @@ updates:
           - github/*
           - googleapis/*
           - renovatebot/*
+          - super-linter/super-linter
   - directories:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter
@@ -67,6 +68,7 @@ updates:
         applies-to: version-updates
         patterns:
           - cadvisor/cadvisor
+          - coredns/coredns
           - eclipse-mosquitto
           - fallenbagel/jellyseerr
           - grafana/grafana-oss

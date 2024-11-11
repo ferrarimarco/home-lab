@@ -1,4 +1,6 @@
 ---
 ansible_user: pi
+configure_docker: true
 configure_tailscale: true
+configure_wifi: true
 is_raspberry_pi: true

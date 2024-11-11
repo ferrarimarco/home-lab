@@ -9,7 +9,7 @@
     var: dependency_updates_helper_dockerfile
     verbosity: 1
 
-- name: Create the dictionary entry
+- name: Initialize the container_images_ids variable
   ansible.builtin.set_fact:
     container_images_ids: "{{ container_images_ids | combine({item.split()[3]: item.split()[1]}) }}"
   when:

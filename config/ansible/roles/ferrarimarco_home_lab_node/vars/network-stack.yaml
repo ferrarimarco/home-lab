@@ -14,7 +14,6 @@ network_stack_docker_compose_up_items:
     enable_containerized_services: "{{ configure_network_stack }}"
     pull_container_images: "{{ configure_network_stack }}"
     start_containerized_services: "{{ start_network_stack | default(configure_network_stack) }}"
-    stop_containerized_services: "{{ stop_network_stack | default(false) }}"
 network_stack_files_to_configure: []
 network_stack_templates_to_render:
   - src: "network-stack/{{ default_docker_compose_file_name }}.jinja"
@@ -114,6 +113,10 @@ edge_dns_server:
   ipv4_address: "{{ edge_environment_gateway.ipv4_address }}"
   port: 53
 
+# The dnsmasq instance on the gateway acts both as a resolver and as a DNS
+# server for the edge environment
+edge_dns_resolver: "{{ edge_dns_server }}"
+
 # Lab DNS resolver configuration
 lab_dns_resolver:
   ipv4_address: "{{ network_interfaces[0].ipv4_address }}"
@@ -125,9 +128,6 @@ edge_environment_gateway:
   ipv4_address: "{{ edge_environment_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 
 network_stack_edge_dns_resolvers:
-  # The dnsmasq instance on the gateway acts both as a resolver and as a DNS
-  # server for the edge environment
-  - "{{ edge_dns_server }}"
   - "{{ lab_dns_resolver }}"
 
 network_stack_lab_dns_servers:

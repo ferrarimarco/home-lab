@@ -25,7 +25,7 @@ The scope of each layer is as follows:
 - `Workloads`: manage user-facing applications.
 - `Platform`: manage essential components to run workloads.
 - `External`: manage external services.
-- `System`: manage critical system components.
+- `System`: manage critical system components, such as the hypervisor.
 - `Bootstrap`: manage automated configuration and deployment processes.
 - `Hardware management`: manage physical hardware. Example: IPMI, Redfish, KVM.
 - `Physical hardware`: provide hardware resources.

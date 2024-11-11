@@ -46,25 +46,19 @@ scrape_configs:
         - "{{ dns_record_to_check.check_name }}"
     static_configs:
       - targets:
-{% for dns_resolver in network_stack_edge_dns_resolvers %}
+{% for dns_resolver in monitoring_backend_dns_targets_dns_resolvers %}
         - "{{ dns_resolver.ipv4_address }}{% if dns_resolver.port is defined %}:{{ dns_resolver.port }}{% endif %}"
 {% endfor %}
 {# Don't check public-facing DNS records with the internal DNS server #}
 {% if dns_record_to_check.query_name.endswith(root_dns_zone.fqdn) and not dns_record_to_check.check_name.endswith('public') %}
-{% for dns_server in network_stack_lab_dns_servers %}
+{% for dns_server in monitoring_backend_dns_targets_dns_servers %}
         - "{{ dns_server.fqdn }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
+{# Don't add the edge DNS server IPv4 address because we already added it above #}
+{# when adding the edge DNS resolver (they are the same server). #}
+{% if edge_dns_server.ipv4_address != dns_server.ipv4_address %}
         - "{{ dns_server.ipv4_address }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
+{% endif %}
 {% endfor %}
-{% endif %}
-{% if dns_record_to_check.query_name.endswith(edge_environment_root_fqdn) %}
-{% if edge_dns_server.fqdn is defined %}
-        - "{{ edge_dns_server.fqdn }}{% if edge_dns_server.port is defined %}:{{ edge_dns_server.port }}{% endif %}"
-{% endif %}
-{# Don't add the edge DNS server by IPv4 because it's already in the network_stack_edge_dns_resolvers set. #}
-{# Leaving the following as a (commented out) reference if things change in the future #}
-{# {% if edge_dns_server.ipv4_address is defined %} #}
-{#         - "{{ edge_dns_server.ipv4_address }}{% if edge_dns_server.port is defined %}:{{ edge_dns_server.port }}{% endif %}" #}
-{# {% endif %} #}
 {% endif %}
     relabel_configs:
       - source_labels: [__address__] # Add a target parameter of the scrape request URL

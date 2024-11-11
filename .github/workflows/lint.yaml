@@ -76,9 +76,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Commit and push linting fixes
+        # Run even if the previous step failed because super-linter might
+        # exit with an error even if some linters automatically fixed all the
+        # issues that they found
         if: >
           github.event_name == 'pull_request' &&
-          github.ref_name != github.event.repository.default_branch
+          github.ref_name != github.event.repository.default_branch &&
+          !cancelled()
         uses: stefanzweifel/git-auto-commit-action@v5.0.1
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
