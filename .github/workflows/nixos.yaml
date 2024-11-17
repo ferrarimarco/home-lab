@@ -1,0 +1,45 @@
+---
+name: NixOS
+
+on: # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/nixos.yaml"
+      - "config/nixos/**"
+  pull_request:
+    paths:
+      - ".github/workflows/nixos.yaml"
+      - "config/nixos/**"
+  workflow_call: null
+
+permissions:
+  contents: read
+
+jobs:
+  test-nixos-config:
+    concurrency:
+      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      # github.head_ref: head_ref or source branch of the pull request
+      # github.ref: ref of the branch that triggered the workflow
+      group: ${{ github.workflow }}-test-nixos-config-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+    runs-on: ubuntu-latest
+    steps:
+      # No need to explicitly configure KVM permissions because
+      # the nix installer action takes care of that.
+      # Keeping this for reference.
+      # Ref: https://github.blog/changelog/2023-02-23-hardware-accelerated-android-virtualization-on-actions-windows-and-linux-larger-hosted-runners/
+      # - name: Enable KVM group permissions
+      #   run: |
+      #     echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+      #     sudo udevadm control --reload-rules
+      #     sudo udevadm trigger --name-match=kvm
+      - name: Install nix
+        uses: cachix/install-nix-action@v30
+        with:
+          enable_kvm: true
+      - uses: actions/checkout@v4
