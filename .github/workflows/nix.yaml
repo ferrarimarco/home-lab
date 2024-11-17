@@ -1,0 +1,58 @@
+---
+name: Build and check Nix config
+
+on: # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/nix.yaml"
+      - "config/nix/**"
+  pull_request:
+    paths:
+      - ".github/workflows/nix.yaml"
+      - "config/nix/**"
+  workflow_call: null
+
+permissions:
+  contents: read
+
+jobs:
+  test-nix-config:
+    concurrency:
+      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      # github.head_ref: head_ref or source branch of the pull request
+      # github.ref: ref of the branch that triggered the workflow
+      group: ${{ github.workflow }}-test-nix-config-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: config/nix
+    strategy:
+      matrix:
+        nix-configurations:
+          - id: nas1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Install nix
+        uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
+        with:
+          enable_kvm: true
+      - name: Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+      - name: Check the main flake
+        run: nix flake check
+      - name: Build the ${{ matrix.nix-configurations.id }} configuration
+        run: nix build ".#nixosConfigurations.${{ matrix.nix-configurations.id }}.config.system.build.vm"
+      # 6. Run a smoke test (Boot the VM headlessly)
+      - name: Smoke test - boot ${{ matrix.nix-configurations.id }}
+        run: |
+          # Run the VM without graphics and kill it after 60 seconds.
+          # If it crashes before 60 seconds, it will exit with an error and fail the CI.
+          # If it survives the 60 seconds, we consider the boot sequence successful.
+          export QEMU_OPTS="-nographic"
+          timeout 60s ./result/bin/run-nas1-vm || [ $? -eq 124 ]
