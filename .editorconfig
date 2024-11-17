@@ -20,10 +20,10 @@ trim_trailing_whitespace = true
 spaces_around_operators = true
 spaces_around_brackets = false
 
-[{Corefile,Corefile.jinja,Dockerfile}]
+[{Corefile,Corefile.jinja,Dockerfile,flake.lock}]
 indent_size = 2
 
-[*.{hcl.tpl,ino,json,lock.hcl,js,prettierrc,sh,tf,tfvars,yml,yaml,yaml.jinja}]
+[*.{hcl.tpl,ino,json,lock.hcl,js,nix,prettierrc,sh,tf,tfvars,yml,yaml,yaml.jinja}]
 indent_size = 2
 
 [{Makefile,**.mk,go.mod,go.sum,*.go,.gitmodules}]

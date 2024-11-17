@@ -84,6 +84,7 @@
         "GitHub.vscode-pull-request-github",
         "golang.Go",
         "HashiCorp.terraform",
+        "jnoortheen.nix-ide",
         "mads-hartmann.bash-ide-vscode",
         "mkhl.shfmt",
         "ms-azuretools.vscode-docker",
