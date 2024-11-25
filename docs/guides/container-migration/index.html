@@ -825,13 +825,13 @@
 <li>Set the <code>start_xxxxx</code> variable for the target host to <code>false</code> because we don't want to start any services
    before copying data.</li>
 <li>Run Ansible. With the above configuration, it will prepare the target host without starting any service.</li>
-<li>Set the <code>stop_xxxxx</code> variable for the source host to <code>true</code> to stop the service we're migrating.</li>
+<li>Set the <code>start_xxxxx</code> variable for the source host to <code>false</code> to stop the service we're migrating.</li>
 <li>Run Ansible.</li>
 <li>Copy data from the source host to the target host. You can use <code>scripts/migrate-container-data.sh</code> script to transfer data from
    one host to another.</li>
 <li>Remove the <code>start_xxxxx</code> from the target host configuration because it defaults to the <code>configure_xxxxx</code> value, which is set to <code>true</code>.</li>
 <li>Run Ansible.</li>
-<li>Remove the <code>stop_xxxxx</code> variable from the source host configuration.</li>
+<li>Remove the <code>start_xxxxx</code> variable from the source host configuration.</li>
 <li>Remove the <code>configure_xxxxx</code> variable from the source host configuration.</li>
 <li>Run Ansible.</li>
 <li>Commit the changes in the repository.</li>

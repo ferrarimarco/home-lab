@@ -9,9 +9,7 @@
     # Run only if the compose file exists
     removes: "{{ item.compose_file_path }}"
   register: docker_compose_stop_result
-  when:
-    - item.enable_containerized_services
-    - item.stop_containerized_services
+  when: not item.enable_containerized_services or not item.start_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Debug docker_compose_stop_result
@@ -33,9 +31,7 @@
     # Run only if the compose file exists
     removes: "{{ item.compose_file_path }}"
   register: docker_compose_rm_result
-  when:
-    - not item.enable_containerized_services
-    - item.stop_containerized_services
+  when: not item.enable_containerized_services or not item.start_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
 
 - name: Debug docker_compose_rm_result

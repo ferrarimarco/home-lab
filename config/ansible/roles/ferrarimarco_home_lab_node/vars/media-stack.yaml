@@ -55,7 +55,6 @@ media_stack_docker_compose_up_items:
     enable_containerized_services: "{{ configure_media_stack }}"
     pull_container_images: "{{ configure_media_stack }}"
     start_containerized_services: "{{ start_media_stack | default(configure_media_stack) }}"
-    stop_containerized_services: "{{ stop_media_stack | default(false) }}"
 
 media_stack_templates_to_render:
   - src: "media-stack/{{ default_docker_compose_file_name }}.jinja"

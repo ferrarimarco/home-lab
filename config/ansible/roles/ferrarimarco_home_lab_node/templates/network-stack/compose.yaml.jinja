@@ -20,7 +20,7 @@ services:
       - "{{ root_dns_zone_server.ipv4_address }}:{{ network_stack_coredns_dns_host_port }}:53/udp"
       - "{{ network_stack_coredns_healthcheck_port }}:{{ network_stack_coredns_healthcheck_port }}"
       - "{{ network_stack_coredns_prometheus_metrics_port }}:{{ network_stack_coredns_prometheus_metrics_port }}"
-    restart: always
+    restart: unless-stopped
     volumes:
       - './coredns:/etc/coredns'
 
@@ -32,7 +32,7 @@ services:
       - "{{ network_stack_unbound_host_port }}:53"
       # See above about port mapping for UDP ports
       - "{{ lab_dns_resolver.ipv4_address }}:{{ network_stack_unbound_host_port }}:53/udp"
-    restart: always
+    restart: unless-stopped
     volumes:
       - "./unbound:/etc/unbound/custom.conf.d"
 ...
