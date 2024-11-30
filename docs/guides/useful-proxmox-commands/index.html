@@ -328,6 +328,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Storage configuration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -489,27 +510,6 @@
   
   <span class="md-ellipsis">
     Copy Jinja templates as they are
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../expand-partition-debian/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Expand a partition and a filesystem on Debian
   </span>
   
 
@@ -853,7 +853,37 @@ EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</
   Example: Coral PCIe modules (<code>apex</code>, <code>gasket</code>)</li>
 </ul>
 <h2 id="expand-disk-filesystem-and-partition">Expand disk, filesystem, and partition</h2>
-<p>See: <a href="https://pve.proxmox.com/wiki/Resize_disks">https://pve.proxmox.com/wiki/Resize_disks</a>.</p>
+<p>On the Proxmox host:</p>
+<ol>
+<li>Resize the partition using the GUI (VM -&gt; Hardware -&gt; Select disk -&gt; Disk
+   action -&gt; Resize disk). To get the max capacity, see the corresponding storage
+   pool page in the Proxmox admin GUI.</li>
+</ol>
+<p>On the VM:</p>
+<ol>
+<li>
+<p>Get the device ID: <code>sudo dmesg | grep capacity</code></p>
+</li>
+<li>
+<p>Resize the partition:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>parted<span class="w"> </span>/dev/&lt;DEVICE_ID&gt;
+
+<span class="c1"># Get the partition ID</span>
+print
+
+<span class="c1"># Resize the partition</span>
+resizepart<span class="w"> </span>&lt;PARTITION_ID&gt;<span class="w"> </span><span class="m">100</span>%
+
+quit
+</code></pre></div>
+<ol>
+<li>Grow the filesystem:</li>
+</ol>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>resize2fs<span class="w"> </span>/dev/&lt;DEVICE_ID&gt;&lt;PARTITION_ID&gt;
+</code></pre></div>
+<p>For more information, see <a href="https://pve.proxmox.com/wiki/Resize_disks">https://pve.proxmox.com/wiki/Resize_disks</a>.</p>
 
 
 
