@@ -114,7 +114,7 @@ build_cd_container() {
   echo "Build CD container: ${CD_CONTAINER_URL}"
   docker build \
     --tag "${CD_CONTAINER_URL}" \
-    docker/release-please-commitlint
+    docker/ci-cd-tools
 }
 
 check_github_token_file() {
