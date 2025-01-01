@@ -18,4 +18,34 @@ Notes:
 
 ## Expand disk, filesystem, and partition
 
-See: <https://pve.proxmox.com/wiki/Resize_disks>.
+On the Proxmox host:
+
+1. Resize the partition using the GUI (VM -> Hardware -> Select disk -> Disk
+   action -> Resize disk). To get the max capacity, see the corresponding storage
+   pool page in the Proxmox admin GUI.
+
+On the VM:
+
+1. Get the device ID: `sudo dmesg | grep capacity`
+
+1. Resize the partition:
+
+   ```shell
+   sudo parted /dev/<DEVICE_ID>
+
+   # Get the partition ID
+   print
+
+   # Resize the partition
+   resizepart <PARTITION_ID> 100%
+
+   quit
+   ```
+
+1. Grow the filesystem:
+
+   ```shell
+   sudo resize2fs /dev/<DEVICE_ID><PARTITION_ID>
+   ```
+
+For more information, see <https://pve.proxmox.com/wiki/Resize_disks>.
