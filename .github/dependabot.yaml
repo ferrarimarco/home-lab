@@ -23,6 +23,7 @@ updates:
           - github/*
           - googleapis/*
           - renovatebot/*
+          - stefanzweifel/git-auto-commit-action
           - super-linter/super-linter
   - directories:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
