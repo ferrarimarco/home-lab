@@ -104,7 +104,7 @@ network_stack_parent_network_interface_name: "{{ network_interfaces[0].interface
 root_dns_zone_server:
   fqdn: "ns1.{{ root_dns_zone.fqdn }}"
   # Get the first IP address in the subnet
-  ipv4_address: "{{ network_interfaces[0].ipv4_address }}"
+  ipv4_address: "{{ network_interfaces[0].ipv4_address | default('0.0.0.0') }}"
   port: "{{ network_stack_coredns_dns_host_port }}"
 
 # Edge zone DNS server configuration
@@ -119,7 +119,7 @@ edge_dns_resolver: "{{ edge_dns_server }}"
 
 # Lab DNS resolver configuration
 lab_dns_resolver:
-  ipv4_address: "{{ network_interfaces[0].ipv4_address }}"
+  ipv4_address: "{{ network_interfaces[0].ipv4_address | default('0.0.0.0') }}"
   port: "{{ network_stack_unbound_host_port }}"
 
 # Edge environment default gateway

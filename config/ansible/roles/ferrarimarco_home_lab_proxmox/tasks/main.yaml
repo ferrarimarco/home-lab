@@ -49,9 +49,10 @@
     checksum: "{{ item.checksum }}"
   become: true
   with_items:
-    - url: https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.8.0-amd64-netinst.iso
-      checksum: "sha512:https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/SHA512SUMS"
-      dest: "{{ proxmox_isos_directory_path }}"
+    # Keeping this for reference for when we need to download an ISO
+    # - url: https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.8.0-amd64-netinst.iso
+    #   checksum: "sha512:https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/SHA512SUMS"
+    #   dest: "{{ proxmox_isos_directory_path }}"
     - url: https://cloud.debian.org/images/cloud/bookworm/20241110-1927/debian-12-generic-amd64-20241110-1927.raw
       checksum: "sha512:https://cloud.debian.org/images/cloud/bookworm/20241110-1927/SHA512SUMS"
       dest: "{{ proxmox_raws_directory_path }}"
@@ -62,5 +63,6 @@
     state: absent
   become: true
   with_items:
+    - path: "{{ proxmox_isos_directory_path }}/debian-12.8.0-amd64-netinst.iso"
     - path: "{{ proxmox_isos_directory_path }}/debian-12.5.0-amd64-netinst.iso"
     - path: "{{ proxmox_raws_directory_path }}/debian-12-generic-amd64-20240211-1654.raw"

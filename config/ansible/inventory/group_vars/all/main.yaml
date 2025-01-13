@@ -7,7 +7,7 @@ cam_3_rtps_password: "{{ vault_cam_3_rtps_password }}"
 cam_3_rtps_username: "{{ vault_cam_3_rtps_username }}"
 frigate_http_endpoint_fqdn: "hl01.{{ edge_environment_root_fqdn }}"
 grafana_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
-home_assistant_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+home_assistant_http_endpoint_fqdn: "hl01.{{ edge_environment_root_fqdn }}"
 home_assistant_secrets:
   country: "{{ vault_home_assistant_secrets.country }}"
   currency: "{{ vault_home_assistant_secrets.currency }}"
