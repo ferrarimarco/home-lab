@@ -49,6 +49,7 @@ updates:
           - ansible
           - fqdn
           - molecule
+          - molecule-plugins[docker]
           - netaddr
           - pre-commit
           - paramiko
@@ -69,6 +70,7 @@ updates:
         patterns:
           - cadvisor/cadvisor
           - coredns/coredns
+          - druggeri/nut_exporter
           - eclipse-mosquitto
           - fallenbagel/jellyseerr
           - grafana/grafana-oss
