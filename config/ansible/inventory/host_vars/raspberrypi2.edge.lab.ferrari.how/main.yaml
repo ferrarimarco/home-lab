@@ -1,5 +1,4 @@
 ---
-backups_samba_share_path: "/media/data0/backups-marco"
 configure_backup_restic: true
 configure_asuswrt_chkwan: true
 configure_media_stack: true
@@ -13,12 +12,12 @@ configure_zigbee2mqtt: true
 disks_to_mount:
   - fstype: ext4
     opts: noatime
-    path: /media/data0
+    path: "{{ data_directory }}"
     src: UUID=3fb762aa-c397-460b-809c-9ac741ce14f1
     state: mounted
 has_argonone_case: true
 has_coral_usb_accelerator: true
-media_directory_path: "/media/data0/media"
+media_directory_path: "{{ data_directory }}/media"
 monitoring_nut_server_admin_password: "{{ vault_raspberrypi2_monitoring_nut_server_admin_password }}"
 monitoring_nut_server_admin_username: "{{ vault_raspberrypi2_monitoring_nut_server_admin_username }}"
 monitoring_nut_devices:
@@ -29,7 +28,7 @@ monitoring_nut_devices:
     vendorId: "0463"
     productId: "FFFF"
     bus: "001"
-restic_backup_repositories_default_path: "{{ backups_samba_share_path }}"
+restic_backup_repositories_default_path: "{{ data_directory }}/backups-marco"
 restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"
 samba_shares:
   - comment: "Backups-Marco"
@@ -40,7 +39,7 @@ samba_shares:
     force_group: "marco"
     force_user: "marco"
     name: "backups-marco"
-    path: "{{ backups_samba_share_path }}"
+    path: "{{ restic_backup_repositories_default_path }}"
     read_only: "yes"
     valid_users: "marco"
     write_list: "marco"
@@ -67,6 +66,7 @@ samba_os_users:
     groups:
       - "{{ samba_default_readers_group_name }}"
       - "{{ samba_default_writers_group_name }}"
+workloads_backup_disk_mount_path: "{{ data_directory }}"
 tailscale_up_advertise_edge_environment_routes: true
 zigbee_adapter_device_path: "/dev/serial/by-id/usb-1a86_USB_Single_Serial_54DD003512-if00"
 
