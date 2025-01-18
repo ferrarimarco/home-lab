@@ -142,10 +142,6 @@
   ansible.builtin.import_tasks: os-services.yaml
   become: true
 
-- name: Import disk setup tasks
-  ansible.builtin.import_tasks: setup-disks.yaml
-  become: true
-
 - name: Import Argon One case tasks
   ansible.builtin.import_tasks: setup-argonone-case.yaml
   become: true

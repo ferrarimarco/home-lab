@@ -81,4 +81,5 @@ jobs:
           - coral
           - home-lab-node
           - proxmox-node
+          - setup-disks
           - main

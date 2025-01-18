@@ -107,6 +107,7 @@ provisioner:
         vault_asuswrt_administrator_username: "vault_asuswrt_administrator_username"
         vault_asuswrt_administration_ssh_port: "1234"
         vault_media_stack_qbittorrent_webui_password: "vault_media_stack_qbittorrent_webui_password"
+        workloads_backup_disk_mount_path: "/media/backup-0"
   options:
     # Enable Ansible diff mode
     D: true

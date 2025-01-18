@@ -21,6 +21,16 @@
 
 - ansible.builtin.assert:
     that:
+      - workloads_backup_disk_mount_path is defined
+      - workloads_backup_disk_mount_path | length > 0
+    fail_msg: |
+      Define the workloads_backup_disk_mount_path variable and set it to
+      the path of the disk where to store workloads backup to set up.
+    success_msg: |
+      workloads_backup_disk_mount_path is defined and not empty: {{ workloads_backup_disk_mount_path | default() }}
+
+- ansible.builtin.assert:
+    that:
       - network_interfaces is defined
       - network_interfaces | length > 0
     fail_msg: |

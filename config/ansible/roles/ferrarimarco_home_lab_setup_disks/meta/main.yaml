@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  author: https://github.com/ferrarimarco
+  description: |
+    Role to configure disks, partitions, and filesystems in my lab.
+  license: MIT
+  min_ansible_version: "2.17.3"
+  platforms:
+    - name: Debian
+      versions:
+        - all

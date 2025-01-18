@@ -1,5 +1,16 @@
 ---
+- name: Create mountpoints
+  ansible.builtin.file:
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+    owner: "{{ item.owner | default('root') }}"
+    path: "{{ item.path }}"
+    state: directory
+  become: true
+  with_items: "{{ disks_to_mount | default([]) }}"
+
 - name: Create partitions
+  become: true
   community.general.parted:
     device: "{{ item.device }}"
     fs_type: "{{ item.fs_type | default('ext4') }}"
@@ -9,6 +20,7 @@
   with_items: "{{ partitions_to_create | default([]) }}"
 
 - name: Create filesystems
+  become: true
   community.general.filesystem:
     fstype: "{{ item.fstype }}"
     dev: "{{ item.dev }}"
@@ -16,6 +28,7 @@
   with_items: "{{ filesystems_to_create | default([]) }}"
 
 - name: Mount devices
+  become: true
   ansible.posix.mount:
     fstype: "{{ item.fstype }}"
     opts: "{{ item.opts }}"

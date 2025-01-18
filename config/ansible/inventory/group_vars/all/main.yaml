@@ -5,6 +5,7 @@ ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new"
 ansible_user: root
 cam_3_rtps_password: "{{ vault_cam_3_rtps_password }}"
 cam_3_rtps_username: "{{ vault_cam_3_rtps_username }}"
+data_directory: "/media/data0"
 frigate_http_endpoint_fqdn: "hl01.{{ edge_environment_root_fqdn }}"
 grafana_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 home_assistant_http_endpoint_fqdn: "hl01.{{ edge_environment_root_fqdn }}"
@@ -37,3 +38,4 @@ qbittorrent_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 syncthing_user_interface_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 zigbee2mqtt_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 mosquitto_server_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+workloads_backup_disk_mount_path: /media/backup-0

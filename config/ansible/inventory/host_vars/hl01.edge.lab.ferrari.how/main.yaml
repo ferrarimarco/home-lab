@@ -8,14 +8,11 @@ configure_monitoring_sata: false
 has_coral_pci_accelerator: true
 has_intel_igpu: true
 
-data_directory: "/media/data0"
-
 network_interfaces:
   - mac_address: "bc:24:11:d4:f6:64"
     interface_name: eth0
 
 # Backup
-restic_backup_repositories_default_path: "{{ data_directory }}"
 restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"
 
 # Storage
@@ -23,7 +20,7 @@ data_disk_device: /dev/sdb
 disks_to_mount:
   - fstype: ext4
     opts: discard
-    path: "{{ data_directory }}"
+    path: "{{ workloads_backup_disk_mount_path }}"
     src: PARTUUID="739594b9-01"
     state: mounted
 filesystems_to_create:
