@@ -15,6 +15,7 @@ TODO: automate this if it becomes more common
 1. Resize: qm disk resize 100 scsi0 8G
 1. Set boot order: qm set 100 --boot order=scsi0
 1. Attach and configure a second disk from the rpool-sata pool: qm set 100 -scsi1 rpool-sata:vm-100-disk-0,discard=on,iothread=1,size=113G,ssd=1,aio=io_uring
+1. Attach and configure a third disk from the rpool-usb-1 pool: qm set 100 -scsi1 rpool-usb-1:vm-100-disk-1,discard=on,iothread=1,size=885G,ssd=1,aio=io_uring
 1. Enable UEFI and create a UEFI disk volume: qm set 100 --bios ovmf
 1. Configure UEFI disk volume: `qm set 100 --efidisk0 local-zfs:0,efitype=4m`. If you need Secure Boot, add the "pre-enrolled-keys=1" option
 1. Configure cloud-init datasource: qm set 100 --cicustom "user=local:snippets/cloud-init-hl01-user-data.yaml,network=local:snippets/cloud-init-hl01-network.yaml"
