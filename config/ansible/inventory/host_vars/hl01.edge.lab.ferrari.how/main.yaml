@@ -16,16 +16,26 @@ network_interfaces:
 restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"
 
 # Storage
-data_disk_device: /dev/sdb
+backup_disk_device: /dev/sdb
+data_disk_device: /dev/sdc
 disks_to_mount:
   - fstype: ext4
     opts: discard
     path: "{{ workloads_backup_disk_mount_path }}"
     src: PARTUUID="739594b9-01"
     state: mounted
+  - fstype: ext4
+    opts: discard
+    path: "{{ data_disk_mount_path }}"
+    src: PARTUUID="ed80f406-01"
+    state: mounted
 filesystems_to_create:
+  - fstype: ext4
+    dev: "{{ backup_disk_device }}{{ partitions_to_create[lookup('ansible.utils.index_of', data=partitions_to_create, test='eq', value=backup_disk_device, key='device', fail_on_missing=true)].partition_number }}"
   - fstype: ext4
     dev: "{{ data_disk_device }}{{ partitions_to_create[lookup('ansible.utils.index_of', data=partitions_to_create, test='eq', value=data_disk_device, key='device', fail_on_missing=true)].partition_number }}"
 partitions_to_create:
+  - device: "{{ backup_disk_device }}"
+    partition_number: 1
   - device: "{{ data_disk_device }}"
     partition_number: 1
