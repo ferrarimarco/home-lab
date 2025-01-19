@@ -35,9 +35,11 @@ The scope of each layer is as follows:
 This repository includes the following content to support provisioning,
 configuration, and deployment processes:
 
-- Development environment container configuration in the `.devcontainer` directory.
+- Development environment container configuration in the `.devcontainer`
+  directory.
 - GitHub-specific configuration in the `.github` directory.
-- Configuration for each architectural layer and support tooling in the `config` directory.
+- Configuration for each architectural layer and support tooling in the `config`
+  directory.
 - Container image descriptors in the `docker` directory.
 - Documentation site in the `docs` directory.
 - Source of the documentation site in the `docs-src` directory.

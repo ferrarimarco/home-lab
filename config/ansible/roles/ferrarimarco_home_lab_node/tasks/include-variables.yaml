@@ -40,6 +40,11 @@
     dir: vars
     files_matching: "^(.*)-stack.yaml"
 
+- name: Register rsync-daemon facts
+  ansible.builtin.include_tasks:
+    file: register-rsync-daemon-facts.yaml
+  when: configure_rsync_daemon
+
 - name: Set custom facts
   ansible.builtin.include_tasks:
     apply:
@@ -243,6 +248,11 @@
       fact_files_to_configure: "{{ monitoring_ont_files_to_configure }}"
       fact_os_services: "{{ monitoring_ont_os_services }}"
       fact_templates_to_render: "{{ monitoring_ont_templates_to_render }}"
+    - enable_custom_fact: "{{ configure_rsync_daemon }}"
+      fact_category: "{{ rsync_daemon_tag }}"
+      fact_os_packages: "{{ rsync_daemon_os_packages }}"
+      fact_os_services: "{{ rsync_daemon_os_services }}"
+      fact_templates_to_render: "{{ rsync_daemon_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:
@@ -263,3 +273,8 @@
 - name: Register OS package setup tasks
   ansible.builtin.include_tasks:
     file: register-os-package-setup-facts.yaml
+
+- name: Register Intel iGPU tasks
+  ansible.builtin.include_tasks:
+    file: register-intel-igpu-facts.yaml
+  when: has_intel_igpu | default(false)

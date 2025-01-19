@@ -859,10 +859,12 @@
 
 <h1 id="proxmox-admin-notes">Proxmox admin notes</h1>
 <ul>
-<li>Check if there are cloud-init datasource updates: <code>qm cloudinit pending &lt;VM_ID&gt;</code></li>
+<li>Check if there are cloud-init datasource updates:
+  <code>qm cloudinit pending &lt;VM_ID&gt;</code></li>
 <li>Update cloud-init datasource: <code>qm cloudinit update &lt;VM_ID&gt;</code></li>
 <li>Get the next proxmox VM ID: <code>pvesh get /cluster/nextid</code></li>
-<li>Get the list of PCI devices of a given Proxmox host: <code>pvesh get /nodes/{nodename}/hardware/pci --pci-class-blacklist ""</code></li>
+<li>Get the list of PCI devices of a given Proxmox host:
+  <code>pvesh get /nodes/{nodename}/hardware/pci --pci-class-blacklist ""</code></li>
 <li>Delete the EFI disk: <code>qm set &lt;VM_ID&gt; -delete efidisk0</code></li>
 </ul>
 <h2 id="disable-secure-boot">Disable Secure Boot</h2>
@@ -870,15 +872,15 @@
 EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</p>
 <p>Notes:</p>
 <ul>
-<li>Secure Boot prevents unsigned kernel modules from loading.
-  Example: Coral PCIe modules (<code>apex</code>, <code>gasket</code>)</li>
+<li>Secure Boot prevents unsigned kernel modules from loading. Example: Coral PCIe
+  modules (<code>apex</code>, <code>gasket</code>)</li>
 </ul>
 <h2 id="expand-disk-filesystem-and-partition">Expand disk, filesystem, and partition</h2>
 <p>On the Proxmox host:</p>
 <ol>
 <li>Resize the partition using the GUI (VM -&gt; Hardware -&gt; Select disk -&gt; Disk
-   action -&gt; Resize disk). To get the max capacity, see the corresponding storage
-   pool page in the Proxmox admin GUI.</li>
+   action -&gt; Resize disk). To get the max capacity, see the corresponding
+   storage pool page in the Proxmox admin GUI.</li>
 </ol>
 <p>On the VM:</p>
 <ol>

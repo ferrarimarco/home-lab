@@ -24,9 +24,8 @@ This environment contains the following DNS servers:
 - Cloudflare DNS servers that act as authoritative name servers for the root DNS
   zone.
 - A [dnsmasq](https://thekelleys.org.uk/dnsmasq/doc.html) instance running on
-  the default gateway. It responds to DNS queries for the
-  `edge.lab.ferrari.how` zone, and returns authoritative answers from DHCP
-  leases
+  the default gateway. It responds to DNS queries for the `edge.lab.ferrari.how`
+  zone, and returns authoritative answers from DHCP leases
   ([source](https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html)),
   even if it doesn't run as an authoritative name server for the
   `edge.lab.ferrari.how` zone.
@@ -46,7 +45,8 @@ This environment contains the following DNS resolvers:
 
 This environment contains the following DHCP servers:
 
-- A dnsmasq instance running on the default gateway with the following configuration:
+- A dnsmasq instance running on the default gateway with the following
+  configuration:
 
   - Subnet: `10.0.0.0/8`
   - Gateway: `10.0.0.1`

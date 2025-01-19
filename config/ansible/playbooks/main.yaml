@@ -11,5 +11,11 @@
 - name: Import the proxmox node playbook
   ansible.builtin.import_playbook: proxmox-node.yaml
 
+- name: Import the disk setup playbook
+  ansible.builtin.import_playbook: setup-disks.yaml
+
+- name: Import the coral playbook
+  ansible.builtin.import_playbook: coral.yaml
+
 - name: Import the home lab node playbook
   ansible.builtin.import_playbook: home-lab-node.yaml

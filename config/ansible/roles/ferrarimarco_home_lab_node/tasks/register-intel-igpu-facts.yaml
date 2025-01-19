@@ -1,0 +1,20 @@
+---
+- name: Get render group id
+  ansible.builtin.getent:
+    database: group
+    key: render
+
+- name: Debug getent_group
+  ansible.builtin.debug:
+    var: getent_group
+    verbosity: 1
+
+- name: Register facts for Intel iGPU
+  ansible.builtin.set_fact:
+    # Format: {"render": ['x', '104', '']}
+    intel_igpu_render_group_id: "{{ getent_group['render'][1] }}"
+
+- name: Debug intel_igpu_render_group_id
+  ansible.builtin.debug:
+    var: intel_igpu_render_group_id
+    verbosity: 1
