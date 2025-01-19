@@ -5,6 +5,7 @@ media_stack_configuration_directory_path: "{{ home_lab_configuration_directory_p
 jellyfin_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/jellyfin"
 media_stack_jellyseerr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/jellyseerr"
 media_stack_lidarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/lidarr"
+media_stack_prowlarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/prowlarr"
 media_stack_radarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/radarr"
 media_stack_readarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/readarr"
 media_stack_sonarr_configuration_directory_path: "{{ media_stack_configuration_directory_path }}/sonarr"
@@ -35,6 +36,10 @@ media_stack_configuration_directories:
     state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_stack_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_prowlarr_configuration_directory_path }}"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  - group: "{{ media_stack_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_radarr_configuration_directory_path }}"
     state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_stack_owner_group_id }}"
@@ -49,6 +54,41 @@ media_stack_configuration_directories:
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_torrent_configuration_directory_path }}"
     state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  - group: "{{ media_stack_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_torrent_download_path }}"
+    # Don't delete the download library when removing the stack
+    state: directory
+  - group: "{{ media_library_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_media_library_path }}"
+    # Don't delete the media library when removing the stack
+    state: directory
+  - group: "{{ media_library_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_media_library_path }}/Anime"
+    # Don't delete the media library when removing the stack
+    state: directory
+  - group: "{{ media_library_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_media_library_path }}/Comics"
+    # Don't delete the media library when removing the stack
+    state: directory
+  - group: "{{ media_library_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_media_library_path }}/Movies"
+    # Don't delete the media library when removing the stack
+    state: directory
+  - group: "{{ media_library_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_media_library_path }}/Series"
+    # Don't delete the media library when removing the stack
+    state: directory
+  - group: "{{ media_library_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_media_library_path }}/ebooks"
+    # Don't delete the media library when removing the stack
+    state: directory
 
 media_stack_docker_compose_up_items:
   - compose_file_path: "{{ media_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
@@ -67,6 +107,9 @@ media_stack_templates_to_render:
     docker_compose_services_to_restart: "{{ media_stack_docker_compose_up_items }}"
     group: "{{ media_stack_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
+
+# Set the group owner of the library to users (100)
+media_library_owner_group_id: 100
 
 # The qbittorrent container image creates a user with the specified uid and gid that takes owenership of the configuration directory.
 # Ansible may emit a warning because a user with such ids doesn't exist on the system, but it does in the container.

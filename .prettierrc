@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "overrides": [
+    {
+      "files": ["**/*.md"],
+      "options": {
+        "proseWrap": "always"
+      }
+    }
+  ],
+  "tabWidth": 2,
+  "useTabs": false
+}

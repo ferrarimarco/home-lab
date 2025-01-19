@@ -14,6 +14,11 @@
     name: "{{ item }}"
     state: "restarted"
   with_items: "{{ os_services_to_restart | unique }}"
+  register: restart_os_services
+  # Services to restart might not exist when running in check mode, so we don't fail in that case
+  failed_when:
+    - restart_os_services.failed == true
+    - '"Could not find the requested service" not in restart_os_services.msg'
 
 - name: Pull container images
   changed_when: '"Pull complete" in docker_compose_pull_result.stdout or "Pull complete" in docker_compose_pull_result.stderr'

@@ -1,10 +1,4 @@
 ---
-- name: Import the container engine playbook
-  ansible.builtin.import_playbook: container-engine.yaml
-
-- name: Import the disk setup playbook
-  ansible.builtin.import_playbook: setup-disks.yaml
-
 - name: Configure Home Lab nodes
   hosts: all
   gather_facts: true
