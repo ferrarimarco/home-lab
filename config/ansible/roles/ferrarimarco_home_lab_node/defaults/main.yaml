@@ -16,6 +16,7 @@ configure_mqtt_broker: false
 configure_network_stack: false
 configure_network_shares: false
 configure_backup_restic: false
+configure_rsync_daemon: false
 configure_ssh: true
 configure_syncthing: false
 configure_tailscale: false
@@ -128,6 +129,7 @@ qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
 restic_backup_jobs: []
 restic_backup_repositories_default_path: "{{ workloads_backup_disk_mount_path }}"
+rsync_daemon_modules: []
 root_dns_zone_fqdn: "lab.ferrari.how"
 samba_additional_interfaces: "{{ edge_environment_subnet }}"
 samba_default_readers_group_name: "samba-readers"

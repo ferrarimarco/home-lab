@@ -6,7 +6,8 @@ initialization process.
 On the controller, you need the following software tools:
 
 - [Git](https://git-scm.com/). Tested with Git version >= `2.25.0`.
-- An OCI container runtime, such as Docker. Tested with Docker version >= `20.10`.
+- An OCI container runtime, such as Docker. Tested with Docker version >=
+  `20.10`.
 - A connection to an IP network that can route packets to the internet.
 
 To initialize the home lab, do the following:

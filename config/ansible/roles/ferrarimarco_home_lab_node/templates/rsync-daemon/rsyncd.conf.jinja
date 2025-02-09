@@ -1,0 +1,28 @@
+lock file = /var/run/rsync.lock
+log file = /var/log/rsyncd.log
+pid file = /var/run/rsyncd.pid
+
+{% for module in rsync_daemon_modules | default([]) %}
+[{{ module.name }}]
+    path = {{ module.path }}
+    comment = {{ module.comment }}
+{% if module.auth_users is defined %}
+    auth users = {{ module.auth_users | join(' ', attribute='username') }}
+    secrets file = {{ module.secrets_file }}
+{% endif %}
+{% if module.uid is defined %}
+    uid = {{ module.uid }}
+{% endif %}
+{% if module.gid is defined %}
+    gid = {{ module.gid }}
+{% endif %}
+{% if module.read_only is defined %}
+    read only = {{ module.read_only }}
+{% endif %}
+{% if module.list is defined %}
+    list = {{ module.list }}
+{% endif %}
+{% if module.hosts_allow is defined %}
+    hosts allow = {{ module.hosts_allow }}
+{% endif %}
+{% endfor %}
