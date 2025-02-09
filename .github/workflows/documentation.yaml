@@ -38,6 +38,7 @@ jobs:
           scripts/run-mkdocs.sh "build"
       - name: Commit and push updates to the documentation site
         if: >
+          github.event.pull_request.user.login != 'dependabot[bot]' &&
           github.event_name == 'pull_request' &&
           github.ref_name != github.event.repository.default_branch
         uses: stefanzweifel/git-auto-commit-action@v5.0.1

@@ -57,6 +57,8 @@ jobs:
       # github.ref: ref of the branch that triggered the workflow
       group: ${{ github.workflow }}-fix-lint-issues-${{ github.head_ref || github.ref }}-${{ github.event_name }}
       cancel-in-progress: true
+    if: >
+      github.event.pull_request.user.login != 'dependabot[bot]'
     permissions:
       # To write linting fixes
       contents: write
