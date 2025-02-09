@@ -875,11 +875,18 @@
 </ol>
 <h2 id="data-migration-examples">Data migration examples</h2>
 <p>These examples assume that the current working directory is the root of this
-repository.</p>
-<p>To migrate one directory from one host to another:</p>
-<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;rsync://rsync_user@target.hos/destination/directory&quot;</span>
+repository:</p>
+<ul>
+<li>Copy one directory from one host to another by connecting an rsync daemon
+  running on the target host:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;rsync://rsync_user@target.host/destination/directory&quot;</span>
 </code></pre></div>
-<p>The target host must run an rsync daemon.</p>
+<ul>
+<li>Copy one directory from one host to another using rsync:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;user@target.host:/destination/directory/&quot;</span>
+</code></pre></div>
 
 
 
