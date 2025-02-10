@@ -39,7 +39,7 @@ jobs:
           echo "Enable Renovate dry run"
           echo "RENOVATE_DRY_RUN=full" >>"${GITHUB_ENV}"
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v41.0.12
+        uses: renovatebot/github-action@v41.0.13
         env:
           LOG_LEVEL: "debug"
         with:
