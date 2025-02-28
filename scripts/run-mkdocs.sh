@@ -36,18 +36,18 @@ DEFAULT_MKDOCS_ARGS=(
   --config-file config/mkdocs/home-lab-docs/mkdocs.yaml
 )
 
-if [[ "${1}" == "serve" ]]; then
+if [[ "${SUBCOMMAND}" == "serve" ]]; then
   RUN_CONTAINER_COMMAND+=(
     "serve"
     "--dev-addr=0.0.0.0:8000"
     "${DEFAULT_MKDOCS_ARGS[@]}"
   )
-elif [[ "${1}" == "build" ]]; then
+elif [[ "${SUBCOMMAND}" == "build" ]]; then
   RUN_CONTAINER_COMMAND+=(
     "build"
     "${DEFAULT_MKDOCS_ARGS[@]}"
   )
-elif [[ "${1}" == "create" ]]; then
+elif [[ "${SUBCOMMAND}" == "create" ]]; then
   RUN_CONTAINER_COMMAND+=(
     "new"
     .

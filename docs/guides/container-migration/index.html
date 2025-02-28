@@ -842,27 +842,50 @@
 <h1 id="container-migration-playbook">Container migration playbook</h1>
 <p>If you need to migrate containers and data between hosts, do the following:</p>
 <ol>
-<li>Set the <code>configure_xxxxx</code> variable for the target host to <code>true</code> to prepare the target host.</li>
-<li>Set the <code>start_xxxxx</code> variable for the target host to <code>false</code> because we don't want to start any services
-   before copying data.</li>
-<li>Run Ansible. With the above configuration, it will prepare the target host without starting any service.</li>
-<li>Set the <code>start_xxxxx</code> variable for the source host to <code>false</code> to stop the service we're migrating.</li>
+<li>Set the <code>configure_rsync_daemon</code> variable for the target host to <code>true</code> to
+   setup an rsync daemon.</li>
+<li>Initialize the <code>rsync_daemon_modules</code> variable for the target host to
+   configure rsync modules.</li>
+<li>Set the <code>configure_xxxxx</code> variable for the target host to <code>true</code> to prepare
+   the target host.</li>
+<li>Set the <code>start_xxxxx</code> variable for the target host to <code>false</code> because we
+   don't want to start any services before copying data.</li>
+<li>Run Ansible. With the above configuration, it will prepare the target host
+   without starting any service.</li>
+<li>Set the <code>start_xxxxx</code> variable for the source host to <code>false</code> to stop the
+   service we're migrating.</li>
 <li>Run Ansible.</li>
-<li>Copy data from the source host to the target host. You can use <code>scripts/migrate-stack.sh</code> script to transfer data from
-   one host to another.</li>
-<li>Remove the <code>start_xxxxx</code> from the target host configuration because it defaults to the <code>configure_xxxxx</code> value, which is set to <code>true</code>.</li>
-<li>If needed, update endpoint definitions in <code>config/ansible/inventory/group_vars/all/main.yaml</code>.</li>
+<li>Copy data from the source host to the target host. You can use
+   <code>scripts/copy-data.sh</code> script to copy data from one host to another.</li>
+<li>Remove the <code>start_xxxxx</code> from the target host configuration because it
+   defaults to the <code>configure_xxxxx</code> value, which is set to <code>true</code>.</li>
+<li>If needed, update endpoint definitions in
+   <code>config/ansible/inventory/group_vars/all/main.yaml</code>.</li>
 <li>Run Ansible.</li>
 <li>Verify that the container works in the target environment as expected.</li>
 <li>Remove the <code>start_xxxxx</code> variable from the source host configuration.</li>
 <li>Remove the <code>configure_xxxxx</code> variable from the source host configuration.</li>
 <li>Run Ansible. This will remove all the copied data from the source host.</li>
+<li>Delete data in the source host if it's not deleted automatically, such as
+   media directories.</li>
+<li>If not needed anymore, disable the rsync daemon by removing the
+   <code>configure_rsync_daemon</code> and <code>rsync_daemon_modules</code> variables in the target
+   host configuration.</li>
 <li>Commit the changes in the repository.</li>
 </ol>
 <h2 id="data-migration-examples">Data migration examples</h2>
-<p>These examples assume that the current working directory is the root of this repository.</p>
-<p>To migrate one directory from one host to another:</p>
-<div class="highlight"><pre><span></span><code>scripts/migrate-stack.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;user2@target.host&quot;</span><span class="w"> </span><span class="s2">&quot;/destination&quot;</span>
+<p>These examples assume that the current working directory is the root of this
+repository:</p>
+<ul>
+<li>Copy one directory from one host to another by connecting an rsync daemon
+  running on the target host:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;rsync://rsync_user@target.host/destination/directory&quot;</span>
+</code></pre></div>
+<ul>
+<li>Copy one directory from one host to another using rsync:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;user@target.host:/destination/directory/&quot;</span>
 </code></pre></div>
 
 

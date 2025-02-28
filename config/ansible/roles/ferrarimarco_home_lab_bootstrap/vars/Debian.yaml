@@ -6,4 +6,6 @@ bootstrap_os_packages:
   - gnupg2
   # We need this for the ansible.builtin.deb822_repository task
   - python3-debian
+  - rsync
+  - tmux
 debian_package_repository_mirrors_file: /etc/apt/mirrors/debian.list

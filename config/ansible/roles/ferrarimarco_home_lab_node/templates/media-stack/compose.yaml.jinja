@@ -13,6 +13,12 @@ services:
   jellyfin:
     image: {{ container_images_ids["jellyfin"] }}
     container_name: jellyfin
+{% if has_intel_igpu | default(false) %}
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    group_add:
+      - {{ intel_igpu_render_group_id }}
+{% endif %}
     volumes:
       - {{ jellyfin_configuration_directory_path }}:/config
       - {{ jellyfin_cache_directory_path }}:/cache
@@ -55,6 +61,8 @@ services:
     ports:
       - {{ media_stack_prowlarr_port }}:9696
     restart: unless-stopped
+    volumes:
+      - "{{ media_stack_prowlarr_configuration_directory_path }}:/config"
   qbittorrent-nox:
     image: {{ container_images_ids["qbittorrent"] }}
     container_name: qbittorrent-nox
