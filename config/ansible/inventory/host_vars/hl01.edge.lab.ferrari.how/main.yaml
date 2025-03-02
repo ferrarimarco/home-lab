@@ -4,7 +4,9 @@ configure_backup_restic: true
 configure_docker: true
 configure_frigate: true
 configure_home_assistant: true
+configure_media_stack: true
 configure_monitoring_sata: false
+configure_rsync_daemon: true
 has_coral_pci_accelerator: true
 has_intel_igpu: true
 
@@ -39,3 +41,18 @@ partitions_to_create:
     partition_number: 1
   - device: "{{ data_disk_device }}"
     partition_number: 1
+
+# Data synchronization
+rsync_daemon_modules:
+  - name: media
+    path: "{{ media_directory_path }}"
+    auth_users:
+      - username: rsyncclient
+        password: "{{ vault_media_rsyncclient_password }}"
+    comment: media
+    gid: "{{ ansible_user }}"
+    uid: "{{ ansible_user }}"
+    list: "yes"
+    read_only: "no"
+    secrets_file: /etc/rsyncd-media.secrets
+    hosts_allow: "10.0.0.0/255.0.0.0"

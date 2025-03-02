@@ -1,0 +1,24 @@
+---
+rsync_daemon_config_file_name: rsyncd.conf
+rsync_daemon_secrets_template_path: rsyncd.secrets.jinja
+# The rsync package includes a systemd service
+rsync_daemon_systemd_service_name: rsync
+rsync_daemon_tag: rsync-daemon
+rsync_daemon_templates_source_directory_path: "{{ rsync_daemon_tag }}"
+rsync_daemon_templates_to_render:
+  - src: "{{ rsync_daemon_templates_source_directory_path }}/{{ rsync_daemon_config_file_name }}.jinja"
+    dest: "/etc/{{ rsync_daemon_config_file_name }}"
+    os_services_to_restart: "{{ rsync_daemon_os_services_to_restart }}"
+    state: "{{ configure_rsync_daemon | ternary('file', 'absent') }}"
+
+rsync_daemon_os_packages:
+  - name: rsync
+    state: "{{ configure_rsync_daemon | ternary('present', 'absent') }}"
+
+rsync_daemon_os_services:
+  - enabled: "{{ configure_rsync_daemon | ternary(true, false) }}"
+    service_name: "{{ rsync_daemon_systemd_service_name }}"
+    service_state: "{{ configure_rsync_daemon | ternary('started', 'stopped') }}"
+
+rsync_daemon_os_services_to_restart:
+  - "{{ rsync_daemon_systemd_service_name }}"

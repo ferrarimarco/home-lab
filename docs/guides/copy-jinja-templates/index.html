@@ -785,12 +785,13 @@
 
 <h1 id="copy-jinja-templates-as-they-are">Copy Jinja templates as they are</h1>
 <p>If you need to copy Jinja templates with the Ansible Template Module, you can
-configure Ansible to change the variable start and end prefixes inside the template
-by adding a special header.</p>
+configure Ansible to change the variable start and end prefixes inside the
+template by adding a special header.</p>
 <p>For example:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">#jinja2:variable_start_string:&#39;[%&#39;, variable_end_string:&#39;%]&#39;</span>
 </code></pre></div>
-<p>Changes the default variable start and end prefixes from <code>{{</code> and <code>}}</code> to <code>[%</code> and <code>%]</code>.</p>
+<p>Changes the default variable start and end prefixes from <code>{{</code> and <code>}}</code> to <code>[%</code>
+and <code>%]</code>.</p>
 
 
 
