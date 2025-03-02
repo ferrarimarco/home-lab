@@ -44,7 +44,7 @@
         "(^|/)*.sh"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z-]+?))?\\s(?:ENV|ARG)?\\s*.+?_VERSION=\"?(?<currentValue>.+?)?(?:@(?<currentDigest>sha256:[a-f0-9]+))?\"?\\s"
+        "# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z-]+?))?\\s(?:ENV|ARG)?\\s*.+?_VERSION=\"?(?<currentValue>[a-z0-9.-]+)?(?:@(?<currentDigest>sha256:[a-f0-9]+))?\"?\\s"
       ]
     }
   ],
