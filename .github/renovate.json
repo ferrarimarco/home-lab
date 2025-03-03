@@ -36,6 +36,7 @@
   },
   "customManagers": [
     {
+      "autoReplaceStringTemplate": "{{{depName}}}:{{{newValue}}}@{{{newDigest}}}",
       "customType": "regex",
       "description": "Update _VERSION variables in Dockerfiles, and shell scripts",
       "fileMatch": [
