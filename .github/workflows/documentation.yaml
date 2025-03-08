@@ -5,13 +5,13 @@ on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/documentation.yaml"
-      - "docs-src/**"
+      - "websites-src/home-lab-docs/**"
       - "config/mkdocs/home-lab-docs/**"
       - scripts/run-mkdocs.sh
   pull_request:
     paths:
       - ".github/workflows/documentation.yaml"
-      - "docs-src/**"
+      - "websites-src/home-lab-docs/**"
       - "config/mkdocs/home-lab-docs/**"
       - scripts/run-mkdocs.sh
   workflow_call: null
@@ -25,7 +25,7 @@ jobs:
       # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
       # github.head_ref: head_ref or source branch of the pull request
       # github.ref: ref of the branch that triggered the workflow
-      group: ${{ github.workflow }}-build-documentation-sites-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      group: ${{ github.workflow }}-build-push-documentation-site-${{ github.head_ref || github.ref }}-${{ github.event_name }}
       cancel-in-progress: true
     permissions:
       # To commit the newly built documentation site
