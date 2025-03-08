@@ -12,6 +12,9 @@ echo "Running mkdocs: ${MKDOCS_CONTAINER_IMAGE}"
 SUBCOMMAND="${1}"
 echo "Subcommand: ${SUBCOMMAND}"
 
+MKDOCS_CONFIG_FILE_DIRECTORY_NAME="${2}"
+echo "Mkdocs config file directory name: ${MKDOCS_CONFIG_FILE_DIRECTORY_NAME}"
+
 RUN_CONTAINER_COMMAND=(
   docker run
   --rm
@@ -32,8 +35,14 @@ RUN_CONTAINER_COMMAND+=(
   "${MKDOCS_CONTAINER_IMAGE}"
 )
 
+MKDOCS_CONFIG_FILE_PATH="config/mkdocs/${MKDOCS_CONFIG_FILE_DIRECTORY_NAME}/mkdocs.yaml"
+if [[ ! -f "${MKDOCS_CONFIG_FILE_PATH}" ]]; then
+  echo "Mkdocs config file (${MKDOCS_CONFIG_FILE_PATH}) doesn't exist or is not readable"
+  exit "${ERR_ARGUMENT_EVAL}"
+fi
+
 DEFAULT_MKDOCS_ARGS=(
-  --config-file config/mkdocs/home-lab-docs/mkdocs.yaml
+  --config-file "${MKDOCS_CONFIG_FILE_PATH}"
 )
 
 if [[ "${SUBCOMMAND}" == "serve" ]]; then
@@ -52,6 +61,9 @@ elif [[ "${SUBCOMMAND}" == "create" ]]; then
     "new"
     .
   )
+else
+  echo "Set a mkdocs subcommand using the first argument"
+  exit "${ERR_ARGUMENT_EVAL}"
 fi
 
 echo "Run container command: ${RUN_CONTAINER_COMMAND[*]}"
