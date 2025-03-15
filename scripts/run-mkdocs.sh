@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+set -o errexit
+set -o nounset
+set -o pipefail
+
 # shellcheck source=/dev/null
 . "./scripts/common.sh"
 
@@ -54,6 +58,7 @@ if [[ "${SUBCOMMAND}" == "serve" ]]; then
 elif [[ "${SUBCOMMAND}" == "build" ]]; then
   RUN_CONTAINER_COMMAND+=(
     "build"
+    "--strict"
     "${DEFAULT_MKDOCS_ARGS[@]}"
   )
 elif [[ "${SUBCOMMAND}" == "create" ]]; then
