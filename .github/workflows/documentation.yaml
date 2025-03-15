@@ -14,7 +14,7 @@ on: # yamllint disable-line rule:truthy
       - "websites-src/home-lab-docs/**"
       - "config/mkdocs/home-lab-docs/**"
       - scripts/run-mkdocs.sh
-  workflow_call: null
+  workflow_dispatch: null
 
 permissions:
   contents: read

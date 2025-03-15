@@ -1,0 +1,179 @@
+---
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/supporting-your-migration-with-istio-mesh-expansion-concept
+    - type: Tutorial
+      url: https://cloud.google.com/solutions/supporting-your-migration-with-istio-mesh-expansion-tutorial
+  title: "Supporting your migration with Istio Mesh Expansion"
+  year: 2021
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Tutorial
+      url: https://cloud.google.com/architecture/migrating-containers-multi-cluster-gke-ingress-services
+  title: Migrating to a multi-cluster GKE environment with Multi Cluster Ingress and Multi Cluster Service Discovery
+  year: 2021
+- authors:
+    - id: ferrarimarco
+    - name: James Brook
+    - name: Luca Prete
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/architecture/migrating-containers-multi-cluster-gke
+  title: "Migrating containers to Google Cloud: Migrating to a multi-cluster GKE environment"
+  year: 2021
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/architecture/migrating-vms-migrate-for-compute-engine-best-practices
+  title: "Migrating VMs with Migrate for Compute Engine: Best practices"
+  year: 2021
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/designing-multi-tenant-architectures
+  title: "Designing a multi-tenant environment on Google Cloud"
+  year: 2021
+- authors:
+    - id: ferrarimarco
+    - name: Jenny Rosewood
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migration-to-gcp-choosing-your-path
+  title: "Migration to Google Cloud: Choosing your migration path"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migrating-containers-to-google-cloud
+  title: "Migrating Containers to Google Cloud: Getting started"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migrating-vms-migrate-for-compute-engine-migrating-vms
+  title: "Migrate for Compute Engine: Migrating your virtual machines"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migrating-vms-migrate-for-compute-engine-building-foundation
+  title: "Migrate for Compute Engine: Planning and building your foundation"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migrating-vms-migrate-for-compute-engine-getting-started
+  title: "Migrate for Compute Engine: Getting started"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+    - name: Giovanni Galloro
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migrating-vms-migrate-for-compute-engine-getting-started
+  title: "Migrating containers to Google Cloud: Migrating from OpenShift to Anthos"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+    - name: Markku Lepisto
+    - name: Charlie Wang
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/building-multi-architecture-container-images-iot-devices
+    - type: Tutorial
+      url: https://cloud.google.com/solutions/building-multi-architecture-container-images-iot-devices-tutorial
+  title: "Building multi-architecture container images for IoT devices"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migrating-containers-kubernetes-gke
+  title: "Migrating containers to Google Cloud: Migrating Kubernetes to GKE"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migration-to-google-cloud-automated-containerized-deployments
+  title: "Migration to Google Cloud: Migrating from manual deployments to automated, containerized deployments"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+    - name: Junho Lee
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migration-to-google-cloud-optimizing-your-environment
+  title: "Migration to Google Cloud: Optimizing your environment"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Tutorial
+      url: https://cloud.google.com/solutions/automatically-bootstrapping-gke-nodes-with-daemonsets
+  title: "Automatically bootstrapping Kubernetes Engine nodes with DaemonSets"
+  year: 2020
+- authors:
+    - id: ferrarimarco
+    - name: Markku Lepisto
+  links:
+    - type: Tutorial
+      url: https://cloud.google.com/solutions/tracking-assets-with-iot-devices-pycom-sigfox-gcp
+  title: "IoT Asset Tracking with Pycom, Sigfox and Google Cloud"
+  year: 2019
+- authors:
+    - id: ferrarimarco
+    - name: Ron Pantofaro
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migration-to-gcp-getting-started
+  title: "Migration to Google Cloud: getting started"
+  year: 2019
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migration-to-gcp-assessing-and-discovering-your-workloads
+  title: "Migration to Google Cloud: Assessing and discovering your workloads"
+  year: 2019
+- authors:
+    - id: ferrarimarco
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migration-to-gcp-deploying-your-workloads
+  title: "Migration to Google Cloud: Deploying your workloads"
+  year: 2019
+- authors:
+    - id: ferrarimarco
+    - name: Théo Chamley
+  links:
+    - type: Reference guide
+      url: https://cloud.google.com/solutions/migrating-a-monolithic-app-to-microservices-gke
+  title: "Migrating a monolithic application to microservices on Kubernetes Engine"
+  year: 2019
+- authors:
+    - id: ferrarimarco
+    - name: Ron Pantofaro
+  links:
+    - type: Reference guide (introduction)
+      url: https://cloud.google.com/solutions/deploying-ibm-db2-warehouse-on-gcp
+    - type: Reference guide (part 1)
+      url: https://cloud.google.com/solutions/deploying-ibm-db2-warehouse-on-compute-engine-using-nfs
+    - type: Reference guide (part 2)
+      url: https://cloud.google.com/solutions/deploying-ibm-db2-warehouse-on-compute-engine-using-glusterfs
+    - type: Reference guide (part 3)
+      url: https://cloud.google.com/solutions/deploying-ibm-db2-warehouse-on-gke-using-nfs
+    - type: Reference guide (part 4)
+      url: https://cloud.google.com/solutions/deploying-ibm-db2-warehouse-on-gke-using-glusterfs
+  title: "IBM Db2 Warehouse deployment strategies on Google Cloud"
+  year: 2019
+...
