@@ -1,10 +1,11 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 # shellcheck disable=SC2029
 # Disable SC2029 because intend to expand variables on the client
 # that runs this script, not on the server
 
 set -o errexit
 set -o nounset
+set -o pipefail
 
 _SOURCE_HOST="${1}"
 _SOURCE_DIRECTORY="${2}"

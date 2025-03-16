@@ -1,7 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -o errexit
 set -o nounset
+set -o pipefail
 
 # shellcheck disable=SC2034
 ERR_ARGUMENT_EVAL=2
@@ -17,6 +18,12 @@ GITHUB_TOKEN_PATH="$(pwd)/.github-personal-access-token"
 
 # shellcheck disable=SC2034
 HOME_LAB_DOCS_CONFIGURATION_FILE_PATH="config/mkdocs/home-lab-docs/mkdocs.yml"
+
+# shellcheck disable=SC2034
+MKDOCS_IGNORE_IF_ONLY_CHANGED_FILES=(
+  "docs/sitemap.xml"
+  "docs/sitemap.xml.gz"
+)
 
 _DOCKER_INTERACTIVE_TTY_OPTION=
 if [ -t 0 ]; then
@@ -40,7 +47,7 @@ is_container_runtime_available() {
 }
 
 activate_python_virtual_environment() {
-  VENV_PATH="${1}"
+  local VENV_PATH="${1}"
 
   if [ -z "${VIRTUAL_ENV-}" ]; then
     echo "Activating the virtual environment in ${VENV_PATH}"
@@ -54,7 +61,7 @@ activate_python_virtual_environment() {
 }
 
 is_python_virtual_environment_up_to_date() {
-  PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE=0
+  local PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE=0
   if [ ! -e "${1}" ]; then
     # The virtual environment doesn't exist, so it can't be up to date by definition
     PYTHON_VIRTUAL_ENVIRONMENT_CHECK_RETURN_CODE=1
@@ -74,9 +81,9 @@ is_python_virtual_environment_up_to_date() {
 }
 
 create_and_activate_python_virtual_environment() {
-  PYTHON_VIRTUAL_ENVIRONMENT_PATH="${1}"
-  PIP_REQUIREMENTS_PATH="${2:-""}"
-  _FORCE_UPDATE_PYTHON_VIRTUAL_ENVIRONMENT="${3:-"false"}"
+  local PYTHON_VIRTUAL_ENVIRONMENT_PATH="${1}"
+  local PIP_REQUIREMENTS_PATH="${2:-""}"
+  local _FORCE_UPDATE_PYTHON_VIRTUAL_ENVIRONMENT="${3:-"false"}"
 
   if [ -e "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" ] && ! is_python_virtual_environment_up_to_date "${PYTHON_VIRTUAL_ENVIRONMENT_PATH}" && [ "${_FORCE_UPDATE_PYTHON_VIRTUAL_ENVIRONMENT}" = "true" ]; then
     echo "The ${PYTHON_VIRTUAL_ENVIRONMENT_PATH} virtual environment already exists but it's not up to date. Deleting it..."
@@ -121,5 +128,36 @@ check_github_token_file() {
   if [ ! -f "${GITHUB_TOKEN_PATH}" ]; then
     echo "Error: ${GITHUB_TOKEN_PATH} doesn't exist, or is not a file."
     exit "${ERR_MISSING_GITHUB_TOKEN_FILE}"
+  fi
+}
+
+check_if_uncommitted_files_only_include_files() {
+  local -a FILES_TO_CHECK=("$@")
+  local -a CHANGED_FILES
+
+  git status
+
+  readarray -d '' -t CHANGED_FILES < <(git diff-files -z --name-only)
+  readarray -d '' -t SORTED_CHANGED_FILES < <(printf '%s\0' "${CHANGED_FILES[@]}" | sort -z)
+
+  echo "Changed files (${#SORTED_CHANGED_FILES[@]}) in working directory:"
+  echo "${SORTED_CHANGED_FILES[*]}"
+
+  readarray -d '' -t SORTED_FILES_TO_CHECK < <(printf '%s\0' "${FILES_TO_CHECK[@]}" | sort -z)
+
+  if [[ "${SORTED_CHANGED_FILES[*]}" == "${SORTED_FILES_TO_CHECK[*]}" ]]; then
+    echo "Working directory contains only the files to check"
+    return 0
+  else
+    echo "Working directory doesn't contain only the files to check"
+    return 1
+  fi
+}
+
+check_if_uncommitted_files_only_include_files_to_ignore() {
+  if check_if_uncommitted_files_only_include_files "${MKDOCS_IGNORE_IF_ONLY_CHANGED_FILES[@]}"; then
+    return 0
+  else
+    return 1
   fi
 }

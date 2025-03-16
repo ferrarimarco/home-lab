@@ -5,13 +5,13 @@ on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/documentation.yaml"
-      - "docs-src/**"
+      - "websites-src/home-lab-docs/**"
       - "config/mkdocs/home-lab-docs/**"
       - scripts/run-mkdocs.sh
   pull_request:
     paths:
       - ".github/workflows/documentation.yaml"
-      - "docs-src/**"
+      - "websites-src/home-lab-docs/**"
       - "config/mkdocs/home-lab-docs/**"
       - scripts/run-mkdocs.sh
   workflow_call: null
@@ -25,7 +25,7 @@ jobs:
       # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
       # github.head_ref: head_ref or source branch of the pull request
       # github.ref: ref of the branch that triggered the workflow
-      group: ${{ github.workflow }}-build-documentation-sites-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      group: ${{ github.workflow }}-build-push-documentation-site-${{ github.head_ref || github.ref }}-${{ github.event_name }}
       cancel-in-progress: true
     permissions:
       # To commit the newly built documentation site
@@ -36,11 +36,24 @@ jobs:
       - name: Build the documentation site
         run: |
           scripts/run-mkdocs.sh "build" "home-lab-docs"
+      # Check if changed files only include files that we can ignore, such as
+      # when only updating the sitemap
+      - name: Check documentation updates
+        id: check_documentation_updates
+        run: |
+          . scripts/common.sh
+          ONLY_CONTAINS_FILES_TO_IGNORE="false"
+          if check_if_uncommitted_files_only_include_files_to_ignore; then
+            echo "Documentation commit only contains files to ignore"
+            ONLY_CONTAINS_FILES_TO_IGNORE="true"
+          fi
+          echo "ONLY_CONTAINS_FILES_TO_IGNORE=${ONLY_CONTAINS_FILES_TO_IGNORE}" >>"$GITHUB_OUTPUT"
       - name: Commit and push updates to the documentation site
         if: >
           github.event.pull_request.user.login != 'dependabot[bot]' &&
           github.event_name == 'pull_request' &&
-          github.ref_name != github.event.repository.default_branch
+          github.ref_name != github.event.repository.default_branch &&
+          steps.check_documentation_updates.outputs.ONLY_CONTAINS_FILES_TO_IGNORE == 'false'
         uses: stefanzweifel/git-auto-commit-action@v5.1.0
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}

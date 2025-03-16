@@ -1,7 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -o errexit
 set -o nounset
+set -o pipefail
 
 # Doesn't follow symlinks, but it's likely expected for most users
 SCRIPT_BASENAME="$(basename "${0}")"
