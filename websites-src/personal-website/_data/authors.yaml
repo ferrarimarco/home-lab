@@ -8,8 +8,7 @@ ferrarimarco:
   linkedin: ferrarimark
   name: Marco Ferrari
   stackoverflow: marco-ferrari
-  stackoverflow_user_id: '653462'
+  stackoverflow_user_id: "653462"
   # Don't use @ in front of your Twitter username because it's already in the template
   twitter: ferrarimarco
   website_url: https://ferrarimarco.info
-...
