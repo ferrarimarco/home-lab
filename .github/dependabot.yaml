@@ -19,6 +19,7 @@ updates:
         applies-to: version-updates
         patterns:
           - actions/*
+          - cachix/install-nix-action
           - docker/*
           - github/*
           - googleapis/*
