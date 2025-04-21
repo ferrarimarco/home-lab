@@ -54,7 +54,7 @@ jobs:
           github.event_name == 'pull_request' &&
           github.ref_name != github.event.repository.default_branch &&
           steps.check_documentation_updates.outputs.ONLY_CONTAINS_FILES_TO_IGNORE == 'false'
-        uses: stefanzweifel/git-auto-commit-action@v5.1.0
+        uses: stefanzweifel/git-auto-commit-action@v5.2.0
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "chore: update documentation site"
