@@ -3,7 +3,7 @@ Description=Run the {{ monitoring_ont_network_config_script_name }} script again
 
 [Service]
 Nice=-10
-ExecStart=sh -c 'ssh -v -p {{ asuswrt_administration_ssh_port }} {{ asuswrt_administrator_username }}@{{ edge_environment_gateway.fqdn }} "cat > {{ monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router }} && chmod a+x {{ monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router }} && {{ monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router }}" < {{ monitoring_ont_configure_route_to_ont_script_destination_path }}'
+ExecStart=sh -c 'ssh -p {{ asuswrt_administration_ssh_port }} {{ asuswrt_administrator_username }}@{{ edge_environment_gateway.fqdn }} "cat > {{ monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router }} && chmod a+x {{ monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router }} && {{ monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router }}" < {{ monitoring_ont_configure_route_to_ont_script_destination_path }}'
 # Write nothing on the filesystem
 ProtectSystem=strict
 User={{ monitoring_ont_user }}
