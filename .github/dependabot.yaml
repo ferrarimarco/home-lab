@@ -70,6 +70,7 @@ updates:
       home-lab-workloads:
         applies-to: version-updates
         patterns:
+          - blakeblackshear/frigate
           - cadvisor/cadvisor
           - coredns/coredns
           - druggeri/nut_exporter
@@ -81,7 +82,10 @@ updates:
           - klutchell/unbound
           - koenkk/zigbee2mqtt
           - linuxserver/*
+          - ngosang/restic-exporter
+          - prom/blackbox-exporter
           - prom/prometheus
+          - prometheus/node-exporter
           - restic/restic
           - syncthing/syncthing
           - traefik
