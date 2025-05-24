@@ -1,5 +1,6 @@
 ---
 apt_cache_valid_time: 3600
+configure_monitoring_apt: true
 default_os_packages:
   - name: cron
   - name: dnsutils
