@@ -1,44 +1,42 @@
 ---
-name: Build and publish documentation site
+name: Build and publish a mkdocs site
 
 on: # yamllint disable-line rule:truthy
-  push:
-    paths:
-      - ".github/workflows/documentation.yaml"
-      - "websites-src/home-lab-docs/**"
-      - "config/mkdocs/home-lab-docs/**"
-      - scripts/run-mkdocs.sh
-  pull_request:
-    paths:
-      - ".github/workflows/documentation.yaml"
-      - "websites-src/home-lab-docs/**"
-      - "config/mkdocs/home-lab-docs/**"
-      - scripts/run-mkdocs.sh
-  workflow_dispatch: null
+  workflow_call:
+    inputs:
+      site-name:
+        required: true
+        type: string
+      site-repository-url:
+        required: true
+        type: string
+      site-source-dir-path:
+        required: true
+        type: string
+      site-destination-dir-path:
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
-  build-push-documentation-site:
+  build-push-site:
     concurrency:
       # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
       # github.head_ref: head_ref or source branch of the pull request
       # github.ref: ref of the branch that triggered the workflow
-      group: ${{ github.workflow }}-build-push-documentation-site-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      group: ${{ github.workflow }}-${{ inputs.site-name }}-${{ github.head_ref || github.ref }}-${{ github.event_name }}
       cancel-in-progress: true
-    permissions:
-      # To commit the newly built documentation site
-      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build the documentation site
+      - name: Build the ${{ inputs.site-name }} website
         run: |
-          scripts/run-mkdocs.sh "build" "home-lab-docs" "$(pwd)/websites-src/home-lab-docs" "$(pwd)/docs"
+          scripts/run-mkdocs.sh "build" "${{ inputs.site-name }}" "${{ inputs.site-source-dir-path }}" "${{ inputs.site-destination-dir-path }}"
       # Check if changed files only include files that we can ignore, such as
       # when only updating the sitemap
-      - name: Check documentation updates
+      - name: Check if updated only ignored files
         id: check_documentation_updates
         run: |
           . scripts/common.sh
