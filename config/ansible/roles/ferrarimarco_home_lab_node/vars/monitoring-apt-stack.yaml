@@ -1,0 +1,52 @@
+---
+monitoring_apt_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/{{ monitoring_apt_tag }}"
+monitoring_apt_executable_path: "{{ monitoring_apt_metrics_collection_script_destination_path }}"
+monitoring_apt_metrics_collection_script_destination_path: "{{ monitoring_apt_configuration_directory_path }}/apt_info.py"
+monitoring_apt_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/b36a2eadfc88f711588085b83f0ecbdbc5f288c3/apt_info.py"
+monitoring_apt_os_service_name: "{{ monitoring_apt_tag }}"
+monitoring_apt_requirements_file_path: "{{ monitoring_apt_configuration_directory_path }}/requirements.txt"
+monitoring_apt_run_directory_path: "/run/{{ monitoring_apt_tag }}"
+monitoring_apt_service_file_name: "{{ monitoring_apt_os_service_name }}.service"
+monitoring_apt_tag: "monitoring-apt"
+monitoring_apt_timer_file_name: "{{ monitoring_apt_os_service_name }}.timer"
+monitoring_apt_prometheus_textfile_exporter_destination_file_path: "{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/apt_info.prom"
+monitoring_apt_virtual_env_path: "{{ monitoring_apt_run_directory_path }}/.venv"
+
+monitoring_apt_configuration_directories:
+  - path: "{{ monitoring_apt_configuration_directory_path }}"
+    state: "{{ configure_monitoring_apt | ternary('directory', 'absent') }}"
+
+monitoring_apt_files_to_configure:
+  - src: "config/{{ monitoring_apt_tag }}/requirements.txt"
+    dest: "{{ monitoring_apt_requirements_file_path }}"
+    state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_apt_os_service_name }}"
+
+monitoring_apt_files_to_download:
+  - url: "{{ monitoring_apt_metrics_collection_script_url }}"
+    dest: "{{ monitoring_apt_metrics_collection_script_destination_path }}"
+    state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
+    mode: "0755"
+    owner: "root"
+    group: "root"
+
+monitoring_apt_os_services:
+  - enabled: true
+    service_name: "{{ monitoring_apt_service_file_name }}"
+    service_state: "{{ configure_monitoring_apt | ternary('started', 'stopped') }}"
+  - enabled: true
+    service_name: "{{ monitoring_apt_timer_file_name }}"
+    service_state: "{{ configure_monitoring_apt | ternary('started', 'stopped') }}"
+
+monitoring_apt_templates_to_render:
+  - src: "{{ monitoring_apt_tag }}/{{ monitoring_apt_service_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_apt_service_file_name }}"
+    state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_apt_os_service_name }}"
+  - src: "{{ monitoring_apt_tag }}/{{ monitoring_apt_timer_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_apt_timer_file_name }}"
+    state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_apt_os_service_name }}"

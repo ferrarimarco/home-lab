@@ -1,0 +1,27 @@
+[Unit]
+Description=APT metrics exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Nice=-10
+ExecStartPre=mkdir --parents --verbose {{ monitoring_apt_run_directory_path }}
+ExecStartPre=python3 -m venv --clear --system-site-packages --upgrade-deps {{ monitoring_apt_virtual_env_path }}
+ExecStartPre={{ monitoring_apt_virtual_env_path }}/bin/pip3 install -r {{ monitoring_apt_requirements_file_path }}
+# Remove the destination file before saving metrics. The same could be accomplished
+# using the truncate:/path/to/file StandardOutput setting, but it was introduced
+# in systemd v248.
+# TODO: remove this line, and switch to truncate after all systems have systemd >= 248
+ExecStartPre=rm -rfv "{{ monitoring_apt_prometheus_textfile_exporter_destination_file_path }}"
+ExecStart={{ monitoring_apt_virtual_env_path }}/bin/python3 {{ monitoring_apt_executable_path }}
+# Write nothing except the output file
+ProtectSystem=strict
+ReadWritePaths={{ monitoring_prometheus_node_exporter_textfile_collector_directory }} {{ monitoring_apt_virtual_env_path }}
+# Shell needs a temp directory
+PrivateTmp=true
+ProtectHome=tmpfs
+StandardOutput=file:{{ monitoring_apt_prometheus_textfile_exporter_destination_file_path }}
+
+
+[Install]
+WantedBy=multi-user.target

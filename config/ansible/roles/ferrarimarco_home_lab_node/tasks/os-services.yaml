@@ -15,6 +15,10 @@
     - stop_os_service.failed == true
     - '"Could not find the requested service" not in stop_os_service.msg'
 
+- name: Reload the systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: Debug stop_os_service
   ansible.builtin.debug:
     var: stop_os_service
