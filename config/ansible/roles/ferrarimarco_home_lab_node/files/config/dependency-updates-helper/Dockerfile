@@ -14,7 +14,7 @@ FROM ghcr.io/home-assistant/home-assistant:2024.11.1 AS home-assistant
 # media-stack
 FROM jellyfin/jellyfin:10.10.1.20241103-155831 AS jellyfin
 FROM fallenbagel/jellyseerr:2.0.1 AS jellyseerr
-FROM ghcr.io/flaresolverr/flaresolverr:v3.3.21 AS flaresolverr
+FROM ghcr.io/flaresolverr/flaresolverr:v3.3.22 AS flaresolverr
 FROM lscr.io/linuxserver/lidarr:2.7.1 AS lidarr
 FROM lscr.io/linuxserver/prowlarr:1.25.4 AS prowlarr
 FROM lscr.io/linuxserver/radarr:5.14.0 AS radarr
