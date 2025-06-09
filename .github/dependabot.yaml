@@ -27,6 +27,7 @@ updates:
           - stefanzweifel/git-auto-commit-action
           - super-linter/super-linter
   - directories:
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter
       - /config/pre-commit
@@ -76,6 +77,7 @@ updates:
           - druggeri/nut_exporter
           - eclipse-mosquitto
           - fallenbagel/jellyseerr
+          - flaresolverr/flaresolverr
           - grafana/grafana-oss
           - home-assistant/home-assistant
           - jellyfin/jellyfin
