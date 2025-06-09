@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "devcontainers"
     commit-message:
       prefix: "deps"
-    directory: "/"
+    directory: "/.devcontainer"
     schedule:
       interval: weekly
     open-pull-requests-limit: 100
