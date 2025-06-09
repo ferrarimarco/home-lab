@@ -8,6 +8,9 @@
   },
   "configMigration": true,
   "dependencyDashboardApproval": true,
+  "devcontainer": {
+    "enabled": true
+  },
   "extends": ["config:best-practices", ":semanticCommits"],
   "forkProcessing": "enabled",
   "gitAuthor": "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
@@ -23,6 +26,8 @@
     },
     {
       "matchFileNames": [
+        "/^.devcontainer/devcontainer.json$/",
+        "/^.devcontainer.json$/",
         "config/pre-commit/**",
         ".github/**",
         "docker/ci-cd-tools/**",
