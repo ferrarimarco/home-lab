@@ -14,7 +14,7 @@ on: # yamllint disable-line rule:truthy
       - "websites-src/home-lab-docs/**"
       - "config/mkdocs/home-lab-docs/**"
       - scripts/run-mkdocs.sh
-  workflow_call: null
+  workflow_dispatch: null
 
 permissions:
   contents: read
@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build the documentation site
         run: |
-          scripts/run-mkdocs.sh "build" "home-lab-docs"
+          scripts/run-mkdocs.sh "build" "home-lab-docs" "$(pwd)/websites-src/home-lab-docs" "$(pwd)/docs"
       # Check if changed files only include files that we can ignore, such as
       # when only updating the sitemap
       - name: Check documentation updates
