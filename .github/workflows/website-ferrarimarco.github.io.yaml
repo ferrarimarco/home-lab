@@ -1,0 +1,34 @@
+---
+name: "Build and publish website: ferrarimarco.github.io"
+
+on: # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/build-mkdocs-site.yaml"
+      - ".github/workflows/website-ferrarimarco.github.io.yaml"
+      - "websites-src/ferrarimarco.github.io/**"
+      - "config/mkdocs/ferrarimarco.github.io/**"
+      - scripts/run-mkdocs.sh
+  pull_request:
+    paths:
+      - ".github/workflows/build-mkdocs-site.yaml"
+      - ".github/workflows/website-ferrarimarco.github.io.yaml"
+      - "websites-src/ferrarimarco.github.io/**"
+      - "config/mkdocs/ferrarimarco.github.io/**"
+      - scripts/run-mkdocs.sh
+  workflow_dispatch: null
+
+permissions:
+  contents: write
+
+jobs:
+  build-push-documentation-site:
+    uses: ./.github/workflows/build-mkdocs-site.yaml
+    with:
+      site-destination-path: ferrarimarco.github.io/docs
+      site-name: ferrarimarco.github.io
+      site-repository-branch: master
+      site-repository: ferrarimarco/ferrarimarco.github.io
+      site-source-path: websites-src/ferrarimarco.github.io
+    secrets:
+      repository-github-token: "${{ secrets.FERRARIMARCO_GITHUB_IO_DEPLOY_TOKEN }}"

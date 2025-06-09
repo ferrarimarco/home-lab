@@ -40,3 +40,6 @@ github_conf
 node_modules
 
 .ansible
+
+# Mkdocs cache
+.cache

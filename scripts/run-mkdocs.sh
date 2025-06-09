@@ -105,7 +105,7 @@ set -o errexit
 if [[ "${RET_CODE}" -eq 1 ]]; then
   echo "Documentation commit doesn't contain only files to ignore"
 elif [[ "${RET_CODE}" -eq 0 ]]; then
-  echo "Documentation commit only contains files to ignore. Checking them out from the Git repository to avoid unnecessary site publishing"
+  echo "Commit only contains files to ignore. Checking them out from the Git repository to avoid unnecessary site publishing"
   git -C "${MKDOCS_DESTINATION_DIRECTORY_PATH}" checkout .
 else
   echo "Error while checking changed files"
