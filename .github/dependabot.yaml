@@ -109,5 +109,6 @@ updates:
       dev-ci-tools:
         applies-to: version-updates
         patterns:
+          - brace-expansion
           - release-please
 version: 2
