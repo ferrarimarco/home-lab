@@ -8,7 +8,7 @@ set -o pipefail
 . "./scripts/common.sh"
 
 # renovate: datasource=docker packageName=squidfunk/mkdocs-material versioning=docker
-MKDOCS_CONTAINER_IMAGE_VERSION="9.5.41"
+MKDOCS_CONTAINER_IMAGE_VERSION="9.6.14"
 MKDOCS_CONTAINER_IMAGE="squidfunk/mkdocs-material:${MKDOCS_CONTAINER_IMAGE_VERSION}"
 
 SCRIPT_DIRECTORY_PATH=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
