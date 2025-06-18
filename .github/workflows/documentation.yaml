@@ -36,27 +36,14 @@ jobs:
       - name: Build the documentation site
         run: |
           scripts/run-mkdocs.sh "build" "home-lab-docs" "$(pwd)/websites-src/home-lab-docs" "$(pwd)/docs"
-      # Check if changed files only include files that we can ignore, such as
-      # when only updating the sitemap
-      - name: Check documentation updates
-        id: check_documentation_updates
-        run: |
-          . scripts/common.sh
-          ONLY_CONTAINS_FILES_TO_IGNORE="false"
-          if check_if_uncommitted_files_only_include_files_to_ignore; then
-            echo "Documentation commit only contains files to ignore"
-            ONLY_CONTAINS_FILES_TO_IGNORE="true"
-          fi
-          echo "ONLY_CONTAINS_FILES_TO_IGNORE=${ONLY_CONTAINS_FILES_TO_IGNORE}" >>"$GITHUB_OUTPUT"
       - name: Commit and push updates to the documentation site
         if: >
           github.event.pull_request.user.login != 'dependabot[bot]' &&
           github.event_name == 'pull_request' &&
-          github.ref_name != github.event.repository.default_branch &&
-          steps.check_documentation_updates.outputs.ONLY_CONTAINS_FILES_TO_IGNORE == 'false'
+          github.ref_name != github.event.repository.default_branch
         uses: stefanzweifel/git-auto-commit-action@v5.1.0
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "chore: update documentation site"
           commit_user_name: github-actions[bot]
-          commit_user_email: 41898282+github-actions[bot]@users.noreply.g
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
