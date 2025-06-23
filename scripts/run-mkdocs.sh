@@ -93,3 +93,10 @@ fi
 
 echo "Run container command: ${RUN_CONTAINER_COMMAND[*]}"
 "${RUN_CONTAINER_COMMAND[@]}"
+
+# Check if changed files only include files that we can ignore, such as
+# when only updating the sitemap
+if check_if_uncommitted_files_only_include_files_to_ignore; then
+  echo "Documentation commit only contains files to ignore. Checking them out from the Git repository to avoid unnecessary site publishing"
+  git checkout "${MKDOCS_DESTINATION_DIRECTORY_PATH}"
+fi
