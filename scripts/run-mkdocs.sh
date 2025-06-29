@@ -29,7 +29,7 @@ echo "Mkdocs source directory path: ${MKDOCS_SOURCE_DIRECTORY_PATH}"
 shift 1
 
 MKDOCS_DESTINATION_DIRECTORY_PATH="${1}"
-echo "Mkdocs destination directory path: ${MKDOCS_CONFIG_FILE_DIRECTORY_NAME}"
+echo "Mkdocs destination directory path: ${MKDOCS_DESTINATION_DIRECTORY_PATH}"
 
 RUN_CONTAINER_COMMAND=(
   docker run
@@ -96,7 +96,13 @@ echo "Run container command: ${RUN_CONTAINER_COMMAND[*]}"
 
 # Check if changed files only include files that we can ignore, such as
 # when only updating the sitemap
-if check_if_uncommitted_files_only_include_files_to_ignore; then
+declare -i RET_CODE
+check_if_uncommitted_files_only_include_mkdocs_files_to_ignore "${MKDOCS_DESTINATION_DIRECTORY_PATH}"
+RET_CODE=$?
+if [[ "${RET_CODE}" -gt 1 ]]; then
+  echo "Error while checking changed files"
+  exit 1
+elif [[ "${RET_CODE}" -eq 0 ]]; then
   echo "Documentation commit only contains files to ignore. Checking them out from the Git repository to avoid unnecessary site publishing"
-  git checkout "${MKDOCS_DESTINATION_DIRECTORY_PATH}"
+  git -C "${MKDOCS_DESTINATION_DIRECTORY_PATH}" checkout .
 fi

@@ -132,12 +132,20 @@ check_github_token_file() {
 }
 
 check_if_uncommitted_files_only_include_files() {
+  local GIT_REPOSITORY_PATH="${1}"
+  shift
+
   local -a FILES_TO_CHECK=("$@")
   local -a CHANGED_FILES
 
-  git status
+  echo "Git repository path: ${GIT_REPOSITORY_PATH}"
+  echo "FILES_TO_CHECK: ${FILES_TO_CHECK[*]}"
 
-  readarray -d '' -t CHANGED_FILES < <(git diff-files -z --name-only)
+  if ! git -C "${GIT_REPOSITORY_PATH}" status; then
+    return "${ERR_ARGUMENT_EVAL}"
+  fi
+
+  readarray -d '' -t CHANGED_FILES < <(git -C "${GIT_REPOSITORY_PATH}" diff-files -z --name-only)
   readarray -d '' -t SORTED_CHANGED_FILES < <(printf '%s\0' "${CHANGED_FILES[@]}" | sort -z)
 
   echo "Changed files (${#SORTED_CHANGED_FILES[@]}) in working directory:"
@@ -146,7 +154,7 @@ check_if_uncommitted_files_only_include_files() {
   readarray -d '' -t SORTED_FILES_TO_CHECK < <(printf '%s\0' "${FILES_TO_CHECK[@]}" | sort -z)
 
   if [[ "${SORTED_CHANGED_FILES[*]}" == "${SORTED_FILES_TO_CHECK[*]}" ]]; then
-    echo "Working directory contains only the files to check"
+    echo "Working directory only contains the files to check"
     return 0
   else
     echo "Working directory doesn't contain only the files to check"
@@ -154,10 +162,15 @@ check_if_uncommitted_files_only_include_files() {
   fi
 }
 
-check_if_uncommitted_files_only_include_files_to_ignore() {
-  if check_if_uncommitted_files_only_include_files "${MKDOCS_IGNORE_IF_ONLY_CHANGED_FILES[@]}"; then
+check_if_uncommitted_files_only_include_mkdocs_files_to_ignore() {
+  local GIT_REPOSITORY_PATH="${1}"
+  shift
+
+  if check_if_uncommitted_files_only_include_files "${GIT_REPOSITORY_PATH}" "${MKDOCS_IGNORE_IF_ONLY_CHANGED_FILES[@]}"; then
+    echo "Working directory only contains files to ignore"
     return 0
   else
+    echo "Working directory doesn't contain only the files to ignore"
     return 1
   fi
 }

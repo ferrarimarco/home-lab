@@ -1,0 +1,62 @@
+---
+name: Build and publish MkDocs website
+
+on: # yamllint disable-line rule:truthy
+  workflow_call:
+    inputs:
+      site-destination-path:
+        default: docs
+        required: false
+        type: string
+      site-name:
+        required: true
+        type: string
+      site-repository:
+        required: true
+        type: string
+      site-source-path:
+        default: src
+        required: false
+        type: string
+    secrets:
+      github-token:
+        required: false
+      repository-ssh-key:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-push-mkdocs-site:
+    concurrency:
+      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      # github.head_ref: head_ref or source branch of the pull request
+      # github.ref: ref of the branch that triggered the workflow
+      group: ${{ github.workflow }}-build-push-${{ inputs.site-name }}-site-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the current repository
+        uses: actions/checkout@v4
+      - name: Checkout the site repository
+        uses: actions/checkout@v4
+        with:
+          path: "${{ inputs.site-name }}"
+          repository: "${{ inputs.site-repository }}"
+          ssh-key: "${{ secrets.repository-ssh-key }}"
+      - name: Build the ${{ inputs.site-name }} site
+        run: |
+          scripts/run-mkdocs.sh "build" "${{ inputs.site-name }}" "./${{ inputs.site-name }}/${{ inputs.site-source-path }}" "./${{ inputs.site-name }}/${{ inputs.site-destination-path }}"
+      - name: Commit and push updates to the ${{ inputs.site-name }} site
+        if: >
+          github.event.pull_request.user.login != 'dependabot[bot]' &&
+          github.event_name == 'pull_request' &&
+          github.ref_name != github.event.repository.default_branch
+        uses: stefanzweifel/git-auto-commit-action@v5.2.0
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_message: "chore: update ${{ inputs.site-name }} site"
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          repository: "${{ inputs.site-name }}"
