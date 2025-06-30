@@ -30,6 +30,7 @@ jobs:
     with:
       site-name: home-lab-docs
       site-repository: "${{ github.repository }}"
-      site-source-path: "websites-src/home-lab-docs"
+      site-source-path: home-lab-docs/websites-src/home-lab-docs
+      site-destination-path: home-lab-docs/docs
     secrets:
       github-token: "${{ github.token }}"

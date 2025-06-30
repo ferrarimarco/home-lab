@@ -6,7 +6,7 @@ on: # yamllint disable-line rule:truthy
     inputs:
       site-destination-path:
         default: docs
-        required: false
+        required: true
         type: string
       site-name:
         required: true
@@ -47,7 +47,7 @@ jobs:
           ssh-key: "${{ secrets.repository-ssh-key }}"
       - name: Build the ${{ inputs.site-name }} site
         run: |
-          scripts/run-mkdocs.sh "build" "${{ inputs.site-name }}" "./${{ inputs.site-name }}/${{ inputs.site-source-path }}" "./${{ inputs.site-name }}/${{ inputs.site-destination-path }}"
+          scripts/run-mkdocs.sh "build" "${{ inputs.site-name }}" "./${{ inputs.site-source-path }}" "./${{ inputs.site-destination-path }}"
       - name: Commit and push updates to the ${{ inputs.site-name }} site
         if: >
           github.event.pull_request.user.login != 'dependabot[bot]' &&
