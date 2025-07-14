@@ -18,8 +18,8 @@
 # set size to computed value, this times RAM size, dynamically adapts,
 #   guarantees that there is enough swap without wasting disk space on excess
 #CONF_SWAPFACTOR=2
-{% if configure_dphys_swapfile_swapfactor is defined %}
-CONF_SWAPFACTOR={{ configure_dphys_swapfile_swapfactor }}
+{% if dphys_swapfile_swapfactor is defined %}
+CONF_SWAPFACTOR={{ dphys_swapfile_swapfactor }}
 {% endif %}
 
 # restrict size (computed and absolute!) to maximally this limit

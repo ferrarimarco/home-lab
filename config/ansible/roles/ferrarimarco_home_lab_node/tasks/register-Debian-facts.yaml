@@ -9,3 +9,9 @@
 - name: Save the current dpkg architecture in a fact
   ansible.builtin.set_fact:
     dpkg_architecture: "{{ dpkg_architecture_result.stdout }}"
+
+# Don't set this in the Debian vars file so we can use host variables to
+# override it, if needed
+- name: Set configure_monitoring_apt to allow for eventual overriding
+  ansible.builtin.set_fact:
+    configure_monitoring_apt: "{{ configure_monitoring_apt | default(true) }}"
