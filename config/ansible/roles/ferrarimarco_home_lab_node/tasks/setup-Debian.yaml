@@ -1,4 +1,9 @@
 ---
+- name: Debug debian_packages_to_uninstall
+  ansible.builtin.debug:
+    var: debian_packages_to_uninstall
+    verbosity: 1
+
 - name: Uninstall Debian packages
   ansible.builtin.apt:
     name: "{{ debian_packages_to_uninstall | default([]) }}"
@@ -31,6 +36,11 @@
     update_cache: true
     upgrade: true
   become: true
+
+- name: Debug debian_packages_to_install
+  ansible.builtin.debug:
+    var: debian_packages_to_install
+    verbosity: 1
 
 - name: Install Debian packages
   ansible.builtin.apt:

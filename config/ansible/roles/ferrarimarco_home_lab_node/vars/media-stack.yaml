@@ -57,38 +57,31 @@ media_stack_configuration_directories:
   - group: "{{ media_stack_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_torrent_download_path }}"
-    # Don't delete the download library when removing the stack
-    state: directory
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_library_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_media_library_path }}"
-    # Don't delete the media library when removing the stack
-    state: directory
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_library_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_media_library_path }}/Anime"
-    # Don't delete the media library when removing the stack
-    state: directory
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_library_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_media_library_path }}/Comics"
-    # Don't delete the media library when removing the stack
-    state: directory
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_library_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_media_library_path }}/Movies"
-    # Don't delete the media library when removing the stack
-    state: directory
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_library_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_media_library_path }}/Series"
-    # Don't delete the media library when removing the stack
-    state: directory
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_library_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_media_library_path }}/ebooks"
-    # Don't delete the media library when removing the stack
-    state: directory
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
 
 media_stack_docker_compose_up_items:
   - compose_file_path: "{{ media_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"

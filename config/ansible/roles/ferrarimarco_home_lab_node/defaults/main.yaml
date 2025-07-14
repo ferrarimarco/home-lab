@@ -3,7 +3,7 @@ cadvisor_exposed_port: 8083
 configure_asuswrt_chkwan: false
 configure_docker: false
 configure_dphys_swapfile: false
-configure_dphys_swapfile_swapfactor: 2
+configure_fail2ban: true
 configure_frigate: false
 configure_home_assistant: false
 configure_media_stack: false
@@ -16,6 +16,7 @@ configure_monitoring_sata: "{{ configure_monitoring }}"
 configure_mqtt_broker: false
 configure_network_stack: false
 configure_network_shares: false
+configure_openssh_keypair: false
 configure_backup_restic: false
 configure_rsync_daemon: false
 configure_ssh: true
@@ -26,6 +27,7 @@ configure_zigbee2mqtt: false
 default_user_groups: []
 delete_systemd_journal_file: false
 disks_to_mount: []
+dphys_swapfile_swapfactor: 2
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false
@@ -140,7 +142,6 @@ samba_hosts_allow: "10."
 samba_shares: []
 samba_os_users: []
 samba_workgroup: "WORKGROUP"
-security_fail2ban_enabled: true
 security_fail2ban_custom_configuration_template: "fail2ban/jail.local.jinja"
 security_ssh_allowed_groups: []
 security_ssh_allowed_users:
