@@ -240,6 +240,7 @@
       fact_templates_to_render: "{{ media_stack_templates_to_render }}"
     - enable_custom_fact: "{{ configure_asuswrt_chkwan }}"
       fact_category: "{{ asuswrt_chkwan_stack_tag }}"
+      fact_files_to_configure: "{{ asuswrt_chkwan_files_to_configure }}"
       fact_files_to_download:
         - url: "{{ asuswrt_chkwan_script_url }}"
           dest: "{{ asuswrt_chkwan_script_destination_path }}"
