@@ -47,6 +47,8 @@
   become: true
   notify:
     - Reboot the host
+  when:
+    - install_debian_non_free_firmware | default(false)
 
 - name: Install Intel CPU microcode update
   ansible.builtin.apt:

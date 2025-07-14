@@ -93,7 +93,7 @@
         - path: /etc/apt/sources.list.d/download_docker_com_linux_debian.list
           state: absent
       fact_templates_to_render: "{{ docker_templates_to_render }}"
-    - enable_custom_fact: "{{ security_fail2ban_enabled }}"
+    - enable_custom_fact: "{{ configure_fail2ban }}"
       fact_category: "fail2ban"
       fact_configuration_directories: "{{ fail2ban_configuration_directories }}"
       fact_os_packages: "{{ fail2ban_packages }}"

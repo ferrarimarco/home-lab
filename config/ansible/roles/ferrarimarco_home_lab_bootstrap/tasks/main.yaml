@@ -39,6 +39,9 @@
     - path: "{{ home_lab_configuration_directory_path }}"
     - path: "{{ home_lab_runtime_directory_path }}"
 
+- name: Setup ansible_user
+  ansible.builtin.import_tasks: setup-ansible-user.yaml
+
 - name: Setup systemd
   ansible.builtin.import_tasks: setup-systemd.yaml
   when:

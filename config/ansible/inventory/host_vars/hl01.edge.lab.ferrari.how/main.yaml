@@ -6,6 +6,7 @@ configure_frigate: true
 configure_home_assistant: true
 configure_media_stack: true
 configure_monitoring_sata: false
+configure_openssh_keypair: true
 configure_rsync_daemon: true
 has_coral_pci_accelerator: true
 has_intel_igpu: true

@@ -54,11 +54,11 @@ fail2ban_configuration_directory: "/etc/fail2ban"
 fail2ban_os_services:
   - enabled: true
     service_name: "{{ fail2ban_service_name }}"
-    service_state: "{{ security_fail2ban_enabled | ternary('started', 'stopped') }}"
+    service_state: "{{ configure_fail2ban | ternary('started', 'stopped') }}"
 fail2ban_templates_to_render:
   - src: "{{ security_fail2ban_custom_configuration_template }}"
     dest: "{{ fail2ban_configuration_directory }}/jail.local"
-    state: "{{ security_fail2ban_enabled | ternary('file', 'absent') }}"
+    state: "{{ configure_fail2ban | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ fail2ban_service_name }}"
 files_to_configure:
@@ -371,6 +371,7 @@ ssh_os_services:
   - enabled: true
     service_name: "{{ security_sshd_name }}"
     service_state: "{{ configure_ssh | ternary('started', 'stopped') }}"
+sudoers_configuration_file_path: /etc/sudoers
 syncthing_docker_compose_destination_file_path: "{{ syncthing_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 syncthing_configuration_directories:
   - path: "{{ syncthing_configuration_directory_path }}"

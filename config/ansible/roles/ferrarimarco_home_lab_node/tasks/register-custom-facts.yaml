@@ -1,5 +1,5 @@
 ---
-- name: Check if fact_category is defined
+- name: Check if fact_category ({{ fact_category | default('not set') }}) is defined
   ansible.builtin.assert:
     that:
       - fact_category is defined
