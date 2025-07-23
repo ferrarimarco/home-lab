@@ -97,12 +97,17 @@ echo "Run container command: ${RUN_CONTAINER_COMMAND[*]}"
 # Check if changed files only include files that we can ignore, such as
 # when only updating the sitemap
 declare -i RET_CODE
+# Disable errexit because we want to get the return code
+set +o errexit
 check_if_uncommitted_files_only_include_mkdocs_files_to_ignore "${MKDOCS_DESTINATION_DIRECTORY_PATH}"
 RET_CODE=$?
-if [[ "${RET_CODE}" -gt 1 ]]; then
-  echo "Error while checking changed files"
-  exit 1
+set -o errexit
+if [[ "${RET_CODE}" -eq 1 ]]; then
+  echo "Documentation commit doesn't contain only files to ignore"
 elif [[ "${RET_CODE}" -eq 0 ]]; then
   echo "Documentation commit only contains files to ignore. Checking them out from the Git repository to avoid unnecessary site publishing"
   git -C "${MKDOCS_DESTINATION_DIRECTORY_PATH}" checkout .
+else
+  echo "Error while checking changed files"
+  exit 1
 fi

@@ -5,17 +5,17 @@ home lab. We define this process as `provisioning new hosts`.
 
 The provisioning process is as follows:
 
-- Gather information about the host:
-  - Unique name to assign to the host.
-  - MAC address of each network interface.
-  - Name of each network interface.
-  - Static IP address to assign to each network interface.
-  - Boot disk name.
-- Update the BIOS and UEFI firmware to the latest available version.
-- Enable network boot.
-- Enable [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN).
-- Enable hardware-assisted virtualization capabilities.
-- Add the machine to the inventory.
+1. Gather information about the host:
+   1. Unique name to assign to the host.
+   1. MAC address of each network interface.
+   1. Name of each network interface.
+   1. Static IP address to assign to each network interface.
+   1. Boot disk name.
+1. Update the BIOS and UEFI firmware to the latest available version.
+1. Enable network boot.
+1. Enable [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN).
+1. Enable hardware-assisted virtualization capabilities.
+1. Add the machine to the inventory.
 
 For hosts that support it, we automate the setup using an out-of-band
 configuration mechanisms, such as
@@ -29,6 +29,7 @@ In this document, we provide information about the manual steps to provision the
 following types of hosts:
 
 - Raspberry Pi 4
+- Beelink EQ12
 
 ## Raspberry Pi 4
 
@@ -71,3 +72,18 @@ running.
 By using [Paramiko](https://www.paramiko.org/) to connect to a host using SSH,
 you can authenticate using a password without having the `sshpass` program
 installed on the host that runs Ansible.
+
+## Beelink EQ12
+
+This section is about the manual configuration steps for Beelink EQ12 hosts.
+
+### Enable auto-power on after a power loss
+
+1. Press the Del key repeatedly after powering on the PC to enter the BIOS
+   setup.
+1. Use the arrow keys to enter the Chipset page. Select “PCH-IO Configuration”
+   and press the Enter key.
+1. Select “State After G3”.
+1. Select “S0 State”. “S0 State” is to enable auto power on and “S5 State” is to
+   disable auto power on.
+1. Press the F4 and select “Yes” to save the configuration.
