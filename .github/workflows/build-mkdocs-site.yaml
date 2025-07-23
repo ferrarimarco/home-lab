@@ -14,15 +14,16 @@ on: # yamllint disable-line rule:truthy
       site-repository:
         required: true
         type: string
+      site-repository-branch:
+        required: true
+        type: string
       site-source-path:
         default: src
         required: false
         type: string
     secrets:
-      github-token:
-        required: false
-      repository-ssh-key:
-        required: false
+      repository-github-token:
+        required: true
 
 permissions:
   contents: read
@@ -33,7 +34,7 @@ jobs:
       # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
       # github.head_ref: head_ref or source branch of the pull request
       # github.ref: ref of the branch that triggered the workflow
-      group: ${{ github.workflow }}-build-push-${{ inputs.site-name }}-site-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      group: ${{ github.workflow }}-build-push-${{ inputs.site-name }}-site-${{ inputs.site-repository-branch }}-${{ github.event_name }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +45,7 @@ jobs:
         with:
           path: "${{ inputs.site-name }}"
           repository: "${{ inputs.site-repository }}"
-          ssh-key: "${{ secrets.repository-ssh-key }}"
+          token: "${{ secrets.repository-github-token }}"
       - name: Build the ${{ inputs.site-name }} site
         run: |
           scripts/run-mkdocs.sh "build" "${{ inputs.site-name }}" "./${{ inputs.site-name }}/${{ inputs.site-source-path }}" "./${{ inputs.site-name }}/${{ inputs.site-destination-path }}"
@@ -55,7 +56,7 @@ jobs:
           github.ref_name != github.event.repository.default_branch
         uses: stefanzweifel/git-auto-commit-action@v5.2.0
         with:
-          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          branch: ${{ inputs.site-repository-branch }}
           commit_message: "chore: update ${{ inputs.site-name }} site"
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com

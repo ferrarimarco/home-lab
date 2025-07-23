@@ -825,6 +825,30 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#beelink-eq12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Beelink EQ12
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Beelink EQ12">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-auto-power-on-after-a-power-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable auto-power on after a power loss
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -940,6 +964,30 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#beelink-eq12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Beelink EQ12
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Beelink EQ12">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-auto-power-on-after-a-power-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable auto-power on after a power loss
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -963,7 +1011,7 @@
 <p>This document is about the steps that are necessary to prepare new hosts for the
 home lab. We define this process as <code>provisioning new hosts</code>.</p>
 <p>The provisioning process is as follows:</p>
-<ul>
+<ol>
 <li>Gather information about the host:</li>
 <li>Unique name to assign to the host.</li>
 <li>MAC address of each network interface.</li>
@@ -975,7 +1023,7 @@ home lab. We define this process as <code>provisioning new hosts</code>.</p>
 <li>Enable <a href="https://en.wikipedia.org/wiki/Wake-on-LAN">Wake-on-LAN</a>.</li>
 <li>Enable hardware-assisted virtualization capabilities.</li>
 <li>Add the machine to the inventory.</li>
-</ul>
+</ol>
 <p>For hosts that support it, we automate the setup using an out-of-band
 configuration mechanisms, such as
 <a href="https://en.wikipedia.org/wiki/Intelligent_Platform_Management_Interface">Intelligent Platform Management Interface (IPMI)</a>,
@@ -987,6 +1035,7 @@ to join the home lab.</p>
 following types of hosts:</p>
 <ul>
 <li>Raspberry Pi 4</li>
+<li>Beelink EQ12</li>
 </ul>
 <h2 id="raspberry-pi-4">Raspberry Pi 4</h2>
 <p>This section is about the manual configuration steps for Raspberry Pi 4 hosts.</p>
@@ -1021,6 +1070,19 @@ running.</p>
 <p>By using <a href="https://www.paramiko.org/">Paramiko</a> to connect to a host using SSH,
 you can authenticate using a password without having the <code>sshpass</code> program
 installed on the host that runs Ansible.</p>
+<h2 id="beelink-eq12">Beelink EQ12</h2>
+<p>This section is about the manual configuration steps for Beelink EQ12 hosts.</p>
+<h3 id="enable-auto-power-on-after-a-power-loss">Enable auto-power on after a power loss</h3>
+<ol>
+<li>Press the Del key repeatedly after powering on the PC to enter the BIOS
+   setup.</li>
+<li>Use the arrow keys to enter the Chipset page. Select “PCH-IO Configuration”
+   and press the Enter key.</li>
+<li>Select “State After G3”.</li>
+<li>Select “S0 State”. “S0 State” is to enable auto power on and “S5 State” is to
+   disable auto power on.</li>
+<li>Press the F4 and select “Yes” to save the configuration.</li>
+</ol>
 
 
 
