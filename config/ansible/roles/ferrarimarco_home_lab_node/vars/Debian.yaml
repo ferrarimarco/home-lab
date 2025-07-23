@@ -1,6 +1,5 @@
 ---
 apt_cache_valid_time: 3600
-configure_monitoring_apt: true
 default_os_packages:
   - name: cron
   - name: dnsutils
@@ -11,10 +10,10 @@ default_os_packages:
 dphys_swapfile_service_name: dphys-swapfile
 fail2ban_configuration_directories:
   - path: "{{ fail2ban_configuration_directory }}"
-    state: "{{ security_fail2ban_enabled | ternary('directory', 'absent') }}"
+    state: "{{ configure_fail2ban | ternary('directory', 'absent') }}"
 fail2ban_packages:
   - name: fail2ban
-    state: "{{ security_fail2ban_enabled | ternary('present', 'absent') }}"
+    state: "{{ configure_fail2ban | ternary('present', 'absent') }}"
 fail2ban_service_name: fail2ban
 fail2ban_sshd_enable_systemd_backend: true
 monitoring_os_packages:

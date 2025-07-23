@@ -1,0 +1,32 @@
+---
+- name: "Lock the password of the default user if we authenticated with a key - {{ ansible_user }}"
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    password_lock: true
+  # Make sure that we authenticated with a key before locking the password
+  when:
+    - ansible_password is not defined
+    - lock_ansible_user_password
+
+- name: Check if the public keys file ({{ home_lab_node_ssh_public_key_path }}) for SSH exists locally
+  # No need to use superuser privileges for this because the file should be
+  # available locally to the user running Ansible
+  become: false
+  delegate_to: localhost
+  ansible.builtin.stat:
+    path: "{{ home_lab_node_ssh_public_key_path }}"
+  register: ssh_public_key_path_stat
+  when:
+    - home_lab_node_ssh_public_key_path is defined
+    - home_lab_node_ssh_public_key_path | length > 0
+
+- name: Set authorized key for the user - {{ ansible_user }}
+  ansible.posix.authorized_key:
+    exclusive: true
+    key: "{{ lookup('ansible.builtin.file', home_lab_node_ssh_public_key_path) }}"
+    state: present
+    user: "{{ ansible_user }}"
+  when:
+    - home_lab_node_ssh_public_key_path is defined
+    - home_lab_node_ssh_public_key_path | length > 0
+    - ssh_public_key_path_stat.stat.exists

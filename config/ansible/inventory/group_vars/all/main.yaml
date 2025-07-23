@@ -21,7 +21,7 @@ home_assistant_secrets:
   telegram_bot_allowed_chat_ids: "{{ vault_home_assistant_secrets.telegram_bot_allowed_chat_ids }}"
   timezone_home: "{{ vault_home_assistant_secrets.timezone_home }}"
 home_lab_configuration_directory_path: "/etc/ferrarimarco-home-lab"
-home_lab_node_ssh_public_key_path: "ssh/home-lab-node-ssh-key.pub"
+home_lab_node_ssh_public_key_path: "{{ playbook_dir }}/files/ssh/home-lab-node-ssh-key.pub"
 home_lab_runtime_directory_path: "/var/lib/ferrarimarco-home-lab"
 media_stack_flaresolverr_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 media_stack_jellyfin_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"

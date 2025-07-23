@@ -1,3 +1,5 @@
 ---
 enable_intel_microcode_update: false
+install_debian_non_free_firmware: false
 has_intel_igpu: false
+lock_ansible_user_password: false
