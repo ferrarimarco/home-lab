@@ -45,6 +45,7 @@ jobs:
           path: "${{ inputs.site-name }}"
           repository: "${{ inputs.site-repository }}"
           ssh-key: "${{ secrets.repository-ssh-key }}"
+          token: "${{ secrets.github-token }}"
       - name: Build the ${{ inputs.site-name }} site
         run: |
           scripts/run-mkdocs.sh "build" "${{ inputs.site-name }}" "./${{ inputs.site-name }}/${{ inputs.site-source-path }}" "./${{ inputs.site-name }}/${{ inputs.site-destination-path }}"
