@@ -2,70 +2,70 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://ferrarimarco.info/home-lab/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/architecture/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/architecture/network-configuration/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/architecture/references/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/architecture/storage-configuration/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/capture-proxmox-vm-network-traffic/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/configure-monitoring/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/configure-network-shares/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/configure-tailscale/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/container-migration/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/copy-jinja-templates/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/linux-disk-setup/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/useful-linux-admin-commands/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/guides/useful-proxmox-commands/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/installation/production/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/installation/production/provision-new-hosts/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/installation/production/setup-proxmox/</loc>
-         <lastmod>2025-06-18</lastmod>
+         <lastmod>2025-08-09</lastmod>
     </url>
 </urlset>
