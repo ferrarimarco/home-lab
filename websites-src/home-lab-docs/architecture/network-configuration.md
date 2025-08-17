@@ -47,5 +47,5 @@ This environment contains the following DHCP servers:
 
 - A dnsmasq instance running on the default gateway with the following
   configuration:
-  - Subnet: `10.0.0.0/8`
-  - Gateway: `10.0.0.1`
+    - Subnet: `10.0.0.0/8`
+    - Gateway: `10.0.0.1`

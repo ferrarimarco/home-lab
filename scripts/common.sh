@@ -21,6 +21,8 @@ HOME_LAB_DOCS_CONFIGURATION_FILE_PATH="config/mkdocs/home-lab-docs/mkdocs.yml"
 
 # shellcheck disable=SC2034
 MKDOCS_IGNORE_IF_ONLY_CHANGED_FILES=(
+  "docs/feed_rss_created.xml"
+  "docs/feed_rss_updated.xml"
   "docs/sitemap.xml"
   "docs/sitemap.xml.gz"
 )
@@ -148,16 +150,35 @@ check_if_uncommitted_files_only_include_files() {
   readarray -d '' -t CHANGED_FILES < <(git -C "${GIT_REPOSITORY_PATH}" diff-files -z --name-only)
   readarray -d '' -t SORTED_CHANGED_FILES < <(printf '%s\0' "${CHANGED_FILES[@]}" | sort -z)
 
-  echo "Changed files (${#SORTED_CHANGED_FILES[@]}) in working directory:"
-  echo "${SORTED_CHANGED_FILES[*]}"
+  echo "Changed files (${#SORTED_CHANGED_FILES[@]}) in working directory: ${SORTED_CHANGED_FILES[*]}"
 
   readarray -d '' -t SORTED_FILES_TO_CHECK < <(printf '%s\0' "${FILES_TO_CHECK[@]}" | sort -z)
 
-  if [[ "${SORTED_CHANGED_FILES[*]}" == "${SORTED_FILES_TO_CHECK[*]}" ]]; then
-    echo "Working directory only contains the files to check"
+  local CHANGED_FILE_IN_FILES_TO_CHECK_ARRAY="false"
+
+  for changed_file in "${SORTED_CHANGED_FILES[@]}"; do
+    echo "Checking if ${changed_file} is in ${SORTED_FILES_TO_CHECK[*]}"
+    CHANGED_FILE_IN_FILES_TO_CHECK_ARRAY="false"
+    for file_to_check in "${SORTED_FILES_TO_CHECK[@]}"; do
+      if [[ "${changed_file}" == "${file_to_check}" ]]; then
+        CHANGED_FILE_IN_FILES_TO_CHECK_ARRAY="true"
+        break
+      fi
+    done
+
+    if [[ "${CHANGED_FILE_IN_FILES_TO_CHECK_ARRAY}" == "false" ]]; then
+      echo "${changed_file} is not in the array of files to check"
+      break
+    else
+      echo "${changed_file} is in the array of files to check"
+    fi
+  done
+
+  if [[ "${CHANGED_FILE_IN_FILES_TO_CHECK_ARRAY}" == "true" ]]; then
+    echo "Working directory changes only contain the files to check"
     return 0
   else
-    echo "Working directory doesn't contain only the files to check"
+    echo "Working directory changes don't contain only the files to check"
     return 1
   fi
 }
@@ -167,10 +188,28 @@ check_if_uncommitted_files_only_include_mkdocs_files_to_ignore() {
   shift
 
   if check_if_uncommitted_files_only_include_files "${GIT_REPOSITORY_PATH}" "${MKDOCS_IGNORE_IF_ONLY_CHANGED_FILES[@]}"; then
-    echo "Working directory only contains files to ignore"
+    echo "Working directory only MkDocs contains files to ignore"
     return 0
   else
-    echo "Working directory doesn't contain only the files to ignore"
+    echo "Working directory changes don't contain only MkDocs files to ignore"
     return 1
   fi
+}
+
+git_log_graph() {
+  local GIT_REPOSITORY_PATH="${1}"
+  local -i GIT_COMMITS_LIMIT_COUNT="${2:-0}"
+
+  local -a GIT_LOG_COMMAND=(git --no-pager -C "${GIT_REPOSITORY_PATH}" log)
+  GIT_LOG_COMMAND+=(--abbrev-commit)
+  GIT_LOG_COMMAND+=(--all)
+  GIT_LOG_COMMAND+=(--decorate)
+  GIT_LOG_COMMAND+=(--format=oneline)
+  GIT_LOG_COMMAND+=(--graph)
+
+  if [[ "${GIT_COMMITS_LIMIT_COUNT}" -gt 0 ]]; then
+    GIT_LOG_COMMAND+=(--max-count="${GIT_COMMITS_LIMIT_COUNT}")
+  fi
+
+  "${GIT_LOG_COMMAND[@]}"
 }

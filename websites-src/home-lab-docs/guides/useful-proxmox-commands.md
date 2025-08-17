@@ -32,22 +32,22 @@ On the VM:
 
 1. Resize the partition:
 
-   ```shell
-   sudo parted /dev/<DEVICE_ID>
+    ```shell
+    sudo parted /dev/<DEVICE_ID>
 
-   # Get the partition ID
-   print
+    # Get the partition ID
+    print
 
-   # Resize the partition
-   resizepart <PARTITION_ID> 100%
+    # Resize the partition
+    resizepart <PARTITION_ID> 100%
 
-   quit
-   ```
+    quit
+    ```
 
 1. Grow the filesystem:
 
-   ```shell
-   sudo resize2fs /dev/<DEVICE_ID><PARTITION_ID>
-   ```
+    ```shell
+    sudo resize2fs /dev/<DEVICE_ID><PARTITION_ID>
+    ```
 
 For more information, see <https://pve.proxmox.com/wiki/Resize_disks>.

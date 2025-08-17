@@ -6,11 +6,11 @@ home lab. We define this process as `provisioning new hosts`.
 The provisioning process is as follows:
 
 1. Gather information about the host:
-   1. Unique name to assign to the host.
-   1. MAC address of each network interface.
-   1. Name of each network interface.
-   1. Static IP address to assign to each network interface.
-   1. Boot disk name.
+    1. Unique name to assign to the host.
+    1. MAC address of each network interface.
+    1. Name of each network interface.
+    1. Static IP address to assign to each network interface.
+    1. Boot disk name.
 1. Update the BIOS and UEFI firmware to the latest available version.
 1. Enable network boot.
 1. Enable [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN).
@@ -28,8 +28,8 @@ to join the home lab.
 In this document, we provide information about the manual steps to provision the
 following types of hosts:
 
-- Raspberry Pi 4
-- Beelink EQ12
+- [Raspberry Pi 4](#raspberry-pi-4)
+- [Beelink EQ12](#beelink-eq12)
 
 ## Raspberry Pi 4
 
