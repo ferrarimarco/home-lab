@@ -53,7 +53,7 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: false
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Run molecule

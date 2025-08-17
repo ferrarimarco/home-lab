@@ -46,7 +46,7 @@ when not using Raspberry Pi OS, do the following:
 1. Download the latest release of
    [rpi-eeprom](https://github.com/raspberrypi/rpi-eeprom/releases). There are
    different boot order configurations available, as configured
-   [here](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
+   [by default](https://github.com/raspberrypi/rpi-eeprom/tree/master/imager).
 1. Flash the bootloader disk image on a removable flash drive. For more
    information about flashing Raspberry Pi OS images to a SD card, refer to
    [Raspberry Pi: Getting started](https://www.raspberrypi.org/documentation/computers/getting-started.html).
