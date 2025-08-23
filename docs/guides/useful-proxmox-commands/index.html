@@ -941,8 +941,6 @@ EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</
 </li>
 <li>
 <p>Resize the partition:</p>
-</li>
-</ol>
 <div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>parted<span class="w"> </span>/dev/&lt;DEVICE_ID&gt;
 
 <span class="c1"># Get the partition ID</span>
@@ -953,11 +951,13 @@ resizepart<span class="w"> </span>&lt;PARTITION_ID&gt;<span class="w"> </span><s
 
 quit
 </code></pre></div>
-<ol>
-<li>Grow the filesystem:</li>
-</ol>
+</li>
+<li>
+<p>Grow the filesystem:</p>
 <div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>resize2fs<span class="w"> </span>/dev/&lt;DEVICE_ID&gt;&lt;PARTITION_ID&gt;
 </code></pre></div>
+</li>
+</ol>
 <p>For more information, see <a href="https://pve.proxmox.com/wiki/Resize_disks">https://pve.proxmox.com/wiki/Resize_disks</a>.</p>
 
 
