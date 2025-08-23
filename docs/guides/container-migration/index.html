@@ -929,16 +929,18 @@
 <p>These examples assume that the current working directory is the root of this
 repository:</p>
 <ul>
-<li>Copy one directory from one host to another by connecting an rsync daemon
-  running on the target host:</li>
-</ul>
+<li>
+<p>Copy one directory from one host to another by connecting an rsync daemon
+  running on the target host:</p>
 <div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;rsync://rsync_user@target.host/destination/directory&quot;</span>
 </code></pre></div>
-<ul>
-<li>Copy one directory from one host to another using rsync:</li>
-</ul>
+</li>
+<li>
+<p>Copy one directory from one host to another using rsync:</p>
 <div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;user@target.host:/destination/directory/&quot;</span>
 </code></pre></div>
+</li>
+</ul>
 
 
 

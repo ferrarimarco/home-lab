@@ -41,12 +41,12 @@ repository:
 - Copy one directory from one host to another by connecting an rsync daemon
   running on the target host:
 
-  ```sh
-  scripts/copy-data.sh "user@source.host" "/source/directory" "rsync://rsync_user@target.host/destination/directory"
-  ```
+    ```sh
+    scripts/copy-data.sh "user@source.host" "/source/directory" "rsync://rsync_user@target.host/destination/directory"
+    ```
 
 - Copy one directory from one host to another using rsync:
 
-  ```sh
-  scripts/copy-data.sh "user@source.host" "/source/directory" "user@target.host:/destination/directory/"
-  ```
+    ```sh
+    scripts/copy-data.sh "user@source.host" "/source/directory" "user@target.host:/destination/directory/"
+    ```

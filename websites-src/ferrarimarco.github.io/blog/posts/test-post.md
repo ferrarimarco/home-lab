@@ -2,7 +2,7 @@
 draft: true
 date: 2025-03-15
 categories:
-  - test
+    - test
 ---
 
 # Test post

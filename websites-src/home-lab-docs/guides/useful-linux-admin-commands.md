@@ -19,6 +19,6 @@
 
 - Open a shell in the Restic container:
 
-  ```sh
-  sudo docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml run --build --interactive --rm --entrypoint /bin/bash restic-backup-workloads
-  ```
+    ```sh
+    sudo docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml run --build --interactive --rm --entrypoint /bin/bash restic-backup-workloads
+    ```

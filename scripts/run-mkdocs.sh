@@ -101,13 +101,21 @@ declare -i RET_CODE
 set +o errexit
 check_if_uncommitted_files_only_include_mkdocs_files_to_ignore "${MKDOCS_DESTINATION_DIRECTORY_PATH}"
 RET_CODE=$?
+
+if [[ "$(id -u)" -ne 0 ]]; then
+  echo "Changing file ownership back to current user"
+  sudo chown -R "$(id -u)":"$(id -g)" .
+fi
+
 set -o errexit
 if [[ "${RET_CODE}" -eq 1 ]]; then
-  echo "Documentation commit doesn't contain only files to ignore"
+  echo "Working directory doesn't contain only files to ignore"
 elif [[ "${RET_CODE}" -eq 0 ]]; then
-  echo "Commit only contains files to ignore. Checking them out from the Git repository to avoid unnecessary site publishing"
+  echo "Working directory only contains files to ignore. Checking them out from the Git repository to avoid unnecessary site publishing"
   git -C "${MKDOCS_DESTINATION_DIRECTORY_PATH}" checkout .
 else
   echo "Error while checking changed files"
   exit 1
 fi
+
+git_log_graph "${MKDOCS_DESTINATION_DIRECTORY_PATH}" "50"

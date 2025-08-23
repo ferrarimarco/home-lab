@@ -43,3 +43,6 @@ node_modules
 
 # Mkdocs cache
 .cache
+
+# Websites
+ferrarimarco.github.io

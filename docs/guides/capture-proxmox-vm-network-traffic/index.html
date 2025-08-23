@@ -841,11 +841,13 @@ a Proxmox VM, do the following:</p>
 <li>Get the Proxmox VM interface name.</li>
 <li>On the Proxmox node that hosts the VM, check that there's a <code>tap</code> network
    interface named <code>tap&lt;VM_ID&gt;i&lt;NET_INTERFACE_ID&gt;</code>.</li>
-<li>On the Proxmox node that hosts the VM, run <code>tcpdump</code> in order to capture
-   network traffic to a file:</li>
-</ol>
+<li>
+<p>On the Proxmox node that hosts the VM, run <code>tcpdump</code> in order to capture
+   network traffic to a file:</p>
 <div class="highlight"><pre><span></span><code>tcpdump<span class="w"> </span>-i<span class="w"> </span>tap&lt;VM_ID&gt;i&lt;NET_INTERFACE_ID&gt;<span class="w"> </span>-n<span class="w"> </span>-w<span class="w"> </span>&lt;filename&gt;.pcap
 </code></pre></div>
+</li>
+</ol>
 <p>Source: <a href="https://www.apalrd.net/posts/2023/tip_pcap/">https://www.apalrd.net/posts/2023/tip_pcap/</a></p>
 
 
