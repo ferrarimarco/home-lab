@@ -4,14 +4,12 @@ name: "Build and publish website: ferrarimarco.github.io"
 on: # yamllint disable-line rule:truthy
   push:
     paths:
-      - ".github/workflows/build-mkdocs-site.yaml"
       - ".github/workflows/website-ferrarimarco.github.io.yaml"
       - "websites-src/ferrarimarco.github.io/**"
       - "config/mkdocs/ferrarimarco.github.io/**"
       - scripts/run-mkdocs.sh
   pull_request:
     paths:
-      - ".github/workflows/build-mkdocs-site.yaml"
       - ".github/workflows/website-ferrarimarco.github.io.yaml"
       - "websites-src/ferrarimarco.github.io/**"
       - "config/mkdocs/ferrarimarco.github.io/**"
