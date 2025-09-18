@@ -6,18 +6,18 @@
 FROM ngosang/restic-exporter:1.7.0 AS restic-exporter
 
 # frigate
-FROM ghcr.io/blakeblackshear/frigate:0.16.0 AS frigate
+FROM ghcr.io/blakeblackshear/frigate:0.16.1 AS frigate
 
 # home-assistant
-FROM ghcr.io/home-assistant/home-assistant:2025.8.2 AS home-assistant
+FROM ghcr.io/home-assistant/home-assistant:2025.9.3 AS home-assistant
 
 # media-stack
 FROM jellyfin/jellyfin:10.10.7.20250405-191553 AS jellyfin
 FROM fallenbagel/jellyseerr:2.7.3 AS jellyseerr
-FROM ghcr.io/flaresolverr/flaresolverr:v3.3.25 AS flaresolverr
-FROM lscr.io/linuxserver/lidarr:2.12.4 AS lidarr
-FROM lscr.io/linuxserver/prowlarr:1.37.0 AS prowlarr
-FROM lscr.io/linuxserver/radarr:5.26.2 AS radarr
+FROM ghcr.io/flaresolverr/flaresolverr:v3.4.1 AS flaresolverr
+FROM lscr.io/linuxserver/lidarr:2.13.3 AS lidarr
+FROM lscr.io/linuxserver/prowlarr:2.0.5 AS prowlarr
+FROM lscr.io/linuxserver/radarr:5.27.5 AS radarr
 FROM lscr.io/linuxserver/readarr:0.4.19-nightly AS readarr
 FROM lscr.io/linuxserver/sonarr:4.0.15 AS sonarr
 
@@ -35,15 +35,15 @@ FROM grafana/grafana-oss:12.1.1 AS grafana
 FROM eclipse-mosquitto:2.0.22-openssl AS mosquitto
 
 # network-stack
-FROM klutchell/unbound:1.23.1 AS unbound
-FROM coredns/coredns:1.12.3 AS coredns
-FROM traefik:3.5.0 AS traefik
+FROM klutchell/unbound:1.24.0 AS unbound
+FROM coredns/coredns:1.12.4 AS coredns
+FROM traefik:3.5.2 AS traefik
 
 # syncthing
-FROM syncthing/syncthing:2.0.2 AS syncthing
+FROM syncthing/syncthing:2.0.9 AS syncthing
 
 # torrent
 FROM linuxserver/qbittorrent:5.1.2 AS qbittorrent
 
 # zigbee2mqtt
-FROM koenkk/zigbee2mqtt:2.6.0 AS zigbee2mqtt
+FROM koenkk/zigbee2mqtt:2.6.1 AS zigbee2mqtt
