@@ -37,7 +37,7 @@ FROM eclipse-mosquitto:2.0.22-openssl AS mosquitto
 # network-stack
 FROM klutchell/unbound:1.24.0 AS unbound
 FROM coredns/coredns:1.12.4 AS coredns
-FROM traefik:3.5.2 AS traefik
+FROM traefik:3.5.3 AS traefik
 
 # syncthing
 FROM syncthing/syncthing:2.0.10 AS syncthing

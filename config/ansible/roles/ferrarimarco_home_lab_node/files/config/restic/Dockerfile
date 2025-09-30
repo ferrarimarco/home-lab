@@ -1,4 +1,4 @@
-FROM ghcr.io/restic/restic:0.18.0@sha256:c34f8216c1536fc6a1677d088b195b9353e0f1615c842407efefb84ed761c435
+FROM ghcr.io/restic/restic:0.18.1@sha256:c1958a2a1c8614f5c317347c2aaddd9f426076f0521430b55509eba43d7516ee
 
 COPY ./entrypoint.sh /bin/entrypoint.sh
 
