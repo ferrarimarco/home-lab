@@ -9,7 +9,7 @@ FROM ngosang/restic-exporter:1.7.0 AS restic-exporter
 FROM ghcr.io/blakeblackshear/frigate:0.16.1 AS frigate
 
 # home-assistant
-FROM ghcr.io/home-assistant/home-assistant:2025.9.4 AS home-assistant
+FROM ghcr.io/home-assistant/home-assistant:2025.10.0 AS home-assistant
 
 # media-stack
 FROM jellyfin/jellyfin:10.10.7.20250405-191553 AS jellyfin
@@ -37,7 +37,7 @@ FROM eclipse-mosquitto:2.0.22-openssl AS mosquitto
 # network-stack
 FROM klutchell/unbound:1.24.0 AS unbound
 FROM coredns/coredns:1.12.4 AS coredns
-FROM traefik:3.5.2 AS traefik
+FROM traefik:3.5.3 AS traefik
 
 # syncthing
 FROM syncthing/syncthing:2.0.10 AS syncthing
@@ -46,4 +46,4 @@ FROM syncthing/syncthing:2.0.10 AS syncthing
 FROM linuxserver/qbittorrent:5.1.2 AS qbittorrent
 
 # zigbee2mqtt
-FROM koenkk/zigbee2mqtt:2.6.1 AS zigbee2mqtt
+FROM koenkk/zigbee2mqtt:2.6.2 AS zigbee2mqtt
