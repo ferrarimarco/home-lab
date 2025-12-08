@@ -95,6 +95,7 @@ updates:
       ci-cd-tooling:
         applies-to: version-updates
         patterns:
+          - ansible
           - node
           - python
   - directories:
