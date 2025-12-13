@@ -79,6 +79,7 @@ updates:
           - eclipse-mosquitto
           - fallenbagel/jellyseerr
           - flaresolverr/flaresolverr
+          - google/cadvisor
           - grafana/grafana-oss
           - home-assistant/home-assistant
           - jellyfin/jellyfin
