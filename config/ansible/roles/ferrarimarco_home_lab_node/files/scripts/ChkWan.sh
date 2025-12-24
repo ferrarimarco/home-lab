@@ -1,11 +1,9 @@
 #!/bin/busybox sh
 
-# Source: https://raw.githubusercontent.com/MartineauUK/Chk-WAN/refs/heads/master/ChkWAN.sh
-
-# Disable all errors. This file is here as a backup
-# shellcheck disable=all
-
-VER="v1.17"
+# Version 1.17
+# https://github.com/MartineauUK/Chk-WAN/commit/d0ca301669a7e085cc81ee9c778d9cb71e7aa6ac
+# is the last one authored by MartineauUK
+VER="v1.18"
 #============================================================================================ © 2016-2021 Martineau v1.17
 #
 # Monitor WAN connection state using PINGs to multiple hosts, or a single cURL 15 Byte data request and optionally a 10MB/500B WGET/CURL data transfer.
@@ -68,6 +66,7 @@ VER="v1.17"
 ShowHelp() {
   awk '/^#==/{f=1} f{print; if (!NF) exit}' $0
 }
+
 # shellcheck disable=SC2034
 ANSIColours() {
 
@@ -108,7 +107,6 @@ Is_Private_IPv4() {
   # 10.   0.0.0 –  10.255.255.255      10.0.0.0 /8
   # 172. 16.0.0 – 172. 31.255.255    172.16.0.0 /12
   # 192.168.0.0 – 192.168.255.255   192.168.0.0 /16
-  #grep -oE "(^192\.168\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^172\.([1][6-9]|[2][0-9]|[3][0-1])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)|(^10\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])\.([0-9]|[0-9][0-9]|[0-2][0-5][0-5])$)"
   grep -oE "(^127\.)|(^(0)?10\.)|(^172\.(0)?1[6-9]\.)|(^172\.(0)?2[0-9]\.)|(^172\.(0)?3[0-1]\.)|(^169\.254\.)|(^192\.168\.)"
 }
 Get_WAN_IF_Name() {
@@ -119,20 +117,24 @@ Get_WAN_IF_Name() {
     local INDEX=$1
   fi
 
-  local IF_NAME=$(nvram get wan${INDEX}_ifname) # DHCP/Static ?
+  local IF_NAME
+  IF_NAME=$(nvram get wan${INDEX}_ifname) # DHCP/Static ?
 
   # Usually this is probably valid for both eth0/ppp0e ?
   if [ "$(nvram get wan${INDEX}_gw_ifname)" != "$IF_NAME" ]; then
-    local IF_NAME=$(nvram get wan${INDEX}_gw_ifname)
+    local IF_NAME
+    IF_NAME=$(nvram get wan${INDEX}_gw_ifname)
   fi
 
   if [ -n "$(nvram get wan0_pppoe_ifname)" ]; then
-    local IF_NAME="$(nvram get wan0_pppoe_ifname)" # PPPoE
+    local IF_NAME
+    IF_NAME="$(nvram get wan0_pppoe_ifname)" # PPPoE
   fi
 
-  echo $IF_NAME
+  echo "$IF_NAME"
 
 }
+
 Check_WAN() {
 
   CNT=0
@@ -184,7 +186,6 @@ Check_WAN() {
       echo -en $cBWHT"\n"
       CURL_TXT="Starting cURL 'big' data transfer.....(Expect 10MB approx @3.1MB/sec on 20Mbps download = 00:04 secs)"
       if [ "$2" == "$FORCE_WGET_500B" ]; then
-        #CURL_TXT="Starting cURL 'small' data transfer.....(Expect 500Byte download = <1 second)"
         CURL_TXT="Starting cURL 'small' data transfer.....(Expect 500Byte download = <1 second)"
       fi
       Say $CURL_TXT
@@ -194,7 +195,6 @@ Check_WAN() {
       echo -en $cBYEL
     fi
     WGET_DATA=$2
-    #wget -O /dev/null -t2 -T2 $WGET_DATA
     METHOD="cURL data retrieval"                                                                                                                                          # v1.14
     RESULTS=$(curl $CURL_INTERFACE $SILENT $WGET_DATA -w "%{time_connect},%{time_total},%{speed_download},%{http_code},%{size_download},%{url_effective}\n" -o /dev/null) # v1.12 Add $SILENT
     RC=$?
@@ -217,16 +217,10 @@ Check_WAN() {
         Say "$TXTINTERRUPTED cURL $(($(echo $RESULTS | cut -d',' -f5)))transfer took:" $(printf "00:%05.2f secs" "$(echo $RESULTS | cut -d',' -f2)")
         ;;
       esac
-      #if [ $RC18 -eq 18 ];then
-      #STATUS=0
-      #FORCE_OK=0
-      #else
       STATUS=1
       FORCE_OK=1 # Used to make this a priority status summary
-      #fi
 
       # Check if transfer rate is less than the specified acceptable rate
-      #Say "***DEBUG FORCE_WGET_MIN_RATE="$FORCE_WGET_MIN_RATE
       # v1.12 Only report 'slow' transfer rate for a completed transfer - i.e. partial (rc=18) shouldn't be checked!
       if [ $RC -eq 0 ] && [ $(echo $RESULTS | cut -d',' -f3 | cut -d'.' -f1) -lt $FORCE_WGET_MIN_RATE ]; then
         STATUS=0
@@ -248,7 +242,7 @@ Check_WAN() {
     fi
   fi
 }
-#=============================================================Main==============================================================
+
 Main() { true; } # Syntax that is Atom Shellchecker compatible!
 
 ANSIColours
@@ -262,19 +256,10 @@ FIRMWARE=$(echo $(nvram get buildno) | awk 'BEGIN { FS = "." } {printf("%03d%02d
 
 SNAME="${0##*/}" # Script name
 
-# Can only run in Router Mode;
-#if [ "$(Check_Router_Mode)" != "Router" ];then
-#echo -e "\e[41m\a\n\n\n\n\t\t\t\t** "$(Check_Router_Mode)" mode is not supported stand-alone; Ensure main router is configured **\t\t\t\t\t\n\n\n\e[0m"
-
-#fi
-
 METHOD=
 ACTION="REBOOT"
-#FORCE_WGET_500B="http://proof.ovh.net/files/md5sum.txt"
 FORCE_WGET_500B="https://raw.githubusercontent.com/MartineauUK/Chk-WAN/master/Test500B.txt" # v1.17 ovh.net is AWOL
-#FORCE_WGET_5MB="http://cachefly.cachefly.net/5mb.test"		# v1.17 ovh.net is AWOL
-#FORCE_WGET_12MB="http://proof.ovh.net/files/100Mb.dat"
-FORCE_WGET_10MB="http://cachefly.cachefly.net/10mb.test" # v1.17 ovh.net is AWOL
+FORCE_WGET_10MB="http://cachefly.cachefly.net/10mb.test"                                    # v1.17 ovh.net is AWOL
 FORCE_WGET=
 FORCE_OK=0
 FORCE_WGET_MIN_RATE=0 # v1.09 Minimum acceptable transfer rate in Bytes per second
@@ -346,7 +331,6 @@ if [ -n "$1" ]; then
     if [ "$(echo $@ | grep -cw 'forcesmall')" -gt 0 ]; then
       FORCE_WGET=$FORCE_WGET_500B
     else
-      #FORCE_WGET=$FORCE_WGET_10MB
       FORCE_WGET=$FORCE_WGET_10MB # v1.17
     fi
 
@@ -416,13 +400,9 @@ else
     if [ "$(echo $@ | grep -c 'ping=')" -gt 0 ]; then
       HOSTS="$(echo "$@" | sed -n "s/^.*ping=//p" | awk '{print $1}' | tr ',' ' ')" # Custom .CSV list specified
     else
-      #if [ "$DEV" != "ppp0" ];then			# v1.13 Don't differentiate PING targets for 'ppp0' & use Quad9 instead of Google
-      # List of PING hosts to check...the 1st I/P is usually the appropriate default gateway (except for ppp0!) for the specified WAN interface,
-      # Include 												Google/Cloudflare public DNS
+      # List of PING hosts to check...the 1st IP is usually the appropriate default gateway (except for ppp0!) for the specified WAN interface,
+      # Include Google/Cloudflare public DNS
       HOSTS="$(nvram get ${THIS}_gateway) $(nvram get ${THIS}_dns) 9.9.9.9 1.1.1.1" # Target PING hosts
-      #else
-      #HOSTS="$(nvram get ${THIS}_dns) 9.9.9.9 1.1.1.1"		# Target PING hosts includes multiple DNS?
-      #fi
     fi
   fi
 fi
@@ -442,7 +422,6 @@ fi
 
 # No of times to check each host before trying next
 TRIES=3 # TRIES=3 With 5 hosts and PING ONLY usually recovery action is initiated within 01:30 minutes?
-# TRIES=3 With 5 hosts and WGET;     usually recovery action is initiated within 03:30 minutes?
 if [ "$(echo $@ | grep -c 'tries=')" -gt 0 ]; then
   TRIES="$(echo "$@" | sed -n "s/^.*tries=//p" | awk '{print $1}')" # Custom number of tries
 fi
@@ -481,12 +460,10 @@ flock -n $FD || {
   exit
 } # v1.15
 
-#if [ "$QUIET" != "quiet" ];then
 echo -e $cBMAG
 sleep 1
 echo -e $(date)" Check WAN Monitor started.....PID="$$ >>$LOCKFILE
 Say $VER "Monitoring" $WAN_NAME $DEV_TXT "connection using" $TXT "(Tries="$TRIES")"
-#fi
 
 if [ "$QUIET" != "quiet" ]; then
   echo -en $cBWHT
@@ -602,22 +579,45 @@ fi
 echo -e $cBYEL"\a"
 # Failure after $INTERVAL_ALL_FAILED_SECS*$MAX_FAIL_CNT secs ?
 if [ "$ACTION" == "WANONLY" ]; then
-  Say "Renewing DHCP and restarting" $WAN_NAME "(Action="$ACTION")"
-  killall -USR1 udhcpc
-  sleep 10
-  if [ -z "$WAN_INDEX" ]; then
-    service restart_wan
+  Say "Action=$ACTION"
+
+  # v1.18: Check if udhcpc is running before trying to send a signal
+  if pidof udhcpc; then
+    Say "Renewing WAN DHCP lease"
+    # Sending the USR1 signal tells udhcpc to renew the DHCP lease
+    killall -USR1 udhcpc
+    sleep 10
   else
-    service "restart_wan_if $WAN_INDEX"
+    Say "udhcpc not running. Skipping WAN DHCP lease renewal"
   fi
 
-  #Say "Re-requesting monitoring....in" $INTERVAL_SECS "secs"
-  #sleep $INTERVAL_SECS
-  #sh /jffs/scripts/$0 &							# Let wan-start 'sh /jffs/scripts/ChkWAN.sh &' start the monitoring!!!!!
+  Say "Restarting $WAN_NAME"
+  # Clicking on the "Apply" button in Advanced_WAN_Content.asp triggers the
+  # following log line:
+  # rc_service: wanduck 1518:notify_rc restart_wan_if 0
+  if [ -z "$WAN_INDEX" ]; then
+    Say "Restarting the WAN interface"
+    service restart_wan
+  else
+    Say "Restarting WAN $WAN_INDEX interface"
+    service "restart_wan_if $WAN_INDEX"
+  fi
+  sleep 60
 
+  # Check if dnsmasq can resolve names using upstream DNS
+  # No need to check hosts with ping because the script already
+  # checks them at this point
+  # v1.18
+  if nslookup dns.google "$(nvram get lan_ipaddr)"; then
+    Say "Restarting dnsmasq because name resolution doesn't work"
+    service restart_dnsmasq
+    sleep 20
+  else
+    Say "Name resolution using the local DNS resolver works."
+  fi
 else
   echo -e ${cBRED}$aBLINK"\a\n\n\t"
-  Say "Rebooting..... (Action="$ACTION")"
+  Say "Rebooting..... (Action=$ACTION)"
   echo -e "\n\t\t**********Rebooting**********\n\n"$cBGRE
   service start_reboot # Default REBOOT
 fi
