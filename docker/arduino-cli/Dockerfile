@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bullseye@sha256:3bbe51d205c8c0ea0473bb33fa6c18c836ca49ac3032c0bf71413cda8515354f
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
