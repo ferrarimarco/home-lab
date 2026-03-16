@@ -124,6 +124,25 @@
   ansible.builtin.import_tasks: setup-Debian.yaml
   when: ansible_facts.os_family == 'Debian'
 
+- name: Copy system-wide, templated configuration files in place after installing OS packages
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    force: "{{ item.force | default(omit) }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0644') }}"
+  become: true
+  register: system_wide_rendered_templates_after_installing_os_packages
+  when:
+    - item.state == 'file'
+  with_items: "{{ templates_to_render_after_installing_os_packages }}"
+
+- name: Debug system_wide_rendered_templates_after_installing_os_packages
+  ansible.builtin.debug:
+    var: system_wide_rendered_templates_after_installing_os_packages
+    verbosity: 1
+
 - name: Import Systemd tasks
   ansible.builtin.import_tasks: setup-systemd.yaml
   become: true

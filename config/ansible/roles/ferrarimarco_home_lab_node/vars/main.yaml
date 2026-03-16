@@ -400,6 +400,7 @@ templates_to_render:
     state: "file"
     os_services_to_restart:
       - systemd-journald
+templates_to_render_after_installing_os_packages: []
 unattended_upgrades_os_services:
   - enabled: true
     service_name: "{{ unattended_upgrades_service_name }}"

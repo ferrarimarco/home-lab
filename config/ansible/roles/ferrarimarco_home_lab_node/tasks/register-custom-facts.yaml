@@ -16,6 +16,7 @@
     os_groups: "{{ os_groups + fact_os_groups }}"
     os_services: "{{ os_services + fact_os_services }}"
     templates_to_render: "{{ templates_to_render + fact_templates_to_render }}"
+    templates_to_render_after_installing_os_packages: "{{ templates_to_render_after_installing_os_packages + fact_templates_to_render_after_installing_os_packages }}"
   when:
     - fact_category in ansible_run_tags or "all" in ansible_run_tags
 

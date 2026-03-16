@@ -6,7 +6,7 @@
   ansible.builtin.set_fact:
     os_services_to_restart: "{{ os_services_to_restart + item.item.os_services_to_restart }}"
   when: item.changed and item.item.os_services_to_restart is defined
-  with_items: "{{ copied_configuration_files.results | default([]) + configured_files_and_directories_result.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
+  with_items: "{{ copied_configuration_files.results | default([]) + configured_files_and_directories_result.results | default([]) + system_wide_rendered_templates.results + system_wide_rendered_templates_after_installing_os_packages.results | default([]) }}"
 
 - name: Restart OS services
   become: true
@@ -74,7 +74,7 @@
     - item.item.docker_compose_services_to_restart is defined
     # Don't add items if we modified the compose file because Docker Compose already handles this case
     - item.item.dest is not search(".+compose\.yaml$")
-  with_items: "{{ copied_configuration_files.results | default([]) + configured_files_and_directories_result.results | default([]) + system_wide_rendered_templates.results | default([]) }}"
+  with_items: "{{ copied_configuration_files.results | default([]) + configured_files_and_directories_result.results | default([]) + system_wide_rendered_templates.results + system_wide_rendered_templates_after_installing_os_packages.results | default([]) }}"
 
 - name: Debug docker_compose_services_to_restart
   ansible.builtin.debug:
