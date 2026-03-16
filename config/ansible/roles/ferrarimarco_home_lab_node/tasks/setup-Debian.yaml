@@ -36,6 +36,7 @@
     update_cache: true
     upgrade: true
   become: true
+  when: ("update-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
 
 - name: Debug debian_packages_to_install
   ansible.builtin.debug:
