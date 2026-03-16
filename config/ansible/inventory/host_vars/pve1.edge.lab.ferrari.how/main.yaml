@@ -1,4 +1,15 @@
 ---
+configure_monitoring_nut: true
+monitoring_nut_server_admin_password: "{{ vault_monitoring_nut_server_admin_password }}"
+monitoring_nut_server_admin_username: "{{ vault_monitoring_nut_server_admin_username }}"
+monitoring_nut_devices:
+  - id: eaton-ellipse-pro-1600-din-1
+    description: Eaton Ellipse PRO 1600 DIN
+    driver: usbhid-ups
+    port: auto
+    vendorId: "0463"
+    productId: "FFFF"
+    bus: "001"
 network_interfaces:
   - mac_address: "7c:83:34:be:3f:23"
     interface_name: enp1s0
