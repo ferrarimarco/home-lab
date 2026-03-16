@@ -1,5 +1,10 @@
 # References
 
+## Home Assistant
+
+- How to change the
+  [NUT integration configuration](https://community.home-assistant.io/t/how-do-i-change-nut-ip-address/597162/5).
+
 ## Home lab examples
 
 - [khuedoan/homelab](https://github.com/khuedoan/homelab)
