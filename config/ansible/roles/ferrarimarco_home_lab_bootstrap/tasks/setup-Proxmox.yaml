@@ -7,6 +7,7 @@
   with_items:
     - /etc/apt/sources.list.d/ceph.list
     - /etc/apt/sources.list.d/pve-enterprise.list
+    - /etc/apt/sources.list.d/pve-enterprise.sources
 
 - name: Enable PVE no-subscription repositories
   ansible.builtin.deb822_repository:
@@ -14,7 +15,7 @@
     uris: "{{ item.uris }}"
     suites: "{{ ansible_distribution_release }}"
     components: "{{ item.components }}"
-    signed_by: https://enterprise.proxmox.com/debian/proxmox-release-bookworm.gpg
+    signed_by: "https://enterprise.proxmox.com/debian/proxmox-release-{{ ansible_distribution_release }}.gpg"
     types: deb
   become: true
   with_items:
@@ -22,5 +23,5 @@
       uris: http://download.proxmox.com/debian/pve
       components: pve-no-subscription
     - name: ceph
-      uris: http://download.proxmox.com/debian/ceph-reef
+      uris: http://download.proxmox.com/debian/ceph-squid
       components: no-subscription

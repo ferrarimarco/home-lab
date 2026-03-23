@@ -1,8 +1,4 @@
 ---
-- name: Setup Proxmox OS packages and repositories
-  ansible.builtin.include_tasks:
-    file: setup-proxmox-os-packages.yaml
-
 - name: Setup kernel
   ansible.builtin.include_tasks:
     file: setup-kernel.yaml
