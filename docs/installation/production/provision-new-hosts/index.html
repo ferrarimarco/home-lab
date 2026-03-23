@@ -555,6 +555,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../guides/home-assistant-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Assistant configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../guides/linux-disk-setup/" class="md-nav__link">
         
   
@@ -811,15 +834,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#configure-ssh-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configure SSH authentication
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -846,6 +860,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-ssh-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure SSH authentication
+    </span>
+  </a>
   
 </li>
       
@@ -950,15 +973,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#configure-ssh-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configure SSH authentication
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -985,6 +999,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-ssh-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure SSH authentication
+    </span>
+  </a>
   
 </li>
       
@@ -1020,6 +1043,7 @@ home lab. We define this process as <code>provisioning new hosts</code>.</p>
 <li>Boot disk name.</li>
 </ol>
 </li>
+<li>Update the out-of-band control unit firmware to the latest available version.</li>
 <li>Update the BIOS and UEFI firmware to the latest available version.</li>
 <li>Enable network boot.</li>
 <li>Enable <a href="https://en.wikipedia.org/wiki/Wake-on-LAN">Wake-on-LAN</a>.</li>
@@ -1064,14 +1088,6 @@ when not using Raspberry Pi OS, do the following:</p>
 <a href="https://www.raspberrypi.com/documentation/computers/configuration.html">Raspberry Pi Documentation</a>.</p>
 <p>For example, you may need to change the hostname of a newly provisioned node
 before adding it to the set of automatically configured nodes.</p>
-<h3 id="configure-ssh-authentication">Configure SSH authentication</h3>
-<p>For newly provisioned Raspberry Pis, you might have to authenticate a SSH
-connection using a password instead of a key. To authenticate with a password,
-add the <code>--ask-pass --connection paramiko</code> options to the Ansible command you're
-running.</p>
-<p>By using <a href="https://www.paramiko.org/">Paramiko</a> to connect to a host using SSH,
-you can authenticate using a password without having the <code>sshpass</code> program
-installed on the host that runs Ansible.</p>
 <h2 id="beelink-eq12">Beelink EQ12</h2>
 <p>This section is about the manual configuration steps for Beelink EQ12 hosts.</p>
 <h3 id="enable-auto-power-on-after-a-power-loss">Enable auto-power on after a power loss</h3>
@@ -1085,6 +1101,14 @@ installed on the host that runs Ansible.</p>
    disable auto power on.</li>
 <li>Press the F4 and select “Yes” to save the configuration.</li>
 </ol>
+<h2 id="configure-ssh-authentication">Configure SSH authentication</h2>
+<p>For newly provisioned hosts, you might have to authenticate a SSH connection
+using a password instead of a key. To authenticate with a password, add the
+<code>--ask-pass --connection paramiko</code> options to the Ansible command you're
+running.</p>
+<p>By using <a href="https://www.paramiko.org/">Paramiko</a> to connect to a host using SSH,
+you can authenticate using a password without having the <code>sshpass</code> program
+installed on the host that runs Ansible.</p>
 
 
 

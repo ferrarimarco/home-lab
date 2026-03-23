@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/linux-disk-setup/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/home-assistant-configuration/">
       
       
-        <link rel="prev" href="../home-assistant-configuration/">
+        <link rel="prev" href="../copy-jinja-templates/">
       
       
-        <link rel="next" href="../useful-linux-admin-commands/">
+        <link rel="next" href="../linux-disk-setup/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Setup disks, partitions, and filesystems on Linux - Home Lab docs</title>
+        <title>Home Assistant configuration - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#setup-disks-partitions-and-filesystems-on-linux" class="md-skip">
+        <a href="#home-assistant-configuration" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Setup disks, partitions, and filesystems on Linux
+              Home Assistant configuration
             
           </span>
         </div>
@@ -554,29 +554,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Home Assistant configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -589,7 +566,72 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Home Assistant configuration
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Assistant configuration
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#change-network-ups-tools-server-ip-address" class="md-nav__link">
+    <span class="md-ellipsis">
+      Change Network UPS Tools server IP address
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../linux-disk-setup/" class="md-nav__link">
         
   
   
@@ -600,7 +642,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -839,6 +880,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#change-network-ups-tools-server-ip-address" class="md-nav__link">
+    <span class="md-ellipsis">
+      Change Network UPS Tools server IP address
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -856,13 +914,15 @@
   
 
 
-<h1 id="setup-disks-partitions-and-filesystems-on-linux">Setup disks, partitions, and filesystems on Linux</h1>
-<ul>
-<li>Get the list of block devices: <code>lsblk</code></li>
-<li>Get the attributes of a block device: <code>blkid &lt;device&gt;</code></li>
-<li>Get the list of disks and partitions and add the partition UUID:
-  <code>lsblk -o NAME,FSTYPE,SIZE,MOUNTPOINT,PARTUUID</code></li>
-</ul>
+<h1 id="home-assistant-configuration">Home Assistant configuration</h1>
+<h2 id="change-network-ups-tools-server-ip-address">Change Network UPS Tools server IP address</h2>
+<p>To change the NUT server IP address without reconfiguring the Network UPS Tools
+(NUT) integration, do the following:</p>
+<ol>
+<li>Edit the IP address of the NUT server in
+   <code>$HOME_ASSISTANT_CONFIG_DIR/config/.storage/core.config_entries</code>.</li>
+<li>Restart Home Assistant.</li>
+</ol>
 
 
 
