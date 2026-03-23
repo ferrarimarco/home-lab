@@ -1,5 +1,7 @@
 ---
 apt_cache_valid_time: 3600
+bootstrap_os_firmware_packages:
+  - firmware-misc-nonfree
 bootstrap_os_packages:
   - apt-transport-https
   - ca-certificates
