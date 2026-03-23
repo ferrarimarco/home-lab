@@ -17,9 +17,9 @@
     name: debian-non-free-firmware
     uris: "{{ debian_package_repository_mirrors_file_stat_result.stat.exists | ternary('mirror+file://' ~ debian_package_repository_mirrors_file, 'http://deb.debian.org/debian') }}"
     suites:
-      - bookworm
-      - bookworm-updates
-      - bookworm-backports
+      - "{{ ansible_distribution_release }}"
+      - "{{ ansible_distribution_release }}-updates"
+      - "{{ ansible_distribution_release }}-backports"
     components:
       - non-free-firmware
     types:
