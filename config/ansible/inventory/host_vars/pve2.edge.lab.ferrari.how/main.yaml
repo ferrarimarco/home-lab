@@ -1,0 +1,12 @@
+---
+network_interfaces:
+  # BMC
+  - mac_address: "ac:1f:6b:b6:8d:c4"
+  - mac_address: "ac:1f:6b:b0:f2:84"
+    interface_name: nic0
+    alias_name: enp8s0
+  - mac_address: "ac:1f:6b:b0:f2:85"
+    interface_name: nic1
+    alias_name: enp9s0
+    # Assigned using DHCP address reservation
+    ipv4_address: "10.0.0.4"
