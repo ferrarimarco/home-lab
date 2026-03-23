@@ -63,17 +63,6 @@ To update the configuration of a Raspberry Pis running Raspberry Pi OS, refer to
 For example, you may need to change the hostname of a newly provisioned node
 before adding it to the set of automatically configured nodes.
 
-### Configure SSH authentication
-
-For newly provisioned Raspberry Pis, you might have to authenticate a SSH
-connection using a password instead of a key. To authenticate with a password,
-add the `--ask-pass --connection paramiko` options to the Ansible command you're
-running.
-
-By using [Paramiko](https://www.paramiko.org/) to connect to a host using SSH,
-you can authenticate using a password without having the `sshpass` program
-installed on the host that runs Ansible.
-
 ## Beelink EQ12
 
 This section is about the manual configuration steps for Beelink EQ12 hosts.
@@ -88,3 +77,14 @@ This section is about the manual configuration steps for Beelink EQ12 hosts.
 1. Select “S0 State”. “S0 State” is to enable auto power on and “S5 State” is to
    disable auto power on.
 1. Press the F4 and select “Yes” to save the configuration.
+
+## Configure SSH authentication
+
+For newly provisioned hosts, you might have to authenticate a SSH connection
+using a password instead of a key. To authenticate with a password, add the
+`--ask-pass --connection paramiko` options to the Ansible command you're
+running.
+
+By using [Paramiko](https://www.paramiko.org/) to connect to a host using SSH,
+you can authenticate using a password without having the `sshpass` program
+installed on the host that runs Ansible.
