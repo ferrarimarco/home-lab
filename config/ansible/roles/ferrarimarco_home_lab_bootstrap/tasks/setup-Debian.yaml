@@ -38,11 +38,15 @@
     update_cache: true
   become: true
 
+- name: Debug bootstrap_os_firmware_packages
+  ansible.builtin.debug:
+    var: bootstrap_os_firmware_packages
+    verbosity: 1
+
 - name: Install non-free firmware
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
-    name:
-      - firmware-misc-nonfree
+    name: "{{ bootstrap_os_firmware_packages }}"
     update_cache: true
   become: true
   notify:
