@@ -1,0 +1,6 @@
+---
+- name: Update OS packages
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: ferrarimarco_home_lab_update_os_packages

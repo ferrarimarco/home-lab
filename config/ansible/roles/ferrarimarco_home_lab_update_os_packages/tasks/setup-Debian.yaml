@@ -1,0 +1,9 @@
+---
+- name: Update APT package index, dist-upgrade, autoclean, autoremove APT packages
+  ansible.builtin.apt:
+    autoclean: true
+    autoremove: true
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    update_cache: true
+    upgrade: dist
+  become: true
