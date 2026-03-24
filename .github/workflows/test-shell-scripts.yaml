@@ -26,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          persist-credentials: false
           fetch-depth: 0
       - name: Run ${{ matrix.test_script_path }}
         run: |

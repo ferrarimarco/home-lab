@@ -7,7 +7,7 @@ restic version
 
 echo "Restic repository: ${RESTIC_REPOSITORY}"
 
-echo "Checking if the ${RESTIC_REPOSITORY} Restic repository needs to be initalized."
+echo "Checking if the ${RESTIC_REPOSITORY} Restic repository needs to be initialized."
 if restic snapshots --verbose; then
   echo "The ${RESTIC_REPOSITORY} repository is already initialized."
 else

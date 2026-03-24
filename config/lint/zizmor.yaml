@@ -1,0 +1,24 @@
+---
+rules:
+  # There is a bug with the Dependabot cooldown feature. Disabling this audit
+  # until the bug is fixed and we enable cooldown again.
+  # TODO: enable cooldown after the bug is fixed
+  dependabot-cooldown:
+    disable: true
+  # TODO: disable these ignores after we pin versions
+  unpinned-uses:
+    ignore:
+      - build-arduino-projects.yaml
+      - build-container-images.yaml
+      - build-firmware-images.yaml
+      - build-mkdocs-site.yaml
+      - dependency-review.yaml
+      - documentation.yaml
+      - lint.yaml
+      - preview-release-notes.yml
+      - release.yml
+      - renovate.yaml
+      - scorecard.yaml
+      - test-ansible.yaml
+      - test-shell-scripts.yaml
+      - website-ferrarimarco.github.io.yaml

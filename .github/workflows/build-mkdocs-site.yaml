@@ -39,9 +39,12 @@ jobs:
     steps:
       - name: Checkout the current repository
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Checkout the site repository
         uses: actions/checkout@v5
         with:
+          persist-credentials: false
           path: "${{ inputs.site-name }}"
           repository: "${{ inputs.site-repository }}"
           token: "${{ secrets.repository-github-token }}"

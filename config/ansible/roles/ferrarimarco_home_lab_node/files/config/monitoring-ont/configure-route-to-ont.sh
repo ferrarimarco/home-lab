@@ -48,7 +48,7 @@ if ! ip addr show "${WAN_INTERFACE_NAME}" | grep -q "${WAN_INTERFACE_LOCAL_IP_AD
   ip address add "${WAN_INTERFACE_LOCAL_IP_ADDRESS_AND_MASK}" dev "${WAN_INTERFACE_NAME}"
   Say "Assigned ${WAN_INTERFACE_LOCAL_IP_ADDRESS_AND_MASK} to ${WAN_INTERFACE_NAME}"
 else
-  Say "${WAN_INTERFACE_NAME} alread has ${WAN_INTERFACE_LOCAL_IP_ADDRESS_AND_MASK} assigned"
+  Say "${WAN_INTERFACE_NAME} already has ${WAN_INTERFACE_LOCAL_IP_ADDRESS_AND_MASK} assigned"
 fi
 
 Say "Check if the ONT is reachable at the network layer:\n$(ping -I "${WAN_INTERFACE_NAME}" -c 2 "${ONT_IP_ADDRESS}")"
