@@ -44,11 +44,7 @@
     mode: "0644"
     checksum: "{{ item.checksum }}"
   become: true
-  with_items: []
-    # Keeping this for reference for when we need to download an ISO
-    # - url: https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.8.0-amd64-netinst.iso
-    #   checksum: "sha512:https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/SHA512SUMS"
-    #   dest: "{{ proxmox_isos_directory_path }}"
+  with_items: "{{ images_to_download }}"
 
 - name: Delete old images and disks
   ansible.builtin.file:
