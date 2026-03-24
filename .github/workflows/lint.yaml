@@ -29,9 +29,11 @@ jobs:
       - name: Load super-linter configuration
         run: cat config/lint/super-linter.env >> "$GITHUB_ENV"
       - name: Super-Linter
-        uses: super-linter/super-linter@v8.0.0
+        uses: super-linter/super-linter@v8.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: true
+
 
   pre_commit:
     concurrency:
@@ -74,9 +76,10 @@ jobs:
       - name: Load super-linter fix mode configuration
         run: cat config/lint/super-linter-fix-mode.env >> "$GITHUB_ENV"
       - name: Super-Linter
-        uses: super-linter/super-linter@v8.0.0
+        uses: super-linter/super-linter@v8.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: true
       - name: Commit and push linting fixes
         # Run even if the previous step failed because super-linter might
         # exit with an error even if some linters automatically fixed all the
