@@ -28,16 +28,6 @@
   become: true
   with_items: "{{ apt_repositories | unique }}"
 
-- name: Update APT package index, upgrade, autoclean, autoremove APT packages
-  ansible.builtin.apt:
-    autoclean: true
-    autoremove: true
-    cache_valid_time: "{{ apt_cache_valid_time }}"
-    update_cache: true
-    upgrade: true
-  become: true
-  when: ("update-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
-
 - name: Debug debian_packages_to_install
   ansible.builtin.debug:
     var: debian_packages_to_install

@@ -78,6 +78,7 @@ jobs:
           - bootstrap
           - container-engine
           - coral
+          - update-os-packages
           - proxmox-node
           - setup-disks
           - main
