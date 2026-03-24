@@ -9,7 +9,7 @@ VER="v1.17"
 #============================================================================================ © 2016-2021 Martineau v1.17
 #
 # Monitor WAN connection state using PINGs to multiple hosts, or a single cURL 15 Byte data request and optionally a 10MB/500B WGET/CURL data transfer.
-#         NOTE: The cURL data transfer rate/perfomance threshold may also be checked e.g. to switch from a 'slow' (Dual) WAN interface.
+#         NOTE: The cURL data transfer rate/performance threshold may also be checked e.g. to switch from a 'slow' (Dual) WAN interface.
 #         Usually the Recovery action (REBOOT or restart the WAN) occurs in about 90 secs (PING ONLY) or in about 03:30 mins for 'force' data download
 #
 # Usage:    ChkWAN  [help|-h]
@@ -233,7 +233,7 @@ Check_WAN() {
         echo -en $cBRED"\n\a"
         Say "***ERROR cURL file transfer rate '"$(echo $RESULTS | cut -d',' -f3 | cut -d'.' -f1)"' Bytes/sec, is less than the acceptable minimum specified '"$FORCE_WGET_MIN_RATE"' Bytes/sec"
         echo -en $cBYEL
-        METHOD=" using MINIMIUM acceptable cURL transfer rate"
+        METHOD=" using MINIMUM acceptable cURL transfer rate"
       fi
     else
       echo -en $cBRED

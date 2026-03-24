@@ -27,6 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: "Build the ${{ matrix.arduino-project.project-id }} Arduino project"
         run: |
           scripts/build-arduino-project.sh \
