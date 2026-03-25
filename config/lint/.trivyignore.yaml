@@ -1,3 +1,4 @@
+---
 misconfigurations:
   - id: DS-0002
     paths:
