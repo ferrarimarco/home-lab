@@ -1,0 +1,5 @@
+[codespell]
+check-filenames =
+check-hidden =
+ignore-words = config/lint/codespell-ignore-words.txt
+skip = */package-lock.json,*.log,super-linter-output,.git
