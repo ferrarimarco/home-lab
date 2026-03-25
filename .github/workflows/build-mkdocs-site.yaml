@@ -36,6 +36,11 @@ jobs:
       group: ${{ github.workflow }}-build-push-${{ inputs.site-name }}-site-${{ inputs.site-repository-branch }}-${{ github.event_name }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
+    env:
+      # Safely map the inputs to environment variables
+      SITE_NAME: ${{ inputs.site-name }}
+      SITE_SOURCE_PATH: ${{ inputs.site-source-path }}
+      SITE_DESTINATION_PATH: ${{ inputs.site-destination-path }}
     steps:
       - name: Checkout the current repository
         uses: actions/checkout@v5
@@ -45,13 +50,13 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
-          path: "${{ inputs.site-name }}"
+          path: "$SITE_NAME"
           repository: "${{ inputs.site-repository }}"
           token: "${{ secrets.repository-github-token }}"
-      - name: Build the ${{ inputs.site-name }} site
+      - name: Build the $SITE_NAME site
         run: |
-          scripts/run-mkdocs.sh "build" "${{ inputs.site-name }}" "./${{ inputs.site-source-path }}" "./${{ inputs.site-destination-path }}"
-      - name: Commit and push updates to the ${{ inputs.site-name }} site
+          scripts/run-mkdocs.sh "build" "$SITE_NAME" "./$SITE_SOURCE_PATH" "./$SITE_DESTINATION_PATH"
+      - name: Commit and push updates to the $SITE_NAME site
         if: >
           github.event.pull_request.user.login != 'dependabot[bot]' &&
           github.event_name == 'pull_request' &&
@@ -59,7 +64,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5.2.0
         with:
           branch: ${{ inputs.site-repository-branch }}
-          commit_message: "chore: update ${{ inputs.site-name }} site"
+          commit_message: "chore: update $SITE_NAME site"
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
-          repository: "${{ inputs.site-name }}"
+          repository: "$SITE_NAME"
