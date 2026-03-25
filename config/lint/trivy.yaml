@@ -1,0 +1,25 @@
+---
+disable-telemetry: true
+exit-code: 1
+exit-on-eol: 2
+ignorefile: config/lint/.trivyignore.yaml
+scan:
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+  skip-dirs:
+    - "**/super-linter-output"
+    - "**/test/linters/arm"
+    - "**/test/linters/checkov"
+    - "**/test/linters/cloudformation"
+    - "**/test/linters/dockerfile_hadolint"
+    - "**/test/linters/go_modules"
+    - "**/test/linters/jscpd"
+    - "**/test/linters/kubernetes_kubeconform"
+    - "**/test/linters/terraform_fmt"
+    - "**/test/linters/terraform_tflint"
+    - "**/test/linters/trivy/bad"
+  skip-files:
+    - "**/.github-personal-access-token"
+    - super-linter.log
