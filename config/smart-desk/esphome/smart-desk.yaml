@@ -109,9 +109,6 @@ script:
       - script.stop: retract_actuators_script
 
 sensor:
-  - platform: esp32_hall
-    name: "ESP32 Hall Sensor"
-    update_interval: 60s
   - platform: uptime
     name: Uptime Sensor
     id: uptime_sensor
