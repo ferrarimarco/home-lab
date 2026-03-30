@@ -68,8 +68,13 @@ jobs:
       # github.ref: ref of the branch that triggered the workflow
       group: ${{ github.workflow }}-fix-lint-issues-${{ github.head_ref || github.ref }}-${{ github.event_name }}
       cancel-in-progress: true
+    needs:
+      - lint
+    # - Don't try fixing issues on Dependabot PRs
+    # - Don't fix issues if there are no linting of formatting errors to fix
     if: >
-      github.event.pull_request.user.login != 'dependabot[bot]'
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      contains(needs.*.result, 'failure')
     permissions:
       # To write linting fixes
       contents: write
