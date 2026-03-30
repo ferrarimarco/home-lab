@@ -30,7 +30,7 @@ jobs:
       statuses: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -51,7 +51,7 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: "Run pre-commit"
@@ -83,7 +83,7 @@ jobs:
       statuses: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: true
           fetch-depth: 0
@@ -104,7 +104,7 @@ jobs:
           github.event_name == 'pull_request' &&
           github.ref_name != github.event.repository.default_branch &&
           !cancelled()
-        uses: stefanzweifel/git-auto-commit-action@v5.2.0
+        uses: stefanzweifel/git-auto-commit-action@v7.1.0
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "chore: fix linting issues"

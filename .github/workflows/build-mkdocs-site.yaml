@@ -43,11 +43,11 @@ jobs:
       SITE_DESTINATION_PATH: ${{ inputs.site-destination-path }}
     steps:
       - name: Checkout the current repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Checkout the site repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
           path: "$SITE_NAME"
@@ -61,7 +61,7 @@ jobs:
           github.event.pull_request.user.login != 'dependabot[bot]' &&
           github.event_name == 'pull_request' &&
           github.ref_name != github.event.repository.default_branch
-        uses: stefanzweifel/git-auto-commit-action@v5.2.0
+        uses: stefanzweifel/git-auto-commit-action@v7.1.0
         with:
           branch: ${{ inputs.site-repository-branch }}
           commit_message: "chore: update $SITE_NAME site"
