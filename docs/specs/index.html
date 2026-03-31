@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/container-migration/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/">
       
       
-        <link rel="prev" href="../configure-tailscale/">
+        <link rel="prev" href="../installation/production/setup-proxmox/">
       
       
-        <link rel="next" href="../copy-jinja-templates/">
+        <link rel="next" href="nas1-zfs-spec/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Container migration playbook - Home Lab docs</title>
+        <title>Home lab design specifications - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#container-migration-playbook" class="md-skip">
+        <a href="#home-lab-design-specifications" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href=".." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Container migration playbook
+              Home lab design specifications
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href=".." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../architecture/references/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -376,20 +376,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -405,7 +403,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -419,7 +417,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../capture-proxmox-vm-network-traffic/" class="md-nav__link">
+      <a href="../guides/capture-proxmox-vm-network-traffic/" class="md-nav__link">
         
   
   
@@ -442,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
+      <a href="../guides/configure-monitoring/" class="md-nav__link">
         
   
   
@@ -465,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../guides/configure-network-shares/" class="md-nav__link">
         
   
   
@@ -488,7 +486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../guides/configure-tailscale/" class="md-nav__link">
         
   
   
@@ -508,32 +506,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Container migration playbook
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../guides/container-migration/" class="md-nav__link">
         
   
   
@@ -544,35 +520,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#data-migration-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data migration examples
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -585,7 +532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../guides/copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -608,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
+      <a href="../guides/home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -631,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../linux-disk-setup/" class="md-nav__link">
+      <a href="../guides/linux-disk-setup/" class="md-nav__link">
         
   
   
@@ -654,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../guides/useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -677,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-proxmox-commands/" class="md-nav__link">
+      <a href="../guides/useful-proxmox-commands/" class="md-nav__link">
         
   
   
@@ -783,7 +730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../installation/production/" class="md-nav__link">
         
   
   
@@ -806,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -829,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -864,18 +811,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -891,7 +840,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -902,10 +851,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Home lab design specifications
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -916,6 +887,35 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#available-specifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available Specifications
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -928,7 +928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/nas1-zfs-spec/" class="md-nav__link">
+      <a href="nas1-zfs-spec/" class="md-nav__link">
         
   
   
@@ -978,9 +978,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data-migration-examples" class="md-nav__link">
+  <a href="#available-specifications" class="md-nav__link">
     <span class="md-ellipsis">
-      Data migration examples
+      Available Specifications
     </span>
   </a>
   
@@ -1005,55 +1005,11 @@
   
 
 
-<h1 id="container-migration-playbook">Container migration playbook</h1>
-<p>If you need to migrate containers and data between hosts, do the following:</p>
-<ol>
-<li>Set the <code>configure_rsync_daemon</code> variable for the target host to <code>true</code> to
-   setup an rsync daemon.</li>
-<li>Initialize the <code>rsync_daemon_modules</code> variable for the target host to
-   configure rsync modules.</li>
-<li>Set the <code>configure_xxxxx</code> variable for the target host to <code>true</code> to prepare
-   the target host.</li>
-<li>Set the <code>start_xxxxx</code> variable for the target host to <code>false</code> because we
-   don't want to start any services before copying data.</li>
-<li>Run Ansible. With the above configuration, it will prepare the target host
-   without starting any service.</li>
-<li>Set the <code>start_xxxxx</code> variable for the source host to <code>false</code> to stop the
-   service we're migrating.</li>
-<li>Run Ansible.</li>
-<li>Copy data from the source host to the target host. You can use
-   <code>scripts/copy-data.sh</code> script to copy data from one host to another.</li>
-<li>Remove the <code>start_xxxxx</code> from the target host configuration because it
-   defaults to the <code>configure_xxxxx</code> value, which is set to <code>true</code>.</li>
-<li>If needed, update endpoint definitions in
-   <code>config/ansible/inventory/group_vars/all/main.yaml</code>.</li>
-<li>Run Ansible.</li>
-<li>Verify that the container works in the target environment as expected.</li>
-<li>Remove the <code>start_xxxxx</code> variable from the source host configuration.</li>
-<li>Remove the <code>configure_xxxxx</code> variable from the source host configuration.</li>
-<li>Run Ansible. This will remove all the copied data from the source host.</li>
-<li>Delete data in the source host if it's not deleted automatically, such as
-   media directories.</li>
-<li>If not needed anymore, disable the rsync daemon by removing the
-   <code>configure_rsync_daemon</code> and <code>rsync_daemon_modules</code> variables in the target
-   host configuration.</li>
-<li>Commit the changes in the repository.</li>
-</ol>
-<h2 id="data-migration-examples">Data migration examples</h2>
-<p>These examples assume that the current working directory is the root of this
-repository:</p>
+<h1 id="home-lab-design-specifications">Home lab design specifications</h1>
+<p>This directory contains design specifications for various components of the home lab infrastructure. These specs focus on architecture and rationale before implementation.</p>
+<h2 id="available-specifications">Available Specifications</h2>
 <ul>
-<li>
-<p>Copy one directory from one host to another by connecting an rsync daemon
-  running on the target host:</p>
-<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;rsync://rsync_user@target.host/destination/directory&quot;</span>
-</code></pre></div>
-</li>
-<li>
-<p>Copy one directory from one host to another using rsync:</p>
-<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;user@target.host:/destination/directory/&quot;</span>
-</code></pre></div>
-</li>
+<li><a href="nas1-zfs-spec/">nas1 ZFS Layout Strategy</a></li>
 </ul>
 
 
@@ -1109,10 +1065,10 @@ repository:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>

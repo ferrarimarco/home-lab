@@ -8,13 +8,11 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/container-migration/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/nas1-zfs-spec/">
       
       
-        <link rel="prev" href="../configure-tailscale/">
+        <link rel="prev" href="../">
       
-      
-        <link rel="next" href="../copy-jinja-templates/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +20,7 @@
     
     
       
-        <title>Container migration playbook - Home Lab docs</title>
+        <title>📚 Design Specification: nas1 ZFS Storage Layout - Home Lab docs</title>
       
     
     
@@ -64,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#container-migration-playbook" class="md-skip">
+        <a href="#design-specification-nas1-zfs-storage-layout" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Container migration playbook
+              📚 Design Specification: nas1 ZFS Storage Layout
             
           </span>
         </div>
@@ -376,20 +374,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -405,7 +401,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -419,7 +415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../capture-proxmox-vm-network-traffic/" class="md-nav__link">
+      <a href="../../guides/capture-proxmox-vm-network-traffic/" class="md-nav__link">
         
   
   
@@ -442,7 +438,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
+      <a href="../../guides/configure-monitoring/" class="md-nav__link">
         
   
   
@@ -465,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../guides/configure-network-shares/" class="md-nav__link">
         
   
   
@@ -488,7 +484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../../guides/configure-tailscale/" class="md-nav__link">
         
   
   
@@ -508,32 +504,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Container migration playbook
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../guides/container-migration/" class="md-nav__link">
         
   
   
@@ -544,35 +518,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#data-migration-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data migration examples
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -585,7 +530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -608,7 +553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
+      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -631,7 +576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../linux-disk-setup/" class="md-nav__link">
+      <a href="../../guides/linux-disk-setup/" class="md-nav__link">
         
   
   
@@ -654,7 +599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -677,7 +622,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-proxmox-commands/" class="md-nav__link">
+      <a href="../../guides/useful-proxmox-commands/" class="md-nav__link">
         
   
   
@@ -864,18 +809,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -891,7 +838,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -905,7 +852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -925,10 +872,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../specs/nas1-zfs-spec/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    📚 Design Specification: nas1 ZFS Storage Layout
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -939,6 +908,101 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goals-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Goals &amp; Principles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 Goals &amp; Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pool-stability-growth" class="md-nav__link">
+    <span class="md-ellipsis">
+      📀 Pool Stability &amp; Growth
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ Architectural Topology
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ Architectural Topology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-boot-pool-zroot" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Boot Pool (zroot)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-data-pool-zdata" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Data Pool (zdata)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      📂 Dataset Taxonomy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#management-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Management &amp; Maintenance
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -978,9 +1042,75 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data-migration-examples" class="md-nav__link">
+  <a href="#goals-principles" class="md-nav__link">
     <span class="md-ellipsis">
-      Data migration examples
+      🎯 Goals &amp; Principles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 Goals &amp; Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pool-stability-growth" class="md-nav__link">
+    <span class="md-ellipsis">
+      📀 Pool Stability &amp; Growth
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ Architectural Topology
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ Architectural Topology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-boot-pool-zroot" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Boot Pool (zroot)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-data-pool-zdata" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Data Pool (zdata)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      📂 Dataset Taxonomy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#management-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Management &amp; Maintenance
     </span>
   </a>
   
@@ -1005,55 +1135,85 @@
   
 
 
-<h1 id="container-migration-playbook">Container migration playbook</h1>
-<p>If you need to migrate containers and data between hosts, do the following:</p>
-<ol>
-<li>Set the <code>configure_rsync_daemon</code> variable for the target host to <code>true</code> to
-   setup an rsync daemon.</li>
-<li>Initialize the <code>rsync_daemon_modules</code> variable for the target host to
-   configure rsync modules.</li>
-<li>Set the <code>configure_xxxxx</code> variable for the target host to <code>true</code> to prepare
-   the target host.</li>
-<li>Set the <code>start_xxxxx</code> variable for the target host to <code>false</code> because we
-   don't want to start any services before copying data.</li>
-<li>Run Ansible. With the above configuration, it will prepare the target host
-   without starting any service.</li>
-<li>Set the <code>start_xxxxx</code> variable for the source host to <code>false</code> to stop the
-   service we're migrating.</li>
-<li>Run Ansible.</li>
-<li>Copy data from the source host to the target host. You can use
-   <code>scripts/copy-data.sh</code> script to copy data from one host to another.</li>
-<li>Remove the <code>start_xxxxx</code> from the target host configuration because it
-   defaults to the <code>configure_xxxxx</code> value, which is set to <code>true</code>.</li>
-<li>If needed, update endpoint definitions in
-   <code>config/ansible/inventory/group_vars/all/main.yaml</code>.</li>
-<li>Run Ansible.</li>
-<li>Verify that the container works in the target environment as expected.</li>
-<li>Remove the <code>start_xxxxx</code> variable from the source host configuration.</li>
-<li>Remove the <code>configure_xxxxx</code> variable from the source host configuration.</li>
-<li>Run Ansible. This will remove all the copied data from the source host.</li>
-<li>Delete data in the source host if it's not deleted automatically, such as
-   media directories.</li>
-<li>If not needed anymore, disable the rsync daemon by removing the
-   <code>configure_rsync_daemon</code> and <code>rsync_daemon_modules</code> variables in the target
-   host configuration.</li>
-<li>Commit the changes in the repository.</li>
-</ol>
-<h2 id="data-migration-examples">Data migration examples</h2>
-<p>These examples assume that the current working directory is the root of this
-repository:</p>
+<h1 id="design-specification-nas1-zfs-storage-layout">📚 Design Specification: nas1 ZFS Storage Layout</h1>
+<h2 id="goals-principles">🎯 Goals &amp; Principles</h2>
+<h3 id="pool-stability-growth">📀 Pool Stability &amp; Growth</h3>
 <ul>
-<li>
-<p>Copy one directory from one host to another by connecting an rsync daemon
-  running on the target host:</p>
-<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;rsync://rsync_user@target.host/destination/directory&quot;</span>
-</code></pre></div>
+<li><strong>Separation of Concerns</strong>: Disks are partitioned by type (and size) to ensure
+  predictable performance and contain failure domains. Mixing slow spinners and
+  fast SSDs is avoided.</li>
+<li><strong>Expansion Path</strong>: Single-drive "unmirrored" pools can be safely converted
+  into mirrored pools later by attaching same-sized drives.</li>
+</ul>
+<h2 id="architectural-topology">🏗️ Architectural Topology</h2>
+<h3 id="1-boot-pool-zroot">1. Boot Pool (<code>zroot</code>)</h3>
+<ul>
+<li><strong>Hardware Profile</strong>: Single SSD (unmirrored for now). Same size within the
+  pool group.</li>
+<li><strong>Role</strong>: Host the NixOS operating system, standard binaries, and
+  configuration.</li>
+<li><strong>Security Configuration</strong>:<ul>
+<li><strong>Unencrypted</strong>: This allows the server to boot unattended without manual
+  intervention (power losses, automated reboots).</li>
+<li><strong>Risk Assessment</strong>: Fine for home-lab use where the threat model doesn't
+  require OS-level obfuscation.</li>
+</ul>
 </li>
-<li>
-<p>Copy one directory from one host to another using rsync:</p>
-<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;user@target.host:/destination/directory/&quot;</span>
-</code></pre></div>
+</ul>
+<h3 id="2-data-pool-zdata">2. Data Pool (<code>zdata</code>)</h3>
+<ul>
+<li><strong>Hardware Profile</strong>: Composed of 4 hard disks of mismatched sizes. Future
+  expansion will favor pairing identical-sized drives to minimize capacity
+  waste.</li>
+<li><strong>Grouping Decision</strong>: Disks grouped into separate pools by size category (or
+  isolated vdev groups) to prevent fast writes from bottlenecking on slower
+  drives.</li>
+<li><strong>Mount Base</strong>: All datasets mount semantic paths under <code>/mnt/data/...</code></li>
+<li><strong>Security Configuration</strong>:<ul>
+<li><strong>Native ZFS Encryption</strong>: Enabled at the pool/dataset level.</li>
+<li><strong>Passphrase-based</strong>: Prompt for the passphrase manually via shell or boot
+  sequence when unlocking datasets.</li>
+</ul>
 </li>
+</ul>
+<h2 id="dataset-taxonomy">📂 Dataset Taxonomy</h2>
+<p>The following datasets will reside under the <code>/mnt/data</code> base:</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Mountpoint</th>
+<th>Role / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>movies</code></td>
+<td><code>/mnt/data/movies</code></td>
+<td>Large media files. No special SSD acceleration needed.</td>
+</tr>
+<tr>
+<td><code>photos</code></td>
+<td><code>/mnt/data/photos</code></td>
+<td>Personal media. Standard HDD access with redundancy.</td>
+</tr>
+<tr>
+<td><code>documents</code></td>
+<td><code>/mnt/data/documents</code></td>
+<td>Text and office files. Fast search vs. integrity.</td>
+</tr>
+<tr>
+<td><code>source_code</code></td>
+<td><code>/mnt/data/source_code</code></td>
+<td>High-churn files. Ideal for caching or SSD pool if available later.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="management-maintenance">🛠️ Management &amp; Maintenance</h2>
+<ul>
+<li><strong>Automated Scrubs</strong>: Enabled to verify hash integrity periodically.</li>
+<li><strong>Snapshot Schedules</strong>: Standard defaults, to be configured once OS profiles
+  are active.</li>
 </ul>
 
 
