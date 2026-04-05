@@ -5,11 +5,10 @@ pkgs.mkShell {
     deadnix
     nixd
     nixfmt
-    terraform
     statix
   ];
 
   shellHook = ''
-    echo "❄️ Nix Dev Shell Active"
+    echo "Nix Dev Shell Active"
   '';
 }

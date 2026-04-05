@@ -35,8 +35,8 @@
     in
     {
       devShells.${system} = {
-        default = import ./shell.nix { inherit pkgs; };
-        operations = import ./shell-operations.nix { inherit pkgs; };
+        default = import ./shells/shell.nix { inherit pkgs; };
+        operations = import ./shells/shell-operations.nix { inherit pkgs; };
       };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
