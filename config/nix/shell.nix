@@ -5,6 +5,7 @@ pkgs.mkShell {
     deadnix
     nixd
     nixfmt
+    terraform
     statix
   ];
 
