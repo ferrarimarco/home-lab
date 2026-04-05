@@ -34,7 +34,10 @@
       treefmtEval = treefmt-nix.lib.evalModule pkgs (import ./treefmt.nix { inherit pkgs; });
     in
     {
-      devShells.${system}.default = import ./shell.nix { inherit pkgs; };
+      devShells.${system} = {
+        default = import ./shell.nix { inherit pkgs; };
+        operations = import ./shell-operations.nix { inherit pkgs; };
+      };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
 
@@ -42,6 +45,7 @@
         treefmt-nix = treefmtEval.config.build.check self;
 
         devShell = self.devShells.${system}.default;
+        opsShell = self.devShells.${system}.operations;
       };
 
       nixosConfigurations = {
