@@ -46,3 +46,11 @@ node_modules
 
 # Websites
 ferrarimarco.github.io
+
+# Terraform
+**/tfplan
+**/.terraform.tfstate.lock.info
+*.terraform/
+*.terraform-*/
+.terraform.d/
+terraform.tfstate*
