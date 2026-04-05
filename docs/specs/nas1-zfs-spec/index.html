@@ -8,13 +8,11 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/architecture/network-configuration/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/nas1-zfs-spec/">
       
       
         <link rel="prev" href="../">
       
-      
-        <link rel="next" href="../references/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +20,7 @@
     
     
       
-        <title>Network configuration - Home Lab docs</title>
+        <title>📚 Design Specification: nas1 ZFS Storage Layout - Home Lab docs</title>
       
     
     
@@ -64,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#network-configuration" class="md-skip">
+        <a href="#design-specification-nas1-zfs-storage-layout" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Network configuration
+              📚 Design Specification: nas1 ZFS Storage Layout
             
           </span>
         </div>
@@ -239,20 +237,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -268,7 +264,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -282,7 +278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../architecture/" class="md-nav__link">
         
   
   
@@ -302,32 +298,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Network configuration
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -338,86 +312,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#network-subnets" class="md-nav__link">
-    <span class="md-ellipsis">
-      Network subnets
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dns-zones-dns-servers-dns-resolvers-and-dhcp-servers" class="md-nav__link">
-    <span class="md-ellipsis">
-      DNS zones, DNS servers, DNS resolvers, and DHCP servers
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="DNS zones, DNS servers, DNS resolvers, and DHCP servers">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#dns-zones" class="md-nav__link">
-    <span class="md-ellipsis">
-      DNS zones
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dns-servers" class="md-nav__link">
-    <span class="md-ellipsis">
-      DNS servers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dns-resolvers" class="md-nav__link">
-    <span class="md-ellipsis">
-      DNS resolvers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dhcp-servers" class="md-nav__link">
-    <span class="md-ellipsis">
-      DHCP servers
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -430,7 +324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../references/" class="md-nav__link">
+      <a href="../../architecture/references/" class="md-nav__link">
         
   
   
@@ -453,7 +347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../storage-configuration/" class="md-nav__link">
+      <a href="../../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -915,18 +809,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -942,7 +838,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -956,7 +852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -976,10 +872,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../specs/nas1-zfs-spec/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    📚 Design Specification: nas1 ZFS Storage Layout
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -990,6 +908,101 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goals-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      🎯 Goals &amp; Principles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🎯 Goals &amp; Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pool-stability-growth" class="md-nav__link">
+    <span class="md-ellipsis">
+      📀 Pool Stability &amp; Growth
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ Architectural Topology
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ Architectural Topology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-boot-pool-zroot" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Boot Pool (zroot)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-data-pool-zdata" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Data Pool (zdata)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      📂 Dataset Taxonomy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#management-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Management &amp; Maintenance
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1029,55 +1042,19 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#network-subnets" class="md-nav__link">
+  <a href="#goals-principles" class="md-nav__link">
     <span class="md-ellipsis">
-      Network subnets
+      🎯 Goals &amp; Principles
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dns-zones-dns-servers-dns-resolvers-and-dhcp-servers" class="md-nav__link">
-    <span class="md-ellipsis">
-      DNS zones, DNS servers, DNS resolvers, and DHCP servers
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="DNS zones, DNS servers, DNS resolvers, and DHCP servers">
+    <nav class="md-nav" aria-label="🎯 Goals &amp; Principles">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#dns-zones" class="md-nav__link">
+  <a href="#pool-stability-growth" class="md-nav__link">
     <span class="md-ellipsis">
-      DNS zones
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dns-servers" class="md-nav__link">
-    <span class="md-ellipsis">
-      DNS servers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dns-resolvers" class="md-nav__link">
-    <span class="md-ellipsis">
-      DNS resolvers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dhcp-servers" class="md-nav__link">
-    <span class="md-ellipsis">
-      DHCP servers
+      📀 Pool Stability &amp; Growth
     </span>
   </a>
   
@@ -1085,6 +1062,57 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architectural-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏗️ Architectural Topology
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ Architectural Topology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-boot-pool-zroot" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Boot Pool (zroot)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-data-pool-zdata" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Data Pool (zdata)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      📂 Dataset Taxonomy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#management-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Management &amp; Maintenance
+    </span>
+  </a>
   
 </li>
       
@@ -1107,52 +1135,85 @@
   
 
 
-<h1 id="network-configuration">Network configuration</h1>
-<h2 id="network-subnets">Network subnets</h2>
-<p>Network subnet planning strategy: <code>10.SITE_ID.VLAN_ID.HOST/24</code></p>
+<h1 id="design-specification-nas1-zfs-storage-layout">📚 Design Specification: nas1 ZFS Storage Layout</h1>
+<h2 id="goals-principles">🎯 Goals &amp; Principles</h2>
+<h3 id="pool-stability-growth">📀 Pool Stability &amp; Growth</h3>
 <ul>
-<li>Main subnet: <code>10.0.0.0/8</code></li>
+<li><strong>Separation of Concerns</strong>: Disks are partitioned by type (and size) to ensure
+  predictable performance and contain failure domains. Mixing slow spinners and
+  fast SSDs is avoided.</li>
+<li><strong>Expansion Path</strong>: Single-drive "unmirrored" pools can be safely converted
+  into mirrored pools later by attaching same-sized drives.</li>
 </ul>
-<h2 id="dns-zones-dns-servers-dns-resolvers-and-dhcp-servers">DNS zones, DNS servers, DNS resolvers, and DHCP servers</h2>
-<p>In this section, we describe the configuration of DNS zones, DNS servers, and
-DNS resolvers.</p>
-<h3 id="dns-zones">DNS zones</h3>
+<h2 id="architectural-topology">🏗️ Architectural Topology</h2>
+<h3 id="1-boot-pool-zroot">1. Boot Pool (<code>zroot</code>)</h3>
 <ul>
-<li>Root DNS zone: <code>ferrari.how</code></li>
-<li>Home lab subdomain: <code>lab.ferrari.how</code></li>
-<li>Edge home lab subdomain: <code>edge.lab.ferrari.how</code></li>
-</ul>
-<h3 id="dns-servers">DNS servers</h3>
-<p>This environment contains the following DNS servers:</p>
-<ul>
-<li>Cloudflare DNS servers that act as authoritative name servers for the root DNS
-  zone.</li>
-<li>A <a href="https://thekelleys.org.uk/dnsmasq/doc.html">dnsmasq</a> instance running on
-  the default gateway. It responds to DNS queries for the <code>edge.lab.ferrari.how</code>
-  zone, and returns authoritative answers from DHCP leases
-  (<a href="https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html">source</a>),
-  even if it doesn't run as an authoritative name server for the
-  <code>edge.lab.ferrari.how</code> zone.</li>
-</ul>
-<h3 id="dns-resolvers">DNS resolvers</h3>
-<p>This environment contains the following DNS resolvers:</p>
-<ul>
-<li>A dnsmasq instance running on the default gateway acts as a private, non
-  recursive, caching, DNS resolver that uses
-  <a href="https://developers.google.com/speed/public-dns">Google Public DNS</a>, as a
-  public, recursive, caching DNS resolver.</li>
-<li>An <a href="https://nlnetlabs.nl/projects/unbound/about/">unbound</a> instance acts as a
-  private, recursive, caching DNS resolver.</li>
-</ul>
-<h3 id="dhcp-servers">DHCP servers</h3>
-<p>This environment contains the following DHCP servers:</p>
-<ul>
-<li>A dnsmasq instance running on the default gateway with the following
-  configuration:<ul>
-<li>Subnet: <code>10.0.0.0/8</code></li>
-<li>Gateway: <code>10.0.0.1</code></li>
+<li><strong>Hardware Profile</strong>: Single SSD (unmirrored for now). Same size within the
+  pool group.</li>
+<li><strong>Role</strong>: Host the NixOS operating system, standard binaries, and
+  configuration.</li>
+<li><strong>Security Configuration</strong>:<ul>
+<li><strong>Unencrypted</strong>: This allows the server to boot unattended without manual
+  intervention (power losses, automated reboots).</li>
+<li><strong>Risk Assessment</strong>: Fine for home-lab use where the threat model doesn't
+  require OS-level obfuscation.</li>
 </ul>
 </li>
+</ul>
+<h3 id="2-data-pool-zdata">2. Data Pool (<code>zdata</code>)</h3>
+<ul>
+<li><strong>Hardware Profile</strong>: Composed of 4 hard disks of mismatched sizes. Future
+  expansion will favor pairing identical-sized drives to minimize capacity
+  waste.</li>
+<li><strong>Grouping Decision</strong>: Disks grouped into separate pools by size category (or
+  isolated vdev groups) to prevent fast writes from bottlenecking on slower
+  drives.</li>
+<li><strong>Mount Base</strong>: All datasets mount semantic paths under <code>/mnt/data/...</code></li>
+<li><strong>Security Configuration</strong>:<ul>
+<li><strong>Native ZFS Encryption</strong>: Enabled at the pool/dataset level.</li>
+<li><strong>Passphrase-based</strong>: Prompt for the passphrase manually via shell or boot
+  sequence when unlocking datasets.</li>
+</ul>
+</li>
+</ul>
+<h2 id="dataset-taxonomy">📂 Dataset Taxonomy</h2>
+<p>The following datasets will reside under the <code>/mnt/data</code> base:</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Mountpoint</th>
+<th>Role / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>movies</code></td>
+<td><code>/mnt/data/movies</code></td>
+<td>Large media files. No special SSD acceleration needed.</td>
+</tr>
+<tr>
+<td><code>photos</code></td>
+<td><code>/mnt/data/photos</code></td>
+<td>Personal media. Standard HDD access with redundancy.</td>
+</tr>
+<tr>
+<td><code>documents</code></td>
+<td><code>/mnt/data/documents</code></td>
+<td>Text and office files. Fast search vs. integrity.</td>
+</tr>
+<tr>
+<td><code>source_code</code></td>
+<td><code>/mnt/data/source_code</code></td>
+<td>High-churn files. Ideal for caching or SSD pool if available later.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="management-maintenance">🛠️ Management &amp; Maintenance</h2>
+<ul>
+<li><strong>Automated Scrubs</strong>: Enabled to verify hash integrity periodically.</li>
+<li><strong>Snapshot Schedules</strong>: Standard defaults, to be configured once OS profiles
+  are active.</li>
 </ul>
 
 

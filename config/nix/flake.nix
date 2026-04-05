@@ -26,12 +26,18 @@
       # Use legacyPackages instead of packages to avoid evaluating unneeded
       # packages.
       # Ref: https://github.com/NixOS/nixpkgs/blob/1073dad219cb244572b74da2b20c7fe39cb3fa9e/flake.nix#L206
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
 
       treefmtEval = treefmt-nix.lib.evalModule pkgs (import ./treefmt.nix { inherit pkgs; });
     in
     {
-      devShells.${system}.default = import ./shell.nix { inherit pkgs; };
+      devShells.${system} = {
+        default = import ./shells/shell.nix { inherit pkgs; };
+        operations = import ./shells/shell-operations.nix { inherit pkgs; };
+      };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
 
@@ -39,6 +45,7 @@
         treefmt-nix = treefmtEval.config.build.check self;
 
         devShell = self.devShells.${system}.default;
+        opsShell = self.devShells.${system}.operations;
       };
 
       nixosConfigurations = {

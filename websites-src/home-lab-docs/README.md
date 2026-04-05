@@ -17,3 +17,8 @@ For more information about how to set up the lab, see:
 
 For more information about the architecture of the lab, see
 [Architecture](./architecture/README.md).
+
+## Specifications
+
+For more information about the design specifications (specs) of the lab, see
+[Specifications](./specs/README.md).
