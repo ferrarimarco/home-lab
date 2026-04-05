@@ -13,6 +13,7 @@
 
 - [NixOS flakes tutorial](https://www.tweag.io/blog/2020-07-31-nixos-flakes/)
 - [Integration testing with NixOS in GitHub Actions](https://jnsgr.uk/2024/02/nixos-vms-in-github-actions/)
+- [Nix shells](https://blog.ysndr.de/posts/guides/2021-12-01-nix-shells)
 
 ## ZFS
 

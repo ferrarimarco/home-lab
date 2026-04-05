@@ -54,3 +54,6 @@ ferrarimarco.github.io
 *.terraform-*/
 .terraform.d/
 terraform.tfstate*
+
+# Terraform secrets
+*-secrets.tfvars
