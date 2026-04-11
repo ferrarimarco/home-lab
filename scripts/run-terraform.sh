@@ -71,14 +71,9 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
       echo "Skip ${tf_service} because root credentials file (${TERRAFORM_PVE1_ROOT_CREDENTIALS_FILE_PATH}) is not available"
       continue
     fi
-    # Ask for root user credentials, but don't store them in a secrets file
-    # shellcheck disable=SC2034
-    read -rsp "Enter Password: " TF_VAR_proxmox_virtual_environment_password &&
-      echo "" &&
-      "${TERRAFORM_COMMAND[@]}" \
-        apply \
-        -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1.tfvars" &&
-      unset TF_VAR_proxmox_virtual_environment_password
+    "${TERRAFORM_APPLY_COMMAND[@]}" \
+      -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1.tfvars" \
+      -var-file="${TERRAFORM_PVE1_ROOT_CREDENTIALS_FILE_PATH}"
     ;;
   "201-proxmox-workloads")
     "${TERRAFORM_COMMAND[@]}" \
