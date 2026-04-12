@@ -75,9 +75,8 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
       -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1.tfvars" \
       -var-file="${TERRAFORM_PVE1_ROOT_CREDENTIALS_FILE_PATH}"
     ;;
-  "201-proxmox-workloads")
-    "${TERRAFORM_COMMAND[@]}" \
-      apply \
+  "210-proxmox-storage" | "220-proxmox-workloads")
+    "${TERRAFORM_APPLY_COMMAND[@]}" \
       -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1.tfvars" \
       -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1-secrets.tfvars"
     ;;
