@@ -7,8 +7,7 @@
     ../../roles/common
     ../../roles/proxmox-vm
     ../../roles/zfs
-    # TODO
-    # ./hardware.nix
+    ./hardware.nix
     ./disko.nix
   ];
 
