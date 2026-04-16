@@ -76,3 +76,20 @@
   become: true
   when:
     - has_intel_igpu
+
+- name: Force a cache update before running apt-get dist-upgrade
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    update_cache: true
+  become: true
+  when:
+    - enable_debian_dist_upgrade
+
+- name: APT dist-upgrade
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    update_cache: true
+    upgrade: dist
+  become: true
+  when:
+    - enable_debian_dist_upgrade
