@@ -22,6 +22,7 @@
       - "{{ ansible_facts['distribution_release'] }}-backports"
     components:
       - non-free-firmware
+    signed_by: "/usr/share/keyrings/debian-archive-keyring.gpg"
     types:
       - deb
       - deb-src
