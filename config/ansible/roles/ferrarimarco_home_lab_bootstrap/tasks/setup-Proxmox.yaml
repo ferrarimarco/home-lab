@@ -15,9 +15,9 @@
   ansible.builtin.deb822_repository:
     name: "{{ item.name }}"
     uris: "{{ item.uris }}"
-    suites: "{{ ansible_facts['distribution_release'] }}"
+    suites: "{{ debian_release }}"
     components: "{{ item.components }}"
-    signed_by: "https://enterprise.proxmox.com/debian/proxmox-release-{{ ansible_facts['distribution_release'] }}.gpg"
+    signed_by: "https://enterprise.proxmox.com/debian/proxmox-release-{{ debian_release }}.gpg"
     types: deb
   become: true
   with_items:

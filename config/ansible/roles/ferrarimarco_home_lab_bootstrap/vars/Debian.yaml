@@ -11,3 +11,6 @@ bootstrap_os_packages:
   - rsync
   - tmux
 debian_package_repository_mirrors_file: /etc/apt/mirrors/debian.list
+
+# Set this variable to prepare Debian for an upgrade
+debian_release: "{{ debian_release_force_upgrade | default(ansible_facts['distribution_release']) }}"
