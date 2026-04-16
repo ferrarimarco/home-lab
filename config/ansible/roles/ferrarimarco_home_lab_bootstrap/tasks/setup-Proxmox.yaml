@@ -8,6 +8,8 @@
     - /etc/apt/sources.list.d/ceph.list
     - /etc/apt/sources.list.d/pve-enterprise.list
     - /etc/apt/sources.list.d/pve-enterprise.sources
+  notify:
+    - Update APT cache
 
 - name: Enable PVE no-subscription repositories
   ansible.builtin.deb822_repository:
@@ -25,3 +27,8 @@
     - name: ceph
       uris: http://download.proxmox.com/debian/ceph-squid
       components: no-subscription
+  notify:
+    - Update APT cache
+
+- name: Ensure handlers are notified now
+  ansible.builtin.meta: flush_handlers
