@@ -20,7 +20,10 @@
   ];
 
   # Enable the QEMU Guest Agent
-  services.qemuGuest.enable = true;
+  services.qemuGuest.enable = lib.mkDefault true;
+
+  # Enable growing the root partition on boot
+  boot.growPartition = lib.mkDefault true;
 
   # Optimize for Proxmox Serial Console (xterm.js)
   boot.kernelParams = [ "console=ttyS0" ];
