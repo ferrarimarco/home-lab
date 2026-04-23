@@ -31,4 +31,10 @@
 ## ZFS
 
 - [ZFS: You should use mirror vdevs, not RAIDZ](https://jrs-s.net/2015/02/06/zfs-you-should-use-mirror-vdevs-not-raidz/)
-- [Choosing the right ZFS pool layout](https://klarasystems.com/articles/choosing-the-right-zfs-pool-layout/)
+- [Choosing the right ZFS pool layout](https://klarasystems.com/articles/choosing-the-right-zfs-pool-layout/),
+  by Klara Systems
+
+## Immutable infrastructure
+
+- [Erase your darlings](https://grahamc.com/blog/erase-your-darlings/), by
+  Graham Christensen
