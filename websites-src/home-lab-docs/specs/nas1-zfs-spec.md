@@ -1,8 +1,8 @@
-# 📚 Design Specification: nas1 ZFS Storage Layout
+# Design Specification: nas1 ZFS Storage Layout
 
-## 🎯 Goals & Principles
+## Goals & Principles
 
-### 📀 Pool Stability & Growth
+### Pool Stability & Growth
 
 - **Separation of Concerns**: Disks are partitioned by type (and size) to ensure
   predictable performance and contain failure domains. Mixing slow spinners and
@@ -10,7 +10,7 @@
 - **Expansion Path**: Single-drive "unmirrored" pools can be safely converted
   into mirrored pools later by attaching same-sized drives.
 
-## 🏗️ Architectural Topology
+## Architectural Topology
 
 ### 1. Boot Pool (`zroot`)
 
