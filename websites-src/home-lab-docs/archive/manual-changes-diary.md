@@ -1,4 +1,4 @@
-# Manual Changes Diary
+# Manual changes diary
 
 The design of this home lab is to have a completely declarative configuration,
 whenever possible. At times, this is not possible yet because of an
@@ -10,3 +10,124 @@ to eventually get to a state where we don't need this file anymore.
 - `pve2`: manually created (through the Proxmox GUI) two new ZFS pools:
   `tank-hdd-scratch` and `tank-ssd-scratch`. They are intended to be used as
   scratch space for temporary files.
+
+## 2025-04-03
+
+### Notes to create the 100 VM
+
+The following notes describe the manual creation of the `100` VM on `pve1`.
+These instructions are a reference that I used as a base to define the `100` VM
+Terraform configuration.
+
+1. Create VM:
+
+    ```shell
+    qm create 100 --name hl01 --net0 \
+      virtio=BC:24:11:D4:F6:64,bridge=vmbr0,firewall=1 \
+      --scsihw virtio-scsi-single \
+      --machine q35 --ostype l26
+    ```
+
+1. Configure CPU and memory:
+
+    ```shell
+    qm set 100 --cpu host --cores 2 --memory 8192
+    ```
+
+1. Configure the VM to start at boot:
+
+    ```shell
+    qm set 100 --onboot 1
+    ```
+
+1. Enable QEMU guest agent:
+
+    ```shell
+    qm set 100 --agent enabled=1
+    ```
+
+1. Import raw disk:
+
+    ```shell
+    qm disk import 100 \
+    /var/lib/vz/template/raw/debian-12-generic-amd64-20240211-1654.raw local-zfs
+    ```
+
+1. Attach and configure disk to the vm:
+
+    ```shell
+    qm set 100 -scsi0 \
+      local-zfs:vm-100-disk-0,discard=on,iothread=1,size=2G,ssd=1,aio=io_uring
+    ```
+
+1. Resize:
+
+    ```shell
+    qm disk resize 100 scsi0 8G
+    ```
+
+1. Set boot order:
+
+    ```shell
+    qm set 100 --boot order=scsi0
+    ```
+
+1. Attach and configure a second disk from the `rpool-sata pool`:
+
+    ```shell
+    qm set 100 -scsi1 \
+      rpool-sata:vm-100-disk-0,discard=on,iothread=1,size=113G,ssd=1,aio=io_uring
+    ```
+
+1. Attach and configure a third disk from the `rpool-usb-1` pool:
+
+    ```shell
+    qm set 100 -scsi1 \
+      rpool-usb-1:vm-100-disk-1,discard=on,iothread=1,size=885G,ssd=1,aio=io_uring
+    ```
+
+1. Enable UEFI and create a UEFI disk volume:
+
+    ```shell
+    qm set 100 --bios ovmf
+    ```
+
+1. Configure UEFI disk volume:
+
+    ```shell
+    qm set 100 --efidisk0 local-zfs:0,efitype=4m
+    ```
+
+    If you need to enable Secure Boot, add the `pre-enrolled-keys=1` option.
+
+1. Configure cloud-init datasource:
+
+    ```shell
+    qm set 100 --cicustom
+    "user=local:snippets/cloud-init-hl01-user-data.yaml,network=local:snippets/cloud-init-hl01-network.yaml"
+    ```
+
+1. Configure cloud-init drive:
+
+    ```shell
+    qm set 100 --ide2 local-zfs:cloudinit,media=cdrom
+    ```
+
+1. Pass the Coral PCIe module to the VM, mark it as a PCIe device:
+
+    ```shell
+    qm set 100 --hostpci0 0000:03:00,pcie=1
+    ```
+
+1. Pass the iGPU to the VM, mark it as a PCIe device, make the firmware ROM
+   visible to the guest, set it as the primary GPU:
+
+    ```shell
+    qm set 100 -hostpci1 0000:00:02.0,pcie=on,rombar=on,x-vga=on
+    ```
+
+1. Start the VM:
+
+    ```shell
+    qm start 100
+    ```
