@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/capture-proxmox-vm-network-traffic/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/development/website-development/">
       
       
-        <link rel="prev" href="../../archive/proxmox-100-vm/">
+        <link rel="prev" href="../../useful-linux-admin-commands/">
       
       
-        <link rel="next" href="../configure-monitoring/">
+        <link rel="next" href="../../../installation/production/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Capture network traffic of a Proxmox VM - Home Lab docs</title>
+        <title>Develop and build the Home Lab site - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#capture-network-traffic-of-a-proxmox-vm" class="md-skip">
+        <a href="#develop-and-build-the-home-lab-site" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Capture network traffic of a Proxmox VM
+              Develop and build the Home Lab site
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../../../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../../../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -417,12 +417,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Archive
+    Archive overview
     
   </span>
   
@@ -440,35 +440,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Manual Changes Diary
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../archive/proxmox-100-vm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Notes to create the 100 VM
+    Manual changes diary
     
   </span>
   
@@ -530,43 +507,10 @@
                 
   
   
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Capture network traffic of a Proxmox VM
-    
-  </span>
-  
-
-      </a>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
   
   
     <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
+      <a href="../../configure-monitoring/" class="md-nav__link">
         
   
   
@@ -589,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../configure-network-shares/" class="md-nav__link">
         
   
   
@@ -612,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../../configure-tailscale/" class="md-nav__link">
         
   
   
@@ -635,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../container-migration/" class="md-nav__link">
+      <a href="../../container-migration/" class="md-nav__link">
         
   
   
@@ -658,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -681,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
+      <a href="../../home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -704,12 +648,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../linux-disk-setup/" class="md-nav__link">
+      <a href="../../proxmox-admin-notes/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Setup disks, partitions, and filesystems on Linux
+    Proxmox administration notes
     
   </span>
   
@@ -727,12 +671,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../useful-linux-admin-commands/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Useful Linux administration notes
+    Linux administration notes
     
   </span>
   
@@ -747,20 +691,119 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../useful-proxmox-commands/" class="md-nav__link">
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_9">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Develop and build the Home Lab site
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    Proxmox admin notes
+    Develop and build the Home Lab site
     
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build-the-website-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build the website locally
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -856,7 +899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -879,7 +922,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -902,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -978,35 +1021,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../../../specs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Home lab design specifications
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../specs/nas1-zfs-spec/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Specification: nas1 ZFS Storage Layout
     
   </span>
   
@@ -1044,6 +1064,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build-the-website-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build the website locally
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1061,22 +1098,17 @@
   
 
 
-<h1 id="capture-network-traffic-of-a-proxmox-vm">Capture network traffic of a Proxmox VM</h1>
-<p>In order to capture the network traffic that goes through a network interface of
-a Proxmox VM, do the following:</p>
+<h1 id="develop-and-build-the-home-lab-site">Develop and build the Home Lab site</h1>
+<p>This document explains how to develop the Home Lab site and how to run it
+locally for a preview.</p>
+<h2 id="build-the-website-locally">Build the website locally</h2>
 <ol>
-<li>Get the Proxmox VM ID.</li>
-<li>Get the Proxmox VM interface name.</li>
-<li>On the Proxmox node that hosts the VM, check that there's a <code>tap</code> network
-   interface named <code>tap&lt;VM_ID&gt;i&lt;NET_INTERFACE_ID&gt;</code>.</li>
 <li>
-<p>On the Proxmox node that hosts the VM, run <code>tcpdump</code> in order to capture
-   network traffic to a file:</p>
-<div class="highlight"><pre><span></span><code>tcpdump<span class="w"> </span>-i<span class="w"> </span>tap&lt;VM_ID&gt;i&lt;NET_INTERFACE_ID&gt;<span class="w"> </span>-n<span class="w"> </span>-w<span class="w"> </span>&lt;filename&gt;.pcap
+<p>Run the build script:</p>
+<div class="highlight"><pre><span></span><code>scripts/run-mkdocs.sh<span class="w"> </span>serve<span class="w"> </span>home-lab-docs<span class="w"> </span>./websites-src/home-lab-docs<span class="w"> </span>./docs
 </code></pre></div>
 </li>
 </ol>
-<p>Source: <a href="https://www.apalrd.net/posts/2023/tip_pcap/">https://www.apalrd.net/posts/2023/tip_pcap/</a></p>
 
 
 
@@ -1131,10 +1163,10 @@ a Proxmox VM, do the following:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>
