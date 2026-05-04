@@ -2,4 +2,4 @@ terraform {
   backend "local" {
     path = ""
   }
- }
+}

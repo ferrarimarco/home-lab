@@ -1,6 +1,6 @@
-# Develop and build the Home Lab website
+# Develop and build the Home Lab site
 
-This document explains how to develop the Home Lab website and how to run it
+This document explains how to develop the Home Lab site and how to run it
 locally for a preview.
 
 ## Build the website locally
