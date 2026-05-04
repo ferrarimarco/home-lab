@@ -129,4 +129,15 @@ updates:
           - bpg/proxmox
           - hashicorp/local
           - hashicorp/random
+  - package-ecosystem: "nix" # See documentation for possible values
+    directories:
+      - /config/nix
+    commit-message:
+      prefix: "deps"
+    schedule:
+      interval: "weekly"
+    groups:
+      nix:
+        applies-to: version-updates
+        patterns: []
 version: 2
