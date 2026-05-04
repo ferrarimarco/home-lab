@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         nix-configurations:
-          - id: nas1
+          - id: hl02
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -55,4 +55,4 @@ jobs:
           # If it crashes before 60 seconds, it will exit with an error and fail the CI.
           # If it survives the 60 seconds, we consider the boot sequence successful.
           export QEMU_OPTS="-nographic"
-          timeout 60s ./result/bin/run-nas1-vm || [ $? -eq 124 ]
+          timeout 60s ./result/bin/run-${{ matrix.nix-configurations.id }}-vm || [ $? -eq 124 ]

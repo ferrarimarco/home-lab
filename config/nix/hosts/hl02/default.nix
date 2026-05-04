@@ -6,11 +6,11 @@
 
     ../../roles/common
     ../../roles/proxmox-vm
-    ../../roles/zfs
+    ../../roles/ext4
     ./hardware.nix
     ./disko.nix
   ];
 
   networking.hostId = "92bbb1e6";
-  networking.hostName = "nas1";
+  networking.hostName = "hl02";
 }

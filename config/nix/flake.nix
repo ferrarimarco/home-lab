@@ -46,13 +46,13 @@
       };
 
       nixosConfigurations = {
-        nas1 = nixpkgs.lib.nixosSystem {
+        hl02 = nixpkgs.lib.nixosSystem {
           inherit system;
 
           specialArgs = { inherit inputs; };
 
           modules = [
-            ./hosts/nas1/default.nix
+            ./hosts/hl02/default.nix
           ];
         };
       };
