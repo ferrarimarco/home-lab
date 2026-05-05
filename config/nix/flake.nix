@@ -28,14 +28,14 @@
         config.allowUnfree = true;
       };
 
-      lib = nixpkgs.lib;
+      inherit (nixpkgs) lib;
 
       treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
 
       # Auto-discover host integration tests
       hostsDir = ./hosts;
       hostNames = builtins.attrNames (
-        lib.filterAttrs (name: type: type == "directory") (builtins.readDir hostsDir)
+        lib.filterAttrs (_name: type: type == "directory") (builtins.readDir hostsDir)
       );
       hostTests = lib.listToAttrs (
         map (host: {
@@ -57,7 +57,8 @@
 
         devShell = self.devShells.${system}.default;
         opsShell = self.devShells.${system}.operations;
-      } // hostTests;
+      }
+      // hostTests;
 
       nixosConfigurations = {
         hl02 = nixpkgs.lib.nixosSystem {
