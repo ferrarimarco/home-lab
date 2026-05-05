@@ -4,7 +4,7 @@
   inputs = {
     # Reference in case we want to switch to unstable
     # nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
 
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
@@ -23,15 +23,42 @@
     let
       system = "x86_64-linux";
 
-      # Use legacyPackages instead of packages to avoid evaluating unneeded
-      # packages.
-      # Ref: https://github.com/NixOS/nixpkgs/blob/1073dad219cb244572b74da2b20c7fe39cb3fa9e/flake.nix#L206
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
 
-      treefmtEval = treefmt-nix.lib.evalModule pkgs (import ./treefmt.nix { inherit pkgs; });
+      inherit (nixpkgs) lib;
+
+      treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
+
+      # Automatically discover and register integration tests for all hosts.
+      #
+      # Mechanism:
+      # 1. Scan the ./hosts directory for subdirectories (each representing a host).
+      # 2. Filter out directories that do not contain a 'test.nix' file.
+      # 3. For each valid host, import its 'test.nix' and format it as a check
+      #    attribute: { name = "<hostname>-test"; value = <test-derivation>; }.
+      # 4. Convert the list of attributes into a set and merge it into flake 'checks'.
+      #
+      # This makes the test suite zero-maintenance: adding a new host with a 'test.nix'
+      # will automatically include it in 'nix flake check' and CI without modifications here.
+      hostsDir = ./hosts;
+      hostNames = builtins.attrNames (
+        lib.filterAttrs (_name: type: type == "directory") (builtins.readDir hostsDir)
+      );
+      hostTests = lib.listToAttrs (
+        map (host: {
+          name = "${host}-test";
+          value = import (hostsDir + "/${host}/test.nix") { inherit pkgs; };
+        }) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/test.nix")) hostNames)
+      );
     in
     {
-      devShells.${system}.default = import ./shell.nix { inherit pkgs; };
+      devShells.${system} = {
+        default = import ./shells/shell.nix { inherit pkgs; };
+        operations = import ./shells/shell-operations.nix { inherit pkgs; };
+      };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
 
@@ -39,16 +66,18 @@
         treefmt-nix = treefmtEval.config.build.check self;
 
         devShell = self.devShells.${system}.default;
-      };
+        opsShell = self.devShells.${system}.operations;
+      }
+      // hostTests;
 
       nixosConfigurations = {
-        nas1 = nixpkgs.lib.nixosSystem {
+        hl02 = nixpkgs.lib.nixosSystem {
           inherit system;
 
           specialArgs = { inherit inputs; };
 
           modules = [
-            ./hosts/nas1/default.nix
+            ./hosts/hl02/default.nix
           ];
         };
       };

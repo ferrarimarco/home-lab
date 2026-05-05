@@ -114,4 +114,30 @@ updates:
         patterns:
           - brace-expansion
           - release-please
+  - directories:
+      - /config/terraform/**
+    commit-message:
+      prefix: "deps"
+    package-ecosystem: "terraform"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 100
+    groups:
+      home-lab-terraform:
+        applies-to: version-updates
+        patterns:
+          - bpg/proxmox
+          - hashicorp/local
+          - hashicorp/random
+  - package-ecosystem: "nix" # See documentation for possible values
+    directories:
+      - /config/nix
+    commit-message:
+      prefix: "deps"
+    schedule:
+      interval: "weekly"
+    groups:
+      nix:
+        applies-to: version-updates
+        patterns: []
 version: 2

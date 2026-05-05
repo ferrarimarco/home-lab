@@ -29,10 +29,6 @@ jobs:
     defaults:
       run:
         working-directory: config/nix
-    strategy:
-      matrix:
-        nix-configurations:
-          - id: nas1
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -45,14 +41,4 @@ jobs:
       - name: Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
       - name: Check the main flake
-        run: nix flake check
-      - name: Build the ${{ matrix.nix-configurations.id }} configuration
-        run: nix build ".#nixosConfigurations.${{ matrix.nix-configurations.id }}.config.system.build.vm"
-      # 6. Run a smoke test (Boot the VM headlessly)
-      - name: Smoke test - boot ${{ matrix.nix-configurations.id }}
-        run: |
-          # Run the VM without graphics and kill it after 60 seconds.
-          # If it crashes before 60 seconds, it will exit with an error and fail the CI.
-          # If it survives the 60 seconds, we consider the boot sequence successful.
-          export QEMU_OPTS="-nographic"
-          timeout 60s ./result/bin/run-nas1-vm || [ $? -eq 124 ]
+        run: nix flake check --verbose

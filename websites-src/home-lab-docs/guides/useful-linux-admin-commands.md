@@ -1,4 +1,4 @@
-# Useful Linux administration notes
+# Linux administration notes
 
 ## Debian
 
@@ -22,3 +22,10 @@
     ```sh
     sudo docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml run --build --interactive --rm --entrypoint /bin/bash restic-backup-workloads
     ```
+
+## Disks, partitions, and filesystems
+
+- Get the list of block devices: `lsblk`
+- Get the attributes of a block device: `blkid <device>`
+- Get the list of disks and partitions and add the partition UUID:
+  `lsblk -o NAME,FSTYPE,SIZE,MOUNTPOINT,PARTUUID`

@@ -55,6 +55,7 @@
       settings = {
         ChallengeResponseAuthentication = lib.mkDefault "no";
         GSSAPIAuthentication = lib.mkDefault "no";
+        KbdInteractiveAuthentication = lib.mkDefault false;
         PasswordAuthentication = lib.mkDefault false;
         PermitEmptyPasswords = lib.mkDefault "no";
         PermitRootLogin = lib.mkDefault "no";

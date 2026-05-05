@@ -447,3 +447,21 @@ zigbee2mqtt_templates_to_render:
     docker_compose_services_to_restart: "{{ zigbee2mqtt_docker_compose_up_items }}"
     # Don't force template rendering because zigbee2mqtt modifies this file at runtime to store the generated network key
     force: false
+
+frigate_http_endpoint_fqdn: "hl01.{{ edge_environment_root_fqdn }}"
+grafana_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+home_assistant_http_endpoint_fqdn: "hl01.{{ edge_environment_root_fqdn }}"
+media_stack_flaresolverr_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+media_stack_jellyfin_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+media_stack_jellyseerr_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+media_stack_qbittorrent_webui_password: "{{ vault_media_stack_qbittorrent_webui_password }}"
+media_stack_prowlarr_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+media_stack_radarr_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+media_stack_sonarr_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+monitoring_nut_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+prometheus_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+prometheus_blackbox_exporter_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+qbittorrent_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+syncthing_user_interface_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+zigbee2mqtt_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+mosquitto_server_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"

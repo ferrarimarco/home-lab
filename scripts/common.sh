@@ -11,6 +11,17 @@ ERR_ANSIBLE_MISSING_PASSWORD_FILE=3
 # shellcheck disable=SC2034
 ERR_ANSIBLE_TEST_MISSING_PLAYBOOK=4
 ERR_MISSING_GITHUB_TOKEN_FILE=5
+# shellcheck disable=SC2034
+ERR_MISSING_RUNTIME_DEPENDENCY=6
+
+COMMON_FILE_PATH="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+REPOSITORY_ROOT_PATH="$(dirname "$(readlink -f "${COMMON_FILE_PATH}")")"
+TERRAFORM_DIR_PATH="${REPOSITORY_ROOT_PATH}/config/terraform"
+TERRAFORM_ENVIRONMENTS_DIR_PATH="${TERRAFORM_DIR_PATH}/environments"
+# shellcheck disable=SC2034
+TERRAFORM_LOCAL_BACKEND_DIRECTORY_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/backend/local"
+# shellcheck disable=SC2034
+TERRAFORM_LOCAL_BACKEND_CONFIG_DIR_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/backend-config/local"
 
 CD_CONTAINER_URL="ferrarimarco/home-lab-cd:latest"
 
@@ -31,6 +42,10 @@ _DOCKER_INTERACTIVE_TTY_OPTION=
 if [ -t 0 ]; then
   _DOCKER_INTERACTIVE_TTY_OPTION="-it"
 fi
+
+break_line() {
+  echo "--------------------------------"
+}
 
 is_command_available() {
   if command -v "${1}" >/dev/null 2>&1; then
