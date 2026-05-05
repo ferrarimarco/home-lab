@@ -6,4 +6,5 @@ implementation.
 
 ## Specifications
 
-*   [hl02 Proxmox VM & Testing](hl02-proxmox-vm.md) - Design for configuring `hl02` as a Proxmox VM and testing it using `nixosTest`.
+- [hl02 Proxmox VM & Testing](hl02-proxmox-vm.md) - Design for configuring
+  `hl02` as a Proxmox VM and testing it using `nixosTest`.

@@ -57,3 +57,6 @@ terraform.tfstate*
 
 # Terraform secrets
 *-secrets.tfvars
+
+# Nix
+.nixos-test-history

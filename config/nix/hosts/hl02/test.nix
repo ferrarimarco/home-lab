@@ -30,6 +30,11 @@ pkgs.testers.nixosTest {
     machine.wait_for_unit("multi-user.target")
     machine.wait_for_open_port(22)
 
+    # Wait for the hardware device to be populated by udev
+    machine.wait_for_file("/dev/virtio-ports/org.qemu.guest_agent.0")
+
+    # Now it is safe to wait for the unit, or verify it started
+
     # The qemu-guest-agent service is triggered asynchronously by udev rules
     # once the virtual serial device is detected during boot.
     #

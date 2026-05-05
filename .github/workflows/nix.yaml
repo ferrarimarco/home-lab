@@ -29,10 +29,6 @@ jobs:
     defaults:
       run:
         working-directory: config/nix
-    strategy:
-      matrix:
-        nix-configurations:
-          - id: hl02
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -45,6 +41,4 @@ jobs:
       - name: Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
       - name: Check the main flake
-        run: nix flake check
-      - name: Build the ${{ matrix.nix-configurations.id }} configuration
-        run: nix build ".#nixosConfigurations.${{ matrix.nix-configurations.id }}.config.system.build.vm"
+        run: nix flake check --verbose
