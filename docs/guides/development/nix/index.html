@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/architecture/storage-configuration/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/development/nix/">
       
       
-        <link rel="prev" href="../references/">
+        <link rel="prev" href="../../useful-linux-admin-commands/">
       
       
-        <link rel="next" href="../../archive/">
+        <link rel="next" href="../website-development/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Storage configuration - Home Lab docs</title>
+        <title>Nix development - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#storage-configuration" class="md-skip">
+        <a href="#nix-development" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Storage configuration
+              Nix development
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -239,20 +239,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -268,7 +266,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -282,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -305,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../network-configuration/" class="md-nav__link">
+      <a href="../../../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -328,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -348,32 +346,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Storage configuration
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -384,53 +360,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#storage-planning" class="md-nav__link">
-    <span class="md-ellipsis">
-      Storage planning
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#zfs-topology" class="md-nav__link">
-    <span class="md-ellipsis">
-      ZFS topology
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#storage-access" class="md-nav__link">
-    <span class="md-ellipsis">
-      Storage access
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -488,7 +417,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
@@ -511,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -538,18 +467,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -565,7 +496,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -579,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/configure-monitoring/" class="md-nav__link">
+      <a href="../../configure-monitoring/" class="md-nav__link">
         
   
   
@@ -602,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/configure-network-shares/" class="md-nav__link">
+      <a href="../../configure-network-shares/" class="md-nav__link">
         
   
   
@@ -625,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/configure-tailscale/" class="md-nav__link">
+      <a href="../../configure-tailscale/" class="md-nav__link">
         
   
   
@@ -648,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/container-migration/" class="md-nav__link">
+      <a href="../../container-migration/" class="md-nav__link">
         
   
   
@@ -671,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
+      <a href="../../copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -694,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
+      <a href="../../home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -717,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/proxmox-admin-notes/" class="md-nav__link">
+      <a href="../../proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -740,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -760,18 +691,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" checked>
         
           
           <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
@@ -787,7 +720,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_9">
             <span class="md-nav__icon md-icon"></span>
             Development
@@ -798,10 +731,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../guides/development/nix/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Nix development
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -812,6 +767,35 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#open-a-python-shell-in-a-test-virtual-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      Open a Python shell in a test virtual machine
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -824,7 +808,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/development/website-development/" class="md-nav__link">
+      <a href="../website-development/" class="md-nav__link">
         
   
   
@@ -938,7 +922,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -961,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -984,7 +968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -1060,7 +1044,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../../../specs/" class="md-nav__link">
         
   
   
@@ -1083,7 +1067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/hl02-proxmox-vm/" class="md-nav__link">
+      <a href="../../../specs/hl02-proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1133,27 +1117,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#storage-planning" class="md-nav__link">
+  <a href="#open-a-python-shell-in-a-test-virtual-machine" class="md-nav__link">
     <span class="md-ellipsis">
-      Storage planning
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#zfs-topology" class="md-nav__link">
-    <span class="md-ellipsis">
-      ZFS topology
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#storage-access" class="md-nav__link">
-    <span class="md-ellipsis">
-      Storage access
+      Open a Python shell in a test virtual machine
     </span>
   </a>
   
@@ -1178,14 +1144,26 @@
   
 
 
-<h1 id="storage-configuration">Storage configuration</h1>
-<h2 id="storage-planning">Storage planning</h2>
-<h2 id="zfs-topology">ZFS topology</h2>
-<p>ZFS pool of mirrored vdevs.</p>
-<h2 id="storage-access">Storage access</h2>
-<p>For containers: bind mount ZFS datasets to LXC containers that need them.</p>
-<p>For VMs: bind mount ZFS datasets to a LXC container running NFS and Samba
-servers, then mount shares in VMs that need them.</p>
+<h1 id="nix-development">Nix development</h1>
+<h2 id="open-a-python-shell-in-a-test-virtual-machine">Open a Python shell in a test virtual machine</h2>
+<ol>
+<li>
+<p>Start the interactive test driver:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>run<span class="w"> </span>.#checks.x86_64-linux.&lt;machine-name&gt;-test.driverInteractive
+</code></pre></div>
+<p>To exit the test driver, use the <code>CTRL-d</code> key combination.</p>
+</li>
+<li>
+<p>Start all machines:</p>
+<div class="highlight"><pre><span></span><code><span class="n">start_all</span><span class="p">()</span>
+</code></pre></div>
+</li>
+<li>
+<p>Open a Linux shell:</p>
+<div class="highlight"><pre><span></span><code><span class="n">machine</span><span class="o">.</span><span class="n">shell_interact</span><span class="p">()</span>
+</code></pre></div>
+</li>
+</ol>
 
 
 
@@ -1240,10 +1218,10 @@ servers, then mount shares in VMs that need them.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>

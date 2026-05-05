@@ -728,6 +728,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/development/nix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
@@ -1389,12 +1412,22 @@
 
 <h1 id="design-spec-proxmox-vm-configuration-declarative-integration-testing-for-hl02">Design Spec: Proxmox VM Configuration &amp; Declarative Integration Testing for <code>hl02</code></h1>
 <h2 id="1-goal">1. Goal</h2>
-<p>Configure <code>hl02</code> as a fully defined NixOS Proxmox VM using DHCP, and implement a Nix-native integration test framework to verify the configuration (system boot, SSH, and QEMU Guest Agent) both locally and in GitHub Actions.</p>
+<p>Configure <code>hl02</code> as a fully defined NixOS Proxmox VM using DHCP, and implement a
+Nix-native integration test framework to verify the configuration (system boot,
+SSH, and QEMU Guest Agent) both locally and in GitHub Actions.</p>
 <h2 id="2-rationale">2. Rationale</h2>
-<p>Currently, the configuration for <code>hl02</code> is incomplete and references a non-existent <code>ext4</code> role, which prevents it from building. Additionally, verifying VM configurations manually or via ad-hoc shell scripts in CI is brittle and hard to maintain. Transitioning to a declarative testing model using NixOS's native testing framework (<code>nixosTest</code>) ensures that configuration correctness is verified inside the Nix sandbox, providing reliable and reproducible feedback.</p>
+<p>Currently, the configuration for <code>hl02</code> is incomplete and references a
+non-existent <code>ext4</code> role, which prevents it from building. Additionally,
+verifying VM configurations manually or via ad-hoc shell scripts in CI is
+brittle and hard to maintain. Transitioning to a declarative testing model using
+NixOS's native testing framework (<code>nixosTest</code>) ensures that configuration
+correctness is verified inside the Nix sandbox, providing reliable and
+reproducible feedback.</p>
 <h2 id="3-proposed-changes">3. Proposed Changes</h2>
 <h3 id="31-architectural-split-of-hl02-configuration">3.1 Architectural Split of <code>hl02</code> Configuration</h3>
-<p>To allow the integration test to run without triggering physical disk partitioning (which is handled by Disko and is not suitable for standard sandboxed NixOS tests), we split the host configuration:</p>
+<p>To allow the integration test to run without triggering physical disk
+partitioning (which is handled by Disko and is not suitable for standard
+sandboxed NixOS tests), we split the host configuration:</p>
 <ul>
 <li><strong><code>config/nix/hosts/hl02/configuration.nix</code> (Logical Config):</strong><ul>
 <li>Imports <code>roles/common</code> and <code>roles/proxmox-vm</code>.</li>
@@ -1416,43 +1449,71 @@
 </li>
 </ul>
 <h3 id="32-declarative-integration-test-confignixhostshl02testnix">3.2 Declarative Integration Test (<code>config/nix/hosts/hl02/test.nix</code>)</h3>
-<p>We define a NixOS integration test using <code>pkgs.nixosTest</code>:
-*   <strong>Node Definition:</strong> A test node named <code>machine</code> that imports <code>hosts/hl02/configuration.nix</code>.
-*   <strong>Assertions:</strong> A Python-based test script that executes:
+<p>We define a NixOS integration test using <code>pkgs.nixosTest</code>:</p>
+<ul>
+<li><strong>Node Definition:</strong> A test node named <code>machine</code> that imports
+  <code>hosts/hl02/configuration.nix</code>.</li>
+<li><strong>Assertions:</strong> A Python-based test script that executes:
     <div class="highlight"><pre><span></span><code><span class="n">machine</span><span class="o">.</span><span class="n">wait_for_unit</span><span class="p">(</span><span class="s2">&quot;multi-user.target&quot;</span><span class="p">)</span>
 <span class="n">machine</span><span class="o">.</span><span class="n">wait_for_open_port</span><span class="p">(</span><span class="mi">22</span><span class="p">)</span>
 <span class="n">machine</span><span class="o">.</span><span class="n">succeed</span><span class="p">(</span><span class="s2">&quot;systemctl is-active qemu-guest-agent&quot;</span><span class="p">)</span>
-</code></pre></div></p>
+</code></pre></div></li>
+</ul>
 <h3 id="33-flake-integration-confignixflakenix">3.3 Flake Integration (<code>config/nix/flake.nix</code>)</h3>
-<p>Expose the new test in the flake's <code>checks</code> output for the <code>x86_64-linux</code> system:
-*   Add <code>hl02-test</code> to <code>checks.${system}</code> by importing <code>hosts/hl02/test.nix</code>.
-*   This allows <code>nix flake check</code> to automatically run the integration test.</p>
+<p>Expose the new test in the flake's <code>checks</code> output for the <code>x86_64-linux</code>
+system:</p>
+<ul>
+<li>Dynamically discover and import tests to <code>checks.${system}</code>.</li>
+<li>This allows <code>nix flake check</code> to automatically run the integration test.</li>
+</ul>
 <h3 id="34-github-actions-workflow-update-githubworkflowsnixyaml">3.4 GitHub Actions Workflow Update (<code>.github/workflows/nix.yaml</code>)</h3>
 <ul>
-<li>Maintain the <code>Check the main flake</code> step which runs <code>nix flake check</code> (this will now execute the <code>nixosTest</code> via QEMU).</li>
-<li>Maintain the <code>Build the hl02 configuration</code> step to ensure the full physical VM image (with Disko) builds.</li>
-<li>Remove the legacy <code>Smoke test - boot hl02</code> step which used a manual shell-based timeout.</li>
+<li>Maintain the <code>Check the main flake</code> step which runs <code>nix flake check</code> (this
+  will now execute the <code>nixosTest</code> via QEMU).</li>
+<li>Maintain the <code>Build the hl02 configuration</code> step to ensure the full physical
+  VM image (with Disko) builds.</li>
+<li>Remove the legacy <code>Smoke test - boot hl02</code> step which used a manual
+  shell-based timeout.</li>
 </ul>
 <h2 id="4-verification-plan">4. Verification Plan</h2>
 <h3 id="41-automated-tests-ci">4.1 Automated Tests (CI)</h3>
 <ul>
-<li>Push the branch to GitHub and verify that the <code>nix flake check</code> step successfully executes and passes the <code>hl02-test</code> integration test.</li>
+<li>Push the branch to GitHub and verify that the <code>nix flake check</code> step
+  successfully executes and passes the <code>hl02-test</code> integration test.</li>
 <li>Verify that the build step successfully completes.</li>
 </ul>
 <h3 id="42-manual-verification-localdev">4.2 Manual Verification (Local/Dev)</h3>
 <ul>
-<li>If Nix is available on the development machine, run <code>nix flake check</code> to run the test locally. (Note: Disallowed on the current host per user request).</li>
+<li>If Nix is available on the development machine, run <code>nix flake check</code> to run
+  the test locally. (Note: Disallowed on the current host per user request).</li>
 </ul>
 <h2 id="5-assumptions-constraints">5. Assumptions &amp; Constraints</h2>
 <h3 id="51-disk-device-configuration-devvda">5.1 Disk Device Configuration (<code>/dev/vda</code>)</h3>
-<p>The physical Disko configuration (<code>hosts/hl02/disko.nix</code>) explicitly configures the target disk as <code>/dev/vda</code>. This assumes that the Proxmox VM is provisioned using a <strong>VirtIO Block</strong> controller. If the VM is provisioned using a <strong>SCSI</strong> controller (which is common in Proxmox), the disk will present as <code>/dev/sda</code> and the boot partition layout will fail to apply. 
-*   <em>Constraint:</em> The VM must be created with a VirtIO Block disk controller, or <code>hosts/hl02/disko.nix</code> must be updated to <code>/dev/sda</code> to match a SCSI setup.</p>
+<p>The physical Disko configuration (<code>hosts/hl02/disko.nix</code>) explicitly configures
+the target disk as <code>/dev/vda</code>. This assumes that the Proxmox VM is provisioned
+using a <strong>VirtIO Block</strong> controller. If the VM is provisioned using a <strong>SCSI</strong>
+controller (which is common in Proxmox), the disk will present as <code>/dev/sda</code> and
+the boot partition layout will fail to apply.</p>
+<ul>
+<li><em>Constraint:</em> The VM must be created with a VirtIO Block disk controller, or
+  <code>hosts/hl02/disko.nix</code> must be updated to <code>/dev/sda</code> to match a SCSI setup.</li>
+</ul>
 <h3 id="52-empty-hardwarenix-rationale">5.2 Empty <code>hardware.nix</code> Rationale</h3>
-<p>The file <code>hosts/hl02/hardware.nix</code> is currently an empty placeholder. This is because all VM-specific hardware configurations (such as standard VirtIO drivers, systemd-boot configuration, and kernel serial console parameters) are generalized in <code>roles/proxmox-vm/default.nix</code>. If <code>hl02</code> requires host-specific hardware modifications in the future (e.g., PCI passthrough), they should be declared in <code>hosts/hl02/hardware.nix</code>.</p>
+<p>The file <code>hosts/hl02/hardware.nix</code> is currently an empty placeholder. This is
+because all VM-specific hardware configurations (such as standard VirtIO
+drivers, systemd-boot configuration, and kernel serial console parameters) are
+generalized in <code>roles/proxmox-vm/default.nix</code>. If <code>hl02</code> requires host-specific
+hardware modifications in the future (e.g., PCI passthrough), they should be
+declared in <code>hosts/hl02/hardware.nix</code>.</p>
 <h3 id="53-for-now-scope">5.3 "For Now" Scope</h3>
 <ul>
-<li><strong>Networking:</strong> The host uses DHCP for convenience and simplicity in this phase (<code>networking.useDHCP = true</code>). Transitioning to static IPs can be done in a future specification.</li>
-<li><strong>User Access:</strong> SSH keys are left unconfigured for this host in the Nix configuration. Initial login must be performed via console or by injecting keys out-of-band, until secret management (such as <code>sops-nix</code> or hardcoded public keys) is specified.</li>
+<li><strong>Networking:</strong> The host uses DHCP for convenience and simplicity in this
+  phase (<code>networking.useDHCP = true</code>). Transitioning to static IPs can be done
+  in a future specification.</li>
+<li><strong>User Access:</strong> SSH keys are left unconfigured for this host in the Nix
+  configuration. Initial login must be performed via console or by injecting
+  keys out-of-band, until secret management (such as <code>sops-nix</code> or hardcoded
+  public keys) is specified.</li>
 </ul>
 
 
