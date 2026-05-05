@@ -48,11 +48,3 @@ jobs:
         run: nix flake check
       - name: Build the ${{ matrix.nix-configurations.id }} configuration
         run: nix build ".#nixosConfigurations.${{ matrix.nix-configurations.id }}.config.system.build.vm"
-      # 6. Run a smoke test (Boot the VM headlessly)
-      - name: Smoke test - boot ${{ matrix.nix-configurations.id }}
-        run: |
-          # Run the VM without graphics and kill it after 60 seconds.
-          # If it crashes before 60 seconds, it will exit with an error and fail the CI.
-          # If it survives the 60 seconds, we consider the boot sequence successful.
-          export QEMU_OPTS="-nographic"
-          timeout 60s ./result/bin/run-${{ matrix.nix-configurations.id }}-vm || [ $? -eq 124 ]
