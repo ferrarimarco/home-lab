@@ -10,16 +10,31 @@ pkgs.testers.nixosTest {
         ./configuration.nix
       ];
 
+      # Provision a mock virtio serial port for the guest agent.
+      #
+      # 1. Enable virtio-serial device in QEMU.
+      # 2. Create a virtserialport and map it to the guest agent channel name
+      #    ('org.qemu.guest_agent.0') that the udev rules look for.
+      # 3. Back it with a 'null' chardev. We use 'null' instead of 'socket' (with
+      #    a physical file path like /tmp/qga.sock) to avoid file permission/conflict
+      #    issues when running inside the sandboxed Nix builder environment (e.g. GHA).
       virtualisation.qemu.options = [
         "-device virtio-serial"
         "-device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0"
-        "-chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0"
+        "-chardev null,id=qga0"
       ];
     };
 
   testScript = ''
+    # Wait for standard boot sequence to complete
     machine.wait_for_unit("multi-user.target")
     machine.wait_for_open_port(22)
-    machine.succeed("systemctl is-active qemu-guest-agent")
+
+    # The qemu-guest-agent service is triggered asynchronously by udev rules
+    # once the virtual serial device is detected during boot.
+    #
+    # Rather than instantly running an assertion (which can fail due to udev
+    # processing delays), we use 'wait_for_unit' to wait for the service to start.
+    machine.wait_for_unit("qemu-guest-agent.service")
   '';
 }
