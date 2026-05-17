@@ -7,7 +7,3 @@ locals {
   terraform_templates_directory_path        = "${local.templates_directory_path}/terraform"
   proxmox_host_secrets_tfvars_template_path = "${local.terraform_templates_directory_path}/proxmox-host-secrets.tfvars.tftpl"
 }
-
-data "proxmox_virtual_environment_node" "node" {
-  node_name = var.proxmox_virtual_environment_node_hostname
-}

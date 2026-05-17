@@ -103,6 +103,17 @@
                     ]
                 }
             ]
+        },
+        {
+            "file": "/config/terraform/200-proxmox/iam.tf",
+            "findings": [
+                {
+                    "resource": "20ff3f624f7058301520d25a7cab2fca7e1eabb0",
+                    "check_ids": [
+                        "CKV_SECRET_6"
+                    ]
+                }
+            ]
         }
     ]
 }
