@@ -64,7 +64,7 @@
   notify:
     - Reboot the host
   when:
-    - "'GenuineIntel' in ansible_processor[1]"
+    - "'GenuineIntel' in ansible_facts['processor'][1]"
     - enable_intel_microcode_update | default(false)
 
 - name: Install Intel iGPU packages
