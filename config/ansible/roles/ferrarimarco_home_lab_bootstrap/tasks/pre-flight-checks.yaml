@@ -49,6 +49,6 @@
   delay: 5
   when:
     - not ansible_check_mode
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts["service_mgr"] == 'systemd'
   changed_when: false
   failed_when: systemctl_status.rc > 1

@@ -12,9 +12,9 @@
 - name: Load a variable file based on the OS type, or a default if not found
   ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
-    - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
-    - "{{ ansible_distribution }}.yaml"
-    - "{{ ansible_os_family }}.yaml"
+    - "{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_version'] }}.yaml"
+    - "{{ ansible_facts['distribution'] }}.yaml"
+    - "{{ ansible_facts['os_family'] }}.yaml"
     - "default.yaml"
   tags:
     - always
@@ -40,9 +40,9 @@
   ansible.builtin.include_tasks:
     file: "{{ item }}"
   with_first_found:
-    - "setup-{{ ansible_distribution }}-{{ ansible_distribution_version }}.yaml"
-    - "setup-{{ ansible_distribution }}.yaml"
-    - "setup-{{ ansible_os_family }}.yaml"
+    - "setup-{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_version'] }}.yaml"
+    - "setup-{{ ansible_facts['distribution'] }}.yaml"
+    - "setup-{{ ansible_facts['os_family'] }}.yaml"
 
 - name: Configure Home Lab configuration directories
   ansible.builtin.file:
@@ -62,7 +62,7 @@
 - name: Setup systemd
   ansible.builtin.import_tasks: setup-systemd.yaml
   when:
-    - ansible_service_mgr == 'systemd'
+    - ansible_facts['service_mgr'] == 'systemd'
 
 - name: Ensure handlers are notified now
   ansible.builtin.meta: flush_handlers
