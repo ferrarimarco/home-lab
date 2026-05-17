@@ -1,4 +1,5 @@
 ---
+enable_intel_microcode_update: true
 is_proxmox_node: true
 install_debian_non_free_firmware: true
 proxmox_vms:
