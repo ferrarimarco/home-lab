@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/installation/production/setup-proxmox/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/">
       
       
-        <link rel="prev" href="../provision-new-hosts/">
+        <link rel="prev" href="../installation/production/setup-proxmox/">
       
       
-        <link rel="next" href="../../../specs/">
+        <link rel="next" href="hl02-proxmox-vm/">
       
       
-      <link rel="icon" href="../../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Configure Proxmox hosts, virtual machines, and containers - Home Lab docs</title>
+        <title>Home lab design specifications - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configure-proxmox-hosts-virtual-machines-and-containers" class="md-skip">
+        <a href="#home-lab-design-specifications" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href=".." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configure Proxmox hosts, virtual machines, and containers
+              Home lab design specifications
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href=".." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/nix/" class="md-nav__link">
+      <a href="../architecture/nix/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/references/" class="md-nav__link">
+      <a href="../architecture/references/" class="md-nav__link">
         
   
   
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -440,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../archive/" class="md-nav__link">
+      <a href="../archive/" class="md-nav__link">
         
   
   
@@ -463,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -531,7 +531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/configure-monitoring/" class="md-nav__link">
+      <a href="../guides/configure-monitoring/" class="md-nav__link">
         
   
   
@@ -554,7 +554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/configure-network-shares/" class="md-nav__link">
+      <a href="../guides/configure-network-shares/" class="md-nav__link">
         
   
   
@@ -577,7 +577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/configure-tailscale/" class="md-nav__link">
+      <a href="../guides/configure-tailscale/" class="md-nav__link">
         
   
   
@@ -600,7 +600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/container-migration/" class="md-nav__link">
+      <a href="../guides/container-migration/" class="md-nav__link">
         
   
   
@@ -623,7 +623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/copy-jinja-templates/" class="md-nav__link">
+      <a href="../guides/copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -646,7 +646,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/home-assistant-configuration/" class="md-nav__link">
+      <a href="../guides/home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -669,7 +669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/proxmox-admin-notes/" class="md-nav__link">
+      <a href="../guides/proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -692,7 +692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../guides/useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -753,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/development/nix/" class="md-nav__link">
+      <a href="../guides/development/nix/" class="md-nav__link">
         
   
   
@@ -776,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/development/website-development/" class="md-nav__link">
+      <a href="../guides/development/website-development/" class="md-nav__link">
         
   
   
@@ -787,230 +787,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Installation
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            Installation
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Production
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_1">
-            <span class="md-nav__icon md-icon"></span>
-            Production
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Initialize the home lab
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../provision-new-hosts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Provision new hosts
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Configure Proxmox hosts, virtual machines, and containers
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Configure Proxmox hosts, virtual machines, and containers
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#terraform-stages" class="md-nav__link">
-    <span class="md-ellipsis">
-      Terraform stages
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#initialize-proxmox-hosts-200-terraform-stage" class="md-nav__link">
-    <span class="md-ellipsis">
-      Initialize Proxmox hosts (200-terraform stage)
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1046,15 +822,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Specs
+    Installation
     
   </span>
   
@@ -1062,10 +838,48 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
-            Specs
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Production
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Production
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1076,12 +890,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/" class="md-nav__link">
+      <a href="../installation/production/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Home lab design specifications
+    Initialize the home lab
     
   </span>
   
@@ -1099,7 +913,182 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/hl02-proxmox-vm/" class="md-nav__link">
+      <a href="../installation/production/provision-new-hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Provision new hosts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/production/setup-proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Proxmox hosts, virtual machines, and containers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Specs
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Specs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Home lab design specifications
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home lab design specifications
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#specifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      Specifications
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="hl02-proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1149,18 +1138,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#terraform-stages" class="md-nav__link">
+  <a href="#specifications" class="md-nav__link">
     <span class="md-ellipsis">
-      Terraform stages
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#initialize-proxmox-hosts-200-terraform-stage" class="md-nav__link">
-    <span class="md-ellipsis">
-      Initialize Proxmox hosts (200-terraform stage)
+      Specifications
     </span>
   </a>
   
@@ -1185,46 +1165,15 @@
   
 
 
-<h1 id="configure-proxmox-hosts-virtual-machines-and-containers">Configure Proxmox hosts, virtual machines, and containers</h1>
-<p>Terraform handles:</p>
+<h1 id="home-lab-design-specifications">Home lab design specifications</h1>
+<p>This directory contains design specifications for various components of the home
+lab infrastructure. These specs focus on architecture and rationale before
+implementation.</p>
+<h2 id="specifications">Specifications</h2>
 <ul>
-<li>The configuration of Proxmox hosts.</li>
-<li>The provisioning of Proxmox virtual machines (VMs) and LXC containers.</li>
+<li><a href="hl02-proxmox-vm/">hl02 Proxmox VM &amp; Testing</a> - Design for configuring
+  <code>hl02</code> as a Proxmox VM and testing it using <code>nixosTest</code>.</li>
 </ul>
-<h2 id="terraform-stages">Terraform stages</h2>
-<p>To configure Proxmox hosts, you use the following Terraform stages:</p>
-<ul>
-<li><code>000-initialize</code>: initial Terraform environment setup</li>
-<li><code>200-proxmox</code>: Proxmox bootstrap, including user identities and API tokens</li>
-</ul>
-<h2 id="initialize-proxmox-hosts-200-terraform-stage">Initialize Proxmox hosts (<code>200-terraform</code> stage)</h2>
-<p>After provisioning a Proxmox host, you initialize it with Terraform. The
-initialization process creates users, roles, and API tokens for the following
-stages, and persists API tokens in Terraform variables files.</p>
-<p>You run this stage when you need to:</p>
-<ul>
-<li>Initialize a Proxmox host for the first time</li>
-<li>Create new Proxmox users</li>
-<li>Grant new permissions to existing Proxmox users</li>
-</ul>
-<p>From your Linux shell, after setting the working directory to the root of this
-repository:</p>
-<ol>
-<li>
-<p>Open the <code>operations</code> Nix shell, if needed:</p>
-<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations
-</code></pre></div>
-</li>
-<li>
-<p>Apply changes with Terraform:</p>
-<div class="highlight"><pre><span></span><code>scripts/run-terraform.sh
-</code></pre></div>
-<p>To enable the configuration of the Proxmox IAM, create the following files:
-- <code>config/terraform/environments/proxmox-pve1-root-secrets.tfvars</code> to store
-  the root credentials (password or API token) of the <code>pve1</code> host root
-  password.</p>
-</li>
-</ol>
 
 
 
@@ -1279,10 +1228,10 @@ repository:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tracking"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>
