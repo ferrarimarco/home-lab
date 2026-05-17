@@ -57,10 +57,10 @@ MKDOCS_CONFIG_FILE_DESTINATION_PATH="/config/mkdocs.yaml"
 RUN_CONTAINER_COMMAND+=(
   --name "mkdocs"
   --publish "8000:8000"
-  --volume "${MKDOCS_CONFIG_FILE_PATH}":"${MKDOCS_CONFIG_FILE_DESTINATION_PATH}"
-  --volume "${MKDOCS_SOURCE_DIRECTORY_PATH}":/docs
-  --volume "${MKDOCS_DESTINATION_DIRECTORY_PATH}":/dest
-  --volume /etc/localtime:/etc/localtime:ro
+  -v "${MKDOCS_CONFIG_FILE_PATH}":"${MKDOCS_CONFIG_FILE_DESTINATION_PATH}"
+  -v "${MKDOCS_SOURCE_DIRECTORY_PATH}":/docs
+  -v "${MKDOCS_DESTINATION_DIRECTORY_PATH}":/dest
+  -v /etc/localtime:/etc/localtime:ro
   "${MKDOCS_CONTAINER_IMAGE}"
 )
 
