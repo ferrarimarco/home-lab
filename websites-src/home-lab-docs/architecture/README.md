@@ -42,6 +42,6 @@ configuration, and deployment processes:
   directory.
 - Container image descriptors in the `docker` directory.
 - Documentation site in the `docs` directory.
-- Source of the documentation site in the `docs-src` directory.
+- Source of the documentation site in the `websites-src` directory.
 - Operational scripts in the `scripts` directory.
 - Tests in the `test` directory.
