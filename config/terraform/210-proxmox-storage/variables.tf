@@ -16,11 +16,6 @@ variable "proxmox_virtual_environment_insecure" {
   type        = bool
 }
 
-variable "proxmox_virtual_environment_node_hostname" {
-  description = "Hostname of the Proxmox Virtual Environment node"
-  type        = string
-}
-
 variable "proxmox_virtual_environment_username" {
   default     = "root@pam"
   description = "Proxmox Virtual Environment API username"
