@@ -8,25 +8,23 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/installation/production/setup-proxmox/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/hl02-proxmox-vm/">
       
       
-        <link rel="prev" href="../provision-new-hosts/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../../../specs/">
       
-      
-      <link rel="icon" href="../../../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Configure Proxmox hosts, virtual machines, and containers - Home Lab docs</title>
+        <title>Design Spec: Proxmox VM Configuration & Declarative Integration Testing for hl02 - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +43,7 @@
       
     
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#configure-proxmox-hosts-virtual-machines-and-containers" class="md-skip">
+        <a href="#design-spec-proxmox-vm-configuration-declarative-integration-testing-for-hl02" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +78,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Configure Proxmox hosts, virtual machines, and containers
+              Design Spec: Proxmox VM Configuration &amp; Declarative Integration Testing for hl02
             
           </span>
         </div>
@@ -190,7 +188,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +218,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -280,7 +278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/" class="md-nav__link">
+      <a href="../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -326,7 +324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/nix/" class="md-nav__link">
+      <a href="../../architecture/nix/" class="md-nav__link">
         
   
   
@@ -349,7 +347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/references/" class="md-nav__link">
+      <a href="../../architecture/references/" class="md-nav__link">
         
   
   
@@ -372,7 +370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -440,7 +438,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../archive/" class="md-nav__link">
+      <a href="../../archive/" class="md-nav__link">
         
   
   
@@ -463,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -531,7 +529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/configure-monitoring/" class="md-nav__link">
+      <a href="../../guides/configure-monitoring/" class="md-nav__link">
         
   
   
@@ -554,7 +552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/configure-network-shares/" class="md-nav__link">
+      <a href="../../guides/configure-network-shares/" class="md-nav__link">
         
   
   
@@ -577,7 +575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/configure-tailscale/" class="md-nav__link">
+      <a href="../../guides/configure-tailscale/" class="md-nav__link">
         
   
   
@@ -600,7 +598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/container-migration/" class="md-nav__link">
+      <a href="../../guides/container-migration/" class="md-nav__link">
         
   
   
@@ -623,7 +621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/copy-jinja-templates/" class="md-nav__link">
+      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -646,7 +644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/home-assistant-configuration/" class="md-nav__link">
+      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -669,7 +667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/proxmox-admin-notes/" class="md-nav__link">
+      <a href="../../guides/proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -692,7 +690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -753,7 +751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/development/nix/" class="md-nav__link">
+      <a href="../../guides/development/nix/" class="md-nav__link">
         
   
   
@@ -776,7 +774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/development/website-development/" class="md-nav__link">
+      <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
   
@@ -787,230 +785,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Installation
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            Installation
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Production
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_1">
-            <span class="md-nav__icon md-icon"></span>
-            Production
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Initialize the home lab
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../provision-new-hosts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Provision new hosts
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Configure Proxmox hosts, virtual machines, and containers
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Configure Proxmox hosts, virtual machines, and containers
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#terraform-stages" class="md-nav__link">
-    <span class="md-ellipsis">
-      Terraform stages
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#initialize-proxmox-hosts-200-terraform-stage" class="md-nav__link">
-    <span class="md-ellipsis">
-      Initialize Proxmox hosts (200-terraform stage)
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1046,7 +820,169 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Production
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Production
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Initialize the home lab
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Provision new hosts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Proxmox hosts, virtual machines, and containers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1062,7 +998,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -1076,7 +1012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../specs/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1096,10 +1032,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../specs/hl02-proxmox-vm/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Proxmox VM Configuration &amp; Declarative Integration Testing for hl02
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1110,6 +1068,170 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-proposed-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Proposed Changes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Proposed Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-architectural-split-of-hl02-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Architectural Split of hl02 Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-declarative-integration-test-confignixhostshl02testnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Declarative Integration Test (config/nix/hosts/hl02/test.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-flake-integration-confignixflakenix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Flake Integration (config/nix/flake.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-github-actions-workflow-update-githubworkflowsnixyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 GitHub Actions Workflow Update (.github/workflows/nix.yaml)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-verification-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Verification Plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Verification Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-automated-tests-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Automated Tests (CI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-manual-verification-localdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Manual Verification (Local/Dev)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-assumptions-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Assumptions &amp; Constraints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Assumptions &amp; Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-disk-device-configuration-devvda" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Disk Device Configuration (/dev/vda)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-empty-hardwarenix-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Empty hardware.nix Rationale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-for-now-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 "For Now" Scope
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1149,20 +1271,146 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#terraform-stages" class="md-nav__link">
+  <a href="#1-goal" class="md-nav__link">
     <span class="md-ellipsis">
-      Terraform stages
+      1. Goal
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#initialize-proxmox-hosts-200-terraform-stage" class="md-nav__link">
+  <a href="#2-rationale" class="md-nav__link">
     <span class="md-ellipsis">
-      Initialize Proxmox hosts (200-terraform stage)
+      2. Rationale
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-proposed-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Proposed Changes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Proposed Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-architectural-split-of-hl02-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Architectural Split of hl02 Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-declarative-integration-test-confignixhostshl02testnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Declarative Integration Test (config/nix/hosts/hl02/test.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-flake-integration-confignixflakenix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Flake Integration (config/nix/flake.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-github-actions-workflow-update-githubworkflowsnixyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 GitHub Actions Workflow Update (.github/workflows/nix.yaml)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-verification-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Verification Plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Verification Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-automated-tests-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Automated Tests (CI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-manual-verification-localdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Manual Verification (Local/Dev)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-assumptions-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Assumptions &amp; Constraints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Assumptions &amp; Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-disk-device-configuration-devvda" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Disk Device Configuration (/dev/vda)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-empty-hardwarenix-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Empty hardware.nix Rationale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-for-now-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 "For Now" Scope
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1185,46 +1433,121 @@
   
 
 
-<h1 id="configure-proxmox-hosts-virtual-machines-and-containers">Configure Proxmox hosts, virtual machines, and containers</h1>
-<p>Terraform handles:</p>
+<h1 id="design-spec-proxmox-vm-configuration-declarative-integration-testing-for-hl02">Design Spec: Proxmox VM Configuration &amp; Declarative Integration Testing for <code>hl02</code></h1>
+<h2 id="1-goal">1. Goal</h2>
+<p>Configure <code>hl02</code> as a fully defined NixOS Proxmox VM using DHCP, and implement a
+Nix-native integration test framework to verify the configuration (system boot,
+SSH, and QEMU Guest Agent) both locally and in GitHub Actions.</p>
+<h2 id="2-rationale">2. Rationale</h2>
+<p>Currently, the configuration for <code>hl02</code> is incomplete and references a
+non-existent <code>ext4</code> role, which prevents it from building. Additionally,
+verifying VM configurations manually or via ad-hoc shell scripts in CI is
+brittle and hard to maintain. Transitioning to a declarative testing model using
+NixOS's native testing framework (<code>nixosTest</code>) ensures that configuration
+correctness is verified inside the Nix sandbox, providing reliable and
+reproducible feedback.</p>
+<h2 id="3-proposed-changes">3. Proposed Changes</h2>
+<h3 id="31-architectural-split-of-hl02-configuration">3.1 Architectural Split of <code>hl02</code> Configuration</h3>
+<p>To allow the integration test to run without triggering physical disk
+partitioning (which is handled by Disko and is not suitable for standard
+sandboxed NixOS tests), we split the host configuration:</p>
 <ul>
-<li>The configuration of Proxmox hosts.</li>
-<li>The provisioning of Proxmox virtual machines (VMs) and LXC containers.</li>
+<li><strong><code>config/nix/hosts/hl02/configuration.nix</code> (Logical Config):</strong><ul>
+<li>Imports <code>roles/common</code> and <code>roles/proxmox-vm</code>.</li>
+<li>Configures logical settings:<ul>
+<li><code>networking.hostName = "hl02"</code></li>
+<li><code>networking.hostId = "92bbb1e6"</code></li>
+<li><code>networking.useDHCP = true</code></li>
+<li><code>system.stateVersion = "25.11"</code></li>
 </ul>
-<h2 id="terraform-stages">Terraform stages</h2>
-<p>To configure Proxmox hosts, you use the following Terraform stages:</p>
-<ul>
-<li><code>000-initialize</code>: initial Terraform environment setup</li>
-<li><code>200-proxmox</code>: Proxmox bootstrap, including user identities and API tokens</li>
-</ul>
-<h2 id="initialize-proxmox-hosts-200-terraform-stage">Initialize Proxmox hosts (<code>200-terraform</code> stage)</h2>
-<p>After provisioning a Proxmox host, you initialize it with Terraform. The
-initialization process creates users, roles, and API tokens for the following
-stages, and persists API tokens in Terraform variables files.</p>
-<p>You run this stage when you need to:</p>
-<ul>
-<li>Initialize a Proxmox host for the first time</li>
-<li>Create new Proxmox users</li>
-<li>Grant new permissions to existing Proxmox users</li>
-</ul>
-<p>From your Linux shell, after setting the working directory to the root of this
-repository:</p>
-<ol>
-<li>
-<p>Open the <code>operations</code> Nix shell, if needed:</p>
-<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations
-</code></pre></div>
 </li>
-<li>
-<p>Apply changes with Terraform:</p>
-<div class="highlight"><pre><span></span><code>scripts/run-terraform.sh
-</code></pre></div>
-<p>To enable the configuration of the Proxmox IAM, create the following files:
-- <code>config/terraform/environments/proxmox-pve1-root-secrets.tfvars</code> to store
-  the root credentials (password or API token) of the <code>pve1</code> host root
-  password.</p>
+</ul>
 </li>
-</ol>
+<li><strong><code>config/nix/hosts/hl02/default.nix</code> (Physical/Target Config):</strong><ul>
+<li>A clean, argument-free module entrypoint.</li>
+<li>Imports <code>./configuration.nix</code> (logical settings).</li>
+<li>Imports <code>./hardware.nix</code> (hardware placeholder).</li>
+<li>Imports <code>./disko.nix</code> (filesystem configuration).</li>
+</ul>
+</li>
+<li><strong><code>config/nix/hosts/hl02/disko.nix</code> (Filesystem Config):</strong><ul>
+<li>Accepts <code>{ inputs, ... }</code> arguments globally via <code>specialArgs</code>.</li>
+<li>Imports the core Disko module (<code>inputs.disko.nixosModules.disko</code>)
+  internally, encapsulating the dependency.</li>
+<li>Defines the physical ext4 disk layout on <code>/dev/vda</code>.</li>
+</ul>
+</li>
+</ul>
+<h3 id="32-declarative-integration-test-confignixhostshl02testnix">3.2 Declarative Integration Test (<code>config/nix/hosts/hl02/test.nix</code>)</h3>
+<p>We utilize a centralized, service-aware NixOS integration test generator at
+<code>config/nix/tests/make-test.nix</code>.</p>
+<p>The host-specific test file <code>config/nix/hosts/hl02/test.nix</code> simply imports this
+generator and passes its logical <code>configuration.nix</code>.</p>
+<p>The generator dynamically:</p>
+<ul>
+<li>Sets the test name to <code>${hostName}-test</code> by reading the logical configuration.</li>
+<li>Configures the required QEMU <code>virtio-serial</code> hardware inside the sandbox if
+  <code>services.qemuGuest</code> is enabled.</li>
+<li>Constructs the Python test script dynamically based on active services (e.g.
+  waiting for <code>/dev/virtio-ports/org.qemu.guest_agent.0</code>, verifying
+  <code>qemu-guest-agent.service</code> activates, and checking that SSH port 22 is open).</li>
+</ul>
+<h3 id="33-flake-integration-confignixflakenix">3.3 Flake Integration (<code>config/nix/flake.nix</code>)</h3>
+<p>Expose the new test in the flake's <code>checks</code> output for the <code>x86_64-linux</code>
+system:</p>
+<ul>
+<li>Dynamically discover and import tests to <code>checks.${system}</code>.</li>
+<li>This allows <code>nix flake check</code> to automatically run the integration test.</li>
+</ul>
+<h3 id="34-github-actions-workflow-update-githubworkflowsnixyaml">3.4 GitHub Actions Workflow Update (<code>.github/workflows/nix.yaml</code>)</h3>
+<ul>
+<li>Maintain the <code>Check the main flake</code> step which runs <code>nix flake check</code> (this
+  will now execute the <code>nixosTest</code> via QEMU).</li>
+<li>Maintain the <code>Build the hl02 configuration</code> step to ensure the full physical
+  VM image (with Disko) builds.</li>
+<li>Remove the legacy <code>Smoke test - boot hl02</code> step which used a manual
+  shell-based timeout.</li>
+</ul>
+<h2 id="4-verification-plan">4. Verification Plan</h2>
+<h3 id="41-automated-tests-ci">4.1 Automated Tests (CI)</h3>
+<ul>
+<li>Push the branch to GitHub and verify that the <code>nix flake check</code> step
+  successfully executes and passes the <code>hl02-test</code> integration test.</li>
+<li>Verify that the build step successfully completes.</li>
+</ul>
+<h3 id="42-manual-verification-localdev">4.2 Manual Verification (Local/Dev)</h3>
+<ul>
+<li>If Nix is available on the development machine, run <code>nix flake check</code> to run
+  the test locally. (Note: Disallowed on the current host per user request).</li>
+</ul>
+<h2 id="5-assumptions-constraints">5. Assumptions &amp; Constraints</h2>
+<h3 id="51-disk-device-configuration-devvda">5.1 Disk Device Configuration (<code>/dev/vda</code>)</h3>
+<p>The physical Disko configuration (<code>hosts/hl02/disko.nix</code>) explicitly configures
+the target disk as <code>/dev/vda</code>. This assumes that the Proxmox VM is provisioned
+using a <strong>VirtIO Block</strong> controller. If the VM is provisioned using a <strong>SCSI</strong>
+controller (which is common in Proxmox), the disk will present as <code>/dev/sda</code> and
+the boot partition layout will fail to apply.</p>
+<ul>
+<li><em>Constraint:</em> The VM must be created with a VirtIO Block disk controller, or
+  <code>hosts/hl02/disko.nix</code> must be updated to <code>/dev/sda</code> to match a SCSI setup.</li>
+</ul>
+<h3 id="52-empty-hardwarenix-rationale">5.2 Empty <code>hardware.nix</code> Rationale</h3>
+<p>The file <code>hosts/hl02/hardware.nix</code> is currently an empty placeholder. This is
+because all VM-specific hardware configurations (such as standard VirtIO
+drivers, systemd-boot configuration, and kernel serial console parameters) are
+generalized in <code>roles/proxmox-vm/default.nix</code>. If <code>hl02</code> requires host-specific
+hardware modifications in the future (e.g., PCI passthrough), they should be
+declared in <code>hosts/hl02/hardware.nix</code>.</p>
+<h3 id="53-for-now-scope">5.3 "For Now" Scope</h3>
+<ul>
+<li><strong>Networking:</strong> The host uses DHCP for convenience and simplicity in this
+  phase (<code>networking.useDHCP = true</code>). Transitioning to static IPs can be done
+  in a future specification.</li>
+<li><strong>User Access:</strong> SSH keys are left unconfigured for this host in the Nix
+  configuration. Initial login must be performed via console or by injecting
+  keys out-of-band, until secret management (such as <code>sops-nix</code> or hardcoded
+  public keys) is specified.</li>
+</ul>
 
 
 
@@ -1279,10 +1602,10 @@ repository:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>
