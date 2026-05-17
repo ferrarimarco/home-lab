@@ -9,6 +9,6 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    echo "❄️ Nix Dev Shell Active"
+    echo "Nix Dev Shell Active"
   '';
 }
