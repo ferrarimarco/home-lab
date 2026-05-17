@@ -8,14 +8,16 @@
     - /etc/apt/sources.list.d/ceph.list
     - /etc/apt/sources.list.d/pve-enterprise.list
     - /etc/apt/sources.list.d/pve-enterprise.sources
+  notify:
+    - Update APT cache
 
 - name: Enable PVE no-subscription repositories
   ansible.builtin.deb822_repository:
     name: "{{ item.name }}"
     uris: "{{ item.uris }}"
-    suites: "{{ ansible_distribution_release }}"
+    suites: "{{ debian_release }}"
     components: "{{ item.components }}"
-    signed_by: "https://enterprise.proxmox.com/debian/proxmox-release-{{ ansible_distribution_release }}.gpg"
+    signed_by: "https://enterprise.proxmox.com/debian/proxmox-release-{{ debian_release }}.gpg"
     types: deb
   become: true
   with_items:
@@ -25,3 +27,8 @@
     - name: ceph
       uris: http://download.proxmox.com/debian/ceph-squid
       components: no-subscription
+  notify:
+    - Update APT cache
+
+- name: Ensure handlers are notified now
+  ansible.builtin.meta: flush_handlers
