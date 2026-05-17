@@ -1,122 +1,129 @@
-# Design Spec: Proxmox VM Configuration & Declarative Integration Testing for `hl02`
+# Design Spec: Proxmox VM Configuration for `hl02`
+
+## Implementation Status
+
+| Component / Feature       | Status                | Details                                            |
+| :------------------------ | :-------------------- | :------------------------------------------------- |
+| **Logical Host Config**   | **Fully Implemented** | Pinned hostname, DHCP, state version defined.      |
+| **Physical Host Config**  | **Fully Implemented** | Standard physical entrypoint defined.              |
+| **Disk Layout (Disko)**   | **Fully Implemented** | GPT, 512M ESP, 100% ext4 root partition defined.   |
+| **Terraform VM Resource** | **Missing**           | `hl02` VM hardware definition needs to be added.   |
+| **Host Integration Test** | **Missing**           | Host-specific test entrypoint needs to be created. |
 
 ## 1. Goal
 
-Configure `hl02` as a fully defined NixOS Proxmox VM using DHCP, and implement a
-Nix-native integration test framework to verify the configuration (system boot,
-SSH, and QEMU Guest Agent) both locally and in GitHub Actions.
+Configure `hl02` as a fully defined NixOS Proxmox VM using DHCP, defined
+declaratively with Disko partitioning, and provisioned automatically via
+Terraform and `nixos-anywhere`.
 
 ## 2. Rationale
 
 Currently, the configuration for `hl02` is incomplete and references a
-non-existent `ext4` role, which prevents it from building. Additionally,
-verifying VM configurations manually or via ad-hoc shell scripts in CI is
-brittle and hard to maintain. Transitioning to a declarative testing model using
-NixOS's native testing framework (`nixosTest`) ensures that configuration
-correctness is verified inside the Nix sandbox, providing reliable and
-reproducible feedback.
+non-existent `ext4` role, which prevents it from building. This spec defines the
+specific configuration, partitioning, and provisioning parameters for `hl02` to
+bring it into a fully declarative state.
+
+It builds upon the global
+[Home Lab Bootstrapping Spec](./home-lab-bootstrapping.md) for installation and
+the [Declarative Integration Testing Spec](./declarative-integration-testing.md)
+for CI/CD validation.
 
 ## 3. Proposed Changes
 
-### 3.1 Architectural Split of `hl02` Configuration
+### 3.1 Host Configuration Split
 
-To allow the integration test to run without triggering physical disk
-partitioning (which is handled by Disko and is not suitable for standard
-sandboxed NixOS tests), we split the host configuration:
+Following the standard logical/physical split (see
+[Testing Spec - Split Design](./declarative-integration-testing.md#31-logical-vs-physical-configuration-split)),
+the files for `hl02` are structured under `config/nix/hosts/hl02/`:
 
-- **`config/nix/hosts/hl02/configuration.nix` (Logical Config):**
-    - Imports `roles/common` and `roles/proxmox-vm`.
-    - Configures logical settings:
+- **`default.nix` (Physical Entrypoint):**
+    - Imports `./configuration.nix` (logical settings).
+    - Imports `./hardware.nix` (hardware placeholder).
+    - Imports `./disko.nix` (filesystem configuration).
+- **`configuration.nix` (Logical Config):**
+    - Imports `roles/common` and `roles/proxmox-vm` (general VM optimizations).
+    - Defines logical host parameters:
         - `networking.hostName = "hl02"`
         - `networking.hostId = "92bbb1e6"`
         - `networking.useDHCP = true`
         - `system.stateVersion = "25.11"`
-- **`config/nix/hosts/hl02/default.nix` (Physical/Target Config):**
-    - A clean, argument-free module entrypoint.
-    - Imports `./configuration.nix` (logical settings).
-    - Imports `./hardware.nix` (hardware placeholder).
-    - Imports `./disko.nix` (filesystem configuration).
-- **`config/nix/hosts/hl02/disko.nix` (Filesystem Config):**
-    - Accepts `{ inputs, ... }` arguments globally via `specialArgs`.
-    - Imports the core Disko module (`inputs.disko.nixosModules.disko`)
-      internally, encapsulating the dependency.
+- **`disko.nix` (Filesystem Config):**
+    - Accepts `{ inputs, ... }` globally via `specialArgs`.
+    - Imports the core Disko module (`inputs.disko.nixosModules.disko`).
     - Defines the physical ext4 disk layout on `/dev/vda`.
+- **`hardware.nix` (Hardware Placeholder):**
+    - Left as an empty placeholder `{ ... }` since standard VM hardware
+      configurations (VirtIO drivers, systemd-boot) are generalized in the
+      `roles/proxmox-vm` role.
 
-### 3.2 Declarative Integration Test (`config/nix/hosts/hl02/test.nix`)
+### 3.2 File System Layout (`disko.nix`)
 
-We utilize a centralized, service-aware NixOS integration test generator at
-`config/nix/tests/make-test.nix`.
+Declares a GPT partition table on the primary VirtIO virtual disk (`/dev/vda`):
 
-The host-specific test file `config/nix/hosts/hl02/test.nix` simply imports this
-generator and passes its logical `configuration.nix`.
+- **EFI Partition (ESP):** 512MB, formatted as `vfat`, mounted at `/boot` with
+  standard secure mount options.
+- **Root Partition:** 100% of the remaining space, formatted as `ext4`, mounted
+  at `/`.
 
-The generator dynamically:
+### 3.3 Host-Specific Integration Test (`test.nix`)
 
-- Sets the test name to `${hostName}-test` by reading the logical configuration.
-- Configures the required QEMU `virtio-serial` hardware inside the sandbox if
-  `services.qemuGuest` is enabled.
-- Constructs the Python test script dynamically based on active services (e.g.
-  waiting for `/dev/virtio-ports/org.qemu.guest_agent.0`, verifying
-  `qemu-guest-agent.service` activates, and checking that SSH port 22 is open).
+Defines the test entrypoint for `hl02` by importing the global test generator:
 
-### 3.3 Flake Integration (`config/nix/flake.nix`)
+```nix
+{ pkgs, ... }:
 
-Expose the new test in the flake's `checks` output for the `x86_64-linux`
-system:
+import ../../tests/make-test.nix {
+  inherit pkgs;
+  hostConfiguration = ./configuration.nix;
+}
+```
 
-- Dynamically discover and import tests to `checks.${system}`.
-- This allows `nix flake check` to automatically run the integration test.
+This test is automatically discovered by the flake and verified in CI (see
+[Testing Spec - Dynamic Discovery](./declarative-integration-testing.md#33-flake-integration-and-dynamic-test-discovery)).
 
-### 3.4 GitHub Actions Workflow Update (`.github/workflows/nix.yaml`)
+## 4. Infrastructure Provisioning (Terraform)
 
-- Maintain the `Check the main flake` step which runs `nix flake check` (this
-  will now execute the `nixosTest` via QEMU).
-- Maintain the `Build the hl02 configuration` step to ensure the full physical
-  VM image (with Disko) builds.
-- Remove the legacy `Smoke test - boot hl02` step which used a manual
-  shell-based timeout.
+We declare the VM hardware configuration in
+`config/terraform/220-proxmox-workloads/vms-pve1.tf` using the `bpg/proxmox`
+provider:
 
-## 4. Verification Plan
-
-### 4.1 Automated Tests (CI)
-
-- Push the branch to GitHub and verify that the `nix flake check` step
-  successfully executes and passes the `hl02-test` integration test.
-- Verify that the build step successfully completes.
-
-### 4.2 Manual Verification (Local/Dev)
-
-- If Nix is available on the development machine, run `nix flake check` to run
-  the test locally. (Note: Disallowed on the current host per user request).
+- **VM Resource (`proxmox_virtual_environment_vm.hl02`):**
+    - **Hardware:** 2 Cores (Host type), 4GB dedicated RAM.
+    - **EFI Disk & Storage:** EFI type `4m`, stored on `local-zfs` pool.
+    - **Disk Interface (`virtio0`):** Presents the virtual disk as `/dev/vda`
+      inside the VM, matching `disko.nix` expectations.
+    - **Installer CDROM (`ide2`):** Mounts the custom installer ISO (uploaded
+      automatically as described in
+      [Bootstrapping Spec - Custom ISO](./home-lab-bootstrapping.md#31-nix-native-custom-iso-confignixpackagesnixos-installernix)).
+    - **MAC Pinning:** Pins a static MAC address (`BC:24:11:D4:F6:65`) to the
+      virtio network interface.
+    - **Automated Boot Order:** Configures `boot_order = ["virtio0", "ide2"]`.
+        - _First Boot:_ VM disk `/dev/vda` is empty, falls back to booting from
+          the installer ISO on `ide2`.
+        - _Subsequent Boots:_ Boots directly from the production system on
+          `/dev/vda` (`virtio0`), bypassing the installer.
 
 ## 5. Assumptions & Constraints
 
 ### 5.1 Disk Device Configuration (`/dev/vda`)
 
-The physical Disko configuration (`hosts/hl02/disko.nix`) explicitly configures
-the target disk as `/dev/vda`. This assumes that the Proxmox VM is provisioned
-using a **VirtIO Block** controller. If the VM is provisioned using a **SCSI**
-controller (which is common in Proxmox), the disk will present as `/dev/sda` and
-the boot partition layout will fail to apply.
+The physical Disko configuration explicitly targets `/dev/vda`. This assumes the
+Proxmox VM is provisioned using a **VirtIO Block** controller. If the VM is
+provisioned using a **SCSI** controller, the disk will present as `/dev/sda` and
+partitioning will fail.
 
-- _Constraint:_ The VM must be created with a VirtIO Block disk controller, or
-  `hosts/hl02/disko.nix` must be updated to `/dev/sda` to match a SCSI setup.
+- _Constraint:_ The VM must use a VirtIO Block disk interface in Terraform.
 
-### 5.2 Empty `hardware.nix` Rationale
+### 5.2 Networking (DHCP "For Now")
 
-The file `hosts/hl02/hardware.nix` is currently an empty placeholder. This is
-because all VM-specific hardware configurations (such as standard VirtIO
-drivers, systemd-boot configuration, and kernel serial console parameters) are
-generalized in `roles/proxmox-vm/default.nix`. If `hl02` requires host-specific
-hardware modifications in the future (e.g., PCI passthrough), they should be
-declared in `hosts/hl02/hardware.nix`.
+The host uses DHCP for simplicity in this phase. Transitioning to static IPs can
+be done in a future specification.
 
-### 5.3 "For Now" Scope
+### Host-Specific Parameters
 
-- **Networking:** The host uses DHCP for convenience and simplicity in this
-  phase (`networking.useDHCP = true`). Transitioning to static IPs can be done
-  in a future specification.
-- **User Access:** SSH keys are left unconfigured for this host in the Nix
-  configuration. Initial login must be performed via console or by injecting
-  keys out-of-band, until secret management (such as `sops-nix` or hardcoded
-  public keys) is specified.
+1.  **Router DHCP Reservation:** Map MAC address `BC:24:11:D4:F6:65` to the
+    designated IP for `hl02` in your router.
+2.  **Installation Command:**
+    ```bash
+    nix develop .#operations -c nixos-anywhere --flake .#hl02 root@hl02.<fqdn>
+    ```

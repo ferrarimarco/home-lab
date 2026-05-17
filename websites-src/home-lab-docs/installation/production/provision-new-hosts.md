@@ -17,6 +17,8 @@ The provisioning process is as follows:
 1. Enable [Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN).
 1. Enable hardware-assisted virtualization capabilities.
 1. Add the machine to the inventory.
+1. If the host needs a static IP address, configure a DHCP reservation for each
+   network interface on the host.
 
 For hosts that support it, we automate the setup using an out-of-band
 configuration mechanisms, such as
