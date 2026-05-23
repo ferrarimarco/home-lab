@@ -46,6 +46,18 @@
   become: true
   with_items: "{{ images_to_download }}"
 
+- name: Update LXC templates list
+  ansible.builtin.command: |
+    pveam update
+
+- name: Download LXC templates
+  ansible.builtin.command: |
+    pveam download
+    local
+    "{{ item.lxc_template_id }}"
+  with_items:
+    - item.lxc_template_id: debian-12-turnkey-fileserver_18.0-1_amd64.tar.gz
+
 - name: Delete old images and disks
   ansible.builtin.file:
     path: "{{ item.path }}"
