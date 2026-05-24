@@ -7,7 +7,7 @@
 
 let
   # Shallow evaluation of configuration.nix to extract the hostname
-  hostName = (import hostConfiguration { }).networking.hostName;
+  inherit ((import hostConfiguration { }).networking) hostName;
 in
 pkgs.testers.nixosTest {
   name = "${hostName}-test";
@@ -36,18 +36,26 @@ pkgs.testers.nixosTest {
   testScript =
     { nodes, ... }:
     let
-      config = nodes.machine.config;
+      config = nodes.machine;
 
       # Dynamically verify SSH port if openssh service is enabled
-      sshCheck = if config.services.openssh.enable then ''
-        machine.wait_for_open_port(22)
-      '' else "";
+      sshCheck =
+        if config.services.openssh.enable then
+          ''
+            machine.wait_for_open_port(22)
+          ''
+        else
+          "";
 
       # Dynamically verify QEMU guest agent if guest agent service is enabled
-      qemuAgentCheck = if config.services.qemuGuest.enable then ''
-        machine.wait_for_file("/dev/virtio-ports/org.qemu.guest_agent.0")
-        machine.wait_for_unit("qemu-guest-agent.service")
-      '' else "";
+      qemuAgentCheck =
+        if config.services.qemuGuest.enable then
+          ''
+            machine.wait_for_file("/dev/virtio-ports/org.qemu.guest_agent.0")
+            machine.wait_for_unit("qemu-guest-agent.service")
+          ''
+        else
+          "";
     in
     ''
       # Standard boot check (common to all hosts)
