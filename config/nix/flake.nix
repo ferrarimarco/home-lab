@@ -30,6 +30,32 @@
 
       inherit (nixpkgs) lib;
 
+      # --- Security Guardrail & Key Loading ---
+      sshKeysDir = ./ssh-keys;
+      homeLabBootstrapPrivateKeyPath = sshKeysDir + "/home-lab-bootstrap-ssh";
+      homeLabBootstrapPublicKeyPath = sshKeysDir + "/home-lab-bootstrap-ssh.pub";
+
+      # Guardrail: Abort if private key is tracked in Git (exists in Nix store).
+      # Nix Flakes in pure evaluation mode exclude untracked files from the sandboxed
+      # Nix store. If this file exists in the store, it means it has been tracked
+      # or staged in Git, which is a critical security risk.
+      hasPrivateKey = builtins.pathExists homeLabBootstrapPrivateKeyPath;
+      _guardrail =
+        if hasPrivateKey then
+          throw "CRITICAL SECURITY ERROR: Private key '${toString homeLabBootstrapPrivateKeyPath}' is tracked in Git! Remove it from Git immediately."
+        else
+          true;
+
+      # Load Public Key: Abort if public key is missing
+      hasPublicKey = builtins.pathExists homeLabBootstrapPublicKeyPath;
+      bootstrapPublicKey =
+        if hasPublicKey then
+          # Force evaluation of the guardrail before reading the public key.
+          builtins.seq _guardrail (lib.strings.trim (builtins.readFile homeLabBootstrapPublicKeyPath))
+        else
+          throw "ERROR: Public bootstrap key is missing at '${toString homeLabBootstrapPublicKeyPath}'.";
+      # ----------------------------------------
+
       treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
 
       # Automatically discover and register integration tests for all hosts.
@@ -54,7 +80,10 @@
         }) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/test.nix")) hostNames)
       );
     in
-    {
+    # Force evaluation of the security guardrail. Because Nix is lazy, the
+    # _guardrail check would be completely ignored unless we force its evaluation
+    # by sequencing it before the returned flake output attribute set.
+    builtins.seq _guardrail {
       devShells.${system} = {
         default = import ./shells/shell.nix { inherit pkgs; };
         operations = import ./shells/shell-operations.nix { inherit pkgs; };
@@ -74,7 +103,7 @@
         hl02 = nixpkgs.lib.nixosSystem {
           inherit system;
 
-          specialArgs = { inherit inputs; };
+          specialArgs = { inherit inputs bootstrapPublicKey; };
 
           modules = [
             ./hosts/hl02/default.nix
