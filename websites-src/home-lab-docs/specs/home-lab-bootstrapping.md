@@ -2,12 +2,12 @@
 
 ## Implementation Status
 
-| Component / Feature    | Status                    | Details                                                        |
-| :--------------------- | :------------------------ | :------------------------------------------------------------- |
-| **Nix Custom ISO**     | **Missing**               | ISO configuration needs to be added to Flake packages.         |
-| **Bootstrap Keys Dir** | **Missing**               | Keys directory needs to be created and staged in Git.          |
-| **Security Guardrail** | **Missing**               | Pure-evaluation check to block tracked private keys.           |
-| **Operations Shell**   | **Partially Implemented** | Core devshell exists with `terraform`; needs `nixos-anywhere`. |
+| Component / Feature    | Status                | Details                                                          |
+| :--------------------- | :-------------------- | :--------------------------------------------------------------- |
+| **Nix Custom ISO**     | **Missing**           | ISO configuration needs to be added to Flake packages.           |
+| **Bootstrap Keys Dir** | **Missing**           | Keys directory needs to be created and staged in Git.            |
+| **Security Guardrail** | **Missing**           | Pure-evaluation check to block tracked private keys.             |
+| **Operations Shell**   | **Fully Implemented** | Operations shell includes both `terraform` and `nixos-anywhere`. |
 
 ## 1. Goal
 
