@@ -1,10 +1,10 @@
-# Design Spec: Home Lab Bootstrapping & Installation Infrastructure
+# Design Spec: Home Lab Bootstrapping and Installation Infrastructure
 
 ## Implementation Status
 
 | Component / Feature    | Status                | Details                                                          |
 | :--------------------- | :-------------------- | :--------------------------------------------------------------- |
-| **Nix Custom ISO**     | **Missing**           | ISO configuration needs to be added to Flake packages.           |
+| **Nix Custom ISO**     | **Fully Implemented** | Custom nixos-installer ISO configured with the proxmox-vm role.  |
 | **Bootstrap Keys Dir** | **Fully Implemented** | Keys directory created and staged in Git (private key ignored).  |
 | **Security Guardrail** | **Fully Implemented** | Pure-evaluation check blocks tracked private keys in flake.nix.  |
 | **Operations Shell**   | **Fully Implemented** | Operations shell includes both `terraform` and `nixos-anywhere`. |
