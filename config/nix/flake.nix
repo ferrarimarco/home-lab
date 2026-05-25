@@ -80,11 +80,26 @@
         lib.filterAttrs (_name: type: type == "directory") (builtins.readDir hostsDir)
       );
       hostTests = lib.listToAttrs (
-        map (host: {
-          name = "${host}-test";
-          value = import (hostsDir + "/${host}/test.nix") { inherit pkgs; };
-        }) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/test.nix")) hostNames)
+        map (
+          host:
+          let
+            hostDir = hostsDir + "/${host}";
+            overrideFile = hostDir + "/test-override.nix";
+            extraArgs = if builtins.pathExists overrideFile then import overrideFile else { };
+          in
+          {
+            name = "${host}-test";
+            value = import ./tests/make-test.nix (
+              {
+                inherit pkgs;
+                hostConfiguration = hostDir + "/configuration.nix";
+              }
+              // extraArgs
+            );
+          }
+        ) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/configuration.nix")) hostNames)
       );
+
     in
     # Force evaluation of the security guardrail. Because Nix is lazy, the
     # _guardrail check would be completely ignored unless we force its evaluation
