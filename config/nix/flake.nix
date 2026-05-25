@@ -11,6 +11,11 @@
 
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    nixos-generators = {
+      url = "github:nix-community/nixos-generators";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -18,6 +23,7 @@
       self,
       nixpkgs,
       treefmt-nix,
+      nixos-generators,
       ...
     }@inputs:
     let
@@ -87,6 +93,17 @@
       devShells.${system} = {
         default = import ./shells/shell.nix { inherit pkgs; };
         operations = import ./shells/shell-operations.nix { inherit pkgs; };
+      };
+
+      packages.${system} = {
+        nixos-installer = import ./packages/nixos-installer.nix {
+          inherit
+            nixos-generators
+            system
+            inputs
+            bootstrapPublicKey
+            ;
+        };
       };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
