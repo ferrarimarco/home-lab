@@ -60,3 +60,9 @@ terraform.tfstate*
 
 # Nix
 .nixos-test-history
+
+# Nix Bootstrap Keys
+config/nix/ssh-keys/home-lab-bootstrap-ssh
+
+# Antigravity
+.antigravitycli
