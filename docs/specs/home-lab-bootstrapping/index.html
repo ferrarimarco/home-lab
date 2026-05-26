@@ -8,13 +8,11 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/configure-monitoring/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/home-lab-bootstrapping/">
       
       
-        <link rel="prev" href="../../archive/manual-changes-diary/">
+        <link rel="prev" href="../hl02-proxmox-vm/">
       
-      
-        <link rel="next" href="../configure-network-shares/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +20,7 @@
     
     
       
-        <title>Monitoring - Home Lab docs</title>
+        <title>Design Spec: Home Lab Bootstrapping and Installation Infrastructure - Home Lab docs</title>
       
     
     
@@ -64,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#monitoring" class="md-skip">
+        <a href="#design-spec-home-lab-bootstrapping-and-installation-infrastructure" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Monitoring
+              Design Spec: Home Lab Bootstrapping and Installation Infrastructure
             
           </span>
         </div>
@@ -490,20 +488,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -519,7 +515,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -530,32 +526,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Monitoring
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../guides/configure-monitoring/" class="md-nav__link">
         
   
   
@@ -566,35 +540,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#import-grafana-dashsboards" class="md-nav__link">
-    <span class="md-ellipsis">
-      Import Grafana dashsboards
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -607,7 +552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../guides/configure-network-shares/" class="md-nav__link">
         
   
   
@@ -630,7 +575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../../guides/configure-tailscale/" class="md-nav__link">
         
   
   
@@ -653,7 +598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../container-migration/" class="md-nav__link">
+      <a href="../../guides/container-migration/" class="md-nav__link">
         
   
   
@@ -676,7 +621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -699,7 +644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
+      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -722,7 +667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxmox-admin-notes/" class="md-nav__link">
+      <a href="../../guides/proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -745,7 +690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -806,7 +751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
+      <a href="../../guides/development/nix/" class="md-nav__link">
         
   
   
@@ -829,7 +774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
+      <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
   
@@ -1024,18 +969,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1051,7 +998,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -1065,7 +1012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1088,7 +1035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/declarative-integration-testing/" class="md-nav__link">
+      <a href="../declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -1111,7 +1058,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/hl02-proxmox-vm/" class="md-nav__link">
+      <a href="../hl02-proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1131,10 +1078,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../specs/home-lab-bootstrapping/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1145,6 +1114,95 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-bootstrapping-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Bootstrapping Infrastructure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Bootstrapping Infrastructure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-nix-native-custom-iso-confignixpackagesnixos-installernix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Nix-Native Custom ISO (config/nix/packages/nixos-installer.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-secure-bootstrap-key-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Secure Bootstrap Key Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-control-machine-environment-confignixshellsshell-operationsnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Control Machine Environment (config/nix/shells/shell-operations.nix)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1184,11 +1242,71 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#import-grafana-dashsboards" class="md-nav__link">
+  <a href="#implementation-status" class="md-nav__link">
     <span class="md-ellipsis">
-      Import Grafana dashsboards
+      Implementation Status
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-bootstrapping-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Bootstrapping Infrastructure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Bootstrapping Infrastructure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-nix-native-custom-iso-confignixpackagesnixos-installernix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Nix-Native Custom ISO (config/nix/packages/nixos-installer.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-secure-bootstrap-key-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Secure Bootstrap Key Management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-control-machine-environment-confignixshellsshell-operationsnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Control Machine Environment (config/nix/shells/shell-operations.nix)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1211,21 +1329,98 @@
   
 
 
-<h1 id="monitoring">Monitoring</h1>
-<p>To monitor the status of the home lab, the automated provisioning and
-configuration process deploy a monitoring agent on each home lab node, and a
-backend to collect data coming from the monitoring agents.</p>
-<h2 id="import-grafana-dashsboards">Import Grafana dashsboards</h2>
-<p>In its current state, Grafana doesn't support automatic import of dashboards
-that a datasource ships, so you need to import those dashboards manually. To
-import Grafana dashboards that ship with a datasource, do the following:</p>
-<ol>
-<li>Open Grafana.</li>
-<li>Open the datasource settings.</li>
-<li>Select a datasource.</li>
-<li>Open the <code>Dashboards</code> panel.</li>
-<li>Import the dashboards.</li>
-</ol>
+<h1 id="design-spec-home-lab-bootstrapping-and-installation-infrastructure">Design Spec: Home Lab Bootstrapping and Installation Infrastructure</h1>
+<h2 id="implementation-status">Implementation Status</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component / Feature</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Nix Custom ISO</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Custom nixos-installer ISO configured with the proxmox-vm role.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Bootstrap Keys Dir</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Keys directory created and staged in Git (private key ignored).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Security Guardrail</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Pure-evaluation check blocks tracked private keys in flake.nix.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Operations Shell</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Operations shell includes both <code>terraform</code> and <code>nixos-anywhere</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-goal">1. Goal</h2>
+<p>Define a standardized, automated bootstrapping and installation infrastructure
+for home lab Virtual Machines using a Nix-native custom installer ISO, secure
+bootstrap SSH key management, and <code>nixos-anywhere</code> for OS deployment.</p>
+<h2 id="2-rationale">2. Rationale</h2>
+<p>Bootstrapping new NixOS hosts manually is tedious and prone to configuration
+drift. By declaring a custom installer ISO and automating the installation via
+<code>nixos-anywhere</code>, we ensure that new hosts can be provisioned from scratch to
+their final production state in a single, reproducible workflow.</p>
+<h2 id="3-bootstrapping-infrastructure">3. Bootstrapping Infrastructure</h2>
+<h3 id="31-nix-native-custom-iso-confignixpackagesnixos-installernix">3.1 Nix-Native Custom ISO (<code>config/nix/packages/nixos-installer.nix</code>)</h3>
+<p>We declare a generic minimal installer ISO in
+<code>config/nix/packages/nixos-installer.nix</code> and register it in
+<code>config/nix/flake.nix</code> as <code>packages.x86_64-linux.nixos-installer</code> using
+<code>nixos-generators</code>.</p>
+<ul>
+<li><strong>Root Authorization:</strong> Pre-bakes a dynamic bootstrap public SSH key into the
+  <code>root</code> user's <code>authorizedKeys</code> in the installer ISO. This ensures
+  <code>nixos-anywhere</code> can authenticate directly as <code>root</code> over SSH.</li>
+<li><strong>Guest Agent Integration:</strong> The installer ISO imports the shared <code>proxmox-vm</code>
+  role to enable the QEMU Guest Agent service
+  (<code>services.qemuGuest.enable = true</code>). This allows Proxmox and Terraform to
+  immediately query and report the VM's assigned IP address upon its very first
+  boot, ensuring the IP-based fallback remains fully automated.</li>
+<li><strong>Universal Boot:</strong> This ISO is built once locally
+  (<code>nix build .#nixos-installer</code>) and serves as the universal boot installer for
+  all home lab VMs.</li>
+</ul>
+<h3 id="32-secure-bootstrap-key-management">3.2 Secure Bootstrap Key Management</h3>
+<p>To satisfy Nix Flake hermeticity (pure evaluation mode), all bootstrap keys must
+be stored inside the flake tree.</p>
+<ul>
+<li><strong>Directory Structure:</strong> Keys are stored in a dedicated folder at
+  <code>config/nix/ssh-keys/</code>.</li>
+<li><strong>Dynamic Key Loading:</strong> The public SSH key is loaded dynamically from
+  <code>config/nix/ssh-keys/home-lab-bootstrap-ssh.pub</code>. If the file is not present,
+  flake evaluation will abort with an explicit error instructing the user on how
+  to generate it.</li>
+<li><strong>Critical Security Guardrail:</strong> The flake must actively protect the private
+  key (<code>config/nix/ssh-keys/home-lab-bootstrap-ssh</code>) from being accidentally
+  staged in Git.<ul>
+<li><em>Implementation:</em> The flake verifies if
+  <code>builtins.pathExists ./ssh-keys/home-lab-bootstrap-ssh</code> evaluates to
+  <code>true</code> (since untracked files are excluded from the sandboxed Nix store in
+  pure evaluation mode).</li>
+<li><em>Action:</em> If detected in the store, the flake <strong>immediately aborts
+  evaluation with a critical security error</strong>, blocking the build or deploy
+  process.</li>
+<li><em>Safety:</em> The private key must be added to the project's <code>.gitignore</code>.</li>
+</ul>
+</li>
+</ul>
+<h3 id="33-control-machine-environment-confignixshellsshell-operationsnix">3.3 Control Machine Environment (<code>config/nix/shells/shell-operations.nix</code>)</h3>
+<p>To orchestrate the deployment, the control machine's operations shell is
+expanded to include:</p>
+<ul>
+<li><code>terraform</code> (for virtual hardware provisioning).</li>
+<li><code>nixos-anywhere</code> (for automated OS installation).</li>
+</ul>
 
 
 
