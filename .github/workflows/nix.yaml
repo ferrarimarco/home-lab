@@ -16,15 +16,37 @@ permissions:
   contents: read
 
 jobs:
-  test-nix-config:
-    concurrency:
-      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
-      # github.head_ref: head_ref or source branch of the pull request
-      # github.ref: ref of the branch that triggered the workflow
-      group: ${{ github.workflow }}-test-nix-config-${{ github.head_ref || github.ref }}-${{ github.event_name }}
-      cancel-in-progress: true
-    permissions:
-      contents: read
+  detect-tests:
+    name: Dynamic test discovery
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: config/nix
+    outputs:
+      hosts: ${{ steps.set-matrix.outputs.hosts }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
+
+      - name: Discover Host Tests
+        id: set-matrix
+        run: |
+          # 1. Grab json containing all keys inside checks
+          # 2. Extract keys starting with "host-" AND ending in "-test"
+          # 3. Strip both prefixes and suffixes to yield the clean, raw hostname
+          JSON_RAW=$(nix eval .#checks.x86_64-linux --json --apply 'builtins.attrNames')
+          HOSTS_ARRAY=$(echo "$JSON_RAW" | jq -c '[.[] | select(startswith("host-") and endswith("-test")) | sub("^host-"; "") | sub("-test$"; "")]')
+
+          echo "Discovered host matrix targets: $HOSTS_ARRAY"
+          echo "hosts=$HOSTS_ARRAY" >> "$GITHUB_OUTPUT"
+
+  static-checks:
+    name: Static checks and formatting
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,11 +56,76 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - name: Install nix
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
+
+      - name: Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+
+      - name: Run linters and formatters
+        run: nix build .#checks.x86_64-linux.lint-treefmt-nix --verbose
+
+  functional-vm-tests:
+    name: VM/container runtime test (${{ matrix.host }})
+    needs:
+      - detect-tests
+      - static-checks
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-integration-${{ matrix.host }}-${{ github.head_ref || github.ref }}
+      cancel-in-progress: true
+    defaults:
+      run:
+        working-directory: config/nix
+    strategy:
+      fail-fast: false
+      matrix:
+        host: ${{ fromJson(needs.detect-tests.outputs.hosts) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix with KVM
         uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
         with:
           enable_kvm: true
+
       - name: Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
-      - name: Check the main flake
-        run: nix flake check --verbose
+
+      - name: Run Sandbox VM/container Test
+        run: nix build .#checks.x86_64-linux.host-${{ matrix.host }}-test --verbose
+
+  image-build-tests:
+    name: Build image (${{ matrix.host }})
+    needs:
+      - detect-tests
+      - static-checks
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-physical-${{ matrix.host }}-${{ github.head_ref || github.ref }}
+      cancel-in-progress: true
+    defaults:
+      run:
+        working-directory: config/nix
+    strategy:
+      fail-fast: false
+      matrix:
+        host: ${{ fromJson(needs.detect-tests.outputs.hosts) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
+
+      - name: Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+
+      - name: Evaluate and Build Image
+        run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --verbose
