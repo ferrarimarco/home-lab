@@ -4,19 +4,19 @@ terraform {
   required_providers {
     local = {
       source  = "hashicorp/local"
-      version = "~> 2.8.0"
+      version = "~> 2.9.0"
     }
 
 
     # https://registry.terraform.io/providers/bpg/proxmox
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.100.0"
+      version = "~> 0.107.0"
     }
 
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.8.1"
+      version = "~> 3.9.0"
     }
   }
 }
