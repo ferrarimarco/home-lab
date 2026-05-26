@@ -88,10 +88,10 @@
             extraArgs = if builtins.pathExists overrideFile then import overrideFile else { };
           in
           {
-            name = "${host}-test";
+            name = "host-${host}-test";
             value = import ./tests/make-test.nix (
               {
-                inherit pkgs;
+                inherit pkgs lib;
                 hostConfiguration = hostDir + "/configuration.nix";
               }
               // extraArgs
@@ -124,10 +124,10 @@
       formatter.${system} = treefmtEval.config.build.wrapper;
 
       checks.${system} = {
-        treefmt-nix = treefmtEval.config.build.check self;
+        lint-treefmt-nix = treefmtEval.config.build.check self;
 
-        devShell = self.devShells.${system}.default;
-        opsShell = self.devShells.${system}.operations;
+        shell-devShell = self.devShells.${system}.default;
+        shell-opsShell = self.devShells.${system}.operations;
       }
       // hostTests;
 

@@ -2,12 +2,12 @@
 
 ## Implementation Status
 
-| Component / Feature            | Status                    | Details                                                           |
-| :----------------------------- | :------------------------ | :---------------------------------------------------------------- |
-| **Centralized Test Generator** | **Partially Implemented** | Core QEMU framework exists; needs `specialArgs` mocking.          |
-| **Dynamic Flake Discovery**    | **Fully Implemented**     | `hostTests` scanning and registration into `checks` exists.       |
-| **Optional Host Overrides**    | **Fully Implemented**     | Supports an optional `test-override.nix` file for unique asserts. |
-| **CI Pipeline Workflow**       | **Missing**               | Needs multi-job dynamic matrix configuration.                     |
+| Component / Feature            | Status                | Details                                                           |
+| :----------------------------- | :-------------------- | :---------------------------------------------------------------- |
+| **Centralized Test Generator** | **Fully Implemented** | Core QEMU framework exists; `specialArgs` mocking implemented.    |
+| **Dynamic Flake Discovery**    | **Fully Implemented** | `hostTests` scanning and registration into `checks` exists.       |
+| **Optional Host Overrides**    | **Fully Implemented** | Supports an optional `test-override.nix` file for unique asserts. |
+| **CI Pipeline Workflow**       | **Missing**           | Needs multi-job dynamic matrix configuration.                     |
 
 ## 1. Goal
 
