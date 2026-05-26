@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/configure-monitoring/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/declarative-integration-testing/">
       
       
-        <link rel="prev" href="../../archive/manual-changes-diary/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../configure-network-shares/">
+        <link rel="next" href="../hl02-proxmox-vm/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Monitoring - Home Lab docs</title>
+        <title>Design Spec: Declarative Integration Testing Framework & CI Pipeline - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#monitoring" class="md-skip">
+        <a href="#design-spec-declarative-integration-testing-framework-ci-pipeline" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Monitoring
+              Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
             
           </span>
         </div>
@@ -490,20 +490,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -519,7 +517,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -530,32 +528,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Monitoring
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../guides/configure-monitoring/" class="md-nav__link">
         
   
   
@@ -566,35 +542,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#import-grafana-dashsboards" class="md-nav__link">
-    <span class="md-ellipsis">
-      Import Grafana dashsboards
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -607,7 +554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../guides/configure-network-shares/" class="md-nav__link">
         
   
   
@@ -630,7 +577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../../guides/configure-tailscale/" class="md-nav__link">
         
   
   
@@ -653,7 +600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../container-migration/" class="md-nav__link">
+      <a href="../../guides/container-migration/" class="md-nav__link">
         
   
   
@@ -676,7 +623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -699,7 +646,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
+      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -722,7 +669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxmox-admin-notes/" class="md-nav__link">
+      <a href="../../guides/proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -745,7 +692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -806,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
+      <a href="../../guides/development/nix/" class="md-nav__link">
         
   
   
@@ -829,7 +776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
+      <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
   
@@ -1024,18 +971,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1051,7 +1000,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -1065,7 +1014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1085,10 +1034,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../specs/declarative-integration-testing/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1099,6 +1070,137 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-testing-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Testing Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Testing Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-logical-vs-physical-configuration-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Logical vs. Physical Configuration Split
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-centralized-test-generator-confignixtestsmake-testnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Centralized Test Generator (config/nix/tests/make-test.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-flake-integration-and-dynamic-test-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Flake Integration and Dynamic Test Discovery
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-github-actions-workflow-update-githubworkflowsnixyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. GitHub Actions Workflow Update (.github/workflows/nix.yaml)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Verification Plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Verification Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-automated-tests-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Automated Tests (CI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-manual-verification-localdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Manual Verification (Local/Dev)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1111,7 +1213,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/hl02-proxmox-vm/" class="md-nav__link">
+      <a href="../hl02-proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1134,7 +1236,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -1184,11 +1286,113 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#import-grafana-dashsboards" class="md-nav__link">
+  <a href="#implementation-status" class="md-nav__link">
     <span class="md-ellipsis">
-      Import Grafana dashsboards
+      Implementation Status
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-testing-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Testing Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Testing Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-logical-vs-physical-configuration-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Logical vs. Physical Configuration Split
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-centralized-test-generator-confignixtestsmake-testnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Centralized Test Generator (config/nix/tests/make-test.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-flake-integration-and-dynamic-test-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Flake Integration and Dynamic Test Discovery
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-github-actions-workflow-update-githubworkflowsnixyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. GitHub Actions Workflow Update (.github/workflows/nix.yaml)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Verification Plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Verification Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-automated-tests-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Automated Tests (CI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-manual-verification-localdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Manual Verification (Local/Dev)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1211,21 +1415,175 @@
   
 
 
-<h1 id="monitoring">Monitoring</h1>
-<p>To monitor the status of the home lab, the automated provisioning and
-configuration process deploy a monitoring agent on each home lab node, and a
-backend to collect data coming from the monitoring agents.</p>
-<h2 id="import-grafana-dashsboards">Import Grafana dashsboards</h2>
-<p>In its current state, Grafana doesn't support automatic import of dashboards
-that a datasource ships, so you need to import those dashboards manually. To
-import Grafana dashboards that ship with a datasource, do the following:</p>
+<h1 id="design-spec-declarative-integration-testing-framework-ci-pipeline">Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline</h1>
+<h2 id="implementation-status">Implementation Status</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component / Feature</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Centralized Test Generator</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Core QEMU framework exists; <code>specialArgs</code> mocking implemented.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Dynamic Flake Discovery</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>hostTests</code> scanning and registration into <code>checks</code> exists.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Optional Host Overrides</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Supports an optional <code>test-override.nix</code> file for unique asserts.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CI Pipeline Workflow</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Needs multi-job dynamic matrix configuration.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-goal">1. Goal</h2>
+<p>Implement a Nix-native integration test framework to verify NixOS host
+configurations (system boot, SSH, and QEMU Guest Agent) in isolation, and run
+them dynamically and in parallel using a GitHub Actions matrix.</p>
+<h2 id="2-rationale">2. Rationale</h2>
+<p>Verifying VM configurations manually or via ad-hoc shell scripts in CI is
+brittle and hard to maintain. Transitioning to a declarative testing model using
+NixOS's native testing framework (<code>nixosTest</code>) ensures that configuration
+correctness is verified inside the Nix sandbox, providing reliable and
+reproducible feedback. Running these tests in a parallel matrix in CI minimizes
+execution time and isolates failures to specific hosts.</p>
+<h2 id="3-testing-architecture">3. Testing Architecture</h2>
+<h3 id="31-logical-vs-physical-configuration-split">3.1 Logical vs. Physical Configuration Split</h3>
+<p>To allow the integration tests to run without triggering physical disk
+partitioning (which is handled by Disko and is not suitable for standard
+sandboxed NixOS tests), host configurations are split:</p>
+<ul>
+<li><strong>Logical Configuration (<code>configuration.nix</code>):</strong> Contains services (SSH, QEMU
+  Guest Agent), hostname, and other logical settings. This is what the
+  integration test evaluates.</li>
+<li><strong>Physical Configuration (<code>default.nix</code>):</strong> Imports the logical configuration
+  <em>plus</em> hardware definitions (<code>hardware.nix</code>) and filesystem layouts
+  (<code>disko.nix</code>). This is used for actual deployment and full physical builds.</li>
+</ul>
+<h3 id="32-centralized-test-generator-confignixtestsmake-testnix">3.2 Centralized Test Generator (<code>config/nix/tests/make-test.nix</code>)</h3>
+<p>We utilize a centralized, service-aware NixOS integration test generator.
+Individual host subdirectories do not contain individual test wrappers. Instead,
+the top-level flake directly invokes this generator, passing the path to the
+host's logical <code>configuration.nix</code>.</p>
+<p>The generator dynamically:</p>
+<ul>
+<li>Sets the test name to <code>${hostName}-test</code> by reading the logical configuration.</li>
+<li>Configures the required QEMU <code>virtio-serial</code> hardware inside the sandbox if
+  <code>services.qemuGuest</code> is enabled.</li>
+<li>Constructs the Python test script dynamically based on active services:<ul>
+<li>If <code>services.openssh</code> is enabled, it asserts that SSH port 22 opens.</li>
+<li>If <code>services.qemuGuest</code> is enabled, it asserts that
+  <code>/dev/virtio-ports/org.qemu.guest_agent.0</code> is created and
+  <code>qemu-guest-agent.service</code> activates.</li>
+<li>Always asserts that <code>multi-user.target</code> is reached (successful boot).</li>
+</ul>
+</li>
+<li><strong>Mocks <code>specialArgs</code> Dependencies:</strong> Automatically injects mock values for
+  required <code>specialArgs</code> (such as a dummy bootstrap SSH public key) to allow the
+  logical configuration to evaluate in isolation.</li>
+<li><strong>Runtime Overrides:</strong> Includes comments and documentation within the
+  generator instructing developers on how to override these mock values with
+  real keys or custom configurations at runtime if needed for advanced
+  validation.</li>
+</ul>
+<h3 id="33-flake-integration-and-dynamic-test-discovery">3.3 Flake Integration and Dynamic Test Discovery</h3>
+<p>The flake dynamically discovers and registers integration tests for all hosts:</p>
 <ol>
-<li>Open Grafana.</li>
-<li>Open the datasource settings.</li>
-<li>Select a datasource.</li>
-<li>Open the <code>Dashboards</code> panel.</li>
-<li>Import the dashboards.</li>
+<li>Scans the <code>./hosts</code> directory for subdirectories (each representing a host).</li>
+<li>Filters out directories that do not contain a <code>configuration.nix</code> file.</li>
+<li>Checks for an optional <code>test-override.nix</code> file within the host directory to
+    handle host-specific custom test script assertions or extra configuration
+    arguments.</li>
+<li>For each valid host, maps the host configuration directly into
+    <code>make-test.nix</code> and formats it as a check attribute:
+    <code>{ name = "&lt;hostname&gt;-test"; value = &lt;test-derivation&gt;; }</code>.</li>
+<li>Exposes these tests in the flake's <code>checks.${system}</code> output.</li>
 </ol>
+<p>This allows <code>nix flake check</code> to automatically run all integration tests
+locally. This also achieves a low-maintenance architecture: adding a
+<code>configuration.nix</code> to a new host directory automatically flags it for
+integration testing locally and in CI.</p>
+<h2 id="4-github-actions-workflow-update-githubworkflowsnixyaml">4. GitHub Actions Workflow Update (<code>.github/workflows/nix.yaml</code>)</h2>
+<p>To support scaling the home lab, the CI workflow is split into separate,
+optimized jobs:</p>
+<ol>
+<li>
+<p><strong><code>detect-tests</code> (Discovery):</strong></p>
+<ul>
+<li>Queries the flake directly via <code>nix eval .#checks.x86_64-linux --json</code> and
+  filters keys ending in <code>-test</code>.</li>
+<li>Outputs a JSON array of hostnames (e.g., <code>["host1", "host2"]</code>) to be used
+  by the downstream matrix job.</li>
+<li><em>Benefit:</em> Zero-maintenance CI; adding a new host with a test
+  automatically registers it in CI.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>static-checks</code> (Validation):</strong></p>
+<ul>
+<li>Runs standard non-test checks, such as code formatting verification
+  (<code>treefmt</code>).</li>
+</ul>
+</li>
+<li>
+<p><strong><code>integration-tests</code> (Parallel Execution):</strong></p>
+<ul>
+<li>Runs as a matrix job using the output from <code>detect-tests</code>.</li>
+<li>Enables KVM virtualization inside the GitHub Actions runner
+  (<code>enable_kvm: true</code> in <code>install-nix-action</code>).</li>
+<li>Executes the specific integration test for the matrix target:
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#checks.x86_64-linux.<span class="si">${</span><span class="p">{ matrix.host </span><span class="si">}</span><span class="o">}</span>-test<span class="w"> </span>--verbose
+</code></pre></div></li>
+<li><em>Benefit:</em> Isolates test failures to specific hosts and allows parallel
+  execution, reducing total CI time.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>build-physical-configs</code> (Physical Build Verification):</strong></p>
+<ul>
+<li>Verifies that the physical configurations (which are excluded from the
+  logical integration tests) successfully evaluate and build.</li>
+<li>Runs as a matrix over all defined hosts in <code>nixosConfigurations</code> to ensure
+  that the full physical VM images (with Disko) build:
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixosConfigurations.<span class="si">${</span><span class="p">{ matrix.host </span><span class="si">}</span><span class="o">}</span>.config.system.build.toplevel<span class="w"> </span>--verbose
+</code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h2 id="5-verification-plan">5. Verification Plan</h2>
+<h3 id="51-automated-tests-ci">5.1 Automated Tests (CI)</h3>
+<ul>
+<li>Push a branch to GitHub and verify the multi-job CI pipeline:<ul>
+<li>Verify that <code>detect-tests</code> successfully dynamically detects all hosts with
+  <code>test.nix</code>.</li>
+<li>Verify that the <code>integration-tests</code> matrix job successfully executes and
+  passes the tests in parallel.</li>
+<li>Verify that the <code>build-physical-configs</code> matrix job successfully performs
+  a full build of all physical configurations.</li>
+</ul>
+</li>
+</ul>
+<h3 id="52-manual-verification-localdev">5.2 Manual Verification (Local/Dev)</h3>
+<ul>
+<li>If Nix is available on the development machine and supports KVM, run
+  <code>nix flake check</code> from <code>config/nix</code> to run all discovered integration tests
+  locally.</li>
+<li>To run a specific host's test locally:
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#checks.x86_64-linux.&lt;hostname&gt;-test
+</code></pre></div></li>
+</ul>
 
 
 

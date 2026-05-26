@@ -11,8 +11,10 @@
         <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/hl02-proxmox-vm/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../declarative-integration-testing/">
       
+      
+        <link rel="next" href="../home-lab-bootstrapping/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +22,7 @@
     
     
       
-        <title>Design Spec: Proxmox VM Configuration & Declarative Integration Testing for hl02 - Home Lab docs</title>
+        <title>Design Spec: Proxmox VM Configuration for hl02 - Home Lab docs</title>
       
     
     
@@ -62,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#design-spec-proxmox-vm-configuration-declarative-integration-testing-for-hl02" class="md-skip">
+        <a href="#design-spec-proxmox-vm-configuration-for-hl02" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Design Spec: Proxmox VM Configuration &amp; Declarative Integration Testing for hl02
+              Design Spec: Proxmox VM Configuration for hl02
             
           </span>
         </div>
@@ -1017,7 +1019,30 @@
   
   
   <span class="md-ellipsis">
-    Home lab design specifications
+    Home Lab Design Specifications
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../declarative-integration-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
     
   </span>
   
@@ -1049,7 +1074,7 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: Proxmox VM Configuration &amp; Declarative Integration Testing for hl02
+    Design Spec: Proxmox VM Configuration for hl02
     
   </span>
   
@@ -1062,7 +1087,7 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: Proxmox VM Configuration &amp; Declarative Integration Testing for hl02
+    Design Spec: Proxmox VM Configuration for hl02
     
   </span>
   
@@ -1083,6 +1108,15 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#1-goal" class="md-nav__link">
@@ -1113,36 +1147,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#31-architectural-split-of-hl02-configuration" class="md-nav__link">
+  <a href="#31-host-configuration-split" class="md-nav__link">
     <span class="md-ellipsis">
-      3.1 Architectural Split of hl02 Configuration
+      3.1 Host Configuration Split
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#32-declarative-integration-test-confignixhostshl02testnix" class="md-nav__link">
+  <a href="#32-file-system-layout-diskonix" class="md-nav__link">
     <span class="md-ellipsis">
-      3.2 Declarative Integration Test (config/nix/hosts/hl02/test.nix)
+      3.2 File System Layout (disko.nix)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#33-flake-integration-confignixflakenix" class="md-nav__link">
+  <a href="#33-host-specific-integration-test-testnix" class="md-nav__link">
     <span class="md-ellipsis">
-      3.3 Flake Integration (config/nix/flake.nix)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-github-actions-workflow-update-githubworkflowsnixyaml" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.4 GitHub Actions Workflow Update (.github/workflows/nix.yaml)
+      3.3 Host-Specific Integration Test (test.nix)
     </span>
   </a>
   
@@ -1154,35 +1179,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-verification-plan" class="md-nav__link">
+  <a href="#4-infrastructure-provisioning-terraform" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Verification Plan
+      4. Infrastructure Provisioning (Terraform)
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="4. Verification Plan">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#41-automated-tests-ci" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.1 Automated Tests (CI)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#42-manual-verification-localdev" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.2 Manual Verification (Local/Dev)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1206,18 +1207,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#52-empty-hardwarenix-rationale" class="md-nav__link">
+  <a href="#52-networking-dhcp-for-now" class="md-nav__link">
     <span class="md-ellipsis">
-      5.2 Empty hardware.nix Rationale
+      5.2 Networking (DHCP "For Now")
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#53-for-now-scope" class="md-nav__link">
+  <a href="#host-specific-parameters" class="md-nav__link">
     <span class="md-ellipsis">
-      5.3 "For Now" Scope
+      Host-Specific Parameters
     </span>
   </a>
   
@@ -1232,6 +1233,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1271,6 +1295,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-goal" class="md-nav__link">
     <span class="md-ellipsis">
       1. Goal
@@ -1299,36 +1332,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#31-architectural-split-of-hl02-configuration" class="md-nav__link">
+  <a href="#31-host-configuration-split" class="md-nav__link">
     <span class="md-ellipsis">
-      3.1 Architectural Split of hl02 Configuration
+      3.1 Host Configuration Split
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#32-declarative-integration-test-confignixhostshl02testnix" class="md-nav__link">
+  <a href="#32-file-system-layout-diskonix" class="md-nav__link">
     <span class="md-ellipsis">
-      3.2 Declarative Integration Test (config/nix/hosts/hl02/test.nix)
+      3.2 File System Layout (disko.nix)
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#33-flake-integration-confignixflakenix" class="md-nav__link">
+  <a href="#33-host-specific-integration-test-testnix" class="md-nav__link">
     <span class="md-ellipsis">
-      3.3 Flake Integration (config/nix/flake.nix)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-github-actions-workflow-update-githubworkflowsnixyaml" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.4 GitHub Actions Workflow Update (.github/workflows/nix.yaml)
+      3.3 Host-Specific Integration Test (test.nix)
     </span>
   </a>
   
@@ -1340,35 +1364,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-verification-plan" class="md-nav__link">
+  <a href="#4-infrastructure-provisioning-terraform" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Verification Plan
+      4. Infrastructure Provisioning (Terraform)
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="4. Verification Plan">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#41-automated-tests-ci" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.1 Automated Tests (CI)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#42-manual-verification-localdev" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.2 Manual Verification (Local/Dev)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1392,18 +1392,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#52-empty-hardwarenix-rationale" class="md-nav__link">
+  <a href="#52-networking-dhcp-for-now" class="md-nav__link">
     <span class="md-ellipsis">
-      5.2 Empty hardware.nix Rationale
+      5.2 Networking (DHCP "For Now")
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#53-for-now-scope" class="md-nav__link">
+  <a href="#host-specific-parameters" class="md-nav__link">
     <span class="md-ellipsis">
-      5.3 "For Now" Scope
+      Host-Specific Parameters
     </span>
   </a>
   
@@ -1433,28 +1433,72 @@
   
 
 
-<h1 id="design-spec-proxmox-vm-configuration-declarative-integration-testing-for-hl02">Design Spec: Proxmox VM Configuration &amp; Declarative Integration Testing for <code>hl02</code></h1>
+<h1 id="design-spec-proxmox-vm-configuration-for-hl02">Design Spec: Proxmox VM Configuration for <code>hl02</code></h1>
+<h2 id="implementation-status">Implementation Status</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component / Feature</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Logical Host Config</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Pinned hostname, DHCP, state version defined.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Physical Host Config</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Standard physical entrypoint defined.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Disk Layout (Disko)</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">GPT, 512M ESP, 100% ext4 root partition defined.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Terraform VM Resource</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>hl02</code> VM hardware definition needs to be added.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Host Integration Test</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Host-specific test entrypoint needs to be created.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="1-goal">1. Goal</h2>
-<p>Configure <code>hl02</code> as a fully defined NixOS Proxmox VM using DHCP, and implement a
-Nix-native integration test framework to verify the configuration (system boot,
-SSH, and QEMU Guest Agent) both locally and in GitHub Actions.</p>
+<p>Configure <code>hl02</code> as a fully defined NixOS Proxmox VM using DHCP, defined
+declaratively with Disko partitioning, and provisioned automatically via
+Terraform and <code>nixos-anywhere</code>.</p>
 <h2 id="2-rationale">2. Rationale</h2>
 <p>Currently, the configuration for <code>hl02</code> is incomplete and references a
-non-existent <code>ext4</code> role, which prevents it from building. Additionally,
-verifying VM configurations manually or via ad-hoc shell scripts in CI is
-brittle and hard to maintain. Transitioning to a declarative testing model using
-NixOS's native testing framework (<code>nixosTest</code>) ensures that configuration
-correctness is verified inside the Nix sandbox, providing reliable and
-reproducible feedback.</p>
+non-existent <code>ext4</code> role, which prevents it from building. This spec defines the
+specific configuration, partitioning, and provisioning parameters for <code>hl02</code> to
+bring it into a fully declarative state.</p>
+<p>It builds upon the global
+<a href="../home-lab-bootstrapping/">Home Lab Bootstrapping Spec</a> for installation and
+the <a href="../declarative-integration-testing/">Declarative Integration Testing Spec</a>
+for CI/CD validation.</p>
 <h2 id="3-proposed-changes">3. Proposed Changes</h2>
-<h3 id="31-architectural-split-of-hl02-configuration">3.1 Architectural Split of <code>hl02</code> Configuration</h3>
-<p>To allow the integration test to run without triggering physical disk
-partitioning (which is handled by Disko and is not suitable for standard
-sandboxed NixOS tests), we split the host configuration:</p>
+<h3 id="31-host-configuration-split">3.1 Host Configuration Split</h3>
+<p>Following the standard logical/physical split (see
+<a href="../declarative-integration-testing/#31-logical-vs-physical-configuration-split">Testing Spec - Split Design</a>),
+the files for <code>hl02</code> are structured under <code>config/nix/hosts/hl02/</code>:</p>
 <ul>
-<li><strong><code>config/nix/hosts/hl02/configuration.nix</code> (Logical Config):</strong><ul>
-<li>Imports <code>roles/common</code> and <code>roles/proxmox-vm</code>.</li>
-<li>Configures logical settings:<ul>
+<li><strong><code>default.nix</code> (Physical Entrypoint):</strong><ul>
+<li>Imports <code>./configuration.nix</code> (logical settings).</li>
+<li>Imports <code>./hardware.nix</code> (hardware placeholder).</li>
+<li>Imports <code>./disko.nix</code> (filesystem configuration).</li>
+</ul>
+</li>
+<li><strong><code>configuration.nix</code> (Logical Config):</strong><ul>
+<li>Imports <code>roles/common</code> and <code>roles/proxmox-vm</code> (general VM optimizations).</li>
+<li>Defines logical host parameters:<ul>
 <li><code>networking.hostName = "hl02"</code></li>
 <li><code>networking.hostId = "92bbb1e6"</code></li>
 <li><code>networking.useDHCP = true</code></li>
@@ -1463,91 +1507,83 @@ sandboxed NixOS tests), we split the host configuration:</p>
 </li>
 </ul>
 </li>
-<li><strong><code>config/nix/hosts/hl02/default.nix</code> (Physical/Target Config):</strong><ul>
-<li>A clean, argument-free module entrypoint.</li>
-<li>Imports <code>./configuration.nix</code> (logical settings).</li>
-<li>Imports <code>./hardware.nix</code> (hardware placeholder).</li>
-<li>Imports <code>./disko.nix</code> (filesystem configuration).</li>
-</ul>
-</li>
-<li><strong><code>config/nix/hosts/hl02/disko.nix</code> (Filesystem Config):</strong><ul>
-<li>Accepts <code>{ inputs, ... }</code> arguments globally via <code>specialArgs</code>.</li>
-<li>Imports the core Disko module (<code>inputs.disko.nixosModules.disko</code>)
-  internally, encapsulating the dependency.</li>
+<li><strong><code>disko.nix</code> (Filesystem Config):</strong><ul>
+<li>Accepts <code>{ inputs, ... }</code> globally via <code>specialArgs</code>.</li>
+<li>Imports the core Disko module (<code>inputs.disko.nixosModules.disko</code>).</li>
 <li>Defines the physical ext4 disk layout on <code>/dev/vda</code>.</li>
 </ul>
 </li>
+<li><strong><code>hardware.nix</code> (Hardware Placeholder):</strong><ul>
+<li>Left as an empty placeholder <code>{ ... }</code> since standard VM hardware
+  configurations (VirtIO drivers, systemd-boot) are generalized in the
+  <code>roles/proxmox-vm</code> role.</li>
 </ul>
-<h3 id="32-declarative-integration-test-confignixhostshl02testnix">3.2 Declarative Integration Test (<code>config/nix/hosts/hl02/test.nix</code>)</h3>
-<p>We utilize a centralized, service-aware NixOS integration test generator at
-<code>config/nix/tests/make-test.nix</code>.</p>
-<p>The host-specific test file <code>config/nix/hosts/hl02/test.nix</code> simply imports this
-generator and passes its logical <code>configuration.nix</code>.</p>
-<p>The generator dynamically:</p>
-<ul>
-<li>Sets the test name to <code>${hostName}-test</code> by reading the logical configuration.</li>
-<li>Configures the required QEMU <code>virtio-serial</code> hardware inside the sandbox if
-  <code>services.qemuGuest</code> is enabled.</li>
-<li>Constructs the Python test script dynamically based on active services (e.g.
-  waiting for <code>/dev/virtio-ports/org.qemu.guest_agent.0</code>, verifying
-  <code>qemu-guest-agent.service</code> activates, and checking that SSH port 22 is open).</li>
+</li>
 </ul>
-<h3 id="33-flake-integration-confignixflakenix">3.3 Flake Integration (<code>config/nix/flake.nix</code>)</h3>
-<p>Expose the new test in the flake's <code>checks</code> output for the <code>x86_64-linux</code>
-system:</p>
+<h3 id="32-file-system-layout-diskonix">3.2 File System Layout (<code>disko.nix</code>)</h3>
+<p>Declares a GPT partition table on the primary VirtIO virtual disk (<code>/dev/vda</code>):</p>
 <ul>
-<li>Dynamically discover and import tests to <code>checks.${system}</code>.</li>
-<li>This allows <code>nix flake check</code> to automatically run the integration test.</li>
+<li><strong>EFI Partition (ESP):</strong> 512MB, formatted as <code>vfat</code>, mounted at <code>/boot</code> with
+  standard secure mount options.</li>
+<li><strong>Root Partition:</strong> 100% of the remaining space, formatted as <code>ext4</code>, mounted
+  at <code>/</code>.</li>
 </ul>
-<h3 id="34-github-actions-workflow-update-githubworkflowsnixyaml">3.4 GitHub Actions Workflow Update (<code>.github/workflows/nix.yaml</code>)</h3>
+<h3 id="33-host-specific-integration-test-testnix">3.3 Host-Specific Integration Test (<code>test.nix</code>)</h3>
+<p>Defines the test entrypoint for <code>hl02</code> by importing the global test generator:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span> pkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="nb">import</span> <span class="l">../../tests/make-test.nix</span> <span class="p">{</span>
+  <span class="k">inherit</span> pkgs<span class="p">;</span>
+  <span class="ss">hostConfiguration</span> <span class="o">=</span> <span class="l">./configuration.nix</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This test is automatically discovered by the flake and verified in CI (see
+<a href="../declarative-integration-testing/#33-flake-integration-and-dynamic-test-discovery">Testing Spec - Dynamic Discovery</a>).</p>
+<h2 id="4-infrastructure-provisioning-terraform">4. Infrastructure Provisioning (Terraform)</h2>
+<p>We declare the VM hardware configuration in
+<code>config/terraform/220-proxmox-workloads/vms-pve1.tf</code> using the <code>bpg/proxmox</code>
+provider:</p>
 <ul>
-<li>Maintain the <code>Check the main flake</code> step which runs <code>nix flake check</code> (this
-  will now execute the <code>nixosTest</code> via QEMU).</li>
-<li>Maintain the <code>Build the hl02 configuration</code> step to ensure the full physical
-  VM image (with Disko) builds.</li>
-<li>Remove the legacy <code>Smoke test - boot hl02</code> step which used a manual
-  shell-based timeout.</li>
+<li><strong>VM Resource (<code>proxmox_virtual_environment_vm.hl02</code>):</strong><ul>
+<li><strong>Hardware:</strong> 2 Cores (Host type), 4GB dedicated RAM.</li>
+<li><strong>EFI Disk &amp; Storage:</strong> EFI type <code>4m</code>, stored on <code>local-zfs</code> pool.</li>
+<li><strong>Disk Interface (<code>virtio0</code>):</strong> Presents the virtual disk as <code>/dev/vda</code>
+  inside the VM, matching <code>disko.nix</code> expectations.</li>
+<li><strong>Installer CDROM (<code>ide2</code>):</strong> Mounts the custom installer ISO (uploaded
+  automatically as described in
+  <a href="../home-lab-bootstrapping/#31-nix-native-custom-iso-confignixpackagesnixos-installernix">Bootstrapping Spec - Custom ISO</a>).</li>
+<li><strong>MAC Pinning:</strong> Pins a static MAC address (<code>BC:24:11:D4:F6:65</code>) to the
+  virtio network interface.</li>
+<li><strong>Automated Boot Order:</strong> Configures <code>boot_order = ["virtio0", "ide2"]</code>.<ul>
+<li><em>First Boot:</em> VM disk <code>/dev/vda</code> is empty, falls back to booting from
+  the installer ISO on <code>ide2</code>.</li>
+<li><em>Subsequent Boots:</em> Boots directly from the production system on
+  <code>/dev/vda</code> (<code>virtio0</code>), bypassing the installer.</li>
 </ul>
-<h2 id="4-verification-plan">4. Verification Plan</h2>
-<h3 id="41-automated-tests-ci">4.1 Automated Tests (CI)</h3>
-<ul>
-<li>Push the branch to GitHub and verify that the <code>nix flake check</code> step
-  successfully executes and passes the <code>hl02-test</code> integration test.</li>
-<li>Verify that the build step successfully completes.</li>
+</li>
 </ul>
-<h3 id="42-manual-verification-localdev">4.2 Manual Verification (Local/Dev)</h3>
-<ul>
-<li>If Nix is available on the development machine, run <code>nix flake check</code> to run
-  the test locally. (Note: Disallowed on the current host per user request).</li>
+</li>
 </ul>
 <h2 id="5-assumptions-constraints">5. Assumptions &amp; Constraints</h2>
 <h3 id="51-disk-device-configuration-devvda">5.1 Disk Device Configuration (<code>/dev/vda</code>)</h3>
-<p>The physical Disko configuration (<code>hosts/hl02/disko.nix</code>) explicitly configures
-the target disk as <code>/dev/vda</code>. This assumes that the Proxmox VM is provisioned
-using a <strong>VirtIO Block</strong> controller. If the VM is provisioned using a <strong>SCSI</strong>
-controller (which is common in Proxmox), the disk will present as <code>/dev/sda</code> and
-the boot partition layout will fail to apply.</p>
+<p>The physical Disko configuration explicitly targets <code>/dev/vda</code>. This assumes the
+Proxmox VM is provisioned using a <strong>VirtIO Block</strong> controller. If the VM is
+provisioned using a <strong>SCSI</strong> controller, the disk will present as <code>/dev/sda</code> and
+partitioning will fail.</p>
 <ul>
-<li><em>Constraint:</em> The VM must be created with a VirtIO Block disk controller, or
-  <code>hosts/hl02/disko.nix</code> must be updated to <code>/dev/sda</code> to match a SCSI setup.</li>
+<li><em>Constraint:</em> The VM must use a VirtIO Block disk interface in Terraform.</li>
 </ul>
-<h3 id="52-empty-hardwarenix-rationale">5.2 Empty <code>hardware.nix</code> Rationale</h3>
-<p>The file <code>hosts/hl02/hardware.nix</code> is currently an empty placeholder. This is
-because all VM-specific hardware configurations (such as standard VirtIO
-drivers, systemd-boot configuration, and kernel serial console parameters) are
-generalized in <code>roles/proxmox-vm/default.nix</code>. If <code>hl02</code> requires host-specific
-hardware modifications in the future (e.g., PCI passthrough), they should be
-declared in <code>hosts/hl02/hardware.nix</code>.</p>
-<h3 id="53-for-now-scope">5.3 "For Now" Scope</h3>
-<ul>
-<li><strong>Networking:</strong> The host uses DHCP for convenience and simplicity in this
-  phase (<code>networking.useDHCP = true</code>). Transitioning to static IPs can be done
-  in a future specification.</li>
-<li><strong>User Access:</strong> SSH keys are left unconfigured for this host in the Nix
-  configuration. Initial login must be performed via console or by injecting
-  keys out-of-band, until secret management (such as <code>sops-nix</code> or hardcoded
-  public keys) is specified.</li>
-</ul>
+<h3 id="52-networking-dhcp-for-now">5.2 Networking (DHCP "For Now")</h3>
+<p>The host uses DHCP for simplicity in this phase. Transitioning to static IPs can
+be done in a future specification.</p>
+<h3 id="host-specific-parameters">Host-Specific Parameters</h3>
+<ol>
+<li><strong>Router DHCP Reservation:</strong> Map MAC address <code>BC:24:11:D4:F6:65</code> to the
+    designated IP for <code>hl02</code> in your router.</li>
+<li><strong>Installation Command:</strong>
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>.#operations<span class="w"> </span>-c<span class="w"> </span>nixos-anywhere<span class="w"> </span>--flake<span class="w"> </span>.#hl02<span class="w"> </span>root@hl02.&lt;fqdn&gt;
+</code></pre></div></li>
+</ol>
 
 
 
