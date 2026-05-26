@@ -1,32 +1,42 @@
 ---
-updates:
-  - package-ecosystem: "devcontainers"
+multi-ecosystem-groups:
+  dev-ci-tools:
     commit-message:
       prefix: "deps"
-    directory: "/"
-    schedule:
-      interval: weekly
     open-pull-requests-limit: 100
-  - directory: "/"
-    commit-message:
-      prefix: "deps"
-    package-ecosystem: "github-actions"
     schedule:
       interval: "daily"
+  home-lab-workloads:
+    commit-message:
+      prefix: "deps"
     open-pull-requests-limit: 100
-    groups:
-      dev-ci-tools:
-        applies-to: version-updates
-        patterns:
-          - actions/*
-          - cachix/install-nix-action
-          - docker/*
-          - github/*
-          - googleapis/*
-          - ossf/scorecard-action
-          - renovatebot/*
-          - stefanzweifel/git-auto-commit-action
-          - super-linter/super-linter
+    schedule:
+      interval: "daily"
+  security-updates:
+    commit-message:
+      prefix: "deps(security)"
+    open-pull-requests-limit: 0
+    schedule:
+      interval: "daily"
+updates:
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    multi-ecosystem-group: "dev-ci-tools"
+    patterns:
+      - "*"
+  - directory: "/"
+    multi-ecosystem-group: "dev-ci-tools"
+    package-ecosystem: "github-actions"
+    patterns:
+      - actions/*
+      - cachix/install-nix-action
+      - docker/*
+      - github/*
+      - googleapis/*
+      - ossf/scorecard-action
+      - renovatebot/*
+      - stefanzweifel/git-auto-commit-action
+      - super-linter/super-linter
   - directories:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
@@ -35,101 +45,85 @@ updates:
       - /config/smart-desk/esphome
       - /docker/ansible
       - /docker/ansible/molecule
-    commit-message:
-      prefix: "deps"
     package-ecosystem: "pip"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-    groups:
-      home-lab-workloads:
-        applies-to: version-updates
-        patterns:
-          - esphome
-          - prometheus-client
-          - requests
-      ci-cd-tooling:
-        applies-to: version-updates
-        patterns:
-          - ansible
-          - fqdn
-          - molecule
-          - molecule-plugins*
-          - netaddr
-          - pre-commit
-          - paramiko
+    multi-ecosystem-group: "home-lab-workloads"
+    patterns:
+      - esphome
+      - prometheus-client
+      - requests
+  - directories:
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter
+      - /config/pre-commit
+      - /config/smart-desk/esphome
+      - /docker/ansible
+      - /docker/ansible/molecule
+    package-ecosystem: "pip"
+    multi-ecosystem-group: "dev-ci-tools"
+    patterns:
+      - ansible
+      - fqdn
+      - molecule
+      - molecule-plugins*
+      - netaddr
+      - pre-commit
+      - paramiko
   - directories:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
       - /docker/ansible
       - /docker/ci-cd-tools
-    commit-message:
-      prefix: "deps"
     package-ecosystem: "docker"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-    groups:
-      home-lab-workloads:
-        applies-to: version-updates
-        patterns:
-          - blakeblackshear/frigate
-          - cadvisor/cadvisor
-          - coredns/coredns
-          - druggeri/nut_exporter
-          - eclipse-mosquitto
-          - fallenbagel/jellyseerr
-          - flaresolverr/flaresolverr
-          - google/cadvisor
-          - grafana/grafana-oss
-          - home-assistant/home-assistant
-          - jellyfin/jellyfin
-          - klutchell/unbound
-          - koenkk/zigbee2mqtt
-          - linuxserver/*
-          - ngosang/restic-exporter
-          - prom/blackbox-exporter
-          - prom/prometheus
-          - prometheus/node-exporter
-          - restic/restic
-          - syncthing/syncthing
-          - traefik
-      ci-cd-tooling:
-        applies-to: version-updates
-        patterns:
-          - ansible
-          - node
-          - python
+    multi-ecosystem-group: "home-lab-workloads"
+    patterns:
+      - blakeblackshear/frigate
+      - cadvisor/cadvisor
+      - coredns/coredns
+      - druggeri/nut_exporter
+      - eclipse-mosquitto
+      - fallenbagel/jellyseerr
+      - flaresolverr/flaresolverr
+      - google/cadvisor
+      - grafana/grafana-oss
+      - home-assistant/home-assistant
+      - jellyfin/jellyfin
+      - klutchell/unbound
+      - koenkk/zigbee2mqtt
+      - linuxserver/*
+      - ngosang/restic-exporter
+      - prom/blackbox-exporter
+      - prom/prometheus
+      - prometheus/node-exporter
+      - restic/restic
+      - syncthing/syncthing
+      - traefik
+  - directories:
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
+      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
+      - /docker/ansible
+      - /docker/ci-cd-tools
+    package-ecosystem: "docker"
+    multi-ecosystem-group: "home-lab-workloads"
+    patterns:
+      - ansible
+      - node
+      - python
   - directories:
       - /docker/ci-cd-tools
-    commit-message:
-      prefix: "deps"
     package-ecosystem: "npm"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-    groups:
-      dev-ci-tools:
-        applies-to: version-updates
-        patterns:
-          - brace-expansion
-          - release-please
+    multi-ecosystem-group: "dev-ci-tools"
+    patterns:
+      - release-please
   - directories:
       - /config/terraform/**
-    commit-message:
-      prefix: "deps"
+    multi-ecosystem-group: "dev-ci-tools"
     package-ecosystem: "terraform"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 100
-    groups:
-      home-lab-terraform:
-        applies-to: version-updates
-        patterns:
-          - bpg/proxmox
-          - hashicorp/local
-          - hashicorp/random
-  - package-ecosystem: "nix" # See documentation for possible values
+    patterns:
+      - bpg/proxmox
+      - hashicorp/local
+      - hashicorp/random
+  - package-ecosystem: "nix"
     directories:
       - /config/nix
     commit-message:
