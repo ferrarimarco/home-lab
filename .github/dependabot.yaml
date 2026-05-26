@@ -135,9 +135,9 @@ updates:
     commit-message:
       prefix: "deps"
     schedule:
-      interval: "weekly"
-    groups:
-      nix:
-        applies-to: version-updates
-        patterns: []
+      interval: "daily"
+    # groups:
+    #   nix:
+    #     applies-to: version-updates
+    #     patterns: []
 version: 2
