@@ -1,24 +1,54 @@
 {
   pkgs,
+  lib,
   hostConfiguration,
   extraConfig ? { },
   extraTestScript ? "",
 }:
 
 let
-  # Shallow evaluation of configuration.nix to extract the hostname
-  inherit ((import hostConfiguration { }).networking) hostName;
+  # Create dummy values for common specialArgs.
+  # This prevents evaluation errors when the host config expects inputs.self, or
+  # other arguments.
+  mockArgs = {
+    inputs = { };
+    self = { };
+    # Mock args
+    pubkeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMmockkey" ];
+  };
+
+  # Extract the hostName option without crashing on missing standard module
+  # arguments.
+  inherit
+    ((lib.evalModules {
+      modules = [
+        hostConfiguration
+        { networking.hostName = lib.mkDefault "unnamed-host"; }
+      ];
+      specialArgs = mockArgs;
+    }).config.networking
+    )
+    hostName
+    ;
 in
 pkgs.testers.nixosTest {
   name = "${hostName}-test";
 
   nodes.machine =
-    { config, lib, ... }:
+    { config, ... }:
     {
+      # inject mocks
+      _module.args = mockArgs;
+
       imports = [
         hostConfiguration
         extraConfig
       ];
+
+      # Ensure the test runs in a predictable environment
+      # Sometimes modules might try to override the hostname; forcing it ensures
+      # the test derivation name and the internal OS state remain synced.
+      networking.hostName = lib.mkForce hostName;
 
       # Dynamic VM hardware setup:
       # If the guest agent is enabled in the NixOS config, automatically
@@ -36,29 +66,21 @@ pkgs.testers.nixosTest {
   testScript =
     { nodes, ... }:
     let
-      config = nodes.machine;
+      node_config = nodes.machine;
 
-      # Dynamically verify SSH port if openssh service is enabled
-      sshCheck =
-        if config.services.openssh.enable then
-          ''
-            machine.wait_for_open_port(22)
-          ''
-        else
-          "";
+      # Verify SSH port if openssh service is enabled
+      sshCheck = lib.optionalString node_config.services.openssh.enable ''
+        machine.wait_for_open_port(22)
+      '';
 
-      # Dynamically verify QEMU guest agent if guest agent service is enabled
-      qemuAgentCheck =
-        if config.services.qemuGuest.enable then
-          ''
-            machine.wait_for_file("/dev/virtio-ports/org.qemu.guest_agent.0")
-            machine.wait_for_unit("qemu-guest-agent.service")
-          ''
-        else
-          "";
+      # Verify QEMU guest agent if guest agent service is enabled
+      qemuAgentCheck = lib.optionalString node_config.services.qemuGuest.enable ''
+        machine.wait_for_file("/dev/virtio-ports/org.qemu.guest_agent.0")
+        machine.wait_for_unit("qemu-guest-agent.service")
+      '';
     in
     ''
-      # Standard boot check (common to all hosts)
+      # Boot check (common to all hosts)
       machine.wait_for_unit("multi-user.target")
 
       # Dynamic service assertions
