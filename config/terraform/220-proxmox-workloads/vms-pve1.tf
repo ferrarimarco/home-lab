@@ -110,3 +110,66 @@ resource "proxmox_virtual_environment_vm" "vm_100" {
     type = "l26"
   }
 }
+
+resource "proxmox_virtual_environment_vm" "vm_101" {
+  name          = "hl02"
+  description   = "Managed by Terraform - NixOS VM hl02"
+  node_name     = "pve1"
+  vm_id         = 101
+  scsi_hardware = "virtio-scsi-single"
+
+  agent {
+    enabled = true
+  }
+
+  bios            = "ovmf"
+  keyboard_layout = "en-us"
+  machine         = "q35"
+
+  cpu {
+    cores = 2
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 4096
+    floating  = 0
+  }
+
+  network_device {
+    bridge      = "vmbr0"
+    mac_address = "BC:24:11:D4:F6:65"
+    model       = "virtio"
+  }
+
+  # OS Disk (VirtIO Block for /dev/vda compatibility with Disko)
+  disk {
+    datastore_id = "local-zfs"
+    discard      = "on"
+    file_format  = "raw"
+    interface    = "virtio0"
+    size         = 20
+    ssd          = true
+  }
+
+  # EFI Disk (Required for OVMF/UEFI)
+  efi_disk {
+    datastore_id      = "local-zfs"
+    file_format       = "raw"
+    pre_enrolled_keys = false
+    type              = "4m"
+  }
+
+  # CDROM for NixOS Custom Installer ISO
+  disk {
+    datastore_id = "local"
+    file_id      = "local:iso/nixos-installer-x86_64-linux.iso"
+    interface    = "ide2"
+  }
+
+  boot_order = ["virtio0", "ide2"]
+
+  operating_system {
+    type = "l26"
+  }
+}
