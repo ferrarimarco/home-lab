@@ -126,12 +126,7 @@ updates:
   - package-ecosystem: "nix"
     directories:
       - /config/nix
-    commit-message:
-      prefix: "deps"
-    schedule:
-      interval: "daily"
-    # groups:
-    #   nix:
-    #     applies-to: version-updates
-    #     patterns: []
+    multi-ecosystem-group: "dev-ci-tools"
+    patterns:
+      - treefmt-nix
 version: 2
