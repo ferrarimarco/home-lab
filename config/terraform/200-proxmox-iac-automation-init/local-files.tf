@@ -7,7 +7,6 @@ locals {
 }
 
 resource "local_file" "proxmox_secrets" {
-  # jsonencode perfectly formats the nested map of objects automatically
   content = jsonencode({
     proxmox_virtual_environment_hosts_secrets = local.compiled_secrets
   })
