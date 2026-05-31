@@ -1,7 +1,9 @@
 resource "proxmox_virtual_environment_vm" "vm_100" {
+  provider = proxmox.pve1
+
   name          = "hl01"
   description   = "Managed by Terraform"
-  node_name     = "pve1"
+  node_name     = var.proxmox_virtual_environment_hosts["pve1"].node_name
   vm_id         = 100
   scsi_hardware = "virtio-scsi-single"
 
@@ -112,9 +114,11 @@ resource "proxmox_virtual_environment_vm" "vm_100" {
 }
 
 resource "proxmox_virtual_environment_vm" "vm_101" {
+  provider = proxmox.pve1
+
   name          = "hl02"
   description   = "Managed by Terraform - NixOS VM hl02"
-  node_name     = "pve1"
+  node_name     = var.proxmox_virtual_environment_hosts["pve1"].node_name
   vm_id         = 101
   scsi_hardware = "virtio-scsi-single"
 

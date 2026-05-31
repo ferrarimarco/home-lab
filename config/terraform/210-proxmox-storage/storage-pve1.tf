@@ -1,4 +1,6 @@
 resource "proxmox_storage_directory" "local_directory" {
+  provider = proxmox.pve1
+
   id   = "local"
   path = "/var/lib/vz"
 
@@ -11,6 +13,8 @@ resource "proxmox_storage_directory" "local_directory" {
 }
 
 resource "proxmox_storage_zfspool" "local_zfs" {
+  provider = proxmox.pve1
+
   id       = "local-zfs"
   zfs_pool = "rpool/data"
 
@@ -23,6 +27,8 @@ resource "proxmox_storage_zfspool" "local_zfs" {
 }
 
 resource "proxmox_storage_zfspool" "rpool_sata" {
+  provider = proxmox.pve1
+
   id       = "rpool-sata"
   zfs_pool = "rpool-sata"
 
@@ -34,6 +40,8 @@ resource "proxmox_storage_zfspool" "rpool_sata" {
 }
 
 resource "proxmox_storage_zfspool" "rpool_usb_1" {
+  provider = proxmox.pve1
+
   id       = "rpool-usb-1"
   zfs_pool = "rpool-usb-1"
 
