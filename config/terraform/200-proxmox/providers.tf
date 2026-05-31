@@ -1,4 +1,6 @@
 provider "proxmox" {
+  alias = "pve1"
+
   endpoint = var.proxmox_virtual_environment_api_endpoint
   insecure = var.proxmox_virtual_environment_insecure
 

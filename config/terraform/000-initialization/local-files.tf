@@ -4,7 +4,11 @@ locals {
   local_backend_config_template = "${path.module}/templates/terraform/config.local.tfbackend.tftpl"
 
   core_backend_directories = toset([for _, version_file in local.core_versions_files : trimprefix(trimsuffix(version_file, "/versions.tf"), "../")])
-  core_versions_files      = flatten([for _, file in flatten(fileset(local.base_terraform_directory, "**/versions.tf")) : file])
+
+  all_versions_files    = fileset(local.base_terraform_directory, "**/versions.tf")
+  module_versions_files = fileset(local.base_terraform_directory, "modules/**/versions.tf")
+
+  core_versions_files = setsubtract(local.all_versions_files, local.module_versions_files)
 }
 
 resource "local_file" "local_backend" {
