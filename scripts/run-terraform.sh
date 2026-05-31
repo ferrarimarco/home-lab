@@ -65,20 +65,20 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
   "${TERRAFORM_INIT_COMMAND[@]}"
 
   case "${tf_service_name}" in
-  "200-proxmox")
-    TERRAFORM_PVE1_ROOT_CREDENTIALS_FILE_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1-root-secrets.tfvars"
-    if [[ ! -f "${TERRAFORM_PVE1_ROOT_CREDENTIALS_FILE_PATH}" ]]; then
-      echo "Skip ${tf_service} because root credentials file (${TERRAFORM_PVE1_ROOT_CREDENTIALS_FILE_PATH}) is not available"
+  "200-proxmox-iac-automation-init")
+    TERRAFORM_ROOT_CREDENTIALS_FILE_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-root-secrets.tfvars"
+    if [[ ! -f "${TERRAFORM_ROOT_CREDENTIALS_FILE_PATH}" ]]; then
+      echo "Skip ${tf_service} because root credentials file (${TERRAFORM_ROOT_CREDENTIALS_FILE_PATH}) is not available"
       continue
     fi
     "${TERRAFORM_APPLY_COMMAND[@]}" \
-      -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1.tfvars" \
-      -var-file="${TERRAFORM_PVE1_ROOT_CREDENTIALS_FILE_PATH}"
+      -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox.tfvars" \
+      -var-file="${TERRAFORM_ROOT_CREDENTIALS_FILE_PATH}"
     ;;
   "210-proxmox-storage" | "220-proxmox-workloads")
     "${TERRAFORM_APPLY_COMMAND[@]}" \
-      -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1.tfvars" \
-      -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-pve1-secrets.tfvars"
+      -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox.tfvars" \
+      -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-secrets.tfvars.json"
     ;;
   *)
     "${TERRAFORM_APPLY_COMMAND[@]}"
