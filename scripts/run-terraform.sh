@@ -65,6 +65,10 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
   "${TERRAFORM_INIT_COMMAND[@]}"
 
   case "${tf_service_name}" in
+  "000-initialization")
+    "${TERRAFORM_APPLY_COMMAND[@]}" \
+      -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox.tfvars"
+    ;;
   "200-proxmox-iac-automation-init")
     TERRAFORM_ROOT_CREDENTIALS_FILE_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-root-secrets.tfvars"
     if [[ ! -f "${TERRAFORM_ROOT_CREDENTIALS_FILE_PATH}" ]]; then
