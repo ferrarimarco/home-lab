@@ -3,6 +3,10 @@ locals {
     pve1 = {
       api_token = module.proxmox-iam-automation-pve1.terraform_automation_writer_api_token.value
     }
+
+    pve2 = {
+      api_token = module.proxmox-iam-automation-pve2.terraform_automation_writer_api_token.value
+    }
   }
 }
 
