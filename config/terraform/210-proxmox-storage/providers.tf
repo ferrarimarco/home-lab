@@ -18,3 +18,15 @@ provider "proxmox" {
   username = var.proxmox_virtual_environment_hosts_secrets["pve1"].username
   password = var.proxmox_virtual_environment_hosts_secrets["pve1"].password
 }
+
+provider "proxmox" {
+  alias = "pve2"
+
+  endpoint = var.proxmox_virtual_environment_hosts["pve2"].api_endpoint
+  insecure = var.proxmox_virtual_environment_hosts["pve2"].insecure
+
+  api_token = var.proxmox_virtual_environment_hosts_secrets["pve2"].api_token
+
+  username = var.proxmox_virtual_environment_hosts_secrets["pve2"].username
+  password = var.proxmox_virtual_environment_hosts_secrets["pve2"].password
+}
