@@ -97,7 +97,7 @@ jobs:
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
 
       - name: Run Sandbox VM/container Test
-        run: nix build .#checks.x86_64-linux.host-${MATRIX_HOST}-test --verbose
+        run: nix build ".#checks.x86_64-linux.host-${MATRIX_HOST}-test" --verbose
         env:
           MATRIX_HOST: ${{ matrix.host }}
 
