@@ -120,7 +120,7 @@ resource "proxmox_virtual_environment_vm" "vm_101" {
   description   = "Managed by Terraform - NixOS VM hl02"
   node_name     = var.proxmox_virtual_environment_hosts["pve1"].node_name
   vm_id         = 101
-  scsi_hardware = "virtio-scsi-single"
+  scsi_hardware = "virtio-scsi-pci"
 
   agent {
     enabled = true
@@ -146,12 +146,12 @@ resource "proxmox_virtual_environment_vm" "vm_101" {
     model       = "virtio"
   }
 
-  # OS Disk (VirtIO Block for /dev/vda compatibility with Disko)
+  # OS Disk (SCSI for /dev/sda compatibility with Disko and TRIM support)
   disk {
     datastore_id = "local-zfs"
     discard      = "on"
     file_format  = "raw"
-    interface    = "virtio0"
+    interface    = "scsi0"
     size         = 20
     ssd          = true
   }
@@ -171,7 +171,7 @@ resource "proxmox_virtual_environment_vm" "vm_101" {
     interface    = "ide2"
   }
 
-  boot_order = ["virtio0", "ide2"]
+  boot_order = ["scsi0", "ide2"]
 
   operating_system {
     type = "l26"
