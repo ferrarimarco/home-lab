@@ -50,7 +50,7 @@ the files for `hl02` are structured under `config/nix/hosts/hl02/`:
 - **`disko.nix` (Filesystem Config):**
     - Accepts `{ inputs, ... }` globally via `specialArgs`.
     - Imports the core Disko module (`inputs.disko.nixosModules.disko`).
-    - Defines the physical ext4 disk layout on `/dev/vda`.
+    - Defines the physical ext4 disk layout on `/dev/sda`.
 - **`hardware.nix` (Hardware Placeholder):**
     - Left as an empty placeholder `{ ... }` since standard VM hardware
       configurations (VirtIO drivers, systemd-boot) are generalized in the
@@ -58,7 +58,7 @@ the files for `hl02` are structured under `config/nix/hosts/hl02/`:
 
 ### 3.2 File System Layout (`disko.nix`)
 
-Declares a GPT partition table on the primary VirtIO virtual disk (`/dev/vda`):
+Declares a GPT partition table on the primary SCSI virtual disk (`/dev/sda`):
 
 - **EFI Partition (ESP):** 512MB, formatted as `vfat`, mounted at `/boot` with
   standard secure mount options.
@@ -97,31 +97,35 @@ We declare the VM hardware configuration in
 provider:
 
 - **VM Resource (`proxmox_virtual_environment_vm.hl02`):**
-    - **Hardware:** 2 Cores (Host type), 4GB dedicated RAM.
+    - **Hardware:** 2 Cores (Host type), 4GB dedicated RAM, `virtio-scsi-pci`
+      controller.
     - **EFI Disk & Storage:** EFI type `4m`, stored on `local-zfs` pool.
-    - **Disk Interface (`virtio0`):** Presents the virtual disk as `/dev/vda`
+    - **Disk Interface (`scsi0`):** Presents the virtual disk as `/dev/sda`
       inside the VM, matching `disko.nix` expectations.
+    - **Storage Optimization:** Enables `discard = "on"` (TRIM) to reclaim
+      unused blocks dynamically on the underlying ZFS pool.
     - **Installer CDROM (`ide2`):** Mounts the custom installer ISO (uploaded
       automatically as described in
       [Bootstrapping Spec - Custom ISO](./home-lab-bootstrapping.md#31-nix-native-custom-iso-confignixpackagesnixos-installernix)).
     - **MAC Pinning:** Pins a static MAC address (`BC:24:11:D4:F6:65`) to the
       virtio network interface.
-    - **Automated Boot Order:** Configures `boot_order = ["virtio0", "ide2"]`.
-        - _First Boot:_ VM disk `/dev/vda` is empty, falls back to booting from
+    - **Automated Boot Order:** Configures `boot_order = ["scsi0", "ide2"]`.
+        - _First Boot:_ VM disk `/dev/sda` is empty, falls back to booting from
           the installer ISO on `ide2`.
         - _Subsequent Boots:_ Boots directly from the production system on
-          `/dev/vda` (`virtio0`), bypassing the installer.
+          `/dev/sda` (`scsi0`), bypassing the installer.
 
 ## 5. Assumptions & Constraints
 
-### 5.1 Disk Device Configuration (`/dev/vda`)
+### 5.1 Disk Device Configuration (`/dev/sda`)
 
-The physical Disko configuration explicitly targets `/dev/vda`. This assumes the
-Proxmox VM is provisioned using a **VirtIO Block** controller. If the VM is
-provisioned using a **SCSI** controller, the disk will present as `/dev/sda` and
-partitioning will fail.
+The physical Disko configuration explicitly targets `/dev/sda`. This assumes the
+Proxmox VM is provisioned using a **VirtIO SCSI (`virtio-scsi-pci`)**
+controller. If the VM is provisioned using a **VirtIO Block** controller, the
+disk will present as `/dev/vda` and partitioning will fail.
 
-- _Constraint:_ The VM must use a VirtIO Block disk interface in Terraform.
+- _Constraint:_ The VM must use a VirtIO SCSI disk interface (`scsi0`) in
+  Terraform to maintain support for TRIM/Discard on thin-provisioned ZFS pools.
 
 ### 5.2 Networking (DHCP "For Now")
 

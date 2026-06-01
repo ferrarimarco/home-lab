@@ -7,17 +7,15 @@
 
   disko.devices = {
     disk = {
-      main = {
+      sda = {
         type = "disk";
-        # TODO
-        device = "/dev/vda";
-        # 1. Create a GPT partition table.
-        # 2. Reserve 512MB for the EFI boot partition
-        # 3. Give the rest to the root filesystem
+        device = "/dev/sda";
         content = {
           type = "gpt";
           partitions = {
             ESP = {
+              priority = 1;
+              name = "ESP";
               size = "512M";
               type = "EF00";
               content = {
@@ -28,6 +26,8 @@
               };
             };
             root = {
+              priority = 2;
+              name = "root";
               size = "100%";
               content = {
                 type = "filesystem";
