@@ -11,11 +11,6 @@
 
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
-
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -23,7 +18,6 @@
       self,
       nixpkgs,
       treefmt-nix,
-      nixos-generators,
       ...
     }@inputs:
     let
@@ -52,12 +46,18 @@
         else
           true;
 
-      # Load Public Key: Abort if public key is missing
+      # Load Public Keys: Support multiple keys (one per line), ignoring comments and empty lines
       hasPublicKey = builtins.pathExists homeLabBootstrapPublicKeyPath;
-      bootstrapPublicKey =
+      bootstrapPublicKeys =
         if hasPublicKey then
           # Force evaluation of the guardrail before reading the public key.
-          builtins.seq _guardrail (lib.strings.trim (builtins.readFile homeLabBootstrapPublicKeyPath))
+          builtins.seq _guardrail (
+            let
+              lines = lib.strings.splitString "\n" (builtins.readFile homeLabBootstrapPublicKeyPath);
+              cleanLines = map lib.strings.trim lines;
+            in
+            builtins.filter (line: line != "" && !lib.strings.hasPrefix "#" line) cleanLines
+          )
         else
           throw "ERROR: Public bootstrap key is missing at '${toString homeLabBootstrapPublicKeyPath}'.";
       # ----------------------------------------
@@ -91,7 +91,12 @@
             name = "host-${host}-test";
             value = import ./tests/make-test.nix (
               {
-                inherit pkgs lib;
+                inherit
+                  pkgs
+                  lib
+                  inputs
+                  bootstrapPublicKeys
+                  ;
                 hostConfiguration = hostDir + "/configuration.nix";
               }
               // extraArgs
@@ -113,10 +118,10 @@
       packages.${system} = {
         nixos-installer = import ./packages/nixos-installer.nix {
           inherit
-            nixos-generators
+            nixpkgs
             system
             inputs
-            bootstrapPublicKey
+            bootstrapPublicKeys
             ;
         };
       };
@@ -135,7 +140,7 @@
         hl02 = nixpkgs.lib.nixosSystem {
           inherit system;
 
-          specialArgs = { inherit inputs bootstrapPublicKey; };
+          specialArgs = { inherit inputs bootstrapPublicKeys; };
 
           modules = [
             ./hosts/hl02/default.nix
