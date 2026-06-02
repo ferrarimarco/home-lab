@@ -56,6 +56,19 @@ the files for `hl02` are structured under `config/nix/hosts/hl02/`:
       configurations (VirtIO drivers, systemd-boot) are generalized in the
       `roles/proxmox-vm` role.
 
+#### 3.1.1 ISO Artifact Delivery
+
+To bridge the local Nix build pipeline with the hypervisor environment, the
+compiled ISO must be staged on the Proxmox target node prior to VM
+orchestration.
+
+- Mechanism: Handled declaratively via the `proxmox_virtual_environment_file`
+  resource within the Terraform workspace.
+- Source Target: The local Nix flake build output directory
+  (`./result/iso/\*.iso`).
+- Destination Target: Stored in the cluster's default structural storage
+  (`local:iso/`).
+
 ### 3.2 File System Layout (`disko.nix`)
 
 Declares a GPT partition table on the primary SCSI virtual disk (`/dev/sda`):
