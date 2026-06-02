@@ -4,32 +4,37 @@
   hostConfiguration,
   extraConfig ? { },
   extraTestScript ? "",
-}:
+  ...
+}@args:
 
 let
-  # Create dummy values for common specialArgs.
-  # This prevents evaluation errors when the host config expects inputs.self, or
-  # other arguments.
-  mockArgs = {
+  # Strip out the test-harness arguments so we can pass everything else down
+  passedArgs = builtins.removeAttrs args [
+    "pkgs"
+    "lib"
+    "hostConfiguration"
+    "extraConfig"
+    "extraTestScript"
+  ];
+
+  # Combine default fallback mocks with whatever your flake explicitly passes
+  nodeArgs = {
     inputs = { };
     self = { };
-    # Mock args
-    pubkeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMmockkey" ];
+  }
+  // passedArgs;
+
+  eval = pkgs.testers.nixosTest {
+    name = "eval-host-name";
+    nodes.machine = {
+      _module.args = nodeArgs;
+      imports = [ hostConfiguration ];
+      networking.hostName = lib.mkDefault "unnamed-host";
+    };
+    testScript = "";
   };
 
-  # Extract the hostName option without crashing on missing standard module
-  # arguments.
-  inherit
-    ((lib.evalModules {
-      modules = [
-        hostConfiguration
-        { networking.hostName = lib.mkDefault "unnamed-host"; }
-      ];
-      specialArgs = mockArgs;
-    }).config.networking
-    )
-    hostName
-    ;
+  inherit (eval.nodes.machine.networking) hostName;
 in
 pkgs.testers.nixosTest {
   name = "${hostName}-test";
@@ -37,8 +42,7 @@ pkgs.testers.nixosTest {
   nodes.machine =
     { config, ... }:
     {
-      # inject mocks
-      _module.args = mockArgs;
+      _module.args = nodeArgs;
 
       imports = [
         hostConfiguration
