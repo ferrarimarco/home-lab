@@ -167,11 +167,11 @@ resource "proxmox_virtual_environment_vm" "vm_101" {
   # CDROM for NixOS Custom Installer ISO
   disk {
     datastore_id = "local"
-    file_id      = "local:iso/nixos-installer-x86_64-linux.iso"
+    file_id      = proxmox_virtual_environment_file.nixos_installer_iso_pve1.id
     interface    = "ide2"
   }
 
-  boot_order = ["scsi0", "ide2"]
+  boot_order = ["ide2", "scsi0"]
 
   operating_system {
     type = "l26"
