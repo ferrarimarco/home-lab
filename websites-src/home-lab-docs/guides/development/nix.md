@@ -35,3 +35,8 @@ nix eval --raw .#checks.x86_64-linux.<hostname>-test.testScript
 ```
 
 This will print the complete generated Python source directly to your terminal.
+
+## Nix commands
+
+- `nix flake metadata <path>`: show flake metadata
+- `nix flake show <path>`: show information about the flake
