@@ -6,6 +6,7 @@ resource "proxmox_virtual_environment_role" "terraform_automation_writer" {
     "Datastore.Audit",
     "VM.Audit",
     "VM.Config.Disk",
+    "VM.Config.Options",
     "VM.GuestAgent.Audit",
     "Sys.Audit",
   ]
