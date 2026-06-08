@@ -6,6 +6,12 @@ multi-ecosystem-groups:
     open-pull-requests-limit: 100
     schedule:
       interval: "daily"
+  home-lab-platform:
+    commit-message:
+      prefix: "deps"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
   home-lab-workloads:
     commit-message:
       prefix: "deps"
@@ -123,6 +129,13 @@ updates:
       - bpg/proxmox
       - hashicorp/local
       - hashicorp/random
+  - package-ecosystem: "nix"
+    directories:
+      - /config/nix
+    multi-ecosystem-group: "home-lab-platform"
+    patterns:
+      - disko
+      - nixpkgs
   - package-ecosystem: "nix"
     directories:
       - /config/nix
