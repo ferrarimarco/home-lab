@@ -1,9 +1,13 @@
 locals {
-  base_terraform_directory      = "${path.module}/.."
-  local_backend_template        = "${path.module}/templates/terraform/backend-local.tf.tftpl"
-  local_backend_config_template = "${path.module}/templates/terraform/config.local.tfbackend.tftpl"
+  base_terraform_directory = "${path.module}/.."
 
-  terraform_proxmox_providers_template = "${path.module}/templates/terraform/proxmox-providers.tf.tftpl"
+  local_templates_directory_path           = "${path.module}/templates"
+  local_terraform_templates_directory_path = "${local.local_templates_directory_path}/terraform"
+
+  local_backend_template        = "${local.local_terraform_templates_directory_path}//backend-local.tf.tftpl"
+  local_backend_config_template = "${local.local_terraform_templates_directory_path}/config.local.tfbackend.tftpl"
+
+  terraform_proxmox_providers_template = "${local.local_terraform_templates_directory_path}/proxmox-providers.tf.tftpl"
 
   core_backend_directories = toset([for _, version_file in local.core_versions_files : trimprefix(trimsuffix(version_file, "/versions.tf"), "../")])
 
