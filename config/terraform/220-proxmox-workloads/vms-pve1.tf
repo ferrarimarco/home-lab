@@ -167,7 +167,7 @@ resource "proxmox_virtual_environment_vm" "vm_101" {
   # CDROM for NixOS Custom Installer ISO
   disk {
     datastore_id = "local"
-    file_id      = proxmox_virtual_environment_file.nixos_installer_iso_pve1.id
+    file_id      = proxmox_virtual_environment_file.nixos_installer_x86_64_iso_pve1.id
     interface    = "ide2"
   }
 
