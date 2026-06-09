@@ -2,12 +2,19 @@ resource "proxmox_virtual_environment_role" "terraform_automation_writer" {
   role_id = "terraform-automation-writer"
   privileges = [
     "Datastore.Allocate",
+    "Datastore.AllocateSpace",
     "Datastore.AllocateTemplate",
     "Datastore.Audit",
+    "VM.Allocate",
     "VM.Audit",
+    "VM.Config.CPU",
     "VM.Config.Disk",
+    "VM.Config.HWType",
+    "VM.Config.Memory",
+    "VM.Config.Network",
     "VM.Config.Options",
     "VM.GuestAgent.Audit",
+    "SDN.Use",
     "Sys.Audit",
   ]
 }
