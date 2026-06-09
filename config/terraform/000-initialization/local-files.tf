@@ -53,7 +53,7 @@ resource "local_file" "proxmox_terraform_providers" {
   content = templatefile(
     local.terraform_proxmox_providers_template,
     {
-      proxmox_hosts = keys(var.proxmox_virtual_environment_hosts),
+      proxmox_hosts = var.proxmox_virtual_environment_hosts,
     }
   )
   file_permission = "0644"

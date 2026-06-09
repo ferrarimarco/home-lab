@@ -6,7 +6,7 @@
 # 2. Auth Ticket
 # 3. Username/Password
 
-%{ for host in proxmox_hosts ~}
+%{ for host, host_config in proxmox_hosts ~}
 
 provider "proxmox" {
   alias = "${host}"
@@ -18,5 +18,18 @@ provider "proxmox" {
 
   username = var.proxmox_virtual_environment_hosts_secrets["${host}"].username
   password = var.proxmox_virtual_environment_hosts_secrets["${host}"].password
+
+  ssh {
+    agent    = true
+
+%{~ if lookup(host_config, "ssh_username", "") != "" ~}
+    username = "${host_config.ssh_username}"
+%{~ endif ~}
+
+    node {
+      name    = "${host_config.node_name}"
+      address = split("//", split(":", var.proxmox_virtual_environment_hosts["${host}"].api_endpoint)[1])[1]
+    }
+  }
 }
 %{ endfor ~}
