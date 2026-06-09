@@ -4,6 +4,7 @@ variable "proxmox_virtual_environment_hosts" {
     api_endpoint = string
     insecure     = optional(bool, false)
     node_name    = string
+    ssh_username = optional(string, null)
   }))
 }
 

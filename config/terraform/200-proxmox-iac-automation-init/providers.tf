@@ -17,6 +17,15 @@ provider "proxmox" {
 
   username = var.proxmox_virtual_environment_hosts_secrets["pve1"].username
   password = var.proxmox_virtual_environment_hosts_secrets["pve1"].password
+
+  ssh {
+    agent    = true
+    username = "root"
+    node {
+      name    = "pve1"
+      address = split("//", split(":", var.proxmox_virtual_environment_hosts["pve1"].api_endpoint)[1])[1]
+    }
+  }
 }
 
 provider "proxmox" {
@@ -29,4 +38,13 @@ provider "proxmox" {
 
   username = var.proxmox_virtual_environment_hosts_secrets["pve2"].username
   password = var.proxmox_virtual_environment_hosts_secrets["pve2"].password
+
+  ssh {
+    agent    = true
+    username = "root"
+    node {
+      name    = "pve2"
+      address = split("//", split(":", var.proxmox_virtual_environment_hosts["pve2"].api_endpoint)[1])[1]
+    }
+  }
 }
