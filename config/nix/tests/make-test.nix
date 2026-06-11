@@ -87,6 +87,12 @@ pkgs.testers.nixosTest {
       # Boot check (common to all hosts)
       machine.wait_for_unit("multi-user.target")
 
+      # Every host (including mock fixtures) will evaluate these rules
+
+      # Verify hostname configuration
+      current_hostname = machine.succeed("hostname").strip()
+      assert current_hostname == "${hostName}", f"Host routing divergence! Expected kernel hostname '${hostName}', but got: {current_hostname}"
+
       # Dynamic service assertions
       ${sshCheck}
       ${qemuAgentCheck}
