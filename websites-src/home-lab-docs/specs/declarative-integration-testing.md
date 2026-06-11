@@ -52,18 +52,19 @@ The generator dynamically:
 - Configures the required QEMU `virtio-serial` hardware inside the sandbox if
   `services.qemuGuest` is enabled.
 - Constructs the Python test script dynamically based on active services:
-    - If `services.openssh` is enabled, it asserts that SSH port 22 opens.
+    - If `services.openssh` is enabled, it asserts that the SSH daemon
+      initializes.
     - If `services.qemuGuest` is enabled, it asserts that
       `/dev/virtio-ports/org.qemu.guest_agent.0` is created and
       `qemu-guest-agent.service` activates.
     - Always asserts that `multi-user.target` is reached (successful boot).
-- **Mocks `specialArgs` Dependencies:** Automatically injects mock values for
-  required `specialArgs` (such as a dummy bootstrap SSH public key) to allow the
-  logical configuration to evaluate in isolation.
-- **Runtime Overrides:** Includes comments and documentation within the
-  generator instructing developers on how to override these mock values with
-  real keys or custom configurations at runtime if needed for advanced
-  validation.
+- **Live Attribute Extraction:** Programmatically extracts production-grade
+  configuration data (such as `bootstrapPublicKeys`) directly from the evaluated
+  package derivation attributes, eliminating the need for loose mock variables.
+- **Declarative Cryptographic Auditing:** Leverages `test-override.nix` to
+  perform exact filesystem text matching inside the VM, verifying that target
+  keys exist perfectly inside the specialized NixOS declarative directory path
+  (`/etc/ssh/authorized_keys.d/root`).
 
 ### 3.3 Flake Integration and Dynamic Test Discovery
 
@@ -107,7 +108,7 @@ optimized jobs:
       (`enable_kvm: true` in `install-nix-action`).
     - Executes the specific integration test for the matrix target:
         ```bash
-        nix build .#checks.x86_64-linux.${{ matrix.host }}-test --verbose
+        nix build .#checks.x86_64-linux.${{ matrix.host }}-test --verbose --print-build-logs
         ```
     - _Benefit:_ Isolates test failures to specific hosts and allows parallel
       execution, reducing total CI time.
@@ -118,7 +119,7 @@ optimized jobs:
     - Runs as a matrix over all defined hosts in `nixosConfigurations` to ensure
       that the full physical VM images (with Disko) build:
         ```bash
-        nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --verbose
+        nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --verbose --print-build-logs
         ```
 
 ## 5. Verification Plan

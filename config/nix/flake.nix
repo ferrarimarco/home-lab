@@ -85,7 +85,16 @@
           let
             hostDir = hostsDir + "/${host}";
             overrideFile = hostDir + "/test-override.nix";
-            extraArgs = if builtins.pathExists overrideFile then import overrideFile else { };
+
+            # Import the override file (could be a flat set OR a function)
+            importedOverride = if builtins.pathExists overrideFile then import overrideFile else { };
+
+            # Evaluate if importedOverride is a function, otherwise use it raw
+            extraArgs =
+              if builtins.isFunction importedOverride then
+                importedOverride { inherit pkgs self lib; }
+              else
+                importedOverride;
           in
           {
             name = "host-${host}-test";

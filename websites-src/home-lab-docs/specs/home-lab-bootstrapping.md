@@ -28,12 +28,12 @@ their final production state in a single, reproducible workflow.
 
 We declare a generic minimal installer ISO in
 `config/nix/packages/nixos-installer.nix` and register it in
-`config/nix/flake.nix` as `packages.x86_64-linux.nixos-installer` using
-`nixos-generators`.
+`config/nix/flake.nix` as `packages.x86_64-linux.nixos-installer` using the
+built-in NixOS `system.build.isoImage` derivation pipeline.
 
-- **Root Authorization:** Pre-bakes a dynamic bootstrap public SSH key into the
-  `root` user's `authorizedKeys` in the installer ISO. This ensures
-  `nixos-anywhere` can authenticate directly as `root` over SSH.
+- **Root Authorization:** Pre-bakes the declarative `bootstrapPublicKeys` array
+  directly into the `root` user's `authorizedKeys` in the installer ISO. This
+  ensures `nixos-anywhere` can authenticate directly as `root` over SSH.
 - **Guest Agent Integration:** The installer ISO imports the shared `proxmox-vm`
   role to enable the QEMU Guest Agent service
   (`services.qemuGuest.enable = true`). This allows Proxmox and Terraform to
@@ -50,10 +50,10 @@ be stored inside the flake tree.
 
 - **Directory Structure:** Keys are stored in a dedicated folder at
   `config/nix/ssh-keys/`.
-- **Dynamic Key Loading:** The public SSH key is loaded dynamically from
-  `config/nix/ssh-keys/home-lab-bootstrap-ssh.pub`. If the file is not present,
-  flake evaluation will abort with an explicit error instructing the user on how
-  to generate it.
+- **Dynamic Key Loading:** The public SSH key is loaded dynamically from the
+  keys directory array inputs. If required public keys are missing, flake
+  evaluation will abort with an explicit error instructing the user on how to
+  generate it.
 - **Critical Security Guardrail:** The flake must actively protect the private
   key (`config/nix/ssh-keys/home-lab-bootstrap-ssh`) from being accidentally
   staged in Git.
