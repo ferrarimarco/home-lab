@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -o errexit
 set -o nounset
 set -o pipefail
 
@@ -22,6 +21,9 @@ TERRAFORM_ENVIRONMENTS_DIR_PATH="${TERRAFORM_DIR_PATH}/environments"
 TERRAFORM_LOCAL_BACKEND_DIRECTORY_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/backend/local"
 # shellcheck disable=SC2034
 TERRAFORM_LOCAL_BACKEND_CONFIG_DIR_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/backend-config/local"
+
+# shellcheck disable=SC2034
+NIX_CONFIG_DIR_PATH="${REPOSITORY_ROOT_PATH}/config/nix"
 
 CD_CONTAINER_URL="ferrarimarco/home-lab-cd:latest"
 

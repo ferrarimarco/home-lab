@@ -40,3 +40,6 @@ This will print the complete generated Python source directly to your terminal.
 
 - `nix flake metadata <path>`: show flake metadata
 - `nix flake show <path>`: show information about the flake
+- `nix fmt . -- --clear-cache`: format the Nix codebase
+- `nix build .#checks.x86_64-linux.lint-treefmt-nix --verbose`: run linting and
+  formatting checks
