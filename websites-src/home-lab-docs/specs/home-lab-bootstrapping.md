@@ -114,7 +114,7 @@ centralized push-based CD pipelines.
 
 - **Comin Integration:** Target physical configurations include the `comin`
   module, configured to poll the primary Git repository.
-- **Authentication:** (If using a private repo) An authenticating deploy key or
-  token must be provisioned during the `nixos-anywhere` handoff via the
+- **Authentication:** (If using a private repository) An authenticating deploy
+  key or token must be provisioned during the `nixos-anywhere` handoff via the
   `--extra-files` flag, ensuring the newly minted VM has the credentials
   required to pull from the remote immediately on its first boot.

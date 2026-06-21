@@ -170,7 +170,7 @@ resource "proxmox_virtual_environment_vm" "vm_101" {
     file_id   = proxmox_virtual_environment_file.nixos_installer_x86_64_iso_pve1.id
   }
 
-  # If there's no booloader on scsi0, EFI should fall back to ide2, where the
+  # If there's no bootloader on scsi0, EFI should fall back to ide2, where the
   # installer ISO is mounted
   boot_order = ["scsi0", "ide2"]
 
