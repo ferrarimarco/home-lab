@@ -14,8 +14,6 @@ home_assistant_secrets:
   name_home: "{{ vault_home_assistant_secrets.name_home }}"
   spotify_client_id: "{{ vault_home_assistant_secrets.spotify_client_id }}"
   spotify_client_secret: "{{ vault_home_assistant_secrets.spotify_client_secret }}"
-  telegram_bot_api_key: "{{ vault_home_assistant_secrets.telegram_bot_api_key }}"
-  telegram_bot_allowed_chat_ids: "{{ vault_home_assistant_secrets.telegram_bot_allowed_chat_ids }}"
   timezone_home: "{{ vault_home_assistant_secrets.timezone_home }}"
 home_lab_configuration_directory_path: "/etc/ferrarimarco-home-lab"
 home_lab_node_ssh_public_key_path: "{{ playbook_dir }}/files/ssh/home-lab-node-ssh-key.pub"

@@ -16,12 +16,4 @@ homeassistant:
   unit_system: metric
 
 prometheus: null
-
-telegram_bot:
-  - platform: polling
-    api_key: "{{ home_assistant_secrets.telegram_bot_api_key }}"
-    allowed_chat_ids:
-{% for chat_id in home_assistant_secrets.telegram_bot_allowed_chat_ids %}
-      - "{{ chat_id }}"
-{% endfor %}
 ...

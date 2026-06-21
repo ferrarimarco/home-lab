@@ -1,220 +1,168 @@
 #jinja2:variable_start_string:'[%', variable_end_string:'%]'
-- id: frigate_event_notify
+- id: '1781981625695'
   alias: Notify on Frigate events
   description: Notify when a Frigate event occurs
-  trigger:
-  - platform: mqtt
-    topic: frigate/events
-  action:
-  - service: telegram_bot.send_photo
+  triggers:
+  - trigger: mqtt
+    options:
+      topic: frigate/events
+  conditions: []
+  actions:
+  - action: telegram_bot.send_photo
+    metadata: {}
     data:
+      verify_ssl: true
       url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
       caption: A {{trigger.payload_json["after"]["label"]}} was detected. Here is
         a snapshot of the event.
-      message_tag: '{{trigger.payload_json["after"]["id"]}}'
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 10
-      milliseconds: 0
-    alias: Wait for the recording to be available
-  - service: telegram_bot.send_video
-    data:
-      url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
-      caption: A {{trigger.payload_json["after"]["label"]}} was detected. Here is
-        a recording of the event.
-      message_tag: '{{trigger.payload_json["after"]["id"]}}'
   - if:
     - condition: template
       value_template: '{{trigger.payload_json["after"]["end_time"] is not none}}'
     then:
-    - service: telegram_bot.send_message
+    - action: telegram_bot.send_message
+      metadata: {}
       data:
         message: There's no recording yet because the event is still in progress.
     else:
-    - service: telegram_bot.send_message
+    - action: telegram_bot.send_video
+      metadata: {}
       data:
-        message: Send the recording (test message)
+        verify_ssl: true
+        url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
   mode: queued
-- id: send_notification_home_assistant_update
-  alias: Send a notification when a Home Assistant update is available
-  description: Send a notification when a Home Assistant update is available
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.docker_hub_update_available
-    to: 'on'
-  condition: []
-  action:
-  - service: telegram_bot.send_message
-    data:
-      message: 'There is a Home Assistant update available. Current version: {{ states(''sensor.current_version'')
-        }}. Docker Hub version: {{ states(''sensor.docker_hub'') }}'
-  mode: single
-- id: '1679504424560'
-  alias: Alert if a critical switch turns off
+  max: 20
+- id: '1781975622579'
+  alias: Notify if Home Assistant is online
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - switch.presa_studio_home_lab_2
-    - switch.presa_frigorifero
-    - switch.presa_studio_home_lab_2_2
-    to: 'off'
-  condition: []
-  action:
-  - service: telegram_bot.send_message
+  triggers:
+  - trigger: time_pattern
+    minutes: /15
+  conditions: []
+  actions:
+  - action: telegram_bot.send_message
+    metadata: {}
     data:
-      message: The {{ trigger.to_state.attributes.friendly_name }} turned off!
+      message: Home Assistant is online
   mode: single
-- id: '1680709031287'
+- id: '1782051737210'
   alias: Turn off gaming rig when not in use
   description: ''
-  trigger:
-  - platform: numeric_state
+  triggers:
+  - trigger: numeric_state
     entity_id:
     - sensor.presa_studio_gaming_power
     for:
       hours: 0
-      minutes: 0
-      seconds: 45
-    below: 25
-  condition:
-  - condition: device
-    type: is_on
-    device_id: 6449a73377f934da409a21b1a9343f06
-    entity_id: switch.presa_studio_gaming
-    domain: switch
-  action:
-  - service: telegram_bot.send_message
-    data:
-      message: Turn off {{ device_attr(device_id(trigger.to_state.entity_id), 'name')
-        }}
-  - type: turn_off
-    device_id: 6449a73377f934da409a21b1a9343f06
-    entity_id: switch.presa_studio_gaming
-    domain: switch
-  - type: turn_off
-    device_id: 4c6026026fac1d1e1f021fb35d2a1e61
-    entity_id: b46d837fd384ebe48793a8c560a83803
-    domain: switch
-  mode: single
-- id: '1685788425243'
-  alias: Notify if entity is unavailable
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - camera.e1_ingresso_sub
-    to: unavailable
-  - platform: state
-    entity_id:
-    - sensor.eaton_ellipse_pro_1600_din_1_status
-    to: unavailable
-  - platform: state
-    entity_id:
-    - light.luce_comodino_ilaria_2
-    to: unavailable
-  - platform: state
-    entity_id:
-    - light.luce_comodino_marco_2
-    to: unavailable
-  condition: []
-  action:
-  - service: telegram_bot.send_message
-    data:
-      message: '{{ trigger.to_state.attributes.friendly_name }} entity is unavailable.'
-  mode: single
-- id: '1688838976875'
-  alias: HA online notification
-  description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: /15
-  condition: []
-  action:
-  - service: telegram_bot.send_message
-    data:
-      message: Home Assistant is online
-  mode: single
-- id: '1688839189440'
-  alias: Notify when cannot ping external services
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.ping_google_com
-    to: 'off'
-    for:
-      hours: 0
       minutes: 1
       seconds: 0
-  condition: []
-  action:
-  - service: notify.notify
-    data:
-      message: Cannot ping external services. Check the internet connection.
+    attribute: power
+    below: 25
+  conditions:
+  - condition: state
+    entity_id: switch.presa_studio_gaming
+    state:
+    - 'on'
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    target:
+      entity_id:
+      - switch.presa_studio_gaming
+      - switch.presa_monitor_gaming
+    data: {}
   mode: single
-- id: '1690487850440'
+- id: '1781980204862'
   alias: Notify when UPS status changes
   description: ''
-  trigger:
-  - platform: state
+  triggers:
+  - trigger: state
     entity_id:
     - sensor.eaton_ellipse_pro_1600_din_1_status
-  condition: []
-  action:
-  - service: telegram_bot.send_message
+  conditions: []
+  actions:
+  - action: telegram_bot.send_message
+    metadata: {}
     data:
       message: '{{ trigger.to_state.attributes.friendly_name }}: {{ trigger.to_state.state
         }}'
   mode: single
-- id: '1695033345128'
+- id: '1781980974269'
   alias: Turn off gaming rig when not in use (living room)
   description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.presa_sala_gaming_power
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.presa_sala_gaming_power
     for:
       hours: 0
-      minutes: 0
-      seconds: 45
+      minutes: 1
+      seconds: 0
     below: 13
-  condition:
+  conditions:
   - condition: device
     type: is_on
     device_id: 87f43ce91a0ed169ac75a705db7156e2
     entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
     domain: switch
-  action:
-  - service: telegram_bot.send_message
+  actions:
+  - device_id: 87f43ce91a0ed169ac75a705db7156e2
+    domain: select
+    entity_id: dbfaef1ec9df5d9fc68a3a766c9171d5
+    type: select_first
+  - action: telegram_bot.send_message
+    metadata: {}
     data:
-      message: Turn off {{ device_attr(device_id(trigger.to_state.entity_id), 'name')
-        }}
-    enabled: true
-  - type: turn_off
-    device_id: 87f43ce91a0ed169ac75a705db7156e2
-    entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
-    domain: switch
+      message: Turn off living room gaming rig
   mode: single
-- id: '1710950436245'
+- id: '1781981138078'
   alias: Turn on gaming monitor when gaming rig is on
   description: ''
-  trigger:
-  - platform: device
-    type: turned_on
+  triggers:
+  - type: turned_on
     device_id: 6449a73377f934da409a21b1a9343f06
     entity_id: bb2a9e962c4ef2b8a0687660bdbf5b13
     domain: switch
-  condition:
+    trigger: device
+  conditions:
   - condition: device
     type: is_off
     device_id: 4c6026026fac1d1e1f021fb35d2a1e61
     entity_id: b46d837fd384ebe48793a8c560a83803
     domain: switch
-  action:
+  actions:
   - type: turn_on
     device_id: 4c6026026fac1d1e1f021fb35d2a1e61
     entity_id: b46d837fd384ebe48793a8c560a83803
     domain: switch
+  mode: single
+- id: '1781981423161'
+  alias: Notify if entity is unavailable
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - camera.e1_ingresso_sub
+    to:
+    - unavailable
+  - trigger: state
+    entity_id:
+    - sensor.eaton_ellipse_pro_1600_din_1_status
+    to:
+    - unavailable
+  - trigger: state
+    entity_id:
+    - light.luce_comodino_ilaria_2
+    to:
+    - unavailable
+  - trigger: state
+    entity_id:
+    - light.luce_comodino_marco_2
+    to:
+    - unavailable
+  conditions: []
+  actions:
+  - action: telegram_bot.send_message
+    metadata: {}
+    data:
+      message: '{{ trigger.to_state.attributes.friendly_name }} entity is unavailable.'
   mode: single
