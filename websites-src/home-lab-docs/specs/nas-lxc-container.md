@@ -89,7 +89,7 @@ paths from the host is the standard Proxmox pattern: the host manages ZFS
 ### 4.1 `proxmox-lxc` Role (`config/nix/roles/proxmox-lxc/default.nix`)
 
 A new base role for any NixOS LXC container running on Proxmox, analogous to the
-existing [`proxmox-vm`](../../../config/nix/roles/proxmox-vm/default.nix) role.
+existing `proxmox-vm` role.
 
 ```nix
 { modulesPath, lib, ... }:

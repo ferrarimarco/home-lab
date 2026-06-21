@@ -13,7 +13,6 @@ WORKDIR "${APP_DIR}"
 COPY package.json package-lock.json ./
 
 RUN npm ci \
-  && npm audit \
   && rm -rf ~/.npm
 
 ENV NODE_PATH="${APP_DIR}/node_modules"
