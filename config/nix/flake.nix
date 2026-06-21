@@ -114,6 +114,19 @@
         ) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/configuration.nix")) hostNames)
       );
 
+      dynamicNixosConfigurations = lib.listToAttrs (
+        map (host: {
+          name = host;
+          value = nixpkgs.lib.nixosSystem {
+            inherit system;
+            specialArgs = { inherit inputs bootstrapPublicKeys; };
+            modules = [
+              (hostsDir + "/${host}/configuration.nix")
+            ];
+          };
+        }) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/configuration.nix")) hostNames)
+      );
+
     in
     # Force evaluation of the security guardrail. Because Nix is lazy, the
     # _guardrail check would be completely ignored unless we force its evaluation
@@ -145,16 +158,6 @@
       }
       // hostTests;
 
-      nixosConfigurations = {
-        hl02 = nixpkgs.lib.nixosSystem {
-          inherit system;
-
-          specialArgs = { inherit inputs bootstrapPublicKeys; };
-
-          modules = [
-            ./hosts/hl02/default.nix
-          ];
-        };
-      };
+      nixosConfigurations = dynamicNixosConfigurations;
     };
 }
