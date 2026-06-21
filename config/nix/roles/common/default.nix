@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  bootstrapPublicKeys,
+  ...
+}:
 
 {
   # Identity & Localization
@@ -13,8 +18,7 @@
         "wheel"
         "networkmanager"
       ];
-      # TODO: Add public SSH key
-      # openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3..." ];
+      openssh.authorizedKeys.keys = bootstrapPublicKeys;
     };
   };
 

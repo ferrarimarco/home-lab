@@ -14,11 +14,8 @@ declare -a TERRAFORM_COMMAND
 declare -a TERRAFORM_INIT_COMMAND
 
 mkdir --parents "${TERRAFORM_LOCAL_BACKEND_CONFIG_DIR_PATH}"
-
 for tf_service in "${TERRAFORM_SERVICES[@]}"; do
   tf_service_name="$(basename "${tf_service}")"
-  break_line
-  echo "Running ${tf_service_name} Terraform service"
 
   TERRAFORM_COMMAND=(
     terraform
@@ -27,6 +24,9 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
 
   TERRAFORM_SERVICE_LOCAL_BACKEND_DIRECTORY_PATH="${TERRAFORM_LOCAL_BACKEND_DIRECTORY_PATH}/${tf_service_name}"
   mkdir --parents "${TERRAFORM_SERVICE_LOCAL_BACKEND_DIRECTORY_PATH}"
+
+  TERRAFORM_LOCAL_BACKEND_STATE_FILE_PATH="${TERRAFORM_SERVICE_LOCAL_BACKEND_DIRECTORY_PATH}/terraform.tfstate"
+  export TF_DATA_DIR="${TERRAFORM_SERVICE_LOCAL_BACKEND_DIRECTORY_PATH}/.terraform"
 
   TERRAFORM_INIT_COMMAND=(
     "${TERRAFORM_COMMAND[@]}"
@@ -38,7 +38,30 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
     apply
   )
 
-  TERRAFORM_LOCAL_BACKEND_STATE_FILE_PATH="${TERRAFORM_SERVICE_LOCAL_BACKEND_DIRECTORY_PATH}/terraform.tfstate"
+  TERRAFORM_OUTPUT_COMMAND=(
+    "${TERRAFORM_COMMAND[@]}"
+    output
+    -json
+  )
+
+  # Don't emit any output before having the chance of checking if we need to emit JSON output
+  if [[ "${1:-}" == "output" ]]; then
+    if [[ "${2}" == "${tf_service_name}" ]]; then
+      if [[ -n "${3:-}" ]]; then
+        TERRAFORM_OUTPUT_COMMAND+=(
+          "${3}"
+        )
+      fi
+      "${TERRAFORM_OUTPUT_COMMAND[@]}"
+      exit 0
+    else
+      continue
+    fi
+  fi
+
+  break_line
+  echo "Running ${tf_service_name} Terraform service"
+
   if [[ "${tf_service_name}" == "000-initialization" ]] &&
     [[ ! -f "${TERRAFORM_LOCAL_BACKEND_STATE_FILE_PATH}" ]]; then
     echo "Initializing local backend on the first run: ${TERRAFORM_INIT_COMMAND[*]}"
@@ -52,8 +75,6 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
     # terraform service fully environment-agnostic
     mv -v "${TERRAFORM_FIRST_INIT_DATA_DIR_PATH}" "${TERRAFORM_SERVICE_LOCAL_BACKEND_DIRECTORY_PATH}/"
   fi
-
-  export TF_DATA_DIR="${TERRAFORM_SERVICE_LOCAL_BACKEND_DIRECTORY_PATH}/.terraform"
 
   TERRAFORM_LOCAL_BACKEND_CONFIGURATION_PATH="${TERRAFORM_LOCAL_BACKEND_CONFIG_DIR_PATH}/${tf_service_name}.local.tfbackend"
   # Run the command again and migrate state after configuring the final local backend path

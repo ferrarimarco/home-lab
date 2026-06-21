@@ -2,6 +2,7 @@
 
 pkgs.mkShell {
   packages = with pkgs; [
+    jq
     nixos-anywhere
     terraform
   ];
