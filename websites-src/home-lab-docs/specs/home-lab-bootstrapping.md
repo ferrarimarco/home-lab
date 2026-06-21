@@ -2,12 +2,14 @@
 
 ## Implementation Status
 
-| Component / Feature    | Status                | Details                                                          |
-| :--------------------- | :-------------------- | :--------------------------------------------------------------- |
-| **Nix Custom ISO**     | **Fully Implemented** | Custom nixos-installer ISO configured with the proxmox-vm role.  |
-| **Bootstrap Keys Dir** | **Fully Implemented** | Keys directory created and staged in Git (private key ignored).  |
-| **Security Guardrail** | **Fully Implemented** | Pure-evaluation check blocks tracked private keys in flake.nix.  |
-| **Operations Shell**   | **Fully Implemented** | Operations shell includes both `terraform` and `nixos-anywhere`. |
+| Component / Feature                         | Status                | Details                                                                                         |
+| :------------------------------------------ | :-------------------- | :---------------------------------------------------------------------------------------------- |
+| **Nix Custom ISO**                          | **Fully Implemented** | Custom nixos-installer ISO configured with the proxmox-vm role.                                 |
+| **Bootstrap Keys Dir**                      | **Fully Implemented** | Keys directory created and staged in Git (private key ignored).                                 |
+| **Security Guardrail**                      | **Fully Implemented** | Pure-evaluation check blocks tracked private keys in flake.nix.                                 |
+| **Operations Shell**                        | **Fully Implemented** | Operations shell includes both `terraform` and `nixos-anywhere`.                                |
+| **Provisioning and installation lifecycle** | **Fully Implemented** | Operational choreography and automated handoff sequence defined but pending automation scripts. |
+| **GitOps CD (Comin)**                       | **Not Implemented**   | Pull-based continuous deployment for Day-2 state management.                                    |
 
 ## 1. Goal
 
@@ -73,3 +75,46 @@ expanded to include:
 
 - `terraform` (for virtual hardware provisioning).
 - `nixos-anywhere` (for automated OS installation).
+
+### 3.4 Provisioning and Installation Lifecycle
+
+The execution workflow transitions from a stateless installer environment to an
+immutable, disk-backed production machine via the following sequential phases:
+
+1. **Initialization and Phoning Home:** The virtual machine boots the custom
+   ISO. The embedded `qemu-guest-agent` starts and broadcasts the VM's dynamic
+   IP address to the Proxmox VE API, which is consumed by the local control
+   machine.
+2. **Secure SSH Access:** The control machine invokes `nixos-anywhere` utilizing
+   the local private bootstrap key. The live ISO authenticates the session via
+   its pre-baked `bootstrapPublicKeys` array.
+3. **Declarative Partitioning:** `nixos-anywhere` delivers the host's
+   `disko.nix` schema to the target and executes it. Disko wipes the physical
+   disk layout, builds partitions, creates filesystems, and mounts the root
+   structure to `/mnt`.
+4. **Closure Synchronisation:** The control machine evaluates and compiles the
+   host's physical production top-level configuration. The complete operating
+   system closure is copied directly over the encrypted SSH tunnel into
+   `/mnt/nix/store`.
+5. **Boot Execution Handoff:** `nixos-anywhere` initializes `nixos-install` to
+   register the primary bootloader inside the hardware's EFI system partition,
+   then issues an un-graceful `reboot`. The VM power-cycles, discards the
+   temporary ISO environment, and boots natively into its final production
+   state.
+6. **Day 2 Operations (GitOps):** Upon booting into the final production state,
+   the `comin` service initializes, polls the designated Git repository, and
+   continuously applies subsequent configuration updates automatically without
+   manual SSH intervention.
+
+### 3.5 Continuous Deployment (GitOps)
+
+Once a machine is bootstrapped, all subsequent state enforcement is shifted to a
+pull-based GitOps model to prevent configuration drift and remove the need for
+centralized push-based CD pipelines.
+
+- **Comin Integration:** Target physical configurations include the `comin`
+  module, configured to poll the primary Git repository.
+- **Authentication:** (If using a private repo) An authenticating deploy key or
+  token must be provisioned during the `nixos-anywhere` handoff via the
+  `--extra-files` flag, ensuring the newly minted VM has the credentials
+  required to pull from the remote immediately on its first boot.
