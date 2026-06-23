@@ -1,0 +1,2898 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/nas-lxc-container/">
+      
+      
+        <link rel="prev" href="../home-lab-bootstrapping/">
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Design Spec: NAS LXC Container for NFS and SMB File Sharing - Home Lab docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#design-spec-nas-lxc-container-for-nfs-and-smb-file-sharing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Home Lab docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Design Spec: NAS LXC Container for NFS and SMB File Sharing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ferrarimarco/home-lab" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Home Lab docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ferrarimarco/home-lab" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home lab
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home lab architecture overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/network-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/nix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix and NixOS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Archive
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Archive
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Archive overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manual changes diary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Monitoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-network-shares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure network shares
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-tailscale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tailscale configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/container-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Container migration playbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Copy Jinja templates as they are
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Assistant configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/proxmox-admin-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Proxmox administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Linux administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_9">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/development/nix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/development/website-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Develop and build the Home Lab site
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Production
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Production
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Initialize the home lab
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Provision new hosts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Proxmox hosts, virtual machines, and containers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Specs
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Specs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Lab Design Specifications
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../declarative-integration-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hl02-proxmox-vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Proxmox VM Configuration for hl02
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-why-lxc-instead-of-a-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Why LXC Instead of a VM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-why-nixos-inside-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Why NixOS Inside the Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-why-one-container-per-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Why One Container Per Node
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-why-bind-mounts-instead-of-zfs-in-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Why Bind Mounts Instead of ZFS-in-Container
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Architecture Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-nixos-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. NixOS Roles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. NixOS Roles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 proxmox-lxc Role (config/nix/roles/proxmox-lxc/default.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-nas-role-confignixrolesnasdefaultnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 nas Role (config/nix/roles/nas/default.nix)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-host-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Host Configurations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Host Configurations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-host-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Host Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-container-configuration-example-configurationnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Container Configuration Example (configuration.nix)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-nixos-lxc-template-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. NixOS LXC Template Generation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. NixOS LXC Template Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-template-package-confignixpackagesnixos-lxc-nasnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Template Package (config/nix/packages/nixos-lxc-nas.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-flake-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Flake Registration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-build-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Build Command
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-infrastructure-provisioning-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Infrastructure Provisioning (Terraform)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Infrastructure Provisioning (Terraform)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-container-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Container Resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.1 Container Resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#containers-pve1tf-illustrative" class="md-nav__link">
+    <span class="md-ellipsis">
+      containers-pve1.tf (illustrative)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key design decisions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-apparmor-configuration-automation" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 AppArmor Configuration &amp; Automation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-container-id-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3 Container ID Allocation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-smb-user-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. SMB User Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. SMB User Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-declarative-part" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 Declarative Part
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-imperative-part-one-time-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Imperative Part (One-Time Setup)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Security Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-privileged-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 Privileged Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-nfs-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 NFS Security
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-smb-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.3 SMB Security
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-apparmor" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.4 AppArmor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Integration Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Integration Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-test-auto-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.1 Test Auto-Discovery
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-test-overrides-test-overridenix" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2 Test Overrides (test-override.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-lxc-specific-test-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3 LXC-Specific Test Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-deployment-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Deployment Workflow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Deployment Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-initial-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.1 Initial Deployment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-configuration-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.2 Configuration Updates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-assumptions-and-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Assumptions and Constraints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Assumptions and Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-zfs-dataset-mount-points-on-the-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.1 ZFS Dataset Mount Points on the Host
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-networking-dhcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.2 Networking (DHCP)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-mac-address-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.3 MAC Address Pinning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#124-terraform-provider-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.4 Terraform Provider Authentication
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#125-nfs-ganesha-as-an-alternative" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.5 NFS-Ganesha as an Alternative
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Future Work
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-why-lxc-instead-of-a-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Why LXC Instead of a VM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-why-nixos-inside-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Why NixOS Inside the Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-why-one-container-per-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Why One Container Per Node
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-why-bind-mounts-instead-of-zfs-in-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 Why Bind Mounts Instead of ZFS-in-Container
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Architecture Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-nixos-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. NixOS Roles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. NixOS Roles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 proxmox-lxc Role (config/nix/roles/proxmox-lxc/default.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-nas-role-confignixrolesnasdefaultnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 nas Role (config/nix/roles/nas/default.nix)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-host-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Host Configurations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Host Configurations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-host-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Host Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-container-configuration-example-configurationnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Container Configuration Example (configuration.nix)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-nixos-lxc-template-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. NixOS LXC Template Generation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. NixOS LXC Template Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-template-package-confignixpackagesnixos-lxc-nasnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Template Package (config/nix/packages/nixos-lxc-nas.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-flake-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Flake Registration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-build-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Build Command
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-infrastructure-provisioning-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Infrastructure Provisioning (Terraform)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Infrastructure Provisioning (Terraform)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-container-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Container Resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.1 Container Resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#containers-pve1tf-illustrative" class="md-nav__link">
+    <span class="md-ellipsis">
+      containers-pve1.tf (illustrative)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key design decisions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-apparmor-configuration-automation" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 AppArmor Configuration &amp; Automation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-container-id-allocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.3 Container ID Allocation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-smb-user-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. SMB User Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. SMB User Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-declarative-part" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 Declarative Part
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-imperative-part-one-time-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 Imperative Part (One-Time Setup)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Security Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-privileged-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 Privileged Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-nfs-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 NFS Security
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-smb-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.3 SMB Security
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-apparmor" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.4 AppArmor
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Integration Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Integration Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-test-auto-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.1 Test Auto-Discovery
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-test-overrides-test-overridenix" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2 Test Overrides (test-override.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-lxc-specific-test-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3 LXC-Specific Test Limitations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-deployment-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Deployment Workflow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Deployment Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-initial-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.1 Initial Deployment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-configuration-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.2 Configuration Updates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-assumptions-and-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Assumptions and Constraints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Assumptions and Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-zfs-dataset-mount-points-on-the-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.1 ZFS Dataset Mount Points on the Host
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-networking-dhcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.2 Networking (DHCP)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-mac-address-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.3 MAC Address Pinning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#124-terraform-provider-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.4 Terraform Provider Authentication
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#125-nfs-ganesha-as-an-alternative" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.5 NFS-Ganesha as an Alternative
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Future Work
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="design-spec-nas-lxc-container-for-nfs-and-smb-file-sharing">Design Spec: NAS LXC Container for NFS and SMB File Sharing</h1>
+<h2 id="implementation-status">Implementation Status</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component / Feature</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>NixOS LXC Template Package</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>nixos-generators</code> <code>proxmox-lxc</code> format package.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>proxmox-lxc</code> Role</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">NixOS role for LXC-specific base configuration.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>nas</code> Role (NFS)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">NixOS role enabling <code>nfs-kernel-server</code> with export config.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>nas</code> Role (SMB)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">NixOS role enabling Samba with declarative share definitions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Host Config (<code>nas-pve1</code>)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Logical and physical NixOS host config for the pve1 instance.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Host Config (<code>nas-pve2</code>)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Logical and physical NixOS host config for the pve2 instance.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Terraform LXC (<code>pve1</code>)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>proxmox_virtual_environment_container</code> for pve1.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Terraform LXC (<code>pve2</code>)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>proxmox_virtual_environment_container</code> for pve2.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Terraform Template Upload</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>proxmox_virtual_environment_download_file</code> for LXC template.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Host Integration Tests</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Auto-discovered tests for <code>nas-pve1</code> and <code>nas-pve2</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Flake Registration</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>nixosConfigurations</code> entries for both NAS hosts.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-goal">1. Goal</h2>
+<p>Deploy a NixOS-based LXC container on each Proxmox node (<code>pve1</code> and <code>pve2</code>) that
+exposes host-local ZFS datasets as network file shares over NFS and SMB (Samba).
+The containers receive ZFS datasets via Proxmox bind mounts, keeping ZFS
+management on the host while the container handles only the network-sharing
+layer.</p>
+<h2 id="2-rationale">2. Rationale</h2>
+<h3 id="21-why-lxc-instead-of-a-vm">2.1 Why LXC Instead of a VM</h3>
+<p>A full VM for file sharing is wasteful: NFS and SMB are lightweight services
+that do not need their own kernel, dedicated disk images, or UEFI firmware. LXC
+containers share the host kernel, start in seconds, and consume minimal memory
+overhead while still providing process and filesystem isolation.</p>
+<h3 id="22-why-nixos-inside-the-container">2.2 Why NixOS Inside the Container</h3>
+<p>The existing infrastructure is fully declarative (NixOS hosts, Nix flake,
+Terraform). Using a NixOS LXC container maintains consistency: share
+definitions, firewall rules, and user accounts are version-controlled and
+reproducible. The same <code>nixos-generators</code> tooling already used for the installer
+ISO can produce LXC templates.</p>
+<h3 id="23-why-one-container-per-node">2.3 Why One Container Per Node</h3>
+<p>Each Proxmox node has its own local ZFS pools (e.g., <code>rpool-sata</code> on <code>pve1</code>,
+<code>tank-hdd</code> on <code>pve2</code>). Bind-mounting ZFS datasets into a container requires the
+datasets to be local to the host kernel. Running one NAS container per node
+keeps data locality, avoids cross-node network storage dependencies, and allows
+each node to serve its own datasets independently.</p>
+<h3 id="24-why-bind-mounts-instead-of-zfs-in-container">2.4 Why Bind Mounts Instead of ZFS-in-Container</h3>
+<p>Passing raw ZFS device nodes into an unprivileged container is fragile and
+requires extensive privilege escalation. Bind-mounting the pre-mounted dataset
+paths from the host is the standard Proxmox pattern: the host manages ZFS
+(scrubs, snapshots, replication), and the container sees plain directories.</p>
+<h2 id="3-architecture-overview">3. Architecture Overview</h2>
+<div class="highlight"><pre><span></span><code>┌────────────────────────────────────────────────┐
+│ Proxmox Host (pve1 or pve2)                    │
+│                                                │
+│  ZFS pools ──► /mnt/tank/media                 │
+│               /mnt/tank/backups                │
+│               /mnt/tank/...                    │
+│                    │ bind mount                │
+│  ┌─────────────────┼─────────────────────────┐ │
+│  │ NixOS LXC Container (nas-pveN)            │ │
+│  │                 │                         │ │
+│  │  /mnt/shared/media ◄──────────────────┘   │ │
+│  │  /mnt/shared/backups                      │ │
+│  │                                           │ │
+│  │  ┌──────────┐  ┌──────────┐               │ │
+│  │  │ NFS      │  │ Samba    │               │ │
+│  │  │ Server   │  │ Server   │               │ │
+│  │  └────┬─────┘  └────┬─────┘               │ │
+│  └───────┼─────────────┼─────────────────────┘ │
+│          │             │                       │
+└──────────┼─────────────┼───────────────────────┘
+           │             │
+      NFS clients    SMB clients
+      (Linux, etc.)  (Windows, macOS, etc.)
+</code></pre></div>
+<h2 id="4-nixos-roles">4. NixOS Roles</h2>
+<h3 id="41-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix">4.1 <code>proxmox-lxc</code> Role (<code>config/nix/roles/proxmox-lxc/default.nix</code>)</h3>
+<p>A new base role for any NixOS LXC container running on Proxmox, analogous to the
+existing <code>proxmox-vm</code> role.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span> modulesPath<span class="p">,</span> lib<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span>modulesPath <span class="o">+</span> <span class="s2">&quot;/virtualisation/proxmox-lxc.nix&quot;</span><span class="p">)</span>
+  <span class="p">];</span>
+
+  boot<span class="o">.</span><span class="ss">isContainer</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+
+  <span class="c1"># Suppress systemd units that fail inside LXC</span>
+  systemd<span class="o">.</span><span class="ss">suppressedSystemUnits</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;dev-mqueue.mount&quot;</span>
+    <span class="s2">&quot;sys-kernel-debug.mount&quot;</span>
+    <span class="s2">&quot;sys-fs-fuse-connections.mount&quot;</span>
+  <span class="p">];</span>
+
+  <span class="c1"># LXC containers do not use a bootloader</span>
+  boot<span class="o">.</span>loader<span class="o">.</span>systemd-boot<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkForce <span class="no">false</span><span class="p">;</span>
+  boot<span class="o">.</span>loader<span class="o">.</span>efi<span class="o">.</span><span class="ss">canTouchEfiVariables</span> <span class="o">=</span> lib<span class="o">.</span>mkForce <span class="no">false</span><span class="p">;</span>
+
+  networking<span class="o">.</span><span class="ss">useDHCP</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="42-nas-role-confignixrolesnasdefaultnix">4.2 <code>nas</code> Role (<code>config/nix/roles/nas/default.nix</code>)</h3>
+<p>A service role that enables NFS and SMB file sharing. This role is
+protocol-agnostic regarding the specific shares; each host's <code>configuration.nix</code>
+defines the concrete share paths.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span> lib<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  <span class="c1"># NFS Server</span>
+  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">true</span><span class="p">;</span>
+
+  <span class="c1"># Samba Server</span>
+  services<span class="o">.</span><span class="ss">samba</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">true</span><span class="p">;</span>
+    <span class="ss">openFirewall</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">true</span><span class="p">;</span>
+
+    <span class="ss">settings</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="ss">global</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;workgroup&quot;</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="s2">&quot;WORKGROUP&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;server string&quot;</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="s2">&quot;NixOS NAS&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;security&quot;</span> <span class="o">=</span> <span class="s2">&quot;user&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;map to guest&quot;</span> <span class="o">=</span> <span class="s2">&quot;never&quot;</span><span class="p">;</span>
+
+        <span class="c1"># Performance tuning for ZFS-backed storage</span>
+        <span class="s2">&quot;use sendfile&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;min receivefile size&quot;</span> <span class="o">=</span> <span class="s2">&quot;16384&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;aio read size&quot;</span> <span class="o">=</span> <span class="s2">&quot;16384&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;aio write size&quot;</span> <span class="o">=</span> <span class="s2">&quot;16384&quot;</span><span class="p">;</span>
+      <span class="p">};</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+
+  <span class="c1"># NFS firewall ports (NFS v3 and v4)</span>
+  networking<span class="o">.</span>firewall<span class="o">.</span><span class="ss">allowedTCPPorts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">111</span>   <span class="c1"># rpcbind</span>
+    <span class="mi">2049</span>  <span class="c1"># nfsd</span>
+    <span class="mi">20048</span> <span class="c1"># mountd</span>
+  <span class="p">];</span>
+  networking<span class="o">.</span>firewall<span class="o">.</span><span class="ss">allowedUDPPorts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">111</span>   <span class="c1"># rpcbind</span>
+    <span class="mi">2049</span>  <span class="c1"># nfsd</span>
+    <span class="mi">20048</span> <span class="c1"># mountd</span>
+  <span class="p">];</span>
+
+  <span class="c1"># Lock NFS auxiliary services to fixed ports for firewall predictability</span>
+  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">lockdPort</span> <span class="o">=</span> <span class="mi">4001</span><span class="p">;</span>
+  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">mountdPort</span> <span class="o">=</span> <span class="mi">20048</span><span class="p">;</span>
+  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">statdPort</span> <span class="o">=</span> <span class="mi">4002</span><span class="p">;</span>
+
+  networking<span class="o">.</span>firewall<span class="o">.</span><span class="ss">allowedTCPPorts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">4001</span>  <span class="c1"># lockd</span>
+    <span class="mi">4002</span>  <span class="c1"># statd</span>
+  <span class="p">];</span>
+  networking<span class="o">.</span>firewall<span class="o">.</span><span class="ss">allowedUDPPorts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">4001</span>  <span class="c1"># lockd</span>
+    <span class="mi">4002</span>  <span class="c1"># statd</span>
+  <span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note on firewall ports:</strong> The <code>nas</code> role opens the fixed ports for NFS
+auxiliary daemons (<code>lockd</code>, <code>statd</code>, <code>mountd</code>) to guarantee firewall
+compatibility. NFS v4 strictly requires only port 2049, but v3 clients may
+still use the auxiliary daemons. Samba ports (TCP 445, 139) are opened
+automatically by <code>services.samba.openFirewall</code>.</p>
+</blockquote>
+<h2 id="5-host-configurations">5. Host Configurations</h2>
+<h3 id="51-host-structure">5.1 Host Structure</h3>
+<p>LXC containers do not require hardware kernel parameter adjustments, partition
+maps (Disko), or bootloader configurations. Because there is no low-level
+physical file system or hardware configuration to exclude during sandboxed
+integration testing, we do not need the logical/physical split pattern.</p>
+<p>Each container's configuration is fully described in a single
+<code>configuration.nix</code> file:</p>
+<div class="highlight"><pre><span></span><code>config/nix/hosts/nas-pve1/
+└── configuration.nix    # Container configuration (roles + shares)
+
+config/nix/hosts/nas-pve2/
+└── configuration.nix
+</code></pre></div>
+<h3 id="52-container-configuration-example-configurationnix">5.2 Container Configuration Example (<code>configuration.nix</code>)</h3>
+<p>Each host imports the <code>common</code>, <code>proxmox-lxc</code>, and <code>nas</code> roles, then defines
+host-specific share paths and NFS exports. The example below illustrates the
+pattern; the actual dataset paths and share names will be defined at
+implementation time based on the ZFS datasets present on each node.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="l">../../roles/common</span>
+    <span class="l">../../roles/proxmox-lxc</span>
+    <span class="l">../../roles/nas</span>
+  <span class="p">];</span>
+
+  networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nas-pve1&quot;</span><span class="p">;</span>
+  networking<span class="o">.</span><span class="ss">hostId</span> <span class="o">=</span> <span class="s2">&quot;&lt;generated-host-id&gt;&quot;</span><span class="p">;</span>
+
+  <span class="c1"># Pinned user details to align with host ZFS dataset ownership</span>
+  users<span class="o">.</span>users<span class="o">.</span><span class="ss">ferrarimarco</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">uid</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
+    <span class="ss">group</span> <span class="o">=</span> <span class="s2">&quot;users&quot;</span><span class="p">;</span>
+  <span class="p">};</span>
+  users<span class="o">.</span>groups<span class="o">.</span>users<span class="o">.</span><span class="ss">gid</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+
+  <span class="c1"># NFS exports</span>
+  <span class="c1"># Each line exports a bind-mounted path to the local subnet.</span>
+  <span class="c1"># The actual subnet CIDR should match the home network.</span>
+  <span class="c1"># Forces all_squash to map client requests to the dataset owner UID/GID.</span>
+  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">exports</span> <span class="o">=</span> <span class="s s-Multiline">&#39;&#39;</span>
+<span class="s s-Multiline">    /mnt/shared/media  192.168.1.0/24(rw,sync,no_subtree_check,all_squash,anonuid=1000,anongid=100)</span>
+<span class="s s-Multiline">    /mnt/shared/backups 192.168.1.0/24(rw,sync,no_subtree_check,all_squash,anonuid=1000,anongid=100)</span>
+<span class="s s-Multiline">  &#39;&#39;</span><span class="p">;</span>
+
+  <span class="c1"># Samba shares</span>
+  services<span class="o">.</span>samba<span class="o">.</span><span class="ss">settings</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;media&quot;</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;path&quot;</span> <span class="o">=</span> <span class="s2">&quot;/mnt/shared/media&quot;</span><span class="p">;</span>
+      <span class="s2">&quot;browseable&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
+      <span class="s2">&quot;read only&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+      <span class="s2">&quot;guest ok&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+      <span class="s2">&quot;valid users&quot;</span> <span class="o">=</span> <span class="s2">&quot;ferrarimarco&quot;</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="s2">&quot;backups&quot;</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;path&quot;</span> <span class="o">=</span> <span class="s2">&quot;/mnt/shared/backups&quot;</span><span class="p">;</span>
+      <span class="s2">&quot;browseable&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
+      <span class="s2">&quot;read only&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+      <span class="s2">&quot;guest ok&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+      <span class="s2">&quot;valid users&quot;</span> <span class="o">=</span> <span class="s2">&quot;ferrarimarco&quot;</span><span class="p">;</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+
+  system<span class="o">.</span><span class="ss">stateVersion</span> <span class="o">=</span> <span class="s2">&quot;25.11&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="6-nixos-lxc-template-generation">6. NixOS LXC Template Generation</h2>
+<h3 id="61-template-package-confignixpackagesnixos-lxc-nasnix">6.1 Template Package (<code>config/nix/packages/nixos-lxc-nas.nix</code>)</h3>
+<p>A new flake package produces a <code>.tar.xz</code> LXC template using <code>nixos-generators</code>
+with the <code>proxmox-lxc</code> format. This follows the same pattern as the existing
+<a href="../home-lab-bootstrapping/#31-nix-native-custom-iso-confignixpackagesnixos-installernix"><code>nixos-installer</code></a>
+package.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+  nixos-generators<span class="p">,</span>
+  system<span class="p">,</span>
+  inputs<span class="p">,</span>
+  bootstrapPublicKey<span class="p">,</span>
+  hostConfiguration<span class="p">,</span>
+<span class="p">}:</span>
+
+nixos-generators<span class="o">.</span>nixosGenerate <span class="p">{</span>
+  <span class="k">inherit</span> system<span class="p">;</span>
+  <span class="ss">format</span> <span class="o">=</span> <span class="s2">&quot;proxmox-lxc&quot;</span><span class="p">;</span>
+
+  <span class="ss">modules</span> <span class="o">=</span> <span class="p">[</span>
+    hostConfiguration
+  <span class="p">];</span>
+
+  <span class="ss">specialArgs</span> <span class="o">=</span> <span class="p">{</span> <span class="k">inherit</span> inputs bootstrapPublicKey<span class="p">;</span> <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="62-flake-registration">6.2 Flake Registration</h3>
+<p>The flake exposes one template package per NAS host:</p>
+<div class="highlight"><pre><span></span><code>packages<span class="o">.</span><span class="si">${</span>system<span class="si">}</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">nixos-installer</span> <span class="o">=</span> <span class="nb">import</span> <span class="l">./packages/nixos-installer.nix</span> <span class="p">{</span> <span class="o">...</span> <span class="p">};</span>
+  <span class="ss">nixos-lxc-nas-pve1</span> <span class="o">=</span> <span class="nb">import</span> <span class="l">./packages/nixos-lxc-nas.nix</span> <span class="p">{</span>
+    <span class="k">inherit</span> nixos-generators system inputs bootstrapPublicKey<span class="p">;</span>
+    <span class="ss">hostConfiguration</span> <span class="o">=</span> <span class="l">./hosts/nas-pve1/configuration.nix</span><span class="p">;</span>
+  <span class="p">};</span>
+  <span class="ss">nixos-lxc-nas-pve2</span> <span class="o">=</span> <span class="nb">import</span> <span class="l">./packages/nixos-lxc-nas.nix</span> <span class="p">{</span>
+    <span class="k">inherit</span> nixos-generators system inputs bootstrapPublicKey<span class="p">;</span>
+    <span class="ss">hostConfiguration</span> <span class="o">=</span> <span class="l">./hosts/nas-pve2/configuration.nix</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+</code></pre></div>
+<h3 id="63-build-command">6.3 Build Command</h3>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixos-lxc-nas-pve1
+<span class="c1"># Output: result/nixos-system-x86_64-linux.tar.xz</span>
+</code></pre></div>
+<p>The resulting tarball is uploaded to each Proxmox node's <code>local</code> storage as a
+container template using the <code>proxmox_virtual_environment_file</code> resource in
+Terraform.</p>
+<h2 id="7-infrastructure-provisioning-terraform">7. Infrastructure Provisioning (Terraform)</h2>
+<h3 id="71-container-resources">7.1 Container Resources</h3>
+<p>LXC containers are defined in
+<code>config/terraform/220-proxmox-workloads/containers-pveN.tf</code> using the
+<code>bpg/proxmox</code> provider's <code>proxmox_virtual_environment_container</code> resource.</p>
+<h4 id="containers-pve1tf-illustrative"><code>containers-pve1.tf</code> (illustrative)</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Uploads the built NixOS LXC template to Proxmox</span>
+<span class="kr">resource</span><span class="w"> </span><span class="nc">&quot;proxmox_virtual_environment_file&quot;</span><span class="w"> </span><span class="nv">&quot;nixos_nas_template_pve1&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox.pve1</span>
+
+<span class="w">  </span><span class="na">content_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vztmpl&quot;</span>
+<span class="w">  </span><span class="na">datastore_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local&quot;</span>
+<span class="w">  </span><span class="na">node_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nv">var.proxmox_virtual_environment_hosts</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">].</span><span class="err">node_name</span>
+
+<span class="w">  </span><span class="nb">source_file</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">path</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${path.module}/../../../result/tarball/nixos-system-x86_64-linux.tar.xz&quot;</span>
+<span class="w">    </span><span class="na">file_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nixos-nas-pve1.tar.xz&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kr">resource</span><span class="w"> </span><span class="nc">&quot;proxmox_virtual_environment_container&quot;</span><span class="w"> </span><span class="nv">&quot;nas_pve1&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox.pve1</span>
+
+<span class="w">  </span><span class="na">description</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Managed by Terraform - NixOS NAS LXC&quot;</span>
+<span class="w">  </span><span class="na">node_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nv">var.proxmox_virtual_environment_hosts</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">].</span><span class="err">node_name</span>
+<span class="w">  </span><span class="na">vm_id</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="m">200</span>
+<span class="w">  </span><span class="na">unprivileged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">false</span><span class="c1">  # Required for NFS kernel server</span>
+<span class="w">  </span><span class="na">started</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+
+<span class="w">  </span><span class="nb">features</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">nesting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+<span class="c1">    # Enable NFS mount type inside the container</span>
+<span class="w">    </span><span class="na">mount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;nfs&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">cpu</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">cores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">memory</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">dedicated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2048</span>
+<span class="w">    </span><span class="na">swap</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="m">512</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">network_interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">name</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;eth0&quot;</span>
+<span class="w">    </span><span class="na">bridge</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vmbr0&quot;</span>
+<span class="w">    </span><span class="na">mac_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;pinned-mac-address&gt;&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">disk</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">datastore_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local-zfs&quot;</span>
+<span class="w">    </span><span class="na">size</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="m">8</span><span class="c1">  # GB - OS rootfs only, data is bind-mounted</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">operating_system</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">template_file_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox_virtual_environment_file.nixos_nas_template_pve1.id</span>
+<span class="w">    </span><span class="na">type</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;unmanaged&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="c1">  # Bind mounts for ZFS datasets</span>
+<span class="c1">  # Parameterized via var.nas_container_bind_mounts</span>
+<span class="w">  </span><span class="err">dynamic</span><span class="w"> </span><span class="s2">&quot;mount_point&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">for_each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.nas_container_bind_mounts</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="nb">content</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="na">volume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">mount_point.value.host_path</span>
+<span class="w">      </span><span class="na">path</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nv">mount_point.value.container_path</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="c1">  # Persistent Samba state to survive container recreations</span>
+<span class="w">  </span><span class="nb">mount_point</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">volume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/var/lib/samba-state/nas-pve1&quot;</span>
+<span class="w">    </span><span class="na">path</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/var/lib/samba&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">initialization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">hostname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nas-pve1&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="key-design-decisions">Key design decisions</h4>
+<ul>
+<li><strong><code>unprivileged = false</code></strong>: The NFS kernel server requires a privileged
+  container to interact with the host kernel's NFS modules (<code>nfsd</code>,
+  <code>rpc_pipefs</code>). This is a deliberate security trade-off documented in
+  section 9.</li>
+<li><strong><code>type = "unmanaged"</code></strong>: Prevents Proxmox from running OS-specific
+  configuration hooks (e.g., Debian <code>cloud-init</code>) that are incompatible with
+  NixOS.</li>
+<li><strong><code>features.nesting = true</code></strong>: Required for NixOS <code>systemd</code> to function
+  correctly inside LXC.</li>
+<li><strong><code>features.mount = ["nfs"]</code></strong>: Permits the container to mount NFS filesystems
+  (if needed for cross-container access in the future).</li>
+<li><strong>Small OS disk</strong>: The rootfs only needs enough space for the NixOS system
+  closure. All user data resides on bind-mounted ZFS datasets.</li>
+<li><strong>Bind mount parameterization</strong>: Mounts are declared via standard Terraform
+  variables and dynamically mapped, keeping dataset details out of the core
+  resource block.</li>
+<li><strong>Declarative template upload</strong>: The template is uploaded using the
+  <code>proxmox_virtual_environment_file</code> resource, creating a direct dependency via
+  <code>template_file_id</code> that guarantees the template is uploaded before container
+  creation.</li>
+</ul>
+<h3 id="72-apparmor-configuration-automation">7.2 AppArmor Configuration &amp; Automation</h3>
+<p>Running <code>nfs-kernel-server</code> inside a privileged LXC requires relaxing the
+default AppArmor profile by appending <code>lxc.apparmor.profile: unconfined</code> to the
+Proxmox host's configuration file <code>/etc/pve/lxc/&lt;vmid&gt;.conf</code>.</p>
+<p>Because the <code>bpg/proxmox</code> Terraform provider does not natively expose raw LXC
+config keys like <code>lxc.apparmor.profile</code>, we automate this post-creation tweak
+using a Terraform <code>remote-exec</code> provisioner directly on the container resource:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="kr">provisioner</span><span class="w"> </span><span class="nv">&quot;remote-exec&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">inline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;echo &#39;lxc.apparmor.profile: unconfined&#39; &gt;&gt; /etc/pve/lxc/${self.vm_id}.conf&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;pct restart ${self.vm_id}&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+
+<span class="w">    </span><span class="nb">connection</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="na">type</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ssh&quot;</span>
+<span class="w">      </span><span class="na">user</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;root&quot;</span>
+<span class="w">      </span><span class="na">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.proxmox_virtual_environment_hosts_secrets</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">].</span><span class="err">password</span>
+<span class="w">      </span><span class="na">host</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="s2">&quot;:&quot;, split(&quot;//&quot;, var.proxmox_virtual_environment_hosts[&quot;pve1&quot;</span><span class="p">].</span><span class="err">api_endpoint</span><span class="p">)[</span><span class="m">1</span><span class="p">])[</span><span class="m">0</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<p>A custom AppArmor profile that only permits <code>mount fstype=nfsd</code> is a more secure
+alternative and is recommended for production hardening in a follow-up
+iteration.</p>
+<h3 id="73-container-id-allocation">7.3 Container ID Allocation</h3>
+<p>Following the existing numbering convention (VMs start at 100), LXC containers
+use a separate range starting at 200:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Container ID</th>
+<th style="text-align: left;">Host</th>
+<th style="text-align: left;">Node</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">200</td>
+<td style="text-align: left;">nas-pve1</td>
+<td style="text-align: left;">pve1</td>
+</tr>
+<tr>
+<td style="text-align: left;">201</td>
+<td style="text-align: left;">nas-pve2</td>
+<td style="text-align: left;">pve2</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-smb-user-management">8. SMB User Management</h2>
+<p>Samba maintains its own password database (<code>passdb.tdb</code>) separate from the Linux
+system's <code>/etc/shadow</code>. NixOS does not provide a fully declarative mechanism to
+populate Samba passwords because storing credentials in the world-readable Nix
+store would be a security risk.</p>
+<h3 id="81-declarative-part">8.1 Declarative Part</h3>
+<p>The NixOS configuration declares:</p>
+<ul>
+<li>The system user (<code>users.users.ferrarimarco</code>) via the <code>common</code> role.</li>
+<li>The Samba share definitions and <code>valid users</code> via the <code>nas</code> role.</li>
+<li>The Samba service itself (<code>services.samba.enable = true</code>).</li>
+</ul>
+<h3 id="82-imperative-part-one-time-setup">8.2 Imperative Part (One-Time Setup)</h3>
+<p>After the initial container deployment, the Samba password must be set once
+manually:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Inside the NAS container</span>
+sudo<span class="w"> </span>smbpasswd<span class="w"> </span>-a<span class="w"> </span>ferrarimarco
+</code></pre></div>
+<p>This step is intentionally imperative. Because <code>/var/lib/samba</code> is mounted from
+the host's persistent storage (e.g. <code>/var/lib/samba-state/nas-pve1</code>), the Samba
+user database (<code>passdb.tdb</code>) is preserved across container recreations and
+template updates, making it a true one-time setup step for the lifecycle of the
+lab.</p>
+<h2 id="9-security-considerations">9. Security Considerations</h2>
+<h3 id="91-privileged-container">9.1 Privileged Container</h3>
+<p>The NFS kernel server requires a privileged container. This means the
+container's root user maps directly to the host's UID 0 inside the container
+namespace. Mitigations:</p>
+<ul>
+<li>The container runs only NFS and SMB services; no user-facing shell access is
+  expected.</li>
+<li>SSH is enabled (from the <code>common</code> role) but restricted to key-based
+  authentication with root login disabled.</li>
+<li>The container has no direct access to ZFS administrative commands; it sees
+  bind-mounted directories as plain filesystems.</li>
+</ul>
+<h3 id="92-nfs-security">9.2 NFS Security</h3>
+<ul>
+<li>Exports are restricted to the local subnet CIDR (e.g., <code>192.168.1.0/24</code>).</li>
+<li><code>no_root_squash</code> is used only where explicitly required (e.g., for backup
+  agents that need root-level file access). All other exports should use the
+  default <code>root_squash</code>.</li>
+<li>NFSv4 is preferred over NFSv3 when clients support it, as it requires only a
+  single port (2049) and supports stronger authentication.</li>
+</ul>
+<h3 id="93-smb-security">9.3 SMB Security</h3>
+<ul>
+<li>Guest access is disabled (<code>map to guest = never</code>).</li>
+<li>Only authenticated local users can access shares (<code>security = user</code>).</li>
+<li>The Samba password database is stored inside the container's rootfs, which is
+  backed by ZFS on the host.</li>
+</ul>
+<h3 id="94-apparmor">9.4 AppArmor</h3>
+<p>The initial deployment uses <code>lxc.apparmor.profile: unconfined</code> for simplicity. A
+follow-up hardening task should create a minimal custom AppArmor profile that
+permits only the NFS-related mount operations (<code>mount fstype=nfsd</code>,
+<code>mount fstype=nfs</code>, <code>mount fstype=rpc_pipefs</code>).</p>
+<h2 id="10-integration-testing">10. Integration Testing</h2>
+<h3 id="101-test-auto-discovery">10.1 Test Auto-Discovery</h3>
+<p>Both <code>nas-pve1</code> and <code>nas-pve2</code> contain a <code>configuration.nix</code> file and are
+automatically discovered by the flake's test generator (see
+<a href="../declarative-integration-testing/#33-flake-integration-and-dynamic-test-discovery">Testing Spec - Dynamic Discovery</a>).</p>
+<p>The auto-generated tests verify:</p>
+<ol>
+<li>Successful boot (<code>multi-user.target</code> reached).</li>
+<li>SSH port 22 availability.</li>
+</ol>
+<h3 id="102-test-overrides-test-overridenix">10.2 Test Overrides (<code>test-override.nix</code>)</h3>
+<p>Because NFS and SMB services require bind-mounted paths that do not exist in the
+test VM sandbox, each NAS host includes a <code>test-override.nix</code> that:</p>
+<ul>
+<li>Creates mock directories for the expected mount points.</li>
+<li>Adds NAS-specific assertions (e.g., verifying that <code>smbd</code> and <code>nfsd</code> systemd
+  units are active).</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+  <span class="ss">extraConfig</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Create mock mount points so NFS exports and Samba shares</span>
+    <span class="c1"># can reference valid paths during the integration test.</span>
+    systemd<span class="o">.</span>tmpfiles<span class="o">.</span><span class="ss">rules</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="s2">&quot;d /mnt/shared/media 0755 root root -&quot;</span>
+      <span class="s2">&quot;d /mnt/shared/backups 0755 root root -&quot;</span>
+    <span class="p">];</span>
+  <span class="p">};</span>
+
+  <span class="ss">extraTestScript</span> <span class="o">=</span> <span class="s s-Multiline">&#39;&#39;</span>
+<span class="s s-Multiline">    machine.wait_for_unit(&quot;smbd.service&quot;)</span>
+<span class="s s-Multiline">    machine.wait_for_unit(&quot;nfs-server.service&quot;)</span>
+<span class="s s-Multiline">    machine.succeed(&quot;smbclient -L localhost -N | grep -q media&quot;)</span>
+<span class="s s-Multiline">  &#39;&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="103-lxc-specific-test-limitations">10.3 LXC-Specific Test Limitations</h3>
+<p>The standard NixOS test framework runs tests inside QEMU VMs, not LXC
+containers. This means:</p>
+<ul>
+<li>The <code>proxmox-lxc</code> module's LXC-specific settings (e.g., <code>boot.isContainer</code>)
+  must be overridden in the test environment to avoid conflicts with the
+  QEMU-based test runner.</li>
+<li>The <code>test-override.nix</code> should include <code>boot.isContainer = lib.mkForce false;</code>
+  to allow the test VM to boot normally.</li>
+</ul>
+<h2 id="11-deployment-workflow">11. Deployment Workflow</h2>
+<h3 id="111-initial-deployment">11.1 Initial Deployment</h3>
+<ol>
+<li><strong>Build the LXC template:</strong>
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixos-lxc-nas-pve1
+</code></pre></div></li>
+<li>
+<p><strong>Apply Terraform:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>config/terraform/220-proxmox-workloads
+terraform<span class="w"> </span>apply
+</code></pre></div>
+<p>(Note: Terraform automatically uploads the NixOS LXC template tarball using
+the <code>proxmox_virtual_environment_file</code> resource, configures the container,
+executes the AppArmor tweaks via the <code>remote-exec</code> provisioner, and restarts
+the container.)</p>
+</li>
+<li>
+<p><strong>Post-deploy: Set Samba password</strong> (imperative, inside the container):
+    <div class="highlight"><pre><span></span><code>pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="m">200</span><span class="w"> </span>--<span class="w"> </span>smbpasswd<span class="w"> </span>-a<span class="w"> </span>ferrarimarco
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="112-configuration-updates">11.2 Configuration Updates</h3>
+<p>To update the NAS configuration after changing <code>configuration.nix</code>:</p>
+<ol>
+<li>Rebuild the LXC template: <code>nix build .#nixos-lxc-nas-pve1</code></li>
+<li>Upload and replace the template on Proxmox.</li>
+<li>Recreate the container from the new template via Terraform. This is safe to
+   run since the container rootfs is stateless; the Samba password database is
+   stored in the <code>/var/lib/samba</code> bind mount which persists on the host.
+   Alternatively, SSH into the running container and run <code>nixos-rebuild switch</code>
+   if the flake is available inside the container.</li>
+</ol>
+<h2 id="12-assumptions-and-constraints">12. Assumptions and Constraints</h2>
+<h3 id="121-zfs-dataset-mount-points-on-the-host">12.1 ZFS Dataset Mount Points on the Host</h3>
+<p>The Proxmox host must have the ZFS datasets mounted at known, stable paths
+(specifically <code>/rpool-sata/media</code> and <code>/rpool-sata/backups</code> on <code>pve1</code> and
+<code>/tank-hdd/media</code> and <code>/tank-hdd/backups</code> on <code>pve2</code>). The host directories must
+be owned by UID <code>1000</code> (<code>ferrarimarco</code>) to match container permissions.</p>
+<p>The mount points are parameterized in Terraform using input variable maps to
+prevent hardcoding host paths inside the container configurations. If ZFS
+dataset paths change, the Terraform parameters must be updated to match the new
+host paths.</p>
+<h3 id="122-networking-dhcp">12.2 Networking (DHCP)</h3>
+<p>The NAS containers use DHCP, consistent with the current approach for
+<a href="../hl02-proxmox-vm/#52-networking-dhcp-for-now"><code>hl02</code></a>. Static IPs or DHCP
+reservations should be configured in the router to ensure stable addressing for
+NFS/SMB clients.</p>
+<h3 id="123-mac-address-pinning">12.3 MAC Address Pinning</h3>
+<p>Each container's network interface is assigned a pinned MAC address in
+Terraform, matching the pattern used for VMs. This ensures stable DHCP
+reservations.</p>
+<h3 id="124-terraform-provider-authentication">12.4 Terraform Provider Authentication</h3>
+<p>Bind mounts in the <code>bpg/proxmox</code> provider require authentication as <code>root@pam</code>.
+The existing provider configuration already supports username/password
+authentication alongside API tokens.</p>
+<h3 id="125-nfs-ganesha-as-an-alternative">12.5 NFS-Ganesha as an Alternative</h3>
+<p>If the privileged container requirement for <code>nfs-kernel-server</code> proves too
+restrictive, NFS-Ganesha (a user-space NFS server) is a viable alternative that
+can run inside an unprivileged container. This would require replacing
+<code>services.nfs.server</code> with a custom NFS-Ganesha NixOS module. This trade-off
+should be evaluated during implementation.</p>
+<h2 id="13-future-work">13. Future Work</h2>
+<ul>
+<li><strong>Custom AppArmor profile</strong>: Replace <code>unconfined</code> with a minimal profile that
+  permits only NFS-related kernel operations.</li>
+<li><strong>Automated template upload</strong>: Use Terraform's
+  <code>proxmox_virtual_environment_download_file</code> or a provisioner to automate
+  template uploads to Proxmox storage.</li>
+<li><strong>Samba password automation</strong>: Explore <code>sops-nix</code> or similar secret management
+  to populate Samba passwords declaratively via activation scripts.</li>
+<li><strong>SMB service discovery</strong>: Enable Samba's WS-Discovery or Avahi for automatic
+  share browsing on Windows and macOS clients.</li>
+<li><strong>Static IP migration</strong>: Transition from DHCP to static IP assignments defined
+  in the NixOS configuration once the network spec is written.</li>
+<li><strong>ZFS dataset Terraform management</strong>: Define the ZFS datasets themselves in
+  Terraform or a separate Nix module for full declarative coverage.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

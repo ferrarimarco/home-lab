@@ -1153,6 +1153,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="3.1 Host Configuration Split">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#311-iso-artifact-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1.1 ISO Artifact Delivery
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1198,9 +1213,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#51-disk-device-configuration-devvda" class="md-nav__link">
+  <a href="#51-disk-device-configuration-devsda" class="md-nav__link">
     <span class="md-ellipsis">
-      5.1 Disk Device Configuration (/dev/vda)
+      5.1 Disk Device Configuration (/dev/sda)
     </span>
   </a>
   
@@ -1251,6 +1266,29 @@
   
   <span class="md-ellipsis">
     Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nas-lxc-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for NFS and SMB File Sharing
     
   </span>
   
@@ -1338,6 +1376,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="3.1 Host Configuration Split">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#311-iso-artifact-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1.1 ISO Artifact Delivery
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1383,9 +1436,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#51-disk-device-configuration-devvda" class="md-nav__link">
+  <a href="#51-disk-device-configuration-devsda" class="md-nav__link">
     <span class="md-ellipsis">
-      5.1 Disk Device Configuration (/dev/vda)
+      5.1 Disk Device Configuration (/dev/sda)
     </span>
   </a>
   
@@ -1510,7 +1563,7 @@ the files for <code>hl02</code> are structured under <code>config/nix/hosts/hl02
 <li><strong><code>disko.nix</code> (Filesystem Config):</strong><ul>
 <li>Accepts <code>{ inputs, ... }</code> globally via <code>specialArgs</code>.</li>
 <li>Imports the core Disko module (<code>inputs.disko.nixosModules.disko</code>).</li>
-<li>Defines the physical ext4 disk layout on <code>/dev/vda</code>.</li>
+<li>Defines the physical ext4 disk layout on <code>/dev/sda</code>.</li>
 </ul>
 </li>
 <li><strong><code>hardware.nix</code> (Hardware Placeholder):</strong><ul>
@@ -1520,8 +1573,20 @@ the files for <code>hl02</code> are structured under <code>config/nix/hosts/hl02
 </ul>
 </li>
 </ul>
+<h4 id="311-iso-artifact-delivery">3.1.1 ISO Artifact Delivery</h4>
+<p>To bridge the local Nix build pipeline with the hypervisor environment, the
+compiled ISO must be staged on the Proxmox target node prior to VM
+orchestration.</p>
+<ul>
+<li>Mechanism: Handled declaratively via the <code>proxmox_virtual_environment_file</code>
+  resource within the Terraform workspace.</li>
+<li>Source Target: The local Nix flake build output directory
+  (<code>./result/iso/\*.iso</code>).</li>
+<li>Destination Target: Stored in the cluster's default structural storage
+  (<code>local:iso/</code>).</li>
+</ul>
 <h3 id="32-file-system-layout-diskonix">3.2 File System Layout (<code>disko.nix</code>)</h3>
-<p>Declares a GPT partition table on the primary VirtIO virtual disk (<code>/dev/vda</code>):</p>
+<p>Declares a GPT partition table on the primary SCSI virtual disk (<code>/dev/sda</code>):</p>
 <ul>
 <li><strong>EFI Partition (ESP):</strong> 512MB, formatted as <code>vfat</code>, mounted at <code>/boot</code> with
   standard secure mount options.</li>
@@ -1554,33 +1619,37 @@ required.</p>
 provider:</p>
 <ul>
 <li><strong>VM Resource (<code>proxmox_virtual_environment_vm.hl02</code>):</strong><ul>
-<li><strong>Hardware:</strong> 2 Cores (Host type), 4GB dedicated RAM.</li>
+<li><strong>Hardware:</strong> 2 Cores (Host type), 4GB dedicated RAM, <code>virtio-scsi-pci</code>
+  controller.</li>
 <li><strong>EFI Disk &amp; Storage:</strong> EFI type <code>4m</code>, stored on <code>local-zfs</code> pool.</li>
-<li><strong>Disk Interface (<code>virtio0</code>):</strong> Presents the virtual disk as <code>/dev/vda</code>
+<li><strong>Disk Interface (<code>scsi0</code>):</strong> Presents the virtual disk as <code>/dev/sda</code>
   inside the VM, matching <code>disko.nix</code> expectations.</li>
+<li><strong>Storage Optimization:</strong> Enables <code>discard = "on"</code> (TRIM) to reclaim
+  unused blocks dynamically on the underlying ZFS pool.</li>
 <li><strong>Installer CDROM (<code>ide2</code>):</strong> Mounts the custom installer ISO (uploaded
   automatically as described in
   <a href="../home-lab-bootstrapping/#31-nix-native-custom-iso-confignixpackagesnixos-installernix">Bootstrapping Spec - Custom ISO</a>).</li>
 <li><strong>MAC Pinning:</strong> Pins a static MAC address (<code>BC:24:11:D4:F6:65</code>) to the
   virtio network interface.</li>
-<li><strong>Automated Boot Order:</strong> Configures <code>boot_order = ["virtio0", "ide2"]</code>.<ul>
-<li><em>First Boot:</em> VM disk <code>/dev/vda</code> is empty, falls back to booting from
+<li><strong>Automated Boot Order:</strong> Configures <code>boot_order = ["scsi0", "ide2"]</code>.<ul>
+<li><em>First Boot:</em> VM disk <code>/dev/sda</code> is empty, falls back to booting from
   the installer ISO on <code>ide2</code>.</li>
 <li><em>Subsequent Boots:</em> Boots directly from the production system on
-  <code>/dev/vda</code> (<code>virtio0</code>), bypassing the installer.</li>
+  <code>/dev/sda</code> (<code>scsi0</code>), bypassing the installer.</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 <h2 id="5-assumptions-constraints">5. Assumptions &amp; Constraints</h2>
-<h3 id="51-disk-device-configuration-devvda">5.1 Disk Device Configuration (<code>/dev/vda</code>)</h3>
-<p>The physical Disko configuration explicitly targets <code>/dev/vda</code>. This assumes the
-Proxmox VM is provisioned using a <strong>VirtIO Block</strong> controller. If the VM is
-provisioned using a <strong>SCSI</strong> controller, the disk will present as <code>/dev/sda</code> and
-partitioning will fail.</p>
+<h3 id="51-disk-device-configuration-devsda">5.1 Disk Device Configuration (<code>/dev/sda</code>)</h3>
+<p>The physical Disko configuration explicitly targets <code>/dev/sda</code>. This assumes the
+Proxmox VM is provisioned using a <strong>VirtIO SCSI (<code>virtio-scsi-pci</code>)</strong>
+controller. If the VM is provisioned using a <strong>VirtIO Block</strong> controller, the
+disk will present as <code>/dev/vda</code> and partitioning will fail.</p>
 <ul>
-<li><em>Constraint:</em> The VM must use a VirtIO Block disk interface in Terraform.</li>
+<li><em>Constraint:</em> The VM must use a VirtIO SCSI disk interface (<code>scsi0</code>) in
+  Terraform to maintain support for TRIM/Discard on thin-provisioned ZFS pools.</li>
 </ul>
 <h3 id="52-networking-dhcp-for-now">5.2 Networking (DHCP "For Now")</h3>
 <p>The host uses DHCP for simplicity in this phase. Transitioning to static IPs can

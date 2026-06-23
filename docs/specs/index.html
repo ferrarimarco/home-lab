@@ -1159,6 +1159,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="nas-lxc-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1251,18 +1274,25 @@ testing rationale before code implementation.</p>
 <tr>
 <td style="text-align: left;"><a href="hl02-proxmox-vm/"><strong>Proxmox VM Config (<code>hl02</code>)</strong></a></td>
 <td style="text-align: left;">Host-specific virtual hardware, partition layouts (Disko), and Terraform definitions for <code>hl02</code>.</td>
-<td style="text-align: left;"><strong>Partially Implemented</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="declarative-integration-testing/"><strong>Declarative Integration Testing</strong></a></td>
 <td style="text-align: left;">Design of the NixOS test generator framework (<code>make-test.nix</code>), dynamic test discovery, and parallel GHA matrix CI pipeline.</td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 </tr>
+<tr>
+<td style="text-align: left;"><a href="nas-lxc-container/"><strong>NAS LXC Container</strong></a></td>
+<td style="text-align: left;">NixOS LXC containers on each Proxmox node exposing host ZFS datasets as NFS and SMB shares via bind mounts, with Terraform provisioning.</td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+</tr>
 </tbody>
 </table>
 <h2 id="specifications-to-write">Specifications to write</h2>
 <ul>
 <li>Generate a Home Lab bootstrapping keypair.</li>
+<li>Fully automate Terraform runs. Reference:
+  <a href="https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform">Running Terraform in automation</a>.</li>
 </ul>
 
 

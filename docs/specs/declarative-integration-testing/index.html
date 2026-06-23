@@ -1252,6 +1252,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nas-lxc-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1483,20 +1506,21 @@ host's logical <code>configuration.nix</code>.</p>
 <li>Configures the required QEMU <code>virtio-serial</code> hardware inside the sandbox if
   <code>services.qemuGuest</code> is enabled.</li>
 <li>Constructs the Python test script dynamically based on active services:<ul>
-<li>If <code>services.openssh</code> is enabled, it asserts that SSH port 22 opens.</li>
+<li>If <code>services.openssh</code> is enabled, it asserts that the SSH daemon
+  initializes.</li>
 <li>If <code>services.qemuGuest</code> is enabled, it asserts that
   <code>/dev/virtio-ports/org.qemu.guest_agent.0</code> is created and
   <code>qemu-guest-agent.service</code> activates.</li>
 <li>Always asserts that <code>multi-user.target</code> is reached (successful boot).</li>
 </ul>
 </li>
-<li><strong>Mocks <code>specialArgs</code> Dependencies:</strong> Automatically injects mock values for
-  required <code>specialArgs</code> (such as a dummy bootstrap SSH public key) to allow the
-  logical configuration to evaluate in isolation.</li>
-<li><strong>Runtime Overrides:</strong> Includes comments and documentation within the
-  generator instructing developers on how to override these mock values with
-  real keys or custom configurations at runtime if needed for advanced
-  validation.</li>
+<li><strong>Live Attribute Extraction:</strong> Programmatically extracts production-grade
+  configuration data (such as <code>bootstrapPublicKeys</code>) directly from the evaluated
+  package derivation attributes, eliminating the need for loose mock variables.</li>
+<li><strong>Declarative Cryptographic Auditing:</strong> Leverages <code>test-override.nix</code> to
+  perform exact filesystem text matching inside the VM, verifying that target
+  keys exist perfectly inside the specialized NixOS declarative directory path
+  (<code>/etc/ssh/authorized_keys.d/root</code>).</li>
 </ul>
 <h3 id="33-flake-integration-and-dynamic-test-discovery">3.3 Flake Integration and Dynamic Test Discovery</h3>
 <p>The flake dynamically discovers and registers integration tests for all hosts:</p>
@@ -1544,7 +1568,7 @@ optimized jobs:</p>
 <li>Enables KVM virtualization inside the GitHub Actions runner
   (<code>enable_kvm: true</code> in <code>install-nix-action</code>).</li>
 <li>Executes the specific integration test for the matrix target:
-    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#checks.x86_64-linux.<span class="si">${</span><span class="p">{ matrix.host </span><span class="si">}</span><span class="o">}</span>-test<span class="w"> </span>--verbose
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#checks.x86_64-linux.<span class="si">${</span><span class="p">{ matrix.host </span><span class="si">}</span><span class="o">}</span>-test<span class="w"> </span>--verbose<span class="w"> </span>--print-build-logs
 </code></pre></div></li>
 <li><em>Benefit:</em> Isolates test failures to specific hosts and allows parallel
   execution, reducing total CI time.</li>
@@ -1557,7 +1581,7 @@ optimized jobs:</p>
   logical integration tests) successfully evaluate and build.</li>
 <li>Runs as a matrix over all defined hosts in <code>nixosConfigurations</code> to ensure
   that the full physical VM images (with Disko) build:
-    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixosConfigurations.<span class="si">${</span><span class="p">{ matrix.host </span><span class="si">}</span><span class="o">}</span>.config.system.build.toplevel<span class="w"> </span>--verbose
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixosConfigurations.<span class="si">${</span><span class="p">{ matrix.host </span><span class="si">}</span><span class="o">}</span>.config.system.build.toplevel<span class="w"> </span>--verbose<span class="w"> </span>--print-build-logs
 </code></pre></div></li>
 </ul>
 </li>
