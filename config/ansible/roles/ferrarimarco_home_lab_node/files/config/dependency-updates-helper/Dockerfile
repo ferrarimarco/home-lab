@@ -6,7 +6,7 @@
 FROM ngosang/restic-exporter:2.0.0 AS restic-exporter
 
 # frigate
-FROM ghcr.io/blakeblackshear/frigate:0.16.3 AS frigate
+FROM ghcr.io/blakeblackshear/frigate:0.17.1 AS frigate
 
 # home-assistant
 FROM ghcr.io/home-assistant/home-assistant:2025.12.3 AS home-assistant

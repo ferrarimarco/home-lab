@@ -1,6 +1,6 @@
 ---
 mqtt:
-  host: "{{ mosquitto_server_fqdn }}"
+  host: {{ mosquitto_server_fqdn }}
   port: 1883
 
 detectors:
@@ -36,26 +36,16 @@ ffmpeg:
 # Configuration for recordings
 record:
   enabled: true
-  events:
-    # Number of seconds after the event to include.
-    # Doesn't have effect if record.events.retain.mode is not set to "all"
-    post_capture: 30
-    # Number of seconds before the event to include.
-    # Doesn't have effect if record.events.retain.mode is not set to "all"
-    pre_capture: 30
+  alerts:
     retain:
-      # Retention days
-      default: 10
-      # Recording retention mode for events.
-      # all - save all recording segments for events regardless of activity
-      # motion - save all recordings segments for events with any detected motion
-      # active_objects - save all recording segments for event with active/moving objects
-      # Default is "motion" (Frigate 0.12.0)
-      mode: all
-
-# Disable RTMP re-streaming to spare resources
-rtmp:
-  enabled: false
+      days: 10
+    pre_capture: 30
+    post_capture: 30
+  detections:
+    retain:
+      days: 10
+    pre_capture: 30
+    post_capture: 30
 
 # Configuration for the snapshots written to the clips directory for each event
 snapshots:
@@ -66,9 +56,9 @@ snapshots:
     default: 10
 
 timestamp_style:
-  format: "%Y-%m-%dT%H:%M:%S"
+  format: '%Y-%m-%dT%H:%M:%S'
   # Position of the timestamp. "tl" (top left), "tr" (top right), "bl" (bottom left), "br" (bottom right)
-  position: "tl"
+  position: tl
 
 cameras:
 {% for frigate_camera in frigate_cameras %}
@@ -76,7 +66,7 @@ cameras:
     ffmpeg:
       inputs:
 {% for frigate_camera_input in frigate_camera.inputs %}
-        - path: "{{ frigate_camera_input.path }}"
+        - path: {{ frigate_camera_input.path }}
 {% if frigate_camera_input.ffmpeg.input_args is defined %}
           input_args: "{{ frigate_camera_input.ffmpeg.input_args }}"
 {% endif %}
@@ -90,6 +80,8 @@ cameras:
 {% endif %}
 {% if frigate_camera.detect is defined %}
     detect:
+      enabled: true
+      fps: {{ frigate_camera.detect.fps }}
       height: {{ frigate_camera.detect.height }}
       width: {{ frigate_camera.detect.width }}
 {% endif %}
@@ -101,4 +93,4 @@ cameras:
 {% endfor %}
 {% endif %}
 {% endfor %}
-...
+version: 0.17-0
