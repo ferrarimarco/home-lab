@@ -14,6 +14,8 @@
         <link rel="prev" href="../hl02-proxmox-vm/">
       
       
+        <link rel="next" href="../nas-lxc-container/">
+      
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
@@ -1194,6 +1196,24 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#34-provisioning-and-installation-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 Provisioning and Installation Lifecycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-continuous-deployment-gitops" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.5 Continuous Deployment (GitOps)
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1203,6 +1223,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nas-lxc-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1305,6 +1348,24 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#34-provisioning-and-installation-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4 Provisioning and Installation Lifecycle
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-continuous-deployment-gitops" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.5 Continuous Deployment (GitOps)
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1360,6 +1421,16 @@
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Operations shell includes both <code>terraform</code> and <code>nixos-anywhere</code>.</td>
 </tr>
+<tr>
+<td style="text-align: left;"><strong>Provisioning and installation lifecycle</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Operational choreography and automated handoff sequence defined but pending automation scripts.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>GitOps CD (Comin)</strong></td>
+<td style="text-align: left;"><strong>Not Implemented</strong></td>
+<td style="text-align: left;">Pull-based continuous deployment for Day-2 state management.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="1-goal">1. Goal</h2>
@@ -1375,12 +1446,12 @@ their final production state in a single, reproducible workflow.</p>
 <h3 id="31-nix-native-custom-iso-confignixpackagesnixos-installernix">3.1 Nix-Native Custom ISO (<code>config/nix/packages/nixos-installer.nix</code>)</h3>
 <p>We declare a generic minimal installer ISO in
 <code>config/nix/packages/nixos-installer.nix</code> and register it in
-<code>config/nix/flake.nix</code> as <code>packages.x86_64-linux.nixos-installer</code> using
-<code>nixos-generators</code>.</p>
+<code>config/nix/flake.nix</code> as <code>packages.x86_64-linux.nixos-installer</code> using the
+built-in NixOS <code>system.build.isoImage</code> derivation pipeline.</p>
 <ul>
-<li><strong>Root Authorization:</strong> Pre-bakes a dynamic bootstrap public SSH key into the
-  <code>root</code> user's <code>authorizedKeys</code> in the installer ISO. This ensures
-  <code>nixos-anywhere</code> can authenticate directly as <code>root</code> over SSH.</li>
+<li><strong>Root Authorization:</strong> Pre-bakes the declarative <code>bootstrapPublicKeys</code> array
+  directly into the <code>root</code> user's <code>authorizedKeys</code> in the installer ISO. This
+  ensures <code>nixos-anywhere</code> can authenticate directly as <code>root</code> over SSH.</li>
 <li><strong>Guest Agent Integration:</strong> The installer ISO imports the shared <code>proxmox-vm</code>
   role to enable the QEMU Guest Agent service
   (<code>services.qemuGuest.enable = true</code>). This allows Proxmox and Terraform to
@@ -1396,10 +1467,10 @@ be stored inside the flake tree.</p>
 <ul>
 <li><strong>Directory Structure:</strong> Keys are stored in a dedicated folder at
   <code>config/nix/ssh-keys/</code>.</li>
-<li><strong>Dynamic Key Loading:</strong> The public SSH key is loaded dynamically from
-  <code>config/nix/ssh-keys/home-lab-bootstrap-ssh.pub</code>. If the file is not present,
-  flake evaluation will abort with an explicit error instructing the user on how
-  to generate it.</li>
+<li><strong>Dynamic Key Loading:</strong> The public SSH key is loaded dynamically from the
+  keys directory array inputs. If required public keys are missing, flake
+  evaluation will abort with an explicit error instructing the user on how to
+  generate it.</li>
 <li><strong>Critical Security Guardrail:</strong> The flake must actively protect the private
   key (<code>config/nix/ssh-keys/home-lab-bootstrap-ssh</code>) from being accidentally
   staged in Git.<ul>
@@ -1420,6 +1491,47 @@ expanded to include:</p>
 <ul>
 <li><code>terraform</code> (for virtual hardware provisioning).</li>
 <li><code>nixos-anywhere</code> (for automated OS installation).</li>
+</ul>
+<h3 id="34-provisioning-and-installation-lifecycle">3.4 Provisioning and Installation Lifecycle</h3>
+<p>The execution workflow transitions from a stateless installer environment to an
+immutable, disk-backed production machine via the following sequential phases:</p>
+<ol>
+<li><strong>Initialization and Phoning Home:</strong> The virtual machine boots the custom
+   ISO. The embedded <code>qemu-guest-agent</code> starts and broadcasts the VM's dynamic
+   IP address to the Proxmox VE API, which is consumed by the local control
+   machine.</li>
+<li><strong>Secure SSH Access:</strong> The control machine invokes <code>nixos-anywhere</code> utilizing
+   the local private bootstrap key. The live ISO authenticates the session via
+   its pre-baked <code>bootstrapPublicKeys</code> array.</li>
+<li><strong>Declarative Partitioning:</strong> <code>nixos-anywhere</code> delivers the host's
+   <code>disko.nix</code> schema to the target and executes it. Disko wipes the physical
+   disk layout, builds partitions, creates filesystems, and mounts the root
+   structure to <code>/mnt</code>.</li>
+<li><strong>Closure Synchronisation:</strong> The control machine evaluates and compiles the
+   host's physical production top-level configuration. The complete operating
+   system closure is copied directly over the encrypted SSH tunnel into
+   <code>/mnt/nix/store</code>.</li>
+<li><strong>Boot Execution Handoff:</strong> <code>nixos-anywhere</code> initializes <code>nixos-install</code> to
+   register the primary bootloader inside the hardware's EFI system partition,
+   then issues an un-graceful <code>reboot</code>. The VM power-cycles, discards the
+   temporary ISO environment, and boots natively into its final production
+   state.</li>
+<li><strong>Day 2 Operations (GitOps):</strong> Upon booting into the final production state,
+   the <code>comin</code> service initializes, polls the designated Git repository, and
+   continuously applies subsequent configuration updates automatically without
+   manual SSH intervention.</li>
+</ol>
+<h3 id="35-continuous-deployment-gitops">3.5 Continuous Deployment (GitOps)</h3>
+<p>Once a machine is bootstrapped, all subsequent state enforcement is shifted to a
+pull-based GitOps model to prevent configuration drift and remove the need for
+centralized push-based CD pipelines.</p>
+<ul>
+<li><strong>Comin Integration:</strong> Target physical configurations include the <code>comin</code>
+  module, configured to poll the primary Git repository.</li>
+<li><strong>Authentication:</strong> (If using a private repository) An authenticating deploy
+  key or token must be provisioned during the <code>nixos-anywhere</code> handoff via the
+  <code>--extra-files</code> flag, ensuring the newly minted VM has the credentials
+  required to pull from the remote immediately on its first boot.</li>
 </ul>
 
 

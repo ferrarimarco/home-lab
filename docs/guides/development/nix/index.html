@@ -824,6 +824,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#nix-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nix commands
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1161,6 +1170,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../specs/nas-lxc-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1207,6 +1239,15 @@
   <a href="#how-to-inspect-the-generated-nix-test-script" class="md-nav__link">
     <span class="md-ellipsis">
       How to inspect the generated Nix test script
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nix-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nix commands
     </span>
   </a>
   
@@ -1259,6 +1300,14 @@ executed for a given host, run:</p>
 <div class="highlight"><pre><span></span><code>nix<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--raw<span class="w"> </span>.#checks.x86_64-linux.&lt;hostname&gt;-test.testScript
 </code></pre></div>
 <p>This will print the complete generated Python source directly to your terminal.</p>
+<h2 id="nix-commands">Nix commands</h2>
+<ul>
+<li><code>nix flake metadata &lt;path&gt;</code>: show flake metadata</li>
+<li><code>nix flake show &lt;path&gt;</code>: show information about the flake</li>
+<li><code>nix fmt . -- --clear-cache</code>: format the Nix codebase</li>
+<li><code>nix build .#checks.x86_64-linux.lint-treefmt-nix --verbose</code>: run linting and
+  formatting checks</li>
+</ul>
 
 
 
