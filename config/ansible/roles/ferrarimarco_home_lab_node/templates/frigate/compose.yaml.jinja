@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     image: {{ container_images_ids["frigate"] }}
     # Ref: https://docs.frigate.video/frigate/installation#calculating-required-shm-size
-    shm_size: "64mb"
+    shm_size: "256mb"
     devices:
 {% if has_coral_usb_accelerator | default(false) %}
       - /dev/bus/usb:/dev/bus/usb
@@ -19,6 +19,7 @@ services:
       - {{ device }}:{{ device }}
 {% endfor %}
     ports:
+      - "1984:1984" # go2rtc
       - "5000:5000"
       - "8554:8554" # RTSP feeds
       - "8555:8555/tcp" # WebRTC over tcp

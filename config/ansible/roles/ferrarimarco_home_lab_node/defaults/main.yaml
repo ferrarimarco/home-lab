@@ -37,28 +37,9 @@ has_coral_pci_accelerator: false
 has_coral_usb_accelerator: false
 home_assistant_user_interface_host_port: 8123
 frigate_cameras:
-  # Keeping this as a record if we redeploy cam-1
-  # - name: cam-1
-  #   inputs:
-  #       path: rtsp://cam-1.{{ edge_environment_root_fqdn }}:554/11
-  #       roles:
-  #         - detect
-  #         - record
-  #         - rtmp
-  # Keeping this as a record if we redeploy cam-2
-  # - name: cam-2
-  #   inputs:
-  #     - ffmpeg:
-  #         # The only change to default arguments is the transport (TCP is the default, but we need UDP in this case)
-  #         input_args: -avoid_negative_ts make_zero -fflags +genpts+discardcorrupt -rtsp_transport udp -timeout 5000000 -use_wallclock_as_timestamps 1
-  #       path: rtsp://raspberrypi3.{{ edge_environment_root_fqdn }}:8554/stream1
-  #       roles:
-  #         - detect
-  #         - record
   - name: cam-3
     detect:
-      # Keep the fps setting for reference
-      # fps: 10
+      fps: 5
       height: 480
       width: 640
     inputs:
@@ -73,10 +54,6 @@ frigate_ffmpeg_output_arguments:
   record: preset-record-generic-audio-copy
 is_raspberry_pi: false
 monitoring_backend_dns_records_to_check:
-  # Keeping this as a record if we redeploy cam-1
-  # - check_name: "dns_cam_1_edge_lab_ferrari_how_a"
-  #   query_name: "cam-1.{{ edge_environment_root_fqdn }}"
-  #   query_type: "A"
   - check_name: "dns_cam_3_edge_lab_ferrari_how_a"
     query_name: "cam-3.{{ edge_environment_root_fqdn }}"
     query_type: "A"
@@ -114,8 +91,6 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "1.1.1.1"
   - "8.8.4.4"
   - "8.8.8.8"
-  # Keeping this as a record if we redeploy cam-1
-  # - "cam-1.{{ edge_environment_root_fqdn }}"
   - "cam-3.{{ edge_environment_root_fqdn }}"
   - "dns.google"
   - "ferrarimarco.info"

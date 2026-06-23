@@ -16,7 +16,7 @@ resource "proxmox_virtual_environment_vm" "vm_100" {
   machine         = "q35"
 
   cpu {
-    cores = 2
+    cores = 3
     type  = "host"
   }
 
