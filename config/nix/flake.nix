@@ -11,6 +11,11 @@
 
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    comin = {
+      url = "github:nlewo/comin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -121,6 +126,7 @@
             inherit system;
             specialArgs = { inherit inputs bootstrapPublicKeys; };
             modules = [
+              inputs.comin.nixosModules.comin
               (hostsDir + "/${host}/configuration.nix")
             ];
           };

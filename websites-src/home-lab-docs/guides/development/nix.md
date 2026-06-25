@@ -22,19 +22,18 @@
     machine.shell_interact()
     ```
 
-## How to inspect the generated Nix test script
+## Nix GitOps
 
-Because the Python test script is dynamically generated via Nix string
-interpolation, you cannot read it directly in the host's `test.nix`.
+Nix machines run [comin](https://github.com/nlewo/comin) to implement GitOps.
 
-To dry-run evaluate and inspect the exact compiled Python script that will be
-executed for a given host, run:
+Pushing commits to branches named `testing-<host-name>` makes comin pull
+changes, apply them, but not update the bootloader to boot from the newly
+generated configuration. Comin updates the bootloader when commits are pushed to
+the default branch. For more info, see
+[Comin how-tos](https://github.com/nlewo/comin/blob/main/docs/howtos.md).
 
-```shell
-nix eval --raw .#checks.x86_64-linux.<hostname>-test.testScript
-```
-
-This will print the complete generated Python source directly to your terminal.
+If the default branch changes, update `config/nix/roles/comin/default.nix`
+accordingly.
 
 ## Nix commands
 
