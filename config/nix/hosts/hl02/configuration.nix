@@ -4,6 +4,7 @@
   imports = [
     ../../roles/common
     ../../roles/proxmox-vm
+    ../../roles/comin
   ];
 
   networking.hostId = "92bbb1e6";
