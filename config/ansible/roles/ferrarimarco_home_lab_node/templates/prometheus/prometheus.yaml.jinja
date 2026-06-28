@@ -38,6 +38,14 @@ scrape_configs:
       - targets:
         - "blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
 
+  - job_name: 'nix-comin'
+    static_configs:
+{% for host in groups['all'] %}
+{% if hostvars[host].is_nixos | default(false) %}
+        - "{{ host }}:{{ monitoring_backend_comin_exporter_port }}"
+{% endif %}
+{% endfor %}
+
 {% for dns_record_to_check in monitoring_backend_dns_records_to_check %}
   - job_name: "blackbox-dns-{{ dns_record_to_check.check_name }}"
     metrics_path: /probe

@@ -42,3 +42,5 @@ accordingly.
 - `nix fmt . -- --clear-cache`: format the Nix codebase
 - `nix build .#checks.x86_64-linux.lint-treefmt-nix --verbose`: run linting and
   formatting checks
+- `nixos-rebuild switch --flake ".#<host>" --target-host "<ssh-user>@<host>" --sudo`:
+  apply changes to host when it's not running comin.

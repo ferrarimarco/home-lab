@@ -97,6 +97,7 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "{{ edge_environment_gateway.fqdn }}"
   - "github.com"
   - "google.com"
+monitoring_backend_comin_exporter_port: 4243
 monitoring_backend_grafana_host_port: 3000
 monitoring_backend_prometheus_host_port: 9090
 monitoring_backend_prometheus_node_exporter_container_port: 9115
