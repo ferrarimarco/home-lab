@@ -816,9 +816,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-inspect-the-generated-nix-test-script" class="md-nav__link">
+  <a href="#nix-gitops" class="md-nav__link">
     <span class="md-ellipsis">
-      How to inspect the generated Nix test script
+      Nix GitOps
     </span>
   </a>
   
@@ -1236,9 +1236,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-inspect-the-generated-nix-test-script" class="md-nav__link">
+  <a href="#nix-gitops" class="md-nav__link">
     <span class="md-ellipsis">
-      How to inspect the generated Nix test script
+      Nix GitOps
     </span>
   </a>
   
@@ -1292,14 +1292,15 @@
 </code></pre></div>
 </li>
 </ol>
-<h2 id="how-to-inspect-the-generated-nix-test-script">How to inspect the generated Nix test script</h2>
-<p>Because the Python test script is dynamically generated via Nix string
-interpolation, you cannot read it directly in the host's <code>test.nix</code>.</p>
-<p>To dry-run evaluate and inspect the exact compiled Python script that will be
-executed for a given host, run:</p>
-<div class="highlight"><pre><span></span><code>nix<span class="w"> </span><span class="nb">eval</span><span class="w"> </span>--raw<span class="w"> </span>.#checks.x86_64-linux.&lt;hostname&gt;-test.testScript
-</code></pre></div>
-<p>This will print the complete generated Python source directly to your terminal.</p>
+<h2 id="nix-gitops">Nix GitOps</h2>
+<p>Nix machines run <a href="https://github.com/nlewo/comin">comin</a> to implement GitOps.</p>
+<p>Pushing commits to branches named <code>testing-&lt;host-name&gt;</code> makes comin pull
+changes, apply them, but not update the bootloader to boot from the newly
+generated configuration. Comin updates the bootloader when commits are pushed to
+the default branch. For more info, see
+<a href="https://github.com/nlewo/comin/blob/main/docs/howtos.md">Comin how-tos</a>.</p>
+<p>If the default branch changes, update <code>config/nix/roles/comin/default.nix</code>
+accordingly.</p>
 <h2 id="nix-commands">Nix commands</h2>
 <ul>
 <li><code>nix flake metadata &lt;path&gt;</code>: show flake metadata</li>
