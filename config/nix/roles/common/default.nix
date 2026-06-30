@@ -22,6 +22,11 @@
     };
   };
 
+  security.sudo = {
+    enable = true;
+    wheelNeedsPassword = false;
+  };
+
   # System Maintenance
   nix.settings = {
     experimental-features = [

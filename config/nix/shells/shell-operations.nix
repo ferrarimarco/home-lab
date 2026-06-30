@@ -4,6 +4,7 @@ pkgs.mkShell {
   packages = with pkgs; [
     jq
     nixos-anywhere
+    nixos-rebuild
     terraform
   ];
 
