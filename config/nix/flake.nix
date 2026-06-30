@@ -116,7 +116,7 @@
               // extraArgs
             );
           }
-        ) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/configuration.nix")) hostNames)
+        ) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/default.nix")) hostNames)
       );
 
       dynamicNixosConfigurations = lib.listToAttrs (
@@ -127,10 +127,10 @@
             specialArgs = { inherit inputs bootstrapPublicKeys; };
             modules = [
               inputs.comin.nixosModules.comin
-              (hostsDir + "/${host}/configuration.nix")
+              (hostsDir + "/${host}/default.nix")
             ];
           };
-        }) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/configuration.nix")) hostNames)
+        }) (builtins.filter (host: builtins.pathExists (hostsDir + "/${host}/default.nix")) hostNames)
       );
 
     in
