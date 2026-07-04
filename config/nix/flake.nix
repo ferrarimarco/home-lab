@@ -36,7 +36,7 @@
       inherit (nixpkgs) lib;
 
       sshKeysDir = ../ansible/playbooks/files/ssh;
-      homeLabBootstrapPublicKeyPath = sshKeysDir + "/home-lab-bootstrap-ssh.pub";
+      homeLabBootstrapPublicKeyPath = sshKeysDir + "/home-lab-node-ssh-key.pub";
 
       hasPublicKey = builtins.pathExists homeLabBootstrapPublicKeyPath;
       bootstrapPublicKeys =

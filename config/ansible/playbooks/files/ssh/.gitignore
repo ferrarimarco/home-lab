@@ -3,3 +3,6 @@
 
 # ... except for this one.
 !.gitignore
+
+# Allow public key files
+!*.pub
