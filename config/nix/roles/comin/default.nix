@@ -2,16 +2,16 @@
 
 {
   services.comin = {
-    enable = true;
+    enable = lib.mkDefault true;
 
-    repositorySubdir = "config/nix";
+    repositorySubdir = lib.mkDefault "config/nix";
 
     # Prometheus exporter
     exporter = {
-      openFirewall = true;
+      openFirewall = lib.mkDefault true;
     };
 
-    remotes = [
+    remotes = lib.mkDefault [
       {
         name = "origin";
         url = "https://github.com/ferrarimarco/home-lab.git";
@@ -24,6 +24,6 @@
       }
     ];
 
-    hostname = config.networking.hostName;
+    hostname = lib.mkDefault config.networking.hostName;
   };
 }
