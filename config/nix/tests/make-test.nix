@@ -102,6 +102,17 @@ pkgs.testers.nixosTest {
         machine.wait_for_open_port(22)
       '';
 
+      # Verify that passwordless sudo works for our administrative user account
+      sudoCheck = lib.optionalString (builtins.hasAttr "ferrarimarco" node_config.users.users) ''
+        print("--- Testing Passwordless Sudo ---")
+
+        # Drop down to an unprivileged user shell and try to run a command with sudo.
+        output = machine.succeed("su - ferrarimarco -c 'sudo whoami'").strip()
+
+        assert output == "root", f"Sudo execution returned user '{output}' instead of elevating to 'root'!"
+        print("Passwordless sudo verified successfully for user: ferrarimarco")
+      '';
+
       # Verify QEMU guest agent if guest agent service is enabled
       qemuAgentCheck = lib.optionalString node_config.services.qemuGuest.enable ''
         machine.wait_for_file("/dev/virtio-ports/org.qemu.guest_agent.0")
@@ -176,10 +187,11 @@ pkgs.testers.nixosTest {
 
       # Verify hostname configuration
       current_hostname = machine.succeed("hostname").strip()
-      assert current_hostname == "${hostName}", f"Host routing divergence! Expected kernel hostname '${hostName}', but got: {current_hostname}"
+      assert current_hostname == "${hostName}", f"Expected kernel hostname '${hostName}', but got: {current_hostname}"
 
       # Dynamic service assertions
       ${sshCheck}
+      ${sudoCheck}
       ${qemuAgentCheck}
       ${cominCheck}
 
