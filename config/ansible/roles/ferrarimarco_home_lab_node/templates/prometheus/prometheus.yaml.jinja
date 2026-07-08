@@ -38,8 +38,9 @@ scrape_configs:
       - targets:
         - "blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
 
-  - job_name: 'nix-comin'
+  - job_name: nix-comin
     static_configs:
+      - targets:
 {% for host in groups['all'] %}
 {% if hostvars[host].is_nixos | default(false) %}
         - "{{ host }}:{{ monitoring_backend_comin_exporter_port }}"
@@ -129,7 +130,6 @@ scrape_configs:
 {% endif %}
 {% endfor %}
 
-{% if configure_monitoring_nut %}
   - job_name: ups
     static_configs:
       - targets:
@@ -146,7 +146,6 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: {{ monitoring_nut_http_endpoint_fqdn }}:{{ monitoring_nut_exporter_port }}
-{% endif %}
 
   - job_name: "network-stack-coredns"
     static_configs:
