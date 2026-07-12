@@ -18,7 +18,6 @@ FROM ghcr.io/flaresolverr/flaresolverr:v3.4.6 AS flaresolverr
 FROM lscr.io/linuxserver/lidarr:3.1.0 AS lidarr
 FROM lscr.io/linuxserver/prowlarr:2.3.0 AS prowlarr
 FROM lscr.io/linuxserver/radarr:6.0.4 AS radarr
-FROM lscr.io/linuxserver/readarr:0.4.19-nightly AS readarr
 FROM lscr.io/linuxserver/sonarr:4.0.16 AS sonarr
 
 # monitoring
