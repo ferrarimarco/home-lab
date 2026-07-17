@@ -9,7 +9,7 @@
 | **Security Guardrail**                      | **Fully Implemented** | Pure-evaluation check blocks tracked private keys in flake.nix.                                 |
 | **Operations Shell**                        | **Fully Implemented** | Operations shell includes both `terraform` and `nixos-anywhere`.                                |
 | **Provisioning and installation lifecycle** | **Fully Implemented** | Operational choreography and automated handoff sequence defined but pending automation scripts. |
-| **GitOps CD (Comin)**                       | **Not Implemented**   | Pull-based continuous deployment for Day-2 state management.                                    |
+| **GitOps CD (Comin)**                       | **Fully Implemented** | Pull-based continuous deployment for Day-2 state management.                                    |
 
 ## 1. Goal
 

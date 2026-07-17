@@ -2,19 +2,19 @@
 
 ## Implementation Status
 
-| Component / Feature            | Status      | Details                                                       |
-| :----------------------------- | :---------- | :------------------------------------------------------------ |
-| **NixOS LXC Template Package** | **Missing** | `nixos-generators` `proxmox-lxc` format package.              |
-| **`proxmox-lxc` Role**         | **Missing** | NixOS role for LXC-specific base configuration.               |
-| **`nas` Role (NFS)**           | **Missing** | NixOS role enabling `nfs-kernel-server` with export config.   |
-| **`nas` Role (SMB)**           | **Missing** | NixOS role enabling Samba with declarative share definitions. |
-| **Host Config (`nas-pve1`)**   | **Missing** | Logical and physical NixOS host config for the pve1 instance. |
-| **Host Config (`nas-pve2`)**   | **Missing** | Logical and physical NixOS host config for the pve2 instance. |
-| **Terraform LXC (`pve1`)**     | **Missing** | `proxmox_virtual_environment_container` for pve1.             |
-| **Terraform LXC (`pve2`)**     | **Missing** | `proxmox_virtual_environment_container` for pve2.             |
-| **Terraform Template Upload**  | **Missing** | `proxmox_virtual_environment_download_file` for LXC template. |
-| **Host Integration Tests**     | **Missing** | Auto-discovered tests for `nas-pve1` and `nas-pve2`.          |
-| **Flake Registration**         | **Missing** | `nixosConfigurations` entries for both NAS hosts.             |
+| Component / Feature            | Status                | Details                                                       |
+| :----------------------------- | :-------------------- | :------------------------------------------------------------ |
+| **NixOS LXC Template Package** | **Fully Implemented** | `nixos-generators` `proxmox-lxc` format package.              |
+| **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration.               |
+| **`nas` Role (NFS)**           | **Missing**           | NixOS role enabling `nfs-kernel-server` with export config.   |
+| **`nas` Role (SMB)**           | **Missing**           | NixOS role enabling Samba with declarative share definitions. |
+| **Host Config (`nas-pve1`)**   | **Missing**           | Logical and physical NixOS host config for the pve1 instance. |
+| **Host Config (`nas-pve2`)**   | **Missing**           | Logical and physical NixOS host config for the pve2 instance. |
+| **Terraform LXC (`pve1`)**     | **Missing**           | `proxmox_virtual_environment_container` for pve1.             |
+| **Terraform LXC (`pve2`)**     | **Missing**           | `proxmox_virtual_environment_container` for pve2.             |
+| **Terraform Template Upload**  | **Missing**           | `proxmox_virtual_environment_download_file` for LXC template. |
+| **Host Integration Tests**     | **Missing**           | Auto-discovered tests for `nas-pve1` and `nas-pve2`.          |
+| **Flake Registration**         | **Missing**           | `nixosConfigurations` entries for both NAS hosts.             |
 
 ## 1. Goal
 

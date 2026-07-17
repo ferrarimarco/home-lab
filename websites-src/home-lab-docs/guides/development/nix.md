@@ -44,3 +44,8 @@ accordingly.
   formatting checks
 - `nixos-rebuild switch --flake ".#<host>" --target-host "<ssh-user>@<host>" --sudo`:
   apply changes to host when it's not running comin.
+- `nix flake check <path>`: run all flake checks
+- `nix build <path>#checks.<check-name>`: run a specific check
+- `nix build <path>#<package-name>`: build specific package
+    - `nix build --rebuild <path>#<package-name>`: rebuild a package
+    - `nix build --print-build-logs <path>#<package-name>`: print build log
