@@ -15,8 +15,13 @@
   # Standard VirtIO drivers for Proxmox
   boot.initrd.availableKernelModules = [
     "ahci"
-    "usbhid"
+    "ehci_pci"
+    "sd_mod"
     "sr_mod"
+    "uhci_hcd"
+    "usbhid"
+    "virtio_pci"
+    "virtio_scsi"
   ];
 
   # Enable the QEMU Guest Agent
@@ -24,6 +29,10 @@
 
   # Enable growing the root partition on boot
   boot.growPartition = lib.mkDefault true;
+
+  boot.kernelModules = [
+    "kvm-intel" # KVM virtualization helper modules
+  ];
 
   # Optimize for Proxmox Serial Console (xterm.js)
   boot.kernelParams = [ "console=ttyS0" ];
@@ -40,4 +49,6 @@
   environment.systemPackages = with pkgs; [
     pciutils # Useful for debugging Proxmox passthrough
   ];
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }
