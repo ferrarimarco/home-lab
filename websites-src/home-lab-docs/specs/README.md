@@ -11,10 +11,19 @@ testing rationale before code implementation.
 | [**Home Lab Bootstrapping**](./home-lab-bootstrapping.md)                   | Global VM installation infrastructure: Nix-native custom installer ISO, secure bootstrap key loading with Git-tracking guardrails, and `nixos-anywhere`. | **Fully Implemented**         |
 | [**Proxmox VM Config (`hl02`)**](./hl02-proxmox-vm.md)                      | Host-specific virtual hardware, partition layouts (Disko), and Terraform definitions for `hl02`.                                                         | **Fully Implemented**         |
 | [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                             | **Fully Implemented**         |
-| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as NFS and SMB shares via bind mounts, with Terraform provisioning.                 | **Missing**                   |
+| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as NFS and SMB shares via bind mounts, with Terraform provisioning.                 | **Work in progress**          |
 
-## Specifications to write
+## Specifications to write / TODOs
 
 - Generate a Home Lab bootstrapping keypair.
 - Fully automate Terraform runs. Reference:
   [Running Terraform in automation](https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform).
+- Fully automate provisioning and configuration of new hosts.
+- Minimize external dependencies:
+    - NixOS ISO server host
+    - Terraform provider registry
+- Nix tests
+    - Check that configured users are present
+    - Check that configured users have their SSH keys authorized (reuse the
+      existing bootstrap key check because it already does most of the stuff we
+      need for this check).

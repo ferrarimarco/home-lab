@@ -26,5 +26,18 @@ repository:
 
     To enable the configuration of the Proxmox IAM, create the following files:
     - `config/terraform/environments/proxmox-pve1-root-secrets.tfvars` to store
-      the root credentials (password or API token) of the `pve1` host root
-      password.
+      the root credentials (password or API token).
+
+## Configure NixOS virtual machines and containers
+
+1. Open the `operations` Nix shell, if needed:
+
+    ```bash
+    nix develop ./config/nix#operations
+    ```
+
+1. Run the host configuration script:
+
+    ```bash
+    scripts/bootstrap-host.sh "<hostname>" "<host-mac-address>"
+    ```
