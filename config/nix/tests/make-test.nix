@@ -53,45 +53,71 @@ in
 pkgs.testers.nixosTest {
   name = "${hostName}-test";
 
-  nodes.machine =
-    { config, ... }:
+nodes.machine =
+    { config, options, ... }:
     {
-      _module.args = nodeArgs // {
-        inherit inputs;
-      };
-
+      # imports must live at the absolute top-level of the module
       imports = [
         inputs.comin.nixosModules.comin
         hostConfiguration
         extraConfig
       ];
 
-      # Ensure the test runs in a predictable environment
-      # Sometimes modules might try to override the hostname; forcing it ensures
-      # the test derivation name and the internal OS state remain synced.
-      networking.hostName = lib.mkForce hostName;
+      # All actual option assignments go inside 'config' so they can be merged conditionally
+      config = lib.mkMerge [
+        # --- Unconditional Settings (Always applied) ---
+        {
+          _module.args = nodeArgs // {
+            inherit inputs;
+          };
 
-      # Dynamic VM hardware setup:
-      # If the guest agent is enabled in the NixOS config, automatically
-      # provision the virtual serial port hardware in QEMU.
-      virtualisation.qemu.options = lib.mkIf config.services.qemuGuest.enable [
-        "-device virtio-serial"
-        "-device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0"
-        "-chardev null,id=qga0"
+          # Dynamic VM hardware setup:
+          # If the guest agent is enabled in the NixOS config, automatically
+          # provision the virtual serial port hardware in QEMU.
+          virtualisation.qemu.options = lib.mkIf config.services.qemuGuest.enable [
+            "-device virtio-serial"
+            "-device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0"
+            "-chardev null,id=qga0"
+          ];
+
+          # Ensure the test runs in a predictable environment
+          # Sometimes modules might try to override the hostname; forcing it ensures
+          # the test derivation name and the internal OS state remain synced.
+          networking.hostName = lib.mkVMOverride hostName;
+
+          # If the host imports the comin role, divert its target to look at the
+          # sandbox's local file system instead of a remote repository.
+          services.comin.remotes = lib.mkIf config.services.comin.enable (
+            lib.mkVMOverride [
+              {
+                name = "origin";
+                url = "file://${mockRepoPath}";
+                # Shorten the poll interval so we don't trigger the test timeout
+                poller.period = 2;
+              }
+            ]
+          );
+        }
+
+        # --- LXC Compatibility Settings ---
+        # If this is an LXC container (indicated by the presence of root-level proxmoxLXC options),
+        # apply container-to-VM compatibility overrides so the QEMU VM test runner can boot it.
+        (lib.optionalAttrs (options ? proxmoxLXC) {
+          # Allow Nix to manage the hostname during tests if the LXC module is active
+          proxmoxLXC.manageHostName = lib.mkVMOverride true;
+
+          boot.isContainer = lib.mkVMOverride false;
+          boot.loader.initScript.enable = lib.mkVMOverride false;
+          boot.kernel.enable = lib.mkVMOverride true;
+          boot.modprobeConfig.enable = lib.mkVMOverride true;
+          services.udev.enable = lib.mkVMOverride true;
+
+          fileSystems."/" = lib.mkVMOverride {
+            device = "/dev/root";
+            fsType = "ext4";
+          };
+        })
       ];
-
-      # If the host imports the comin role, divert its target to look at the
-      # sandbox's local file system instead of a remote repository.
-      services.comin.remotes = lib.mkIf config.services.comin.enable (
-        lib.mkVMOverride [
-          {
-            name = "origin";
-            url = "file://${mockRepoPath}";
-            # Shorten the poll interval so we don't trigger the test timeout
-            poller.period = 2;
-          }
-        ]
-      );
     };
 
   # Dynamic test script generation:
