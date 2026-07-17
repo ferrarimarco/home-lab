@@ -3,6 +3,7 @@
   lib,
   inputs,
   hostConfiguration,
+  bootstrapPublicKeys ? [ ],
   extraConfig ? { },
   extraTestScript ? "",
   ...
@@ -15,6 +16,7 @@ let
     "lib"
     "inputs"
     "hostConfiguration"
+    "bootstrapPublicKeys"
     "extraConfig"
     "extraTestScript"
   ];
@@ -24,7 +26,10 @@ let
     inputs = { };
     self = { };
   }
-  // passedArgs;
+  // passedArgs
+  // {
+    inherit bootstrapPublicKeys;
+  };
 
   eval = pkgs.testers.nixosTest {
     name = "eval-host-name";
@@ -101,6 +106,36 @@ pkgs.testers.nixosTest {
       sshCheck = lib.optionalString node_config.services.openssh.enable ''
         machine.wait_for_open_port(22)
       '';
+
+      # Hosts that are expected to have the bootstrap SSH key configured for the root user
+      isBootstrapHost = lib.elem hostName [
+        "minimal-iso"
+        "minimal-lxc"
+      ];
+
+      bootstrapKeyCheck = lib.optionalString (isBootstrapHost && bootstrapPublicKeys != [ ]) (
+        let
+          joinedKeys = pkgs.lib.concatStringsSep "\n" bootstrapPublicKeys;
+        in
+        ''
+          print("--- Verifying Bootstrap Public Keys ---")
+          actual_keys = machine.succeed("cat /etc/ssh/authorized_keys.d/root").strip()
+          expected_keys = """
+          ${joinedKeys}
+          """.strip()
+
+          for key in expected_keys.splitlines():
+              trimmed_key = key.strip()
+              if not trimmed_key:
+                  continue
+
+              print(f"Checking for bootstrap key: {trimmed_key[:30]}...")
+              if trimmed_key in actual_keys:
+                  print("→ Key verified in system environment!")
+              else:
+                  raise Exception(f"Security assertion failed: Expected bootstrap key missing from target node!\nMissing key: {trimmed_key}")
+        ''
+      );
 
       # Verify that passwordless sudo works for our administrative user account
       sudoCheck = lib.optionalString (builtins.hasAttr "ferrarimarco" node_config.users.users) ''
@@ -191,6 +226,7 @@ pkgs.testers.nixosTest {
 
       # Dynamic service assertions
       ${sshCheck}
+      ${bootstrapKeyCheck}
       ${sudoCheck}
       ${qemuAgentCheck}
       ${cominCheck}
