@@ -27,3 +27,7 @@ testing rationale before code implementation.
     - Check that configured users have their SSH keys authorized (reuse the
       existing bootstrap key check because it already does most of the stuff we
       need for this check).
+- Stable serial adapter assignment:
+    - Create a udev rule:
+      `echo 'SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d4", SYMLINK+="zigbee_dongle"' | sudo tee /etc/udev/rules.d/99-zigbee.rules`
+    - Change the mapping in docker
