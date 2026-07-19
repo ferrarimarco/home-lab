@@ -30,4 +30,4 @@ testing rationale before code implementation.
 - Stable serial adapter assignment:
     - Create a udev rule:
       `echo 'SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d4", SYMLINK+="zigbee_dongle"' | sudo tee /etc/udev/rules.d/99-zigbee.rules`
-    - Change the mapping in docker
+    - Change the mapping in Docker

@@ -49,3 +49,4 @@ accordingly.
 - `nix build <path>#<package-name>`: build specific package
     - `nix build --rebuild <path>#<package-name>`: rebuild a package
     - `nix build --print-build-logs <path>#<package-name>`: print build log
+- `nix-store --gc`: clean the Nix store

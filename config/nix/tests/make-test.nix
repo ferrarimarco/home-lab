@@ -53,7 +53,7 @@ in
 pkgs.testers.nixosTest {
   name = "${hostName}-test";
 
-nodes.machine =
+  nodes.machine =
     { config, options, ... }:
     {
       # imports must live at the absolute top-level of the module

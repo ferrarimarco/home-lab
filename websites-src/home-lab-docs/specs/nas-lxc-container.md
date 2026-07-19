@@ -2,19 +2,19 @@
 
 ## Implementation Status
 
-| Component / Feature            | Status                | Details                                                       |
-| :----------------------------- | :-------------------- | :------------------------------------------------------------ |
-| **NixOS LXC Template Package** | **Fully Implemented** | `nixos-generators` `proxmox-lxc` format package.              |
-| **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration.               |
-| **`nas` Role (NFS)**           | **Missing**           | NixOS role enabling `nfs-kernel-server` with export config.   |
-| **`nas` Role (SMB)**           | **Missing**           | NixOS role enabling Samba with declarative share definitions. |
-| **Host Config (`nas-pve1`)**   | **Missing**           | Logical and physical NixOS host config for the pve1 instance. |
-| **Host Config (`nas-pve2`)**   | **Missing**           | Logical and physical NixOS host config for the pve2 instance. |
-| **Terraform LXC (`pve1`)**     | **Missing**           | `proxmox_virtual_environment_container` for pve1.             |
-| **Terraform LXC (`pve2`)**     | **Missing**           | `proxmox_virtual_environment_container` for pve2.             |
-| **Terraform Template Upload**  | **Missing**           | `proxmox_virtual_environment_download_file` for LXC template. |
-| **Host Integration Tests**     | **Missing**           | Auto-discovered tests for `nas-pve1` and `nas-pve2`.          |
-| **Flake Registration**         | **Missing**           | `nixosConfigurations` entries for both NAS hosts.             |
+| Component / Feature            | Status                | Details                                                                                        |
+| :----------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------- |
+| **NixOS LXC Template Package** | **Fully Implemented** | `nixos-lxc-bootstrap` flake package builds a `proxmox-lxc` tarball via `system.build.tarball`. |
+| **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration.                                                |
+| **`nas` Role (NFS)**           | **Missing**           | NixOS role enabling `nfs-kernel-server` with export config.                                    |
+| **`nas` Role (SMB)**           | **Missing**           | NixOS role enabling Samba with declarative share definitions.                                  |
+| **Host Config (`nas-pve1`)**   | **Missing**           | Logical and physical NixOS host config for the pve1 instance.                                  |
+| **Host Config (`nas-pve2`)**   | **Missing**           | Logical and physical NixOS host config for the pve2 instance.                                  |
+| **Terraform LXC (`pve1`)**     | **Missing**           | `proxmox_virtual_environment_container` for pve1.                                              |
+| **Terraform LXC (`pve2`)**     | **Missing**           | `proxmox_virtual_environment_container` for pve2.                                              |
+| **Terraform Template Upload**  | **Missing**           | `proxmox_virtual_environment_download_file` for LXC template.                                  |
+| **Host Integration Tests**     | **Missing**           | Auto-discovered tests for `nas-pve1` and `nas-pve2`.                                           |
+| **Flake Registration**         | **Missing**           | `nixosConfigurations` entries for both NAS hosts.                                              |
 
 ## 1. Goal
 
@@ -92,27 +92,32 @@ A new base role for any NixOS LXC container running on Proxmox, analogous to the
 existing `proxmox-vm` role.
 
 ```nix
-{ modulesPath, lib, ... }:
+{ lib, modulesPath, ... }:
 
 {
   imports = [
     (modulesPath + "/virtualisation/proxmox-lxc.nix")
   ];
 
-  boot.isContainer = true;
+  proxmoxLXC = {
+    enable = true;
+    privileged = false;
+    manageNetwork = false; # Let systemd-networkd consume network contexts from PVE
+    manageHostName = false; # Let the container extract its identity from /etc/hostname
+  };
 
-  # Suppress systemd units that fail inside LXC
-  systemd.suppressedSystemUnits = [
-    "dev-mqueue.mount"
-    "sys-kernel-debug.mount"
-    "sys-fs-fuse-connections.mount"
-  ];
+  # Suppress errors from standard hardware components that do not exist inside a container
+  services.udev.enable = lib.mkForce false;
+  powerManagement.enable = lib.mkForce false;
 
-  # LXC containers do not use a bootloader
-  boot.loader.systemd-boot.enable = lib.mkForce false;
-  boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
+  # LXC containers share the host kernel; do not try to load kernel modules or modify sysctls
+  boot.kernel.enable = lib.mkForce false;
+  boot.modprobeConfig.enable = lib.mkForce false;
 
-  networking.useDHCP = lib.mkDefault true;
+  # systemd-logind fails to monitor when it runs inside unprivileged containers
+  systemd.services.systemd-logind.serviceConfig.Restart = "on-failure";
+
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }
 ```
 

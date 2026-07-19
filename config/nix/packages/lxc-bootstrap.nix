@@ -11,6 +11,9 @@ let
 
     (_: {
       users.users.root.openssh.authorizedKeys.keys = bootstrapPublicKeys;
+
+      # Pin the release the bootstrap image was built against.
+      system.stateVersion = "25.11";
     })
   ];
 

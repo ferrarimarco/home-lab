@@ -135,6 +135,14 @@
             bootstrapPublicKeys
             ;
         };
+        nixos-lxc-bootstrap = import ./packages/lxc-bootstrap.nix {
+          inherit
+            nixpkgs
+            system
+            inputs
+            bootstrapPublicKeys
+            ;
+        };
       };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
