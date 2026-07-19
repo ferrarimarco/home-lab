@@ -24,6 +24,8 @@ jobs:
         working-directory: config/nix
     outputs:
       hosts: ${{ steps.set-matrix.outputs.hosts }}
+      machines: ${{ steps.set-matrix.outputs.machines }}
+      packages: ${{ steps.set-matrix.outputs.packages }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -33,17 +35,33 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
 
-      - name: Discover Host Tests
+      - name: Discover build matrices
         id: set-matrix
         run: |
+          # Test hosts (VM/container integration tests): checks named host-<name>-test.
           # 1. Grab json containing all keys inside checks
           # 2. Extract keys starting with "host-" AND ending in "-test"
           # 3. Strip both prefixes and suffixes to yield the clean, raw hostname
           JSON_RAW=$(nix eval .#checks.x86_64-linux --json --apply 'builtins.attrNames')
           HOSTS_ARRAY=$(echo "$JSON_RAW" | jq -c '[.[] | select(startswith("host-") and endswith("-test")) | sub("^host-"; "") | sub("-test$"; "")]')
 
+          # Real machines: hosts deployed via nixos-anywhere carry a disko.nix (disk
+          # partitioning). Their deployable artifact is system.build.toplevel. Hosts
+          # without disko.nix (e.g. the installer-ISO and role-test fixtures) are not
+          # built as toplevel; they are covered by the VM tests and/or image packages.
+          MACHINES_ARRAY=$(for d in hosts/*/; do
+            [ -f "${d}default.nix" ] && [ -f "${d}disko.nix" ] && basename "$d"
+          done | jq -Rnc '[inputs]')
+
+          # Deployable images are exposed as flake packages (installer ISO, LXC tarball).
+          PACKAGES_ARRAY=$(nix eval .#packages.x86_64-linux --json --apply 'builtins.attrNames')
+
           echo "Discovered host matrix targets: $HOSTS_ARRAY"
+          echo "Discovered machine matrix targets: $MACHINES_ARRAY"
+          echo "Discovered package matrix targets: $PACKAGES_ARRAY"
           echo "hosts=$HOSTS_ARRAY" >> "$GITHUB_OUTPUT"
+          echo "machines=$MACHINES_ARRAY" >> "$GITHUB_OUTPUT"
+          echo "packages=$PACKAGES_ARRAY" >> "$GITHUB_OUTPUT"
 
   static-checks:
     name: Static checks and formatting
@@ -101,14 +119,14 @@ jobs:
         env:
           MATRIX_HOST: ${{ matrix.host }}
 
-  image-build-tests:
-    name: Build image (${{ matrix.host }})
+  machine-build-tests:
+    name: Build machine toplevel (${{ matrix.host }})
     needs:
       - detect-tests
       - static-checks
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.workflow }}-physical-${{ matrix.host }}-${{ github.head_ref || github.ref }}
+      group: ${{ github.workflow }}-machine-${{ matrix.host }}-${{ github.head_ref || github.ref }}
       cancel-in-progress: true
     defaults:
       run:
@@ -116,7 +134,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: ${{ fromJson(needs.detect-tests.outputs.hosts) }}
+        host: ${{ fromJson(needs.detect-tests.outputs.machines) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -129,7 +147,40 @@ jobs:
       - name: Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
 
-      - name: Evaluate and Build Image
+      - name: Evaluate and Build Machine Toplevel
         run: nix build ".#nixosConfigurations.${MATRIX_HOST}.config.system.build.toplevel" --verbose
         env:
           MATRIX_HOST: ${{ matrix.host }}
+
+  package-build-tests:
+    name: Build image package (${{ matrix.package }})
+    needs:
+      - detect-tests
+      - static-checks
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-package-${{ matrix.package }}-${{ github.head_ref || github.ref }}
+      cancel-in-progress: true
+    defaults:
+      run:
+        working-directory: config/nix
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.detect-tests.outputs.packages) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
+
+      - name: Magic Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+
+      - name: Build Image Package
+        run: nix build ".#packages.x86_64-linux.${MATRIX_PACKAGE}" --verbose
+        env:
+          MATRIX_PACKAGE: ${{ matrix.package }}
