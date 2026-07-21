@@ -23,5 +23,11 @@ let
     modules = lxcModules;
   };
 
+  inherit (lxcSystem.config.system.build) tarball;
+
 in
-lxcSystem.config.system.build.tarball
+tarball
+// {
+  modules = lxcModules;
+  inherit bootstrapPublicKeys;
+}
