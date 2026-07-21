@@ -29,6 +29,13 @@ that do not need their own kernel, dedicated disk images, or UEFI firmware. LXC
 containers share the host kernel, start in seconds, and consume minimal memory
 overhead while still providing process and filesystem isolation.
 
+For workloads that serve data from the host's own storage, LXC has a further
+advantage: a bind mount passes a host directory straight through to the
+container, so I/O lands directly on the host filesystem. A VM instead keeps its
+data on a virtual disk — a guest filesystem layered on a zvol or image file on
+top of the host filesystem — stacking one filesystem on another and paying the
+resulting write-amplification overhead. Bind mounts avoid that entirely.
+
 ### 2.2 Why NixOS Inside the Container
 
 The existing infrastructure is fully declarative (NixOS hosts, Nix flake,
