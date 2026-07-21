@@ -135,8 +135,8 @@ pkgs.testers.nixosTest {
 
       # Hosts that are expected to have the bootstrap SSH key configured for the root user
       isBootstrapHost = lib.elem hostName [
-        "minimal-iso"
-        "minimal-lxc"
+        "nixos"
+        "nixos-lxc"
       ];
 
       bootstrapKeyCheck = lib.optionalString (isBootstrapHost && bootstrapPublicKeys != [ ]) (
