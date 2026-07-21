@@ -1,17 +1,17 @@
-{ lib, ... }:
+{ pkgs, self, ... }:
 
+let
+  inherit (pkgs.stdenv.hostPlatform) system;
+  lxcBootstrap = self.packages.${system}.nixos-lxc-bootstrap;
+in
 {
   extraConfig = {
-    imports = [
-      ../../roles/proxmox-lxc
-    ];
-
-    # Override: QEMU requires a root filesystem layout to orchestrate the test VM.
-    # We provide a mock mount point here so it can pass the kernel boot boundary.
-    fileSystems."/" = lib.mkVMOverride {
-      device = "/dev/root";
-      fsType = "ext4";
-    };
+    # Import the exact module set the nixos-lxc-bootstrap package is built from,
+    # so this fixture actually exercises the package (not just the proxmox-lxc
+    # role). The QEMU root-filesystem mock and other LXC->VM overrides are
+    # injected by the test harness (make-test.nix) whenever the proxmox-lxc
+    # options are present.
+    imports = lxcBootstrap.modules;
 
     virtualisation.memorySize = 1024;
     virtualisation.graphics = false;
