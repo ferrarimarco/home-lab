@@ -58,13 +58,15 @@
       #
       # Mechanism:
       # 1. Scan the ./hosts directory for subdirectories (each representing a host).
-      # 2. Filter out directories that do not contain a 'test.nix' file.
-      # 3. For each valid host, import its 'test.nix' and format it as a check
-      #    attribute: { name = "<hostname>-test"; value = <test-derivation>; }.
+      # 2. Keep the ones containing a 'default.nix' file (the same marker that
+      #    registers the host in nixosConfigurations below).
+      # 3. For each host, compose its 'configuration.nix' with the optional
+      #    'test-override.nix' via tests/make-test.nix and register the result as a
+      #    check attribute: { name = "host-<host>-test"; value = <test-derivation>; }.
       # 4. Convert the list of attributes into a set and merge it into flake 'checks'.
       #
-      # This makes the test suite zero-maintenance: adding a new host with a 'test.nix'
-      # will automatically include it in 'nix flake check' and CI without modifications here.
+      # This makes the test suite zero-maintenance: adding a new host directory with
+      # a 'default.nix' automatically includes it in 'nix flake check' and CI.
       hostsDir = ./hosts;
       hostNames = builtins.attrNames (
         lib.filterAttrs (_name: type: type == "directory") (builtins.readDir hostsDir)

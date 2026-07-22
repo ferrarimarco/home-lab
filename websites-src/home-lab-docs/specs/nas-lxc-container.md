@@ -67,8 +67,8 @@ Concretely, tracing the `media` and `backups` datasets down the stack:
   the only difference in the NixOS layer is `networking.hostName` (`nas-pve1` vs
   `nas-pve2`).
 
-The host-dependent values stop at the Terraform bind-mount *source*. Because the
-*target* (`/mnt/shared/...`) is uniform, the NixOS layer has nothing
+The host-dependent values stop at the Terraform bind-mount _source_. Because the
+_target_ (`/mnt/shared/...`) is uniform, the NixOS layer has nothing
 host-specific left to express beyond the hostname — the one exception being
 optional per-host shares, kept small and additive (see
 [§5.1](#51-adding-per-host-shares)).
@@ -82,17 +82,17 @@ replication), and the container sees plain directories.
 
 ### 2.3 Why LXC Instead of a VM
 
-The general LXC-versus-VM tradeoffs are covered in the
+The general LXC-versus-VM trade-offs are covered in the
 [framework rationale](./proxmox-lxc.md#21-why-lxc-instead-of-a-vm). For this
 workload the decisive factor is **avoiding write amplification**. Because the
 datasets stay local to each node and never migrate (§2.1), the container gains
 nothing from a VM's portability, while a VM would force the file server's data
 through a guest filesystem stacked on a virtual disk. The LXC bind mount is a
-direct passthrough onto the host ZFS dataset, so Samba writes land on ZFS with no
-intermediate filesystem.
+direct passthrough onto the host ZFS dataset, so Samba writes land on ZFS with
+no intermediate filesystem.
 
 The cost is weaker isolation and the UID-mapping handling this requires. That
-tradeoff is accepted deliberately; see
+trade-off is accepted deliberately; see
 [Privileged Container](#81-privileged-container).
 
 ## 3. Architecture Overview
@@ -124,7 +124,7 @@ tradeoff is accepted deliberately; see
 ```
 
 The host paths shown are `pve1`'s; on `pve2` the same in-container mount points
-are backed by `/tank-hdd/...` instead (see §2.1). Only the bind-mount *source*
+are backed by `/tank-hdd/...` instead (see §2.1). Only the bind-mount _source_
 changes per node — everything inside the container is identical.
 
 ## 4. `nas` Role (`config/nix/roles/nas/default.nix`)
@@ -133,12 +133,12 @@ The NAS host imports the `common` and
 [`proxmox-lxc`](./proxmox-lxc.md#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix)
 roles from the framework, plus the `nas` service role defined here. The `nas`
 role defines the **default** SMB configuration shared by every NAS container:
-the Samba service, the global tuning, the default share definitions (`media` and
-`backups`), and the privileged-container setting the bind mounts require. Every
-node exposes these defaults identically, so by default only `networking.hostName`
-differs between hosts; a node that owns extra datasets can layer additional
-shares on top in its own `configuration.nix` (see
-[§5.1](#51-adding-per-host-shares)).
+the Samba service and its global settings, the default share definitions
+(`media` and `backups`), the privileged-container setting the bind mounts
+require, and the hostname-management setting GitOps requires. Every node exposes
+these defaults identically, so by default only `networking.hostName` differs
+between hosts; a node that owns extra datasets can layer additional shares on
+top in its own `configuration.nix` (see [§5.1](#51-adding-per-host-shares)).
 
 The role references the `proxmoxLXC.*` options that the `proxmox-lxc` role's
 module defines, so it must always be imported alongside `proxmox-lxc` (as in
@@ -148,14 +148,24 @@ module defines, so it must always be imported alongside `proxmox-lxc` (as in
 { lib, ... }:
 
 {
-  # The container is made privileged by Terraform (`unprivileged = false`,
-  # section 6.1) so bind-mounted ZFS datasets keep their host UID/GID
-  # (host 1000 = container 1000) without an idmap. This option does NOT
-  # control that: it only tells the NixOS guest module to expect a
-  # privileged environment, and it must agree with the Terraform setting.
-  # mkForce is required because the proxmox-lxc role sets a plain
-  # `privileged = false`; identical for every NAS container.
-  proxmoxLXC.privileged = lib.mkForce true;
+  # Plain values override the proxmox-lxc role's lib.mkDefault defaults;
+  # identical for every NAS container.
+  proxmoxLXC = {
+    # The container is made privileged by Terraform (`unprivileged = false`,
+    # section 6.1) so bind-mounted ZFS datasets keep their host UID/GID
+    # (host 1000 = container 1000) without an idmap. This option does NOT
+    # control that: it only tells the NixOS guest module to expect a
+    # privileged environment, and it must agree with the Terraform setting.
+    privileged = true;
+
+    # NAS hosts pin networking.hostName: comin selects the configuration by
+    # hostname and asserts at build time that it is non-empty. Without this
+    # override, the upstream proxmox-lxc module forces networking.hostName
+    # to "" (expecting the PVE-written /etc/hostname to provide it), which
+    # would fail that assertion. See the note on hostname in the framework
+    # spec, section 3.
+    manageHostName = true;
+  };
 
   # Samba Server
   services.samba = {
@@ -205,12 +215,12 @@ module defines, so it must always be imported alongside `proxmox-lxc` (as in
 ## 5. Host Configuration
 
 By default, both NAS hosts run an **identical** NixOS configuration, differing
-only in `networking.hostName`: the role imports, the privileged-container
-setting, and the default Samba shares all live in the shared roles (chiefly
-[`nas`](#4-nas-role-confignixrolesnasdefaultnix)). A host that must serve
-datasets the others do not can additionally declare host-specific shares (see
-[§5.1](#51-adding-per-host-shares)); absent that, each host's `configuration.nix`
-sets just the hostname:
+only in `networking.hostName`: the role imports, the privileged-container and
+hostname-management settings, and the default Samba shares all live in the
+shared roles (chiefly [`nas`](#4-nas-role-confignixrolesnasdefaultnix)). A host
+that must serve datasets the others do not can additionally declare
+host-specific shares (see [§5.1](#51-adding-per-host-shares)); absent that, each
+host's `configuration.nix` sets just the hostname:
 
 ```nix
 {
@@ -259,37 +269,37 @@ host in the lab, not just the NAS containers.
 > already-deployed host (e.g. `hl02`). NixOS updates the UID in `/etc/passwd`
 > but does not chown existing files. In practice the first `isNormalUser`
 > account is auto-allocated UID `1000` anyway, so this should be a no-op —
-> verify with `id -u ferrarimarco` on each existing host before landing the
-> pin.
+> verify with `id -u ferrarimarco` on each existing host before landing the pin.
 
 ### 5.1 Adding Per-Host Shares
 
 The `media` and `backups` shares are defaults that every NAS container exposes.
 A node that owns datasets the others do not (for example a `photos` dataset only
-on `pve1`) can serve them by adding a share **on that host only**. A share is two
-coupled declarations, so both halves are required:
+on `pve1`) can serve them by adding a share **on that host only**. A share is
+two coupled declarations, so both halves are required:
 
 1. **The bind mount (Terraform).** Add the host-path → container-path entry to
    that node's `var.nas_container_bind_mounts` (see
-   [§6.2](#62-zfs-dataset-bind-mounts)), for example
-   `/rpool-sata/photos` → `/mnt/shared/photos`.
+   [§6.2](#62-zfs-dataset-bind-mounts)), for example `/rpool-sata/photos` →
+   `/mnt/shared/photos`.
 2. **The Samba share (NixOS).** Add the export to that host's
    `configuration.nix`; it merges with the role's defaults:
 
-   ```nix
-   # config/nix/hosts/nas-pve1/configuration.nix
-   services.samba.settings.photos = {
-     "path" = "/mnt/shared/photos";
-     "browseable" = "yes";
-     "read only" = "no";
-     "guest ok" = "no";
-     "valid users" = "ferrarimarco";
-   };
-   ```
+    ```nix
+    # config/nix/hosts/nas-pve1/configuration.nix
+    services.samba.settings.photos = {
+      "path" = "/mnt/shared/photos";
+      "browseable" = "yes";
+      "read only" = "no";
+      "guest ok" = "no";
+      "valid users" = "ferrarimarco";
+    };
+    ```
 
-> **Both halves or neither.** The two declarations are not cross-checked: a Samba
-> share without its bind mount exports an empty path, and a bind mount without its
-> share mounts data that is never served. Add and remove them together.
+> **Both halves or neither.** The two declarations are not cross-checked: a
+> Samba share without its bind mount exports an empty path, and a bind mount
+> without its share mounts data that is never served. Add and remove them
+> together.
 
 ## 6. Infrastructure Provisioning (Terraform)
 
@@ -312,8 +322,8 @@ weaker isolation boundary (see §8.1).
 
 > **Keep both sides in agreement.** This Terraform setting is what actually
 > makes the container privileged; the `proxmoxLXC.privileged = true` in the
-> `nas` role (§4) only tells the NixOS guest module what environment to
-> expect. The two are not cross-checked — change them together.
+> `nas` role (§4) only tells the NixOS guest module what environment to expect.
+> The two are not cross-checked — change them together.
 
 ### 6.2 ZFS Dataset Bind Mounts
 
@@ -389,14 +399,14 @@ The container runs privileged so bind-mounted ZFS datasets retain their host
 UID/GID without an idmap (see §6.1). This means the container's root user maps
 directly to the host's UID 0 inside the container namespace.
 
-Running privileged is a deliberate tradeoff, chosen over the alternatives because
-they are worse under this lab's constraints: an unprivileged container with an
-`lxc.idmap` needs raw LXC config keys the `bpg/proxmox` provider does not expose
-(forcing a provisioner this design avoids), and chowning the host datasets into
-the shifted UID range makes the data look alien to host-side tooling (scrubs,
-snapshots, direct host access). Privileged 1:1 UID mapping keeps bind-mounted
-data owned consistently on both sides. The isolation cost is bounded by the
-following mitigations:
+Running privileged is a deliberate trade-off, chosen over the alternatives
+because they are worse under this lab's constraints: an unprivileged container
+with an `lxc.idmap` needs raw LXC config keys the `bpg/proxmox` provider does
+not expose (forcing a provisioner this design avoids), and chowning the host
+datasets into the shifted UID range makes the data look alien to host-side
+tooling (scrubs, snapshots, direct host access). Privileged 1:1 UID mapping
+keeps bind-mounted data owned consistently on both sides. The isolation cost is
+bounded by the following mitigations:
 
 - The container runs only the Samba service; no user-facing shell access is
   expected.
@@ -412,8 +422,8 @@ following mitigations:
 - The Samba password database (`passdb.tdb`, which stores NT password hashes)
   does **not** live in the container's rootfs: `/var/lib/samba` is bind-mounted
   from the host (§6.2), so the hashes reside on the Proxmox host at
-  `/var/lib/samba-state/nas-pveN`, readable only by root. Anything that backs
-  up that host path captures the hashes; see
+  `/var/lib/samba-state/nas-pveN`, readable only by root. Anything that backs up
+  that host path captures the hashes; see
   [§11.2](#112-samba-state-directory-on-the-host).
 
 ## 9. Integration Testing
@@ -468,10 +478,9 @@ test VM sandbox, each NAS host includes a `test-override.nix` that:
 
 ### 10.1 Initial Deployment
 
-The examples below use VMID `200` for `nas-pve1`. VMIDs are cluster-unique
-(the existing VMs use `100` and `101`), so `nas-pve2` gets its own distinct
-ID (e.g. `201`), and each `pct` command runs on the Proxmox node that owns
-the container.
+The examples below use VMID `200` for `nas-pve1`. VMIDs are cluster-unique (the
+existing VMs use `100` and `101`), so `nas-pve2` gets its own distinct ID (e.g.
+`201`), and each `pct` command runs on the Proxmox node that owns the container.
 
 1. **Provision the container.** Apply Terraform to upload the generic
    [`nixos-lxc-bootstrap`](./proxmox-lxc.md#5-lxc-template-generation) template
@@ -493,17 +502,16 @@ the container.
       --flake "github:ferrarimarco/home-lab?dir=config/nix#nas-pve1"'
     ```
 
-   Two wrinkles in this command, both consequences of running against the
-   bare bootstrap template:
-
-   - `/bin/sh -lc` — `pct exec` does not source a login shell, so
-     `/run/current-system/sw/bin` (where NixOS puts `nixos-rebuild`) is not
-     on its default PATH.
-   - `--option extra-experimental-features` — the bootstrap template imports
-     only the `proxmox-lxc` role, and flakes are enabled in the `common`
-     role's `nix.settings`, which is not applied yet. Once this first switch
-     lands the `common` role, subsequent rebuilds need neither the flag nor
-     manual invocation (comin takes over).
+    Two wrinkles in this command, both consequences of running against the bare
+    bootstrap template:
+    - `/bin/sh -lc` — `pct exec` does not source a login shell, so
+      `/run/current-system/sw/bin` (where NixOS puts `nixos-rebuild`) is not on
+      its default PATH.
+    - `--option extra-experimental-features` — the bootstrap template imports
+      only the `proxmox-lxc` role, and flakes are enabled in the `common` role's
+      `nix.settings`, which is not applied yet. Once this first switch lands the
+      `common` role, subsequent rebuilds need neither the flag nor manual
+      invocation (comin takes over).
 
 3. **Set the Samba password** (one-time, imperative; see
    [§7.2](#72-imperative-part-one-time-setup)):
@@ -543,19 +551,22 @@ bind mount (`/var/lib/samba-state/nas-pve1` on `pve1`,
 sources, so the directory must exist — owned by `root`, as Samba expects for
 `/var/lib/samba` — before the container first starts.
 
-As specced, this directory lives on the Proxmox root filesystem, not on the
-data pools, so `passdb.tdb` is **not** covered by ZFS snapshots or replication
-of the shared datasets; losing it means re-running `smbpasswd` (§7.2), not data
-loss. If that trade-off becomes unacceptable, move the directory onto a
-dedicated ZFS dataset — and remember that any backup of it captures NT password
-hashes (see §8.2).
+As specced, this directory lives on the Proxmox root filesystem, not on the data
+pools, so `passdb.tdb` is **not** covered by ZFS snapshots or replication of the
+shared datasets; losing it means re-running `smbpasswd` (§7.2), not data loss.
+If that trade-off becomes unacceptable, move the directory onto a dedicated ZFS
+dataset — and remember that any backup of it captures NT password hashes (see
+§8.2).
 
 ### 11.3 Networking (DHCP)
 
 The NAS containers use DHCP, consistent with the current approach for
-[`hl02`](./hl02-proxmox-vm.md#52-networking-dhcp-for-now). Static IPs or DHCP
-reservations should be configured in the router to ensure stable addressing for
-SMB clients.
+[`hl02`](./hl02-proxmox-vm.md#52-networking-dhcp-for-now). DHCP is requested via
+the Terraform `initialization.ip_config` block, which PVE renders into the
+container's systemd-networkd configuration (see the framework spec's
+[Terraform section](./proxmox-lxc.md#6-infrastructure-provisioning-terraform)).
+Static IPs or DHCP reservations should be configured in the router to ensure
+stable addressing for SMB clients.
 
 ### 11.4 MAC Address Pinning
 
@@ -575,9 +586,9 @@ reservations.
   from a published URL, removing the need for a locally built artifact at
   `terraform apply` time.
 - **Samba performance tuning**: Benchmark before adding any tuning to the `nas`
-  role. Modern Samba enables AIO by default, and the classic knobs interact
-  (a non-zero `aio write size` disables `min receivefile size`), so tuning
-  without measurement is at best a no-op.
+  role. Modern Samba enables AIO by default, and the classic knobs interact (a
+  non-zero `aio write size` disables `min receivefile size`), so tuning without
+  measurement is at best a no-op.
 - **GitOps requires the `comin` role per host**: comin needs a hostname at build
   time, so it cannot ride in the shared, hostname-less bootstrap template (see
   [template generation](./proxmox-lxc.md#5-lxc-template-generation)). Each NAS
@@ -594,6 +605,6 @@ reservations.
 - **ZFS dataset Terraform management**: Define the ZFS datasets themselves in
   Terraform or a separate Nix module for full declarative coverage.
 - **Single source of truth for shares**: Derive both the Samba share exports
-  (NixOS) and the bind mounts (Terraform) from one data structure — for example a
-  Nix attrset emitted to `tfvars` via `nix eval` — so each share is declared once
-  and the two halves cannot drift (see §5.1).
+  (NixOS) and the bind mounts (Terraform) from one data structure — for example
+  a Nix attrset emitted to `tfvars` via `nix eval` — so each share is declared
+  once and the two halves cannot drift (see §5.1).

@@ -5,7 +5,7 @@
 | Component / Feature            | Status                | Details                                                                                        |
 | :----------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------- |
 | **NixOS LXC Template Package** | **Fully Implemented** | `nixos-lxc-bootstrap` flake package builds a `proxmox-lxc` tarball via `system.build.tarball`. |
-| **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration.                                                |
+| **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration; tunables use `lib.mkDefault` (§3).             |
 | **Terraform Provisioning**     | **Missing**           | Reusable LXC template upload (`proxmox_virtual_environment_file`) and container provisioning.  |
 
 ## 1. Goal
@@ -59,9 +59,20 @@ existing `proxmox-vm` role.
 
   proxmoxLXC = {
     enable = true;
-    privileged = false;
-    manageNetwork = false; # Let systemd-networkd consume network contexts from PVE
-    manageHostName = false; # Let the container extract its identity from /etc/hostname
+
+    # Workload-tunable options are set with lib.mkDefault so service roles
+    # and host configurations can override them with plain values.
+    privileged = lib.mkDefault false;
+
+    # With these disabled, the container consumes what PVE's nixos ostype
+    # hooks write into it at start: the systemd-networkd configuration and
+    # /etc/hostname. Hosts that pin networking.hostName (every comin
+    # workload) must override manageHostName to true: the upstream module
+    # otherwise forces networking.hostName to "" and comin asserts at build
+    # time that it is non-empty. See the hostname note in the proxmox-lxc
+    # spec.
+    manageNetwork = lib.mkDefault false;
+    manageHostName = lib.mkDefault false;
   };
 
   # Suppress errors from standard hardware components that do not exist inside a container
@@ -82,9 +93,27 @@ existing `proxmox-vm` role.
 > **Note on privilege:** The base role defaults to
 > `proxmoxLXC.privileged = false`, the safe default for generic containers.
 > Workloads that bind-mount host-owned paths and need a direct UID/GID mapping
-> (host `1000` = container `1000`) override this to `true` in their host
-> `configuration.nix`. For the per-host override to merge cleanly, set the role
-> default with `lib.mkDefault`.
+> (host `1000` = container `1000`) override this to `true` in their service role
+> or host `configuration.nix` (the
+> [NAS spec](./nas-lxc-container.md#4-nas-role-confignixrolesnasdefaultnix) does
+> it in its `nas` role). Because the role sets the default with `lib.mkDefault`,
+> the override is a plain `true` — no `lib.mkForce` needed.
+
+> **Note on hostname (required for GitOps hosts):** When both
+> `manageNetwork = false` and `manageHostName = false`, the upstream
+> `proxmox-lxc.nix` module sets `networking.hostName = lib.mkForce ""` so the
+> runtime hostname comes from the PVE-written `/etc/hostname`. That `mkForce`
+> silently discards any plain `networking.hostName = "<host>"` a host sets — and
+> comin asserts at evaluation time that its hostname is non-empty, so a GitOps
+> host's production closure fails to build. Any host that pins a hostname (every
+> comin workload) must therefore also set `proxmoxLXC.manageHostName = true`
+> alongside `networking.hostName`. Only the hostname-less bootstrap template
+> (§5.1) keeps `manageHostName = false`. Beware that the integration-test
+> harness overrides `manageHostName` itself (see
+> [§7](#7-lxc-specific-test-limitations)), so host tests cannot catch a missing
+> override; only evaluating the production closure surfaces it. The CI machine
+> matrix does exactly that for every deployable host (see the
+> [testing spec](./declarative-integration-testing.md#4-github-actions-workflow-update-githubworkflowsnixyaml)).
 
 ## 4. Host Structure
 
@@ -136,19 +165,37 @@ builds a minimal image from the `proxmox-lxc` role plus the bootstrap SSH keys:
 }:
 
 let
+  lxcModules = [
+    ../roles/proxmox-lxc
+
+    (_: {
+      users.users.root.openssh.authorizedKeys.keys = bootstrapPublicKeys;
+
+      # Pin the release the bootstrap image was built against.
+      system.stateVersion = "25.11";
+    })
+  ];
+
   lxcSystem = nixpkgs.lib.nixosSystem {
     inherit system;
     specialArgs = { inherit inputs bootstrapPublicKeys; };
-    modules = [
-      ../roles/proxmox-lxc
-      (_: {
-        users.users.root.openssh.authorizedKeys.keys = bootstrapPublicKeys;
-      })
-    ];
+    modules = lxcModules;
   };
+
+  inherit (lxcSystem.config.system.build) tarball;
 in
-lxcSystem.config.system.build.tarball
+tarball
+// {
+  modules = lxcModules;
+  inherit bootstrapPublicKeys;
+}
 ```
+
+The package exposes its module list (`modules`) and the bootstrap keys as
+passthrough attributes. The passthrough is load-bearing for testing: the
+`minimal-lxc` fixture's `test-override.nix` imports `lxcBootstrap.modules`, so
+its integration test exercises exactly the module set the template ships rather
+than a parallel reconstruction of it.
 
 The template deliberately omits the `comin` role. comin requires a hostname at
 build time (`networking.hostName` or `services.comin.hostname`), which a
@@ -174,8 +221,15 @@ packages.${system} = {
 
 ```bash
 nix build .#nixos-lxc-bootstrap
-# Output: result/tarball/nixos-system-x86_64-linux.tar.xz
+# Output: result/tarball/nixos-image-<label>-x86_64-linux.tar.xz
+# Example: result/tarball/nixos-image-25.11.20260417.c7f4703-x86_64-linux.tar.xz
 ```
+
+The tarball filename comes from `image.baseName`, which embeds the NixOS label
+(release, date, and commit) — the same behavior as the installer ISO. Terraform
+therefore matches it with a filename pattern rather than a fixed path (see §6);
+the versioned name is also what makes template rebuilds visible to Terraform,
+since a rebuilt template changes the source path.
 
 The resulting tarball is uploaded to each Proxmox node's `local` storage as a
 container template (see §6).
@@ -198,7 +252,12 @@ resource "proxmox_virtual_environment_file" "nixos_lxc_template_pve1" {
   node_name    = var.proxmox_virtual_environment_hosts["pve1"].node_name
 
   source_file {
-    path      = "${path.module}/../../../result/tarball/nixos-system-x86_64-linux.tar.xz"
+    # The tarball name embeds the NixOS version, date, and commit (see
+    # section 5.3), so match it with a filename pattern, as the installer
+    # ISO upload already does. The versioned name also means a rebuilt
+    # template changes the source path and forces a re-upload; a stable
+    # name would never re-upload.
+    path      = "${local.nix_root_path}/${one(fileset(local.nix_root_path, "result/tarball/nixos-image-*-x86_64-linux.tar.xz"))}"
     file_name = "nixos-lxc-pve1.tar.xz"
   }
 }
@@ -208,7 +267,7 @@ resource "proxmox_virtual_environment_container" "example_pve1" {
 
   description  = "Managed by Terraform - NixOS LXC"
   node_name    = var.proxmox_virtual_environment_hosts["pve1"].node_name
-  vm_id        = 200
+  vm_id        = 200 # VMIDs are cluster-unique; pick an unused one per container
   unprivileged = true # Workloads bind-mounting host-owned paths may override to false
   started      = true
 
@@ -238,20 +297,34 @@ resource "proxmox_virtual_environment_container" "example_pve1" {
 
   operating_system {
     template_file_id = proxmox_virtual_environment_file.nixos_lxc_template_pve1.id
-    type             = "unmanaged"
+    type             = "nixos"
   }
 
   initialization {
     hostname = "example-pve1"
+
+    ip_config {
+      ipv4 {
+        address = "dhcp"
+      }
+    }
   }
 }
 ```
 
 ### Key design decisions
 
-- **`type = "unmanaged"`**: Prevents Proxmox from running OS-specific
-  configuration hooks (e.g., Debian `cloud-init`) that are incompatible with
-  NixOS.
+- **`type = "nixos"`**: Selects PVE's native NixOS setup plugin
+  (`PVE::LXC::Setup::NixOS`), which writes the container's systemd-networkd
+  configuration and `/etc/hostname` at start. The `proxmox-lxc` role depends on
+  this: `manageNetwork = false` enables systemd-networkd inside the container
+  precisely to consume the network files PVE writes, and the upstream tarball
+  even ships an empty `etc/systemd/network/` directory for PVE to fill.
+  `unmanaged` would skip all setup hooks and leave the container with no IP
+  configuration and no `/etc/hostname`.
+- **DHCP via `initialization.ip_config`**: This block is what PVE renders into
+  the container's networkd configuration, so it must be present for the
+  container to request an address.
 - **`features.nesting = true`**: Required for NixOS `systemd` to function
   correctly inside LXC.
 - **`unprivileged`**: A privileged container (`unprivileged = false`) maps host
@@ -281,10 +354,13 @@ Whenever a host exposes the `proxmoxLXC` option — that is, it imports the
 [`proxmox-lxc` role](#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix) —
 the harness injects the container-to-VM compatibility overrides:
 
-- `boot.isContainer = false`, and re-enables the kernel, `udev`, and `modprobe`
+- `boot.isContainer = false`, disabling the container init script
+  (`boot.loader.initScript`), and re-enabling the kernel, `udev`, and `modprobe`
   that the role disables for a real container.
 - A mock root filesystem (`fileSystems."/"`).
 - `proxmoxLXC.manageHostName = true`, so the test VM manages its own hostname.
+  Note this masks the production hostname behavior — see the note on hostname in
+  [§3](#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix).
 
 A host's `test-override.nix` therefore does not set these itself; it only
 supplies workload-specific mocks (for example bind-mount directories) and

@@ -7,9 +7,20 @@
 
   proxmoxLXC = {
     enable = true;
-    privileged = false;
-    manageNetwork = false; # Let systemd-networkd consume network contexts from PVE
-    manageHostName = false; # Let the container extract its identity from /etc/hostname
+
+    # Workload-tunable options are set with lib.mkDefault so service roles
+    # and host configurations can override them with plain values.
+    privileged = lib.mkDefault false;
+
+    # With these disabled, the container consumes what PVE's nixos ostype
+    # hooks write into it at start: the systemd-networkd configuration and
+    # /etc/hostname. Hosts that pin networking.hostName (every comin
+    # workload) must override manageHostName to true: the upstream module
+    # otherwise forces networking.hostName to "" and comin asserts at build
+    # time that it is non-empty. See the hostname note in the proxmox-lxc
+    # spec.
+    manageNetwork = lib.mkDefault false;
+    manageHostName = lib.mkDefault false;
   };
 
   # Suppress errors from standard hardware components that do not exist inside a container
