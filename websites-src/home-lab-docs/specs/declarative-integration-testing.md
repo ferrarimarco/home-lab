@@ -7,7 +7,7 @@
 | **Centralized Test Generator** | **Fully Implemented** | Core QEMU framework exists; `specialArgs` mocking implemented.    |
 | **Dynamic Flake Discovery**    | **Fully Implemented** | `hostTests` scanning and registration into `checks` exists.       |
 | **Optional Host Overrides**    | **Fully Implemented** | Supports an optional `test-override.nix` file for unique asserts. |
-| **CI Pipeline Workflow**       | **Fully Implemented** | Needs multi-job dynamic matrix configuration.                     |
+| **CI Pipeline Workflow**       | **Fully Implemented** | Multi-job dynamic matrices; machines: `disko.nix` or comin hosts. |
 
 ## 1. Goal
 
@@ -71,19 +71,20 @@ The generator dynamically:
 The flake dynamically discovers and registers integration tests for all hosts:
 
 1.  Scans the `./hosts` directory for subdirectories (each representing a host).
-2.  Filters out directories that do not contain a `configuration.nix` file.
+2.  Filters out directories that do not contain a `default.nix` file (the same
+    marker that registers the host in `nixosConfigurations`).
 3.  Checks for an optional `test-override.nix` file within the host directory to
     handle host-specific custom test script assertions or extra configuration
     arguments.
-4.  For each valid host, maps the host configuration directly into
-    `make-test.nix` and formats it as a check attribute:
-    `{ name = "<hostname>-test"; value = <test-derivation>; }`.
+4.  For each valid host, maps the host's logical `configuration.nix` directly
+    into `make-test.nix` and formats it as a check attribute:
+    `{ name = "host-<host>-test"; value = <test-derivation>; }`.
 5.  Exposes these tests in the flake's `checks.${system}` output.
 
 This allows `nix flake check` to automatically run all integration tests
-locally. This also achieves a low-maintenance architecture: adding a
-`configuration.nix` to a new host directory automatically flags it for
-integration testing locally and in CI.
+locally. This also achieves a low-maintenance architecture: adding a new host
+directory with a `default.nix` automatically flags it for integration testing
+locally and in CI.
 
 ## 4. GitHub Actions Workflow Update (`.github/workflows/nix.yaml`)
 
@@ -92,47 +93,71 @@ optimized jobs:
 
 1.  **`detect-tests` (Discovery):**
     - Queries the flake directly via `nix eval .#checks.x86_64-linux --json` and
-      filters keys ending in `-test`.
-    - Outputs a JSON array of hostnames (e.g., `["host1", "host2"]`) to be used
-      by the downstream matrix job.
-    - _Benefit:_ Zero-maintenance CI; adding a new host with a test
-      automatically registers it in CI.
+      filters keys matching the `host-<host>-test` pattern.
+    - Also discovers the machine matrix (deployable hosts; see job 4) and the
+      image-package matrix (all entries of `packages.x86_64-linux`).
+    - _Benefit:_ Zero-maintenance CI; adding a new host or package automatically
+      registers it in CI.
 
 2.  **`static-checks` (Validation):**
     - Runs standard non-test checks, such as code formatting verification
       (`treefmt`).
 
-3.  **`integration-tests` (Parallel Execution):**
+3.  **`functional-vm-tests` (Parallel Test Execution):**
     - Runs as a matrix job using the output from `detect-tests`.
     - Enables KVM virtualization inside the GitHub Actions runner
       (`enable_kvm: true` in `install-nix-action`).
     - Executes the specific integration test for the matrix target:
         ```bash
-        nix build .#checks.x86_64-linux.${{ matrix.host }}-test --verbose --print-build-logs
+        nix build ".#checks.x86_64-linux.host-${MATRIX_HOST}-test" --verbose
         ```
     - _Benefit:_ Isolates test failures to specific hosts and allows parallel
       execution, reducing total CI time.
 
-4.  **`build-physical-configs` (Physical Build Verification):**
-    - Verifies that the physical configurations (which are excluded from the
-      logical integration tests) successfully evaluate and build.
-    - Runs as a matrix over all defined hosts in `nixosConfigurations` to ensure
-      that the full physical VM images (with Disko) build:
+4.  **`machine-build-tests` (Production Closure Verification):**
+    - Builds the production closure
+      (`nixosConfigurations.<host>.config.system.build.toplevel`) of every
+      **deployable** host. A host qualifies through either marker:
+        - it carries a `disko.nix` (deployed via `nixos-anywhere`), or
+        - it enables comin (GitOps-managed; LXC containers carry no `disko.nix`,
+          so this is what includes them).
+    - Fixture hosts (e.g. `minimal-iso`, `minimal-lxc`) match neither marker:
+      their `nixosConfigurations` entries have no bootloader or disk
+      configuration, so `system.build.toplevel` is not their deployable form.
+      What runs on real machines is the image package built from the same module
+      set — the installer ISO boots on pristine VMs to install NixOS, and the
+      LXC bootstrap tarball is the container template's first boot.
+      `package-build-tests` keeps those artifacts buildable, and the VM tests
+      exercise their module sets (each fixture's `test-override.nix` imports the
+      corresponding package's `modules` passthrough).
         ```bash
-        nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --verbose --print-build-logs
+        nix build ".#nixosConfigurations.${MATRIX_HOST}.config.system.build.toplevel" --verbose
         ```
+    - This job is what surfaces evaluation-time failures in the production
+      configuration. The sandboxed VM tests cannot catch them all, because the
+      test harness overrides parts of the configuration (for example
+      `proxmoxLXC.manageHostName` and the comin remotes), so a module assertion
+      such as comin's non-empty-hostname check only fires when the production
+      closure itself is evaluated.
+
+5.  **`package-build-tests` (Image Package Verification):**
+    - Builds each discovered flake package (the installer ISO and the LXC
+      bootstrap template) so deployable images stay buildable.
 
 ## 5. Verification Plan
 
 ### 5.1 Automated Tests (CI)
 
 - Push a branch to GitHub and verify the multi-job CI pipeline:
-    - Verify that `detect-tests` successfully dynamically detects all hosts with
-      `test.nix`.
-    - Verify that the `integration-tests` matrix job successfully executes and
+    - Verify that `detect-tests` successfully detects all hosts with a
+      `default.nix`, plus the image packages.
+    - Verify that the `functional-vm-tests` matrix job successfully executes and
       passes the tests in parallel.
-    - Verify that the `build-physical-configs` matrix job successfully performs
-      a full build of all physical configurations.
+    - Verify that the `machine-build-tests` matrix job builds the production
+      closure of every deployable host (`disko.nix` or comin-enabled), including
+      hosts without a `disko.nix`.
+    - Verify that the `package-build-tests` matrix job builds all image
+      packages.
 
 ### 5.2 Manual Verification (Local/Dev)
 
@@ -141,5 +166,5 @@ optimized jobs:
   locally.
 - To run a specific host's test locally:
     ```bash
-    nix build .#checks.x86_64-linux.<hostname>-test
+    nix build .#checks.x86_64-linux.host-<host>-test
     ```

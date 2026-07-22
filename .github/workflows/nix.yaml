@@ -45,13 +45,27 @@ jobs:
           JSON_RAW=$(nix eval .#checks.x86_64-linux --json --apply 'builtins.attrNames')
           HOSTS_ARRAY=$(echo "$JSON_RAW" | jq -c '[.[] | select(startswith("host-") and endswith("-test")) | sub("^host-"; "") | sub("-test$"; "")]')
 
-          # Real machines: hosts deployed via nixos-anywhere carry a disko.nix (disk
-          # partitioning). Their deployable artifact is system.build.toplevel. Hosts
-          # without disko.nix (e.g. the installer-ISO and role-test fixtures) are not
-          # built as toplevel; they are covered by the VM tests and/or image packages.
-          MACHINES_ARRAY=$(for d in hosts/*/; do
+          # Machines: hosts whose production closure (system.build.toplevel) must
+          # evaluate and build. Two markers qualify a host:
+          # - a disko.nix: deployed via nixos-anywhere;
+          # - comin enabled: GitOps-managed (e.g. LXC containers, which carry no
+          #   disko.nix).
+          # Fixture hosts match neither: their toplevel is not deployable (no
+          # bootloader/disk config). What runs on real machines is the image
+          # package built from the same modules (the installer ISO boots on
+          # pristine VMs to install NixOS; the LXC tarball bootstraps
+          # containers), which package-build-tests keeps buildable, while the
+          # VM tests exercise the module sets. Building the production closure
+          # is what surfaces evaluation-time failures (module assertions) that
+          # the sandboxed VM tests mask by overriding parts of the
+          # configuration (e.g. proxmoxLXC.manageHostName, comin remotes).
+          DISKO_MACHINES=$(for d in hosts/*/; do
             [ -f "${d}default.nix" ] && [ -f "${d}disko.nix" ] && basename "$d"
-          done | jq -Rnc '[inputs]')
+          done || true)
+          COMIN_MACHINES=$(nix eval .#nixosConfigurations --json \
+            --apply 'cfgs: builtins.filter (name: (builtins.getAttr name cfgs).config.services.comin.enable) (builtins.attrNames cfgs)' \
+            | jq -r '.[]')
+          MACHINES_ARRAY=$(printf '%s\n%s\n' "$DISKO_MACHINES" "$COMIN_MACHINES" | sort -u | jq -Rnc '[inputs | select(length > 0)]')
 
           # Deployable images are exposed as flake packages (installer ISO, LXC tarball).
           PACKAGES_ARRAY=$(nix eval .#packages.x86_64-linux --json --apply 'builtins.attrNames')
@@ -59,9 +73,11 @@ jobs:
           echo "Discovered host matrix targets: $HOSTS_ARRAY"
           echo "Discovered machine matrix targets: $MACHINES_ARRAY"
           echo "Discovered package matrix targets: $PACKAGES_ARRAY"
-          echo "hosts=$HOSTS_ARRAY" >> "$GITHUB_OUTPUT"
-          echo "machines=$MACHINES_ARRAY" >> "$GITHUB_OUTPUT"
-          echo "packages=$PACKAGES_ARRAY" >> "$GITHUB_OUTPUT"
+          {
+            echo "hosts=$HOSTS_ARRAY"
+            echo "machines=$MACHINES_ARRAY"
+            echo "packages=$PACKAGES_ARRAY"
+          } >> "$GITHUB_OUTPUT"
 
   static-checks:
     name: Static checks and formatting
