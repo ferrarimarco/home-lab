@@ -6,7 +6,7 @@
 | :----------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------- |
 | **NixOS LXC Template Package** | **Fully Implemented** | `nixos-lxc-bootstrap` flake package builds a `proxmox-lxc` tarball via `system.build.tarball`. |
 | **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration; tunables use `lib.mkDefault` (§3).             |
-| **Artifact Staging Package**   | **Missing**           | `proxmox-images` aggregate staging the ISO and the LXC template under one `result` (§5.4).     |
+| **Artifact Staging Package**   | **Fully Implemented** | `proxmox-images` aggregate staging the ISO and the LXC template under one `result` (§5.4).     |
 | **Terraform Provisioning**     | **Missing**           | Reusable LXC template upload (`proxmox_virtual_environment_file`) and container provisioning.  |
 
 ## 1. Goal
@@ -223,7 +223,9 @@ packages.${system} = {
 ```bash
 nix build .#nixos-lxc-bootstrap
 # Output: result/tarball/nixos-image-<label>-x86_64-linux.tar.xz
-# Example: result/tarball/nixos-image-25.11.20260417.c7f4703-x86_64-linux.tar.xz
+# The label embeds the module's system.nixos.tags plus release, date, and
+# commit. Example:
+# result/tarball/nixos-image-lxc-proxmox-25.11.20260417.c7f4703-x86_64-linux.tar.xz
 ```
 
 The tarball filename comes from `image.baseName`, which embeds the NixOS label

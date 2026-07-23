@@ -128,24 +128,37 @@
         operations = import ./shells/shell-operations.nix { inherit pkgs; };
       };
 
-      packages.${system} = {
-        nixos-installer = import ./packages/nixos-installer.nix {
-          inherit
-            nixpkgs
-            system
-            inputs
-            bootstrapPublicKeys
-            ;
+      packages.${system} =
+        let
+          nixos-installer = import ./packages/nixos-installer.nix {
+            inherit
+              nixpkgs
+              system
+              inputs
+              bootstrapPublicKeys
+              ;
+          };
+          nixos-lxc-bootstrap = import ./packages/lxc-bootstrap.nix {
+            inherit
+              nixpkgs
+              system
+              inputs
+              bootstrapPublicKeys
+              ;
+          };
+        in
+        {
+          inherit nixos-installer nixos-lxc-bootstrap;
+
+          # Stages the image artifacts Terraform reads behind a single
+          # `result` symlink (result/iso and result/tarball), so the ISO and
+          # the LXC template coexist. See the proxmox-lxc spec, section 5.4.
+          proxmox-images = import ./packages/proxmox-images.nix {
+            inherit pkgs;
+            nixosInstaller = nixos-installer;
+            nixosLxcBootstrap = nixos-lxc-bootstrap;
+          };
         };
-        nixos-lxc-bootstrap = import ./packages/lxc-bootstrap.nix {
-          inherit
-            nixpkgs
-            system
-            inputs
-            bootstrapPublicKeys
-            ;
-        };
-      };
 
       formatter.${system} = treefmtEval.config.build.wrapper;
 
