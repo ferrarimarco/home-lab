@@ -12,9 +12,10 @@ working Docker installation.
 
 ## Linting and formatting
 
-`scripts/lint.sh` runs [super-linter](https://github.com/super-linter/super-linter)
-against the whole repository, using the same container image version and
-configuration as the `Lint` CI workflow (`.github/workflows/lint.yaml` and
+`scripts/lint.sh` runs
+[super-linter](https://github.com/super-linter/super-linter) against the whole
+repository, using the same container image version and configuration as the
+`Lint` CI workflow (`.github/workflows/lint.yaml` and
 `config/lint/super-linter.env`), so a clean local run closely predicts a clean
 CI run:
 
@@ -32,11 +33,11 @@ The script supports the following environment variables:
     LINTER_CONTAINER_FIX_MODE=true scripts/lint.sh
     ```
 
-- `LINTER_CONTAINER_OPEN_SHELL`: set to `true` to open an interactive Bash
-  shell inside the linter container instead of running the linters, useful to
-  debug linter configuration.
-- `LINTER_CONTAINER_IMAGE_VERSION`: override the linter container image
-  version. Defaults to the version that the `Lint` CI workflow pins.
+- `LINTER_CONTAINER_OPEN_SHELL`: set to `true` to open an interactive Bash shell
+  inside the linter container instead of running the linters, useful to debug
+  linter configuration.
+- `LINTER_CONTAINER_IMAGE_VERSION`: override the linter container image version.
+  Defaults to the version that the `Lint` CI workflow pins.
 - `LOG_LEVEL`: super-linter log level. Defaults to `INFO`.
 
 `scripts/run-pre-commit.sh` runs the configured
@@ -60,9 +61,8 @@ different command inside that environment instead.
 
 ## Documentation site
 
-`scripts/run-mkdocs.sh` builds or serves the documentation websites with
-Material for MkDocs. See
-[Develop and build the Home Lab site](./website-development.md).
+`scripts/run-mkdocs.sh` builds or serves the documentation sites with Material
+for MkDocs. See [Develop and build the Home Lab site](./website-development.md).
 
 ## CI/CD tooling
 
@@ -77,7 +77,7 @@ Material for MkDocs. See
 - `scripts/build-arduino-project.sh`: compiles an Arduino project for a given
   fully qualified board name (FQBN).
 - `scripts/copy-data.sh <source-host> <source-directory> <target-directory>`:
-  copies data from a remote host with rsync. Set `ENABLE_DRY_RUN=true` for a
-  dry run and `ENABLE_CHECKSUM=true` to compare files by checksum.
+  copies data from a remote host with rsync. Set `ENABLE_DRY_RUN=true` for a dry
+  run and `ENABLE_CHECKSUM=true` to compare files by checksum.
 - `scripts/common.sh`: shared helper functions and variables sourced by the
   other scripts; not meant to be invoked directly.
