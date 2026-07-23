@@ -17,6 +17,19 @@ resource "proxmox_virtual_environment_file" "nixos_installer_x86_64_iso_pve1" {
   }
 }
 
+resource "proxmox_virtual_environment_file" "nixos_installer_x86_64_iso_pve2" {
+  provider = proxmox.pve2
+
+  content_type = "iso"
+  datastore_id = "local"
+  node_name    = var.proxmox_virtual_environment_hosts["pve2"].node_name
+
+  source_file {
+    # See the pve1 ISO resource for the pattern rationale.
+    path = "${local.nix_root_path}/${one(fileset(local.nix_root_path, "result/iso/nixos-minimal*x86_64-linux.iso"))}"
+  }
+}
+
 resource "proxmox_virtual_environment_file" "nixos_lxc_template_pve1" {
   provider = proxmox.pve1
 
