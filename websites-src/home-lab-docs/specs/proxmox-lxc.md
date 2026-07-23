@@ -2,24 +2,25 @@
 
 ## Implementation Status
 
-| Component / Feature            | Status                    | Details                                                                                          |
-| :----------------------------- | :------------------------ | :----------------------------------------------------------------------------------------------- |
-| **NixOS LXC Template Package** | **Fully Implemented**     | `nixos-lxc-bootstrap` flake package builds a `proxmox-lxc` tarball via `system.build.tarball`.   |
-| **`proxmox-lxc` Role**         | **Fully Implemented**     | NixOS role for LXC-specific base configuration; tunables use `lib.mkDefault` (§3).               |
-| **Artifact Staging Package**   | **Fully Implemented**     | `proxmox-images` aggregate staging the ISO and the LXC template under one `result` (§5.4).       |
-| **Terraform Provisioning**     | **Partially Implemented** | Template upload to both nodes implemented; container provisioning lands with the first consumer. |
+| Component / Feature            | Status                | Details                                                                                        |
+| :----------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------- |
+| **NixOS LXC Template Package** | **Fully Implemented** | `nixos-lxc-bootstrap` flake package builds a `proxmox-lxc` tarball via `system.build.tarball`. |
+| **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration; tunables use `lib.mkDefault` (§3).             |
+| **Artifact Staging Package**   | **Fully Implemented** | `proxmox-images` aggregate staging the ISO and the LXC template under one `result` (§5.4).     |
+| **Terraform Template Upload**  | **Fully Implemented** | `proxmox_virtual_environment_file` uploads the template to each node's `local` storage (§6.1). |
 
 ## 1. Goal
 
 Provide a reusable framework for running NixOS-based LXC containers on the
 Proxmox nodes. The framework defines three pieces: a base NixOS role that adapts
 a system to the LXC environment, a flake package that builds a `proxmox-lxc`
-container template from a NixOS closure, and a Terraform pattern that uploads
-that template and provisions the container.
+container template from a NixOS closure, and the Terraform configuration that
+stages that template and uploads it to every node.
 
-Workload specs build on this framework and add their service-specific roles,
-shares, and host configurations. The [NAS LXC Container](./nas-lxc-container.md)
-is the first consumer.
+Workload specs build on this framework: they add their service-specific roles,
+shares, and host configurations, and declare their own container resources
+following the reference pattern in [§6.2](#62-container-reference-pattern). The
+[NAS LXC Container](./nas-lxc-container.md) is the first consumer.
 
 ## 2. Rationale
 
@@ -284,13 +285,21 @@ intact.
 
 ## 6. Infrastructure Provisioning (Terraform)
 
-LXC containers are defined in
-`config/terraform/220-proxmox-workloads/containers-pveN.tf` using the
-`bpg/proxmox` provider's `proxmox_virtual_environment_container` resource. The
-template is uploaded with a `proxmox_virtual_environment_file` resource so the
-container depends on it directly; the local artifact it reads is staged by the
-`proxmox-images` package
-([§5.4](#54-artifact-staging-for-terraform-proxmox-images)).
+The framework's Terraform footprint is the **template upload** (§6.1), which it
+owns and implements. Containers themselves are not a framework component: each
+workload spec declares its own `proxmox_virtual_environment_container` resources
+following the **reference pattern** in §6.2 and tracks them in its own status
+table (the [NAS spec](./nas-lxc-container.md) is the first).
+
+### 6.1 Template Upload (`images-templates.tf`)
+
+The template is uploaded to each node's `local` storage with a
+`proxmox_virtual_environment_file` resource in
+`config/terraform/220-proxmox-workloads/images-templates.tf`, so containers can
+depend on it directly via `template_file_id`. The local artifact it reads is
+staged by the `proxmox-images` package
+([§5.4](#54-artifact-staging-for-terraform-proxmox-images)). The `pve2` resource
+mirrors the `pve1` one shown here:
 
 ```hcl
 # Uploads the built NixOS LXC template to Proxmox
@@ -311,7 +320,17 @@ resource "proxmox_virtual_environment_file" "nixos_lxc_template_pve1" {
     file_name = "nixos-lxc-pve1.tar.xz"
   }
 }
+```
 
+### 6.2 Container Reference Pattern
+
+This section is a **reference pattern, not a framework deliverable**: the
+framework ships no container of its own, so nothing here appears in the
+implementation status table. Workload specs define their containers in
+`config/terraform/220-proxmox-workloads/containers-pveN.tf` following this
+shape:
+
+```hcl
 resource "proxmox_virtual_environment_container" "example_pve1" {
   provider = proxmox.pve1
 
@@ -362,7 +381,7 @@ resource "proxmox_virtual_environment_container" "example_pve1" {
 }
 ```
 
-### Key design decisions
+#### Key design decisions
 
 - **`type = "nixos"`**: Selects PVE's native NixOS setup plugin
   (`PVE::LXC::Setup::NixOS`), which writes the container's systemd-networkd

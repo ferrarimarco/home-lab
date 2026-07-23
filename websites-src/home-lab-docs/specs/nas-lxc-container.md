@@ -7,17 +7,17 @@ document covers only the NAS/SMB-specific additions.
 
 ## Implementation Status
 
-| Component / Feature           | Status      | Details                                                       |
-| :---------------------------- | :---------- | :------------------------------------------------------------ |
-| **`nas` Role (SMB)**          | **Missing** | NixOS role enabling Samba with declarative share definitions. |
-| **`common` Role UID Pin**     | **Missing** | Pin the `ferrarimarco` UID to `1000` in the `common` role.    |
-| **Host Config (`nas-pve1`)**  | **Missing** | NixOS host config for the pve1 instance.                      |
-| **Host Config (`nas-pve2`)**  | **Missing** | NixOS host config for the pve2 instance.                      |
-| **Terraform LXC (`pve1`)**    | **Missing** | `proxmox_virtual_environment_container` for pve1.             |
-| **Terraform LXC (`pve2`)**    | **Missing** | `proxmox_virtual_environment_container` for pve2.             |
-| **Terraform Template Upload** | **Missing** | Upload the built LXC template to each node's `local` storage. |
-| **Host Integration Tests**    | **Missing** | Auto-discovered tests for `nas-pve1` and `nas-pve2`.          |
-| **Flake Registration**        | **Missing** | Verify that both NAS hosts are discovered by the flake.       |
+| Component / Feature           | Status                | Details                                                                          |
+| :---------------------------- | :-------------------- | :------------------------------------------------------------------------------- |
+| **`nas` Role (SMB)**          | **Missing**           | NixOS role enabling Samba with declarative share definitions.                    |
+| **`common` Role UID Pin**     | **Missing**           | Pin the `ferrarimarco` UID to `1000` in the `common` role.                       |
+| **Host Config (`nas-pve1`)**  | **Missing**           | NixOS host config for the pve1 instance.                                         |
+| **Host Config (`nas-pve2`)**  | **Missing**           | NixOS host config for the pve2 instance.                                         |
+| **Terraform LXC (`pve1`)**    | **Missing**           | `proxmox_virtual_environment_container` for pve1.                                |
+| **Terraform LXC (`pve2`)**    | **Missing**           | `proxmox_virtual_environment_container` for pve2.                                |
+| **Terraform Template Upload** | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1). |
+| **Host Integration Tests**    | **Missing**           | Auto-discovered tests for `nas-pve1` and `nas-pve2`.                             |
+| **Flake Registration**        | **Missing**           | Verify that both NAS hosts are discovered by the flake.                          |
 
 ## 1. Goal
 
