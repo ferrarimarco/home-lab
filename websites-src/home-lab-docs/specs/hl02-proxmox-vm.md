@@ -68,6 +68,10 @@ orchestration.
   (`./result/iso/\*.iso`).
 - Destination Target: Stored in the cluster's default structural storage
   (`local:iso/`).
+- Staging: Build the
+  [`proxmox-images` aggregate package](./proxmox-lxc.md#54-artifact-staging-for-terraform-proxmox-images)
+  before running Terraform, so the ISO coexists behind `result` with the other
+  image artifacts Terraform reads.
 
 ### 3.2 File System Layout (`disko.nix`)
 
