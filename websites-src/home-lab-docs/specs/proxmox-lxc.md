@@ -2,12 +2,12 @@
 
 ## Implementation Status
 
-| Component / Feature            | Status                | Details                                                                                        |
-| :----------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------- |
-| **NixOS LXC Template Package** | **Fully Implemented** | `nixos-lxc-bootstrap` flake package builds a `proxmox-lxc` tarball via `system.build.tarball`. |
-| **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration; tunables use `lib.mkDefault` (§3).             |
-| **Artifact Staging Package**   | **Fully Implemented** | `proxmox-images` aggregate staging the ISO and the LXC template under one `result` (§5.4).     |
-| **Terraform Provisioning**     | **Missing**           | Reusable LXC template upload (`proxmox_virtual_environment_file`) and container provisioning.  |
+| Component / Feature            | Status                    | Details                                                                                          |
+| :----------------------------- | :------------------------ | :----------------------------------------------------------------------------------------------- |
+| **NixOS LXC Template Package** | **Fully Implemented**     | `nixos-lxc-bootstrap` flake package builds a `proxmox-lxc` tarball via `system.build.tarball`.   |
+| **`proxmox-lxc` Role**         | **Fully Implemented**     | NixOS role for LXC-specific base configuration; tunables use `lib.mkDefault` (§3).               |
+| **Artifact Staging Package**   | **Fully Implemented**     | `proxmox-images` aggregate staging the ISO and the LXC template under one `result` (§5.4).       |
+| **Terraform Provisioning**     | **Partially Implemented** | Template upload to both nodes implemented; container provisioning lands with the first consumer. |
 
 ## 1. Goal
 
