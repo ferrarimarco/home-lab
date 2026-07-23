@@ -43,5 +43,7 @@ configuration, and deployment processes:
 - Container image descriptors in the `docker` directory.
 - Documentation site in the `docs` directory.
 - Source of the documentation site in the `websites-src` directory.
-- Operational scripts in the `scripts` directory.
+- Operational scripts in the `scripts` directory. The
+  [operational scripts guide](../guides/development/operational-scripts.md)
+  describes them.
 - Tests in the `test` directory.

@@ -76,7 +76,16 @@ agents must strictly follow these style rules:
   `?`) at the end of headings. Headings should remain descriptive, clean, and
   concise.
 
-## 4. Design & Modularization Rules
+## 4. Operational Scripts
+
+Use the repository's operational scripts for common development and maintenance
+tasks instead of ad-hoc commands. The
+[operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
+describes them all. In particular, lint and format changes with
+`scripts/lint.sh`, which runs super-linter with the same configuration as CI
+(set `LINTER_CONTAINER_FIX_MODE=true` to apply automatic fixes).
+
+## 5. Design & Modularization Rules
 
 When introducing new hosts, roles, or automation features, adhere to these
 architectural patterns:
