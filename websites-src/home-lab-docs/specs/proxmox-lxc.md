@@ -6,6 +6,7 @@
 | :----------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------- |
 | **NixOS LXC Template Package** | **Fully Implemented** | `nixos-lxc-bootstrap` flake package builds a `proxmox-lxc` tarball via `system.build.tarball`. |
 | **`proxmox-lxc` Role**         | **Fully Implemented** | NixOS role for LXC-specific base configuration; tunables use `lib.mkDefault` (§3).             |
+| **Artifact Staging Package**   | **Missing**           | `proxmox-images` aggregate staging the ISO and the LXC template under one `result` (§5.4).     |
 | **Terraform Provisioning**     | **Missing**           | Reusable LXC template upload (`proxmox_virtual_environment_file`) and container provisioning.  |
 
 ## 1. Goal
@@ -232,7 +233,52 @@ the versioned name is also what makes template rebuilds visible to Terraform,
 since a rebuilt template changes the source path.
 
 The resulting tarball is uploaded to each Proxmox node's `local` storage as a
-container template (see §6).
+container template (see §6). Before running Terraform, stage the artifact with
+the aggregate package described in
+[§5.4](#54-artifact-staging-for-terraform-proxmox-images).
+
+### 5.4 Artifact Staging for Terraform (`proxmox-images`)
+
+`nix build` refreshes the single `result` symlink to point at the last-built
+package, so the installer ISO (`result/iso/...`) and the LXC template
+(`result/tarball/...`) cannot coexist behind it when built individually:
+whichever artifact was built last breaks the Terraform lookup for the other one.
+
+The `proxmox-images` aggregate package solves this without custom output links:
+it symlinks the artifact directories of both image packages into one output, so
+a single build stages everything Terraform reads:
+
+```nix
+# config/nix/packages/proxmox-images.nix
+# Registered in the flake like the other packages.
+{
+  pkgs,
+  nixosInstaller,
+  nixosLxcBootstrap,
+}:
+
+pkgs.runCommand "proxmox-images" { } ''
+  mkdir --parents "$out"
+  ln --symbolic ${nixosInstaller}/iso "$out/iso"
+  ln --symbolic ${nixosLxcBootstrap}/tarball "$out/tarball"
+''
+```
+
+```bash
+nix build .#proxmox-images
+# result/iso/nixos-minimal-<label>-x86_64-linux.iso
+# result/tarball/nixos-image-<label>-x86_64-linux.tar.xz
+```
+
+Run this build before `terraform apply`. The Terraform lookups (the ISO upload
+and the template upload in §6) address the artifacts through literal
+`result/iso/...` and `result/tarball/...` path segments, with globbing only on
+the filename, so the directory symlinks resolve transparently. The individual
+packages remain buildable on their own for development.
+
+Because the aggregate is a flake package, the CI package matrix discovers and
+builds it automatically, which also verifies that the staging layout stays
+intact.
 
 ## 6. Infrastructure Provisioning (Terraform)
 
@@ -240,7 +286,9 @@ LXC containers are defined in
 `config/terraform/220-proxmox-workloads/containers-pveN.tf` using the
 `bpg/proxmox` provider's `proxmox_virtual_environment_container` resource. The
 template is uploaded with a `proxmox_virtual_environment_file` resource so the
-container depends on it directly.
+container depends on it directly; the local artifact it reads is staged by the
+`proxmox-images` package
+([§5.4](#54-artifact-staging-for-terraform-proxmox-images)).
 
 ```hcl
 # Uploads the built NixOS LXC template to Proxmox

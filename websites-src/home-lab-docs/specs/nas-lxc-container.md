@@ -482,12 +482,15 @@ The examples below use VMID `200` for `nas-pve1`. VMIDs are cluster-unique (the
 existing VMs use `100` and `101`), so `nas-pve2` gets its own distinct ID (e.g.
 `201`), and each `pct` command runs on the Proxmox node that owns the container.
 
-1. **Provision the container.** Apply Terraform to upload the generic
+1. **Provision the container.** Stage the image artifacts with the
+   [`proxmox-images` package](./proxmox-lxc.md#54-artifact-staging-for-terraform-proxmox-images),
+   then apply Terraform to upload the generic
    [`nixos-lxc-bootstrap`](./proxmox-lxc.md#5-lxc-template-generation) template
    (shared by every NAS container — no per-host template is built), create the
    container with hostname `nas-pveN` and the ZFS bind mounts, and start it:
 
     ```bash
+    (cd config/nix && nix build .#proxmox-images)
     cd config/terraform/220-proxmox-workloads
     terraform apply
     ```
