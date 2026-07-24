@@ -498,26 +498,33 @@ existing VMs use `100` and `101`), so `nas-pve2` gets its own distinct ID (e.g.
     terraform apply
     ```
 
-2. **Hand off to GitOps.** Apply the host configuration once to install `comin`;
-   thereafter the container maintains itself from the repository (see
+2. **Hand off to GitOps.** Run the unified bootstrap script from the repository
+   root (see the
+   [bootstrapping spec](./home-lab-bootstrapping.md#341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh)).
+   It discovers the container over SSH, verifies its pinned MAC address, and
+   pushes the full host configuration — including `comin` — with
+   `nixos-rebuild switch --flake --target-host`; the closure is built on the
+   control machine, so the bare bootstrap template needs no flake support or
+   PATH setup. Thereafter the container maintains itself from the repository
+   (see
    [Continuous Deployment (GitOps)](./home-lab-bootstrapping.md#35-continuous-deployment-gitops)):
 
     ```bash
-    pct exec 200 -- /bin/sh -lc 'nixos-rebuild switch \
-      --option extra-experimental-features "nix-command flakes" \
-      --flake "github:ferrarimarco/home-lab?dir=config/nix#nas-pve1"'
+    scripts/bootstrap-host.sh nas-pve1 <pinned-mac-address>
     ```
 
-    Two wrinkles in this command, both consequences of running against the bare
-    bootstrap template:
-    - `/bin/sh -lc` — `pct exec` does not source a login shell, so
-      `/run/current-system/sw/bin` (where NixOS puts `nixos-rebuild`) is not on
-      its default PATH.
-    - `--option extra-experimental-features` — the bootstrap template imports
-      only the `proxmox-lxc` role, and flakes are enabled in the `common` role's
-      `nix.settings`, which is not applied yet. Once this first switch lands the
-      `common` role, subsequent rebuilds need neither the flag nor manual
-      invocation (comin takes over).
+    > **Fallback (no SSH path to the container).** The switch can also run from
+    > the owning Proxmox node. Two wrinkles in this variant, both consequences
+    > of running against the bare bootstrap template: `pct exec` does not source
+    > a login shell (hence `/bin/sh -lc`, since `/run/current-system/sw/bin` is
+    > not on its default PATH), and flakes are not enabled until the `common`
+    > role lands (hence the `--option` flag):
+    >
+    > ```bash
+    > pct exec 200 -- /bin/sh -lc 'nixos-rebuild switch \
+    >   --option extra-experimental-features "nix-command flakes" \
+    >   --flake "github:ferrarimarco/home-lab?dir=config/nix#nas-pve1"'
+    > ```
 
 3. **Set the Samba password** (one-time, imperative; see
    [§7.2](#72-imperative-part-one-time-setup)):

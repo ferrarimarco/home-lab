@@ -50,7 +50,9 @@ different command inside that environment instead.
 
 - `scripts/bootstrap-host.sh <hostname> <expected_mac>`: bootstraps a home lab
   host, validating that the target machine's MAC address matches the expected
-  one before installing.
+  one before deploying. Hosts with a `disko.nix` are installed with
+  `nixos-anywhere`; hosts without one (LXC containers) receive their
+  configuration via `nixos-rebuild switch --flake --target-host`.
 - `scripts/run-ansible.sh`: runs Ansible playbooks from `config/ansible` inside
   a purpose-built container.
 - `scripts/run-terraform.sh`: iterates over the numbered Terraform service

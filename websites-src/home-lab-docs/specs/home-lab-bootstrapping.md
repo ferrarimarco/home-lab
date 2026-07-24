@@ -2,14 +2,14 @@
 
 ## Implementation Status
 
-| Component / Feature                         | Status                | Details                                                                                         |
-| :------------------------------------------ | :-------------------- | :---------------------------------------------------------------------------------------------- |
-| **Nix Custom ISO**                          | **Fully Implemented** | Custom nixos-installer ISO configured with the proxmox-vm role.                                 |
-| **Bootstrap Keys Dir**                      | **Fully Implemented** | Keys directory created and staged in Git (private key ignored).                                 |
-| **Security Guardrail**                      | **Fully Implemented** | Pure-evaluation check blocks tracked private keys in flake.nix.                                 |
-| **Operations Shell**                        | **Fully Implemented** | Operations shell includes both `terraform` and `nixos-anywhere`.                                |
-| **Provisioning and installation lifecycle** | **Fully Implemented** | Operational choreography and automated handoff sequence defined but pending automation scripts. |
-| **GitOps CD (Comin)**                       | **Fully Implemented** | Pull-based continuous deployment for Day-2 state management.                                    |
+| Component / Feature                         | Status                | Details                                                                                                |
+| :------------------------------------------ | :-------------------- | :----------------------------------------------------------------------------------------------------- |
+| **Nix Custom ISO**                          | **Fully Implemented** | Custom nixos-installer ISO configured with the proxmox-vm role.                                        |
+| **Bootstrap Keys Dir**                      | **Fully Implemented** | Keys directory created and staged in Git (private key ignored).                                        |
+| **Security Guardrail**                      | **Fully Implemented** | Pure-evaluation check blocks tracked private keys in flake.nix.                                        |
+| **Operations Shell**                        | **Fully Implemented** | Operations shell includes both `terraform` and `nixos-anywhere`.                                       |
+| **Provisioning and installation lifecycle** | **Fully Implemented** | `scripts/bootstrap-host.sh` automates discovery, the MAC guardrail, and per-model deployment (§3.4.1). |
+| **GitOps CD (Comin)**                       | **Fully Implemented** | Pull-based continuous deployment for Day-2 state management.                                           |
 
 ## 1. Goal
 
@@ -105,6 +105,37 @@ immutable, disk-backed production machine via the following sequential phases:
    the `comin` service initializes, polls the designated Git repository, and
    continuously applies subsequent configuration updates automatically without
    manual SSH intervention.
+
+#### 3.4.1 Unified Bootstrap Entry Point (`scripts/bootstrap-host.sh`)
+
+`scripts/bootstrap-host.sh <hostname> <expected_mac>` drives the handoff for
+every host type — physical machines, VMs, and LXC containers — with the same
+process:
+
+1. **Discovery:** polls SSH on the host's production name, falling back to the
+   installer's default `nixos` hostname for ISO-booted machines. LXC containers
+   come up under their production name directly, because PVE's `nixos` ostype
+   hooks write `/etc/hostname` into the container at first start (see the
+   [framework spec](./proxmox-lxc.md#6-infrastructure-provisioning-terraform)).
+2. **MAC guardrail:** queries the target's network interfaces over SSH and
+   aborts unless the expected MAC address is present, preventing accidental
+   overwrites of the wrong machine.
+3. **Deployment:** branches on the host's deployment model, using the same
+   marker as the CI machine matrix:
+    - Hosts with a `disko.nix` (physical/VM targets) are installed with
+      `nixos-anywhere` (phases 3-5 above).
+    - Hosts without one (LXC containers) are already-running NixOS systems with
+      no disks to partition, so the script runs
+      `nixos-rebuild switch --flake <flake>#<host> --target-host root@<host>`
+      instead: the closure is built on the control machine and pushed over SSH.
+      This also sidesteps the bootstrap template's minimal environment — no
+      flake support or PATH setup is required on the target.
+
+In both cases the handoff installs the full host configuration, including comin,
+which then takes over Day-2 operations (phase 6). The script authenticates as
+`root` with the bootstrap key; the full configuration disables root SSH login
+(`common` role), so the script only works against hosts still in their bootstrap
+state — by design.
 
 ### 3.5 Continuous Deployment (GitOps)
 
