@@ -14,6 +14,10 @@
   users.users = {
     ferrarimarco = {
       isNormalUser = true;
+      # Pinned so bind-mounted data on privileged LXC hosts keeps consistent
+      # ownership (host UID 1000 = container UID 1000); see the NAS spec,
+      # section 5. Verified as a no-op for already-deployed hosts.
+      uid = 1000;
       extraGroups = [
         "wheel"
         "networkmanager"

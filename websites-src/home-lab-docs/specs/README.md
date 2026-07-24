@@ -12,7 +12,7 @@ testing rationale before code implementation.
 | [**Proxmox VM Config (`hl02`)**](./hl02-proxmox-vm.md)                      | Host-specific virtual hardware, partition layouts (Disko), and Terraform definitions for `hl02`.                                                         | **Fully Implemented**         |
 | [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                             | **Fully Implemented**         |
 | [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.           | **Fully Implemented**         |
-| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts. Builds on the `proxmox-lxc` framework.               | **Not Implemented**           |
+| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts. Builds on the `proxmox-lxc` framework.               | **Fully Implemented**         |
 
 ## Specifications to write / TODOs
 
@@ -24,6 +24,11 @@ testing rationale before code implementation.
     - NixOS ISO server host
     - Terraform provider registry
 - Nix tests
+    - Modularize the integration-test generator: move the per-service test
+      fragments (SSH, QEMU guest agent, comin, Samba, ...) out of
+      `config/nix/tests/make-test.nix` — for example placing each fragment next
+      to its role — so the generator stays maintainable as service coverage
+      grows. Do it for all services at once to avoid a split paradigm.
     - Check that configured users are present
     - Check that configured users have their SSH keys authorized (reuse the
       existing bootstrap key check because it already does most of the stuff we

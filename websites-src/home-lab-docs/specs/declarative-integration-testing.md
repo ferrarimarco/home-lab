@@ -57,6 +57,11 @@ The generator dynamically:
     - If `services.qemuGuest` is enabled, it asserts that
       `/dev/virtio-ports/org.qemu.guest_agent.0` is created and
       `qemu-guest-agent.service` activates.
+    - If `services.samba` is enabled, it creates a mock directory for every
+      declared share path (derived from the evaluated `services.samba.settings`,
+      since production bind mounts do not exist in the sandbox), waits for
+      `samba-smbd.service`, and asserts that every share appears in an anonymous
+      `smbclient` enumeration.
     - Always asserts that `multi-user.target` is reached (successful boot).
 - **Live Attribute Extraction:** Programmatically extracts production-grade
   configuration data (such as `bootstrapPublicKeys`) directly from the evaluated
