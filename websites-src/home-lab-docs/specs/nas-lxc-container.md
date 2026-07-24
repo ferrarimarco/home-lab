@@ -7,17 +7,17 @@ document covers only the NAS/SMB-specific additions.
 
 ## Implementation Status
 
-| Component / Feature           | Status                | Details                                                                          |
-| :---------------------------- | :-------------------- | :------------------------------------------------------------------------------- |
-| **`nas` Role (SMB)**          | **Missing**           | NixOS role enabling Samba with declarative share definitions.                    |
-| **`common` Role UID Pin**     | **Missing**           | Pin the `ferrarimarco` UID to `1000` in the `common` role.                       |
-| **Host Config (`nas-pve1`)**  | **Missing**           | NixOS host config for the pve1 instance.                                         |
-| **Host Config (`nas-pve2`)**  | **Missing**           | NixOS host config for the pve2 instance.                                         |
-| **Terraform LXC (`pve1`)**    | **Missing**           | `proxmox_virtual_environment_container` for pve1.                                |
-| **Terraform LXC (`pve2`)**    | **Missing**           | `proxmox_virtual_environment_container` for pve2.                                |
-| **Terraform Template Upload** | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1). |
-| **Host Integration Tests**    | **Missing**           | Auto-discovered tests for `nas-pve1` and `nas-pve2`.                             |
-| **Flake Registration**        | **Missing**           | Verify that both NAS hosts are discovered by the flake.                          |
+| Component / Feature           | Status                | Details                                                                           |
+| :---------------------------- | :-------------------- | :-------------------------------------------------------------------------------- |
+| **`nas` Role (SMB)**          | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                     |
+| **`common` Role UID Pin**     | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.          |
+| **Host Config (`nas-pve1`)**  | **Fully Implemented** | NixOS host config for the pve1 instance.                                          |
+| **Host Config (`nas-pve2`)**  | **Fully Implemented** | NixOS host config for the pve2 instance.                                          |
+| **Terraform LXC (`pve1`)**    | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`; not yet applied. |
+| **Terraform LXC (`pve2`)**    | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`; not yet applied. |
+| **Terraform Template Upload** | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
+| **Host Integration Tests**    | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
+| **Flake Registration**        | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
 
 ## 1. Goal
 
@@ -129,25 +129,30 @@ changes per node — everything inside the container is identical.
 
 ## 4. `nas` Role (`config/nix/roles/nas/default.nix`)
 
-The NAS host imports the `common` and
+The NAS host imports the framework's `common` role plus the `nas` service role
+defined here; `nas` itself imports the framework's
 [`proxmox-lxc`](./proxmox-lxc.md#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix)
-roles from the framework, plus the `nas` service role defined here. The `nas`
-role defines the **default** SMB configuration shared by every NAS container:
-the Samba service and its global settings, the default share definitions
-(`media` and `backups`), the privileged-container setting the bind mounts
-require, and the hostname-management setting GitOps requires. Every node exposes
-these defaults identically, so by default only `networking.hostName` differs
-between hosts; a node that owns extra datasets can layer additional shares on
-top in its own `configuration.nix` (see [§5.1](#51-adding-per-host-shares)).
+role. The `nas` role defines the **default** SMB configuration shared by every
+NAS container: the Samba service and its global settings, the default share
+definitions (`media` and `backups`), the privileged-container setting the bind
+mounts require, and the hostname-management setting GitOps requires. Every node
+exposes these defaults identically, so by default only `networking.hostName`
+differs between hosts; a node that owns extra datasets can layer additional
+shares on top in its own `configuration.nix` (see
+[§5.1](#51-adding-per-host-shares)).
 
-The role references the `proxmoxLXC.*` options that the `proxmox-lxc` role's
-module defines, so it must always be imported alongside `proxmox-lxc` (as in
-§5); importing `nas` on its own fails evaluation.
+The role imports `proxmox-lxc` directly because it references the `proxmoxLXC.*`
+options that role's module defines; hosts therefore do not import `proxmox-lxc`
+themselves.
 
 ```nix
 { lib, ... }:
 
 {
+  imports = [
+    ../proxmox-lxc
+  ];
+
   # Plain values override the proxmox-lxc role's lib.mkDefault defaults;
   # identical for every NAS container.
   proxmoxLXC = {
@@ -226,7 +231,6 @@ host's `configuration.nix` sets just the hostname:
 {
   imports = [
     ../../roles/common
-    ../../roles/proxmox-lxc
     ../../roles/nas
     ../../roles/comin
   ];
@@ -235,6 +239,10 @@ host's `configuration.nix` sets just the hostname:
   networking.hostName = "nas-pve1";
 }
 ```
+
+This matches the `[common, platform role, comin]` import shape used by
+[`hl02`](./hl02-proxmox-vm.md); the `nas` role pulls in `proxmox-lxc` itself
+(§4).
 
 This works because both nodes expose the **same in-container mount points**
 (`/mnt/shared/media`, `/mnt/shared/backups`); each node's Terraform bind mounts
@@ -439,40 +447,35 @@ The auto-generated tests verify:
 1. Successful boot (`multi-user.target` reached).
 2. SSH port 22 availability.
 
-### 9.2 Test Overrides (`test-override.nix`)
+### 9.2 Samba Coverage in the Test Generator
 
-Because the Samba service requires bind-mounted paths that do not exist in the
-test VM sandbox, each NAS host includes a `test-override.nix` that:
+The Samba service requires bind-mounted share paths that do not exist in the
+test VM sandbox. Instead of per-host test overrides, the centralized test
+generator (`config/nix/tests/make-test.nix`) handles Samba hosts conditionally,
+following the same service-aware pattern it already uses for SSH, the QEMU guest
+agent, and comin (see
+[Testing Spec - Centralized Test Generator](./declarative-integration-testing.md#32-centralized-test-generator-confignixtestsmake-testnix)):
 
-- Creates mock directories for the expected mount points.
-- Adds NAS-specific assertions (e.g., verifying that the `samba-smbd` systemd
-  unit is active — note NixOS names the Samba units `samba-smbd.service`,
-  `samba-nmbd.service`, etc.).
-- Adds no LXC boot tweaks of its own: the harness applies the
-  [LXC test overrides](./proxmox-lxc.md#7-lxc-specific-test-limitations)
-  automatically for any host that imports the `proxmox-lxc` role.
+- It derives the share list from the evaluated `services.samba.settings` (every
+  section besides `global` that declares a `path`) and creates each share's path
+  as a mock directory via `systemd.tmpfiles` rules.
+- It waits for `samba-smbd.service` (NixOS names the Samba units
+  `samba-smbd.service`, `samba-nmbd.service`, and so on).
+- It asserts that every declared share appears in an anonymous
+  (`smbclient -L localhost -N`) enumeration over the null session. This checks
+  that the shares are exported, not the authenticated access path, since no
+  Samba password can be set declaratively (see section 7).
 
-```nix
-{
-  extraConfig = {
-    # Create mock mount points so the Samba shares can reference valid
-    # paths during the integration test. Owned by ferrarimarco:users to
-    # mirror the production dataset ownership (host UID 1000, GID 100).
-    systemd.tmpfiles.rules = [
-      "d /mnt/shared/media 0755 ferrarimarco users -"
-      "d /mnt/shared/backups 0755 ferrarimarco users -"
-    ];
-  };
+Because the assertions are derived from the evaluated configuration, a host that
+adds a per-host share (section 5.1) is covered automatically: the mock directory
+and the enumeration assertion follow the share definition, so the Samba
+configuration and its test coverage cannot drift apart.
 
-  extraTestScript = ''
-    machine.wait_for_unit("samba-smbd.service")
-    # Anonymous (-N) share enumeration over the null session; this checks
-    # that the shares are exported, not the authenticated access path,
-    # since no Samba password can be set declaratively (see section 7).
-    machine.succeed("smbclient -L localhost -N | grep -q media")
-  '';
-}
-```
+The NAS hosts therefore ship no `test-override.nix`. The file remains available
+for genuinely host-specific assertions (see the framework's
+[host structure](./proxmox-lxc.md#4-host-structure)), and the LXC boot tweaks
+are applied automatically by the harness (see
+[LXC test limitations](./proxmox-lxc.md#7-lxc-specific-test-limitations)).
 
 ## 10. Deployment Workflow
 

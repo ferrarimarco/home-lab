@@ -99,6 +99,20 @@ pkgs.testers.nixosTest {
           );
         }
 
+        # --- Samba Compatibility Settings ---
+        # If the host serves Samba shares, create every declared share path as
+        # a mock directory: the production paths are bind mounts (e.g. Proxmox
+        # LXC mount points) that do not exist in the test sandbox.
+        {
+          systemd.tmpfiles.rules = lib.mkIf config.services.samba.enable (
+            lib.mapAttrsToList (_: section: "d ${section.path} 0755 root root -") (
+              lib.filterAttrs (_: section: section ? path) (
+                builtins.removeAttrs config.services.samba.settings [ "global" ]
+              )
+            )
+          );
+        }
+
         # --- LXC Compatibility Settings ---
         # If this is an LXC container (indicated by the presence of root-level proxmoxLXC options),
         # apply container-to-VM compatibility overrides so the QEMU VM test runner can boot it.
@@ -180,6 +194,24 @@ pkgs.testers.nixosTest {
         machine.wait_for_unit("qemu-guest-agent.service")
       '';
 
+      # Verify Samba shares if the samba service is enabled. The share list is
+      # derived from the evaluated configuration: every settings section
+      # (besides global) that declares a path is expected to be exported.
+      sambaShareNames = lib.attrNames (
+        lib.filterAttrs (_: section: section ? path) (
+          builtins.removeAttrs node_config.services.samba.settings [ "global" ]
+        )
+      );
+      sambaCheck = lib.optionalString node_config.services.samba.enable ''
+        machine.wait_for_unit("samba-smbd.service")
+        # Anonymous (-N) share enumeration over the null session; this checks
+        # that the shares are exported, not the authenticated access path,
+        # since Samba passwords cannot be set declaratively.
+        ${lib.concatMapStringsSep "\n" (
+          share: ''machine.succeed("smbclient -L localhost -N | grep -q '${share}'")''
+        ) sambaShareNames}
+      '';
+
       cominCheck = lib.optionalString node_config.services.comin.enable ''
         print("--- GitOps Phase 1: Mocking Local Git Repository Layout ---")
         machine.succeed(
@@ -255,6 +287,7 @@ pkgs.testers.nixosTest {
       ${bootstrapKeyCheck}
       ${sudoCheck}
       ${qemuAgentCheck}
+      ${sambaCheck}
       ${cominCheck}
 
       # Host-specific custom assertions (if any)
