@@ -102,19 +102,37 @@ fi
 
 echo "MAC address verified successfully."
 
-NIXOS_ANYWHERE_SSH_HOST="root@${CONNECT_HOST}"
+TARGET_SSH_HOST="root@${CONNECT_HOST}"
 FLAKE_URI="${NIX_CONFIG_DIR_PATH}/#${TARGET_HOST}"
 
-echo "Targeting network endpoint: ${NIXOS_ANYWHERE_SSH_HOST}"
-echo "Initiating nixos-anywhere deployment of: ${FLAKE_URI}"
+echo "Targeting network endpoint: ${TARGET_SSH_HOST}"
 
-nixos-anywhere \
-  --flake "${FLAKE_URI}" \
-  "${NIXOS_ANYWHERE_SSH_HOST}"
+# Hosts with a disko.nix are physical/VM targets that need disk partitioning
+# and a full installation, handled by nixos-anywhere. Hosts without one (LXC
+# containers) are already-running NixOS systems with no disks to partition:
+# build the closure locally and push it over SSH with nixos-rebuild instead.
+if [ -f "${NIX_CONFIG_DIR_PATH}/hosts/${TARGET_HOST}/disko.nix" ]; then
+  echo "Initiating nixos-anywhere deployment of: ${FLAKE_URI}"
 
-break_line
-echo "Bootstrapping complete! ${TARGET_HOST} is rebooting."
-break_line
+  nixos-anywhere \
+    --flake "${FLAKE_URI}" \
+    "${TARGET_SSH_HOST}"
+
+  break_line
+  echo "Bootstrapping complete! ${TARGET_HOST} is rebooting."
+  break_line
+else
+  echo "No disko.nix found for ${TARGET_HOST}: deploying it as an LXC container."
+  echo "Initiating nixos-rebuild deployment of: ${FLAKE_URI}"
+
+  nixos-rebuild switch \
+    --flake "${FLAKE_URI}" \
+    --target-host "${TARGET_SSH_HOST}"
+
+  break_line
+  echo "Bootstrapping complete! ${TARGET_HOST} switched to its full configuration."
+  break_line
+fi
 
 # Remove the known host key for the nixos host because it will re-generated
 # when starting the bootstrapping process for another host
