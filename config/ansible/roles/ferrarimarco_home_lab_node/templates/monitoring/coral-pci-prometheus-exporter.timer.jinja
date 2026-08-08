@@ -1,0 +1,10 @@
+[Unit]
+Description=Run coral-pci-prometheus-exporter service as scheduled
+
+[Timer]
+OnCalendar=*:*:0/30
+# Don't coalesce runs into the default 1-minute accuracy window
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

@@ -1,5 +1,5 @@
 ---
-- name: "Configure {{ raspberry_pi_config_file_path }}"
+- name: "Populate Raspberry Pi config file"
   ansible.builtin.lineinfile:
     line: "{{ item.key }}={{ item.value }}"
     dest: "{{ raspberry_pi_config_file_path }}"

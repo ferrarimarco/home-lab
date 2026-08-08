@@ -1,0 +1,4 @@
+---
+monitoring_coral_pci_prometheus_exporter_service_name: "coral-pci-prometheus-exporter"
+monitoring_coral_pci_prometheus_exporter_service_file_name: "{{ monitoring_coral_pci_prometheus_exporter_service_name }}.service"
+monitoring_coral_pci_prometheus_exporter_timer_file_name: "{{ monitoring_coral_pci_prometheus_exporter_service_name }}.timer"

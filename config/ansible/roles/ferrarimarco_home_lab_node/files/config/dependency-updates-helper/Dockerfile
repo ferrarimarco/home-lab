@@ -21,11 +21,11 @@ FROM lscr.io/linuxserver/radarr:6.0.4 AS radarr
 FROM lscr.io/linuxserver/sonarr:4.0.16 AS sonarr
 
 # monitoring
-FROM ghcr.io/google/cadvisor:0.54.1 AS cadvisor
+FROM ghcr.io/google/cadvisor:v0.60.1 AS cadvisor
 FROM ghcr.io/druggeri/nut_exporter:3.2.2 AS nut-exporter
 FROM prom/blackbox-exporter:v0.28.0 AS prometheus-blackbox-exporter
 FROM prom/prometheus:v3.8.0 AS prometheus
-FROM quay.io/prometheus/node-exporter:v1.10.2 AS prometheus-node-exporter
+FROM quay.io/prometheus/node-exporter:v1.11.1 AS prometheus-node-exporter
 
 # monitoring-backend
 FROM grafana/grafana-oss:12.1.1 AS grafana

@@ -283,6 +283,16 @@ monitoring_templates_to_render:
     state: "{{ configure_monitoring_sata | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ monitoring_smartmon_prometheus_exporter_service_name }}"
+  - src: "monitoring/{{ monitoring_coral_pci_prometheus_exporter_service_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_coral_pci_prometheus_exporter_service_file_name }}"
+    state: "{{ has_coral_pci_accelerator | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_coral_pci_prometheus_exporter_service_name }}"
+  - src: "monitoring/{{ monitoring_coral_pci_prometheus_exporter_timer_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_coral_pci_prometheus_exporter_timer_file_name }}"
+    state: "{{ has_coral_pci_accelerator | ternary('file', 'absent') }}"
+    os_services_to_restart:
+      - "{{ monitoring_coral_pci_prometheus_exporter_service_name }}"
 mosquitto_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/mosquitto"
 mosquitto_data_directory_path: "{{ mosquitto_runtime_data_directory_path }}/data"
 mosquitto_log_directory_path: "{{ mosquitto_runtime_data_directory_path }}/logs"
