@@ -1,0 +1,6 @@
+---
+- name: Configure monitoring
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: ferrarimarco_home_lab_monitoring

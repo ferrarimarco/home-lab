@@ -1,0 +1,21 @@
+---
+- name: Load a variable file based on the OS type, or a default if not found
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_version'] }}.yaml"
+    - "{{ ansible_facts['distribution'] }}.yaml"
+    - "{{ ansible_facts['os_family'] }}.yaml"
+    - "default.yaml"
+  tags:
+    - always
+
+- name: Setup OS
+  ansible.builtin.include_tasks:
+    file: "{{ item }}"
+  with_first_found:
+    - "setup-{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_version'] }}.yaml"
+    - "setup-{{ ansible_facts['distribution'] }}.yaml"
+    - "setup-{{ ansible_facts['os_family'] }}.yaml"
+
+- name: Ensure handlers are notified now
+  ansible.builtin.meta: flush_handlers
