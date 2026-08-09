@@ -7,14 +7,14 @@ Nice=-10
 ExecStart=/bin/sh -c '\
 out="{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/coral-pci.prom"; \
 if temp_millicelsius=$$(cat /sys/class/apex/apex_0/temp 2>/dev/null) && [ -n "$$temp_millicelsius" ]; then \
-  temp=$$(awk -v t="$$temp_millicelsius" "BEGIN { print t / 1000 }"); \
+    temp=$$(awk -v t="$$temp_millicelsius" "BEGIN { print t / 1000 }"); \
 else \
   temp=-1; \
 fi; \
 { \
-  echo "# HELP coral_pci_temperature_celsius Temperature of the Coral PCI module in degrees Celsius. -1 when the sysfs read fails. A hung device reports an implausible value (e.g. -89.7)."; \
-  echo "# TYPE coral_pci_temperature_celsius gauge"; \
-  echo "coral_pci_temperature_celsius $$temp"; \
+    echo "# HELP coral_pci_temperature_celsius Temperature of the Coral PCI module in degrees Celsius. -1 when the sysfs read fails. A hung device reports an implausible value (e.g. -89.7)."; \
+    echo "# TYPE coral_pci_temperature_celsius gauge"; \
+    echo "coral_pci_temperature_celsius $$temp"; \
 } > "$$out.tmp" && mv "$$out.tmp" "$$out"'
 # Write nothing except the output file
 ProtectSystem=strict
