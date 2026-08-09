@@ -1,0 +1,8 @@
+---
+- name: Install APT packages
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name: "{{ monitoring_os_packages }}"
+    state: present
+    update_cache: true
+  become: true

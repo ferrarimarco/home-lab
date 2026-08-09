@@ -37,3 +37,5 @@ testing rationale before code implementation.
     - Create a udev rule:
       `echo 'SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d4", SYMLINK+="zigbee_dongle"' | sudo tee /etc/udev/rules.d/99-zigbee.rules`
     - Change the mapping in Docker
+- Move monitoring stack from the home_lab_node role to the home_lab_monitoring
+  role.

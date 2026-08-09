@@ -1,0 +1,4 @@
+---
+apt_cache_valid_time: 3600
+monitoring_os_packages:
+  - prometheus-node-exporter
