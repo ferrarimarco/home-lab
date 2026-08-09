@@ -9,7 +9,8 @@ to eventually get to a state where we don't need this file anymore.
 
 - `pve2`: manually created (through the Proxmox GUI) two new ZFS pools:
   `tank-hdd-scratch` and `tank-ssd-scratch`. They are intended to be used as
-  scratch space for temporary files.
+  scratch space for temporary files. Rationale: ZFS Ansible modules are not
+  idempotent, and I didn't find a suitable ZFS Terraform provider.
 
 ## 2025-04-03
 
