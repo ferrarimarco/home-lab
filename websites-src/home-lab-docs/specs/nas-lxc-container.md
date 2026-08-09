@@ -16,6 +16,7 @@ document covers only the NAS/SMB-specific additions.
 | **Terraform LXC (`pve1`)**    | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`; not yet applied. |
 | **Terraform LXC (`pve2`)**    | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`; not yet applied. |
 | **Terraform Template Upload** | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
+| **Host Storage Prep (Ansible)** | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11); not yet run. |
 | **Host Integration Tests**    | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
 | **Flake Registration**        | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
 
@@ -284,13 +285,17 @@ host in the lab, not just the NAS containers.
 The `media` and `backups` shares are defaults that every NAS container exposes.
 A node that owns datasets the others do not (for example a `photos` dataset only
 on `pve1`) can serve them by adding a share **on that host only**. A share is
-two coupled declarations, so both halves are required:
+three coupled declarations, so all of them are required:
 
-1. **The bind mount (Terraform).** Add the host-path → container-path entry to
+1. **The host dataset (Ansible).** Add the dataset to that node's
+   `zfs_datasets` list in its Ansible `host_vars` (see
+   [§11.1](#111-zfs-dataset-mount-points-on-the-host)) so the `setup_disks`
+   role creates it and converges its mount-point ownership.
+2. **The bind mount (Terraform).** Add the host-path → container-path entry to
    that node's `var.nas_container_bind_mounts` (see
    [§6.2](#62-zfs-dataset-bind-mounts)), for example `/rpool-sata/photos` →
    `/mnt/shared/photos`.
-2. **The Samba share (NixOS).** Add the export to that host's
+3. **The Samba share (NixOS).** Add the export to that host's
    `configuration.nix`; it merges with the role's defaults:
 
     ```nix
@@ -304,10 +309,11 @@ two coupled declarations, so both halves are required:
     };
     ```
 
-> **Both halves or neither.** The two declarations are not cross-checked: a
-> Samba share without its bind mount exports an empty path, and a bind mount
-> without its share mounts data that is never served. Add and remove them
-> together.
+> **All three or none.** The declarations are not cross-checked: a Samba share
+> without its bind mount exports an empty path, a bind mount without its
+> dataset fails to start the container (Proxmox does not create bind-mount
+> sources), and a dataset without its share holds data that is never served.
+> Add and remove them together.
 
 ## 6. Infrastructure Provisioning (Terraform)
 
@@ -485,7 +491,19 @@ The examples below use VMID `200` for `nas-pve1`. VMIDs are cluster-unique (the
 existing VMs use `100` and `101`), so `nas-pve2` gets its own distinct ID (e.g.
 `201`), and each `pct` command runs on the Proxmox node that owns the container.
 
-1. **Provision the container.** Stage the image artifacts with the
+1. **Converge host storage (Ansible).** The `setup_disks` role (see
+   [§11.1](#111-zfs-dataset-mount-points-on-the-host)) asserts that the node's
+   ZFS pool exists, creates the `media` and `backups` datasets if missing, sets
+   their mount-point ownership, and creates the Samba state directory
+   ([§11.2](#112-samba-state-directory-on-the-host)):
+
+    ```bash
+    ANSIBLE_PLAYBOOK_FILE_NAME="setup-disks.yaml" \
+      ADDITIONAL_ANSIBLE_FLAGS="--limit home_lab_proxmox_nodes" \
+      scripts/run-ansible.sh
+    ```
+
+2. **Provision the container.** Stage the image artifacts with the
    [`proxmox-images` package](./proxmox-lxc.md#54-artifact-staging-for-terraform-proxmox-images),
    then apply Terraform to upload the generic
    [`nixos-lxc-bootstrap`](./proxmox-lxc.md#5-lxc-template-generation) template
@@ -498,7 +516,7 @@ existing VMs use `100` and `101`), so `nas-pve2` gets its own distinct ID (e.g.
     terraform apply
     ```
 
-2. **Hand off to GitOps.** Run the unified bootstrap script from the repository
+3. **Hand off to GitOps.** Run the unified bootstrap script from the repository
    root (see the
    [bootstrapping spec](./home-lab-bootstrapping.md#341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh)).
    It discovers the container over SSH, verifies its pinned MAC address, and
@@ -526,7 +544,7 @@ existing VMs use `100` and `101`), so `nas-pve2` gets its own distinct ID (e.g.
     >   --flake "github:ferrarimarco/home-lab?dir=config/nix#nas-pve1"'
     > ```
 
-3. **Set the Samba password** (one-time, imperative; see
+4. **Set the Samba password** (one-time, imperative; see
    [§7.2](#72-imperative-part-one-time-setup)):
 
     ```bash
@@ -548,13 +566,37 @@ upload, or container recreation. The Samba password database persists in the
 
 The Proxmox host must have the ZFS datasets mounted at known, stable paths
 (specifically `/rpool-sata/media` and `/rpool-sata/backups` on `pve1` and
-`/tank-hdd/media` and `/tank-hdd/backups` on `pve2`). The host directories must
-be owned by UID `1000` (`ferrarimarco`) to match container permissions.
+`/tank-hdd/media` and `/tank-hdd/backups` on `pve2`), owned by UID `1000`
+(`ferrarimarco`) and GID `100` (`users`) to match container permissions.
 
-The mount points are parameterized in Terraform using input variable maps to
-prevent hardcoding host paths inside the container configurations. If ZFS
-dataset paths change, the Terraform parameters must be updated to match the new
-host paths.
+This layout is codified in Ansible rather than assumed: the
+`ferrarimarco_home_lab_setup_disks` role converges it from two per-node
+`host_vars` lists, following a read-then-act pattern (query actual state with
+`changed_when: false` commands, act only on the delta) instead of the
+`community.general.zfs` module, whose property handling is not reliably
+idempotent. No suitable Terraform provider exists for ZFS either, which is why
+this lives in the Ansible layer that already manages the Proxmox nodes:
+
+- **`zfs_pools` — asserted, never created.** `zpool create` is destructive and
+  device-specific, so pool creation stays a deliberate manual act. Each entry
+  records the pool's actual topology (`by-id` device paths) and creation
+  options (e.g. `ashift`) as executable documentation; the role fails with the
+  documented `zpool create` command when the pool is missing.
+- **`zfs_datasets` — created if missing** (`zfs create -p`). The declared
+  `mount_point` is not an input to ZFS (datasets mount at the ZFS-computed
+  path, by default `/<pool>/<dataset>`), so the role then asserts that each
+  dataset's actual `mountpoint` property matches the declaration before
+  converging the mount point's ownership (UID `1000`, GID `100`) — a drifted
+  declaration fails loudly instead of chowning a plain directory that shadows
+  the real dataset. The check also works in check mode: datasets that would
+  be created are validated against their predicted default mount point,
+  derived from the pool's actual one.
+
+The same paths appear as the bind-mount _sources_ in Terraform
+(`var.nas_container_bind_mounts`, [§6.2](#62-zfs-dataset-bind-mounts)). The
+Ansible and Terraform declarations are two views of the same layout and are not
+cross-checked: if a dataset path changes, update both together (and the Samba
+share if it is a per-host one; see [§5.1](#51-adding-per-host-shares)).
 
 ### 11.2 Samba State Directory on the Host
 
@@ -562,7 +604,10 @@ Each node must provide the persistent directory backing the `/var/lib/samba`
 bind mount (`/var/lib/samba-state/nas-pve1` on `pve1`,
 `/var/lib/samba-state/nas-pve2` on `pve2`). Proxmox does not create bind-mount
 sources, so the directory must exist — owned by `root`, as Samba expects for
-`/var/lib/samba` — before the container first starts.
+`/var/lib/samba` — before the container first starts. Like the datasets
+([§11.1](#111-zfs-dataset-mount-points-on-the-host)), this is codified in
+Ansible: the directory is declared in each node's `directories_to_create`
+`host_vars` list and created by the `setup_disks` role.
 
 As specced, this directory lives on the Proxmox root filesystem, not on the data
 pools, so `passdb.tdb` is **not** covered by ZFS snapshots or replication of the
@@ -615,9 +660,9 @@ reservations.
   share browsing on Windows and macOS clients.
 - **Static IP migration**: Transition from DHCP to static IP assignments defined
   in the NixOS configuration once the network spec is written.
-- **ZFS dataset Terraform management**: Define the ZFS datasets themselves in
-  Terraform or a separate Nix module for full declarative coverage.
-- **Single source of truth for shares**: Derive both the Samba share exports
-  (NixOS) and the bind mounts (Terraform) from one data structure — for example
-  a Nix attrset emitted to `tfvars` via `nix eval` — so each share is declared
-  once and the two halves cannot drift (see §5.1).
+- **Single source of truth for shares**: Derive the Samba share exports
+  (NixOS), the bind mounts (Terraform), and the host datasets (Ansible
+  `zfs_datasets`, [§11.1](#111-zfs-dataset-mount-points-on-the-host)) from one
+  data structure — for example a Nix attrset emitted to `tfvars` via
+  `nix eval` — so each share is declared once and the three halves cannot
+  drift (see §5.1).

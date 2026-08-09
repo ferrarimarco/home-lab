@@ -1,4 +1,14 @@
 ---
+- name: Create directories
+  ansible.builtin.file:
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+    owner: "{{ item.owner | default('root') }}"
+    path: "{{ item.path }}"
+    state: directory
+  become: true
+  with_items: "{{ directories_to_create | default([]) }}"
+
 - name: Create mountpoints
   ansible.builtin.file:
     group: "{{ item.group | default('root') }}"
@@ -36,3 +46,10 @@
     src: "{{ item.src }}"
     state: "{{ item.state }}"
   with_items: "{{ disks_to_mount | default([]) }}"
+
+- name: Configure ZFS pools and datasets
+  ansible.builtin.include_tasks:
+    file: zfs.yaml
+  # Skip entirely on hosts that declare no ZFS resources, so the zpool/zfs
+  # state queries never run where the tools may not exist.
+  when: (zfs_pools | default([]) | length > 0) or (zfs_datasets | default([]) | length > 0)

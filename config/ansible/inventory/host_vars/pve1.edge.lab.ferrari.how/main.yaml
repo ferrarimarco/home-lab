@@ -1,5 +1,9 @@
 ---
 configure_monitoring_nut: true
+# Persistent Samba state for the nas-pve1 LXC container (bind-mounted onto
+# /var/lib/samba); must exist before the container first starts.
+directories_to_create:
+  - path: /var/lib/samba-state/nas-pve1
 monitoring_nut_server_admin_password: "{{ vault_monitoring_nut_server_admin_password }}"
 monitoring_nut_server_admin_username: "{{ vault_monitoring_nut_server_admin_username }}"
 monitoring_nut_devices:
@@ -17,3 +21,20 @@ network_interfaces:
     interface_name: enp2s0
     # Assigned using DHCP address reservation
     ipv4_address: "10.0.0.3"
+# Datasets served by the nas-pve1 LXC container via bind mounts. Owned by
+# UID 1000 (ferrarimarco) / GID 100 (users) to match the in-container user.
+zfs_datasets:
+  - name: rpool-sata/media
+    mount_point: /rpool-sata/media
+    owner: "1000"
+    group: "100"
+  - name: rpool-sata/backups
+    mount_point: /rpool-sata/backups
+    owner: "1000"
+    group: "100"
+# Pools are asserted, not created; topology and options document the manual
+# creation command (see the NAS LXC container spec, section 11.1).
+zfs_pools:
+  - name: rpool-sata
+    create_options: "-o ashift=12"
+    topology: /dev/disk/by-id/ata-TS128GSSD452K2_G699820214

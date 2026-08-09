@@ -1,4 +1,8 @@
 ---
+# Persistent Samba state for the nas-pve2 LXC container (bind-mounted onto
+# /var/lib/samba); must exist before the container first starts.
+directories_to_create:
+  - path: /var/lib/samba-state/nas-pve2
 network_interfaces:
   # BMC
   - mac_address: "ac:1f:6b:b6:8d:c4"
@@ -10,3 +14,20 @@ network_interfaces:
     alias_name: enp9s0
     # Assigned using DHCP address reservation
     ipv4_address: "10.0.0.4"
+# Datasets served by the nas-pve2 LXC container via bind mounts. Owned by
+# UID 1000 (ferrarimarco) / GID 100 (users) to match the in-container user.
+zfs_datasets:
+  - name: tank-hdd/media
+    mount_point: /tank-hdd/media
+    owner: "1000"
+    group: "100"
+  - name: tank-hdd/backups
+    mount_point: /tank-hdd/backups
+    owner: "1000"
+    group: "100"
+# Pools are asserted, not created; topology and options document the manual
+# creation command (see the NAS LXC container spec, section 11.1).
+zfs_pools:
+  - name: tank-hdd
+    create_options: "-o ashift=12"
+    topology: /dev/disk/by-id/ata-ST4000VN006-3CW104_WW696ZLX
