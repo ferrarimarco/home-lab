@@ -1,0 +1,95 @@
+---
+# ZFS convergence follows a read-then-act pattern (query actual state, act
+# only on the delta) instead of community.general.zfs, whose property
+# handling is not reliably idempotent.
+
+- name: List existing ZFS pools
+  ansible.builtin.command: zpool list -H -o name
+  register: zfs_pools_actual
+  changed_when: false
+  check_mode: false
+  become: true
+
+# Pool creation is destructive and device-specific, so it stays a deliberate
+# manual act: the inventory records each pool's topology and the assert fails
+# with the documented creation command when the pool is missing.
+- name: Assert that the expected ZFS pools exist
+  ansible.builtin.assert:
+    that: item.name in zfs_pools_actual.stdout_lines
+    fail_msg: >-
+      ZFS pool {{ item.name }} is missing on {{ inventory_hostname }}.
+      Create it manually with:
+      zpool create {{ item.create_options | default('') }} {{ item.name }} {{ item.topology }}
+  with_items: "{{ zfs_pools | default([]) }}"
+
+- name: List existing ZFS datasets
+  ansible.builtin.command: zfs list -H -o name -t filesystem
+  register: zfs_datasets_actual
+  changed_when: false
+  check_mode: false
+  become: true
+
+- name: Create missing ZFS datasets
+  ansible.builtin.command: zfs create -p {{ item.name }}
+  become: true
+  when: item.name not in zfs_datasets_actual.stdout_lines
+  with_items: "{{ zfs_datasets | default([]) }}"
+
+# The inventory's mount_point is not an input to ZFS: datasets mount where
+# ZFS decides (by default, under their pool's mount point). Verify the two
+# agree before chowning, so a drifted mount_point cannot create and chown a
+# plain directory that shadows the real dataset.
+- name: Read ZFS pool mount points
+  ansible.builtin.command: zfs get -H -o value mountpoint {{ item }}
+  register: zfs_pool_mount_points_actual
+  changed_when: false
+  check_mode: false
+  become: true
+  with_items: "{{ zfs_datasets | default([]) | map(attribute='name') | map('regex_replace', '/.*', '') | unique | list }}"
+
+- name: Read ZFS dataset mount points
+  ansible.builtin.command: zfs get -H -o value mountpoint {{ item.name }}
+  register: zfs_dataset_mount_points_actual
+  changed_when: false
+  check_mode: false
+  # In check mode, datasets the create task would have created do not exist
+  # yet, so their read legitimately fails; tolerate exactly that case so the
+  # assert below can validate their predicted mount point instead.
+  failed_when: >-
+    zfs_dataset_mount_points_actual.rc != 0
+    and not (ansible_check_mode and item.name not in zfs_datasets_actual.stdout_lines)
+  become: true
+  with_items: "{{ zfs_datasets | default([]) }}"
+
+- name: Assert that ZFS dataset mount points match the inventory
+  ansible.builtin.assert:
+    that: dataset_mount_point == item.item.mount_point
+    fail_msg: >-
+      ZFS dataset {{ item.item.name }} mounts (or would mount) at
+      {{ dataset_mount_point }} on {{ inventory_hostname }}, but the
+      inventory declares {{ item.item.mount_point }}. Align the inventory
+      (or the dataset's mountpoint property) before rerunning.
+  vars:
+    dataset_pool: "{{ item.item.name | regex_replace('/.*', '') }}"
+    pool_mount_point: >-
+      {{ (zfs_pool_mount_points_actual.results
+          | selectattr('item', 'equalto', dataset_pool)
+          | first).stdout }}
+    # Datasets that do not exist yet (check mode) are validated against the
+    # ZFS default: under their pool's mount point. This assumes no
+    # intermediate dataset overrides its mountpoint property.
+    predicted_mount_point: "{{ pool_mount_point }}/{{ item.item.name.split('/')[1:] | join('/') }}"
+    dataset_mount_point: "{{ item.stdout if item.rc == 0 else predicted_mount_point }}"
+  with_items: "{{ zfs_dataset_mount_points_actual.results }}"
+  loop_control:
+    label: "{{ item.item.name | default(item) }}"
+
+- name: Set ZFS dataset mount point ownership
+  ansible.builtin.file:
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+    owner: "{{ item.owner | default('root') }}"
+    path: "{{ item.mount_point }}"
+    state: directory
+  become: true
+  with_items: "{{ zfs_datasets | default([]) }}"
