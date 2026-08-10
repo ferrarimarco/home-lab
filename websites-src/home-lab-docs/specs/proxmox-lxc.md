@@ -437,6 +437,15 @@ assertions.
 
 ## 8. Terraform Provider Authentication
 
-Bind mounts in the `bpg/proxmox` provider require authentication as `root@pam`.
-The existing provider configuration already supports username/password
+Bind mounts in the `bpg/proxmox` provider require authentication as `root@pam`
+with a password: the check is hardcoded in Proxmox (no role or ACL can grant it
+to another principal, and a `root@pam` API token does not pass it either). The
+existing provider configuration already supports username/password
 authentication alongside API tokens.
+
+`scripts/run-terraform.sh` therefore runs the `220-proxmox-workloads` service
+with the same root credentials file (`proxmox-root-secrets.tfvars`) and
+skip-if-missing gate as `200-proxmox-iac-automation-init`, instead of the
+generated API token secrets. The two files define the same secrets variable and
+Terraform takes the last definition of a variable, so the tokens would be
+superseded anyway.

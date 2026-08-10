@@ -90,7 +90,13 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
     "${TERRAFORM_APPLY_COMMAND[@]}" \
       -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox.tfvars"
     ;;
-  "200-proxmox-iac-automation-init")
+  "200-proxmox-iac-automation-init" | "220-proxmox-workloads")
+    # Both services need the root credentials: 200 provisions the IaC
+    # automation principals, and 220's container bind mounts are only allowed
+    # for root@pam with password authentication (API tokens get an HTTP 403).
+    # 220 does not load the generated API token secrets at all: it and the
+    # root credentials file define the same variable, and Terraform takes the
+    # last definition of a variable, so the tokens would be superseded anyway.
     TERRAFORM_ROOT_CREDENTIALS_FILE_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-root-secrets.tfvars"
     if [[ ! -f "${TERRAFORM_ROOT_CREDENTIALS_FILE_PATH}" ]]; then
       echo "Skip ${tf_service} because root credentials file (${TERRAFORM_ROOT_CREDENTIALS_FILE_PATH}) is not available"
@@ -100,7 +106,7 @@ for tf_service in "${TERRAFORM_SERVICES[@]}"; do
       -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox.tfvars" \
       -var-file="${TERRAFORM_ROOT_CREDENTIALS_FILE_PATH}"
     ;;
-  "210-proxmox-storage" | "220-proxmox-workloads")
+  "210-proxmox-storage")
     "${TERRAFORM_APPLY_COMMAND[@]}" \
       -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox.tfvars" \
       -var-file="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/proxmox-secrets.tfvars.json"
