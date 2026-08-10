@@ -17,6 +17,7 @@ resource "proxmox_virtual_environment_role" "terraform_automation_writer" {
     "VM.PowerMgmt",
     "SDN.Use",
     "Sys.Audit",
+    "Sys.Modify"
   ]
 }
 
