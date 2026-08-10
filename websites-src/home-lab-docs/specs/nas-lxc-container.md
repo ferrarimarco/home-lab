@@ -7,18 +7,18 @@ document covers only the NAS/SMB-specific additions.
 
 ## Implementation Status
 
-| Component / Feature           | Status                | Details                                                                           |
-| :---------------------------- | :-------------------- | :-------------------------------------------------------------------------------- |
-| **`nas` Role (SMB)**          | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                     |
-| **`common` Role UID Pin**     | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.          |
-| **Host Config (`nas-pve1`)**  | **Fully Implemented** | NixOS host config for the pve1 instance.                                          |
-| **Host Config (`nas-pve2`)**  | **Fully Implemented** | NixOS host config for the pve2 instance.                                          |
-| **Terraform LXC (`pve1`)**    | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`; not yet applied. |
-| **Terraform LXC (`pve2`)**    | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`; not yet applied. |
-| **Terraform Template Upload** | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
+| Component / Feature             | Status                | Details                                                                                        |
+| :------------------------------ | :-------------------- | :--------------------------------------------------------------------------------------------- |
+| **`nas` Role (SMB)**            | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                                  |
+| **`common` Role UID Pin**       | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.                       |
+| **Host Config (`nas-pve1`)**    | **Fully Implemented** | NixOS host config for the pve1 instance.                                                       |
+| **Host Config (`nas-pve2`)**    | **Fully Implemented** | NixOS host config for the pve2 instance.                                                       |
+| **Terraform LXC (`pve1`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`; not yet applied.              |
+| **Terraform LXC (`pve2`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`; not yet applied.              |
+| **Terraform Template Upload**   | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).               |
 | **Host Storage Prep (Ansible)** | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11); not yet run. |
-| **Host Integration Tests**    | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
-| **Flake Registration**        | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
+| **Host Integration Tests**      | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.                          |
+| **Flake Registration**          | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                             |
 
 ## 1. Goal
 
@@ -287,10 +287,10 @@ A node that owns datasets the others do not (for example a `photos` dataset only
 on `pve1`) can serve them by adding a share **on that host only**. A share is
 three coupled declarations, so all of them are required:
 
-1. **The host dataset (Ansible).** Add the dataset to that node's
-   `zfs_datasets` list in its Ansible `host_vars` (see
-   [§11.1](#111-zfs-dataset-mount-points-on-the-host)) so the `setup_disks`
-   role creates it and converges its mount-point ownership.
+1. **The host dataset (Ansible).** Add the dataset to that node's `zfs_datasets`
+   list in its Ansible `host_vars` (see
+   [§11.1](#111-zfs-dataset-mount-points-on-the-host)) so the `setup_disks` role
+   creates it and converges its mount-point ownership.
 2. **The bind mount (Terraform).** Add the host-path → container-path entry to
    that node's `var.nas_container_bind_mounts` (see
    [§6.2](#62-zfs-dataset-bind-mounts)), for example `/rpool-sata/photos` →
@@ -310,10 +310,10 @@ three coupled declarations, so all of them are required:
     ```
 
 > **All three or none.** The declarations are not cross-checked: a Samba share
-> without its bind mount exports an empty path, a bind mount without its
-> dataset fails to start the container (Proxmox does not create bind-mount
-> sources), and a dataset without its share holds data that is never served.
-> Add and remove them together.
+> without its bind mount exports an empty path, a bind mount without its dataset
+> fails to start the container (Proxmox does not create bind-mount sources), and
+> a dataset without its share holds data that is never served. Add and remove
+> them together.
 
 ## 6. Infrastructure Provisioning (Terraform)
 
@@ -579,18 +579,18 @@ this lives in the Ansible layer that already manages the Proxmox nodes:
 
 - **`zfs_pools` — asserted, never created.** `zpool create` is destructive and
   device-specific, so pool creation stays a deliberate manual act. Each entry
-  records the pool's actual topology (`by-id` device paths) and creation
-  options (e.g. `ashift`) as executable documentation; the role fails with the
+  records the pool's actual topology (`by-id` device paths) and creation options
+  (e.g. `ashift`) as executable documentation; the role fails with the
   documented `zpool create` command when the pool is missing.
 - **`zfs_datasets` — created if missing** (`zfs create -p`). The declared
-  `mount_point` is not an input to ZFS (datasets mount at the ZFS-computed
-  path, by default `/<pool>/<dataset>`), so the role then asserts that each
-  dataset's actual `mountpoint` property matches the declaration before
-  converging the mount point's ownership (UID `1000`, GID `100`) — a drifted
-  declaration fails loudly instead of chowning a plain directory that shadows
-  the real dataset. The check also works in check mode: datasets that would
-  be created are validated against their predicted default mount point,
-  derived from the pool's actual one.
+  `mount_point` is not an input to ZFS (datasets mount at the ZFS-computed path,
+  by default `/<pool>/<dataset>`), so the role then asserts that each dataset's
+  actual `mountpoint` property matches the declaration before converging the
+  mount point's ownership (UID `1000`, GID `100`) — a drifted declaration fails
+  loudly instead of chowning a plain directory that shadows the real dataset.
+  The check also works in check mode: datasets that would be created are
+  validated against their predicted default mount point, derived from the pool's
+  actual one.
 
 The same paths appear as the bind-mount _sources_ in Terraform
 (`var.nas_container_bind_mounts`, [§6.2](#62-zfs-dataset-bind-mounts)). The
@@ -660,9 +660,8 @@ reservations.
   share browsing on Windows and macOS clients.
 - **Static IP migration**: Transition from DHCP to static IP assignments defined
   in the NixOS configuration once the network spec is written.
-- **Single source of truth for shares**: Derive the Samba share exports
-  (NixOS), the bind mounts (Terraform), and the host datasets (Ansible
-  `zfs_datasets`, [§11.1](#111-zfs-dataset-mount-points-on-the-host)) from one
-  data structure — for example a Nix attrset emitted to `tfvars` via
-  `nix eval` — so each share is declared once and the three halves cannot
-  drift (see §5.1).
+- **Single source of truth for shares**: Derive the Samba share exports (NixOS),
+  the bind mounts (Terraform), and the host datasets (Ansible `zfs_datasets`,
+  [§11.1](#111-zfs-dataset-mount-points-on-the-host)) from one data structure —
+  for example a Nix attrset emitted to `tfvars` via `nix eval` — so each share
+  is declared once and the three halves cannot drift (see §5.1).
