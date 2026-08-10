@@ -15,6 +15,10 @@ services:
 {% if configure_docker %}
   cadvisor:
     container_name: cadvisor
+    command:
+      - "--docker_only=true"
+      - "--housekeeping_interval=30s"
+      - "--enable_metrics=cpu,memory,network,diskIO,oom_event"
     devices:
       - /dev/kmsg:/dev/kmsg
     image: {{ container_images_ids["cadvisor"] }}
@@ -24,11 +28,11 @@ services:
     restart: unless-stopped
     volumes:
       - "/:/rootfs:ro"
-      - /var/run:/var/run:ro"
-      - /sys:/sys:ro"
-      - /var/lib/docker/:/var/lib/docker:ro"
-      - /dev/disk/:/dev/disk:ro"
-      - /etc/machine-id:/etc/machine-id:ro
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+      - "/etc/machine-id:/etc/machine-id:ro"
 {% endif %}
 {% if configure_monitoring_nut %}
   nut-exporter:
