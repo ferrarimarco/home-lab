@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/hl02-proxmox-vm/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/development/operational-scripts/">
       
       
-        <link rel="prev" href="../declarative-integration-testing/">
+        <link rel="prev" href="../nix/">
       
       
-        <link rel="next" href="../home-lab-bootstrapping/">
+        <link rel="next" href="../website-development/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Design Spec: Proxmox VM Configuration for hl02 - Home Lab docs</title>
+        <title>Operational scripts - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#design-spec-proxmox-vm-configuration-for-hl02" class="md-skip">
+        <a href="#operational-scripts" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Design Spec: Proxmox VM Configuration for hl02
+              Operational scripts
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../../../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nix/" class="md-nav__link">
+      <a href="../../../architecture/nix/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../../../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -440,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
@@ -463,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -490,18 +490,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -517,7 +519,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -531,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/configure-monitoring/" class="md-nav__link">
+      <a href="../../configure-monitoring/" class="md-nav__link">
         
   
   
@@ -554,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/configure-network-shares/" class="md-nav__link">
+      <a href="../../configure-network-shares/" class="md-nav__link">
         
   
   
@@ -577,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/configure-tailscale/" class="md-nav__link">
+      <a href="../../configure-tailscale/" class="md-nav__link">
         
   
   
@@ -600,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/container-migration/" class="md-nav__link">
+      <a href="../../container-migration/" class="md-nav__link">
         
   
   
@@ -623,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
+      <a href="../../copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -646,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
+      <a href="../../home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -669,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/proxmox-admin-notes/" class="md-nav__link">
+      <a href="../../proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -692,7 +694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -712,18 +714,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" checked>
         
           
           <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
@@ -739,7 +743,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_9">
             <span class="md-nav__icon md-icon"></span>
             Development
@@ -753,7 +757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/development/nix/" class="md-nav__link">
+      <a href="../nix/" class="md-nav__link">
         
   
   
@@ -773,10 +777,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../guides/development/operational-scripts/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -787,6 +813,71 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#linting-and-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linting and formatting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioning-and-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Provisioning and configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-site" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation site
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cicd-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD tooling
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#miscellaneous" class="md-nav__link">
+    <span class="md-ellipsis">
+      Miscellaneous
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -799,7 +890,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/development/website-development/" class="md-nav__link">
+      <a href="../website-development/" class="md-nav__link">
         
   
   
@@ -913,7 +1004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -936,7 +1027,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -959,7 +1050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -994,20 +1085,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1023,7 +1112,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -1037,7 +1126,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../../specs/" class="md-nav__link">
         
   
   
@@ -1060,7 +1149,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../declarative-integration-testing/" class="md-nav__link">
+      <a href="../../../specs/declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -1080,32 +1169,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Proxmox VM Configuration for hl02
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../specs/hl02-proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1116,161 +1183,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation Status
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Goal
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Rationale
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-proposed-changes" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Proposed Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Proposed Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-host-configuration-split" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1 Host Configuration Split
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3.1 Host Configuration Split">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#311-iso-artifact-delivery" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1.1 ISO Artifact Delivery
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-file-system-layout-diskonix" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2 File System Layout (disko.nix)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-host-specific-integration-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.3 Host-Specific Integration Test
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-infrastructure-provisioning-terraform" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Infrastructure Provisioning (Terraform)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-assumptions-constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Assumptions &amp; Constraints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. Assumptions &amp; Constraints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51-disk-device-configuration-devsda" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.1 Disk Device Configuration (/dev/sda)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52-networking-dhcp-for-now" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.2 Networking (DHCP "For Now")
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#host-specific-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Host-Specific Parameters
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1283,7 +1195,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../../../specs/home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -1306,7 +1218,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nas-lxc-container/" class="md-nav__link">
+      <a href="../../../specs/nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -1329,7 +1241,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxmox-lxc/" class="md-nav__link">
+      <a href="../../../specs/proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -1379,137 +1291,47 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#implementation-status" class="md-nav__link">
+  <a href="#linting-and-formatting" class="md-nav__link">
     <span class="md-ellipsis">
-      Implementation Status
+      Linting and formatting
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-goal" class="md-nav__link">
+  <a href="#provisioning-and-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Goal
+      Provisioning and configuration
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-rationale" class="md-nav__link">
+  <a href="#documentation-site" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Rationale
+      Documentation site
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-proposed-changes" class="md-nav__link">
+  <a href="#cicd-tooling" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Proposed Changes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Proposed Changes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-host-configuration-split" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1 Host Configuration Split
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3.1 Host Configuration Split">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#311-iso-artifact-delivery" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1.1 ISO Artifact Delivery
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-file-system-layout-diskonix" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2 File System Layout (disko.nix)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-host-specific-integration-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.3 Host-Specific Integration Test
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-infrastructure-provisioning-terraform" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Infrastructure Provisioning (Terraform)
+      CI/CD tooling
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-assumptions-constraints" class="md-nav__link">
+  <a href="#miscellaneous" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Assumptions &amp; Constraints
+      Miscellaneous
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="5. Assumptions &amp; Constraints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51-disk-device-configuration-devsda" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.1 Disk Device Configuration (/dev/sda)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52-networking-dhcp-for-now" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.2 Networking (DHCP "For Now")
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#host-specific-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Host-Specific Parameters
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1532,186 +1354,83 @@
   
 
 
-<h1 id="design-spec-proxmox-vm-configuration-for-hl02">Design Spec: Proxmox VM Configuration for <code>hl02</code></h1>
-<h2 id="implementation-status">Implementation Status</h2>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Component / Feature</th>
-<th style="text-align: left;">Status</th>
-<th style="text-align: left;">Details</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Logical Host Config</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Pinned hostname, DHCP, state version defined.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Physical Host Config</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Standard physical entrypoint defined.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Disk Layout (Disko)</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">GPT, 512M ESP, 100% ext4 root partition defined.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Terraform VM Resource</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>hl02</code> VM hardware definition added to workloads.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Host Integration Test</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Automatically generated by flake for host configs.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="1-goal">1. Goal</h2>
-<p>Configure <code>hl02</code> as a fully defined NixOS Proxmox VM using DHCP, defined
-declaratively with Disko partitioning, and provisioned automatically via
-Terraform and <code>nixos-anywhere</code>.</p>
-<h2 id="2-rationale">2. Rationale</h2>
-<p>Currently, the configuration for <code>hl02</code> is incomplete and references a
-non-existent <code>ext4</code> role, which prevents it from building. This spec defines the
-specific configuration, partitioning, and provisioning parameters for <code>hl02</code> to
-bring it into a fully declarative state.</p>
-<p>It builds upon the global
-<a href="../home-lab-bootstrapping/">Home Lab Bootstrapping Spec</a> for installation and
-the <a href="../declarative-integration-testing/">Declarative Integration Testing Spec</a>
-for CI/CD validation.</p>
-<h2 id="3-proposed-changes">3. Proposed Changes</h2>
-<h3 id="31-host-configuration-split">3.1 Host Configuration Split</h3>
-<p>Following the standard logical/physical split (see
-<a href="../declarative-integration-testing/#31-logical-vs-physical-configuration-split">Testing Spec - Split Design</a>),
-the files for <code>hl02</code> are structured under <code>config/nix/hosts/hl02/</code>:</p>
+<h1 id="operational-scripts">Operational scripts</h1>
+<p>This document describes the operational scripts in the
+<a href="https://github.com/ferrarimarco/home-lab/tree/master/scripts"><code>scripts</code></a>
+directory. These scripts support developing, validating, provisioning, and
+maintaining the home lab.</p>
+<p>Run every script from the repository root: the scripts source
+<code>scripts/common.sh</code> and resolve configuration files using paths relative to the
+repository root. Most scripts wrap containerized tools, so they require a
+working Docker installation.</p>
+<h2 id="linting-and-formatting">Linting and formatting</h2>
+<p><code>scripts/lint.sh</code> runs
+<a href="https://github.com/super-linter/super-linter">super-linter</a> against the whole
+repository, using the same container image version and configuration as the
+<code>Lint</code> CI workflow (<code>.github/workflows/lint.yaml</code> and
+<code>config/lint/super-linter.env</code>), so a clean local run closely predicts a clean
+CI run:</p>
+<div class="highlight"><pre><span></span><code>scripts/lint.sh
+</code></pre></div>
+<p>The script supports the following environment variables:</p>
 <ul>
-<li><strong><code>default.nix</code> (Physical Entrypoint):</strong><ul>
-<li>Imports <code>./configuration.nix</code> (logical settings).</li>
-<li>Imports <code>./hardware.nix</code> (hardware placeholder).</li>
-<li>Imports <code>./disko.nix</code> (filesystem configuration).</li>
-</ul>
+<li>
+<p><code>LINTER_CONTAINER_FIX_MODE</code>: set to <code>true</code> to run the linters in fix mode
+  (loads <code>config/lint/super-linter-fix-mode.env</code>), letting formatters apply
+  fixes to the working tree instead of only reporting issues:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">LINTER_CONTAINER_FIX_MODE</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>scripts/lint.sh
+</code></pre></div>
 </li>
-<li><strong><code>configuration.nix</code> (Logical Config):</strong><ul>
-<li>Imports <code>roles/common</code> and <code>roles/proxmox-vm</code> (general VM optimizations).</li>
-<li>Defines logical host parameters:<ul>
-<li><code>networking.hostName = "hl02"</code></li>
-<li><code>networking.hostId = "92bbb1e6"</code></li>
-<li><code>networking.useDHCP = true</code></li>
-<li><code>system.stateVersion = "25.11"</code></li>
-</ul>
+<li>
+<p><code>LINTER_CONTAINER_OPEN_SHELL</code>: set to <code>true</code> to open an interactive Bash shell
+  inside the linter container instead of running the linters, useful to debug
+  linter configuration.</p>
 </li>
+<li><code>LINTER_CONTAINER_IMAGE_VERSION</code>: override the linter container image version.
+  Defaults to the version that the <code>Lint</code> CI workflow pins.</li>
+<li><code>LOG_LEVEL</code>: super-linter log level. Defaults to <code>INFO</code>.</li>
 </ul>
-</li>
-<li><strong><code>disko.nix</code> (Filesystem Config):</strong><ul>
-<li>Accepts <code>{ inputs, ... }</code> globally via <code>specialArgs</code>.</li>
-<li>Imports the core Disko module (<code>inputs.disko.nixosModules.disko</code>).</li>
-<li>Defines the physical ext4 disk layout on <code>/dev/sda</code>.</li>
-</ul>
-</li>
-<li><strong><code>hardware.nix</code> (Hardware Placeholder):</strong><ul>
-<li>Left as an empty placeholder <code>{ ... }</code> since standard VM hardware
-  configurations (VirtIO drivers, systemd-boot) are generalized in the
-  <code>roles/proxmox-vm</code> role.</li>
-</ul>
-</li>
-</ul>
-<h4 id="311-iso-artifact-delivery">3.1.1 ISO Artifact Delivery</h4>
-<p>To bridge the local Nix build pipeline with the hypervisor environment, the
-compiled ISO must be staged on the Proxmox target node prior to VM
-orchestration.</p>
+<p><code>scripts/run-pre-commit.sh</code> runs the configured
+<a href="https://pre-commit.com/">pre-commit</a> hooks
+(<code>config/pre-commit/.pre-commit-config.yaml</code>) against all files, creating a
+dedicated Python virtual environment on first run. Pass an argument to run a
+different command inside that environment instead.</p>
+<h2 id="provisioning-and-configuration">Provisioning and configuration</h2>
 <ul>
-<li>Mechanism: Handled declaratively via the <code>proxmox_virtual_environment_file</code>
-  resource within the Terraform workspace.</li>
-<li>Source Target: The local Nix flake build output directory
-  (<code>./result/iso/\*.iso</code>).</li>
-<li>Destination Target: Stored in the cluster's default structural storage
-  (<code>local:iso/</code>).</li>
-<li>Staging: Build the
-  <a href="../proxmox-lxc/#54-artifact-staging-for-terraform-proxmox-images"><code>proxmox-images</code> aggregate package</a>
-  before running Terraform, so the ISO coexists behind <code>result</code> with the other
-  image artifacts Terraform reads.</li>
+<li><code>scripts/bootstrap-host.sh &lt;hostname&gt; &lt;expected_mac&gt;</code>: bootstraps a home lab
+  host, validating that the target machine's MAC address matches the expected
+  one before deploying. Hosts with a <code>disko.nix</code> are installed with
+  <code>nixos-anywhere</code>; hosts without one (LXC containers) receive their
+  configuration via <code>nixos-rebuild switch --flake --target-host</code>.</li>
+<li><code>scripts/run-ansible.sh</code>: runs Ansible playbooks from <code>config/ansible</code> inside
+  a purpose-built container.</li>
+<li><code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service
+  directories in <code>config/terraform</code> and runs <code>terraform init</code> and
+  <code>terraform apply</code> for each one. Run
+  <code>scripts/run-terraform.sh output &lt;service&gt; [&lt;output-name&gt;]</code> to print a
+  service's outputs as JSON instead.</li>
 </ul>
-<h3 id="32-file-system-layout-diskonix">3.2 File System Layout (<code>disko.nix</code>)</h3>
-<p>Declares a GPT partition table on the primary SCSI virtual disk (<code>/dev/sda</code>):</p>
+<h2 id="documentation-site">Documentation site</h2>
+<p><code>scripts/run-mkdocs.sh</code> builds or serves the documentation sites with Material
+for MkDocs. See <a href="../website-development/">Develop and build the Home Lab site</a>.</p>
+<h2 id="cicd-tooling">CI/CD tooling</h2>
 <ul>
-<li><strong>EFI Partition (ESP):</strong> 512MB, formatted as <code>vfat</code>, mounted at <code>/boot</code> with
-  standard secure mount options.</li>
-<li><strong>Root Partition:</strong> 100% of the remaining space, formatted as <code>ext4</code>, mounted
-  at <code>/</code>.</li>
+<li><code>scripts/open-shell-ci-cd-tools-container.sh</code>: opens an interactive shell in
+  the CI/CD tools container (<code>docker/ci-cd-tools</code>).</li>
+<li><code>scripts/release-please-dry-run.sh</code>: runs a release-please <code>release-pr</code> dry
+  run against the current branch to preview release notes and version bumps.</li>
+<li><code>scripts/run-renovate.sh</code>: runs Renovate locally.</li>
 </ul>
-<h3 id="33-host-specific-integration-test">3.3 Host-Specific Integration Test</h3>
-<p>Integration tests are automatically generated and registered for all hosts
-containing a <code>configuration.nix</code> file.</p>
-<p>The flake dynamically discovers <code>config/nix/hosts/hl02/configuration.nix</code> and
-creates the <code>host-hl02-test</code> check using the global test generator
-<code>config/nix/tests/make-test.nix</code>.</p>
-<p>Because the <code>hl02</code> configuration imports <code>roles/common</code> (enabling SSH) and
-<code>roles/proxmox-vm</code> (enabling the QEMU Guest Agent), the auto-generated test
-automatically verifies:</p>
-<ol>
-<li>Successful boot (<code>multi-user.target</code> reached).</li>
-<li>SSH port 22 availability.</li>
-<li>QEMU Guest Agent service status.</li>
-</ol>
-<p>If host-specific custom assertions or configuration overrides are needed in the
-future, they can be defined in <code>config/nix/hosts/hl02/test-override.nix</code>, which
-is automatically merged by the flake. A dedicated <code>test.nix</code> entrypoint is not
-required.</p>
-<p>This test is automatically verified in CI (see
-<a href="../declarative-integration-testing/#33-flake-integration-and-dynamic-test-discovery">Testing Spec - Dynamic Discovery</a>).</p>
-<h2 id="4-infrastructure-provisioning-terraform">4. Infrastructure Provisioning (Terraform)</h2>
-<p>We declare the VM hardware configuration in
-<code>config/terraform/220-proxmox-workloads/vms-pve1.tf</code> using the <code>bpg/proxmox</code>
-provider:</p>
+<h2 id="miscellaneous">Miscellaneous</h2>
 <ul>
-<li><strong>VM Resource (<code>proxmox_virtual_environment_vm.hl02</code>):</strong><ul>
-<li><strong>Hardware:</strong> 2 Cores (Host type), 4GB dedicated RAM, <code>virtio-scsi-pci</code>
-  controller.</li>
-<li><strong>EFI Disk &amp; Storage:</strong> EFI type <code>4m</code>, stored on <code>local-zfs</code> pool.</li>
-<li><strong>Disk Interface (<code>scsi0</code>):</strong> Presents the virtual disk as <code>/dev/sda</code>
-  inside the VM, matching <code>disko.nix</code> expectations.</li>
-<li><strong>Storage Optimization:</strong> Enables <code>discard = "on"</code> (TRIM) to reclaim
-  unused blocks dynamically on the underlying ZFS pool.</li>
-<li><strong>Installer CDROM (<code>ide2</code>):</strong> Mounts the custom installer ISO (uploaded
-  automatically as described in
-  <a href="../home-lab-bootstrapping/#31-nix-native-custom-iso-confignixpackagesnixos-installernix">Bootstrapping Spec - Custom ISO</a>).</li>
-<li><strong>MAC Pinning:</strong> Pins a static MAC address (<code>BC:24:11:D4:F6:65</code>) to the
-  virtio network interface.</li>
-<li><strong>Automated Boot Order:</strong> Configures <code>boot_order = ["scsi0", "ide2"]</code>.<ul>
-<li><em>First Boot:</em> VM disk <code>/dev/sda</code> is empty, falls back to booting from
-  the installer ISO on <code>ide2</code>.</li>
-<li><em>Subsequent Boots:</em> Boots directly from the production system on
-  <code>/dev/sda</code> (<code>scsi0</code>), bypassing the installer.</li>
+<li><code>scripts/build-arduino-project.sh</code>: compiles an Arduino project for a given
+  fully qualified board name (FQBN).</li>
+<li><code>scripts/copy-data.sh &lt;source-host&gt; &lt;source-directory&gt; &lt;target-directory&gt;</code>:
+  copies data from a remote host with rsync. Set <code>ENABLE_DRY_RUN=true</code> for a dry
+  run and <code>ENABLE_CHECKSUM=true</code> to compare files by checksum.</li>
+<li><code>scripts/common.sh</code>: shared helper functions and variables sourced by the
+  other scripts; not meant to be invoked directly.</li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="5-assumptions-constraints">5. Assumptions &amp; Constraints</h2>
-<h3 id="51-disk-device-configuration-devsda">5.1 Disk Device Configuration (<code>/dev/sda</code>)</h3>
-<p>The physical Disko configuration explicitly targets <code>/dev/sda</code>. This assumes the
-Proxmox VM is provisioned using a <strong>VirtIO SCSI (<code>virtio-scsi-pci</code>)</strong>
-controller. If the VM is provisioned using a <strong>VirtIO Block</strong> controller, the
-disk will present as <code>/dev/vda</code> and partitioning will fail.</p>
-<ul>
-<li><em>Constraint:</em> The VM must use a VirtIO SCSI disk interface (<code>scsi0</code>) in
-  Terraform to maintain support for TRIM/Discard on thin-provisioned ZFS pools.</li>
-</ul>
-<h3 id="52-networking-dhcp-for-now">5.2 Networking (DHCP "For Now")</h3>
-<p>The host uses DHCP for simplicity in this phase. Transitioning to static IPs can
-be done in a future specification.</p>
-<h3 id="host-specific-parameters">Host-Specific Parameters</h3>
-<ol>
-<li><strong>Router DHCP Reservation:</strong> Map MAC address <code>BC:24:11:D4:F6:65</code> to the
-    designated IP for <code>hl02</code> in your router.</li>
-<li><strong>Installation Command:</strong>
-    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>.#operations<span class="w"> </span>-c<span class="w"> </span>nixos-anywhere<span class="w"> </span>--flake<span class="w"> </span>.#hl02<span class="w"> </span>root@hl02.&lt;fqdn&gt;
-</code></pre></div></li>
-</ol>
 
 
 
@@ -1766,10 +1485,10 @@ be done in a future specification.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>

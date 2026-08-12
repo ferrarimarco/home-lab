@@ -1,0 +1,2112 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/proxmox-lxc/">
+      
+      
+        <link rel="prev" href="../nas-lxc-container/">
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Design Spec: NixOS LXC Containers on Proxmox - Home Lab docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#design-spec-nixos-lxc-containers-on-proxmox" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Home Lab docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Design Spec: NixOS LXC Containers on Proxmox
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ferrarimarco/home-lab" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Home Lab docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ferrarimarco/home-lab" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home lab
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home lab architecture overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/network-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/nix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix and NixOS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    References
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Storage configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Archive
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Archive
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Archive overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manual changes diary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Monitoring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-network-shares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure network shares
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-tailscale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tailscale configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/container-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Container migration playbook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Copy Jinja templates as they are
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Assistant configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/proxmox-admin-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Proxmox administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Linux administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_9">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/development/nix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/development/website-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Develop and build the Home Lab site
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Production
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Production
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Initialize the home lab
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Provision new hosts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Proxmox hosts, virtual machines, and containers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Specs
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Specs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Lab Design Specifications
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../declarative-integration-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hl02-proxmox-vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Proxmox VM Configuration for hl02
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nas-lxc-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-why-lxc-instead-of-a-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Why LXC Instead of a VM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-why-nixos-inside-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Why NixOS Inside the Container
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. proxmox-lxc Role (config/nix/roles/proxmox-lxc/default.nix)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-host-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Host Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-lxc-template-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. LXC Template Generation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. LXC Template Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-template-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Template Package
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-flake-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Flake Registration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-build-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 Build Command
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-artifact-staging-for-terraform-proxmox-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4 Artifact Staging for Terraform (proxmox-images)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-infrastructure-provisioning-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Infrastructure Provisioning (Terraform)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Infrastructure Provisioning (Terraform)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-template-upload-images-templatestf" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Template Upload (images-templates.tf)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-container-reference-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Container Reference Pattern
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 Container Reference Pattern">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key design decisions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-lxc-specific-test-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. LXC-Specific Test Limitations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-terraform-provider-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Terraform Provider Authentication
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-why-lxc-instead-of-a-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Why LXC Instead of a VM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-why-nixos-inside-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Why NixOS Inside the Container
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. proxmox-lxc Role (config/nix/roles/proxmox-lxc/default.nix)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-host-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Host Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-lxc-template-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. LXC Template Generation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. LXC Template Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-template-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Template Package
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-flake-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Flake Registration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-build-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 Build Command
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-artifact-staging-for-terraform-proxmox-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4 Artifact Staging for Terraform (proxmox-images)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-infrastructure-provisioning-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Infrastructure Provisioning (Terraform)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Infrastructure Provisioning (Terraform)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-template-upload-images-templatestf" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Template Upload (images-templates.tf)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-container-reference-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Container Reference Pattern
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 Container Reference Pattern">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key design decisions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-lxc-specific-test-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. LXC-Specific Test Limitations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-terraform-provider-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Terraform Provider Authentication
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="design-spec-nixos-lxc-containers-on-proxmox">Design Spec: NixOS LXC Containers on Proxmox</h1>
+<h2 id="implementation-status">Implementation Status</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component / Feature</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>NixOS LXC Template Package</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>nixos-lxc-bootstrap</code> flake package builds a <code>proxmox-lxc</code> tarball via <code>system.build.tarball</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>proxmox-lxc</code> Role</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">NixOS role for LXC-specific base configuration; tunables use <code>lib.mkDefault</code> (§3).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Artifact Staging Package</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>proxmox-images</code> aggregate staging the ISO and the LXC template under one <code>result</code> (§5.4).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Terraform Template Upload</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>proxmox_virtual_environment_file</code> uploads the template to each node's <code>local</code> storage (§6.1).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-goal">1. Goal</h2>
+<p>Provide a reusable framework for running NixOS-based LXC containers on the
+Proxmox nodes. The framework defines three pieces: a base NixOS role that adapts
+a system to the LXC environment, a flake package that builds a <code>proxmox-lxc</code>
+container template from a NixOS closure, and the Terraform configuration that
+stages that template and uploads it to every node.</p>
+<p>Workload specs build on this framework: they add their service-specific roles,
+shares, and host configurations, and declare their own container resources
+following the reference pattern in <a href="#62-container-reference-pattern">§6.2</a>. The
+<a href="../nas-lxc-container/">NAS LXC Container</a> is the first consumer.</p>
+<h2 id="2-rationale">2. Rationale</h2>
+<h3 id="21-why-lxc-instead-of-a-vm">2.1 Why LXC Instead of a VM</h3>
+<p>Many workloads (file sharing, small network daemons) are lightweight services
+that do not need their own kernel, dedicated disk images, or UEFI firmware. LXC
+containers share the host kernel, start in seconds, and consume minimal memory
+overhead while still providing process and filesystem isolation.</p>
+<p>For workloads that serve data from the host's own storage, LXC has a further
+advantage: a bind mount passes a host directory straight through to the
+container, so I/O lands directly on the host filesystem. A VM instead keeps its
+data on a virtual disk — a guest filesystem layered on a zvol or image file on
+top of the host filesystem — stacking one filesystem on another and paying the
+resulting write-amplification overhead. Bind mounts avoid that entirely.</p>
+<h3 id="22-why-nixos-inside-the-container">2.2 Why NixOS Inside the Container</h3>
+<p>The existing infrastructure is fully declarative (NixOS hosts, Nix flake,
+Terraform). Using a NixOS LXC container maintains consistency: services,
+firewall rules, and user accounts are version-controlled and reproducible, and
+the container template is produced by the same flake that builds every other
+host.</p>
+<h2 id="3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix">3. <code>proxmox-lxc</code> Role (<code>config/nix/roles/proxmox-lxc/default.nix</code>)</h2>
+<p>A base role for any NixOS LXC container running on Proxmox, analogous to the
+existing <code>proxmox-vm</code> role.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span> lib<span class="p">,</span> modulesPath<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span>modulesPath <span class="o">+</span> <span class="s2">&quot;/virtualisation/proxmox-lxc.nix&quot;</span><span class="p">)</span>
+  <span class="p">];</span>
+
+  <span class="ss">proxmoxLXC</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+
+    <span class="c1"># Workload-tunable options are set with lib.mkDefault so service roles</span>
+    <span class="c1"># and host configurations can override them with plain values.</span>
+    <span class="ss">privileged</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">false</span><span class="p">;</span>
+
+    <span class="c1"># With these disabled, the container consumes what PVE&#39;s nixos ostype</span>
+    <span class="c1"># hooks write into it at start: the systemd-networkd configuration and</span>
+    <span class="c1"># /etc/hostname. Hosts that pin networking.hostName (every comin</span>
+    <span class="c1"># workload) must override manageHostName to true: the upstream module</span>
+    <span class="c1"># otherwise forces networking.hostName to &quot;&quot; and comin asserts at build</span>
+    <span class="c1"># time that it is non-empty. See the hostname note in the proxmox-lxc</span>
+    <span class="c1"># spec.</span>
+    <span class="ss">manageNetwork</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">false</span><span class="p">;</span>
+    <span class="ss">manageHostName</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">false</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="c1"># Suppress errors from standard hardware components that do not exist inside a container</span>
+  services<span class="o">.</span>udev<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkForce <span class="no">false</span><span class="p">;</span>
+  powerManagement<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkForce <span class="no">false</span><span class="p">;</span>
+
+  <span class="c1"># LXC containers share the host kernel; do not try to load kernel modules or modify sysctls</span>
+  boot<span class="o">.</span>kernel<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkForce <span class="no">false</span><span class="p">;</span>
+  boot<span class="o">.</span>modprobeConfig<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkForce <span class="no">false</span><span class="p">;</span>
+
+  <span class="c1"># systemd-logind fails to monitor when it runs inside unprivileged containers</span>
+  systemd<span class="o">.</span>services<span class="o">.</span>systemd-logind<span class="o">.</span>serviceConfig<span class="o">.</span><span class="ss">Restart</span> <span class="o">=</span> <span class="s2">&quot;on-failure&quot;</span><span class="p">;</span>
+
+  nixpkgs<span class="o">.</span><span class="ss">hostPlatform</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="s2">&quot;x86_64-linux&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note on privilege:</strong> The base role defaults to
+<code>proxmoxLXC.privileged = false</code>, the safe default for generic containers.
+Workloads that bind-mount host-owned paths and need a direct UID/GID mapping
+(host <code>1000</code> = container <code>1000</code>) override this to <code>true</code> in their service role
+or host <code>configuration.nix</code> (the
+<a href="../nas-lxc-container/#4-nas-role-confignixrolesnasdefaultnix">NAS spec</a> does
+it in its <code>nas</code> role). Because the role sets the default with <code>lib.mkDefault</code>,
+the override is a plain <code>true</code> — no <code>lib.mkForce</code> needed.</p>
+<p><strong>Note on hostname (required for GitOps hosts):</strong> When both
+<code>manageNetwork = false</code> and <code>manageHostName = false</code>, the upstream
+<code>proxmox-lxc.nix</code> module sets <code>networking.hostName = lib.mkForce ""</code> so the
+runtime hostname comes from the PVE-written <code>/etc/hostname</code>. That <code>mkForce</code>
+silently discards any plain <code>networking.hostName = "&lt;host&gt;"</code> a host sets — and
+comin asserts at evaluation time that its hostname is non-empty, so a GitOps
+host's production closure fails to build. Any host that pins a hostname (every
+comin workload) must therefore also set <code>proxmoxLXC.manageHostName = true</code>
+alongside <code>networking.hostName</code>. Only the hostname-less bootstrap template
+(§5.1) keeps <code>manageHostName = false</code>. Beware that the integration-test
+harness overrides <code>manageHostName</code> itself (see
+<a href="#7-lxc-specific-test-limitations">§7</a>), so host tests cannot catch a missing
+override; only evaluating the production closure surfaces it. The CI machine
+matrix does exactly that for every deployable host (see the
+<a href="../declarative-integration-testing/#4-github-actions-workflow-update-githubworkflowsnixyaml">testing spec</a>).</p>
+</blockquote>
+<h2 id="4-host-structure">4. Host Structure</h2>
+<p>LXC containers do not require hardware kernel parameter adjustments, partition
+maps (Disko), or bootloader configurations. Because there is no low-level
+physical file system or hardware configuration to exclude during sandboxed
+integration testing, LXC hosts do not need the separate hardware file that VM
+hosts carry.</p>
+<p>Each container is described by a small set of files under its host directory:</p>
+<div class="highlight"><pre><span></span><code>config/nix/hosts/&lt;host&gt;/
+├── default.nix          # Flake entry point: imports configuration.nix
+├── configuration.nix    # Container configuration (roles + service settings)
+└── test-override.nix    # Optional test-only overrides (mock mounts, assertions)
+</code></pre></div>
+<ul>
+<li><strong><code>default.nix</code></strong> is what the flake discovers and builds as
+  <code>nixosConfigurations.&lt;host&gt;</code>; its presence also registers the host for
+  auto-generated integration tests. For an LXC host it simply imports
+  <code>configuration.nix</code>.</li>
+<li><strong><code>configuration.nix</code></strong> is the container configuration proper: it imports the
+  roles and defines the host's settings. The test generator imports this file
+  directly, composing it with <code>test-override.nix</code> rather than the full
+  <code>default.nix</code>.</li>
+<li><strong><code>test-override.nix</code></strong> (optional) supplies test-only tweaks; see
+  <a href="#7-lxc-specific-test-limitations">LXC test limitations</a>.</li>
+</ul>
+<h2 id="5-lxc-template-generation">5. LXC Template Generation</h2>
+<h3 id="51-template-package">5.1 Template Package</h3>
+<p>A flake package builds a <code>proxmox-lxc</code>-format tarball from a NixOS closure using
+<code>config.system.build.tarball</code> (provided by the upstream <code>proxmox-lxc.nix</code>
+module). This mirrors the way the
+<a href="../home-lab-bootstrapping/#31-nix-native-custom-iso-confignixpackagesnixos-installernix"><code>nixos-installer</code></a>
+package builds the installer ISO.</p>
+<p>The implemented generic instance, <code>config/nix/packages/lxc-bootstrap.nix</code>,
+builds a minimal image from the <code>proxmox-lxc</code> role plus the bootstrap SSH keys:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+  nixpkgs<span class="p">,</span>
+  system<span class="p">,</span>
+  inputs<span class="p">,</span>
+  bootstrapPublicKeys<span class="p">,</span>
+<span class="p">}:</span>
+
+<span class="k">let</span>
+  <span class="ss">lxcModules</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="l">../roles/proxmox-lxc</span>
+
+    <span class="p">(</span>_<span class="p">:</span> <span class="p">{</span>
+      users<span class="o">.</span>users<span class="o">.</span>root<span class="o">.</span>openssh<span class="o">.</span>authorizedKeys<span class="o">.</span><span class="ss">keys</span> <span class="o">=</span> bootstrapPublicKeys<span class="p">;</span>
+
+      <span class="c1"># Pin the release the bootstrap image was built against.</span>
+      system<span class="o">.</span><span class="ss">stateVersion</span> <span class="o">=</span> <span class="s2">&quot;25.11&quot;</span><span class="p">;</span>
+    <span class="p">})</span>
+  <span class="p">];</span>
+
+  <span class="ss">lxcSystem</span> <span class="o">=</span> nixpkgs<span class="o">.</span>lib<span class="o">.</span>nixosSystem <span class="p">{</span>
+    <span class="k">inherit</span> system<span class="p">;</span>
+    <span class="ss">specialArgs</span> <span class="o">=</span> <span class="p">{</span> <span class="k">inherit</span> inputs bootstrapPublicKeys<span class="p">;</span> <span class="p">};</span>
+    <span class="ss">modules</span> <span class="o">=</span> lxcModules<span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="k">inherit</span> <span class="p">(</span>lxcSystem<span class="o">.</span>config<span class="o">.</span>system<span class="o">.</span>build<span class="p">)</span> tarball<span class="p">;</span>
+<span class="k">in</span>
+tarball
+<span class="o">//</span> <span class="p">{</span>
+  <span class="ss">modules</span> <span class="o">=</span> lxcModules<span class="p">;</span>
+  <span class="k">inherit</span> bootstrapPublicKeys<span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The package exposes its module list (<code>modules</code>) and the bootstrap keys as
+passthrough attributes. The passthrough is load-bearing for testing: the
+<code>minimal-lxc</code> fixture's <code>test-override.nix</code> imports <code>lxcBootstrap.modules</code>, so
+its integration test exercises exactly the module set the template ships rather
+than a parallel reconstruction of it.</p>
+<p>The template deliberately omits the <code>comin</code> role. comin requires a hostname at
+build time (<code>networking.hostName</code> or <code>services.comin.hostname</code>), which a
+generic, hostname-less template cannot provide — including it makes the build
+fail. Workloads adopt GitOps instead by importing the <code>comin</code> role in their own
+per-host <code>configuration.nix</code>, where the hostname is set. That configuration is
+applied through the one-time <code>nixos-rebuild switch</code> handoff described in
+<a href="../home-lab-bootstrapping/#35-continuous-deployment-gitops">Continuous Deployment (GitOps)</a>,
+after which comin maintains the container. No per-host template is built.</p>
+<h3 id="52-flake-registration">5.2 Flake Registration</h3>
+<div class="highlight"><pre><span></span><code>packages<span class="o">.</span><span class="si">${</span>system<span class="si">}</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">nixos-lxc-bootstrap</span> <span class="o">=</span> <span class="nb">import</span> <span class="l">./packages/lxc-bootstrap.nix</span> <span class="p">{</span>
+    <span class="k">inherit</span> nixpkgs system inputs bootstrapPublicKeys<span class="p">;</span>
+  <span class="p">};</span>
+  <span class="c1"># Per-host templates add the host configuration to the module set.</span>
+<span class="p">};</span>
+</code></pre></div>
+<h3 id="53-build-command">5.3 Build Command</h3>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixos-lxc-bootstrap
+<span class="c1"># Output: result/tarball/nixos-image-&lt;label&gt;-x86_64-linux.tar.xz</span>
+<span class="c1"># The label embeds the module&#39;s system.nixos.tags plus release, date, and</span>
+<span class="c1"># commit. Example:</span>
+<span class="c1"># result/tarball/nixos-image-lxc-proxmox-25.11.20260417.c7f4703-x86_64-linux.tar.xz</span>
+</code></pre></div>
+<p>The tarball filename comes from <code>image.baseName</code>, which embeds the NixOS label
+(release, date, and commit) — the same behavior as the installer ISO. Terraform
+therefore matches it with a filename pattern rather than a fixed path (see §6);
+the versioned name is also what makes template rebuilds visible to Terraform,
+since a rebuilt template changes the source path.</p>
+<p>The resulting tarball is uploaded to each Proxmox node's <code>local</code> storage as a
+container template (see §6). Before running Terraform, stage the artifact with
+the aggregate package described in
+<a href="#54-artifact-staging-for-terraform-proxmox-images">§5.4</a>.</p>
+<h3 id="54-artifact-staging-for-terraform-proxmox-images">5.4 Artifact Staging for Terraform (<code>proxmox-images</code>)</h3>
+<p><code>nix build</code> refreshes the single <code>result</code> symlink to point at the last-built
+package, so the installer ISO (<code>result/iso/...</code>) and the LXC template
+(<code>result/tarball/...</code>) cannot coexist behind it when built individually:
+whichever artifact was built last breaks the Terraform lookup for the other one.</p>
+<p>The <code>proxmox-images</code> aggregate package solves this without custom output links:
+it symlinks the artifact directories of both image packages into one output, so
+a single build stages everything Terraform reads:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># config/nix/packages/proxmox-images.nix</span>
+<span class="c1"># Registered in the flake like the other packages.</span>
+<span class="p">{</span>
+  pkgs<span class="p">,</span>
+  nixosInstaller<span class="p">,</span>
+  nixosLxcBootstrap<span class="p">,</span>
+<span class="p">}:</span>
+
+pkgs<span class="o">.</span>runCommand <span class="s2">&quot;proxmox-images&quot;</span> <span class="p">{</span> <span class="p">}</span> <span class="s s-Multiline">&#39;&#39;</span>
+<span class="s s-Multiline">  mkdir --parents &quot;$out&quot;</span>
+<span class="s s-Multiline">  ln --symbolic </span><span class="si">${</span>nixosInstaller<span class="si">}</span><span class="s s-Multiline">/iso &quot;$out/iso&quot;</span>
+<span class="s s-Multiline">  ln --symbolic </span><span class="si">${</span>nixosLxcBootstrap<span class="si">}</span><span class="s s-Multiline">/tarball &quot;$out/tarball&quot;</span>
+<span class="s s-Multiline">&#39;&#39;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#proxmox-images
+<span class="c1"># result/iso/nixos-minimal-&lt;label&gt;-x86_64-linux.iso</span>
+<span class="c1"># result/tarball/nixos-image-&lt;label&gt;-x86_64-linux.tar.xz</span>
+</code></pre></div>
+<p>Run this build before <code>terraform apply</code>. The Terraform lookups (the ISO upload
+and the template upload in §6) address the artifacts through literal
+<code>result/iso/...</code> and <code>result/tarball/...</code> path segments, with globbing only on
+the filename, so the directory symlinks resolve transparently. The individual
+packages remain buildable on their own for development.</p>
+<p>Because the aggregate is a flake package, the CI package matrix discovers and
+builds it automatically, which also verifies that the staging layout stays
+intact.</p>
+<h2 id="6-infrastructure-provisioning-terraform">6. Infrastructure Provisioning (Terraform)</h2>
+<p>The framework's Terraform footprint is the <strong>template upload</strong> (§6.1), which it
+owns and implements. Containers themselves are not a framework component: each
+workload spec declares its own <code>proxmox_virtual_environment_container</code> resources
+following the <strong>reference pattern</strong> in §6.2 and tracks them in its own status
+table (the <a href="../nas-lxc-container/">NAS spec</a> is the first).</p>
+<h3 id="61-template-upload-images-templatestf">6.1 Template Upload (<code>images-templates.tf</code>)</h3>
+<p>The template is uploaded to each node's <code>local</code> storage with a
+<code>proxmox_virtual_environment_file</code> resource in
+<code>config/terraform/220-proxmox-workloads/images-templates.tf</code>, so containers can
+depend on it directly via <code>template_file_id</code>. The local artifact it reads is
+staged by the <code>proxmox-images</code> package
+(<a href="#54-artifact-staging-for-terraform-proxmox-images">§5.4</a>). The <code>pve2</code> resource
+mirrors the <code>pve1</code> one shown here:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Uploads the built NixOS LXC template to Proxmox</span>
+<span class="kr">resource</span><span class="w"> </span><span class="nc">&quot;proxmox_virtual_environment_file&quot;</span><span class="w"> </span><span class="nv">&quot;nixos_lxc_template_pve1&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox.pve1</span>
+
+<span class="w">  </span><span class="na">content_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vztmpl&quot;</span>
+<span class="w">  </span><span class="na">datastore_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local&quot;</span>
+<span class="w">  </span><span class="na">node_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nv">var.proxmox_virtual_environment_hosts</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">].</span><span class="err">node_name</span>
+
+<span class="w">  </span><span class="nb">source_file</span><span class="w"> </span><span class="p">{</span>
+<span class="c1">    # The tarball name embeds the NixOS version, date, and commit (see</span>
+<span class="c1">    # section 5.3), so match it with a filename pattern, as the installer</span>
+<span class="c1">    # ISO upload already does. The versioned name also means a rebuilt</span>
+<span class="c1">    # template changes the source path and forces a re-upload; a stable</span>
+<span class="c1">    # name would never re-upload.</span>
+<span class="w">    </span><span class="na">path</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${local.nix_root_path}/${one(fileset(local.nix_root_path, &quot;result/tarball/nixos-image-*-x86_64-linux.tar.xz&quot;))}&quot;</span>
+<span class="w">    </span><span class="na">file_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nixos-lxc-pve1.tar.xz&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="62-container-reference-pattern">6.2 Container Reference Pattern</h3>
+<p>This section is a <strong>reference pattern, not a framework deliverable</strong>: the
+framework ships no container of its own, so nothing here appears in the
+implementation status table. Workload specs define their containers in
+<code>config/terraform/220-proxmox-workloads/containers-pveN.tf</code> following this
+shape:</p>
+<div class="highlight"><pre><span></span><code><span class="kr">resource</span><span class="w"> </span><span class="nc">&quot;proxmox_virtual_environment_container&quot;</span><span class="w"> </span><span class="nv">&quot;example_pve1&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox.pve1</span>
+
+<span class="w">  </span><span class="na">description</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Managed by Terraform - NixOS LXC&quot;</span>
+<span class="w">  </span><span class="na">node_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nv">var.proxmox_virtual_environment_hosts</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">].</span><span class="err">node_name</span>
+<span class="w">  </span><span class="na">vm_id</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="m">200</span><span class="c1"> # VMIDs are cluster-unique; pick an unused one per container</span>
+<span class="w">  </span><span class="na">unprivileged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span><span class="c1"> # Workloads bind-mounting host-owned paths may override to false</span>
+<span class="w">  </span><span class="na">started</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+
+<span class="w">  </span><span class="nb">features</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">nesting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">cpu</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">cores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">memory</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">dedicated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2048</span>
+<span class="w">    </span><span class="na">swap</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="m">512</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">network_interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">name</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;eth0&quot;</span>
+<span class="w">    </span><span class="na">bridge</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vmbr0&quot;</span>
+<span class="w">    </span><span class="na">mac_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;pinned-mac-address&gt;&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">disk</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">datastore_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local-zfs&quot;</span>
+<span class="w">    </span><span class="na">size</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="m">8</span><span class="c1"> # GB - OS rootfs only; workload data is bind-mounted</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">operating_system</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">template_file_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox_virtual_environment_file.nixos_lxc_template_pve1.id</span>
+<span class="w">    </span><span class="na">type</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nixos&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nb">initialization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">hostname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;example-pve1&quot;</span>
+
+<span class="w">    </span><span class="nb">ip_config</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nb">ipv4</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="na">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;dhcp&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="key-design-decisions">Key design decisions</h4>
+<ul>
+<li><strong><code>type = "nixos"</code></strong>: Selects PVE's native NixOS setup plugin
+  (<code>PVE::LXC::Setup::NixOS</code>), which writes the container's systemd-networkd
+  configuration and <code>/etc/hostname</code> at start. The <code>proxmox-lxc</code> role depends on
+  this: <code>manageNetwork = false</code> enables systemd-networkd inside the container
+  precisely to consume the network files PVE writes, and the upstream tarball
+  even ships an empty <code>etc/systemd/network/</code> directory for PVE to fill.
+  <code>unmanaged</code> would skip all setup hooks and leave the container with no IP
+  configuration and no <code>/etc/hostname</code>.</li>
+<li><strong>DHCP via <code>initialization.ip_config</code></strong>: This block is what PVE renders into
+  the container's networkd configuration, so it must be present for the
+  container to request an address.</li>
+<li><strong><code>features.nesting = true</code></strong>: Required for NixOS <code>systemd</code> to function
+  correctly inside LXC.</li>
+<li><strong><code>unprivileged</code></strong>: A privileged container (<code>unprivileged = false</code>) maps host
+  UID/GID directly, so bind-mounted host-owned paths retain their ownership
+  without an <code>lxc.idmap</code>. That avoids raw LXC config keys (which the
+  <code>bpg/proxmox</code> provider does not expose and would otherwise require a
+  provisioner) at the cost of a weaker isolation boundary. Unprivileged is the
+  default; workloads that bind-mount host-owned data opt into privileged.</li>
+<li><strong>Small OS disk</strong>: The rootfs only needs enough space for the NixOS system
+  closure. Workload data resides on bind-mounted host paths.</li>
+<li><strong>Bind mount parameterization</strong>: Mounts are declared via standard Terraform
+  variables and dynamically mapped, keeping host path details out of the core
+  resource block.</li>
+<li><strong>Declarative template upload</strong>: The template is uploaded using the
+  <code>proxmox_virtual_environment_file</code> resource, creating a direct dependency via
+  <code>template_file_id</code> that guarantees the template is uploaded before container
+  creation.</li>
+</ul>
+<h2 id="7-lxc-specific-test-limitations">7. LXC-Specific Test Limitations</h2>
+<p>The standard NixOS test framework runs tests inside QEMU VMs, not LXC
+containers, so a container's LXC-specific settings would otherwise stop the test
+VM from booting.</p>
+<p>The test harness (<code>config/nix/tests/make-test.nix</code>) handles this automatically.
+Whenever a host exposes the <code>proxmoxLXC</code> option — that is, it imports the
+<a href="#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix"><code>proxmox-lxc</code> role</a> —
+the harness injects the container-to-VM compatibility overrides:</p>
+<ul>
+<li><code>boot.isContainer = false</code>, disabling the container init script
+  (<code>boot.loader.initScript</code>), and re-enabling the kernel, <code>udev</code>, and <code>modprobe</code>
+  that the role disables for a real container.</li>
+<li>A mock root filesystem (<code>fileSystems."/"</code>).</li>
+<li><code>proxmoxLXC.manageHostName = true</code>, so the test VM manages its own hostname.
+  Note this masks the production hostname behavior — see the note on hostname in
+  <a href="#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix">§3</a>.</li>
+</ul>
+<p>A host's <code>test-override.nix</code> therefore does not set these itself; it only
+supplies workload-specific mocks (for example bind-mount directories) and
+assertions.</p>
+<h2 id="8-terraform-provider-authentication">8. Terraform Provider Authentication</h2>
+<p>Bind mounts in the <code>bpg/proxmox</code> provider require authentication as <code>root@pam</code>
+with a password: the check is hardcoded in Proxmox (no role or ACL can grant it
+to another principal, and a <code>root@pam</code> API token does not pass it either). The
+existing provider configuration already supports username/password
+authentication alongside API tokens.</p>
+<p><code>scripts/run-terraform.sh</code> therefore runs the <code>220-proxmox-workloads</code> service
+with the same root credentials file (<code>proxmox-root-secrets.tfvars</code>) and
+skip-if-missing gate as <code>200-proxmox-iac-automation-init</code>, instead of the
+generated API token secrets. The two files define the same secrets variable and
+Terraform takes the last definition of a variable, so the tokens would be
+superseded anyway.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

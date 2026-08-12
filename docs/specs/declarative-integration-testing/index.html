@@ -776,6 +776,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
@@ -1264,7 +1287,30 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox-lxc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
     
   </span>
   
@@ -1467,7 +1513,7 @@
 <tr>
 <td style="text-align: left;"><strong>CI Pipeline Workflow</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Needs multi-job dynamic matrix configuration.</td>
+<td style="text-align: left;">Multi-job dynamic matrices; machines: <code>disko.nix</code> or comin hosts.</td>
 </tr>
 </tbody>
 </table>
@@ -1511,6 +1557,11 @@ host's logical <code>configuration.nix</code>.</p>
 <li>If <code>services.qemuGuest</code> is enabled, it asserts that
   <code>/dev/virtio-ports/org.qemu.guest_agent.0</code> is created and
   <code>qemu-guest-agent.service</code> activates.</li>
+<li>If <code>services.samba</code> is enabled, it creates a mock directory for every
+  declared share path (derived from the evaluated <code>services.samba.settings</code>,
+  since production bind mounts do not exist in the sandbox), waits for
+  <code>samba-smbd.service</code>, and asserts that every share appears in an anonymous
+  <code>smbclient</code> enumeration.</li>
 <li>Always asserts that <code>multi-user.target</code> is reached (successful boot).</li>
 </ul>
 </li>
@@ -1526,19 +1577,20 @@ host's logical <code>configuration.nix</code>.</p>
 <p>The flake dynamically discovers and registers integration tests for all hosts:</p>
 <ol>
 <li>Scans the <code>./hosts</code> directory for subdirectories (each representing a host).</li>
-<li>Filters out directories that do not contain a <code>configuration.nix</code> file.</li>
+<li>Filters out directories that do not contain a <code>default.nix</code> file (the same
+    marker that registers the host in <code>nixosConfigurations</code>).</li>
 <li>Checks for an optional <code>test-override.nix</code> file within the host directory to
     handle host-specific custom test script assertions or extra configuration
     arguments.</li>
-<li>For each valid host, maps the host configuration directly into
-    <code>make-test.nix</code> and formats it as a check attribute:
-    <code>{ name = "&lt;hostname&gt;-test"; value = &lt;test-derivation&gt;; }</code>.</li>
+<li>For each valid host, maps the host's logical <code>configuration.nix</code> directly
+    into <code>make-test.nix</code> and formats it as a check attribute:
+    <code>{ name = "host-&lt;host&gt;-test"; value = &lt;test-derivation&gt;; }</code>.</li>
 <li>Exposes these tests in the flake's <code>checks.${system}</code> output.</li>
 </ol>
 <p>This allows <code>nix flake check</code> to automatically run all integration tests
-locally. This also achieves a low-maintenance architecture: adding a
-<code>configuration.nix</code> to a new host directory automatically flags it for
-integration testing locally and in CI.</p>
+locally. This also achieves a low-maintenance architecture: adding a new host
+directory with a <code>default.nix</code> automatically flags it for integration testing
+locally and in CI.</p>
 <h2 id="4-github-actions-workflow-update-githubworkflowsnixyaml">4. GitHub Actions Workflow Update (<code>.github/workflows/nix.yaml</code>)</h2>
 <p>To support scaling the home lab, the CI workflow is split into separate,
 optimized jobs:</p>
@@ -1547,11 +1599,11 @@ optimized jobs:</p>
 <p><strong><code>detect-tests</code> (Discovery):</strong></p>
 <ul>
 <li>Queries the flake directly via <code>nix eval .#checks.x86_64-linux --json</code> and
-  filters keys ending in <code>-test</code>.</li>
-<li>Outputs a JSON array of hostnames (e.g., <code>["host1", "host2"]</code>) to be used
-  by the downstream matrix job.</li>
-<li><em>Benefit:</em> Zero-maintenance CI; adding a new host with a test
-  automatically registers it in CI.</li>
+  filters keys matching the <code>host-&lt;host&gt;-test</code> pattern.</li>
+<li>Also discovers the machine matrix (deployable hosts; see job 4) and the
+  image-package matrix (all entries of <code>packages.x86_64-linux</code>).</li>
+<li><em>Benefit:</em> Zero-maintenance CI; adding a new host or package automatically
+  registers it in CI.</li>
 </ul>
 </li>
 <li>
@@ -1562,27 +1614,53 @@ optimized jobs:</p>
 </ul>
 </li>
 <li>
-<p><strong><code>integration-tests</code> (Parallel Execution):</strong></p>
+<p><strong><code>functional-vm-tests</code> (Parallel Test Execution):</strong></p>
 <ul>
 <li>Runs as a matrix job using the output from <code>detect-tests</code>.</li>
 <li>Enables KVM virtualization inside the GitHub Actions runner
   (<code>enable_kvm: true</code> in <code>install-nix-action</code>).</li>
 <li>Executes the specific integration test for the matrix target:
-    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#checks.x86_64-linux.<span class="si">${</span><span class="p">{ matrix.host </span><span class="si">}</span><span class="o">}</span>-test<span class="w"> </span>--verbose<span class="w"> </span>--print-build-logs
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span><span class="s2">&quot;.#checks.x86_64-linux.host-</span><span class="si">${</span><span class="nv">MATRIX_HOST</span><span class="si">}</span><span class="s2">-test&quot;</span><span class="w"> </span>--verbose
 </code></pre></div></li>
 <li><em>Benefit:</em> Isolates test failures to specific hosts and allows parallel
   execution, reducing total CI time.</li>
 </ul>
 </li>
 <li>
-<p><strong><code>build-physical-configs</code> (Physical Build Verification):</strong></p>
+<p><strong><code>machine-build-tests</code> (Production Closure Verification):</strong></p>
 <ul>
-<li>Verifies that the physical configurations (which are excluded from the
-  logical integration tests) successfully evaluate and build.</li>
-<li>Runs as a matrix over all defined hosts in <code>nixosConfigurations</code> to ensure
-  that the full physical VM images (with Disko) build:
-    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixosConfigurations.<span class="si">${</span><span class="p">{ matrix.host </span><span class="si">}</span><span class="o">}</span>.config.system.build.toplevel<span class="w"> </span>--verbose<span class="w"> </span>--print-build-logs
+<li>Builds the production closure
+  (<code>nixosConfigurations.&lt;host&gt;.config.system.build.toplevel</code>) of every
+  <strong>deployable</strong> host. A host qualifies through either marker:<ul>
+<li>it carries a <code>disko.nix</code> (deployed via <code>nixos-anywhere</code>), or</li>
+<li>it enables comin (GitOps-managed; LXC containers carry no <code>disko.nix</code>,
+  so this is what includes them).</li>
+</ul>
+</li>
+<li>Fixture hosts (e.g. <code>minimal-iso</code>, <code>minimal-lxc</code>) match neither marker:
+  their <code>nixosConfigurations</code> entries have no bootloader or disk
+  configuration, so <code>system.build.toplevel</code> is not their deployable form.
+  What runs on real machines is the image package built from the same module
+  set — the installer ISO boots on pristine VMs to install NixOS, and the
+  LXC bootstrap tarball is the container template's first boot.
+  <code>package-build-tests</code> keeps those artifacts buildable, and the VM tests
+  exercise their module sets (each fixture's <code>test-override.nix</code> imports the
+  corresponding package's <code>modules</code> passthrough).
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span><span class="s2">&quot;.#nixosConfigurations.</span><span class="si">${</span><span class="nv">MATRIX_HOST</span><span class="si">}</span><span class="s2">.config.system.build.toplevel&quot;</span><span class="w"> </span>--verbose
 </code></pre></div></li>
+<li>This job is what surfaces evaluation-time failures in the production
+  configuration. The sandboxed VM tests cannot catch them all, because the
+  test harness overrides parts of the configuration (for example
+  <code>proxmoxLXC.manageHostName</code> and the comin remotes), so a module assertion
+  such as comin's non-empty-hostname check only fires when the production
+  closure itself is evaluated.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>package-build-tests</code> (Image Package Verification):</strong></p>
+<ul>
+<li>Builds each discovered flake package (the installer ISO and the LXC
+  bootstrap template) so deployable images stay buildable.</li>
 </ul>
 </li>
 </ol>
@@ -1590,12 +1668,15 @@ optimized jobs:</p>
 <h3 id="51-automated-tests-ci">5.1 Automated Tests (CI)</h3>
 <ul>
 <li>Push a branch to GitHub and verify the multi-job CI pipeline:<ul>
-<li>Verify that <code>detect-tests</code> successfully dynamically detects all hosts with
-  <code>test.nix</code>.</li>
-<li>Verify that the <code>integration-tests</code> matrix job successfully executes and
+<li>Verify that <code>detect-tests</code> successfully detects all hosts with a
+  <code>default.nix</code>, plus the image packages.</li>
+<li>Verify that the <code>functional-vm-tests</code> matrix job successfully executes and
   passes the tests in parallel.</li>
-<li>Verify that the <code>build-physical-configs</code> matrix job successfully performs
-  a full build of all physical configurations.</li>
+<li>Verify that the <code>machine-build-tests</code> matrix job builds the production
+  closure of every deployable host (<code>disko.nix</code> or comin-enabled), including
+  hosts without a <code>disko.nix</code>.</li>
+<li>Verify that the <code>package-build-tests</code> matrix job builds all image
+  packages.</li>
 </ul>
 </li>
 </ul>
@@ -1605,7 +1686,7 @@ optimized jobs:</p>
   <code>nix flake check</code> from <code>config/nix</code> to run all discovered integration tests
   locally.</li>
 <li>To run a specific host's test locally:
-    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#checks.x86_64-linux.&lt;hostname&gt;-test
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#checks.x86_64-linux.host-&lt;host&gt;-test
 </code></pre></div></li>
 </ul>
 
