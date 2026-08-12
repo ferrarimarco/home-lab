@@ -776,6 +776,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/development/website-development/" class="md-nav__link">
         
   
@@ -1073,9 +1096,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#specifications-to-write" class="md-nav__link">
+  <a href="#specifications-to-write-todos" class="md-nav__link">
     <span class="md-ellipsis">
-      Specifications to write
+      Specifications to write / TODOs
     </span>
   </a>
   
@@ -1171,7 +1194,30 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="proxmox-lxc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
     
   </span>
   
@@ -1225,9 +1271,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#specifications-to-write" class="md-nav__link">
+  <a href="#specifications-to-write-todos" class="md-nav__link">
     <span class="md-ellipsis">
-      Specifications to write
+      Specifications to write / TODOs
     </span>
   </a>
   
@@ -1282,17 +1328,48 @@ testing rationale before code implementation.</p>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 </tr>
 <tr>
+<td style="text-align: left;"><a href="proxmox-lxc/"><strong>NixOS LXC Containers on Proxmox</strong></a></td>
+<td style="text-align: left;">Reusable framework for NixOS LXC containers: the <code>proxmox-lxc</code> role, <code>system.build.tarball</code> templates, and the Terraform provisioning pattern.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+</tr>
+<tr>
 <td style="text-align: left;"><a href="nas-lxc-container/"><strong>NAS LXC Container</strong></a></td>
-<td style="text-align: left;">NixOS LXC containers on each Proxmox node exposing host ZFS datasets as NFS and SMB shares via bind mounts, with Terraform provisioning.</td>
-<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts. Builds on the <code>proxmox-lxc</code> framework.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
 </tr>
 </tbody>
 </table>
-<h2 id="specifications-to-write">Specifications to write</h2>
+<h2 id="specifications-to-write-todos">Specifications to write / TODOs</h2>
 <ul>
 <li>Generate a Home Lab bootstrapping keypair.</li>
 <li>Fully automate Terraform runs. Reference:
   <a href="https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform">Running Terraform in automation</a>.</li>
+<li>Fully automate provisioning and configuration of new hosts.</li>
+<li>Minimize external dependencies:<ul>
+<li>NixOS ISO server host</li>
+<li>Terraform provider registry</li>
+</ul>
+</li>
+<li>Nix tests<ul>
+<li>Modularize the integration-test generator: move the per-service test
+  fragments (SSH, QEMU guest agent, comin, Samba, ...) out of
+  <code>config/nix/tests/make-test.nix</code> — for example placing each fragment next
+  to its role — so the generator stays maintainable as service coverage
+  grows. Do it for all services at once to avoid a split paradigm.</li>
+<li>Check that configured users are present</li>
+<li>Check that configured users have their SSH keys authorized (reuse the
+  existing bootstrap key check because it already does most of the stuff we
+  need for this check).</li>
+</ul>
+</li>
+<li>Stable serial adapter assignment:<ul>
+<li>Create a udev rule:
+  <code>echo 'SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d4", SYMLINK+="zigbee_dongle"' | sudo tee /etc/udev/rules.d/99-zigbee.rules</code></li>
+<li>Change the mapping in Docker</li>
+</ul>
+</li>
+<li>Move monitoring stack from the home_lab_node role to the home_lab_monitoring
+  role.</li>
 </ul>
 
 

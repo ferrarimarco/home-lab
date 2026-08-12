@@ -776,6 +776,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../guides/development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../guides/development/website-development/" class="md-nav__link">
         
   
@@ -949,6 +972,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Configure Proxmox hosts, virtual machines, and containers
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -960,6 +996,34 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configure-nixos-virtual-machines-and-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure NixOS virtual machines and containers
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1123,7 +1187,30 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../specs/proxmox-lxc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
     
   </span>
   
@@ -1160,6 +1247,23 @@
   
     
   
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configure-nixos-virtual-machines-and-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure NixOS virtual machines and containers
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1201,8 +1305,20 @@ repository:</p>
 </code></pre></div>
 <p>To enable the configuration of the Proxmox IAM, create the following files:
 - <code>config/terraform/environments/proxmox-pve1-root-secrets.tfvars</code> to store
-  the root credentials (password or API token) of the <code>pve1</code> host root
-  password.</p>
+  the root credentials (password or API token).</p>
+</li>
+</ol>
+<h2 id="configure-nixos-virtual-machines-and-containers">Configure NixOS virtual machines and containers</h2>
+<ol>
+<li>
+<p>Open the <code>operations</code> Nix shell, if needed:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations
+</code></pre></div>
+</li>
+<li>
+<p>Run the host configuration script:</p>
+<div class="highlight"><pre><span></span><code>scripts/bootstrap-host.sh<span class="w"> </span><span class="s2">&quot;&lt;hostname&gt;&quot;</span><span class="w"> </span><span class="s2">&quot;&lt;host-mac-address&gt;&quot;</span>
+</code></pre></div>
 </li>
 </ol>
 

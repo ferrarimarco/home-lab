@@ -776,6 +776,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
@@ -1203,6 +1226,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="3.4 Provisioning and Installation Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4.1 Unified Bootstrap Entry Point (scripts/bootstrap-host.sh)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1240,7 +1278,30 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox-lxc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
     
   </span>
   
@@ -1355,6 +1416,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="3.4 Provisioning and Installation Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.4.1 Unified Bootstrap Entry Point (scripts/bootstrap-host.sh)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1424,11 +1500,11 @@
 <tr>
 <td style="text-align: left;"><strong>Provisioning and installation lifecycle</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Operational choreography and automated handoff sequence defined but pending automation scripts.</td>
+<td style="text-align: left;"><code>scripts/bootstrap-host.sh</code> automates discovery, the MAC guardrail, and per-model deployment (§3.4.1).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>GitOps CD (Comin)</strong></td>
-<td style="text-align: left;"><strong>Not Implemented</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Pull-based continuous deployment for Day-2 state management.</td>
 </tr>
 </tbody>
@@ -1521,6 +1597,37 @@ immutable, disk-backed production machine via the following sequential phases:</
    continuously applies subsequent configuration updates automatically without
    manual SSH intervention.</li>
 </ol>
+<h4 id="341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh">3.4.1 Unified Bootstrap Entry Point (<code>scripts/bootstrap-host.sh</code>)</h4>
+<p><code>scripts/bootstrap-host.sh &lt;hostname&gt; &lt;expected_mac&gt;</code> drives the handoff for
+every host type — physical machines, VMs, and LXC containers — with the same
+process:</p>
+<ol>
+<li><strong>Discovery:</strong> polls SSH on the host's production name, falling back to the
+   installer's default <code>nixos</code> hostname for ISO-booted machines. LXC containers
+   come up under their production name directly, because PVE's <code>nixos</code> ostype
+   hooks write <code>/etc/hostname</code> into the container at first start (see the
+   <a href="../proxmox-lxc/#6-infrastructure-provisioning-terraform">framework spec</a>).</li>
+<li><strong>MAC guardrail:</strong> queries the target's network interfaces over SSH and
+   aborts unless the expected MAC address is present, preventing accidental
+   overwrites of the wrong machine.</li>
+<li><strong>Deployment:</strong> branches on the host's deployment model, using the same
+   marker as the CI machine matrix:<ul>
+<li>Hosts with a <code>disko.nix</code> (physical/VM targets) are installed with
+  <code>nixos-anywhere</code> (phases 3-5 above).</li>
+<li>Hosts without one (LXC containers) are already-running NixOS systems with
+  no disks to partition, so the script runs
+  <code>nixos-rebuild switch --flake &lt;flake&gt;#&lt;host&gt; --target-host root@&lt;host&gt;</code>
+  instead: the closure is built on the control machine and pushed over SSH.
+  This also sidesteps the bootstrap template's minimal environment — no
+  flake support or PATH setup is required on the target.</li>
+</ul>
+</li>
+</ol>
+<p>In both cases the handoff installs the full host configuration, including comin,
+which then takes over Day-2 operations (phase 6). The script authenticates as
+<code>root</code> with the bootstrap key; the full configuration disables root SSH login
+(<code>common</code> role), so the script only works against hosts still in their bootstrap
+state — by design.</p>
 <h3 id="35-continuous-deployment-gitops">3.5 Continuous Deployment (GitOps)</h3>
 <p>Once a machine is bootstrapped, all subsequent state enforcement is shifted to a
 pull-based GitOps model to prevent configuration drift and remove the need for

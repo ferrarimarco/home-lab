@@ -14,13 +14,15 @@
         <link rel="prev" href="../home-lab-bootstrapping/">
       
       
+        <link rel="next" href="../proxmox-lxc/">
+      
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Design Spec: NAS LXC Container for NFS and SMB File Sharing - Home Lab docs</title>
+        <title>Design Spec: NAS LXC Container for SMB File Sharing - Home Lab docs</title>
       
     
     
@@ -62,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#design-spec-nas-lxc-container-for-nfs-and-smb-file-sharing" class="md-skip">
+        <a href="#design-spec-nas-lxc-container-for-smb-file-sharing" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Design Spec: NAS LXC Container for NFS and SMB File Sharing
+              Design Spec: NAS LXC Container for SMB File Sharing
             
           </span>
         </div>
@@ -774,6 +776,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
@@ -1118,7 +1143,7 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    Design Spec: NAS LXC Container for SMB File Sharing
     
   </span>
   
@@ -1131,7 +1156,7 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    Design Spec: NAS LXC Container for SMB File Sharing
     
   </span>
   
@@ -1182,36 +1207,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#21-why-lxc-instead-of-a-vm" class="md-nav__link">
+  <a href="#21-why-one-container-per-node" class="md-nav__link">
     <span class="md-ellipsis">
-      2.1 Why LXC Instead of a VM
+      2.1 Why One Container Per Node
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#22-why-nixos-inside-the-container" class="md-nav__link">
+  <a href="#22-why-bind-mounts-instead-of-zfs-in-container" class="md-nav__link">
     <span class="md-ellipsis">
-      2.2 Why NixOS Inside the Container
+      2.2 Why Bind Mounts Instead of ZFS-in-Container
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#23-why-one-container-per-node" class="md-nav__link">
+  <a href="#23-why-lxc-instead-of-a-vm" class="md-nav__link">
     <span class="md-ellipsis">
-      2.3 Why One Container Per Node
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#24-why-bind-mounts-instead-of-zfs-in-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.4 Why Bind Mounts Instead of ZFS-in-Container
+      2.3 Why LXC Instead of a VM
     </span>
   </a>
   
@@ -1232,28 +1248,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-nixos-roles" class="md-nav__link">
+  <a href="#4-nas-role-confignixrolesnasdefaultnix" class="md-nav__link">
     <span class="md-ellipsis">
-      4. NixOS Roles
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. NixOS Roles">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#41-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.1 proxmox-lxc Role (config/nix/roles/proxmox-lxc/default.nix)
+      4. nas Role (config/nix/roles/nas/default.nix)
     </span>
   </a>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#5-host-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Host Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Host Configuration">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#42-nas-role-confignixrolesnasdefaultnix" class="md-nav__link">
+  <a href="#51-adding-per-host-shares" class="md-nav__link">
     <span class="md-ellipsis">
-      4.2 nas Role (config/nix/roles/nas/default.nix)
+      5.1 Adding Per-Host Shares
     </span>
   </a>
   
@@ -1265,28 +1281,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-host-configurations" class="md-nav__link">
+  <a href="#6-infrastructure-provisioning-terraform" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Host Configurations
+      6. Infrastructure Provisioning (Terraform)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. Host Configurations">
+    <nav class="md-nav" aria-label="6. Infrastructure Provisioning (Terraform)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#51-host-structure" class="md-nav__link">
+  <a href="#61-privileged-container" class="md-nav__link">
     <span class="md-ellipsis">
-      5.1 Host Structure
+      6.1 Privileged Container
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#52-container-configuration-example-configurationnix" class="md-nav__link">
+  <a href="#62-zfs-dataset-bind-mounts" class="md-nav__link">
     <span class="md-ellipsis">
-      5.2 Container Configuration Example (configuration.nix)
+      6.2 ZFS Dataset Bind Mounts
     </span>
   </a>
   
@@ -1298,37 +1314,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-nixos-lxc-template-generation" class="md-nav__link">
+  <a href="#7-smb-user-management" class="md-nav__link">
     <span class="md-ellipsis">
-      6. NixOS LXC Template Generation
+      7. SMB User Management
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="6. NixOS LXC Template Generation">
+    <nav class="md-nav" aria-label="7. SMB User Management">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#61-template-package-confignixpackagesnixos-lxc-nasnix" class="md-nav__link">
+  <a href="#71-declarative-part" class="md-nav__link">
     <span class="md-ellipsis">
-      6.1 Template Package (config/nix/packages/nixos-lxc-nas.nix)
+      7.1 Declarative Part
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#62-flake-registration" class="md-nav__link">
+  <a href="#72-imperative-part-one-time-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      6.2 Flake Registration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#63-build-command" class="md-nav__link">
-    <span class="md-ellipsis">
-      6.3 Build Command
+      7.2 Imperative Part (One-Time Setup)
     </span>
   </a>
   
@@ -1340,61 +1347,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#7-infrastructure-provisioning-terraform" class="md-nav__link">
+  <a href="#8-security-considerations" class="md-nav__link">
     <span class="md-ellipsis">
-      7. Infrastructure Provisioning (Terraform)
+      8. Security Considerations
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="7. Infrastructure Provisioning (Terraform)">
+    <nav class="md-nav" aria-label="8. Security Considerations">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#71-container-resources" class="md-nav__link">
+  <a href="#81-privileged-container" class="md-nav__link">
     <span class="md-ellipsis">
-      7.1 Container Resources
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="7.1 Container Resources">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#containers-pve1tf-illustrative" class="md-nav__link">
-    <span class="md-ellipsis">
-      containers-pve1.tf (illustrative)
+      8.1 Privileged Container
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#key-design-decisions" class="md-nav__link">
+  <a href="#82-smb-security" class="md-nav__link">
     <span class="md-ellipsis">
-      Key design decisions
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#72-apparmor-configuration-automation" class="md-nav__link">
-    <span class="md-ellipsis">
-      7.2 AppArmor Configuration &amp; Automation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#73-container-id-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
-      7.3 Container ID Allocation
+      8.2 SMB Security
     </span>
   </a>
   
@@ -1406,28 +1380,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-smb-user-management" class="md-nav__link">
+  <a href="#9-integration-testing" class="md-nav__link">
     <span class="md-ellipsis">
-      8. SMB User Management
+      9. Integration Testing
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="8. SMB User Management">
+    <nav class="md-nav" aria-label="9. Integration Testing">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#81-declarative-part" class="md-nav__link">
+  <a href="#91-test-auto-discovery" class="md-nav__link">
     <span class="md-ellipsis">
-      8.1 Declarative Part
+      9.1 Test Auto-Discovery
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#82-imperative-part-one-time-setup" class="md-nav__link">
+  <a href="#92-samba-coverage-in-the-test-generator" class="md-nav__link">
     <span class="md-ellipsis">
-      8.2 Imperative Part (One-Time Setup)
+      9.2 Samba Coverage in the Test Generator
     </span>
   </a>
   
@@ -1439,46 +1413,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-security-considerations" class="md-nav__link">
+  <a href="#10-deployment-workflow" class="md-nav__link">
     <span class="md-ellipsis">
-      9. Security Considerations
+      10. Deployment Workflow
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="9. Security Considerations">
+    <nav class="md-nav" aria-label="10. Deployment Workflow">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#91-privileged-container" class="md-nav__link">
+  <a href="#101-initial-deployment" class="md-nav__link">
     <span class="md-ellipsis">
-      9.1 Privileged Container
+      10.1 Initial Deployment
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#92-nfs-security" class="md-nav__link">
+  <a href="#102-configuration-updates" class="md-nav__link">
     <span class="md-ellipsis">
-      9.2 NFS Security
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#93-smb-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      9.3 SMB Security
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#94-apparmor" class="md-nav__link">
-    <span class="md-ellipsis">
-      9.4 AppArmor
+      10.2 Configuration Updates
     </span>
   </a>
   
@@ -1490,37 +1446,46 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10-integration-testing" class="md-nav__link">
+  <a href="#11-assumptions-and-constraints" class="md-nav__link">
     <span class="md-ellipsis">
-      10. Integration Testing
+      11. Assumptions and Constraints
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="10. Integration Testing">
+    <nav class="md-nav" aria-label="11. Assumptions and Constraints">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#101-test-auto-discovery" class="md-nav__link">
+  <a href="#111-zfs-dataset-mount-points-on-the-host" class="md-nav__link">
     <span class="md-ellipsis">
-      10.1 Test Auto-Discovery
+      11.1 ZFS Dataset Mount Points on the Host
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#102-test-overrides-test-overridenix" class="md-nav__link">
+  <a href="#112-samba-state-directory-on-the-host" class="md-nav__link">
     <span class="md-ellipsis">
-      10.2 Test Overrides (test-override.nix)
+      11.2 Samba State Directory on the Host
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#103-lxc-specific-test-limitations" class="md-nav__link">
+  <a href="#113-networking-dhcp" class="md-nav__link">
     <span class="md-ellipsis">
-      10.3 LXC-Specific Test Limitations
+      11.3 Networking (DHCP)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#114-mac-address-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.4 MAC Address Pinning
     </span>
   </a>
   
@@ -1532,102 +1497,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11-deployment-workflow" class="md-nav__link">
+  <a href="#12-future-work" class="md-nav__link">
     <span class="md-ellipsis">
-      11. Deployment Workflow
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="11. Deployment Workflow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#111-initial-deployment" class="md-nav__link">
-    <span class="md-ellipsis">
-      11.1 Initial Deployment
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#112-configuration-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      11.2 Configuration Updates
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#12-assumptions-and-constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      12. Assumptions and Constraints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="12. Assumptions and Constraints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#121-zfs-dataset-mount-points-on-the-host" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.1 ZFS Dataset Mount Points on the Host
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#122-networking-dhcp" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.2 Networking (DHCP)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#123-mac-address-pinning" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.3 MAC Address Pinning
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#124-terraform-provider-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.4 Terraform Provider Authentication
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#125-nfs-ganesha-as-an-alternative" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.5 NFS-Ganesha as an Alternative
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#13-future-work" class="md-nav__link">
-    <span class="md-ellipsis">
-      13. Future Work
+      12. Future Work
     </span>
   </a>
   
@@ -1637,6 +1509,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox-lxc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1704,36 +1599,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#21-why-lxc-instead-of-a-vm" class="md-nav__link">
+  <a href="#21-why-one-container-per-node" class="md-nav__link">
     <span class="md-ellipsis">
-      2.1 Why LXC Instead of a VM
+      2.1 Why One Container Per Node
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#22-why-nixos-inside-the-container" class="md-nav__link">
+  <a href="#22-why-bind-mounts-instead-of-zfs-in-container" class="md-nav__link">
     <span class="md-ellipsis">
-      2.2 Why NixOS Inside the Container
+      2.2 Why Bind Mounts Instead of ZFS-in-Container
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#23-why-one-container-per-node" class="md-nav__link">
+  <a href="#23-why-lxc-instead-of-a-vm" class="md-nav__link">
     <span class="md-ellipsis">
-      2.3 Why One Container Per Node
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#24-why-bind-mounts-instead-of-zfs-in-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.4 Why Bind Mounts Instead of ZFS-in-Container
+      2.3 Why LXC Instead of a VM
     </span>
   </a>
   
@@ -1754,28 +1640,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-nixos-roles" class="md-nav__link">
+  <a href="#4-nas-role-confignixrolesnasdefaultnix" class="md-nav__link">
     <span class="md-ellipsis">
-      4. NixOS Roles
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. NixOS Roles">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#41-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix" class="md-nav__link">
-    <span class="md-ellipsis">
-      4.1 proxmox-lxc Role (config/nix/roles/proxmox-lxc/default.nix)
+      4. nas Role (config/nix/roles/nas/default.nix)
     </span>
   </a>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#5-host-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Host Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Host Configuration">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#42-nas-role-confignixrolesnasdefaultnix" class="md-nav__link">
+  <a href="#51-adding-per-host-shares" class="md-nav__link">
     <span class="md-ellipsis">
-      4.2 nas Role (config/nix/roles/nas/default.nix)
+      5.1 Adding Per-Host Shares
     </span>
   </a>
   
@@ -1787,28 +1673,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-host-configurations" class="md-nav__link">
+  <a href="#6-infrastructure-provisioning-terraform" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Host Configurations
+      6. Infrastructure Provisioning (Terraform)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. Host Configurations">
+    <nav class="md-nav" aria-label="6. Infrastructure Provisioning (Terraform)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#51-host-structure" class="md-nav__link">
+  <a href="#61-privileged-container" class="md-nav__link">
     <span class="md-ellipsis">
-      5.1 Host Structure
+      6.1 Privileged Container
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#52-container-configuration-example-configurationnix" class="md-nav__link">
+  <a href="#62-zfs-dataset-bind-mounts" class="md-nav__link">
     <span class="md-ellipsis">
-      5.2 Container Configuration Example (configuration.nix)
+      6.2 ZFS Dataset Bind Mounts
     </span>
   </a>
   
@@ -1820,37 +1706,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-nixos-lxc-template-generation" class="md-nav__link">
+  <a href="#7-smb-user-management" class="md-nav__link">
     <span class="md-ellipsis">
-      6. NixOS LXC Template Generation
+      7. SMB User Management
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="6. NixOS LXC Template Generation">
+    <nav class="md-nav" aria-label="7. SMB User Management">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#61-template-package-confignixpackagesnixos-lxc-nasnix" class="md-nav__link">
+  <a href="#71-declarative-part" class="md-nav__link">
     <span class="md-ellipsis">
-      6.1 Template Package (config/nix/packages/nixos-lxc-nas.nix)
+      7.1 Declarative Part
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#62-flake-registration" class="md-nav__link">
+  <a href="#72-imperative-part-one-time-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      6.2 Flake Registration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#63-build-command" class="md-nav__link">
-    <span class="md-ellipsis">
-      6.3 Build Command
+      7.2 Imperative Part (One-Time Setup)
     </span>
   </a>
   
@@ -1862,61 +1739,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#7-infrastructure-provisioning-terraform" class="md-nav__link">
+  <a href="#8-security-considerations" class="md-nav__link">
     <span class="md-ellipsis">
-      7. Infrastructure Provisioning (Terraform)
+      8. Security Considerations
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="7. Infrastructure Provisioning (Terraform)">
+    <nav class="md-nav" aria-label="8. Security Considerations">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#71-container-resources" class="md-nav__link">
+  <a href="#81-privileged-container" class="md-nav__link">
     <span class="md-ellipsis">
-      7.1 Container Resources
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="7.1 Container Resources">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#containers-pve1tf-illustrative" class="md-nav__link">
-    <span class="md-ellipsis">
-      containers-pve1.tf (illustrative)
+      8.1 Privileged Container
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#key-design-decisions" class="md-nav__link">
+  <a href="#82-smb-security" class="md-nav__link">
     <span class="md-ellipsis">
-      Key design decisions
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#72-apparmor-configuration-automation" class="md-nav__link">
-    <span class="md-ellipsis">
-      7.2 AppArmor Configuration &amp; Automation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#73-container-id-allocation" class="md-nav__link">
-    <span class="md-ellipsis">
-      7.3 Container ID Allocation
+      8.2 SMB Security
     </span>
   </a>
   
@@ -1928,28 +1772,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-smb-user-management" class="md-nav__link">
+  <a href="#9-integration-testing" class="md-nav__link">
     <span class="md-ellipsis">
-      8. SMB User Management
+      9. Integration Testing
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="8. SMB User Management">
+    <nav class="md-nav" aria-label="9. Integration Testing">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#81-declarative-part" class="md-nav__link">
+  <a href="#91-test-auto-discovery" class="md-nav__link">
     <span class="md-ellipsis">
-      8.1 Declarative Part
+      9.1 Test Auto-Discovery
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#82-imperative-part-one-time-setup" class="md-nav__link">
+  <a href="#92-samba-coverage-in-the-test-generator" class="md-nav__link">
     <span class="md-ellipsis">
-      8.2 Imperative Part (One-Time Setup)
+      9.2 Samba Coverage in the Test Generator
     </span>
   </a>
   
@@ -1961,46 +1805,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-security-considerations" class="md-nav__link">
+  <a href="#10-deployment-workflow" class="md-nav__link">
     <span class="md-ellipsis">
-      9. Security Considerations
+      10. Deployment Workflow
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="9. Security Considerations">
+    <nav class="md-nav" aria-label="10. Deployment Workflow">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#91-privileged-container" class="md-nav__link">
+  <a href="#101-initial-deployment" class="md-nav__link">
     <span class="md-ellipsis">
-      9.1 Privileged Container
+      10.1 Initial Deployment
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#92-nfs-security" class="md-nav__link">
+  <a href="#102-configuration-updates" class="md-nav__link">
     <span class="md-ellipsis">
-      9.2 NFS Security
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#93-smb-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      9.3 SMB Security
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#94-apparmor" class="md-nav__link">
-    <span class="md-ellipsis">
-      9.4 AppArmor
+      10.2 Configuration Updates
     </span>
   </a>
   
@@ -2012,37 +1838,46 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10-integration-testing" class="md-nav__link">
+  <a href="#11-assumptions-and-constraints" class="md-nav__link">
     <span class="md-ellipsis">
-      10. Integration Testing
+      11. Assumptions and Constraints
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="10. Integration Testing">
+    <nav class="md-nav" aria-label="11. Assumptions and Constraints">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#101-test-auto-discovery" class="md-nav__link">
+  <a href="#111-zfs-dataset-mount-points-on-the-host" class="md-nav__link">
     <span class="md-ellipsis">
-      10.1 Test Auto-Discovery
+      11.1 ZFS Dataset Mount Points on the Host
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#102-test-overrides-test-overridenix" class="md-nav__link">
+  <a href="#112-samba-state-directory-on-the-host" class="md-nav__link">
     <span class="md-ellipsis">
-      10.2 Test Overrides (test-override.nix)
+      11.2 Samba State Directory on the Host
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#103-lxc-specific-test-limitations" class="md-nav__link">
+  <a href="#113-networking-dhcp" class="md-nav__link">
     <span class="md-ellipsis">
-      10.3 LXC-Specific Test Limitations
+      11.3 Networking (DHCP)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#114-mac-address-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.4 MAC Address Pinning
     </span>
   </a>
   
@@ -2054,102 +1889,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#11-deployment-workflow" class="md-nav__link">
+  <a href="#12-future-work" class="md-nav__link">
     <span class="md-ellipsis">
-      11. Deployment Workflow
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="11. Deployment Workflow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#111-initial-deployment" class="md-nav__link">
-    <span class="md-ellipsis">
-      11.1 Initial Deployment
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#112-configuration-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      11.2 Configuration Updates
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#12-assumptions-and-constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      12. Assumptions and Constraints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="12. Assumptions and Constraints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#121-zfs-dataset-mount-points-on-the-host" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.1 ZFS Dataset Mount Points on the Host
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#122-networking-dhcp" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.2 Networking (DHCP)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#123-mac-address-pinning" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.3 MAC Address Pinning
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#124-terraform-provider-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.4 Terraform Provider Authentication
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#125-nfs-ganesha-as-an-alternative" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.5 NFS-Ganesha as an Alternative
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#13-future-work" class="md-nav__link">
-    <span class="md-ellipsis">
-      13. Future Work
+      12. Future Work
     </span>
   </a>
   
@@ -2174,7 +1916,11 @@
   
 
 
-<h1 id="design-spec-nas-lxc-container-for-nfs-and-smb-file-sharing">Design Spec: NAS LXC Container for NFS and SMB File Sharing</h1>
+<h1 id="design-spec-nas-lxc-container-for-smb-file-sharing">Design Spec: NAS LXC Container for SMB File Sharing</h1>
+<p>This spec builds on the <a href="../proxmox-lxc/">NixOS LXC Containers on Proxmox</a>
+framework, which defines the <code>proxmox-lxc</code> role, LXC template generation, the
+Terraform container-provisioning pattern, and LXC test limitations. This
+document covers only the NAS/SMB-specific additions.</p>
 <h2 id="implementation-status">Implementation Status</h2>
 <table>
 <thead>
@@ -2186,98 +1932,127 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>NixOS LXC Template Package</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;"><code>nixos-generators</code> <code>proxmox-lxc</code> format package.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong><code>proxmox-lxc</code> Role</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">NixOS role for LXC-specific base configuration.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong><code>nas</code> Role (NFS)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">NixOS role enabling <code>nfs-kernel-server</code> with export config.</td>
-</tr>
-<tr>
 <td style="text-align: left;"><strong><code>nas</code> Role (SMB)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">NixOS role enabling Samba with declarative share definitions.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><strong><code>common</code> Role UID Pin</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>ferrarimarco</code> UID pinned to <code>1000</code>; verified a no-op on deployed hosts.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><strong>Host Config (<code>nas-pve1</code>)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Logical and physical NixOS host config for the pve1 instance.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">NixOS host config for the pve1 instance.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Host Config (<code>nas-pve2</code>)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Logical and physical NixOS host config for the pve2 instance.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">NixOS host config for the pve2 instance.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Terraform LXC (<code>pve1</code>)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;"><code>proxmox_virtual_environment_container</code> for pve1.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>proxmox_virtual_environment_container</code> in <code>containers-pve1.tf</code>; not yet applied.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Terraform LXC (<code>pve2</code>)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;"><code>proxmox_virtual_environment_container</code> for pve2.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>proxmox_virtual_environment_container</code> in <code>containers-pve2.tf</code>; not yet applied.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Terraform Template Upload</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;"><code>proxmox_virtual_environment_download_file</code> for LXC template.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Provided by the framework (<code>images-templates.tf</code>; see the framework spec, §6.1).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Host Storage Prep (Ansible)</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>setup_disks</code> role: pools asserted, datasets and Samba state dir converged (§11); not yet run.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Host Integration Tests</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Auto-discovered tests for <code>nas-pve1</code> and <code>nas-pve2</code>.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Auto-discovered tests for <code>nas-pve1</code> and <code>nas-pve2</code>; passing locally.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Flake Registration</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;"><code>nixosConfigurations</code> entries for both NAS hosts.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Both NAS hosts discovered by the flake (tests and machine matrix).</td>
 </tr>
 </tbody>
 </table>
 <h2 id="1-goal">1. Goal</h2>
 <p>Deploy a NixOS-based LXC container on each Proxmox node (<code>pve1</code> and <code>pve2</code>) that
-exposes host-local ZFS datasets as network file shares over NFS and SMB (Samba).
-The containers receive ZFS datasets via Proxmox bind mounts, keeping ZFS
-management on the host while the container handles only the network-sharing
-layer.</p>
+exposes host-local ZFS datasets as network file shares over SMB (Samba). The
+containers receive ZFS datasets via Proxmox bind mounts, keeping ZFS management
+on the host while the container handles only the network-sharing layer.</p>
+<p>The general reasons for using a NixOS LXC container (versus a VM) are covered in
+the <a href="../proxmox-lxc/#2-rationale">framework spec</a>; the rationale below is
+specific to the NAS workload.</p>
 <h2 id="2-rationale">2. Rationale</h2>
-<h3 id="21-why-lxc-instead-of-a-vm">2.1 Why LXC Instead of a VM</h3>
-<p>A full VM for file sharing is wasteful: NFS and SMB are lightweight services
-that do not need their own kernel, dedicated disk images, or UEFI firmware. LXC
-containers share the host kernel, start in seconds, and consume minimal memory
-overhead while still providing process and filesystem isolation.</p>
-<h3 id="22-why-nixos-inside-the-container">2.2 Why NixOS Inside the Container</h3>
-<p>The existing infrastructure is fully declarative (NixOS hosts, Nix flake,
-Terraform). Using a NixOS LXC container maintains consistency: share
-definitions, firewall rules, and user accounts are version-controlled and
-reproducible. The same <code>nixos-generators</code> tooling already used for the installer
-ISO can produce LXC templates.</p>
-<h3 id="23-why-one-container-per-node">2.3 Why One Container Per Node</h3>
-<p>Each Proxmox node has its own local ZFS pools (e.g., <code>rpool-sata</code> on <code>pve1</code>,
-<code>tank-hdd</code> on <code>pve2</code>). Bind-mounting ZFS datasets into a container requires the
-datasets to be local to the host kernel. Running one NAS container per node
-keeps data locality, avoids cross-node network storage dependencies, and allows
-each node to serve its own datasets independently.</p>
-<h3 id="24-why-bind-mounts-instead-of-zfs-in-container">2.4 Why Bind Mounts Instead of ZFS-in-Container</h3>
-<p>Passing raw ZFS device nodes into an unprivileged container is fragile and
-requires extensive privilege escalation. Bind-mounting the pre-mounted dataset
-paths from the host is the standard Proxmox pattern: the host manages ZFS
-(scrubs, snapshots, replication), and the container sees plain directories.</p>
+<h3 id="21-why-one-container-per-node">2.1 Why One Container Per Node</h3>
+<p>The Proxmox nodes share neither hardware nor a distributed filesystem. Each has
+its own local ZFS pools, with different names, layouts, and capacities (for
+example <code>rpool-sata</code> on <code>pve1</code>, <code>tank-hdd</code> on <code>pve2</code>). Data lives on whichever
+node owns the disks and stays there: there is no shared backend to serve a file
+across nodes, and therefore no need for VM-style live migration.</p>
+<p>Running one NAS container per node embraces this. Each container serves only its
+own host's datasets over bind mounts, with no cross-node storage dependency. The
+hardware differences are <strong>host-dependent facts</strong> — pool names, dataset paths,
+capacities, and per-node resource sizing — and they live entirely in the
+per-node Terraform definitions (§6). The container normalizes them onto uniform
+in-container mount points (<code>/mnt/shared/...</code>), which is precisely why the NixOS
+configuration is identical across nodes even though the storage beneath each one
+differs (§5). The container boundary is the adapter that turns heterogeneous,
+host-dependent storage into a uniform service — so "host-dependent hardware" and
+"identical service config" are not in tension: the former is confined to
+Terraform, the latter holds in NixOS.</p>
+<p>Concretely, tracing the <code>media</code> and <code>backups</code> datasets down the stack:</p>
+<ul>
+<li><strong>Hardware</strong> — differs: <code>pve1</code> has SATA SSDs, <code>pve2</code> has spinning HDDs.</li>
+<li><strong>ZFS (host)</strong> — differs: the datasets are mounted at <code>/rpool-sata/media</code> and
+  <code>/rpool-sata/backups</code> on <code>pve1</code>, and at <code>/tank-hdd/media</code> and
+  <code>/tank-hdd/backups</code> on <code>pve2</code>.</li>
+<li><strong>Terraform (bind mounts)</strong> — source differs, target is uniform: each node
+  binds its own host paths onto the same in-container targets, e.g.
+  <code>/rpool-sata/{media,backups}</code> → <code>/mnt/shared/{media,backups}</code> on <code>pve1</code>, and
+  <code>/tank-hdd/{media,backups}</code> → <code>/mnt/shared/{media,backups}</code> on <code>pve2</code>.</li>
+<li><strong>NixOS (service)</strong> — identical for these default datasets: Samba serves
+  <code>/mnt/shared/media</code> and <code>/mnt/shared/backups</code> on both nodes; for the defaults,
+  the only difference in the NixOS layer is <code>networking.hostName</code> (<code>nas-pve1</code> vs
+  <code>nas-pve2</code>).</li>
+</ul>
+<p>The host-dependent values stop at the Terraform bind-mount <em>source</em>. Because the
+<em>target</em> (<code>/mnt/shared/...</code>) is uniform, the NixOS layer has nothing
+host-specific left to express beyond the hostname — the one exception being
+optional per-host shares, kept small and additive (see
+<a href="#51-adding-per-host-shares">§5.1</a>).</p>
+<h3 id="22-why-bind-mounts-instead-of-zfs-in-container">2.2 Why Bind Mounts Instead of ZFS-in-Container</h3>
+<p>Passing raw ZFS device nodes into a container is fragile and requires extensive
+privilege escalation. Bind-mounting the pre-mounted dataset paths from the host
+is the standard Proxmox pattern: the host manages ZFS (scrubs, snapshots,
+replication), and the container sees plain directories.</p>
+<h3 id="23-why-lxc-instead-of-a-vm">2.3 Why LXC Instead of a VM</h3>
+<p>The general LXC-versus-VM trade-offs are covered in the
+<a href="../proxmox-lxc/#21-why-lxc-instead-of-a-vm">framework rationale</a>. For this
+workload the decisive factor is <strong>avoiding write amplification</strong>. Because the
+datasets stay local to each node and never migrate (§2.1), the container gains
+nothing from a VM's portability, while a VM would force the file server's data
+through a guest filesystem stacked on a virtual disk. The LXC bind mount is a
+direct passthrough onto the host ZFS dataset, so Samba writes land on ZFS with
+no intermediate filesystem.</p>
+<p>The cost is weaker isolation and the UID-mapping handling this requires. That
+trade-off is accepted deliberately; see
+<a href="#81-privileged-container">Privileged Container</a>.</p>
 <h2 id="3-architecture-overview">3. Architecture Overview</h2>
 <div class="highlight"><pre><span></span><code>┌────────────────────────────────────────────────┐
-│ Proxmox Host (pve1 or pve2)                    │
+│ Proxmox Host (shown: pve1)                     │
 │                                                │
-│  ZFS pools ──► /mnt/tank/media                 │
-│               /mnt/tank/backups                │
-│               /mnt/tank/...                    │
+│  ZFS pools ──► /rpool-sata/media               │
+│               /rpool-sata/backups              │
+│               /rpool-sata/...                  │
 │                    │ bind mount                │
 │  ┌─────────────────┼─────────────────────────┐ │
 │  │ NixOS LXC Container (nas-pveN)            │ │
@@ -2285,53 +2060,60 @@ paths from the host is the standard Proxmox pattern: the host manages ZFS
 │  │  /mnt/shared/media ◄──────────────────┘   │ │
 │  │  /mnt/shared/backups                      │ │
 │  │                                           │ │
-│  │  ┌──────────┐  ┌──────────┐               │ │
-│  │  │ NFS      │  │ Samba    │               │ │
-│  │  │ Server   │  │ Server   │               │ │
-│  │  └────┬─────┘  └────┬─────┘               │ │
-│  └───────┼─────────────┼─────────────────────┘ │
-│          │             │                       │
-└──────────┼─────────────┼───────────────────────┘
-           │             │
-      NFS clients    SMB clients
-      (Linux, etc.)  (Windows, macOS, etc.)
+│  │  ┌──────────┐                             │ │
+│  │  │  Samba   │                             │ │
+│  │  │  Server  │                             │ │
+│  │  └────┬─────┘                             │ │
+│  └───────┼───────────────────────────────────┘ │
+│          │                                     │
+└──────────┼─────────────────────────────────────┘
+           │
+      SMB clients
+      (Windows, macOS, Linux)
 </code></pre></div>
-<h2 id="4-nixos-roles">4. NixOS Roles</h2>
-<h3 id="41-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix">4.1 <code>proxmox-lxc</code> Role (<code>config/nix/roles/proxmox-lxc/default.nix</code>)</h3>
-<p>A new base role for any NixOS LXC container running on Proxmox, analogous to the
-existing <code>proxmox-vm</code> role.</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span> modulesPath<span class="p">,</span> lib<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
-
-<span class="p">{</span>
-  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span>modulesPath <span class="o">+</span> <span class="s2">&quot;/virtualisation/proxmox-lxc.nix&quot;</span><span class="p">)</span>
-  <span class="p">];</span>
-
-  boot<span class="o">.</span><span class="ss">isContainer</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
-
-  <span class="c1"># Suppress systemd units that fail inside LXC</span>
-  systemd<span class="o">.</span><span class="ss">suppressedSystemUnits</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;dev-mqueue.mount&quot;</span>
-    <span class="s2">&quot;sys-kernel-debug.mount&quot;</span>
-    <span class="s2">&quot;sys-fs-fuse-connections.mount&quot;</span>
-  <span class="p">];</span>
-
-  <span class="c1"># LXC containers do not use a bootloader</span>
-  boot<span class="o">.</span>loader<span class="o">.</span>systemd-boot<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkForce <span class="no">false</span><span class="p">;</span>
-  boot<span class="o">.</span>loader<span class="o">.</span>efi<span class="o">.</span><span class="ss">canTouchEfiVariables</span> <span class="o">=</span> lib<span class="o">.</span>mkForce <span class="no">false</span><span class="p">;</span>
-
-  networking<span class="o">.</span><span class="ss">useDHCP</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">true</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
-<h3 id="42-nas-role-confignixrolesnasdefaultnix">4.2 <code>nas</code> Role (<code>config/nix/roles/nas/default.nix</code>)</h3>
-<p>A service role that enables NFS and SMB file sharing. This role is
-protocol-agnostic regarding the specific shares; each host's <code>configuration.nix</code>
-defines the concrete share paths.</p>
+<p>The host paths shown are <code>pve1</code>'s; on <code>pve2</code> the same in-container mount points
+are backed by <code>/tank-hdd/...</code> instead (see §2.1). Only the bind-mount <em>source</em>
+changes per node — everything inside the container is identical.</p>
+<h2 id="4-nas-role-confignixrolesnasdefaultnix">4. <code>nas</code> Role (<code>config/nix/roles/nas/default.nix</code>)</h2>
+<p>The NAS host imports the framework's <code>common</code> role plus the <code>nas</code> service role
+defined here; <code>nas</code> itself imports the framework's
+<a href="../proxmox-lxc/#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix"><code>proxmox-lxc</code></a>
+role. The <code>nas</code> role defines the <strong>default</strong> SMB configuration shared by every
+NAS container: the Samba service and its global settings, the default share
+definitions (<code>media</code> and <code>backups</code>), the privileged-container setting the bind
+mounts require, and the hostname-management setting GitOps requires. Every node
+exposes these defaults identically, so by default only <code>networking.hostName</code>
+differs between hosts; a node that owns extra datasets can layer additional
+shares on top in its own <code>configuration.nix</code> (see
+<a href="#51-adding-per-host-shares">§5.1</a>).</p>
+<p>The role imports <code>proxmox-lxc</code> directly because it references the <code>proxmoxLXC.*</code>
+options that role's module defines; hosts therefore do not import <code>proxmox-lxc</code>
+themselves.</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span> lib<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
 
 <span class="p">{</span>
-  <span class="c1"># NFS Server</span>
-  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> lib<span class="o">.</span>mkDefault <span class="no">true</span><span class="p">;</span>
+  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="l">../proxmox-lxc</span>
+  <span class="p">];</span>
+
+  <span class="c1"># Plain values override the proxmox-lxc role&#39;s lib.mkDefault defaults;</span>
+  <span class="c1"># identical for every NAS container.</span>
+  <span class="ss">proxmoxLXC</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># The container is made privileged by Terraform (`unprivileged = false`,</span>
+    <span class="c1"># section 6.1) so bind-mounted ZFS datasets keep their host UID/GID</span>
+    <span class="c1"># (host 1000 = container 1000) without an idmap. This option does NOT</span>
+    <span class="c1"># control that: it only tells the NixOS guest module to expect a</span>
+    <span class="c1"># privileged environment, and it must agree with the Terraform setting.</span>
+    <span class="ss">privileged</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+
+    <span class="c1"># NAS hosts pin networking.hostName: comin selects the configuration by</span>
+    <span class="c1"># hostname and asserts at build time that it is non-empty. Without this</span>
+    <span class="c1"># override, the upstream proxmox-lxc module forces networking.hostName</span>
+    <span class="c1"># to &quot;&quot; (expecting the PVE-written /etc/hostname to provide it), which</span>
+    <span class="c1"># would fail that assertion. See the note on hostname in the framework</span>
+    <span class="c1"># spec, section 3.</span>
+    <span class="ss">manageHostName</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+  <span class="p">};</span>
 
   <span class="c1"># Samba Server</span>
   services<span class="o">.</span><span class="ss">samba</span> <span class="o">=</span> <span class="p">{</span>
@@ -2345,225 +2127,147 @@ defines the concrete share paths.</p>
         <span class="s2">&quot;security&quot;</span> <span class="o">=</span> <span class="s2">&quot;user&quot;</span><span class="p">;</span>
         <span class="s2">&quot;map to guest&quot;</span> <span class="o">=</span> <span class="s2">&quot;never&quot;</span><span class="p">;</span>
 
-        <span class="c1"># Performance tuning for ZFS-backed storage</span>
-        <span class="s2">&quot;use sendfile&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
-        <span class="s2">&quot;min receivefile size&quot;</span> <span class="o">=</span> <span class="s2">&quot;16384&quot;</span><span class="p">;</span>
-        <span class="s2">&quot;aio read size&quot;</span> <span class="o">=</span> <span class="s2">&quot;16384&quot;</span><span class="p">;</span>
-        <span class="s2">&quot;aio write size&quot;</span> <span class="o">=</span> <span class="s2">&quot;16384&quot;</span><span class="p">;</span>
+        <span class="c1"># No performance tuning: modern Samba defaults already enable AIO</span>
+        <span class="c1"># (aio read/write size = 1), and the once-popular tuning knobs</span>
+        <span class="c1"># interact badly (e.g. a non-zero &quot;aio write size&quot; disables the</span>
+        <span class="c1"># receivefile path that &quot;min receivefile size&quot; enables). Add tuning</span>
+        <span class="c1"># only with a benchmark that justifies it.</span>
+      <span class="p">};</span>
+
+      <span class="c1"># Shares. Every NAS container exposes the same in-container mount points;</span>
+      <span class="c1"># each node&#39;s Terraform bind mounts map its own host datasets onto these</span>
+      <span class="c1"># paths (see section 6), so this role is identical across nodes.</span>
+      <span class="s2">&quot;media&quot;</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;path&quot;</span> <span class="o">=</span> <span class="s2">&quot;/mnt/shared/media&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;browseable&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;read only&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;guest ok&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;valid users&quot;</span> <span class="o">=</span> <span class="s2">&quot;ferrarimarco&quot;</span><span class="p">;</span>
+      <span class="p">};</span>
+      <span class="s2">&quot;backups&quot;</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;path&quot;</span> <span class="o">=</span> <span class="s2">&quot;/mnt/shared/backups&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;browseable&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;read only&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;guest ok&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+        <span class="s2">&quot;valid users&quot;</span> <span class="o">=</span> <span class="s2">&quot;ferrarimarco&quot;</span><span class="p">;</span>
       <span class="p">};</span>
     <span class="p">};</span>
   <span class="p">};</span>
-
-  <span class="c1"># NFS firewall ports (NFS v3 and v4)</span>
-  networking<span class="o">.</span>firewall<span class="o">.</span><span class="ss">allowedTCPPorts</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="mi">111</span>   <span class="c1"># rpcbind</span>
-    <span class="mi">2049</span>  <span class="c1"># nfsd</span>
-    <span class="mi">20048</span> <span class="c1"># mountd</span>
-  <span class="p">];</span>
-  networking<span class="o">.</span>firewall<span class="o">.</span><span class="ss">allowedUDPPorts</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="mi">111</span>   <span class="c1"># rpcbind</span>
-    <span class="mi">2049</span>  <span class="c1"># nfsd</span>
-    <span class="mi">20048</span> <span class="c1"># mountd</span>
-  <span class="p">];</span>
-
-  <span class="c1"># Lock NFS auxiliary services to fixed ports for firewall predictability</span>
-  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">lockdPort</span> <span class="o">=</span> <span class="mi">4001</span><span class="p">;</span>
-  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">mountdPort</span> <span class="o">=</span> <span class="mi">20048</span><span class="p">;</span>
-  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">statdPort</span> <span class="o">=</span> <span class="mi">4002</span><span class="p">;</span>
-
-  networking<span class="o">.</span>firewall<span class="o">.</span><span class="ss">allowedTCPPorts</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="mi">4001</span>  <span class="c1"># lockd</span>
-    <span class="mi">4002</span>  <span class="c1"># statd</span>
-  <span class="p">];</span>
-  networking<span class="o">.</span>firewall<span class="o">.</span><span class="ss">allowedUDPPorts</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="mi">4001</span>  <span class="c1"># lockd</span>
-    <span class="mi">4002</span>  <span class="c1"># statd</span>
-  <span class="p">];</span>
 <span class="p">}</span>
 </code></pre></div>
 <blockquote>
-<p><strong>Note on firewall ports:</strong> The <code>nas</code> role opens the fixed ports for NFS
-auxiliary daemons (<code>lockd</code>, <code>statd</code>, <code>mountd</code>) to guarantee firewall
-compatibility. NFS v4 strictly requires only port 2049, but v3 clients may
-still use the auxiliary daemons. Samba ports (TCP 445, 139) are opened
-automatically by <code>services.samba.openFirewall</code>.</p>
+<p><strong>Note on firewall ports:</strong> <code>services.samba.openFirewall</code> opens the Samba
+ports automatically (TCP 445 and 139, plus UDP 137 and 138 when <code>nmbd</code> is
+enabled), so the <code>nas</code> role manages no firewall rules directly.</p>
 </blockquote>
-<h2 id="5-host-configurations">5. Host Configurations</h2>
-<h3 id="51-host-structure">5.1 Host Structure</h3>
-<p>LXC containers do not require hardware kernel parameter adjustments, partition
-maps (Disko), or bootloader configurations. Because there is no low-level
-physical file system or hardware configuration to exclude during sandboxed
-integration testing, we do not need the logical/physical split pattern.</p>
-<p>Each container's configuration is fully described in a single
-<code>configuration.nix</code> file:</p>
-<div class="highlight"><pre><span></span><code>config/nix/hosts/nas-pve1/
-└── configuration.nix    # Container configuration (roles + shares)
-
-config/nix/hosts/nas-pve2/
-└── configuration.nix
-</code></pre></div>
-<h3 id="52-container-configuration-example-configurationnix">5.2 Container Configuration Example (<code>configuration.nix</code>)</h3>
-<p>Each host imports the <code>common</code>, <code>proxmox-lxc</code>, and <code>nas</code> roles, then defines
-host-specific share paths and NFS exports. The example below illustrates the
-pattern; the actual dataset paths and share names will be defined at
-implementation time based on the ZFS datasets present on each node.</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span> <span class="o">...</span> <span class="p">}:</span>
-
-<span class="p">{</span>
+<h2 id="5-host-configuration">5. Host Configuration</h2>
+<p>By default, both NAS hosts run an <strong>identical</strong> NixOS configuration, differing
+only in <code>networking.hostName</code>: the role imports, the privileged-container and
+hostname-management settings, and the default Samba shares all live in the
+shared roles (chiefly <a href="#4-nas-role-confignixrolesnasdefaultnix"><code>nas</code></a>). A host
+that must serve datasets the others do not can additionally declare
+host-specific shares (see <a href="#51-adding-per-host-shares">§5.1</a>); absent that, each
+host's <code>configuration.nix</code> sets just the hostname:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
   <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>
     <span class="l">../../roles/common</span>
-    <span class="l">../../roles/proxmox-lxc</span>
     <span class="l">../../roles/nas</span>
+    <span class="l">../../roles/comin</span>
   <span class="p">];</span>
 
+  <span class="c1"># Required per-host value; a host may also add its own shares (see 5.1).</span>
   networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nas-pve1&quot;</span><span class="p">;</span>
-  networking<span class="o">.</span><span class="ss">hostId</span> <span class="o">=</span> <span class="s2">&quot;&lt;generated-host-id&gt;&quot;</span><span class="p">;</span>
-
-  <span class="c1"># Pinned user details to align with host ZFS dataset ownership</span>
-  users<span class="o">.</span>users<span class="o">.</span><span class="ss">ferrarimarco</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="ss">uid</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
-    <span class="ss">group</span> <span class="o">=</span> <span class="s2">&quot;users&quot;</span><span class="p">;</span>
-  <span class="p">};</span>
-  users<span class="o">.</span>groups<span class="o">.</span>users<span class="o">.</span><span class="ss">gid</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
-
-  <span class="c1"># NFS exports</span>
-  <span class="c1"># Each line exports a bind-mounted path to the local subnet.</span>
-  <span class="c1"># The actual subnet CIDR should match the home network.</span>
-  <span class="c1"># Forces all_squash to map client requests to the dataset owner UID/GID.</span>
-  services<span class="o">.</span>nfs<span class="o">.</span>server<span class="o">.</span><span class="ss">exports</span> <span class="o">=</span> <span class="s s-Multiline">&#39;&#39;</span>
-<span class="s s-Multiline">    /mnt/shared/media  192.168.1.0/24(rw,sync,no_subtree_check,all_squash,anonuid=1000,anongid=100)</span>
-<span class="s s-Multiline">    /mnt/shared/backups 192.168.1.0/24(rw,sync,no_subtree_check,all_squash,anonuid=1000,anongid=100)</span>
-<span class="s s-Multiline">  &#39;&#39;</span><span class="p">;</span>
-
-  <span class="c1"># Samba shares</span>
-  services<span class="o">.</span>samba<span class="o">.</span><span class="ss">settings</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;media&quot;</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="s2">&quot;path&quot;</span> <span class="o">=</span> <span class="s2">&quot;/mnt/shared/media&quot;</span><span class="p">;</span>
-      <span class="s2">&quot;browseable&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
-      <span class="s2">&quot;read only&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
-      <span class="s2">&quot;guest ok&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
-      <span class="s2">&quot;valid users&quot;</span> <span class="o">=</span> <span class="s2">&quot;ferrarimarco&quot;</span><span class="p">;</span>
-    <span class="p">};</span>
-    <span class="s2">&quot;backups&quot;</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="s2">&quot;path&quot;</span> <span class="o">=</span> <span class="s2">&quot;/mnt/shared/backups&quot;</span><span class="p">;</span>
-      <span class="s2">&quot;browseable&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
-      <span class="s2">&quot;read only&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
-      <span class="s2">&quot;guest ok&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
-      <span class="s2">&quot;valid users&quot;</span> <span class="o">=</span> <span class="s2">&quot;ferrarimarco&quot;</span><span class="p">;</span>
-    <span class="p">};</span>
-  <span class="p">};</span>
-
-  system<span class="o">.</span><span class="ss">stateVersion</span> <span class="o">=</span> <span class="s2">&quot;25.11&quot;</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
-<h2 id="6-nixos-lxc-template-generation">6. NixOS LXC Template Generation</h2>
-<h3 id="61-template-package-confignixpackagesnixos-lxc-nasnix">6.1 Template Package (<code>config/nix/packages/nixos-lxc-nas.nix</code>)</h3>
-<p>A new flake package produces a <code>.tar.xz</code> LXC template using <code>nixos-generators</code>
-with the <code>proxmox-lxc</code> format. This follows the same pattern as the existing
-<a href="../home-lab-bootstrapping/#31-nix-native-custom-iso-confignixpackagesnixos-installernix"><code>nixos-installer</code></a>
-package.</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-  nixos-generators<span class="p">,</span>
-  system<span class="p">,</span>
-  inputs<span class="p">,</span>
-  bootstrapPublicKey<span class="p">,</span>
-  hostConfiguration<span class="p">,</span>
-<span class="p">}:</span>
-
-nixos-generators<span class="o">.</span>nixosGenerate <span class="p">{</span>
-  <span class="k">inherit</span> system<span class="p">;</span>
-  <span class="ss">format</span> <span class="o">=</span> <span class="s2">&quot;proxmox-lxc&quot;</span><span class="p">;</span>
-
-  <span class="ss">modules</span> <span class="o">=</span> <span class="p">[</span>
-    hostConfiguration
-  <span class="p">];</span>
-
-  <span class="ss">specialArgs</span> <span class="o">=</span> <span class="p">{</span> <span class="k">inherit</span> inputs bootstrapPublicKey<span class="p">;</span> <span class="p">};</span>
-<span class="p">}</span>
+<p>This matches the <code>[common, platform role, comin]</code> import shape used by
+<a href="../hl02-proxmox-vm/"><code>hl02</code></a>; the <code>nas</code> role pulls in <code>proxmox-lxc</code> itself
+(§4).</p>
+<p>This works because both nodes expose the <strong>same in-container mount points</strong>
+(<code>/mnt/shared/media</code>, <code>/mnt/shared/backups</code>); each node's Terraform bind mounts
+map its own host datasets onto those paths (see §6). The node-specific storage
+details therefore live entirely in Terraform, never in the NixOS config. No ZFS
+runs inside the container, so no per-host <code>networking.hostId</code> is needed either.</p>
+<p>As with the <a href="../hl02-proxmox-vm/"><code>hl02</code></a> VM, the <code>comin</code> role delivers and
+maintains this configuration through the pull-based
+<a href="../home-lab-bootstrapping/#35-continuous-deployment-gitops">GitOps model</a>, so
+no per-host template is built. comin selects the matching <code>nixosConfigurations</code>
+output by hostname, which is why the hostname is the one value each host pins.</p>
+<p>The configuration deliberately declares no user accounts. All user identity is
+centralized in the <code>common</code> role, which every host imports. Because the
+container is privileged (set in the <code>nas</code> role), its UIDs are not shifted: Samba
+runs as <code>ferrarimarco</code>, and for that to line up with the bind-mounted ZFS
+datasets (owned by host UID <code>1000</code>) the container's <code>ferrarimarco</code> must also be
+UID <code>1000</code>. The <code>common</code> role must therefore pin a stable UID rather than
+letting <code>isNormalUser</code> auto-allocate one:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># config/nix/roles/common/default.nix</span>
+users<span class="o">.</span>users<span class="o">.</span>ferrarimarco<span class="o">.</span><span class="ss">uid</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
 </code></pre></div>
-<h3 id="62-flake-registration">6.2 Flake Registration</h3>
-<p>The flake exposes one template package per NAS host:</p>
-<div class="highlight"><pre><span></span><code>packages<span class="o">.</span><span class="si">${</span>system<span class="si">}</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="ss">nixos-installer</span> <span class="o">=</span> <span class="nb">import</span> <span class="l">./packages/nixos-installer.nix</span> <span class="p">{</span> <span class="o">...</span> <span class="p">};</span>
-  <span class="ss">nixos-lxc-nas-pve1</span> <span class="o">=</span> <span class="nb">import</span> <span class="l">./packages/nixos-lxc-nas.nix</span> <span class="p">{</span>
-    <span class="k">inherit</span> nixos-generators system inputs bootstrapPublicKey<span class="p">;</span>
-    <span class="ss">hostConfiguration</span> <span class="o">=</span> <span class="l">./hosts/nas-pve1/configuration.nix</span><span class="p">;</span>
-  <span class="p">};</span>
-  <span class="ss">nixos-lxc-nas-pve2</span> <span class="o">=</span> <span class="nb">import</span> <span class="l">./packages/nixos-lxc-nas.nix</span> <span class="p">{</span>
-    <span class="k">inherit</span> nixos-generators system inputs bootstrapPublicKey<span class="p">;</span>
-    <span class="ss">hostConfiguration</span> <span class="o">=</span> <span class="l">./hosts/nas-pve2/configuration.nix</span><span class="p">;</span>
-  <span class="p">};</span>
+<p>The primary group already defaults to <code>users</code> (GID <code>100</code>), matching the dataset
+group ownership. Pinning the UID in <code>common</code> keeps it consistent across every
+host in the lab, not just the NAS containers.</p>
+<blockquote>
+<p><strong>Migration note.</strong> Because <code>common</code> is shared, the pin also lands on every
+already-deployed host (e.g. <code>hl02</code>). NixOS updates the UID in <code>/etc/passwd</code>
+but does not chown existing files. In practice the first <code>isNormalUser</code>
+account is auto-allocated UID <code>1000</code> anyway, so this should be a no-op —
+verify with <code>id -u ferrarimarco</code> on each existing host before landing the pin.</p>
+</blockquote>
+<h3 id="51-adding-per-host-shares">5.1 Adding Per-Host Shares</h3>
+<p>The <code>media</code> and <code>backups</code> shares are defaults that every NAS container exposes.
+A node that owns datasets the others do not (for example a <code>photos</code> dataset only
+on <code>pve1</code>) can serve them by adding a share <strong>on that host only</strong>. A share is
+three coupled declarations, so all of them are required:</p>
+<ol>
+<li><strong>The host dataset (Ansible).</strong> Add the dataset to that node's <code>zfs_datasets</code>
+   list in its Ansible <code>host_vars</code> (see
+   <a href="#111-zfs-dataset-mount-points-on-the-host">§11.1</a>) so the <code>setup_disks</code> role
+   creates it and converges its mount-point ownership.</li>
+<li><strong>The bind mount (Terraform).</strong> Add the host-path → container-path entry to
+   that node's <code>var.nas_container_bind_mounts</code> (see
+   <a href="#62-zfs-dataset-bind-mounts">§6.2</a>), for example <code>/rpool-sata/photos</code> →
+   <code>/mnt/shared/photos</code>.</li>
+<li>
+<p><strong>The Samba share (NixOS).</strong> Add the export to that host's
+   <code>configuration.nix</code>; it merges with the role's defaults:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># config/nix/hosts/nas-pve1/configuration.nix</span>
+services<span class="o">.</span>samba<span class="o">.</span>settings<span class="o">.</span><span class="ss">photos</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s2">&quot;path&quot;</span> <span class="o">=</span> <span class="s2">&quot;/mnt/shared/photos&quot;</span><span class="p">;</span>
+  <span class="s2">&quot;browseable&quot;</span> <span class="o">=</span> <span class="s2">&quot;yes&quot;</span><span class="p">;</span>
+  <span class="s2">&quot;read only&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+  <span class="s2">&quot;guest ok&quot;</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+  <span class="s2">&quot;valid users&quot;</span> <span class="o">=</span> <span class="s2">&quot;ferrarimarco&quot;</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div>
-<h3 id="63-build-command">6.3 Build Command</h3>
-<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixos-lxc-nas-pve1
-<span class="c1"># Output: result/nixos-system-x86_64-linux.tar.xz</span>
+</li>
+</ol>
+<blockquote>
+<p><strong>All three or none.</strong> The declarations are not cross-checked: a Samba share
+without its bind mount exports an empty path, a bind mount without its dataset
+fails to start the container (Proxmox does not create bind-mount sources), and
+a dataset without its share holds data that is never served. Add and remove
+them together.</p>
+</blockquote>
+<h2 id="6-infrastructure-provisioning-terraform">6. Infrastructure Provisioning (Terraform)</h2>
+<p>The base container resource and template upload follow the
+<a href="../proxmox-lxc/#6-infrastructure-provisioning-terraform">Terraform provisioning pattern</a>
+in the framework spec. The NAS container adds two things on top: the privileged
+setting for bind-mount ownership, and the ZFS dataset bind mounts.</p>
+<h3 id="61-privileged-container">6.1 Privileged Container</h3>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="na">unprivileged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">false</span><span class="c1"> # Privileged: bind mounts keep host UID/GID (no idmap)</span>
 </code></pre></div>
-<p>The resulting tarball is uploaded to each Proxmox node's <code>local</code> storage as a
-container template using the <code>proxmox_virtual_environment_file</code> resource in
-Terraform.</p>
-<h2 id="7-infrastructure-provisioning-terraform">7. Infrastructure Provisioning (Terraform)</h2>
-<h3 id="71-container-resources">7.1 Container Resources</h3>
-<p>LXC containers are defined in
-<code>config/terraform/220-proxmox-workloads/containers-pveN.tf</code> using the
-<code>bpg/proxmox</code> provider's <code>proxmox_virtual_environment_container</code> resource.</p>
-<h4 id="containers-pve1tf-illustrative"><code>containers-pve1.tf</code> (illustrative)</h4>
-<div class="highlight"><pre><span></span><code><span class="c1"># Uploads the built NixOS LXC template to Proxmox</span>
-<span class="kr">resource</span><span class="w"> </span><span class="nc">&quot;proxmox_virtual_environment_file&quot;</span><span class="w"> </span><span class="nv">&quot;nixos_nas_template_pve1&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox.pve1</span>
-
-<span class="w">  </span><span class="na">content_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vztmpl&quot;</span>
-<span class="w">  </span><span class="na">datastore_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local&quot;</span>
-<span class="w">  </span><span class="na">node_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nv">var.proxmox_virtual_environment_hosts</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">].</span><span class="err">node_name</span>
-
-<span class="w">  </span><span class="nb">source_file</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">path</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;${path.module}/../../../result/tarball/nixos-system-x86_64-linux.tar.xz&quot;</span>
-<span class="w">    </span><span class="na">file_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nixos-nas-pve1.tar.xz&quot;</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kr">resource</span><span class="w"> </span><span class="nc">&quot;proxmox_virtual_environment_container&quot;</span><span class="w"> </span><span class="nv">&quot;nas_pve1&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox.pve1</span>
-
-<span class="w">  </span><span class="na">description</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Managed by Terraform - NixOS NAS LXC&quot;</span>
-<span class="w">  </span><span class="na">node_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nv">var.proxmox_virtual_environment_hosts</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">].</span><span class="err">node_name</span>
-<span class="w">  </span><span class="na">vm_id</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="m">200</span>
-<span class="w">  </span><span class="na">unprivileged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">false</span><span class="c1">  # Required for NFS kernel server</span>
-<span class="w">  </span><span class="na">started</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-
-<span class="w">  </span><span class="nb">features</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">nesting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
-<span class="c1">    # Enable NFS mount type inside the container</span>
-<span class="w">    </span><span class="na">mount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;nfs&quot;</span><span class="p">]</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="nb">cpu</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">cores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="nb">memory</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">dedicated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2048</span>
-<span class="w">    </span><span class="na">swap</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="m">512</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="nb">network_interface</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">name</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;eth0&quot;</span>
-<span class="w">    </span><span class="na">bridge</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vmbr0&quot;</span>
-<span class="w">    </span><span class="na">mac_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;pinned-mac-address&gt;&quot;</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="nb">disk</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">datastore_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;local-zfs&quot;</span>
-<span class="w">    </span><span class="na">size</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="m">8</span><span class="c1">  # GB - OS rootfs only, data is bind-mounted</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="nb">operating_system</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">template_file_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">proxmox_virtual_environment_file.nixos_nas_template_pve1.id</span>
-<span class="w">    </span><span class="na">type</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;unmanaged&quot;</span>
-<span class="w">  </span><span class="p">}</span>
-
-<span class="c1">  # Bind mounts for ZFS datasets</span>
-<span class="c1">  # Parameterized via var.nas_container_bind_mounts</span>
+<p>A privileged container maps host UID/GID directly (host <code>1000</code> = container
+<code>1000</code>), so the bind-mounted ZFS datasets retain their ownership without an
+<code>lxc.idmap</code>. This avoids raw LXC config keys (which the <code>bpg/proxmox</code> provider
+does not expose and would otherwise require a provisioner) at the cost of a
+weaker isolation boundary (see §8.1).</p>
+<blockquote>
+<p><strong>Keep both sides in agreement.</strong> This Terraform setting is what actually
+makes the container privileged; the <code>proxmoxLXC.privileged = true</code> in the
+<code>nas</code> role (§4) only tells the NixOS guest module what environment to expect.
+The two are not cross-checked — change them together.</p>
+</blockquote>
+<h3 id="62-zfs-dataset-bind-mounts">6.2 ZFS Dataset Bind Mounts</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">  # Bind mounts for ZFS datasets, parameterized via var.nas_container_bind_mounts</span>
 <span class="w">  </span><span class="err">dynamic</span><span class="w"> </span><span class="s2">&quot;mount_point&quot;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="na">for_each</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.nas_container_bind_mounts</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">]</span>
 <span class="w">    </span><span class="nb">content</span><span class="w"> </span><span class="p">{</span>
@@ -2577,142 +2281,76 @@ Terraform.</p>
 <span class="w">    </span><span class="na">volume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/var/lib/samba-state/nas-pve1&quot;</span>
 <span class="w">    </span><span class="na">path</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/var/lib/samba&quot;</span>
 <span class="w">  </span><span class="p">}</span>
-
-<span class="w">  </span><span class="nb">initialization</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">hostname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nas-pve1&quot;</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
 </code></pre></div>
-<h4 id="key-design-decisions">Key design decisions</h4>
-<ul>
-<li><strong><code>unprivileged = false</code></strong>: The NFS kernel server requires a privileged
-  container to interact with the host kernel's NFS modules (<code>nfsd</code>,
-  <code>rpc_pipefs</code>). This is a deliberate security trade-off documented in
-  section 9.</li>
-<li><strong><code>type = "unmanaged"</code></strong>: Prevents Proxmox from running OS-specific
-  configuration hooks (e.g., Debian <code>cloud-init</code>) that are incompatible with
-  NixOS.</li>
-<li><strong><code>features.nesting = true</code></strong>: Required for NixOS <code>systemd</code> to function
-  correctly inside LXC.</li>
-<li><strong><code>features.mount = ["nfs"]</code></strong>: Permits the container to mount NFS filesystems
-  (if needed for cross-container access in the future).</li>
-<li><strong>Small OS disk</strong>: The rootfs only needs enough space for the NixOS system
-  closure. All user data resides on bind-mounted ZFS datasets.</li>
-<li><strong>Bind mount parameterization</strong>: Mounts are declared via standard Terraform
-  variables and dynamically mapped, keeping dataset details out of the core
-  resource block.</li>
-<li><strong>Declarative template upload</strong>: The template is uploaded using the
-  <code>proxmox_virtual_environment_file</code> resource, creating a direct dependency via
-  <code>template_file_id</code> that guarantees the template is uploaded before container
-  creation.</li>
-</ul>
-<h3 id="72-apparmor-configuration-automation">7.2 AppArmor Configuration &amp; Automation</h3>
-<p>Running <code>nfs-kernel-server</code> inside a privileged LXC requires relaxing the
-default AppArmor profile by appending <code>lxc.apparmor.profile: unconfined</code> to the
-Proxmox host's configuration file <code>/etc/pve/lxc/&lt;vmid&gt;.conf</code>.</p>
-<p>Because the <code>bpg/proxmox</code> Terraform provider does not natively expose raw LXC
-config keys like <code>lxc.apparmor.profile</code>, we automate this post-creation tweak
-using a Terraform <code>remote-exec</code> provisioner directly on the container resource:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="kr">provisioner</span><span class="w"> </span><span class="nv">&quot;remote-exec&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">inline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;echo &#39;lxc.apparmor.profile: unconfined&#39; &gt;&gt; /etc/pve/lxc/${self.vm_id}.conf&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;pct restart ${self.vm_id}&quot;</span>
-<span class="w">    </span><span class="p">]</span>
-
-<span class="w">    </span><span class="nb">connection</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="na">type</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ssh&quot;</span>
-<span class="w">      </span><span class="na">user</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;root&quot;</span>
-<span class="w">      </span><span class="na">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.proxmox_virtual_environment_hosts_secrets</span><span class="p">[</span><span class="s2">&quot;pve1&quot;</span><span class="p">].</span><span class="err">password</span>
-<span class="w">      </span><span class="na">host</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="s2">&quot;:&quot;, split(&quot;//&quot;, var.proxmox_virtual_environment_hosts[&quot;pve1&quot;</span><span class="p">].</span><span class="err">api_endpoint</span><span class="p">)[</span><span class="m">1</span><span class="p">])[</span><span class="m">0</span><span class="p">]</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-</code></pre></div>
-<p>A custom AppArmor profile that only permits <code>mount fstype=nfsd</code> is a more secure
-alternative and is recommended for production hardening in a follow-up
-iteration.</p>
-<h3 id="73-container-id-allocation">7.3 Container ID Allocation</h3>
-<p>Following the existing numbering convention (VMs start at 100), LXC containers
-use a separate range starting at 200:</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Container ID</th>
-<th style="text-align: left;">Host</th>
-<th style="text-align: left;">Node</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">200</td>
-<td style="text-align: left;">nas-pve1</td>
-<td style="text-align: left;">pve1</td>
-</tr>
-<tr>
-<td style="text-align: left;">201</td>
-<td style="text-align: left;">nas-pve2</td>
-<td style="text-align: left;">pve2</td>
-</tr>
-</tbody>
-</table>
-<h2 id="8-smb-user-management">8. SMB User Management</h2>
+<p>Bind mounts are declared via Terraform variables and dynamically mapped, keeping
+dataset details out of the resource block. <code>/var/lib/samba</code> is bind-mounted from
+host-persistent storage so the Samba password database survives container
+recreation (see §7.2). The host-side directory must exist before the container
+first starts; see <a href="#112-samba-state-directory-on-the-host">§11.2</a> for its
+prerequisites and backup implications.</p>
+<h2 id="7-smb-user-management">7. SMB User Management</h2>
 <p>Samba maintains its own password database (<code>passdb.tdb</code>) separate from the Linux
 system's <code>/etc/shadow</code>. NixOS does not provide a fully declarative mechanism to
 populate Samba passwords because storing credentials in the world-readable Nix
 store would be a security risk.</p>
-<h3 id="81-declarative-part">8.1 Declarative Part</h3>
+<h3 id="71-declarative-part">7.1 Declarative Part</h3>
 <p>The NixOS configuration declares:</p>
 <ul>
-<li>The system user (<code>users.users.ferrarimarco</code>) via the <code>common</code> role.</li>
+<li>The system user (<code>users.users.ferrarimarco</code>), with its UID pinned to <code>1000</code>,
+  via the <code>common</code> role.</li>
 <li>The Samba share definitions and <code>valid users</code> via the <code>nas</code> role.</li>
 <li>The Samba service itself (<code>services.samba.enable = true</code>).</li>
 </ul>
-<h3 id="82-imperative-part-one-time-setup">8.2 Imperative Part (One-Time Setup)</h3>
+<h3 id="72-imperative-part-one-time-setup">7.2 Imperative Part (One-Time Setup)</h3>
 <p>After the initial container deployment, the Samba password must be set once
-manually:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Inside the NAS container</span>
-sudo<span class="w"> </span>smbpasswd<span class="w"> </span>-a<span class="w"> </span>ferrarimarco
+manually, either from the owning Proxmox node:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># On the Proxmox node that owns the container.</span>
+<span class="c1"># /bin/sh -lc is required: pct exec does not source a login shell, so</span>
+<span class="c1"># /run/current-system/sw/bin (where NixOS puts smbpasswd) is not on PATH.</span>
+pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;vmid&gt;<span class="w"> </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-lc<span class="w"> </span><span class="s1">&#39;smbpasswd -a ferrarimarco&#39;</span>
+</code></pre></div>
+<p>or from a shell inside the container:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>smbpasswd<span class="w"> </span>-a<span class="w"> </span>ferrarimarco
 </code></pre></div>
 <p>This step is intentionally imperative. Because <code>/var/lib/samba</code> is mounted from
 the host's persistent storage (e.g. <code>/var/lib/samba-state/nas-pve1</code>), the Samba
 user database (<code>passdb.tdb</code>) is preserved across container recreations and
 template updates, making it a true one-time setup step for the lifecycle of the
 lab.</p>
-<h2 id="9-security-considerations">9. Security Considerations</h2>
-<h3 id="91-privileged-container">9.1 Privileged Container</h3>
-<p>The NFS kernel server requires a privileged container. This means the
-container's root user maps directly to the host's UID 0 inside the container
-namespace. Mitigations:</p>
+<h2 id="8-security-considerations">8. Security Considerations</h2>
+<h3 id="81-privileged-container">8.1 Privileged Container</h3>
+<p>The container runs privileged so bind-mounted ZFS datasets retain their host
+UID/GID without an idmap (see §6.1). This means the container's root user maps
+directly to the host's UID 0 inside the container namespace.</p>
+<p>Running privileged is a deliberate trade-off, chosen over the alternatives
+because they are worse under this lab's constraints: an unprivileged container
+with an <code>lxc.idmap</code> needs raw LXC config keys the <code>bpg/proxmox</code> provider does
+not expose (forcing a provisioner this design avoids), and chowning the host
+datasets into the shifted UID range makes the data look alien to host-side
+tooling (scrubs, snapshots, direct host access). Privileged 1:1 UID mapping
+keeps bind-mounted data owned consistently on both sides. The isolation cost is
+bounded by the following mitigations:</p>
 <ul>
-<li>The container runs only NFS and SMB services; no user-facing shell access is
+<li>The container runs only the Samba service; no user-facing shell access is
   expected.</li>
 <li>SSH is enabled (from the <code>common</code> role) but restricted to key-based
   authentication with root login disabled.</li>
 <li>The container has no direct access to ZFS administrative commands; it sees
   bind-mounted directories as plain filesystems.</li>
 </ul>
-<h3 id="92-nfs-security">9.2 NFS Security</h3>
-<ul>
-<li>Exports are restricted to the local subnet CIDR (e.g., <code>192.168.1.0/24</code>).</li>
-<li><code>no_root_squash</code> is used only where explicitly required (e.g., for backup
-  agents that need root-level file access). All other exports should use the
-  default <code>root_squash</code>.</li>
-<li>NFSv4 is preferred over NFSv3 when clients support it, as it requires only a
-  single port (2049) and supports stronger authentication.</li>
-</ul>
-<h3 id="93-smb-security">9.3 SMB Security</h3>
+<h3 id="82-smb-security">8.2 SMB Security</h3>
 <ul>
 <li>Guest access is disabled (<code>map to guest = never</code>).</li>
 <li>Only authenticated local users can access shares (<code>security = user</code>).</li>
-<li>The Samba password database is stored inside the container's rootfs, which is
-  backed by ZFS on the host.</li>
+<li>The Samba password database (<code>passdb.tdb</code>, which stores NT password hashes)
+  does <strong>not</strong> live in the container's rootfs: <code>/var/lib/samba</code> is bind-mounted
+  from the host (§6.2), so the hashes reside on the Proxmox host at
+  <code>/var/lib/samba-state/nas-pveN</code>, readable only by root. Anything that backs up
+  that host path captures the hashes; see
+  <a href="#112-samba-state-directory-on-the-host">§11.2</a>.</li>
 </ul>
-<h3 id="94-apparmor">9.4 AppArmor</h3>
-<p>The initial deployment uses <code>lxc.apparmor.profile: unconfined</code> for simplicity. A
-follow-up hardening task should create a minimal custom AppArmor profile that
-permits only the NFS-related mount operations (<code>mount fstype=nfsd</code>,
-<code>mount fstype=nfs</code>, <code>mount fstype=rpc_pipefs</code>).</p>
-<h2 id="10-integration-testing">10. Integration Testing</h2>
-<h3 id="101-test-auto-discovery">10.1 Test Auto-Discovery</h3>
+<h2 id="9-integration-testing">9. Integration Testing</h2>
+<h3 id="91-test-auto-discovery">9.1 Test Auto-Discovery</h3>
 <p>Both <code>nas-pve1</code> and <code>nas-pve2</code> contain a <code>configuration.nix</code> file and are
 automatically discovered by the flake's test generator (see
 <a href="../declarative-integration-testing/#33-flake-integration-and-dynamic-test-discovery">Testing Spec - Dynamic Discovery</a>).</p>
@@ -2721,118 +2359,196 @@ automatically discovered by the flake's test generator (see
 <li>Successful boot (<code>multi-user.target</code> reached).</li>
 <li>SSH port 22 availability.</li>
 </ol>
-<h3 id="102-test-overrides-test-overridenix">10.2 Test Overrides (<code>test-override.nix</code>)</h3>
-<p>Because NFS and SMB services require bind-mounted paths that do not exist in the
-test VM sandbox, each NAS host includes a <code>test-override.nix</code> that:</p>
+<h3 id="92-samba-coverage-in-the-test-generator">9.2 Samba Coverage in the Test Generator</h3>
+<p>The Samba service requires bind-mounted share paths that do not exist in the
+test VM sandbox. Instead of per-host test overrides, the centralized test
+generator (<code>config/nix/tests/make-test.nix</code>) handles Samba hosts conditionally,
+following the same service-aware pattern it already uses for SSH, the QEMU guest
+agent, and comin (see
+<a href="../declarative-integration-testing/#32-centralized-test-generator-confignixtestsmake-testnix">Testing Spec - Centralized Test Generator</a>):</p>
 <ul>
-<li>Creates mock directories for the expected mount points.</li>
-<li>Adds NAS-specific assertions (e.g., verifying that <code>smbd</code> and <code>nfsd</code> systemd
-  units are active).</li>
+<li>It derives the share list from the evaluated <code>services.samba.settings</code> (every
+  section besides <code>global</code> that declares a <code>path</code>) and creates each share's path
+  as a mock directory via <code>systemd.tmpfiles</code> rules.</li>
+<li>It waits for <code>samba-smbd.service</code> (NixOS names the Samba units
+  <code>samba-smbd.service</code>, <code>samba-nmbd.service</code>, and so on).</li>
+<li>It asserts that every declared share appears in an anonymous
+  (<code>smbclient -L localhost -N</code>) enumeration over the null session. This checks
+  that the shares are exported, not the authenticated access path, since no
+  Samba password can be set declaratively (see section 7).</li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-  <span class="ss">extraConfig</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># Create mock mount points so NFS exports and Samba shares</span>
-    <span class="c1"># can reference valid paths during the integration test.</span>
-    systemd<span class="o">.</span>tmpfiles<span class="o">.</span><span class="ss">rules</span> <span class="o">=</span> <span class="p">[</span>
-      <span class="s2">&quot;d /mnt/shared/media 0755 root root -&quot;</span>
-      <span class="s2">&quot;d /mnt/shared/backups 0755 root root -&quot;</span>
-    <span class="p">];</span>
-  <span class="p">};</span>
-
-  <span class="ss">extraTestScript</span> <span class="o">=</span> <span class="s s-Multiline">&#39;&#39;</span>
-<span class="s s-Multiline">    machine.wait_for_unit(&quot;smbd.service&quot;)</span>
-<span class="s s-Multiline">    machine.wait_for_unit(&quot;nfs-server.service&quot;)</span>
-<span class="s s-Multiline">    machine.succeed(&quot;smbclient -L localhost -N | grep -q media&quot;)</span>
-<span class="s s-Multiline">  &#39;&#39;</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
-<h3 id="103-lxc-specific-test-limitations">10.3 LXC-Specific Test Limitations</h3>
-<p>The standard NixOS test framework runs tests inside QEMU VMs, not LXC
-containers. This means:</p>
-<ul>
-<li>The <code>proxmox-lxc</code> module's LXC-specific settings (e.g., <code>boot.isContainer</code>)
-  must be overridden in the test environment to avoid conflicts with the
-  QEMU-based test runner.</li>
-<li>The <code>test-override.nix</code> should include <code>boot.isContainer = lib.mkForce false;</code>
-  to allow the test VM to boot normally.</li>
-</ul>
-<h2 id="11-deployment-workflow">11. Deployment Workflow</h2>
-<h3 id="111-initial-deployment">11.1 Initial Deployment</h3>
+<p>Because the assertions are derived from the evaluated configuration, a host that
+adds a per-host share (section 5.1) is covered automatically: the mock directory
+and the enumeration assertion follow the share definition, so the Samba
+configuration and its test coverage cannot drift apart.</p>
+<p>The NAS hosts therefore ship no <code>test-override.nix</code>. The file remains available
+for genuinely host-specific assertions (see the framework's
+<a href="../proxmox-lxc/#4-host-structure">host structure</a>), and the LXC boot tweaks
+are applied automatically by the harness (see
+<a href="../proxmox-lxc/#7-lxc-specific-test-limitations">LXC test limitations</a>).</p>
+<h2 id="10-deployment-workflow">10. Deployment Workflow</h2>
+<h3 id="101-initial-deployment">10.1 Initial Deployment</h3>
+<p>The examples below use VMID <code>200</code> for <code>nas-pve1</code>. VMIDs are cluster-unique (the
+existing VMs use <code>100</code> and <code>101</code>), so <code>nas-pve2</code> gets its own distinct ID (e.g.
+<code>201</code>), and each <code>pct</code> command runs on the Proxmox node that owns the container.</p>
 <ol>
-<li><strong>Build the LXC template:</strong>
-    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#nixos-lxc-nas-pve1
-</code></pre></div></li>
 <li>
-<p><strong>Apply Terraform:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>config/terraform/220-proxmox-workloads
+<p><strong>Converge host storage (Ansible).</strong> The <code>setup_disks</code> role (see
+   <a href="#111-zfs-dataset-mount-points-on-the-host">§11.1</a>) asserts that the node's
+   ZFS pool exists, creates the <code>media</code> and <code>backups</code> datasets if missing, sets
+   their mount-point ownership, and creates the Samba state directory
+   (<a href="#112-samba-state-directory-on-the-host">§11.2</a>):</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;setup-disks.yaml&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;--limit home_lab_proxmox_nodes&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>scripts/run-ansible.sh
+</code></pre></div>
+</li>
+<li>
+<p><strong>Provision the container.</strong> Stage the image artifacts with the
+   <a href="../proxmox-lxc/#54-artifact-staging-for-terraform-proxmox-images"><code>proxmox-images</code> package</a>,
+   then apply Terraform to upload the generic
+   <a href="../proxmox-lxc/#5-lxc-template-generation"><code>nixos-lxc-bootstrap</code></a> template
+   (shared by every NAS container — no per-host template is built), create the
+   container with hostname <code>nas-pveN</code> and the ZFS bind mounts, and start it:</p>
+<div class="highlight"><pre><span></span><code><span class="o">(</span><span class="nb">cd</span><span class="w"> </span>config/nix<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>nix<span class="w"> </span>build<span class="w"> </span>.#proxmox-images<span class="o">)</span>
+<span class="nb">cd</span><span class="w"> </span>config/terraform/220-proxmox-workloads
 terraform<span class="w"> </span>apply
 </code></pre></div>
-<p>(Note: Terraform automatically uploads the NixOS LXC template tarball using
-the <code>proxmox_virtual_environment_file</code> resource, configures the container,
-executes the AppArmor tweaks via the <code>remote-exec</code> provisioner, and restarts
-the container.)</p>
 </li>
 <li>
-<p><strong>Post-deploy: Set Samba password</strong> (imperative, inside the container):
-    <div class="highlight"><pre><span></span><code>pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="m">200</span><span class="w"> </span>--<span class="w"> </span>smbpasswd<span class="w"> </span>-a<span class="w"> </span>ferrarimarco
-</code></pre></div></p>
+<p><strong>Hand off to GitOps.</strong> Run the unified bootstrap script from the repository
+   root (see the
+   <a href="../home-lab-bootstrapping/#341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh">bootstrapping spec</a>).
+   It discovers the container over SSH, verifies its pinned MAC address, and
+   pushes the full host configuration — including <code>comin</code> — with
+   <code>nixos-rebuild switch --flake --target-host</code>; the closure is built on the
+   control machine, so the bare bootstrap template needs no flake support or
+   PATH setup. Thereafter the container maintains itself from the repository
+   (see
+   <a href="../home-lab-bootstrapping/#35-continuous-deployment-gitops">Continuous Deployment (GitOps)</a>):</p>
+<div class="highlight"><pre><span></span><code>scripts/bootstrap-host.sh<span class="w"> </span>nas-pve1<span class="w"> </span>&lt;pinned-mac-address&gt;
+</code></pre></div>
+<blockquote>
+<p><strong>Fallback (no SSH path to the container).</strong> The switch can also run from
+the owning Proxmox node. Two wrinkles in this variant, both consequences
+of running against the bare bootstrap template: <code>pct exec</code> does not source
+a login shell (hence <code>/bin/sh -lc</code>, since <code>/run/current-system/sw/bin</code> is
+not on its default PATH), and flakes are not enabled until the <code>common</code>
+role lands (hence the <code>--option</code> flag):</p>
+<div class="highlight"><pre><span></span><code>pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="m">200</span><span class="w"> </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-lc<span class="w"> </span><span class="s1">&#39;nixos-rebuild switch \</span>
+<span class="s1">  --option extra-experimental-features &quot;nix-command flakes&quot; \</span>
+<span class="s1">  --flake &quot;github:ferrarimarco/home-lab?dir=config/nix#nas-pve1&quot;&#39;</span>
+</code></pre></div>
+</blockquote>
+</li>
+<li>
+<p><strong>Set the Samba password</strong> (one-time, imperative; see
+   <a href="#72-imperative-part-one-time-setup">§7.2</a>):</p>
+<div class="highlight"><pre><span></span><code>pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="m">200</span><span class="w"> </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-lc<span class="w"> </span><span class="s1">&#39;smbpasswd -a ferrarimarco&#39;</span>
+</code></pre></div>
 </li>
 </ol>
-<h3 id="112-configuration-updates">11.2 Configuration Updates</h3>
-<p>To update the NAS configuration after changing <code>configuration.nix</code>:</p>
-<ol>
-<li>Rebuild the LXC template: <code>nix build .#nixos-lxc-nas-pve1</code></li>
-<li>Upload and replace the template on Proxmox.</li>
-<li>Recreate the container from the new template via Terraform. This is safe to
-   run since the container rootfs is stateless; the Samba password database is
-   stored in the <code>/var/lib/samba</code> bind mount which persists on the host.
-   Alternatively, SSH into the running container and run <code>nixos-rebuild switch</code>
-   if the flake is available inside the container.</li>
-</ol>
-<h2 id="12-assumptions-and-constraints">12. Assumptions and Constraints</h2>
-<h3 id="121-zfs-dataset-mount-points-on-the-host">12.1 ZFS Dataset Mount Points on the Host</h3>
+<h3 id="102-configuration-updates">10.2 Configuration Updates</h3>
+<p>Configuration changes are delivered through GitOps: edit the host
+<code>configuration.nix</code> (or a shared role) and push to <code>master</code>. <code>comin</code> polls the
+repository on each NAS container and applies the updated
+<code>nixosConfigurations.nas-pveN</code> closure automatically — no template rebuild,
+upload, or container recreation. The Samba password database persists in the
+<code>/var/lib/samba</code> bind mount across every change.</p>
+<h2 id="11-assumptions-and-constraints">11. Assumptions and Constraints</h2>
+<h3 id="111-zfs-dataset-mount-points-on-the-host">11.1 ZFS Dataset Mount Points on the Host</h3>
 <p>The Proxmox host must have the ZFS datasets mounted at known, stable paths
 (specifically <code>/rpool-sata/media</code> and <code>/rpool-sata/backups</code> on <code>pve1</code> and
-<code>/tank-hdd/media</code> and <code>/tank-hdd/backups</code> on <code>pve2</code>). The host directories must
-be owned by UID <code>1000</code> (<code>ferrarimarco</code>) to match container permissions.</p>
-<p>The mount points are parameterized in Terraform using input variable maps to
-prevent hardcoding host paths inside the container configurations. If ZFS
-dataset paths change, the Terraform parameters must be updated to match the new
-host paths.</p>
-<h3 id="122-networking-dhcp">12.2 Networking (DHCP)</h3>
+<code>/tank-hdd/media</code> and <code>/tank-hdd/backups</code> on <code>pve2</code>), owned by UID <code>1000</code>
+(<code>ferrarimarco</code>) and GID <code>100</code> (<code>users</code>) to match container permissions.</p>
+<p>This layout is codified in Ansible rather than assumed: the
+<code>ferrarimarco_home_lab_setup_disks</code> role converges it from two per-node
+<code>host_vars</code> lists, following a read-then-act pattern (query actual state with
+<code>changed_when: false</code> commands, act only on the delta) instead of the
+<code>community.general.zfs</code> module, whose property handling is not reliably
+idempotent. No suitable Terraform provider exists for ZFS either, which is why
+this lives in the Ansible layer that already manages the Proxmox nodes:</p>
+<ul>
+<li><strong><code>zfs_pools</code> — asserted, never created.</strong> <code>zpool create</code> is destructive and
+  device-specific, so pool creation stays a deliberate manual act. Each entry
+  records the pool's actual topology (<code>by-id</code> device paths) and creation options
+  (e.g. <code>ashift</code>) as executable documentation; the role fails with the
+  documented <code>zpool create</code> command when the pool is missing.</li>
+<li><strong><code>zfs_datasets</code> — created if missing</strong> (<code>zfs create -p</code>). The declared
+  <code>mount_point</code> is not an input to ZFS (datasets mount at the ZFS-computed path,
+  by default <code>/&lt;pool&gt;/&lt;dataset&gt;</code>), so the role then asserts that each dataset's
+  actual <code>mountpoint</code> property matches the declaration before converging the
+  mount point's ownership (UID <code>1000</code>, GID <code>100</code>) — a drifted declaration fails
+  loudly instead of chowning a plain directory that shadows the real dataset.
+  The check also works in check mode: datasets that would be created are
+  validated against their predicted default mount point, derived from the pool's
+  actual one.</li>
+</ul>
+<p>The same paths appear as the bind-mount <em>sources</em> in Terraform
+(<code>var.nas_container_bind_mounts</code>, <a href="#62-zfs-dataset-bind-mounts">§6.2</a>). The
+Ansible and Terraform declarations are two views of the same layout and are not
+cross-checked: if a dataset path changes, update both together (and the Samba
+share if it is a per-host one; see <a href="#51-adding-per-host-shares">§5.1</a>).</p>
+<h3 id="112-samba-state-directory-on-the-host">11.2 Samba State Directory on the Host</h3>
+<p>Each node must provide the persistent directory backing the <code>/var/lib/samba</code>
+bind mount (<code>/var/lib/samba-state/nas-pve1</code> on <code>pve1</code>,
+<code>/var/lib/samba-state/nas-pve2</code> on <code>pve2</code>). Proxmox does not create bind-mount
+sources, so the directory must exist — owned by <code>root</code>, as Samba expects for
+<code>/var/lib/samba</code> — before the container first starts. Like the datasets
+(<a href="#111-zfs-dataset-mount-points-on-the-host">§11.1</a>), this is codified in
+Ansible: the directory is declared in each node's <code>directories_to_create</code>
+<code>host_vars</code> list and created by the <code>setup_disks</code> role.</p>
+<p>As specced, this directory lives on the Proxmox root filesystem, not on the data
+pools, so <code>passdb.tdb</code> is <strong>not</strong> covered by ZFS snapshots or replication of the
+shared datasets; losing it means re-running <code>smbpasswd</code> (§7.2), not data loss.
+If that trade-off becomes unacceptable, move the directory onto a dedicated ZFS
+dataset — and remember that any backup of it captures NT password hashes (see
+§8.2).</p>
+<h3 id="113-networking-dhcp">11.3 Networking (DHCP)</h3>
 <p>The NAS containers use DHCP, consistent with the current approach for
-<a href="../hl02-proxmox-vm/#52-networking-dhcp-for-now"><code>hl02</code></a>. Static IPs or DHCP
-reservations should be configured in the router to ensure stable addressing for
-NFS/SMB clients.</p>
-<h3 id="123-mac-address-pinning">12.3 MAC Address Pinning</h3>
+<a href="../hl02-proxmox-vm/#52-networking-dhcp-for-now"><code>hl02</code></a>. DHCP is requested via
+the Terraform <code>initialization.ip_config</code> block, which PVE renders into the
+container's systemd-networkd configuration (see the framework spec's
+<a href="../proxmox-lxc/#6-infrastructure-provisioning-terraform">Terraform section</a>).
+Static IPs or DHCP reservations should be configured in the router to ensure
+stable addressing for SMB clients.</p>
+<h3 id="114-mac-address-pinning">11.4 MAC Address Pinning</h3>
 <p>Each container's network interface is assigned a pinned MAC address in
 Terraform, matching the pattern used for VMs. This ensures stable DHCP
 reservations.</p>
-<h3 id="124-terraform-provider-authentication">12.4 Terraform Provider Authentication</h3>
-<p>Bind mounts in the <code>bpg/proxmox</code> provider require authentication as <code>root@pam</code>.
-The existing provider configuration already supports username/password
-authentication alongside API tokens.</p>
-<h3 id="125-nfs-ganesha-as-an-alternative">12.5 NFS-Ganesha as an Alternative</h3>
-<p>If the privileged container requirement for <code>nfs-kernel-server</code> proves too
-restrictive, NFS-Ganesha (a user-space NFS server) is a viable alternative that
-can run inside an unprivileged container. This would require replacing
-<code>services.nfs.server</code> with a custom NFS-Ganesha NixOS module. This trade-off
-should be evaluated during implementation.</p>
-<h2 id="13-future-work">13. Future Work</h2>
+<h2 id="12-future-work">12. Future Work</h2>
 <ul>
-<li><strong>Custom AppArmor profile</strong>: Replace <code>unconfined</code> with a minimal profile that
-  permits only NFS-related kernel operations.</li>
-<li><strong>Automated template upload</strong>: Use Terraform's
-  <code>proxmox_virtual_environment_download_file</code> or a provisioner to automate
-  template uploads to Proxmox storage.</li>
+<li><strong>NFS support</strong>: Re-introduce NFS sharing alongside SMB. Evaluate
+  <code>nfs-kernel-server</code> in a privileged container versus the user-space
+  NFS-Ganesha server, which can run in an unprivileged container.</li>
+<li><strong>Automated template upload</strong>: Replace the local-file push
+  (<code>proxmox_virtual_environment_file</code> pointing at the local build artifact, per
+  the framework pattern — the "Terraform Template Upload" item in the status
+  table) with <code>proxmox_virtual_environment_download_file</code> pulling the template
+  from a published URL, removing the need for a locally built artifact at
+  <code>terraform apply</code> time.</li>
+<li><strong>Samba performance tuning</strong>: Benchmark before adding any tuning to the <code>nas</code>
+  role. Modern Samba enables AIO by default, and the classic knobs interact (a
+  non-zero <code>aio write size</code> disables <code>min receivefile size</code>), so tuning without
+  measurement is at best a no-op.</li>
+<li><strong>GitOps requires the <code>comin</code> role per host</strong>: comin needs a hostname at build
+  time, so it cannot ride in the shared, hostname-less bootstrap template (see
+  <a href="../proxmox-lxc/#5-lxc-template-generation">template generation</a>). Each NAS
+  host's <code>configuration.nix</code> must therefore import the <code>comin</code> role itself (see
+  §5), which is installed by the one-time <code>nixos-rebuild switch</code> handoff in
+  §10.1. True zero-touch first-boot GitOps would require working around comin's
+  build-time hostname model.</li>
 <li><strong>Samba password automation</strong>: Explore <code>sops-nix</code> or similar secret management
   to populate Samba passwords declaratively via activation scripts.</li>
 <li><strong>SMB service discovery</strong>: Enable Samba's WS-Discovery or Avahi for automatic
   share browsing on Windows and macOS clients.</li>
 <li><strong>Static IP migration</strong>: Transition from DHCP to static IP assignments defined
   in the NixOS configuration once the network spec is written.</li>
-<li><strong>ZFS dataset Terraform management</strong>: Define the ZFS datasets themselves in
-  Terraform or a separate Nix module for full declarative coverage.</li>
+<li><strong>Single source of truth for shares</strong>: Derive the Samba share exports (NixOS),
+  the bind mounts (Terraform), and the host datasets (Ansible <code>zfs_datasets</code>,
+  <a href="#111-zfs-dataset-mount-points-on-the-host">§11.1</a>) from one data structure —
+  for example a Nix attrset emitted to <code>tfvars</code> via <code>nix eval</code> — so each share
+  is declared once and the three halves cannot drift (see §5.1).</li>
 </ul>
 
 

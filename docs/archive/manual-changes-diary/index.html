@@ -853,6 +853,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
@@ -1186,7 +1209,30 @@
   
   
   <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for NFS and SMB File Sharing
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../specs/proxmox-lxc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
     
   </span>
   
@@ -1291,7 +1337,8 @@ to eventually get to a state where we don't need this file anymore.</p>
 <ul>
 <li><code>pve2</code>: manually created (through the Proxmox GUI) two new ZFS pools:
   <code>tank-hdd-scratch</code> and <code>tank-ssd-scratch</code>. They are intended to be used as
-  scratch space for temporary files.</li>
+  scratch space for temporary files. Rationale: ZFS Ansible modules are not
+  idempotent, and I didn't find a suitable ZFS Terraform provider.</li>
 </ul>
 <h2 id="2025-04-03">2025-04-03</h2>
 <h3 id="notes-to-create-the-100-vm">Notes to create the 100 VM</h3>
