@@ -19,13 +19,14 @@ network_interfaces:
 restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"
 
 # Storage
-backup_disk_device: /dev/sdb
 data_disk_device: /dev/sdc
 disks_to_mount:
-  - fstype: ext4
-    opts: discard
+  # Backups live on the NAS LXC container's backups share; the former local
+  # backup virtual disk was deleted.
+  - fstype: cifs
+    opts: "credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail"
     path: "{{ workloads_backup_disk_mount_path }}"
-    src: PARTUUID="739594b9-01"
+    src: //nas-pve1.edge.lab.ferrari.how/backups
     state: mounted
   - fstype: ext4
     opts: discard
@@ -34,14 +35,17 @@ disks_to_mount:
     state: mounted
 filesystems_to_create:
   - fstype: ext4
-    dev: "{{ backup_disk_device }}{{ partitions_to_create[lookup('ansible.utils.index_of', data=partitions_to_create, test='eq', value=backup_disk_device, key='device', fail_on_missing=true)].partition_number }}"
-  - fstype: ext4
     dev: "{{ data_disk_device }}{{ partitions_to_create[lookup('ansible.utils.index_of', data=partitions_to_create, test='eq', value=data_disk_device, key='device', fail_on_missing=true)].partition_number }}"
 partitions_to_create:
-  - device: "{{ backup_disk_device }}"
-    partition_number: 1
   - device: "{{ data_disk_device }}"
     partition_number: 1
+mount_credential_files:
+  - path: /etc/smb-credentials-nas-pve1
+    content: |
+      username={{ vault_nas_smb_user }}
+      password={{ vault_nas_smb_password }}
+mount_os_packages:
+  - cifs-utils
 
 # Data synchronization
 rsync_daemon_modules:
