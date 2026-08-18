@@ -1,4 +1,25 @@
 ---
+- name: Install packages required for mounts
+  ansible.builtin.apt:
+    name: "{{ mount_os_packages }}"
+    state: present
+  become: true
+  when: mount_os_packages | default([]) | length > 0
+
+# Credential files that mounts below reference (e.g. CIFS credentials=...).
+# Written here, and not by the node role, because the disk setup playbook
+# runs before the node playbook.
+- name: Create mount credential files
+  ansible.builtin.copy:
+    content: "{{ item.content }}"
+    dest: "{{ item.path }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0600') }}"
+    owner: "{{ item.owner | default('root') }}"
+  become: true
+  no_log: true
+  with_items: "{{ mount_credential_files | default([]) }}"
+
 - name: Create directories
   ansible.builtin.file:
     group: "{{ item.group | default('root') }}"

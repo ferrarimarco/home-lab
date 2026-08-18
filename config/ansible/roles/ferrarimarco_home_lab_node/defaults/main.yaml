@@ -26,7 +26,6 @@ configure_wifi: false
 configure_zigbee2mqtt: false
 default_user_groups: []
 delete_systemd_journal_file: false
-disks_to_mount: []
 dphys_swapfile_swapfactor: 2
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000

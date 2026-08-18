@@ -403,7 +403,9 @@ This step is intentionally imperative. Because `/var/lib/samba` is mounted from
 the host's persistent storage (e.g. `/var/lib/samba-state/nas-pve1`), the Samba
 user database (`passdb.tdb`) is preserved across container recreations and
 template updates, making it a true one-time setup step for the lifecycle of the
-lab.
+lab. Automating it — without committing secrets, even encrypted ones, to the
+public repository — is designed but not implemented; see the Samba password
+automation item in [Future Work](#12-future-work).
 
 ## 8. Security Considerations
 
@@ -560,6 +562,39 @@ repository on each NAS container and applies the updated
 upload, or container recreation. The Samba password database persists in the
 `/var/lib/samba` bind mount across every change.
 
+### 10.3 SMB Clients
+
+Hosts that consume the shares mount them over CIFS. How a client is configured
+follows its management layer: Ansible-managed hosts (Debian) declare the mount
+as data for the `setup_disks` role; NixOS hosts would declare `fileSystems`
+entries (none do yet). The Proxmox nodes mount nothing: each already owns its
+datasets natively, and mounting a container's export back onto its own host
+would add a network filesystem loop over local data.
+
+The first client is `hl01`, which mounts the `backups` share from `nas-pve1`
+at the existing `/media/backup-0` mount point
+(`workloads_backup_disk_mount_path`), replacing the deleted local backup
+virtual disk, so the restic backup stack keeps its target path. Its
+`host_vars` declare three pieces, all converged by the `setup_disks` role
+(which runs before the node playbook, so the mount's prerequisites cannot race
+it):
+
+- **`mount_os_packages`** — installs `cifs-utils`.
+- **`mount_credential_files`** — writes the root-only (`0600`) SMB credentials
+  file (`/etc/smb-credentials-nas-pve1`) whose username and password come from
+  the shared Ansible vault (`vault_nas_smb_user`, `vault_nas_smb_password` in
+  `group_vars/all`, since the credentials may be shared across client hosts),
+  keeping the secrets out of the repository consistent with the lab's secrets
+  policy. The values are the Samba user and password set in
+  [§7.2](#72-imperative-part-one-time-setup).
+- **`disks_to_mount`** — the CIFS entry itself:
+  `//nas-pve1.edge.lab.ferrari.how/backups` with
+  `credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail`.
+  `_netdev` orders the mount after the network is up, and `nofail` keeps the
+  client booting when the NAS container is down. The DNS name (backed by a
+  router DHCP reservation for the container's pinned MAC, see
+  [§11.4](#114-mac-address-pinning)) keeps the source stable across leases.
+
 ## 11. Assumptions and Constraints
 
 ### 11.1 ZFS Dataset Mount Points on the Host
@@ -654,8 +689,19 @@ reservations.
   §5), which is installed by the one-time `nixos-rebuild switch` handoff in
   §10.1. True zero-touch first-boot GitOps would require working around comin's
   build-time hostname model.
-- **Samba password automation**: Explore `sops-nix` or similar secret management
-  to populate Samba passwords declaratively via activation scripts.
+- **Samba password automation**: Replace the imperative `smbpasswd` step (§7.2)
+  with a mechanism/material split that keeps secrets out of the public
+  repository (committing encrypted secrets — e.g. `sops-nix` ciphertext — was
+  considered and rejected: this repository's policy keeps even encrypted secrets
+  untracked, and public git history is immortal). Design: the `nas` role ships a
+  oneshot systemd unit that, on every activation, reads a password file from a
+  well-known path and pipes it into `smbpasswd -s -a ferrarimarco`; the Ansible
+  layer that already manages the Proxmox nodes writes that file (root-only,
+  `0600`) to `/var/lib/samba-state/nas-pveN/smb-password` from a vaulted
+  (untracked) variable, so the container's existing `/var/lib/samba` bind mount
+  delivers it. Container recreation then self-heals the password database,
+  rotation is an Ansible run plus a unit restart, and disaster recovery reduces
+  to the local Ansible vault, as for every other secret in the lab.
 - **SMB service discovery**: Enable Samba's WS-Discovery or Avahi for automatic
   share browsing on Windows and macOS clients.
 - **Static IP migration**: Transition from DHCP to static IP assignments defined
