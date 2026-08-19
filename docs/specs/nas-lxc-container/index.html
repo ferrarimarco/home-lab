@@ -1440,6 +1440,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#103-smb-clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3 SMB Clients
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1827,6 +1836,15 @@
   <a href="#102-configuration-updates" class="md-nav__link">
     <span class="md-ellipsis">
       10.2 Configuration Updates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-smb-clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3 SMB Clients
     </span>
   </a>
   
@@ -2316,7 +2334,9 @@ pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&
 the host's persistent storage (e.g. <code>/var/lib/samba-state/nas-pve1</code>), the Samba
 user database (<code>passdb.tdb</code>) is preserved across container recreations and
 template updates, making it a true one-time setup step for the lifecycle of the
-lab.</p>
+lab. Automating it — without committing secrets, even encrypted ones, to the
+public repository — is designed but not implemented; see the Samba password
+automation item in <a href="#12-future-work">Future Work</a>.</p>
 <h2 id="8-security-considerations">8. Security Considerations</h2>
 <h3 id="81-privileged-container">8.1 Privileged Container</h3>
 <p>The container runs privileged so bind-mounted ZFS datasets retain their host
@@ -2455,6 +2475,36 @@ repository on each NAS container and applies the updated
 <code>nixosConfigurations.nas-pveN</code> closure automatically — no template rebuild,
 upload, or container recreation. The Samba password database persists in the
 <code>/var/lib/samba</code> bind mount across every change.</p>
+<h3 id="103-smb-clients">10.3 SMB Clients</h3>
+<p>Hosts that consume the shares mount them over CIFS. How a client is configured
+follows its management layer: Ansible-managed hosts (Debian) declare the mount
+as data for the <code>setup_disks</code> role; NixOS hosts would declare <code>fileSystems</code>
+entries (none do yet). The Proxmox nodes mount nothing: each already owns its
+datasets natively, and mounting a container's export back onto its own host
+would add a network filesystem loop over local data.</p>
+<p>The first client is <code>hl01</code>, which mounts the <code>backups</code> share from <code>nas-pve1</code> at
+the existing <code>/media/backup-0</code> mount point (<code>workloads_backup_disk_mount_path</code>),
+replacing the deleted local backup virtual disk, so the restic backup stack
+keeps its target path. Its <code>host_vars</code> declare three pieces, all converged by
+the <code>setup_disks</code> role (which runs before the node playbook, so the mount's
+prerequisites cannot race it):</p>
+<ul>
+<li><strong><code>mount_os_packages</code></strong> — installs <code>cifs-utils</code>.</li>
+<li><strong><code>mount_credential_files</code></strong> — writes the root-only (<code>0600</code>) SMB credentials
+  file (<code>/etc/smb-credentials-nas-pve1</code>) whose username and password come from
+  the shared Ansible vault (<code>vault_nas_smb_user</code>, <code>vault_nas_smb_password</code> in
+  <code>group_vars/all</code>, since the credentials may be shared across client hosts),
+  keeping the secrets out of the repository consistent with the lab's secrets
+  policy. The values are the Samba user and password set in
+  <a href="#72-imperative-part-one-time-setup">§7.2</a>.</li>
+<li><strong><code>disks_to_mount</code></strong> — the CIFS entry itself:
+  <code>//nas-pve1.edge.lab.ferrari.how/backups</code> with
+  <code>credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail</code>.
+  <code>_netdev</code> orders the mount after the network is up, and <code>nofail</code> keeps the
+  client booting when the NAS container is down. The DNS name (backed by a
+  router DHCP reservation for the container's pinned MAC, see
+  <a href="#114-mac-address-pinning">§11.4</a>) keeps the source stable across leases.</li>
+</ul>
 <h2 id="11-assumptions-and-constraints">11. Assumptions and Constraints</h2>
 <h3 id="111-zfs-dataset-mount-points-on-the-host">11.1 ZFS Dataset Mount Points on the Host</h3>
 <p>The Proxmox host must have the ZFS datasets mounted at known, stable paths
@@ -2538,8 +2588,19 @@ reservations.</p>
   §5), which is installed by the one-time <code>nixos-rebuild switch</code> handoff in
   §10.1. True zero-touch first-boot GitOps would require working around comin's
   build-time hostname model.</li>
-<li><strong>Samba password automation</strong>: Explore <code>sops-nix</code> or similar secret management
-  to populate Samba passwords declaratively via activation scripts.</li>
+<li><strong>Samba password automation</strong>: Replace the imperative <code>smbpasswd</code> step (§7.2)
+  with a mechanism/material split that keeps secrets out of the public
+  repository (committing encrypted secrets — e.g. <code>sops-nix</code> ciphertext — was
+  considered and rejected: this repository's policy keeps even encrypted secrets
+  untracked, and public Git history is immortal). Design: the <code>nas</code> role ships a
+  oneshot systemd unit that, on every activation, reads a password file from a
+  well-known path and pipes it into <code>smbpasswd -s -a ferrarimarco</code>; the Ansible
+  layer that already manages the Proxmox nodes writes that file (root-only,
+  <code>0600</code>) to <code>/var/lib/samba-state/nas-pveN/smb-password</code> from a vaulted
+  (untracked) variable, so the container's existing <code>/var/lib/samba</code> bind mount
+  delivers it. Container recreation then self-heals the password database,
+  rotation is an Ansible run plus a unit restart, and disaster recovery reduces
+  to the local Ansible vault, as for every other secret in the lab.</li>
 <li><strong>SMB service discovery</strong>: Enable Samba's WS-Discovery or Avahi for automatic
   share browsing on Windows and macOS clients.</li>
 <li><strong>Static IP migration</strong>: Transition from DHCP to static IP assignments defined
