@@ -571,13 +571,12 @@ entries (none do yet). The Proxmox nodes mount nothing: each already owns its
 datasets natively, and mounting a container's export back onto its own host
 would add a network filesystem loop over local data.
 
-The first client is `hl01`, which mounts the `backups` share from `nas-pve1`
-at the existing `/media/backup-0` mount point
-(`workloads_backup_disk_mount_path`), replacing the deleted local backup
-virtual disk, so the restic backup stack keeps its target path. Its
-`host_vars` declare three pieces, all converged by the `setup_disks` role
-(which runs before the node playbook, so the mount's prerequisites cannot race
-it):
+The first client is `hl01`, which mounts the `backups` share from `nas-pve1` at
+the existing `/media/backup-0` mount point (`workloads_backup_disk_mount_path`),
+replacing the deleted local backup virtual disk, so the restic backup stack
+keeps its target path. Its `host_vars` declare three pieces, all converged by
+the `setup_disks` role (which runs before the node playbook, so the mount's
+prerequisites cannot race it):
 
 - **`mount_os_packages`** — installs `cifs-utils`.
 - **`mount_credential_files`** — writes the root-only (`0600`) SMB credentials
@@ -693,7 +692,7 @@ reservations.
   with a mechanism/material split that keeps secrets out of the public
   repository (committing encrypted secrets — e.g. `sops-nix` ciphertext — was
   considered and rejected: this repository's policy keeps even encrypted secrets
-  untracked, and public git history is immortal). Design: the `nas` role ships a
+  untracked, and public Git history is immortal). Design: the `nas` role ships a
   oneshot systemd unit that, on every activation, reads a password file from a
   well-known path and pipes it into `smbpasswd -s -a ferrarimarco`; the Ansible
   layer that already manages the Proxmox nodes writes that file (root-only,
