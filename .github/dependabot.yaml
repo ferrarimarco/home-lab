@@ -78,8 +78,6 @@ updates:
   - directories:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
-      - /docker/ansible
-      - /docker/ci-cd-tools
     package-ecosystem: "docker"
     multi-ecosystem-group: "home-lab-workloads"
     patterns:
@@ -105,14 +103,11 @@ updates:
       - syncthing/syncthing
       - traefik
   - directories:
-      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
-      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
       - /docker/ansible
       - /docker/ci-cd-tools
     package-ecosystem: "docker"
     multi-ecosystem-group: "home-lab-workloads"
     patterns:
-      - ansible
       - node
       - python
   - directories:
