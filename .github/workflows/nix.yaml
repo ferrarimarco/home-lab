@@ -95,7 +95,7 @@ jobs:
         uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
 
       - name: Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
       - name: Run linters and formatters
         run: nix build .#checks.x86_64-linux.lint-treefmt-nix --verbose
@@ -128,7 +128,7 @@ jobs:
           enable_kvm: true
 
       - name: Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
       - name: Run Sandbox VM/container Test
         run: nix build ".#checks.x86_64-linux.host-${MATRIX_HOST}-test" --verbose
@@ -161,7 +161,7 @@ jobs:
         uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
 
       - name: Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
       - name: Evaluate and Build Machine Toplevel
         run: nix build ".#nixosConfigurations.${MATRIX_HOST}.config.system.build.toplevel" --verbose
@@ -194,7 +194,7 @@ jobs:
         uses: cachix/install-nix-action@96951a368ba55167b55f1c916f7d416bac6505fe # v31.10.3
 
       - name: Magic Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
 
       - name: Build Image Package
         run: nix build ".#packages.x86_64-linux.${MATRIX_PACKAGE}" --verbose
