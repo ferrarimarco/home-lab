@@ -2482,12 +2482,22 @@ as data for the <code>setup_disks</code> role; NixOS hosts would declare <code>f
 entries (none do yet). The Proxmox nodes mount nothing: each already owns its
 datasets natively, and mounting a container's export back onto its own host
 would add a network filesystem loop over local data.</p>
-<p>The first client is <code>hl01</code>, which mounts the <code>backups</code> share from <code>nas-pve1</code> at
-the existing <code>/media/backup-0</code> mount point (<code>workloads_backup_disk_mount_path</code>),
-replacing the deleted local backup virtual disk, so the restic backup stack
-keeps its target path. Its <code>host_vars</code> declare three pieces, all converged by
-the <code>setup_disks</code> role (which runs before the node playbook, so the mount's
-prerequisites cannot race it):</p>
+<p>The first client is <code>hl01</code>, which mounts two <code>nas-pve1</code> shares at the mount
+points its former local virtual disks occupied, so every consumer keeps its
+configured paths:</p>
+<ul>
+<li>the <code>backups</code> share at <code>/media/backup-0</code> (<code>workloads_backup_disk_mount_path</code>),
+  replacing the deleted backup virtual disk; the restic backup stack keeps its
+  target path.</li>
+<li>the <code>media-usb</code> share — the first consumer of a per-host share
+  (<a href="#51-adding-per-host-shares">§5.1</a>), backed by <code>pve1</code>'s USB pool — at
+  <code>/media/data0</code> (<code>data_disk_mount_path</code>), replacing the deleted data virtual
+  disk. <code>media_directory_path</code> (<code>/media/data0/media</code>) is unchanged and now
+  resolves to a <code>media/</code> subdirectory inside the share.</li>
+</ul>
+<p>Its <code>host_vars</code> declare three pieces, all converged by the <code>setup_disks</code> role
+(which runs before the node playbook, so the mounts' prerequisites cannot race
+it):</p>
 <ul>
 <li><strong><code>mount_os_packages</code></strong> — installs <code>cifs-utils</code>.</li>
 <li><strong><code>mount_credential_files</code></strong> — writes the root-only (<code>0600</code>) SMB credentials
@@ -2497,8 +2507,10 @@ prerequisites cannot race it):</p>
   keeping the secrets out of the repository consistent with the lab's secrets
   policy. The values are the Samba user and password set in
   <a href="#72-imperative-part-one-time-setup">§7.2</a>.</li>
-<li><strong><code>disks_to_mount</code></strong> — the CIFS entry itself:
-  <code>//nas-pve1.edge.lab.ferrari.how/backups</code> with
+<li><strong><code>disks_to_mount</code></strong> — the CIFS entries themselves
+  (<code>//nas-pve1.edge.lab.ferrari.how/backups</code> and
+  <code>//nas-pve1.edge.lab.ferrari.how/media-usb</code>, sharing the credentials file)
+  with
   <code>credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail</code>.
   <code>_netdev</code> orders the mount after the network is up, and <code>nofail</code> keeps the
   client booting when the NAS container is down. The DNS name (backed by a
