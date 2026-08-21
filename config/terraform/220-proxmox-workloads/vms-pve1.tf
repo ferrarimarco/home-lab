@@ -46,36 +46,6 @@ resource "proxmox_virtual_environment_vm" "vm_100" {
     ssd          = true
   }
 
-  disk {
-    aio               = "io_uring"
-    backup            = true
-    cache             = "none"
-    datastore_id      = "rpool-sata"
-    discard           = "on"
-    file_format       = "raw"
-    interface         = "scsi1"
-    iothread          = true
-    path_in_datastore = "vm-100-disk-0"
-    replicate         = true
-    size              = 113
-    ssd               = true
-  }
-
-  disk {
-    aio               = "io_uring"
-    backup            = true
-    cache             = "none"
-    datastore_id      = "rpool-usb-1"
-    discard           = "ignore"
-    file_format       = "raw"
-    interface         = "scsi2"
-    iothread          = true
-    path_in_datastore = "vm-100-disk-0"
-    replicate         = true
-    size              = 885
-    ssd               = false
-  }
-
   efi_disk {
     datastore_id      = "local-zfs"
     file_format       = "raw"
