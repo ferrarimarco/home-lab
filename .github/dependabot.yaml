@@ -36,6 +36,7 @@ updates:
     patterns:
       - actions/*
       - cachix/install-nix-action
+      - DeterminateSystems/magic-nix-cache-action
       - docker/*
       - github/*
       - googleapis/*
