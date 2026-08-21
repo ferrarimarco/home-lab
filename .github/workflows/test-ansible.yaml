@@ -53,7 +53,7 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: false
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Set up Docker Buildx
