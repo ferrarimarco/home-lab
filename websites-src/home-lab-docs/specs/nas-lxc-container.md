@@ -571,12 +571,22 @@ entries (none do yet). The Proxmox nodes mount nothing: each already owns its
 datasets natively, and mounting a container's export back onto its own host
 would add a network filesystem loop over local data.
 
-The first client is `hl01`, which mounts the `backups` share from `nas-pve1` at
-the existing `/media/backup-0` mount point (`workloads_backup_disk_mount_path`),
-replacing the deleted local backup virtual disk, so the restic backup stack
-keeps its target path. Its `host_vars` declare three pieces, all converged by
-the `setup_disks` role (which runs before the node playbook, so the mount's
-prerequisites cannot race it):
+The first client is `hl01`, which mounts two `nas-pve1` shares at the mount
+points its former local virtual disks occupied, so every consumer keeps its
+configured paths:
+
+- the `backups` share at `/media/backup-0` (`workloads_backup_disk_mount_path`),
+  replacing the deleted backup virtual disk; the restic backup stack keeps its
+  target path.
+- the `media-usb` share — the first consumer of a per-host share
+  ([§5.1](#51-adding-per-host-shares)), backed by `pve1`'s USB pool — at
+  `/media/data0` (`data_disk_mount_path`), replacing the deleted data virtual
+  disk. `media_directory_path` (`/media/data0/media`) is unchanged and now
+  resolves to a `media/` subdirectory inside the share.
+
+Its `host_vars` declare three pieces, all converged by the `setup_disks` role
+(which runs before the node playbook, so the mounts' prerequisites cannot race
+it):
 
 - **`mount_os_packages`** — installs `cifs-utils`.
 - **`mount_credential_files`** — writes the root-only (`0600`) SMB credentials
@@ -586,8 +596,10 @@ prerequisites cannot race it):
   keeping the secrets out of the repository consistent with the lab's secrets
   policy. The values are the Samba user and password set in
   [§7.2](#72-imperative-part-one-time-setup).
-- **`disks_to_mount`** — the CIFS entry itself:
-  `//nas-pve1.edge.lab.ferrari.how/backups` with
+- **`disks_to_mount`** — the CIFS entries themselves
+  (`//nas-pve1.edge.lab.ferrari.how/backups` and
+  `//nas-pve1.edge.lab.ferrari.how/media-usb`, sharing the credentials file)
+  with
   `credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail`.
   `_netdev` orders the mount after the network is up, and `nofail` keeps the
   client booting when the NAS container is down. The DNS name (backed by a
