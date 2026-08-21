@@ -47,10 +47,7 @@ updates:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter
-      - /config/pre-commit
       - /config/smart-desk/esphome
-      - /docker/ansible
-      - /docker/ansible/molecule
     package-ecosystem: "pip"
     multi-ecosystem-group: "home-lab-workloads"
     patterns:
@@ -58,11 +55,7 @@ updates:
       - prometheus-client
       - requests
   - directories:
-      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt
-      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
-      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter
       - /config/pre-commit
-      - /config/smart-desk/esphome
       - /docker/ansible
       - /docker/ansible/molecule
     package-ecosystem: "pip"
