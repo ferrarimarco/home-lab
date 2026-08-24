@@ -1,0 +1,3 @@
+---
+configure_docker: false
+enable_prometheus_node_exporter_scraping: false
