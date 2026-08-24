@@ -27,8 +27,8 @@ specification.
 
 ### 1.3 Centralized Future Work and TODOs
 
-Future work and TODO items are tracked centrally in the "Specifications to write
-/ TODOs" section of the specs index
+Future work and todo items are tracked centrally in the "Specifications to write
+and TODOs" section of the specs index
 [`README.md`](./websites-src/home-lab-docs/specs/README.md), not in per-spec
 "Future Work" sections. A spec's "Future Work" section must contain only a
 pointer to that centralized list.
