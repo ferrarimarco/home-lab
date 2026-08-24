@@ -29,6 +29,7 @@
 - name: Add all Prometheus Node Exporter endpoints to the list of HTTP endpoints to check
   ansible.builtin.set_fact:
     monitoring_backend_http_endpoints_to_check: "{{ monitoring_backend_http_endpoints_to_check + monitoring_backend_http_prometheus_node_exporter_endpoint_check_template }}"
+  when: hostvars[item].enable_prometheus_node_exporter_scraping | default(enable_prometheus_node_exporter_scraping)
   with_items: "{{ groups['all'] }}"
 
 - name: Add all cAdvisor endpoints to the list of HTTP endpoints to check
