@@ -37,6 +37,14 @@ testing rationale before code implementation.
     - Create a udev rule:
       `echo 'SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d4", SYMLINK+="zigbee_dongle"' | sudo tee /etc/udev/rules.d/99-zigbee.rules`
     - Change the mapping in Docker
+    - Logs:
+
+        ```text
+        Error response from daemon: error gathering device information while adding custom device "/dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20220708144056-if00": no such file or directory
+        pi@raspberrypi2:~ $ ls /dev/serial/by-id
+        usb-1a86_USB_Single_Serial_54DD003512-if00
+        ```
+
 - Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role.
 - Cross-host workloads backup.
@@ -81,6 +89,23 @@ testing rationale before code implementation.
       automatic share browsing on Windows and macOS clients.
     - **Static IP migration**: Transition from DHCP to static IP assignments
       defined in the NixOS configuration once the network spec is written.
+    - **Terraform-managed ZFS pools (evaluated 2026-08, deferred)**: the
+      `bpg/proxmox` provider (since 0.111.x) offers
+      [`proxmox_node_disk_zfs`](https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/node_disk_zfs)
+      for node ZFS pool lifecycle. Transitioning the pool layer of the
+      `setup_disks` role (see
+      [dataset mount points](./nas-lxc-container.md#111-zfs-dataset-mount-points-on-the-host))
+      to it was evaluated and rejected for now: its pool attributes (`devices`,
+      `raidlevel`, `ashift`, `compression`) are write-only, so the Terraform
+      config would be the same unverified documentation the `zfs_pools`
+      inventory already is, with no drift detection; the provider manages pools
+      only, so datasets and mount-point ownership would stay in Ansible,
+      splitting the ZFS layer across two tools; and with the local Terraform
+      state backend, losing state would invert the deliberate "pools are
+      asserted, never created" stance into a pool-creation attempt on
+      data-bearing devices at the next apply. Revisit when the provider gains
+      readable pool attributes (real drift detection) or dataset management, or
+      when a durable remote state backend is in place.
     - **Single source of truth for shares**: Derive the Samba share exports
       (NixOS), the bind mounts (Terraform), and the host datasets (Ansible
       `zfs_datasets`,
