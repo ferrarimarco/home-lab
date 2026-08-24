@@ -7,19 +7,18 @@ document covers only the NAS/SMB-specific additions.
 
 ## Implementation Status
 
-| Component / Feature             | Status                | Details                                                                                                     |
-| :------------------------------ | :-------------------- | :---------------------------------------------------------------------------------------------------------- |
-| **`nas` Role (SMB)**            | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                                               |
-| **`common` Role UID Pin**       | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.                                    |
-| **Host Config (`nas-pve1`)**    | **Deployed**          | NixOS host config for the pve1 instance; live and maintained by comin (§10.2).                              |
-| **Host Config (`nas-pve2`)**    | **Fully Implemented** | NixOS host config for the pve2 instance; not yet deployed.                                                  |
-| **Terraform LXC (`pve1`)**      | **Deployed**          | Container 200 created from `containers-pve1.tf` and running; Samba password set (§7.2).                     |
-| **Terraform LXC (`pve2`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`; not yet applied.                           |
-| **Terraform Template Upload**   | **Deployed**          | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).                            |
-| **Host Storage Prep (Ansible)** | **Partially Applied** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11) on pve1; pve2 not yet run. |
-| **SMB Clients (`hl01`)**        | **Deployed**          | `backups` and `media-usb` shares mounted over CIFS, replacing local virtual disks (§10.3).                  |
-| **Host Integration Tests**      | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.                                       |
-| **Flake Registration**          | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                                          |
+| Component / Feature             | Status                | Details                                                                                        |
+| :------------------------------ | :-------------------- | :--------------------------------------------------------------------------------------------- |
+| **`nas` Role (SMB)**            | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                                  |
+| **`common` Role UID Pin**       | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.                       |
+| **Host Config (`nas-pve1`)**    | **Fully Implemented** | NixOS host config for the pve1 instance.                                                       |
+| **Host Config (`nas-pve2`)**    | **Fully Implemented** | NixOS host config for the pve2 instance.                                                       |
+| **Terraform LXC (`pve1`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`; not yet applied.              |
+| **Terraform LXC (`pve2`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`; not yet applied.              |
+| **Terraform Template Upload**   | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).               |
+| **Host Storage Prep (Ansible)** | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11); not yet run. |
+| **Host Integration Tests**      | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.                          |
+| **Flake Registration**          | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                             |
 
 ## 1. Goal
 
@@ -406,7 +405,8 @@ user database (`passdb.tdb`) is preserved across container recreations and
 template updates, making it a true one-time setup step for the lifecycle of the
 lab. Automating it — without committing secrets, even encrypted ones, to the
 public repository — is designed but not implemented; see the Samba password
-automation item in [Future Work](#12-future-work).
+automation item in the
+[specifications readme](./README.md#specifications-to-write--todos).
 
 ## 8. Security Considerations
 
@@ -681,45 +681,5 @@ reservations.
 
 ## 12. Future Work
 
-- **NFS support**: Re-introduce NFS sharing alongside SMB. Evaluate
-  `nfs-kernel-server` in a privileged container versus the user-space
-  NFS-Ganesha server, which can run in an unprivileged container.
-- **Automated template upload**: Replace the local-file push
-  (`proxmox_virtual_environment_file` pointing at the local build artifact, per
-  the framework pattern — the "Terraform Template Upload" item in the status
-  table) with `proxmox_virtual_environment_download_file` pulling the template
-  from a published URL, removing the need for a locally built artifact at
-  `terraform apply` time.
-- **Samba performance tuning**: Benchmark before adding any tuning to the `nas`
-  role. Modern Samba enables AIO by default, and the classic knobs interact (a
-  non-zero `aio write size` disables `min receivefile size`), so tuning without
-  measurement is at best a no-op.
-- **GitOps requires the `comin` role per host**: comin needs a hostname at build
-  time, so it cannot ride in the shared, hostname-less bootstrap template (see
-  [template generation](./proxmox-lxc.md#5-lxc-template-generation)). Each NAS
-  host's `configuration.nix` must therefore import the `comin` role itself (see
-  §5), which is installed by the one-time `nixos-rebuild switch` handoff in
-  §10.1. True zero-touch first-boot GitOps would require working around comin's
-  build-time hostname model.
-- **Samba password automation**: Replace the imperative `smbpasswd` step (§7.2)
-  with a mechanism/material split that keeps secrets out of the public
-  repository (committing encrypted secrets — e.g. `sops-nix` ciphertext — was
-  considered and rejected: this repository's policy keeps even encrypted secrets
-  untracked, and public Git history is immortal). Design: the `nas` role ships a
-  oneshot systemd unit that, on every activation, reads a password file from a
-  well-known path and pipes it into `smbpasswd -s -a ferrarimarco`; the Ansible
-  layer that already manages the Proxmox nodes writes that file (root-only,
-  `0600`) to `/var/lib/samba-state/nas-pveN/smb-password` from a vaulted
-  (untracked) variable, so the container's existing `/var/lib/samba` bind mount
-  delivers it. Container recreation then self-heals the password database,
-  rotation is an Ansible run plus a unit restart, and disaster recovery reduces
-  to the local Ansible vault, as for every other secret in the lab.
-- **SMB service discovery**: Enable Samba's WS-Discovery or Avahi for automatic
-  share browsing on Windows and macOS clients.
-- **Static IP migration**: Transition from DHCP to static IP assignments defined
-  in the NixOS configuration once the network spec is written.
-- **Single source of truth for shares**: Derive the Samba share exports (NixOS),
-  the bind mounts (Terraform), and the host datasets (Ansible `zfs_datasets`,
-  [§11.1](#111-zfs-dataset-mount-points-on-the-host)) from one data structure —
-  for example a Nix attrset emitted to `tfvars` via `nix eval` — so each share
-  is declared once and the three halves cannot drift (see §5.1).
+Future work items for this spec are tracked centrally in the
+[specifications readme](./README.md#specifications-to-write--todos).

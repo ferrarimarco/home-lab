@@ -39,3 +39,52 @@ testing rationale before code implementation.
     - Change the mapping in Docker
 - Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role.
+- NAS ([NAS LXC Container](./nas-lxc-container.md)):
+    - **NFS support**: Re-introduce NFS sharing alongside SMB. Evaluate
+      `nfs-kernel-server` in a privileged container versus the user-space
+      NFS-Ganesha server, which can run in an unprivileged container.
+    - **Automated template upload**: Replace the local-file push
+      (`proxmox_virtual_environment_file` pointing at the local build artifact,
+      per the framework pattern) with
+      `proxmox_virtual_environment_download_file` pulling the template from a
+      published URL, removing the need for a locally built artifact at
+      `terraform apply` time.
+    - **Samba performance tuning**: Benchmark before adding any tuning to the
+      `nas` role. Modern Samba enables AIO by default, and the classic knobs
+      interact (a non-zero `aio write size` disables `min receivefile size`), so
+      tuning without measurement is at best a no-op.
+    - **GitOps requires the `comin` role per host**: comin needs a hostname at
+      build time, so it cannot ride in the shared, hostname-less bootstrap
+      template (see
+      [template generation](./proxmox-lxc.md#5-lxc-template-generation)). Each
+      NAS host's `configuration.nix` must therefore import the `comin` role
+      itself, which is installed by the one-time `nixos-rebuild switch` handoff.
+      True zero-touch first-boot GitOps would require working around comin's
+      build-time hostname model.
+    - **Samba password automation**: Replace the imperative `smbpasswd` step
+      ([SMB user management](./nas-lxc-container.md#72-imperative-part-one-time-setup))
+      with a mechanism/material split that keeps secrets out of the public
+      repository (committing encrypted secrets — e.g. `sops-nix` ciphertext —
+      was considered and rejected: this repository's policy keeps even encrypted
+      secrets untracked, and public Git history is immortal). Design: the `nas`
+      role ships a oneshot systemd unit that, on every activation, reads a
+      password file from a well-known path and pipes it into
+      `smbpasswd -s -a ferrarimarco`; the Ansible layer that already manages the
+      Proxmox nodes writes that file (root-only, `0600`) to
+      `/var/lib/samba-state/nas-pveN/smb-password` from a vaulted (untracked)
+      variable, so the container's existing `/var/lib/samba` bind mount delivers
+      it. Container recreation then self-heals the password database, rotation
+      is an Ansible run plus a unit restart, and disaster recovery reduces to
+      the local Ansible vault, as for every other secret in the lab.
+    - **SMB service discovery**: Enable Samba's WS-Discovery or Avahi for
+      automatic share browsing on Windows and macOS clients.
+    - **Static IP migration**: Transition from DHCP to static IP assignments
+      defined in the NixOS configuration once the network spec is written.
+    - **Single source of truth for shares**: Derive the Samba share exports
+      (NixOS), the bind mounts (Terraform), and the host datasets (Ansible
+      `zfs_datasets`,
+      [dataset mount points](./nas-lxc-container.md#111-zfs-dataset-mount-points-on-the-host))
+      from one data structure — for example a Nix attrset emitted to `tfvars`
+      via `nix eval` — so each share is declared once and the three halves
+      cannot drift (see
+      [per-host shares](./nas-lxc-container.md#51-adding-per-host-shares)).
