@@ -1961,18 +1961,18 @@ document covers only the NAS/SMB-specific additions.</p>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Host Config (<code>nas-pve1</code>)</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">NixOS host config for the pve1 instance.</td>
+<td style="text-align: left;"><strong>Deployed</strong></td>
+<td style="text-align: left;">NixOS host config for the pve1 instance; live and maintained by comin (§10.2).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Host Config (<code>nas-pve2</code>)</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">NixOS host config for the pve2 instance.</td>
+<td style="text-align: left;">NixOS host config for the pve2 instance; not yet deployed.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Terraform LXC (<code>pve1</code>)</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>proxmox_virtual_environment_container</code> in <code>containers-pve1.tf</code>; not yet applied.</td>
+<td style="text-align: left;"><strong>Deployed</strong></td>
+<td style="text-align: left;">Container 200 created from <code>containers-pve1.tf</code> and running; Samba password set (§7.2).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Terraform LXC (<code>pve2</code>)</strong></td>
@@ -1981,13 +1981,18 @@ document covers only the NAS/SMB-specific additions.</p>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Terraform Template Upload</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><strong>Deployed</strong></td>
 <td style="text-align: left;">Provided by the framework (<code>images-templates.tf</code>; see the framework spec, §6.1).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Host Storage Prep (Ansible)</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>setup_disks</code> role: pools asserted, datasets and Samba state dir converged (§11); not yet run.</td>
+<td style="text-align: left;"><strong>Partially Applied</strong></td>
+<td style="text-align: left;"><code>setup_disks</code> role: pools asserted, datasets and Samba state dir converged (§11) on pve1; pve2 not yet run.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>SMB Clients (<code>hl01</code>)</strong></td>
+<td style="text-align: left;"><strong>Deployed</strong></td>
+<td style="text-align: left;"><code>backups</code> and <code>media-usb</code> shares mounted over CIFS, replacing local virtual disks (§10.3).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Host Integration Tests</strong></td>
