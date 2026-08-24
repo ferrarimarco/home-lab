@@ -1362,14 +1362,25 @@ testing rationale before code implementation.</p>
   need for this check).</li>
 </ul>
 </li>
-<li>Stable serial adapter assignment:<ul>
+<li>
+<p>Stable serial adapter assignment:</p>
+<ul>
 <li>Create a udev rule:
   <code>echo 'SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d4", SYMLINK+="zigbee_dongle"' | sudo tee /etc/udev/rules.d/99-zigbee.rules</code></li>
 <li>Change the mapping in Docker</li>
+<li>
+<p>Logs:</p>
+<div class="highlight"><pre><span></span><code>Error response from daemon: error gathering device information while adding custom device &quot;/dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20220708144056-if00&quot;: no such file or directory
+pi@raspberrypi2:~ $ ls /dev/serial/by-id
+usb-1a86_USB_Single_Serial_54DD003512-if00
+</code></pre></div>
+</li>
 </ul>
 </li>
-<li>Move monitoring stack from the home_lab_node role to the home_lab_monitoring
-  role.</li>
+<li>
+<p>Move monitoring stack from the home_lab_node role to the home_lab_monitoring
+  role.</p>
+</li>
 <li>Cross-host workloads backup.</li>
 <li>NAS (<a href="nas-lxc-container/">NAS LXC Container</a>):<ul>
 <li><strong>NFS support</strong>: Re-introduce NFS sharing alongside SMB. Evaluate
@@ -1412,6 +1423,23 @@ testing rationale before code implementation.</p>
   automatic share browsing on Windows and macOS clients.</li>
 <li><strong>Static IP migration</strong>: Transition from DHCP to static IP assignments
   defined in the NixOS configuration once the network spec is written.</li>
+<li><strong>Terraform-managed ZFS pools (evaluated 2026-08, deferred)</strong>: the
+  <code>bpg/proxmox</code> provider (since 0.111.x) offers
+  <a href="https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/node_disk_zfs"><code>proxmox_node_disk_zfs</code></a>
+  for node ZFS pool lifecycle. Transitioning the pool layer of the
+  <code>setup_disks</code> role (see
+  <a href="nas-lxc-container/#111-zfs-dataset-mount-points-on-the-host">dataset mount points</a>)
+  to it was evaluated and rejected for now: its pool attributes (<code>devices</code>,
+  <code>raidlevel</code>, <code>ashift</code>, <code>compression</code>) are write-only, so the Terraform
+  config would be the same unverified documentation the <code>zfs_pools</code>
+  inventory already is, with no drift detection; the provider manages pools
+  only, so datasets and mount-point ownership would stay in Ansible,
+  splitting the ZFS layer across two tools; and with the local Terraform
+  state backend, losing state would invert the deliberate "pools are
+  asserted, never created" stance into a pool-creation attempt on
+  data-bearing devices at the next apply. Revisit when the provider gains
+  readable pool attributes (real drift detection) or dataset management, or
+  when a durable remote state backend is in place.</li>
 <li><strong>Single source of truth for shares</strong>: Derive the Samba share exports
   (NixOS), the bind mounts (Terraform), and the host datasets (Ansible
   <code>zfs_datasets</code>,
