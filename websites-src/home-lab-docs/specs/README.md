@@ -14,7 +14,7 @@ testing rationale before code implementation.
 | [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.           | **Fully Implemented**         |
 | [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts. Builds on the `proxmox-lxc` framework.               | **Fully Implemented**         |
 
-## Specifications to write / TODOs
+## Specifications to write and TODOs
 
 - Generate a Home Lab bootstrapping keypair.
 - Fully automate Terraform runs. Reference:

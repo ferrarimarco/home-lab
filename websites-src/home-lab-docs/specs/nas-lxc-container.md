@@ -406,7 +406,7 @@ template updates, making it a true one-time setup step for the lifecycle of the
 lab. Automating it — without committing secrets, even encrypted ones, to the
 public repository — is designed but not implemented; see the Samba password
 automation item in the
-[specifications readme](./README.md#specifications-to-write--todos).
+[specifications readme](./README.md#specifications-to-write-and-todos).
 
 ## 8. Security Considerations
 
@@ -682,4 +682,4 @@ reservations.
 ## 12. Future Work
 
 Future work items for this spec are tracked centrally in the
-[specifications readme](./README.md#specifications-to-write--todos).
+[specifications readme](./README.md#specifications-to-write-and-todos).
