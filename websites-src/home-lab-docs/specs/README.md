@@ -39,6 +39,7 @@ testing rationale before code implementation.
     - Change the mapping in Docker
 - Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role.
+- Cross-host workloads backup.
 - NAS ([NAS LXC Container](./nas-lxc-container.md)):
     - **NFS support**: Re-introduce NFS sharing alongside SMB. Evaluate
       `nfs-kernel-server` in a privileged container versus the user-space
