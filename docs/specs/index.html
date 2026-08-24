@@ -1096,9 +1096,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#specifications-to-write-todos" class="md-nav__link">
+  <a href="#specifications-to-write-and-todos" class="md-nav__link">
     <span class="md-ellipsis">
-      Specifications to write / TODOs
+      Specifications to write and TODOs
     </span>
   </a>
   
@@ -1271,9 +1271,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#specifications-to-write-todos" class="md-nav__link">
+  <a href="#specifications-to-write-and-todos" class="md-nav__link">
     <span class="md-ellipsis">
-      Specifications to write / TODOs
+      Specifications to write and TODOs
     </span>
   </a>
   
@@ -1339,7 +1339,7 @@ testing rationale before code implementation.</p>
 </tr>
 </tbody>
 </table>
-<h2 id="specifications-to-write-todos">Specifications to write / TODOs</h2>
+<h2 id="specifications-to-write-and-todos">Specifications to write and TODOs</h2>
 <ul>
 <li>Generate a Home Lab bootstrapping keypair.</li>
 <li>Fully automate Terraform runs. Reference:
@@ -1370,6 +1370,57 @@ testing rationale before code implementation.</p>
 </li>
 <li>Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role.</li>
+<li>NAS (<a href="nas-lxc-container/">NAS LXC Container</a>):<ul>
+<li><strong>NFS support</strong>: Re-introduce NFS sharing alongside SMB. Evaluate
+  <code>nfs-kernel-server</code> in a privileged container versus the user-space
+  NFS-Ganesha server, which can run in an unprivileged container.</li>
+<li><strong>Automated template upload</strong>: Replace the local-file push
+  (<code>proxmox_virtual_environment_file</code> pointing at the local build artifact,
+  per the framework pattern) with
+  <code>proxmox_virtual_environment_download_file</code> pulling the template from a
+  published URL, removing the need for a locally built artifact at
+  <code>terraform apply</code> time.</li>
+<li><strong>Samba performance tuning</strong>: Benchmark before adding any tuning to the
+  <code>nas</code> role. Modern Samba enables AIO by default, and the classic knobs
+  interact (a non-zero <code>aio write size</code> disables <code>min receivefile size</code>), so
+  tuning without measurement is at best a no-op.</li>
+<li><strong>GitOps requires the <code>comin</code> role per host</strong>: comin needs a hostname at
+  build time, so it cannot ride in the shared, hostname-less bootstrap
+  template (see
+  <a href="proxmox-lxc/#5-lxc-template-generation">template generation</a>). Each
+  NAS host's <code>configuration.nix</code> must therefore import the <code>comin</code> role
+  itself, which is installed by the one-time <code>nixos-rebuild switch</code> handoff.
+  True zero-touch first-boot GitOps would require working around comin's
+  build-time hostname model.</li>
+<li><strong>Samba password automation</strong>: Replace the imperative <code>smbpasswd</code> step
+  (<a href="nas-lxc-container/#72-imperative-part-one-time-setup">SMB user management</a>)
+  with a mechanism/material split that keeps secrets out of the public
+  repository (committing encrypted secrets — e.g. <code>sops-nix</code> ciphertext —
+  was considered and rejected: this repository's policy keeps even encrypted
+  secrets untracked, and public Git history is immortal). Design: the <code>nas</code>
+  role ships a oneshot systemd unit that, on every activation, reads a
+  password file from a well-known path and pipes it into
+  <code>smbpasswd -s -a ferrarimarco</code>; the Ansible layer that already manages the
+  Proxmox nodes writes that file (root-only, <code>0600</code>) to
+  <code>/var/lib/samba-state/nas-pveN/smb-password</code> from a vaulted (untracked)
+  variable, so the container's existing <code>/var/lib/samba</code> bind mount delivers
+  it. Container recreation then self-heals the password database, rotation
+  is an Ansible run plus a unit restart, and disaster recovery reduces to
+  the local Ansible vault, as for every other secret in the lab.</li>
+<li><strong>SMB service discovery</strong>: Enable Samba's WS-Discovery or Avahi for
+  automatic share browsing on Windows and macOS clients.</li>
+<li><strong>Static IP migration</strong>: Transition from DHCP to static IP assignments
+  defined in the NixOS configuration once the network spec is written.</li>
+<li><strong>Single source of truth for shares</strong>: Derive the Samba share exports
+  (NixOS), the bind mounts (Terraform), and the host datasets (Ansible
+  <code>zfs_datasets</code>,
+  <a href="nas-lxc-container/#111-zfs-dataset-mount-points-on-the-host">dataset mount points</a>)
+  from one data structure — for example a Nix attrset emitted to <code>tfvars</code>
+  via <code>nix eval</code> — so each share is declared once and the three halves
+  cannot drift (see
+  <a href="nas-lxc-container/#51-adding-per-host-shares">per-host shares</a>).</li>
+</ul>
+</li>
 </ul>
 
 
