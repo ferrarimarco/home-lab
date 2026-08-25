@@ -7,18 +7,18 @@ document covers only the NAS/SMB-specific additions.
 
 ## Implementation Status
 
-| Component / Feature             | Status                | Details                                                                                        |
-| :------------------------------ | :-------------------- | :--------------------------------------------------------------------------------------------- |
-| **`nas` Role (SMB)**            | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                                  |
-| **`common` Role UID Pin**       | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.                       |
-| **Host Config (`nas-pve1`)**    | **Fully Implemented** | NixOS host config for the pve1 instance.                                                       |
-| **Host Config (`nas-pve2`)**    | **Fully Implemented** | NixOS host config for the pve2 instance.                                                       |
-| **Terraform LXC (`pve1`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`; not yet applied.              |
-| **Terraform LXC (`pve2`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`; not yet applied.              |
-| **Terraform Template Upload**   | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).               |
-| **Host Storage Prep (Ansible)** | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11); not yet run. |
-| **Host Integration Tests**      | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.                          |
-| **Flake Registration**          | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                             |
+| Component / Feature             | Status                | Details                                                                           |
+| :------------------------------ | :-------------------- | :-------------------------------------------------------------------------------- |
+| **`nas` Role (SMB)**            | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                     |
+| **`common` Role UID Pin**       | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.          |
+| **Host Config (`nas-pve1`)**    | **Fully Implemented** | NixOS host config for the pve1 instance.                                          |
+| **Host Config (`nas-pve2`)**    | **Fully Implemented** | NixOS host config for the pve2 instance.                                          |
+| **Terraform LXC (`pve1`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                  |
+| **Terraform LXC (`pve2`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                  |
+| **Terraform Template Upload**   | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
+| **Host Storage Prep (Ansible)** | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11). |
+| **Host Integration Tests**      | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
+| **Flake Registration**          | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
 
 ## 1. Goal
 
