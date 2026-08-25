@@ -103,6 +103,12 @@ describes them all. Key rules:
   super-linter for static checks). Run it with stdin closed (`</dev/null`) to
   abort instead of hanging on apply-approval prompts, and ask the user before
   any run that contacts the Proxmox API (nodes may be powered off).
+- **Terraform state inspection:** each stack's local state lives at
+  `config/terraform/environments/backend/local/<service>/terraform.tfstate`;
+  reading it (read-only) is the sanctioned way to verify what an apply recorded,
+  alongside checks against the real infrastructure. A no-change apply does not
+  rewrite the state file, so an old modification time is not evidence that an
+  apply failed or was skipped.
 - **Image artifact staging:** the `220-proxmox-workloads` Terraform stack reads
   `config/nix/result/iso` and `config/nix/result/tarball`, staged by
   `nix build .#proxmox-images`. Any other `nix build` clobbers the single
@@ -112,14 +118,19 @@ describes them all. Key rules:
   `--check`, `--diff`) via `ADDITIONAL_ANSIBLE_FLAGS`, and edit vault files with
   `ANSIBLE_EDIT_VAULT_FILE=true` plus `ANSIBLE_VAULT_FILE_PATH`.
 - **Docs site via `scripts/run-mkdocs.sh`:** rebuild after spec changes and
-  commit the regenerated `docs/` output.
+  commit the regenerated `docs/` output. The script takes required positional
+  arguments (a bare invocation fails on an unbound variable); the home-lab docs
+  site build is
+  `scripts/run-mkdocs.sh build home-lab-docs ./websites-src/home-lab-docs ./docs`.
 - **Linting:** lint and format changes with `scripts/lint.sh`, which runs
   super-linter with the same configuration as CI (set
   `LINTER_CONTAINER_FIX_MODE=true` to apply automatic fixes). Do not hand-roll
   style checks or hand-align Markdown tables: Prettier's fix mode owns
   formatting, including table alignment. Fix mode can report failures against
   pre-fix content, so when it modified files, re-run in check mode for the
-  authoritative verdict.
+  authoritative verdict. Super-linter output is long: redirect it in full to a
+  log file and inspect that; never pipe it through `tail` or `head`, which
+  discards the failing linter's message and masks the exit code.
 
 ## 5. Design & Modularization Rules
 
@@ -156,6 +167,15 @@ architectural patterns:
 - SSH conventions: `root@pve1`/`root@pve2` for the Proxmox nodes,
   `debian@hl01.edge.lab.ferrari.how` for the hl01 VM. Use read-only commands
   freely for discovery; get approval for state-changing commands.
+- **NixOS LXC containers have no conventional PATH for `pct exec`:** a plain
+  `pct exec <vmid> -- <cmd>` fails with "No such file or directory". Invoke
+  binaries as `/run/current-system/sw/bin/<cmd>`, or wrap the command in
+  `/run/current-system/sw/bin/sh -lc '...'`.
+- **pve2 runs 24/7 by user policy, with no HDD spin-down:** never propose or
+  configure HDD standby timers (`hdparm -y`/`-S`, ZFS-triggered standby) on
+  pve2; the user deliberately keeps platters spinning to avoid start/stop wear.
+  Power tuning is limited to levers that do not stop the disks (SATA link power
+  management, PCIe ASPM, runtime PM, governor, sysctls).
 - **Verify state-changing operations** (Terraform applies, playbook runs,
   bootstrap handoffs) afterward with read-only checks over SSH (`findmnt`,
   `zfs list`, `pct config`, `systemctl is-active`, ...) and report the evidence.
