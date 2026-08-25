@@ -97,10 +97,6 @@
          <lastmod>2026-08-25</lastmod>
     </url>
     <url>
-         <loc>https://ferrarimarco.info/home-lab/specs/hl02-proxmox-vm/</loc>
-         <lastmod>2026-08-25</lastmod>
-    </url>
-    <url>
          <loc>https://ferrarimarco.info/home-lab/specs/home-lab-bootstrapping/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
@@ -110,6 +106,10 @@
     </url>
     <url>
          <loc>https://ferrarimarco.info/home-lab/specs/proxmox-lxc/</loc>
+         <lastmod>2026-08-25</lastmod>
+    </url>
+    <url>
+         <loc>https://ferrarimarco.info/home-lab/specs/proxmox-vm/</loc>
          <lastmod>2026-08-25</lastmod>
     </url>
 </urlset>

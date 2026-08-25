@@ -19,7 +19,7 @@ scope and overall **Current Implementation Status** of each specification.
 
 ### 1.2 Individual Spec Status Tables
 
-Every specification file (e.g., `hl02-proxmox-vm.md`,
+Every specification file (e.g., `proxmox-vm.md`,
 `home-lab-bootstrapping.md`) contains an **Implementation Status** table right
 beneath the main title. This table tracks the status (`Fully Implemented`,
 `Partially Implemented`, or `Missing`) of each component defined inside the

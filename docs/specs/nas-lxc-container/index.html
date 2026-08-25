@@ -1083,29 +1083,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../hl02-proxmox-vm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Proxmox VM Configuration for hl02
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../home-lab-bootstrapping/" class="md-nav__link">
         
   
@@ -1536,6 +1513,29 @@
   
   <span class="md-ellipsis">
     Design Spec: NixOS LXC Containers on Proxmox
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox-vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS VMs on Proxmox
     
   </span>
   
@@ -2198,14 +2198,14 @@ host's <code>configuration.nix</code> sets just the hostname:</p>
 <span class="p">}</span>
 </code></pre></div>
 <p>This matches the <code>[common, platform role, comin]</code> import shape used by
-<a href="../hl02-proxmox-vm/"><code>hl02</code></a>; the <code>nas</code> role pulls in <code>proxmox-lxc</code> itself
+<a href="../proxmox-vm/"><code>hl02</code></a>; the <code>nas</code> role pulls in <code>proxmox-lxc</code> itself
 (§4).</p>
 <p>This works because both nodes expose the <strong>same in-container mount points</strong>
 (<code>/mnt/shared/media</code>, <code>/mnt/shared/backups</code>); each node's Terraform bind mounts
 map its own host datasets onto those paths (see §6). The node-specific storage
 details therefore live entirely in Terraform, never in the NixOS config. No ZFS
 runs inside the container, so no per-host <code>networking.hostId</code> is needed either.</p>
-<p>As with the <a href="../hl02-proxmox-vm/"><code>hl02</code></a> VM, the <code>comin</code> role delivers and
+<p>As with the <a href="../proxmox-vm/"><code>hl02</code></a> VM, the <code>comin</code> role delivers and
 maintains this configuration through the pull-based
 <a href="../home-lab-bootstrapping/#35-continuous-deployment-gitops">GitOps model</a>, so
 no per-host template is built. comin selects the matching <code>nixosConfigurations</code>
@@ -2569,7 +2569,7 @@ dataset — and remember that any backup of it captures NT password hashes (see
 §8.2).</p>
 <h3 id="113-networking-dhcp">11.3 Networking (DHCP)</h3>
 <p>The NAS containers use DHCP, consistent with the current approach for
-<a href="../hl02-proxmox-vm/#52-networking-dhcp-for-now"><code>hl02</code></a>. DHCP is requested via
+<a href="../proxmox-vm/#102-networking-dhcp"><code>hl02</code></a>. DHCP is requested via
 the Terraform <code>initialization.ip_config</code> block, which PVE renders into the
 container's systemd-networkd configuration (see the framework spec's
 <a href="../proxmox-lxc/#6-infrastructure-provisioning-terraform">Terraform section</a>).

@@ -122,8 +122,9 @@ existing `proxmox-vm` role.
 LXC containers do not require hardware kernel parameter adjustments, partition
 maps (Disko), or bootloader configurations. Because there is no low-level
 physical file system or hardware configuration to exclude during sandboxed
-integration testing, LXC hosts do not need the separate hardware file that VM
-hosts carry.
+integration testing, LXC hosts do not need the separate disk-layout
+(`disko.nix`) file that
+[VM hosts](./proxmox-vm.md#4-host-structure) carry.
 
 Each container is described by a small set of files under its host directory:
 

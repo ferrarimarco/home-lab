@@ -9,7 +9,7 @@ testing rationale before code implementation.
 | Specification                                                               | Description                                                                                                                                              | Current Implementation Status |
 | :-------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
 | [**Home Lab Bootstrapping**](./home-lab-bootstrapping.md)                   | Global VM installation infrastructure: Nix-native custom installer ISO, secure bootstrap key loading with Git-tracking guardrails, and `nixos-anywhere`. | **Fully Implemented**         |
-| [**Proxmox VM Config (`hl02`)**](./hl02-proxmox-vm.md)                      | Host-specific virtual hardware, partition layouts (Disko), and Terraform definitions for `hl02`.                                                         | **Fully Implemented**         |
+| [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                   | **Fully Implemented**         |
 | [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                             | **Fully Implemented**         |
 | [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.           | **Fully Implemented**         |
 | [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts. Builds on the `proxmox-lxc` framework.               | **Fully Implemented**         |
@@ -47,6 +47,10 @@ testing rationale before code implementation.
 
 - Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role.
+- NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host
+  Terraform VM resources into a shared module (or `for_each` over a host map)
+  once a second NixOS VM exists, so the reference pattern is enforced by code
+  rather than by convention.
 - Cross-host workloads backup.
 - NAS ([NAS LXC Container](./nas-lxc-container.md)):
     - **NFS support**: Re-introduce NFS sharing alongside SMB. Evaluate

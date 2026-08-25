@@ -14,6 +14,8 @@
         <link rel="prev" href="../nas-lxc-container/">
       
       
+        <link rel="next" href="../proxmox-vm/">
+      
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
@@ -1081,29 +1083,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../hl02-proxmox-vm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Proxmox VM Configuration for hl02
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../home-lab-bootstrapping/" class="md-nav__link">
         
   
@@ -1389,6 +1368,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox-vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS VMs on Proxmox
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1764,8 +1766,9 @@ matrix does exactly that for every deployable host (see the
 <p>LXC containers do not require hardware kernel parameter adjustments, partition
 maps (Disko), or bootloader configurations. Because there is no low-level
 physical file system or hardware configuration to exclude during sandboxed
-integration testing, LXC hosts do not need the separate hardware file that VM
-hosts carry.</p>
+integration testing, LXC hosts do not need the separate disk-layout
+(<code>disko.nix</code>) file that
+<a href="../proxmox-vm/#4-host-structure">VM hosts</a> carry.</p>
 <p>Each container is described by a small set of files under its host directory:</p>
 <div class="highlight"><pre><span></span><code>config/nix/hosts/&lt;host&gt;/
 ├── default.nix          # Flake entry point: imports configuration.nix
