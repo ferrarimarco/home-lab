@@ -242,8 +242,7 @@ host's `configuration.nix` sets just the hostname:
 ```
 
 This matches the `[common, platform role, comin]` import shape used by
-[`hl02`](./proxmox-vm.md); the `nas` role pulls in `proxmox-lxc` itself
-(§4).
+[`hl02`](./proxmox-vm.md); the `nas` role pulls in `proxmox-lxc` itself (§4).
 
 This works because both nodes expose the **same in-container mount points**
 (`/mnt/shared/media`, `/mnt/shared/backups`); each node's Terraform bind mounts
@@ -666,8 +665,8 @@ dataset — and remember that any backup of it captures NT password hashes (see
 ### 11.3 Networking (DHCP)
 
 The NAS containers use DHCP, consistent with the current approach for
-[`hl02`](./proxmox-vm.md#102-networking-dhcp). DHCP is requested via
-the Terraform `initialization.ip_config` block, which PVE renders into the
+[`hl02`](./proxmox-vm.md#102-networking-dhcp). DHCP is requested via the
+Terraform `initialization.ip_config` block, which PVE renders into the
 container's systemd-networkd configuration (see the framework spec's
 [Terraform section](./proxmox-lxc.md#6-infrastructure-provisioning-terraform)).
 Static IPs or DHCP reservations should be configured in the router to ensure

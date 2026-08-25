@@ -1767,8 +1767,7 @@ matrix does exactly that for every deployable host (see the
 maps (Disko), or bootloader configurations. Because there is no low-level
 physical file system or hardware configuration to exclude during sandboxed
 integration testing, LXC hosts do not need the separate disk-layout
-(<code>disko.nix</code>) file that
-<a href="../proxmox-vm/#4-host-structure">VM hosts</a> carry.</p>
+(<code>disko.nix</code>) file that <a href="../proxmox-vm/#4-host-structure">VM hosts</a> carry.</p>
 <p>Each container is described by a small set of files under its host directory:</p>
 <div class="highlight"><pre><span></span><code>config/nix/hosts/&lt;host&gt;/
 ├── default.nix          # Flake entry point: imports configuration.nix
