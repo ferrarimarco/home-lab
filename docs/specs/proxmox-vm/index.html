@@ -1670,12 +1670,18 @@ orchestration.</p>
   <a href="../proxmox-lxc/#54-artifact-staging-for-terraform-proxmox-images"><code>proxmox-images</code> aggregate package</a>
   before running Terraform, so the ISO coexists behind <code>result</code> with the other
   image artifacts Terraform reads.</li>
+<li>Node Coverage: The ISO is uploaded to every node (<code>pve1</code> and <code>pve2</code>) on each
+  apply, mirroring the LXC template upload pattern. Any node is therefore ready
+  to receive its first NixOS VM without additional staging work.</li>
 </ul>
 <h2 id="7-infrastructure-provisioning-terraform">7. Infrastructure Provisioning (Terraform)</h2>
 <p>VM hardware is declared per host in
 <code>config/terraform/220-proxmox-workloads/vms-pve&lt;N&gt;.tf</code> using the <code>bpg/proxmox</code>
-provider. Every NixOS VM resource follows the same reference shape; only the
-sizing values and identifiers change per host (see the
+provider. Each node's file is created when the node receives its first VM
+(currently only <code>vms-pve1.tf</code> exists); a resource uses that node's provider
+alias (e.g. <code>proxmox.pve2</code>) and references that node's installer ISO resource.
+Every NixOS VM resource follows the same reference shape; only the sizing values
+and identifiers change per host (see the
 <a href="#9-deployed-vm-hosts">deployed hosts table</a>).</p>
 <ul>
 <li><strong>Hardware:</strong> Host-type CPU cores and dedicated RAM per the host's sizing,
@@ -1752,6 +1758,9 @@ automatically verifies:</p>
 <li>Add the VM resource to the node's <code>vms-pve&lt;N&gt;.tf</code> following the
    <a href="#7-infrastructure-provisioning-terraform">Terraform reference pattern</a>, with
    a fresh VM ID and pinned MAC address.</li>
+<li>Add the host to the <code>home_lab_nix_vms</code> group in the Ansible inventory
+   (<code>config/ansible/inventory/hosts.yml</code>), which is the operational record of
+   which hosts run NixOS.</li>
 <li>Map the pinned MAC address to the designated IP for the host in the router's
    DHCP reservations.</li>
 <li>Stage the image artifacts and apply Terraform (see

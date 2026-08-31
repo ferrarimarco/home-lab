@@ -123,13 +123,19 @@ orchestration.
   [`proxmox-images` aggregate package](./proxmox-lxc.md#54-artifact-staging-for-terraform-proxmox-images)
   before running Terraform, so the ISO coexists behind `result` with the other
   image artifacts Terraform reads.
+- Node Coverage: The ISO is uploaded to every node (`pve1` and `pve2`) on each
+  apply, mirroring the LXC template upload pattern. Any node is therefore ready
+  to receive its first NixOS VM without additional staging work.
 
 ## 7. Infrastructure Provisioning (Terraform)
 
 VM hardware is declared per host in
 `config/terraform/220-proxmox-workloads/vms-pve<N>.tf` using the `bpg/proxmox`
-provider. Every NixOS VM resource follows the same reference shape; only the
-sizing values and identifiers change per host (see the
+provider. Each node's file is created when the node receives its first VM
+(currently only `vms-pve1.tf` exists); a resource uses that node's provider
+alias (e.g. `proxmox.pve2`) and references that node's installer ISO resource.
+Every NixOS VM resource follows the same reference shape; only the sizing values
+and identifiers change per host (see the
 [deployed hosts table](#9-deployed-vm-hosts)).
 
 - **Hardware:** Host-type CPU cores and dedicated RAM per the host's sizing,
@@ -184,11 +190,14 @@ Bringing up a new NixOS VM host consists of:
 2. Add the VM resource to the node's `vms-pve<N>.tf` following the
    [Terraform reference pattern](#7-infrastructure-provisioning-terraform), with
    a fresh VM ID and pinned MAC address.
-3. Map the pinned MAC address to the designated IP for the host in the router's
+3. Add the host to the `home_lab_nix_vms` group in the Ansible inventory
+   (`config/ansible/inventory/hosts.yml`), which is the operational record of
+   which hosts run NixOS.
+4. Map the pinned MAC address to the designated IP for the host in the router's
    DHCP reservations.
-4. Stage the image artifacts and apply Terraform (see
+5. Stage the image artifacts and apply Terraform (see
    [ISO Artifact Delivery](#6-iso-artifact-delivery)).
-5. Install the system:
+6. Install the system:
 
     ```bash
     nix develop .#operations -c nixos-anywhere --flake .#<host> root@<host>.<fqdn>
