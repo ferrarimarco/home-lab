@@ -32,6 +32,14 @@ variable "nas_container_bind_mounts" {
         host_path      = "/tank-hdd/backups"
         container_path = "/mnt/shared/backups"
       },
+      {
+        host_path      = "/tank-hdd-scratch/scratch"
+        container_path = "/mnt/shared/scratch-hdd"
+      },
+      {
+        host_path      = "/tank-ssd-scratch/scratch"
+        container_path = "/mnt/shared/scratch-ssd"
+      },
     ]
   }
 }

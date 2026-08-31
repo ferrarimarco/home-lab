@@ -25,9 +25,23 @@ zfs_datasets:
     mount_point: /tank-hdd/backups
     owner: "1000"
     group: "100"
+  - name: tank-hdd-scratch/scratch
+    mount_point: /tank-hdd-scratch/scratch
+    owner: "1000"
+    group: "100"
+  - name: tank-ssd-scratch/scratch
+    mount_point: /tank-ssd-scratch/scratch
+    owner: "1000"
+    group: "100"
 # Pools are asserted, not created; topology and options document the manual
 # creation command (see the NAS LXC container spec, section 11.1).
 zfs_pools:
   - name: tank-hdd
     create_options: "-o ashift=12"
     topology: /dev/disk/by-id/ata-ST4000VN006-3CW104_WW696ZLX
+  - name: tank-hdd-scratch
+    create_options: "-o ashift=12"
+    topology: /dev/disk/by-id/ata-SAMSUNG_HD103SJ_S246J90Z701611
+  - name: tank-ssd-scratch
+    create_options: "-o ashift=12"
+    topology: /dev/disk/by-id/ata-OCZ-VERTEX3_MI_OCZ-8T9K6XOQ22S8MNP9
