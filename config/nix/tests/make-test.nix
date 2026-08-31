@@ -267,8 +267,11 @@ pkgs.testers.nixosTest {
         print("Scraping raw metrics endpoint:")
         print(machine.succeed("curl -v http://localhost:4243/metrics"))
 
-        # Scrape the endpoint and ensure it contains valid metrics data
-        machine.succeed("curl -sSf http://localhost:4243/metrics | grep -q 'comin_fetch_count'")
+        # Scrape the endpoint and ensure it serves comin metrics. Assert on
+        # the metric name prefix rather than a specific metric: labeled
+        # counters (e.g. comin_fetch_count) only appear after their first
+        # increment, so asserting on one races comin's first fetch.
+        machine.succeed("curl -sSf http://localhost:4243/metrics | grep -q '^comin_'")
         print("Prometheus metrics endpoint verified successfully!")
       '';
     in
