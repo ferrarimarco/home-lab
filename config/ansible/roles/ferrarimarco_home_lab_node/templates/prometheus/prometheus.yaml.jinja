@@ -24,6 +24,17 @@ scrape_configs:
 {% endif %}
 {% endfor %}
 
+  - job_name: "home_assistant"
+    metrics_path: /api/prometheus
+    bearer_token: "{{ vault_home_assistant_prometheus_token }}"
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].configure_home_assistant | default(false) %}
+        - "{{ host }}:{{ home_assistant_user_interface_host_port }}"
+{% endif %}
+{% endfor %}
+
   - job_name: "cadvisor"
     static_configs:
       - targets:
