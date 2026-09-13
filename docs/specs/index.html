@@ -1381,6 +1381,27 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <p>Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role.</p>
 </li>
+<li>raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
+  lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
+  thermal, or memory precursors in logs or Prometheus history):<ul>
+<li>Enable the systemd hardware watchdog (<code>RuntimeWatchdogSec</code>) through the
+  <code>ferrarimarco_home_lab_node</code> role so silent freezes self-recover instead
+  of requiring a manual power cycle.</li>
+<li>Run a SMART long self-test on the WD30EZRX 3TB data disk (1 pending and 1
+  offline-uncorrectable sector as of 2026-09-13, ~39200 power-on hours) and
+  decide whether to plan a replacement. Verify the restic backups of that
+  disk are current first.</li>
+<li>Upgrade the operating system: Debian 11 (bullseye) is past LTS end of life
+  and the April 2023 kernel is the most plausible lockup culprit. Decide
+  between an in-place dist-upgrade and a NixOS migration.</li>
+<li>Investigate the stale <code>zte-f6005-ont.prom</code> node exporter textfile on
+  raspberrypi2 (last written 2026-03-28): the ONT exporter may have been
+  quietly failing or stale since then.</li>
+</ul>
+</li>
+<li>Replace the <code>rm</code> ExecStartPre workaround in systemd units that write node
+  exporter textfiles (e.g. monitoring-apt) with the <code>truncate:</code> variant of
+  <code>StandardOutput</code> once every host runs systemd &gt;= 248.</li>
 <li>NixOS VMs (<a href="proxmox-vm/">NixOS VMs on Proxmox</a>): factor the per-host
   Terraform VM resources into a shared module (or <code>for_each</code> over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code
