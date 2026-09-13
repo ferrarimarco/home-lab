@@ -9,7 +9,6 @@ configure_home_assistant: false
 configure_media_stack: false
 configure_monitoring: true
 configure_monitoring_backend: false
-configure_monitoring_apt: false
 configure_monitoring_nut: false
 configure_monitoring_ont: false
 configure_monitoring_sata: "{{ configure_monitoring }}"
