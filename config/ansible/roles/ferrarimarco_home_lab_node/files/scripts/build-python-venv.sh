@@ -22,7 +22,9 @@ fi
 
 STORED_PIP_REQUIREMENTS_FILE_HASH_PATH="${PYTHON_VENV_PATH}/.pip-requirements-file-hash"
 
-CURRENT_PIP_REQUIREMENTS_FILE_HASH="$(md5sum "${PIP_REQUIREMENTS_FILE}" | awk '{print $1}')"
+# Include the Python interpreter version in the stamp so that upgrading the
+# system Python invalidates the virtual environment, which symlinks it.
+CURRENT_PIP_REQUIREMENTS_FILE_HASH="$(md5sum "${PIP_REQUIREMENTS_FILE}" | awk '{print $1}') $(python3 --version)"
 echo "Current pip requirements file hash (${PIP_REQUIREMENTS_FILE}): ${CURRENT_PIP_REQUIREMENTS_FILE_HASH}"
 
 STORED_PIP_REQUIREMENTS_FILE_HASH=""
@@ -31,8 +33,8 @@ if [ -f "${STORED_PIP_REQUIREMENTS_FILE_HASH_PATH}" ]; then
 fi
 
 # Virtual Environment Creation (if necessary)
-if [ "${CURRENT_PIP_REQUIREMENTS_FILE_HASH}" != "${STORED_PIP_REQUIREMENTS_FILE_HASH}" ]; then
-  echo "The contents of the pip requirements file (${PIP_REQUIREMENTS_FILE}) have changed. Creating or updating the ${PYTHON_VENV_PATH} Python virtual environment."
+if [ ! -x "${PYTHON_VENV_PATH}/bin/pip3" ] || [ "${CURRENT_PIP_REQUIREMENTS_FILE_HASH}" != "${STORED_PIP_REQUIREMENTS_FILE_HASH}" ]; then
+  echo "The ${PYTHON_VENV_PATH} Python virtual environment is missing or broken, or the contents of the pip requirements file (${PIP_REQUIREMENTS_FILE}) have changed. Creating or updating the ${PYTHON_VENV_PATH} Python virtual environment."
 
   python3 \
     -m venv \
