@@ -5,12 +5,12 @@ monitoring_apt_metrics_collection_script_destination_path: "{{ monitoring_apt_co
 monitoring_apt_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/b36a2eadfc88f711588085b83f0ecbdbc5f288c3/apt_info.py"
 monitoring_apt_os_service_name: "{{ monitoring_apt_tag }}"
 monitoring_apt_requirements_file_path: "{{ monitoring_apt_configuration_directory_path }}/requirements.txt"
-monitoring_apt_run_directory_path: "/run/{{ monitoring_apt_tag }}"
 monitoring_apt_service_file_name: "{{ monitoring_apt_os_service_name }}.service"
+monitoring_apt_state_directory_path: "/var/lib/{{ monitoring_apt_tag }}"
 monitoring_apt_tag: "monitoring-apt"
 monitoring_apt_timer_file_name: "{{ monitoring_apt_os_service_name }}.timer"
 monitoring_apt_prometheus_textfile_exporter_destination_file_path: "{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/apt_info.prom"
-monitoring_apt_virtual_env_path: "{{ monitoring_apt_run_directory_path }}/.venv"
+monitoring_apt_virtual_env_path: "{{ monitoring_apt_state_directory_path }}/venv"
 
 monitoring_apt_configuration_directories:
   - path: "{{ monitoring_apt_configuration_directory_path }}"
