@@ -14,7 +14,7 @@ to eventually get to a state where we don't need this file anymore.
   [unresponsive host runbook](../guides/troubleshoot-unresponsive-host.md);
   follow-ups (hardware watchdog, data-disk SMART test, OS upgrade) are tracked
   in the
-  [specs TODO list](../specs/README.md#specifications-to-write-and-todos).
+  [specs todo list](../specs/README.md#specifications-to-write-and-todos).
 
 ## 2026-04-23
 

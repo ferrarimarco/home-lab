@@ -195,7 +195,7 @@ architectural patterns:
 ## 8. Ansible Conventions
 
 - **Use the `ansible-developer` skill for any Ansible change:** it carries the
-  generic conventions this repo follows (read-then-act for non-idempotent
+  generic conventions this repository follows (read-then-act for non-idempotent
   modules, assert-don't-automate destructive host state, data-driven roles,
   check-mode friendliness). If the skill is not available, warn the user.
 - How the `ferrarimarco_home_lab_node` role's stack, tagging, and enablement
