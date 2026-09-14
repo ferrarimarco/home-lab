@@ -54,7 +54,27 @@ different command inside that environment instead.
   `nixos-anywhere`; hosts without one (LXC containers) receive their
   configuration via `nixos-rebuild switch --flake --target-host`.
 - `scripts/run-ansible.sh`: runs Ansible playbooks from `config/ansible` inside
-  a purpose-built container.
+  a purpose-built container. Select the playbook with
+  `ANSIBLE_PLAYBOOK_FILE_NAME` and pass extra flags via
+  `ADDITIONAL_ANSIBLE_FLAGS`. To scope a run to one workload stack on one host,
+  combine the stack's tag with the `untagged` pseudo-tag (global, untagged
+  initialization tasks must always run) and a host limit:
+
+    ```shell
+    ADDITIONAL_ANSIBLE_FLAGS="--check --diff --tags='monitoring-apt' --tags untagged --limit raspberrypi2.edge.lab.ferrari.how" \
+      ANSIBLE_PLAYBOOK_FILE_NAME="home-lab-node.yaml" \
+      scripts/run-ansible.sh
+    ```
+
+    Stack tags are the `fact_category` names declared in the
+    `ferrarimarco_home_lab_node` role's `include-variables.yaml`. See the
+    [Ansible development guide](./ansible.md) for how the role's tagging and
+    enablement machinery works.
+
+    Always run with `--check --diff` first and review the predicted changes
+    (watching for unexpected `state: absent` teardowns) before repeating the
+    same command without those flags to apply.
+
 - `scripts/run-terraform.sh`: iterates over the numbered Terraform service
   directories in `config/terraform` and runs `terraform init` and
   `terraform apply` for each one. Run
