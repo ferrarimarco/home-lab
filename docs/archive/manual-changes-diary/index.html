@@ -515,6 +515,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-09-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-09-13
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-23" class="md-nav__link">
     <span class="md-ellipsis">
       2026-04-23
@@ -769,6 +778,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/troubleshoot-unresponsive-host/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshoot an unresponsive host
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
         
   
@@ -800,10 +832,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
         
           
-          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
             
   
   
@@ -816,12 +848,35 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_9">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_10">
             <span class="md-nav__icon md-icon"></span>
             Development
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/development/ansible/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ansible development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1277,6 +1332,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-09-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-09-13
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-23" class="md-nav__link">
     <span class="md-ellipsis">
       2026-04-23
@@ -1333,6 +1397,17 @@
 whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.</p>
+<h2 id="2026-09-13">2026-09-13</h2>
+<ul>
+<li><code>raspberrypi2</code>: manually power-cycled after the host froze (hard lockup
+  between 13:39 and 13:42 local time; no kernel, undervoltage, thermal, or
+  memory precursors in logs or Prometheus history). The investigation was
+  distilled into the
+  <a href="../../guides/troubleshoot-unresponsive-host/">unresponsive host runbook</a>;
+  follow-ups (hardware watchdog, data-disk SMART test, OS upgrade) are
+  tracked in the
+  <a href="../../specs/#specifications-to-write-and-todos">specs TODO list</a>.</li>
+</ul>
 <h2 id="2026-04-23">2026-04-23</h2>
 <ul>
 <li><code>pve2</code>: manually created (through the Proxmox GUI) two new ZFS pools:

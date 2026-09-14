@@ -5,6 +5,17 @@ whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.
 
+## 2026-09-13
+
+- `raspberrypi2`: manually power-cycled after the host froze (hard lockup
+  between 13:39 and 13:42 local time; no kernel, undervoltage, thermal, or
+  memory precursors in logs or Prometheus history). The investigation was
+  distilled into the
+  [unresponsive host runbook](../guides/troubleshoot-unresponsive-host.md);
+  follow-ups (hardware watchdog, data-disk SMART test, OS upgrade) are tracked
+  in the
+  [specs TODO list](../specs/README.md#specifications-to-write-and-todos).
+
 ## 2026-04-23
 
 - `pve2`: manually created (through the Proxmox GUI) two new ZFS pools:
