@@ -57,12 +57,13 @@ testing rationale before code implementation.
       offline-uncorrectable sector as of 2026-09-13, ~39200 power-on hours) and
       decide whether to plan a replacement. Verify the restic backups of that
       disk are current first.
-    - Upgrade the operating system: Debian 11 (bullseye) is past LTS end of life
-      and the April 2023 kernel is the most plausible lockup culprit. Decide
-      between an in-place dist-upgrade and a NixOS migration.
-    - Investigate the stale `zte-f6005-ont.prom` node exporter textfile on
-      raspberrypi2 (last written 2026-03-28): the ONT exporter may have been
-      quietly failing or stale since then.
+    - Upgrade the operating system: Debian 11 (bullseye) is past LTS end of
+      life, the April 2023 kernel is the most plausible lockup culprit, and the
+      system Python 3.9 caps `requests` below 2.33, pinning the ONT exporter
+      (2026-09-14) to a release with a known security vulnerability. Decide
+      between an in-place dist-upgrade and a NixOS migration. After the upgrade,
+      bump the `requests` pin and the CI requirements test matrix
+      (`test-python-requirements.yaml`).
 - Replace the `rm` ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the `truncate:` variant of
   `StandardOutput` once every host runs systemd >= 248.

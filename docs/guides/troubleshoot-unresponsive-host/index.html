@@ -1400,11 +1400,11 @@
 
 <h1 id="troubleshoot-an-unresponsive-host">Troubleshoot an unresponsive host</h1>
 <p>Runbook for investigating a home lab host that froze, crashed, or stopped
-accepting connections, after it has been recovered (typically by a power
-cycle). The goal is a defensible timeline and root-cause hypothesis; "silent
-freeze with no precursors" is a valid conclusion when the evidence supports
-nothing stronger. This runbook was distilled from the raspberrypi2 freeze
-investigation of 2026-09-13.</p>
+accepting connections, after it has been recovered (typically by a power cycle).
+The goal is a defensible timeline and root-cause hypothesis; "silent freeze with
+no precursors" is a valid conclusion when the evidence supports nothing
+stronger. This runbook was distilled from the raspberrypi2 freeze investigation
+of 2026-09-13.</p>
 <h2 id="establish-the-timeline">Establish the timeline</h2>
 <div class="highlight"><pre><span></span><code>uptime
 last<span class="w"> </span>-x<span class="w"> </span>reboot<span class="w"> </span>shutdown<span class="w"> </span><span class="p">|</span><span class="w"> </span>head
@@ -1412,14 +1412,14 @@ journalctl<span class="w"> </span>--list-boots<span class="w"> </span><span clas
 journalctl<span class="w"> </span>-b<span class="w"> </span>-1<span class="w"> </span>--no-pager<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-50
 </code></pre></div>
 <ul>
-<li>The end timestamp of the previous boot's journal is the last moment the
-  host was alive enough to log.</li>
+<li>The end timestamp of the previous boot's journal is the last moment the host
+  was alive enough to log.</li>
 <li>An abrupt journal end mid-routine-activity, with no shutdown sequence,
   indicates a hard freeze; an orderly shutdown sequence points elsewhere.</li>
-<li>Narrow the death window using periodic activity as a clock: home lab
-  hosts run recurring systemd timers (for example <code>asuswrt-chkwan</code> every 3
-  minutes on raspberrypi2), so the first missing run bounds the freeze to
-  within one period.</li>
+<li>Narrow the death window using periodic activity as a clock: home lab hosts run
+  recurring systemd timers (for example <code>asuswrt-chkwan</code> every 3 minutes on
+  raspberrypi2), so the first missing run bounds the freeze to within one
+  period.</li>
 </ul>
 <h2 id="sweep-for-precursors">Sweep for precursors</h2>
 <div class="highlight"><pre><span></span><code>journalctl<span class="w"> </span>-b<span class="w"> </span>-1<span class="w"> </span>-p<span class="w"> </span>err<span class="w"> </span>--no-pager
@@ -1429,12 +1429,12 @@ sudo<span class="w"> </span>smartctl<span class="w"> </span>-H<span class="w"> <
 </code></pre></div>
 <p>Separate chronic noise (errors repeating for days) from anything that first
 appears near the death window. On Raspberry Pi hosts, also check
-<code>vcgencmd get_throttled</code> and <code>sudo vclog --msg</code>; the throttle flags are
-sticky within a boot but reset by a power cycle.</p>
+<code>vcgencmd get_throttled</code> and <code>sudo vclog --msg</code>; the throttle flags are sticky
+within a boot but reset by a power cycle.</p>
 <h2 id="query-the-monitoring-history">Query the monitoring history</h2>
-<p>The Prometheus backend runs on <code>raspberrypi2.edge.lab.ferrari.how</code> (port
-<code>9090</code>, not exposed beyond the host). Query the recorded history over SSH to
-reconstruct the state leading up to the incident:</p>
+<p>The Prometheus backend runs on <code>raspberrypi2.edge.lab.ferrari.how</code> (port <code>9090</code>,
+not exposed beyond the host). Query the recorded history over SSH to reconstruct
+the state leading up to the incident:</p>
 <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>pi@raspberrypi2.edge.lab.ferrari.how<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="s1">&#39;curl -sf &quot;http://localhost:9090/api/v1/query_range?query=node_thermal_zone_temp{instance=~\&quot;.*raspberrypi2.*\&quot;}&amp;start=2026-09-13T11:30:00Z&amp;end=2026-09-13T12:45:00Z&amp;step=120&quot;&#39;</span>
 </code></pre></div>
@@ -1445,16 +1445,16 @@ reconstruct the state leading up to the incident:</p>
 <li>The timestamp of an instance's last successful scrape independently bounds
   when the host died.</li>
 </ul>
-<p>Normal metrics until the end are evidence too: they rule out thermal
-runaway, memory exhaustion, and load storms. Note that timestamps in the
-Prometheus API are UTC, while host logs (<code>journalctl</code>) print local time.</p>
+<p>Normal metrics until the end are evidence too: they rule out thermal runaway,
+memory exhaustion, and load storms. Note that timestamps in the Prometheus API
+are UTC, while host logs (<code>journalctl</code>) print local time.</p>
 <p>Some metrics arrive through the node exporter textfile collector
 (<code>/var/lib/node_exporter/textfile_collector/</code> on each host) rather than
 exporters: <code>apt_info.prom</code> (pending updates, reboot-required, written by the
-<code>monitoring-apt</code> systemd timer on Debian hosts), <code>smartctl.prom</code> (SMART
-health), and host-specific files such as the ONT exporter's. A stale
-modification time on one of these files means its producing unit is broken
-even if the metric still appears in Prometheus.</p>
+<code>monitoring-apt</code> systemd timer on Debian hosts), <code>smartctl.prom</code> (SMART health),
+and host-specific files such as the ONT exporter's. A stale modification time on
+one of these files means its producing unit is broken even if the metric still
+appears in Prometheus.</p>
 <h2 id="check-recovery-boot-health">Check recovery-boot health</h2>
 <div class="highlight"><pre><span></span><code>dmesg<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-iE<span class="w"> </span><span class="s2">&quot;ext4|recover|orphan|error&quot;</span>
 systemctl<span class="w"> </span>--failed
@@ -1464,15 +1464,15 @@ docker<span class="w"> </span>ps<span class="w"> </span>--format<span class="w">
 unclean. Confirm all expected workloads restarted.</p>
 <h2 id="report-and-remediate">Report and remediate</h2>
 <ul>
-<li>State the death window and the evidence for it, and list what the
-  incident was <strong>not</strong> (thermal, OOM, undervoltage, disk I/O) with the
-  checks that rule each out.</li>
-<li>A silent hard freeze at normal load and temperature typically leaves no
-  trace. Candidate causes worth listing as hypotheses: power transient,
-  USB or firmware lockup, aging kernel.</li>
-<li>Propose resilience fixes (hardware watchdog via <code>RuntimeWatchdogSec</code>, so
-  the host self-recovers) separately from root-cause fixes (kernel and OS
-  upgrades, hardware replacement).</li>
+<li>State the death window and the evidence for it, and list what the incident was
+  <strong>not</strong> (thermal, OOM, undervoltage, disk I/O) with the checks that rule each
+  out.</li>
+<li>A silent hard freeze at normal load and temperature typically leaves no trace.
+  Candidate causes worth listing as hypotheses: power transient, USB or firmware
+  lockup, aging kernel.</li>
+<li>Propose resilience fixes (hardware watchdog via <code>RuntimeWatchdogSec</code>, so the
+  host self-recovers) separately from root-cause fixes (kernel and OS upgrades,
+  hardware replacement).</li>
 <li>Record secondary findings (failing disks, broken units, stale textfile
   exporters) even when unrelated: this investigation surfaced a disk with
   pending sectors and a service broken since the previous reboot.</li>

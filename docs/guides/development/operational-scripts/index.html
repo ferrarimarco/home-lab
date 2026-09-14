@@ -1452,9 +1452,9 @@ different command inside that environment instead.</p>
 <p><code>scripts/run-ansible.sh</code>: runs Ansible playbooks from <code>config/ansible</code> inside
   a purpose-built container. Select the playbook with
   <code>ANSIBLE_PLAYBOOK_FILE_NAME</code> and pass extra flags via
-  <code>ADDITIONAL_ANSIBLE_FLAGS</code>. To scope a run to one workload stack on one
-  host, combine the stack's tag with the <code>untagged</code> pseudo-tag (global,
-  untagged initialization tasks must always run) and a host limit:</p>
+  <code>ADDITIONAL_ANSIBLE_FLAGS</code>. To scope a run to one workload stack on one host,
+  combine the stack's tag with the <code>untagged</code> pseudo-tag (global, untagged
+  initialization tasks must always run) and a host limit:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;--check --diff --tags=&#39;monitoring-apt&#39; --tags untagged --limit raspberrypi2.edge.lab.ferrari.how&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;home-lab-node.yaml&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>scripts/run-ansible.sh
@@ -1465,8 +1465,10 @@ different command inside that environment instead.</p>
 enablement machinery works.</p>
 <p>Always run with <code>--check --diff</code> first and review the predicted changes
 (watching for unexpected <code>state: absent</code> teardowns) before repeating the
-same command without those flags to apply.
-- <code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service
+same command without those flags to apply.</p>
+</li>
+<li>
+<p><code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service
   directories in <code>config/terraform</code> and runs <code>terraform init</code> and
   <code>terraform apply</code> for each one. Run
   <code>scripts/run-terraform.sh output &lt;service&gt; [&lt;output-name&gt;]</code> to print a
