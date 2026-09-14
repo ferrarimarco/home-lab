@@ -115,7 +115,13 @@ describes them all. Key rules:
 - **Ansible via `scripts/run-ansible.sh`:** runs containerized. Select the
   playbook with `ANSIBLE_PLAYBOOK_FILE_NAME`, pass extra flags (e.g. `--limit`,
   `--check`, `--diff`) via `ADDITIONAL_ANSIBLE_FLAGS`, and edit vault files with
-  `ANSIBLE_EDIT_VAULT_FILE=true` plus `ANSIBLE_VAULT_FILE_PATH`.
+  `ANSIBLE_EDIT_VAULT_FILE=true` plus `ANSIBLE_VAULT_FILE_PATH`. The tag-scoped
+  invocation pattern (stack tag plus `--tags untagged` plus host limit) is
+  documented in the
+  [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
+  Always run `--check --diff` first, capture the full output to a log file, and
+  review the predictions for unexpected `state: absent` teardowns before
+  applying.
 - **Docs site via `scripts/run-mkdocs.sh`:** rebuild after spec changes and
   commit the regenerated `docs/` output. The script takes required positional
   arguments (a bare invocation fails on an unbound variable); the home-lab docs
@@ -164,8 +170,17 @@ architectural patterns:
   `docker compose -f <that file> <up -d|stop|restart>`, never raw
   `docker stop/start` on containers.
 - SSH conventions: `root@pve1`/`root@pve2` for the Proxmox nodes,
-  `debian@hl01.edge.lab.ferrari.how` for the hl01 VM. Use read-only commands
-  freely for discovery; get approval for state-changing commands.
+  `debian@hl01.edge.lab.ferrari.how` for the hl01 VM,
+  `pi@raspberrypi2.edge.lab.ferrari.how` for the raspberrypi2 host. Use
+  read-only commands freely for discovery; get approval for state-changing
+  commands.
+- **The Prometheus backend runs on raspberrypi2** (port 9090, host-local). Query
+  it over SSH for historical metrics evidence during incident investigations;
+  see the
+  [monitoring guide](./websites-src/home-lab-docs/guides/configure-monitoring.md)
+  for query examples and the
+  [unresponsive host runbook](./websites-src/home-lab-docs/guides/troubleshoot-unresponsive-host.md)
+  for the investigation workflow.
 - **NixOS LXC containers have no conventional PATH for `pct exec`:** a plain
   `pct exec <vmid> -- <cmd>` fails with "No such file or directory". Invoke
   binaries as `/run/current-system/sw/bin/<cmd>`, or wrap the command in
@@ -181,17 +196,18 @@ architectural patterns:
 
 ## 8. Ansible Conventions
 
-- **Read-then-act for non-idempotent modules:** when a module cannot converge
-  reliably (e.g. `community.general.zfs` property handling), query actual state
-  with commands registered under `changed_when: false` and `check_mode: false`,
-  then act only on the delta with guarded CLI tasks.
-- **Assert, do not automate, destructive host state:** operations like
-  `zpool create` are deliberate manual acts. Record the parameters in inventory
-  as executable documentation and `assert` the resource exists, failing with the
-  documented creation command.
-- **Data-driven roles:** roles consume per-host `host_vars` lists that default
-  to empty (no-op on hosts that do not opt in), rather than hardcoding
-  host-specific values in tasks.
-- **Check-mode friendliness:** design tasks so `--check --diff` runs cleanly and
-  truthfully, including on first runs (tolerate reads of resources a previous
-  task would have created; validate predicted state instead of skipping).
+- **Use the `ansible-developer` skill for any Ansible change:** it carries the
+  generic conventions this repo follows (read-then-act for non-idempotent
+  modules, assert-don't-automate destructive host state, data-driven roles,
+  check-mode friendliness). If the skill is not available, warn the user.
+- How the `ferrarimarco_home_lab_node` role's stack, tagging, and enablement
+  machinery works is documented in the
+  [Ansible development guide](./websites-src/home-lab-docs/guides/development/ansible.md);
+  read it before changing the role.
+- **Never add role defaults for Debian-conditional enablement flags** (e.g.
+  `configure_monitoring_apt`): they are set via `set_fact: ... | default(true)`
+  in `register-Debian-facts.yaml`, and a `defaults/main.yaml` entry silently
+  pins them and disables the stack.
+- **Python exporter services build their venv via the shared `build-python-venv`
+  script into a systemd `StateDirectory=`**, never into `/run` or via inline
+  `ExecStartPre` venv/pip commands.
