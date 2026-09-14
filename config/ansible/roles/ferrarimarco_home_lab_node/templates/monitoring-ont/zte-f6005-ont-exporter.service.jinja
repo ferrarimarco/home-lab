@@ -4,9 +4,18 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStartPre={{ build_python_venv_script_destination_path }} {{ monitoring_ont_run_directory_path }} {{ monitoring_ont_requirements_file_path }}
-ExecStart={{ monitoring_ont_run_directory_path }}/bin/python3 {{ monitoring_ont_executable_path }}
+ExecStartPre={{ build_python_venv_script_destination_path }} {{ monitoring_ont_virtual_env_path }} {{ monitoring_ont_requirements_file_path }}
+# Remove the metrics file before starting and after any exit so that the node
+# exporter textfile collector never serves stale data as current when the
+# exporter is down or blocked.
+ExecStartPre=rm -f "{{ monitoring_ont_prometheus_textfile_exporter_destination_file_path }}"
+ExecStart={{ monitoring_ont_virtual_env_path }}/bin/python3 {{ monitoring_ont_executable_path }} --metrics_textfile_path {{ monitoring_ont_prometheus_textfile_exporter_destination_file_path }}
+ExecStopPost=rm -f "{{ monitoring_ont_prometheus_textfile_exporter_destination_file_path }}"
+StateDirectory={{ monitoring_ont_tag }}
 Restart=always
+# Avoid a tight restart loop against the ONT admin interface, which can hang
+# until the ONT is rebooted.
+RestartSec=60
 
 [Install]
 WantedBy=multi-user.target

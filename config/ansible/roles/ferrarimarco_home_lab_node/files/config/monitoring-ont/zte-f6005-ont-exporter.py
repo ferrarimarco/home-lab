@@ -388,6 +388,12 @@ def _get_script_tag_content(response, page_name, field_names):
     return matched_data
 
 
+# Connect and read timeouts, in seconds. The ONT admin interface sometimes
+# hangs until the ONT is rebooted; without a timeout a request blocks the
+# collection loop forever while the service still reports as active.
+HTTP_TIMEOUT = (5, 30)
+
+
 def login(session, username, password, ip_address):
     login_url = "https://{ip_address}/goform/LoginForm".format(ip_address=ip_address)
 
@@ -414,6 +420,7 @@ def login(session, username, password, ip_address):
         login_url,
         headers=login_headers,
         data=login_payload,
+        timeout=HTTP_TIMEOUT,
         verify=False,
     )
 
@@ -427,6 +434,7 @@ def collect_device_info(session, ip_address):
 
     device_info_response = session.get(
         device_info_url,
+        timeout=HTTP_TIMEOUT,
         verify=False,
     )
 
@@ -451,6 +459,7 @@ def collect_network_interface_metrics(session, pon_serial_number, ip_address):
     gpon_info_url = "https://{ip_address}/gponinfo.html".format(ip_address=ip_address)
     gpon_info_response = session.get(
         gpon_info_url,
+        timeout=HTTP_TIMEOUT,
         verify=False,
     )
 
@@ -504,6 +513,7 @@ def collect_user_network_interface_metrics(session, pon_serial_number, ip_addres
     user_info_url = "https://{ip_address}/userinfo.html".format(ip_address=ip_address)
     user_info_response = session.get(
         user_info_url,
+        timeout=HTTP_TIMEOUT,
         verify=False,
     )
 

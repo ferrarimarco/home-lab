@@ -25,8 +25,10 @@ monitoring_ont_configure_route_to_ont_script_destination_path: "/usr/local/bin/{
 monitoring_ont_configure_route_to_ont_script_destination_path_on_asus_router: "/tmp/{{ monitoring_ont_network_config_script_name }}"
 monitoring_ont_executable_path: "{{ monitoring_ont_configuration_directory_path }}/zte-f6005-ont-exporter.py"
 monitoring_ont_network_config_script_name: configure-route-to-ont.sh
+monitoring_ont_prometheus_textfile_exporter_destination_file_path: "{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/zte-f6005-ont.prom"
 monitoring_ont_requirements_file_path: "{{ monitoring_ont_configuration_directory_path }}/requirements.txt"
-monitoring_ont_run_directory_path: "/run/{{ monitoring_ont_tag }}"
+monitoring_ont_state_directory_path: "/var/lib/{{ monitoring_ont_tag }}"
+monitoring_ont_virtual_env_path: "{{ monitoring_ont_state_directory_path }}/venv"
 monitoring_ont_os_service_file_name: "{{ monitoring_ont_os_service_name }}.service"
 monitoring_ont_os_service_name: "zte-f6005-ont-exporter"
 monitoring_ont_network_config_timer_file_name: "{{ monitoring_ont_network_config_service_name }}.timer"
