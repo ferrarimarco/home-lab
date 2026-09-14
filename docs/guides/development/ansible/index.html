@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/configure-tailscale/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/development/ansible/">
       
       
-        <link rel="prev" href="../configure-network-shares/">
+        <link rel="prev" href="../../useful-linux-admin-commands/">
       
       
-        <link rel="next" href="../container-migration/">
+        <link rel="next" href="../nix/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Tailscale configuration - Home Lab docs</title>
+        <title>Ansible development - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tailscale-configuration" class="md-skip">
+        <a href="#ansible-development" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tailscale configuration
+              Ansible development
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../../../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nix/" class="md-nav__link">
+      <a href="../../../architecture/nix/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../../../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -440,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
@@ -463,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -533,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
+      <a href="../../configure-monitoring/" class="md-nav__link">
         
   
   
@@ -556,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../configure-network-shares/" class="md-nav__link">
         
   
   
@@ -576,32 +576,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Tailscale configuration
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../configure-tailscale/" class="md-nav__link">
         
   
   
@@ -612,44 +590,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#tailscale-authentication-keys" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tailscale authentication keys
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#enable-subnet-routes-or-exit-nodes-in-the-tailscale-console" class="md-nav__link">
-    <span class="md-ellipsis">
-      Enable subnet routes or exit nodes in the Tailscale console
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -662,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../container-migration/" class="md-nav__link">
+      <a href="../../container-migration/" class="md-nav__link">
         
   
   
@@ -685,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -708,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
+      <a href="../../home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -731,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxmox-admin-notes/" class="md-nav__link">
+      <a href="../../proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -754,7 +694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../troubleshoot-unresponsive-host/" class="md-nav__link">
+      <a href="../../troubleshoot-unresponsive-host/" class="md-nav__link">
         
   
   
@@ -777,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -797,18 +737,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" checked>
         
           
           <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
@@ -824,7 +766,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_10">
             <span class="md-nav__icon md-icon"></span>
             Development
@@ -835,10 +777,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../development/ansible/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Ansible development
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -849,6 +813,62 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#role-architecture-data-driven-stacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Role architecture: data-driven stacks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enablement-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enablement flags
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-exporter-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Python exporter services
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#check-mode-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check mode conventions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -861,7 +881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
+      <a href="../nix/" class="md-nav__link">
         
   
   
@@ -884,7 +904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/operational-scripts/" class="md-nav__link">
+      <a href="../operational-scripts/" class="md-nav__link">
         
   
   
@@ -907,7 +927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
+      <a href="../website-development/" class="md-nav__link">
         
   
   
@@ -1021,7 +1041,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -1044,7 +1064,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -1067,7 +1087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -1143,7 +1163,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../../../specs/" class="md-nav__link">
         
   
   
@@ -1166,7 +1186,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/declarative-integration-testing/" class="md-nav__link">
+      <a href="../../../specs/declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -1189,7 +1209,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../../../specs/home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -1212,7 +1232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/nas-lxc-container/" class="md-nav__link">
+      <a href="../../../specs/nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -1235,7 +1255,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-lxc/" class="md-nav__link">
+      <a href="../../../specs/proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -1258,7 +1278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-vm/" class="md-nav__link">
+      <a href="../../../specs/proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1308,18 +1328,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tailscale-authentication-keys" class="md-nav__link">
+  <a href="#role-architecture-data-driven-stacks" class="md-nav__link">
     <span class="md-ellipsis">
-      Tailscale authentication keys
+      Role architecture: data-driven stacks
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#enable-subnet-routes-or-exit-nodes-in-the-tailscale-console" class="md-nav__link">
+  <a href="#enablement-flags" class="md-nav__link">
     <span class="md-ellipsis">
-      Enable subnet routes or exit nodes in the Tailscale console
+      Enablement flags
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-exporter-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Python exporter services
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#check-mode-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check mode conventions
     </span>
   </a>
   
@@ -1344,26 +1382,89 @@
   
 
 
-<h1 id="tailscale-configuration">Tailscale configuration</h1>
-<p>In this section, you configure new hosts to join a Tailscale network.</p>
-<h2 id="tailscale-authentication-keys">Tailscale authentication keys</h2>
+<h1 id="ansible-development">Ansible development</h1>
+<p>This document describes how the <code>ferrarimarco_home_lab_node</code> Ansible role is
+structured, so that changes to it converge reliably. For how to run
+playbooks, see the
+<a href="../operational-scripts/">operational scripts guide</a>.</p>
+<h2 id="role-architecture-data-driven-stacks">Role architecture: data-driven stacks</h2>
+<p>The role configures hosts through per-workload "stacks" (monitoring,
+media-stack, monitoring-apt, ...). Each stack contributes its resources
+(directories, files, templates, services, Compose projects) as data, and a
+small set of generic tasks applies that data:</p>
+<ol>
+<li>Each stack defines its resources in a dedicated vars file
+   (<code>roles/ferrarimarco_home_lab_node/vars/&lt;stack&gt;-stack.yaml</code>), with every
+   resource's <code>state</code> derived from the stack's enablement flag via
+   <code>ternary</code> (for example <code>{{ configure_monitoring_apt | ternary('file',
+   'absent') }}</code>).</li>
+<li><code>tasks/include-variables.yaml</code> aggregates the per-stack lists into global
+   custom facts. Each stack appears as one entry with an
+   <code>enable_custom_fact</code> switch and a <code>fact_category</code> name.</li>
+<li>The <code>fact_category</code> name doubles as the stack's <strong>tag</strong>: running the
+   playbook with <code>--tags '&lt;fact_category&gt;' --tags untagged</code> selects that
+   stack plus the global untagged initialization tasks.</li>
+<li>Generic, untagged tasks in <code>tasks/main.yaml</code> (configure directories,
+   render templates, download files, manage services) then apply the
+   aggregated data.</li>
+</ol>
+<p>Because a disabled stack still contributes its resources with
+<code>state: absent</code>, running a stack's tag with its enablement flag unset
+<strong>tears the stack down</strong> rather than skipping it. This is intentional
+(declarative removal), but it means an unexpected <code>absent</code> prediction in
+check mode must be treated as a signal that an enablement flag resolved
+differently than intended.</p>
+<h2 id="enablement-flags">Enablement flags</h2>
 <ul>
-<li>If you want to automate authentication, you can specify an authentication key
-  for each host using the <code>tailscale_authkey</code> variable. For more information
-  about Tailscale authentication keys, see
-  <a href="https://tailscale.com/kb/1085/auth-keys/">Authentication keys</a>. The
-  alternative is to manually run the <code>tailscale up</code> command on the host, and
-  follow the instructions to authenticate the host.</li>
-<li>If you prefer that the key for a particular host doesn't expire, you can
-  disable <a href="https://tailscale.com/kb/1028/key-expiry/">Tailscale key expiration</a>.</li>
+<li>Stacks are enabled per host through <code>configure_&lt;stack&gt;</code> variables in
+  <code>host_vars</code>, with role defaults of <code>false</code> in <code>defaults/main.yaml</code>.</li>
+<li>
+<p><strong>Debian-conditional stacks</strong> (such as <code>monitoring-apt</code>) are instead
+  enabled for every Debian host in
+  <code>tasks/register-Debian-facts.yaml</code> with the pattern:</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set configure_monitoring_apt to allow for eventual overriding</span>
+<span class="w">  </span><span class="nt">ansible.builtin.set_fact</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">configure_monitoring_apt</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">configure_monitoring_apt</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</code></pre></div>
+<p>The <code>default(true)</code> fallback only fires when the variable is otherwise
+<strong>undefined</strong>, which is what lets <code>host_vars</code> overrides win. Do not add
+a role default for such a variable: a <code>defaults/main.yaml</code> entry makes
+the variable always defined, silently pins it, and disables the stack
+everywhere (this regression shipped between 2025-07 and 2026-09 for
+<code>monitoring-apt</code>).</p>
+</li>
 </ul>
-<h2 id="enable-subnet-routes-or-exit-nodes-in-the-tailscale-console">Enable subnet routes or exit nodes in the Tailscale console</h2>
-<p>If a Tailscale host advertises routes or advertises itself as an exit node, you
-need to enable these features in the Tailscale console or using the Tailscale
-API. For more information, see:</p>
+<h2 id="python-exporter-services">Python exporter services</h2>
+<p>systemd services that run Python-based exporters build their virtual
+environment through the shared <code>/usr/local/bin/build-python-venv</code> script
+(source:
+<a href="https://github.com/ferrarimarco/home-lab/blob/master/config/ansible/roles/ferrarimarco_home_lab_node/files/scripts/build-python-venv.sh"><code>files/scripts/build-python-venv.sh</code></a>),
+never through inline <code>ExecStartPre</code> venv and pip commands:</p>
 <ul>
-<li><a href="https://tailscale.com/kb/1019/subnets">Subnet routers and traffic relay nodes</a></li>
-<li><a href="https://tailscale.com/kb/1103/exit-nodes/">Exit nodes</a></li>
+<li>The script rebuilds the venv only when the requirements file's hash or the
+  system Python version changes, or when the venv is broken; otherwise a
+  start costs one hash check.</li>
+<li>The venv lives in the unit's <code>StateDirectory=</code> (<code>/var/lib/&lt;unit&gt;</code>), not in
+  <code>/run</code>: systemd creates the state directory before assembling the mount
+  namespace, so it composes with <code>ProtectSystem=strict</code>, and it survives
+  reboots. Mount-namespace directives such as <code>ReadWritePaths=</code> are
+  assembled before any <code>ExecStartPre</code> runs, so they must never reference a
+  path a command in the unit is supposed to create.</li>
+<li>Reference implementation: the <code>monitoring-apt</code> unit template
+  (<code>templates/monitoring-apt/monitoring-apt.service.jinja</code>).</li>
+</ul>
+<h2 id="check-mode-conventions">Check mode conventions</h2>
+<ul>
+<li>Always run <code>--check --diff</code> (capturing the full output to a log file)
+  and review the predicted changes before applying. Watch specifically for
+  unexpected <code>state: absent</code> predictions (see enablement flags above).</li>
+<li><code>ansible.builtin.get_url</code> tasks always report <code>changed</code> in check mode:
+  the module cannot verify remote content without downloading. Confirm
+  against the real run before treating such a prediction as drift.</li>
+<li>Design tasks so check mode runs cleanly and truthfully on first runs:
+  state-query tasks carry <code>changed_when: false</code> and <code>check_mode: false</code>,
+  and later tasks tolerate resources that an earlier task would have
+  created.</li>
 </ul>
 
 
@@ -1419,10 +1520,10 @@ API. For more information, see:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>

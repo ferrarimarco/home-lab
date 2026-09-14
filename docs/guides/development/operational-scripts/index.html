@@ -694,6 +694,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../troubleshoot-unresponsive-host/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshoot an unresponsive host
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../useful-linux-admin-commands/" class="md-nav__link">
         
   
@@ -727,10 +750,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" checked>
         
           
-          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
             
   
   
@@ -743,12 +766,35 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_9">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_10">
             <span class="md-nav__icon md-icon"></span>
             Development
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ansible/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ansible development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1402,13 +1448,30 @@ different command inside that environment instead.</p>
   one before deploying. Hosts with a <code>disko.nix</code> are installed with
   <code>nixos-anywhere</code>; hosts without one (LXC containers) receive their
   configuration via <code>nixos-rebuild switch --flake --target-host</code>.</li>
-<li><code>scripts/run-ansible.sh</code>: runs Ansible playbooks from <code>config/ansible</code> inside
-  a purpose-built container.</li>
-<li><code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service
+<li>
+<p><code>scripts/run-ansible.sh</code>: runs Ansible playbooks from <code>config/ansible</code> inside
+  a purpose-built container. Select the playbook with
+  <code>ANSIBLE_PLAYBOOK_FILE_NAME</code> and pass extra flags via
+  <code>ADDITIONAL_ANSIBLE_FLAGS</code>. To scope a run to one workload stack on one
+  host, combine the stack's tag with the <code>untagged</code> pseudo-tag (global,
+  untagged initialization tasks must always run) and a host limit:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;--check --diff --tags=&#39;monitoring-apt&#39; --tags untagged --limit raspberrypi2.edge.lab.ferrari.how&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;home-lab-node.yaml&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>scripts/run-ansible.sh
+</code></pre></div>
+<p>Stack tags are the <code>fact_category</code> names declared in the
+<code>ferrarimarco_home_lab_node</code> role's <code>include-variables.yaml</code>. See the
+<a href="../ansible/">Ansible development guide</a> for how the role's tagging and
+enablement machinery works.</p>
+<p>Always run with <code>--check --diff</code> first and review the predicted changes
+(watching for unexpected <code>state: absent</code> teardowns) before repeating the
+same command without those flags to apply.
+- <code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service
   directories in <code>config/terraform</code> and runs <code>terraform init</code> and
   <code>terraform apply</code> for each one. Run
   <code>scripts/run-terraform.sh output &lt;service&gt; [&lt;output-name&gt;]</code> to print a
-  service's outputs as JSON instead.</li>
+  service's outputs as JSON instead.</p>
+</li>
 </ul>
 <h2 id="documentation-site">Documentation site</h2>
 <p><code>scripts/run-mkdocs.sh</code> builds or serves the documentation sites with Material
