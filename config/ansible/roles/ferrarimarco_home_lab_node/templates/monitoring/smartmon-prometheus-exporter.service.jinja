@@ -3,7 +3,12 @@ Description=Export smartctl metrics to Prometheus Node Exporter Textfile Collect
 
 [Service]
 Nice=-10
-ExecStart=/bin/sh -c 'exec {{ monitoring_smartmon_prometheus_exporter_script_destination_path }} > {{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/smartctl.prom'
+# Write to a temporary file and move it in place so that a failed run cannot
+# leave an empty or partial metrics file behind (shell redirection truncates
+# the destination at start). $$ escapes literal $ from systemd expansion.
+ExecStart=/bin/sh -c '\
+out="{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/smartctl.prom"; \
+{{ monitoring_smartmon_prometheus_exporter_script_destination_path }} > "$$out.tmp" && mv "$$out.tmp" "$$out"'
 # Write nothing except the output file
 ProtectSystem=strict
 ReadWritePaths={{ monitoring_prometheus_node_exporter_textfile_collector_directory }}
