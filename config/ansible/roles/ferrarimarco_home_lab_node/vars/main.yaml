@@ -362,9 +362,10 @@ sense_hat_exporter_files_to_configure:
     os_services_to_restart:
       - "{{ sense_hat_exporter_os_service_name }}"
 sense_hat_exporter_executable_path: "{{ sense_hat_exporter_configuration_directory_path }}/sense-hat-exporter.py"
+sense_hat_exporter_prometheus_textfile_exporter_destination_file_path: "{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/sense-hat.prom"
 sense_hat_exporter_requirements_file_path: "{{ sense_hat_exporter_configuration_directory_path }}/requirements.txt"
-sense_hat_exporter_run_directory_path: "/run/sense-hat-exporter"
-sense_hat_exporter_virtual_env_path: "{{ sense_hat_exporter_run_directory_path }}/.venv"
+sense_hat_exporter_state_directory_path: "/var/lib/{{ sense_hat_exporter_os_service_name }}"
+sense_hat_exporter_virtual_env_path: "{{ sense_hat_exporter_state_directory_path }}/venv"
 sense_hat_exporter_os_service_file_name: "{{ sense_hat_exporter_os_service_name }}.service"
 sense_hat_exporter_os_service_name: "sense-hat-exporter"
 sense_hat_os_services:
