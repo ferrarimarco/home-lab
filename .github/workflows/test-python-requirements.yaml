@@ -1,0 +1,57 @@
+---
+name: Test Python requirements files
+
+on: # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/test-python-requirements.yaml"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/scripts/build-python-venv.sh"
+      - "test/scripts/build-python-venv-test.sh"
+  pull_request:
+    paths:
+      - ".github/workflows/test-python-requirements.yaml"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/scripts/build-python-venv.sh"
+      - "test/scripts/build-python-venv-test.sh"
+
+permissions:
+  contents: read
+
+jobs:
+  test-python-requirements:
+    concurrency:
+      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      # github.head_ref: head_ref or source branch of the pull request
+      # github.ref: ref of the branch that triggered the workflow
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}-${{ github.event_name }}-${{ matrix.requirements_file_path }}-${{ matrix.python_container_image }}
+      cancel-in-progress: true
+    container:
+      image: ${{ matrix.python_container_image }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Test ${{ matrix.requirements_file_path }} on ${{ matrix.python_container_image }}
+        run: |
+          set -o errexit
+          set -o nounset
+          test/scripts/build-python-venv-test.sh "${{ matrix.requirements_file_path }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # python:3.9-slim-bullseye matches the interpreter of the current
+        # Debian 11 deployment target (raspberrypi2). The newer versions match
+        # the interpreters of candidate upgrade targets.
+        python_container_image:
+          - python:3.9-slim-bullseye
+          - python:3.11-slim-bookworm
+          - python:3.13-slim-trixie
+        requirements_file_path:
+          - config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt
+          - config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt
+          - config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt

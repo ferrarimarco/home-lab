@@ -19,7 +19,9 @@ SCRIPT_TO_TEST_PATH="${SCRIPT_FULL_DIRECTORY_PATH}/../../config/ansible/roles/fe
 SCRIPT_TO_TEST_PATH="$(readlink -f "${SCRIPT_TO_TEST_PATH}")"
 echo "Script to test: ${SCRIPT_TO_TEST_PATH}"
 
-PIP_REQUIREMENTS_FILE_PATH_TO_TEST="${SCRIPT_FULL_DIRECTORY_PATH}/../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
+# Optionally pass the pip requirements file to test as the first argument.
+# Defaults to the monitoring-ont requirements file.
+PIP_REQUIREMENTS_FILE_PATH_TO_TEST="${1:-"${SCRIPT_FULL_DIRECTORY_PATH}/../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"}"
 PIP_REQUIREMENTS_FILE_PATH_TO_TEST="$(readlink -f "${PIP_REQUIREMENTS_FILE_PATH_TO_TEST}")"
 echo "Pip requirements file path: ${PIP_REQUIREMENTS_FILE_PATH_TO_TEST}"
 
