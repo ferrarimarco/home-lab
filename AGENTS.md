@@ -176,11 +176,9 @@ architectural patterns:
   commands.
 - **The Prometheus backend runs on raspberrypi2** (port 9090, host-local). Query
   it over SSH for historical metrics evidence during incident investigations;
-  see the
-  [monitoring guide](./websites-src/home-lab-docs/guides/configure-monitoring.md)
-  for query examples and the
+  the
   [unresponsive host runbook](./websites-src/home-lab-docs/guides/troubleshoot-unresponsive-host.md)
-  for the investigation workflow.
+  has the query examples and the investigation workflow.
 - **NixOS LXC containers have no conventional PATH for `pct exec`:** a plain
   `pct exec <vmid> -- <cmd>` fails with "No such file or directory". Invoke
   binaries as `/run/current-system/sw/bin/<cmd>`, or wrap the command in
