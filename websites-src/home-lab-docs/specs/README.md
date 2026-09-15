@@ -64,6 +64,12 @@ testing rationale before code implementation.
 - Replace the `rm` ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the `truncate:` variant of
   `StandardOutput` once every host runs systemd >= 248.
+- Monitoring alerting: no Prometheus alerts are configured. Known gaps:
+  temperature alerts (pve1 `coretemp` above 85 degrees Celsius, Coral TPU above
+  90 degrees Celsius, identified during the August 2026 thermal incident),
+  staleness of node exporter textfiles (alert on `node_textfile_mtime_seconds`),
+  and unexpected reboots (alert on `node_boot_time_seconds` changing, so
+  hardware-watchdog recoveries are noticed rather than silently absorbed).
 - NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host
   Terraform VM resources into a shared module (or `for_each` over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code

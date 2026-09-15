@@ -524,6 +524,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#2026-08-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-08-25
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-08-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-08-12
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-08-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-08-11
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-23" class="md-nav__link">
     <span class="md-ellipsis">
       2026-04-23
@@ -1341,6 +1368,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#2026-08-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-08-25
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-08-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-08-12
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-08-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-08-11
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-23" class="md-nav__link">
     <span class="md-ellipsis">
       2026-04-23
@@ -1407,6 +1461,70 @@ to eventually get to a state where we don't need this file anymore.</p>
   follow-ups (hardware watchdog, data-disk SMART test, OS upgrade) are tracked
   in the
   <a href="../../specs/#specifications-to-write-and-todos">specs todo list</a>.</li>
+</ul>
+<h2 id="2026-08-25">2026-08-25</h2>
+<ul>
+<li><code>pve2</code>: measured the idle power baseline (Supermicro X10SRL-F, Xeon E5-2683
+  v4, 256 GB RAM, kernel 6.17.2-1-pve, no VMs or containers running):<ul>
+<li>Wall power: ~45 W (smart plug reads 67 W with pve2 idle and 22 W with pve2
+  off; other devices share the plug, so 22 W is the plug baseline). At 0.099
+  EUR/kWh, 45 W around the clock costs about 39 EUR/year.</li>
+<li>RAPL package-0 ~8.7 W, DRAM ~3.3 W; package C6 residency 88.5%, cores ~99%
+  cc6. The remainder is HDDs, platform, fans, and PSU losses.</li>
+<li>Untapped levers (powertop): governor <code>performance</code> on <code>intel_cpufreq</code>
+  (passive), all 10 SATA hosts at <code>max_performance</code> link power policy, PCIe
+  ASPM policy <code>default</code>, most PCI devices with runtime PM <code>on</code>. Realistic
+  tuned idle is ~30-35 W (~8-13 EUR/year saved). HDD spin-down is excluded
+  by policy: pve2 keeps its platters spinning to avoid start/stop wear.</li>
+<li>Duty-cycle reduction (shutdown plus wake-on-LAN) is the bigger lever if
+  pve2 does not need to run around the clock.</li>
+<li><code>ipmitool</code> is not installed on pve2; lm-sensors only shows <code>x86_pkg_temp</code>.
+  The ASPEED BMC may expose DCMI power readings if the PSU has PMBus.</li>
+<li>The short hostname <code>pve2</code> does not resolve from the workstation; use
+  <code>pve2.edge.lab.ferrari.how</code>.</li>
+</ul>
+</li>
+</ul>
+<h2 id="2026-08-12">2026-08-12</h2>
+<ul>
+<li><code>pve1</code>: updated the Beelink BIOS from N95V104 to N95V107 to fix the Eaton UPS
+  (Eaton Ellipse PRO 1600 DIN, USB ID <code>0463:ffff</code>, <code>usbhid-ups</code> driver for
+  <code>nut-driver@eaton-ellipse-pro-1600-din-1</code>; NUT runs on pve1) failing USB
+  enumeration at cold boot (<code>device descriptor read/64, error -71</code>), which
+  previously only a physical replug recovered. If it recurs:<ul>
+<li>Software recovery on the root port is not possible: the hub has no
+  per-port power switching, and the self-powered UPS only resets its USB
+  state machine on VBUS loss. Cycling <code>usb1-port1/disable</code> in sysfs and the
+  old-scheme enumeration quirk were both tried and failed.</li>
+<li>Fallback plan: place a PPPS-capable USB 2.0 hub (verified with <code>uhubctl</code>)
+  between the UPS and the host, enabling a true software replug via
+  <code>uhubctl -a cycle</code>.</li>
+<li>Keep the Toshiba USB disk (backing hl01's <code>rpool-usb-1</code> 885G volume, same
+  xHCI controller) directly on the root port, and never unbind the xHCI
+  driver while hl01 is running.</li>
+</ul>
+</li>
+</ul>
+<h2 id="2026-08-11">2026-08-11</h2>
+<ul>
+<li><code>pve1</code>: cleaned the clogged heatsink fins and replaced the degraded thermal
+  paste after the host (Beelink EQ-series, Intel N100) throttled to its 200 MHz
+  floor, pinning VM hl01 at 100% CPU and pushing the Coral PCIe TPU past its
+  94.8 degrees Celsius trip point. Diagnostics learned:<ul>
+<li>Trust <code>platform_coretemp_0</code> / <code>x86_pkg_temp</code> readings; the <code>acpitz</code>
+  thermal zone on this board reads a bogus ~27.8 degrees Celsius regardless
+  of load.</li>
+<li>The fans are EC-controlled and invisible to the OS (no hwmon fan sensors),
+  so "fans look fine in monitoring" carries no information on this host.</li>
+<li>Coral PCIe TPU health signatures: healthy inference is ~5-10 ms (Frigate
+  <code>/api/stats</code>); ~200 ms means thermal throttling; the
+  <code>coral_pci_temperature_celsius</code> metric reads -89.7 when the TPU has
+  crashed.</li>
+<li>Check CPU throttling directly via
+  <code>/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq</code>.</li>
+<li>Preventive maintenance: clean the heatsink fins yearly, in early summer.</li>
+</ul>
+</li>
 </ul>
 <h2 id="2026-04-23">2026-04-23</h2>
 <ul>

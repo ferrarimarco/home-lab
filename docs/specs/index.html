@@ -1446,6 +1446,12 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>Replace the <code>rm</code> ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the <code>truncate:</code> variant of
   <code>StandardOutput</code> once every host runs systemd &gt;= 248.</li>
+<li>Monitoring alerting: no Prometheus alerts are configured. Known gaps:
+  temperature alerts (pve1 <code>coretemp</code> above 85 degrees Celsius, Coral TPU above
+  90 degrees Celsius, identified during the August 2026 thermal incident),
+  staleness of node exporter textfiles (alert on <code>node_textfile_mtime_seconds</code>),
+  and unexpected reboots (alert on <code>node_boot_time_seconds</code> changing, so
+  hardware-watchdog recoveries are noticed rather than silently absorbed).</li>
 <li>NixOS VMs (<a href="proxmox-vm/">NixOS VMs on Proxmox</a>): factor the per-host
   Terraform VM resources into a shared module (or <code>for_each</code> over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code
