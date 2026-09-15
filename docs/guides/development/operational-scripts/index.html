@@ -1436,6 +1436,19 @@ CI run:</p>
   Defaults to the version that the <code>Lint</code> CI workflow pins.</li>
 <li><code>LOG_LEVEL</code>: super-linter log level. Defaults to <code>INFO</code>.</li>
 </ul>
+<p>Super-linter writes its results to the gitignored <code>super-linter-output</code>
+directory in the repository root:</p>
+<ul>
+<li><code>super-linter-output/super-linter-summary.md</code>: the per-linter pass/fail
+  summary table. Check this first to see which linters failed.</li>
+<li><code>super-linter-output/super-linter/</code>: the detailed outputs, one
+  <code>super-linter-parallel-stdout-&lt;LINTER&gt;</code> (and, when produced,
+  <code>super-linter-parallel-stderr-&lt;LINTER&gt;</code>) file per linter, along with the
+  per-linter exit codes and the lists of files each linter processed. Read the
+  files for the linters the summary marks as failed to get the actual findings.</li>
+</ul>
+<p>Prefer these files over scrolling the console output: they persist after the run
+and separate each linter's findings.</p>
 <p><code>scripts/run-pre-commit.sh</code> runs the configured
 <a href="https://pre-commit.com/">pre-commit</a> hooks
 (<code>config/pre-commit/.pre-commit-config.yaml</code>) against all files, creating a

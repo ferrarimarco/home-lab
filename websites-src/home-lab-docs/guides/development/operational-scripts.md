@@ -40,6 +40,20 @@ The script supports the following environment variables:
   Defaults to the version that the `Lint` CI workflow pins.
 - `LOG_LEVEL`: super-linter log level. Defaults to `INFO`.
 
+Super-linter writes its results to the gitignored `super-linter-output`
+directory in the repository root:
+
+- `super-linter-output/super-linter-summary.md`: the per-linter pass/fail
+  summary table. Check this first to see which linters failed.
+- `super-linter-output/super-linter/`: the detailed outputs, one
+  `super-linter-parallel-stdout-<LINTER>` (and, when produced,
+  `super-linter-parallel-stderr-<LINTER>`) file per linter, along with the
+  per-linter exit codes and the lists of files each linter processed. Read the
+  files for the linters the summary marks as failed to get the actual findings.
+
+Prefer these files over scrolling the console output: they persist after the run
+and separate each linter's findings.
+
 `scripts/run-pre-commit.sh` runs the configured
 [pre-commit](https://pre-commit.com/) hooks
 (`config/pre-commit/.pre-commit-config.yaml`) against all files, creating a
