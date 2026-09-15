@@ -1441,7 +1441,7 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   between an in-place dist-upgrade and a NixOS migration. After the upgrade,
   bump the <code>requests</code> pin and the CI requirements test matrix
   (<code>test-python-requirements.yaml</code>).</li>
-<li>Optionally prove the hardware watchdog recovery path end to end with a
+<li>Optionally prove the hardware watchdog recovery path end-to-end with a
   deliberate kernel crash (<code>echo c &gt; /proc/sysrq-trigger</code>): the host should
   self-reboot within the 15 second timeout. Induced crash with the usual
   unclean-shutdown cost, so schedule it consciously.</li>

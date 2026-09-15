@@ -61,7 +61,7 @@ testing rationale before code implementation.
       between an in-place dist-upgrade and a NixOS migration. After the upgrade,
       bump the `requests` pin and the CI requirements test matrix
       (`test-python-requirements.yaml`).
-    - Optionally prove the hardware watchdog recovery path end to end with a
+    - Optionally prove the hardware watchdog recovery path end-to-end with a
       deliberate kernel crash (`echo c > /proc/sysrq-trigger`): the host should
       self-reboot within the 15 second timeout. Induced crash with the usual
       unclean-shutdown cost, so schedule it consciously.
