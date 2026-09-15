@@ -65,10 +65,21 @@ testing rationale before code implementation.
       deliberate kernel crash (`echo c > /proc/sysrq-trigger`): the host should
       self-reboot within the 15 second timeout. Induced crash with the usual
       unclean-shutdown cost, so schedule it consciously.
+    - Prune the now-unreferenced `vault_raspberrypi2_monitoring_nut_*` variables
+      from the raspberrypi2 Ansible vault (NUT moved to pve1; the host_vars
+      references were removed on 2026-09-14).
 - Validate the reworked `sense-hat-exporter` unit (venv in a systemd state
   directory, metrics file deleted on start and exit, throttled restarts; changed
   2026-09-14) whenever a host with a Sense HAT returns to service; no such host
   is currently deployed.
+- ONT admin interface health: the ZTE ONT's admin interface sometimes hangs
+  until the ONT is rebooted (it hung from 2026-03-28 until at least 2026-09-15,
+  starving the ONT exporter; a manual reboot is still pending). The ONT is a
+  closed, ISP-managed device, so root-causing is likely not possible; explore
+  detecting the hang from monitoring (the exporter now fails visibly when it
+  happens) and eventually automating the reboot (e.g. a smart plug power cycle),
+  and assess whether that automation is worth the added failure modes.
+  Actionability unclear at this point.
 - Replace the `rm` ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the `truncate:` variant of
   `StandardOutput` once every host runs systemd >= 248.
