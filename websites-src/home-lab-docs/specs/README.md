@@ -61,6 +61,14 @@ testing rationale before code implementation.
       between an in-place dist-upgrade and a NixOS migration. After the upgrade,
       bump the `requests` pin and the CI requirements test matrix
       (`test-python-requirements.yaml`).
+    - Optionally prove the hardware watchdog recovery path end to end with a
+      deliberate kernel crash (`echo c > /proc/sysrq-trigger`): the host should
+      self-reboot within the 15 second timeout. Induced crash with the usual
+      unclean-shutdown cost, so schedule it consciously.
+- Validate the reworked `sense-hat-exporter` unit (venv in a systemd state
+  directory, metrics file deleted on start and exit, throttled restarts; changed
+  2026-09-14) whenever a host with a Sense HAT returns to service; no such host
+  is currently deployed.
 - Replace the `rm` ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the `truncate:` variant of
   `StandardOutput` once every host runs systemd >= 248.

@@ -1441,8 +1441,16 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   between an in-place dist-upgrade and a NixOS migration. After the upgrade,
   bump the <code>requests</code> pin and the CI requirements test matrix
   (<code>test-python-requirements.yaml</code>).</li>
+<li>Optionally prove the hardware watchdog recovery path end to end with a
+  deliberate kernel crash (<code>echo c &gt; /proc/sysrq-trigger</code>): the host should
+  self-reboot within the 15 second timeout. Induced crash with the usual
+  unclean-shutdown cost, so schedule it consciously.</li>
 </ul>
 </li>
+<li>Validate the reworked <code>sense-hat-exporter</code> unit (venv in a systemd state
+  directory, metrics file deleted on start and exit, throttled restarts; changed
+  2026-09-14) whenever a host with a Sense HAT returns to service; no such host
+  is currently deployed.</li>
 <li>Replace the <code>rm</code> ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the <code>truncate:</code> variant of
   <code>StandardOutput</code> once every host runs systemd &gt;= 248.</li>
