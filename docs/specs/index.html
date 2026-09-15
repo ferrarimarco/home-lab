@@ -1430,9 +1430,6 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):<ul>
-<li>Enable the systemd hardware watchdog (<code>RuntimeWatchdogSec</code>) through the
-  <code>ferrarimarco_home_lab_node</code> role so silent freezes self-recover instead
-  of requiring a manual power cycle.</li>
 <li>Run a SMART long self-test on the WD30EZRX 3TB data disk (1 pending and 1
   offline-uncorrectable sector as of 2026-09-13, ~39200 power-on hours) and
   decide whether to plan a replacement. Verify the restic backups of that
@@ -1441,8 +1438,8 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   life, the April 2023 kernel is the most plausible lockup culprit, and the
   system Python 3.9 caps <code>requests</code> below 2.33, pinning the ONT exporter
   (2026-09-14) to a release with a known security vulnerability. Decide
-  between an in-place dist-upgrade and a NixOS migration. After the
-  upgrade, bump the <code>requests</code> pin and the CI requirements test matrix
+  between an in-place dist-upgrade and a NixOS migration. After the upgrade,
+  bump the <code>requests</code> pin and the CI requirements test matrix
   (<code>test-python-requirements.yaml</code>).</li>
 </ul>
 </li>

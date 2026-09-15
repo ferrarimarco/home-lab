@@ -135,6 +135,11 @@ security_unattended_upgrades_enabled: true
 syncthing_user_interface_port: 8384
 systemd_journald_runtime_max_memory_use: "64M"
 systemd_journald_system_max_memory_use: "500M"
+# Hardware watchdog timeout in seconds. 0 disables the watchdog. Hosts opt in
+# by setting a positive value in host_vars. Keep the value below 60 (the
+# arming task compares against systemd's "<n>s" time rendering) and within the
+# platform watchdog's maximum (about 15 seconds on BCM2711).
+systemd_runtime_watchdog_seconds: 0
 tailscale_release_channel: "stable"
 tailscale_up_advertise_edge_environment_routes: false
 timezone: "Europe/London"

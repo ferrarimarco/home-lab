@@ -97,6 +97,10 @@
   become: true
   when: ("users" in ansible_run_tags or "all" in ansible_run_tags)
 
+- name: Include systemd watchdog setup tasks
+  ansible.builtin.import_tasks: systemd-watchdog.yaml
+  when: (systemd_watchdog_tag in ansible_run_tags or "all" in ansible_run_tags)
+
 - name: Create Samba share directories
   ansible.builtin.file:
     group: "{{ item.directory_group }}"

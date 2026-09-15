@@ -38,6 +38,8 @@ configuration_directories:
     state: directory
   - path: "{{ systemd_journald_configuration_directory_path }}"
     state: directory
+  - path: "{{ systemd_manager_configuration_directory_path }}"
+    state: directory
 cron_jobs: []
 directories_to_ensure_ownership:
   - "/etc"
@@ -404,6 +406,7 @@ systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
 systemd_system_shutdown_configuration_directory: "{{ systemd_configuration_directory }}/system-shutdown"
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"
+systemd_manager_configuration_directory_path: "{{ systemd_configuration_directory + '/system.conf.d' }}"
 systemd_journal_file_path: /var/log/journal
 templates_to_render:
   - src: "systemd/journald/001-journald.conf.jinja"

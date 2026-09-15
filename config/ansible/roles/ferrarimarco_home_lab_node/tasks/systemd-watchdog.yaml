@@ -1,0 +1,39 @@
+---
+- name: Check that the hardware watchdog device exists
+  ansible.builtin.stat:
+    path: /dev/watchdog
+  register: systemd_watchdog_device
+  become: true
+  when: systemd_runtime_watchdog_seconds | int > 0
+
+- name: Assert that the hardware watchdog device exists
+  ansible.builtin.assert:
+    that: systemd_watchdog_device.stat.exists
+    fail_msg: >-
+      systemd_runtime_watchdog_seconds is set to
+      {{ systemd_runtime_watchdog_seconds }} but /dev/watchdog does not exist
+      on this host. Ensure the platform watchdog driver is available before
+      enabling the runtime watchdog.
+  when: systemd_runtime_watchdog_seconds | int > 0
+
+- name: Read the current systemd runtime watchdog timeout
+  ansible.builtin.command: systemctl show --property RuntimeWatchdogUSec --value
+  register: systemd_runtime_watchdog_actual
+  changed_when: false
+  check_mode: false
+  become: true
+
+# systemd renders RuntimeWatchdogUSec as "0" when disabled and as "<n>s" for
+# sub-minute timeouts, which is the supported value range (see the
+# systemd_runtime_watchdog_seconds default).
+- name: Set the expected systemd runtime watchdog timeout
+  ansible.builtin.set_fact:
+    systemd_runtime_watchdog_expected: "{{ (systemd_runtime_watchdog_seconds | int > 0) | ternary((systemd_runtime_watchdog_seconds | string) ~ 's', '0') }}"
+
+# Manager configuration is only re-read on re-execution; daemon-reload is not
+# enough. Re-execution does not restart running services.
+- name: Re-execute systemd to apply the runtime watchdog configuration
+  ansible.builtin.command: systemctl daemon-reexec
+  become: true
+  changed_when: true
+  when: systemd_runtime_watchdog_actual.stdout != systemd_runtime_watchdog_expected

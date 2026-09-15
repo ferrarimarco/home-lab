@@ -1,0 +1,6 @@
+---
+systemd_watchdog_tag: "systemd-watchdog"
+systemd_watchdog_templates_to_render:
+  - src: "systemd/watchdog/10-runtime-watchdog.conf.jinja"
+    dest: "{{ systemd_manager_configuration_directory_path }}/10-runtime-watchdog.conf"
+    state: "{{ (systemd_runtime_watchdog_seconds | int > 0) | ternary('file', 'absent') }}"

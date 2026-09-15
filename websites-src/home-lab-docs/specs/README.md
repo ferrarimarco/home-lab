@@ -50,9 +50,6 @@ testing rationale before code implementation.
 - raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):
-    - Enable the systemd hardware watchdog (`RuntimeWatchdogSec`) through the
-      `ferrarimarco_home_lab_node` role so silent freezes self-recover instead
-      of requiring a manual power cycle.
     - Run a SMART long self-test on the WD30EZRX 3TB data disk (1 pending and 1
       offline-uncorrectable sector as of 2026-09-13, ~39200 power-on hours) and
       decide whether to plan a replacement. Verify the restic backups of that
