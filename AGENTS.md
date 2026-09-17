@@ -133,9 +133,16 @@ describes them all. Key rules:
   style checks or hand-align Markdown tables: Prettier's fix mode owns
   formatting, including table alignment. Fix mode can report failures against
   pre-fix content, so when it modified files, re-run in check mode for the
-  authoritative verdict. Super-linter output is long: redirect it in full to a
-  log file and inspect that; never pipe it through `tail` or `head`, which
-  discards the failing linter's message and masks the exit code.
+  authoritative verdict. To inspect the results, review
+  `super-linter-output/super-linter-summary.md` first: it holds the per-linter
+  pass/fail table plus the findings of each failed linter. For more detail, read
+  the per-linter files under `super-linter-output/super-linter/`. The console
+  output is a deep-dive fallback only: it is long, so when running
+  `scripts/lint.sh` redirect it in full to a log file; never pipe it through
+  `tail` or `head`, which discards the failing linter's message and masks the
+  exit code. The
+  [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
+  documents these output files.
 
 ## 5. Design & Modularization Rules
 
