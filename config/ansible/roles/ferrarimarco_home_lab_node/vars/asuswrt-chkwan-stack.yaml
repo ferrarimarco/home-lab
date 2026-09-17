@@ -8,9 +8,6 @@ asuswrt_chkwan_os_services:
     service_state: "{{ configure_asuswrt_chkwan | ternary('started', 'stopped') }}"
 asuswrt_chkwan_script_destination_path: "/usr/local/bin/ChkWAN.sh"
 asuswrt_chkwan_script_destination_path_on_asus_router: "/tmp/{{ asuswrt_chkwan_script_destination_path | ansible.builtin.basename }}"
-asuswrt_restart_dnsmasq_script_destination_path: "/usr/local/bin/restart-dnsmasq.sh"
-asuswrt_restart_dnsmasq_script_destination_path_on_asus_router: "/tmp/{{ asuswrt_restart_dnsmasq_script_destination_path | ansible.builtin.basename }}"
-asuswrt_chkwan_script_url: "https://raw.githubusercontent.com/MartineauUK/Chk-WAN/81ca28a24644cce8679472b72e1913c1885535ca/ChkWAN.sh"
 asuswrt_chkwan_service_file_name: "{{ asuswrt_chkwan_service_name }}.service"
 asuswrt_chkwan_service_name: "{{ asuswrt_chkwan_stack_tag }}"
 asuswrt_chkwan_templates_to_render:
@@ -29,8 +26,8 @@ asuswrt_chkwan_user: "{{ ansible_user }}"
 asuswrt_chkwan_user_group: "{{ ansible_user }}"
 
 asuswrt_chkwan_files_to_configure:
-  - src: "scripts/restart-dnsmasq.sh"
-    dest: "{{ asuswrt_restart_dnsmasq_script_destination_path }}/"
+  - src: "scripts/ChkWan.sh"
+    dest: "{{ asuswrt_chkwan_script_destination_path }}"
     state: "{{ configure_asuswrt_chkwan | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ asuswrt_chkwan_service_name }}"
