@@ -19,7 +19,21 @@ testing rationale before code implementation.
 - Generate a Home Lab bootstrapping keypair.
 - Fully automate Terraform runs. Reference:
   [Running Terraform in automation](https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform).
-- Fully automate provisioning and configuration of new hosts.
+- Fully automate provisioning and configuration of new hosts. Currently manual
+  steps:
+    - Copy ESPHome secrets.
+    - Configure the Ansible Vault password file and the per-host vault files.
+    - Configure SSH keys.
+    - Configure unattended updates:
+      [Proxmox hosts](https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/),
+      Raspberry Pi hosts, Debian VMs, Nix hosts.
+    - Migrate containers.
+    - Run Ansible.
+    - Run Terraform to set up the Proxmox hosts (networking; storage: pve1 done,
+      pve2 pending).
+- Configure static IP addresses for servers (raspberrypi2, hl01): when the
+  router reboots, dnsmasq on the gateway doesn't know the hosts until they renew
+  their DHCP leases, so their names don't resolve in the meantime.
 - Minimize external dependencies:
     - NixOS ISO server host
     - Terraform provider registry
