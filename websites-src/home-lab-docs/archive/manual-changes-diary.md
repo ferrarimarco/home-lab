@@ -249,6 +249,14 @@ Exact days unknown.
     - Disabled Wi-Fi Agile Multiband.
     - Disabled Protected Management Frames.
 
+## 2023
+
+Exact date unknown.
+
+- `gateway`: disabled Smart Connect for both the 2.4 GHz and 5 GHz Wi-Fi bands,
+  to fix cam-1 disconnecting from the network after a power loss (the camera
+  stopped responding to pings).
+
 ## 2022-05-16
 
 - `gateway`: updated the Asus RT-AX86U firmware to 3.0.0.4.386_46061 at 9:30.
