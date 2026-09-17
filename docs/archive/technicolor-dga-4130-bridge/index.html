@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/configure-monitoring/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/archive/technicolor-dga-4130-bridge/">
       
       
-        <link rel="prev" href="../../archive/zte-ont-access/">
+        <link rel="prev" href="../manual-changes-diary/">
       
       
-        <link rel="next" href="../configure-network-shares/">
+        <link rel="next" href="../zte-ont-access/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Monitoring - Home Lab docs</title>
+        <title>Configuring the Technicolor DGA 4130 (AGTEF) as a bridge - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#monitoring" class="md-skip">
+        <a href="#configuring-the-technicolor-dga-4130-agtef-as-a-bridge" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Monitoring
+              Configuring the Technicolor DGA 4130 (AGTEF) as a bridge
             
           </span>
         </div>
@@ -399,18 +399,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -426,7 +428,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Archive
@@ -440,7 +442,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -463,7 +465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -483,10 +485,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Configuring the Technicolor DGA 4130 (AGTEF) as a bridge
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -497,6 +521,71 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configure-bridge-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure bridge mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#management-access-after-bridging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Management access after bridging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keep-the-dga-4130-online-optional-needed-for-voip" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keep the DGA 4130 online (optional, needed for VoIP)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-the-bridge-without-the-gui" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure the bridge without the GUI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -509,7 +598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/zte-ont-access/" class="md-nav__link">
+      <a href="../zte-ont-access/" class="md-nav__link">
         
   
   
@@ -536,20 +625,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -565,7 +652,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -576,32 +663,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Monitoring
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../guides/configure-monitoring/" class="md-nav__link">
         
   
   
@@ -612,35 +677,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#import-grafana-dashsboards" class="md-nav__link">
-    <span class="md-ellipsis">
-      Import Grafana dashsboards
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -653,7 +689,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../guides/configure-network-shares/" class="md-nav__link">
         
   
   
@@ -676,7 +712,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../../guides/configure-tailscale/" class="md-nav__link">
         
   
   
@@ -699,7 +735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../container-migration/" class="md-nav__link">
+      <a href="../../guides/container-migration/" class="md-nav__link">
         
   
   
@@ -722,7 +758,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../guides/copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -745,7 +781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
+      <a href="../../guides/home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -768,7 +804,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxmox-admin-notes/" class="md-nav__link">
+      <a href="../../guides/proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -791,7 +827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../troubleshoot-unresponsive-host/" class="md-nav__link">
+      <a href="../../guides/troubleshoot-unresponsive-host/" class="md-nav__link">
         
   
   
@@ -814,7 +850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../guides/useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -875,7 +911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/ansible/" class="md-nav__link">
+      <a href="../../guides/development/ansible/" class="md-nav__link">
         
   
   
@@ -898,7 +934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
+      <a href="../../guides/development/nix/" class="md-nav__link">
         
   
   
@@ -921,7 +957,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/operational-scripts/" class="md-nav__link">
+      <a href="../../guides/development/operational-scripts/" class="md-nav__link">
         
   
   
@@ -944,7 +980,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
+      <a href="../../guides/development/website-development/" class="md-nav__link">
         
   
   
@@ -1013,7 +1049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/hardware/" class="md-nav__link">
+      <a href="../../guides/operations/hardware/" class="md-nav__link">
         
   
   
@@ -1036,7 +1072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/monitoring/" class="md-nav__link">
+      <a href="../../guides/operations/monitoring/" class="md-nav__link">
         
   
   
@@ -1437,9 +1473,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#import-grafana-dashsboards" class="md-nav__link">
+  <a href="#configure-bridge-mode" class="md-nav__link">
     <span class="md-ellipsis">
-      Import Grafana dashsboards
+      Configure bridge mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#management-access-after-bridging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Management access after bridging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keep-the-dga-4130-online-optional-needed-for-voip" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keep the DGA 4130 online (optional, needed for VoIP)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-the-bridge-without-the-gui" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure the bridge without the GUI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
     </span>
   </a>
   
@@ -1464,21 +1536,54 @@
   
 
 
-<h1 id="monitoring">Monitoring</h1>
-<p>To monitor the status of the home lab, the automated provisioning and
-configuration process deploy a monitoring agent on each home lab node, and a
-backend to collect data coming from the monitoring agents.</p>
-<h2 id="import-grafana-dashsboards">Import Grafana dashsboards</h2>
-<p>In its current state, Grafana doesn't support automatic import of dashboards
-that a datasource ships, so you need to import those dashboards manually. To
-import Grafana dashboards that ship with a datasource, do the following:</p>
+<h1 id="configuring-the-technicolor-dga-4130-agtef-as-a-bridge">Configuring the Technicolor DGA 4130 (AGTEF) as a bridge</h1>
+<p>The Technicolor DGA 4130 (TIM Hub, AGTEF board) was the TIM-supplied
+modem/router. Configuring it as a bridge lets a downstream router (the Asus
+RT-AX86U) establish the PPPoE session and act as the network gateway.</p>
+<p>This procedure requires a rooted device running
+<a href="https://github.com/Ansuel/tch-nginx-gui">Ansuel's modified GUI (tch-nginx-gui)</a>.</p>
+<h2 id="configure-bridge-mode">Configure bridge mode</h2>
 <ol>
-<li>Open Grafana.</li>
-<li>Open the datasource settings.</li>
-<li>Select a datasource.</li>
-<li>Open the <code>Dashboards</code> panel.</li>
-<li>Import the dashboards.</li>
+<li>In the Broadband menu, select the interface to put in the bridge. If you
+   configure a VLAN here, the bridged interface comes out already tagged.</li>
+<li>In the internet menu, select bridge mode.</li>
 </ol>
+<p>Don't use the bridge mode toggle on the Broadband page itself: it is broken (it
+also disables Wi-Fi and other services), and if you used it, do a factory reset
+to be safe.</p>
+<h2 id="management-access-after-bridging">Management access after bridging</h2>
+<p>After setting bridge mode, the DGA 4130 keeps its LAN IP address and routing, so
+its management GUI stays reachable: connect a PC with an address on the same
+subnet (for example 192.168.1.2 when the hub is 192.168.1.1), or reach it from
+the downstream router with matching addressing.</p>
+<h2 id="keep-the-dga-4130-online-optional-needed-for-voip">Keep the DGA 4130 online (optional, needed for VoIP)</h2>
+<p>The bridge configuration is designed to take the hub itself offline. To keep it
+connected to the internet through the downstream router (for example to keep
+VoIP working):</p>
+<ul>
+<li>Put the hub's LAN IP address on the downstream subnet.</li>
+<li>Disable the hub's DHCP server when the downstream device manages DHCP.</li>
+<li>Set a static route to the real gateway (the downstream router), or set the
+  <code>br-lan</code> interface to DHCP so the hub learns its IP address and default route
+  from the downstream DHCP server.</li>
+</ul>
+<h2 id="configure-the-bridge-without-the-gui">Configure the bridge without the GUI</h2>
+<p>Add the broadband interface to the LAN bridge in <code>/etc/config/network</code>: in the
+<code>config interface 'lan'</code> block, add <code>list ifname 'ptm0'</code>.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://www.ilpuntotecnico.com/forum/index.php?topic=82683.0">Disattivare parte routing TIM HUB con GUI Ansuel</a></li>
+<li><a href="https://www.ilpuntotecnico.com/forum/index.php/topic,80632.0.html">TIM HUB in bridge</a></li>
+<li><a href="https://www.ilpuntotecnico.com/forum/index.php/topic,82068.0.html">TIM HUB bridge mode configuration</a></li>
+<li><a href="https://www.ilpuntotecnico.com/forum/index.php/topic,83017.0.html">TIM HUB DGA4132 in BRIDGE su FTTC VULA Fastweb, senza GUI Ansuel</a></li>
+<li><a href="https://www.ilpuntotecnico.com/forum/index.php?topic=81419.0">TIM HUB DGA4132 Ansuel come AP e VoIP</a></li>
+<li>Sources of the Ansuel GUI helpers, to understand what the settings above do:<ul>
+<li><a href="https://github.com/Ansuel/tch-nginx-gui/blob/master/decompressed/gui_file/www/lua/internetmode_helper.lua">internetmode_helper.lua</a></li>
+<li><a href="https://github.com/Ansuel/tch-nginx-gui/blob/master/decompressed/gui_file/www/lua/broadbandmode_helper.lua">broadbandmode_helper.lua</a></li>
+<li><a href="https://github.com/Ansuel/tch-nginx-gui/blob/master/decompressed/gui_file/usr/share/transformer/mappings/rpc/sys.eth.map">sys.eth.map</a></li>
+</ul>
+</li>
+</ul>
 
 
 
