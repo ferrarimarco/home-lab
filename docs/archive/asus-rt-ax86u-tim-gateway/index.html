@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/home-lab-bootstrapping/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/archive/asus-rt-ax86u-tim-gateway/">
       
       
-        <link rel="prev" href="../declarative-integration-testing/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../nas-lxc-container/">
+        <link rel="next" href="../manual-changes-diary/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Design Spec: Home Lab Bootstrapping and Installation Infrastructure - Home Lab docs</title>
+        <title>Configuring the Asus RT-AX86U as a gateway for TIM - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#design-spec-home-lab-bootstrapping-and-installation-infrastructure" class="md-skip">
+        <a href="#configuring-the-asus-rt-ax86u-as-a-gateway-for-tim" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+              Configuring the Asus RT-AX86U as a gateway for TIM
             
           </span>
         </div>
@@ -399,18 +399,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -426,7 +428,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Archive
@@ -440,7 +442,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -460,10 +462,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Configuring the Asus RT-AX86U as a gateway for TIM
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -474,6 +498,119 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ftth-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      FTTH configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fttc-configuration-through-the-bridged-dga-4130" class="md-nav__link">
+    <span class="md-ellipsis">
+      FTTC configuration through the bridged DGA 4130
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FTTC configuration through the bridged DGA 4130">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#findings-from-the-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Findings from the experiments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tim-connection-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      TIM connection parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TIM connection parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fttc" class="md-nav__link">
+    <span class="md-ellipsis">
+      FTTC
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ftth" class="md-nav__link">
+    <span class="md-ellipsis">
+      FTTH
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#video-live-multicast-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Video Live multicast (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#voip" class="md-nav__link">
+    <span class="md-ellipsis">
+      VoIP
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -486,7 +623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -509,7 +646,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
+      <a href="../technicolor-dga-4130-bridge/" class="md-nav__link">
         
   
   
@@ -532,7 +669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/zte-ont-access/" class="md-nav__link">
+      <a href="../zte-ont-access/" class="md-nav__link">
         
   
   
@@ -1201,20 +1338,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1230,7 +1365,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -1244,7 +1379,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../specs/" class="md-nav__link">
         
   
   
@@ -1267,7 +1402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../declarative-integration-testing/" class="md-nav__link">
+      <a href="../../specs/declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -1287,32 +1422,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../specs/home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -1323,128 +1436,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation Status
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Goal
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Rationale
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-bootstrapping-infrastructure" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Bootstrapping Infrastructure
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Bootstrapping Infrastructure">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#31-nix-native-custom-iso-confignixpackagesnixos-installernix" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.1 Nix-Native Custom ISO (config/nix/packages/nixos-installer.nix)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-secure-bootstrap-key-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2 Secure Bootstrap Key Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-control-machine-environment-confignixshellsshell-operationsnix" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.3 Control Machine Environment (config/nix/shells/shell-operations.nix)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-provisioning-and-installation-lifecycle" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.4 Provisioning and Installation Lifecycle
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3.4 Provisioning and Installation Lifecycle">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.4.1 Unified Bootstrap Entry Point (scripts/bootstrap-host.sh)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#35-continuous-deployment-gitops" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.5 Continuous Deployment (GitOps)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1457,7 +1448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nas-lxc-container/" class="md-nav__link">
+      <a href="../../specs/nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -1480,7 +1471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxmox-lxc/" class="md-nav__link">
+      <a href="../../specs/proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -1503,7 +1494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxmox-vm/" class="md-nav__link">
+      <a href="../../specs/proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1553,83 +1544,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#implementation-status" class="md-nav__link">
+  <a href="#ftth-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Implementation Status
+      FTTH configuration
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#1-goal" class="md-nav__link">
+  <a href="#fttc-configuration-through-the-bridged-dga-4130" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Goal
+      FTTC configuration through the bridged DGA 4130
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Rationale
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-bootstrapping-infrastructure" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Bootstrapping Infrastructure
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Bootstrapping Infrastructure">
+    <nav class="md-nav" aria-label="FTTC configuration through the bridged DGA 4130">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#31-nix-native-custom-iso-confignixpackagesnixos-installernix" class="md-nav__link">
+  <a href="#findings-from-the-experiments" class="md-nav__link">
     <span class="md-ellipsis">
-      3.1 Nix-Native Custom ISO (config/nix/packages/nixos-installer.nix)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-secure-bootstrap-key-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.2 Secure Bootstrap Key Management
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-control-machine-environment-confignixshellsshell-operationsnix" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.3 Control Machine Environment (config/nix/shells/shell-operations.nix)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-provisioning-and-installation-lifecycle" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.4 Provisioning and Installation Lifecycle
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3.4 Provisioning and Installation Lifecycle">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh" class="md-nav__link">
-    <span class="md-ellipsis">
-      3.4.1 Unified Bootstrap Entry Point (scripts/bootstrap-host.sh)
+      Findings from the experiments
     </span>
   </a>
   
@@ -1639,11 +1575,48 @@
     </nav>
   
 </li>
+      
+        <li class="md-nav__item">
+  <a href="#tim-connection-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      TIM connection parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TIM connection parameters">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#35-continuous-deployment-gitops" class="md-nav__link">
+  <a href="#fttc" class="md-nav__link">
     <span class="md-ellipsis">
-      3.5 Continuous Deployment (GitOps)
+      FTTC
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ftth" class="md-nav__link">
+    <span class="md-ellipsis">
+      FTTH
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#video-live-multicast-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Video Live multicast (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#voip" class="md-nav__link">
+    <span class="md-ellipsis">
+      VoIP
     </span>
   </a>
   
@@ -1651,6 +1624,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      References
+    </span>
+  </a>
   
 </li>
       
@@ -1673,179 +1655,137 @@
   
 
 
-<h1 id="design-spec-home-lab-bootstrapping-and-installation-infrastructure">Design Spec: Home Lab Bootstrapping and Installation Infrastructure</h1>
-<h2 id="implementation-status">Implementation Status</h2>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Component / Feature</th>
-<th style="text-align: left;">Status</th>
-<th style="text-align: left;">Details</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Nix Custom ISO</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Custom nixos-installer ISO configured with the proxmox-vm role.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Bootstrap Keys Dir</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Keys directory created and staged in Git (private key ignored).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Security Guardrail</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Pure-evaluation check blocks tracked private keys in flake.nix.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Operations Shell</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Operations shell includes both <code>terraform</code> and <code>nixos-anywhere</code>.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Provisioning and installation lifecycle</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>scripts/bootstrap-host.sh</code> automates discovery, the MAC guardrail, and per-model deployment (§3.4.1).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>GitOps CD (Comin)</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Pull-based continuous deployment for Day-2 state management.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="1-goal">1. Goal</h2>
-<p>Define a standardized, automated bootstrapping and installation infrastructure
-for home lab Virtual Machines using a Nix-native custom installer ISO, secure
-bootstrap SSH key management, and <code>nixos-anywhere</code> for OS deployment.</p>
-<h2 id="2-rationale">2. Rationale</h2>
-<p>Bootstrapping new NixOS hosts manually is tedious and prone to configuration
-drift. By declaring a custom installer ISO and automating the installation via
-<code>nixos-anywhere</code>, we ensure that new hosts can be provisioned from scratch to
-their final production state in a single, reproducible workflow.</p>
-<h2 id="3-bootstrapping-infrastructure">3. Bootstrapping Infrastructure</h2>
-<h3 id="31-nix-native-custom-iso-confignixpackagesnixos-installernix">3.1 Nix-Native Custom ISO (<code>config/nix/packages/nixos-installer.nix</code>)</h3>
-<p>We declare a generic minimal installer ISO in
-<code>config/nix/packages/nixos-installer.nix</code> and register it in
-<code>config/nix/flake.nix</code> as <code>packages.x86_64-linux.nixos-installer</code> using the
-built-in NixOS <code>system.build.isoImage</code> derivation pipeline.</p>
+<h1 id="configuring-the-asus-rt-ax86u-as-a-gateway-for-tim">Configuring the Asus RT-AX86U as a gateway for TIM</h1>
+<p>The Asus RT-AX86U replaces the TIM-supplied modem/router as the network gateway.
+This document covers two scenarios:</p>
 <ul>
-<li><strong>Root Authorization:</strong> Pre-bakes the declarative <code>bootstrapPublicKeys</code> array
-  directly into the <code>root</code> user's <code>authorizedKeys</code> in the installer ISO. This
-  ensures <code>nixos-anywhere</code> can authenticate directly as <code>root</code> over SSH.</li>
-<li><strong>Guest Agent Integration:</strong> The installer ISO imports the shared <code>proxmox-vm</code>
-  role to enable the QEMU Guest Agent service
-  (<code>services.qemuGuest.enable = true</code>). This allows Proxmox and Terraform to
-  immediately query and report the VM's assigned IP address upon its very first
-  boot, ensuring the IP-based fallback remains fully automated.</li>
-<li><strong>Universal Boot:</strong> This ISO is built once locally
-  (<code>nix build .#nixos-installer</code>) and serves as the universal boot installer for
-  all home lab VMs.</li>
+<li>FTTH (current): the Asus connects to the <a href="../zte-ont-access/">ZTE F6005 ONT</a>.</li>
+<li>FTTC (historical): the Asus connects to the
+  <a href="../technicolor-dga-4130-bridge/">Technicolor DGA 4130 configured as a bridge</a>.</li>
 </ul>
-<h3 id="32-secure-bootstrap-key-management">3.2 Secure Bootstrap Key Management</h3>
-<p>To satisfy Nix Flake hermeticity (pure evaluation mode), all bootstrap keys must
-be stored inside the flake tree.</p>
-<ul>
-<li><strong>Directory Structure:</strong> Keys are stored in a dedicated folder at
-  <code>config/nix/ssh-keys/</code>.</li>
-<li><strong>Dynamic Key Loading:</strong> The public SSH key is loaded dynamically from the
-  keys directory array inputs. If required public keys are missing, flake
-  evaluation will abort with an explicit error instructing the user on how to
-  generate it.</li>
-<li><strong>Critical Security Guardrail:</strong> The flake must actively protect the private
-  key (<code>config/nix/ssh-keys/home-lab-bootstrap-ssh</code>) from being accidentally
-  staged in Git.<ul>
-<li><em>Implementation:</em> The flake verifies if
-  <code>builtins.pathExists ./ssh-keys/home-lab-bootstrap-ssh</code> evaluates to
-  <code>true</code> (since untracked files are excluded from the sandboxed Nix store in
-  pure evaluation mode).</li>
-<li><em>Action:</em> If detected in the store, the flake <strong>immediately aborts
-  evaluation with a critical security error</strong>, blocking the build or deploy
-  process.</li>
-<li><em>Safety:</em> The private key must be added to the project's <code>.gitignore</code>.</li>
+<h2 id="ftth-configuration">FTTH configuration</h2>
+<ol>
+<li>Connect the ONT to the WAN port of the Asus.</li>
+<li>In the WAN connection configuration page, set the PPPoE username and password
+   (see the TIM connection parameters below).</li>
+<li>Set the VLAN ID (835) in the LAN, IPTV menu, in the internet (VID) field.</li>
+</ol>
+<h2 id="fttc-configuration-through-the-bridged-dga-4130">FTTC configuration through the bridged DGA 4130</h2>
+<p>This procedure worked with the DGA 4130 configured as a bridge:</p>
+<ol>
+<li>Enable bridge mode on the DGA 4130.</li>
+<li>Enable VLAN tagging on the DGA 4130.</li>
+<li>Set the DGA 4130 IP address to 192.168.0.1 and the subnet to /24. The subnet
+   must be different from the subnet that the Asus router manages.</li>
+<li>Enable DHCP on the DGA 4130.</li>
+<li>Configure the PPPoE connection on the Asus.</li>
+<li>Configure the WAN interface IP address. Example:<ul>
+<li>Asus router WAN interface IP address: 192.168.0.2</li>
+<li>Subnet mask: 255.255.255.0</li>
+<li>Gateway (must be the IP address of the bridge on the DGA 4130):
+  192.168.0.1</li>
 </ul>
 </li>
-</ul>
-<h3 id="33-control-machine-environment-confignixshellsshell-operationsnix">3.3 Control Machine Environment (<code>config/nix/shells/shell-operations.nix</code>)</h3>
-<p>To orchestrate the deployment, the control machine's operations shell is
-expanded to include:</p>
-<ul>
-<li><code>terraform</code> (for virtual hardware provisioning).</li>
-<li><code>nixos-anywhere</code> (for automated OS installation).</li>
-</ul>
-<h3 id="34-provisioning-and-installation-lifecycle">3.4 Provisioning and Installation Lifecycle</h3>
-<p>The execution workflow transitions from a stateless installer environment to an
-immutable, disk-backed production machine via the following sequential phases:</p>
-<ol>
-<li><strong>Initialization and Phoning Home:</strong> The virtual machine boots the custom
-   ISO. The embedded <code>qemu-guest-agent</code> starts and broadcasts the VM's dynamic
-   IP address to the Proxmox VE API, which is consumed by the local control
-   machine.</li>
-<li><strong>Secure SSH Access:</strong> The control machine invokes <code>nixos-anywhere</code> utilizing
-   the local private bootstrap key. The live ISO authenticates the session via
-   its pre-baked <code>bootstrapPublicKeys</code> array.</li>
-<li><strong>Declarative Partitioning:</strong> <code>nixos-anywhere</code> delivers the host's
-   <code>disko.nix</code> schema to the target and executes it. Disko wipes the physical
-   disk layout, builds partitions, creates filesystems, and mounts the root
-   structure to <code>/mnt</code>.</li>
-<li><strong>Closure Synchronisation:</strong> The control machine evaluates and compiles the
-   host's physical production top-level configuration. The complete operating
-   system closure is copied directly over the encrypted SSH tunnel into
-   <code>/mnt/nix/store</code>.</li>
-<li><strong>Boot Execution Handoff:</strong> <code>nixos-anywhere</code> initializes <code>nixos-install</code> to
-   register the primary bootloader inside the hardware's EFI system partition,
-   then issues an un-graceful <code>reboot</code>. The VM power-cycles, discards the
-   temporary ISO environment, and boots natively into its final production
-   state.</li>
-<li><strong>Day 2 Operations (GitOps):</strong> Upon booting into the final production state,
-   the <code>comin</code> service initializes, polls the designated Git repository, and
-   continuously applies subsequent configuration updates automatically without
-   manual SSH intervention.</li>
+<li>Ensure that you can access the DGA 4130 management interface from the Asus
+   router subnet.</li>
+<li>Backup the DGA 4130 configuration.</li>
+<li>Backup the Asus router configuration.</li>
 </ol>
-<h4 id="341-unified-bootstrap-entry-point-scriptsbootstrap-hostsh">3.4.1 Unified Bootstrap Entry Point (<code>scripts/bootstrap-host.sh</code>)</h4>
-<p><code>scripts/bootstrap-host.sh &lt;hostname&gt; &lt;expected_mac&gt;</code> drives the handoff for
-every host type — physical machines, VMs, and LXC containers — with the same
-process:</p>
-<ol>
-<li><strong>Discovery:</strong> polls SSH on the host's production name, falling back to the
-   installer's default <code>nixos</code> hostname for ISO-booted machines. LXC containers
-   come up under their production name directly, because PVE's <code>nixos</code> ostype
-   hooks write <code>/etc/hostname</code> into the container at first start (see the
-   <a href="../proxmox-lxc/#6-infrastructure-provisioning-terraform">framework spec</a>).</li>
-<li><strong>MAC guardrail:</strong> queries the target's network interfaces over SSH and
-   aborts unless the expected MAC address is present, preventing accidental
-   overwrites of the wrong machine.</li>
-<li><strong>Deployment:</strong> branches on the host's deployment model, using the same
-   marker as the CI machine matrix:<ul>
-<li>Hosts with a <code>disko.nix</code> (physical/VM targets) are installed with
-  <code>nixos-anywhere</code> (phases 3-5 above).</li>
-<li>Hosts without one (LXC containers) are already-running NixOS systems with
-  no disks to partition, so the script runs
-  <code>nixos-rebuild switch --flake &lt;flake&gt;#&lt;host&gt; --target-host root@&lt;host&gt;</code>
-  instead: the closure is built on the control machine and pushed over SSH.
-  This also sidesteps the bootstrap template's minimal environment — no
-  flake support or PATH setup is required on the target.</li>
-</ul>
-</li>
-</ol>
-<p>In both cases the handoff installs the full host configuration, including comin,
-which then takes over Day-2 operations (phase 6). The script authenticates as
-<code>root</code> with the bootstrap key; the full configuration disables root SSH login
-(<code>common</code> role), so the script only works against hosts still in their bootstrap
-state — by design.</p>
-<h3 id="35-continuous-deployment-gitops">3.5 Continuous Deployment (GitOps)</h3>
-<p>Once a machine is bootstrapped, all subsequent state enforcement is shifted to a
-pull-based GitOps model to prevent configuration drift and remove the need for
-centralized push-based CD pipelines.</p>
+<h3 id="findings-from-the-experiments">Findings from the experiments</h3>
 <ul>
-<li><strong>Comin Integration:</strong> Target physical configurations include the <code>comin</code>
-  module, configured to poll the primary Git repository.</li>
-<li><strong>Authentication:</strong> (If using a private repository) An authenticating deploy
-  key or token must be provisioned during the <code>nixos-anywhere</code> handoff via the
-  <code>--extra-files</code> flag, ensuring the newly minted VM has the credentials
-  required to pull from the remote immediately on its first boot.</li>
+<li>The Asus WAN interface doesn't get a DHCP lease from the bridged DGA 4130, so
+  reaching the hub's management interface requires manually configuring the
+  local IP address of the Asus WAN interface on the DGA 4130 subnet, as in the
+  procedure above.</li>
+<li>Configuring the VLAN tagging on the Asus (LAN, IPTV menu, Manual) instead of
+  on the DGA 4130 failed: the tagging had to stay on the DGA 4130.</li>
+<li>The "WAN IP Setting" section of the Asus configuration contains the IP
+  settings of the subnet composed of the modem connected to the WAN port of the
+  Asus and the Asus itself.</li>
+<li>The WAN interface is <code>eth0</code> because it's the only one that's not in the <code>br0</code>
+  bridge (run <code>brctl show</code>). See
+  <a href="../zte-ont-access/">Getting access to the ZTE ONT</a>.</li>
+</ul>
+<h2 id="tim-connection-parameters">TIM connection parameters</h2>
+<p>Source:
+<a href="https://www.tim.it/assistenza/assistenza-tecnica/guide-manuali/modem-generico">TIM: modem generico</a>
+(in Italian).</p>
+<h3 id="fttc">FTTC</h3>
+<p>The router must support the VDSL2 standard with 8b and 17a spectrum profiles
+(35b recommended), and the following features:</p>
+<ul>
+<li>Retransmission (ITU-T G.998.4)</li>
+<li>Vectoring (ITU-T G.993.5)</li>
+<li>SRA (ITU-T G.993.2)</li>
+</ul>
+<p>Always-on connection parameters:</p>
+<ul>
+<li>Username: the line's phone number</li>
+<li>Password: timadsl</li>
+<li>Protocol: PPPoE Routed (RFC 2516)</li>
+<li>Encapsulation: PTM</li>
+<li>NAT: enabled</li>
+<li>VLAN: 835</li>
+<li>IGMP proxy: disabled</li>
+<li>Routing: unicast traffic</li>
+</ul>
+<h3 id="ftth">FTTH</h3>
+<p>The fiber terminates in a TIM-supplied ONT (Optical Network Termination).
+Connect the router to the ONT with a category 5e or better ethernet cable, on
+the WAN port. The WAN interface must be gigabit ethernet full-duplex
+auto-sensing, with 802.1q support.</p>
+<p>Always-on connection parameters:</p>
+<ul>
+<li>Username: the line's phone number</li>
+<li>Password: timadsl</li>
+<li>Protocol: PPPoE Routed (RFC 2516)</li>
+<li>Encapsulation: VLAN Ethernet 802.1q</li>
+<li>NAT: enabled</li>
+<li>VLAN: 835</li>
+<li>IGMP proxy: disabled</li>
+<li>Routing: unicast traffic</li>
+</ul>
+<h3 id="video-live-multicast-optional">Video Live multicast (optional)</h3>
+<p>For optimized (multicast) TIM Video Live services, configure a second
+connection:</p>
+<ul>
+<li>Protocol: IPoE (Static IP)</li>
+<li>IP address: 10.10.10.2</li>
+<li>IP subnet: 255.255.255.252</li>
+<li>VLAN: 836</li>
+<li>IGMP Proxy v2: enabled, forcing IGMPv2</li>
+<li>Routing: multicast traffic</li>
+<li>Enable IGMP snooping on the LAN interface</li>
+</ul>
+<p>This second connection is not required for Video Live services to work.</p>
+<h3 id="voip">VoIP</h3>
+<p>To use TIM voice services in VoIP mode on FTTC and FTTH lines, configure the
+VoIP service on the modem. Get the configuration data via SMS by opening a
+support request in the MyTIM private area (Internet section, "Parametri TIM per
+modem generico" request). The data can only be obtained for the TIM line you're
+browsing from.</p>
+<p>The router must use the DNS servers obtained automatically during the
+connection, and must be able to issue SRV queries to them. Some devices might
+require additional parameters:</p>
+<ul>
+<li>SIP domain: telecomitalia.it</li>
+<li>SIP protocol: UDP port 5060</li>
+<li>Expire time: 86400 seconds minimum</li>
+<li>Mandatory codecs: G.729, G.711 A-law</li>
+<li>Optional codec: G.722</li>
+<li>Fax and POS handled with G.711 A-law and T.38</li>
+<li>Packetization time: 20 ms</li>
+<li>DTMF tones: RFC 2833 / RFC 4733</li>
+<li>DSCP marking: 40 (decimal)</li>
+<li>VAD (Voice Activity Detection): disabled</li>
+<li>100rel support (PRACK message, RFC 3262): enabled</li>
+<li>UPDATE support (RFC 3311): enabled</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://forum.fibra.click/d/23793-router-generico-asus-rt-ax86u-e-ftth">Router generico (Asus RT-AX86U) e FTTH</a></li>
+<li><a href="https://www.tim.it/assistenza/assistenza-tecnica/guide-manuali/modem-generico">TIM: modem generico</a></li>
+<li><a href="https://assistenzatecnica.tim.it/at/portals/assistenzatecnica.portal?_nfpb=true&amp;_pageLabel=InternetBook&amp;radice=consumer_root&amp;nodeId=/AT_REPOSITORY/880003">TIM: connessione FTTH</a></li>
 </ul>
 
 
