@@ -81,6 +81,17 @@ to eventually get to a state where we don't need this file anymore.
   scratch space for temporary files. Rationale: ZFS Ansible modules are not
   idempotent, and I didn't find a suitable ZFS Terraform provider.
 
+## 2026-02-28
+
+- `pve2`: updated the BMC firmware to 3.93, and configured the lower thresholds
+  for the FAN1 and FAN2 sensors. The
+  [hardware operations guide](../guides/operations/hardware.md) describes the
+  procedure.
+
+## 2025-09-15
+
+- `gateway`: updated the Asus RT-AX86U firmware to 3.0.0.4.388_24386.
+
 ## 2025-04-03
 
 ### Notes to create the 100 VM
@@ -201,3 +212,43 @@ Terraform configuration.
     ```shell
     qm start 100
     ```
+
+## 2025
+
+Exact date unknown.
+
+- Fury 2: installed BIOS version 3801.
+
+## 2023-05-03
+
+- `gateway`: fixed the 2.4 GHz Wi-Fi control channel to 1, trying to address the
+  ESP32 disconnection issue. The issue still occurs after this change.
+
+## 2023-04-27
+
+- `gateway`: disabled WMM APSD on the 2.4 GHz Wi-Fi network, trying to address
+  the ESP32 disconnection issue.
+
+## 2023-04-26
+
+- `gateway`: disabled target wake time on the 2.4 GHz Wi-Fi network, trying to
+  address the ESP32 disconnection issue.
+
+## 2023-03-30
+
+- `gateway`: updated the Asus RT-AX86U firmware to 3.0.0.4.388_22525. The exact
+  date is approximate.
+
+## 2023-02
+
+Exact days unknown.
+
+- `gateway`: on the 2.4 GHz Wi-Fi network, trying to address the ESP32
+  disconnection issue:
+    - Disabled 802.11ax.
+    - Disabled Wi-Fi Agile Multiband.
+    - Disabled Protected Management Frames.
+
+## 2022-05-16
+
+- `gateway`: updated the Asus RT-AX86U firmware to 3.0.0.4.386_46061 at 9:30.
