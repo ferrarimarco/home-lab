@@ -140,9 +140,12 @@ describes them all. Key rules:
   output is a deep-dive fallback only: it is long, so when running
   `scripts/lint.sh` redirect it in full to a log file; never pipe it through
   `tail` or `head`, which discards the failing linter's message and masks the
-  exit code. The
+  exit code. For targeted formatting while editing, use
+  `scripts/format.sh [path ...]` (Prettier, markdownlint, shfmt, textlint, and
+  terraform fmt from the same pinned super-linter image); the check-mode
+  `scripts/lint.sh` run remains the authoritative verdict. The
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
-  documents these output files.
+  documents these output files and the format script.
 
 ## 5. Design & Modularization Rules
 

@@ -12,6 +12,8 @@ ERR_ANSIBLE_TEST_MISSING_PLAYBOOK=4
 ERR_MISSING_GITHUB_TOKEN_FILE=5
 # shellcheck disable=SC2034
 ERR_MISSING_RUNTIME_DEPENDENCY=6
+# shellcheck disable=SC2034
+ERR_FORMAT_SCRIPT_FIXER_COVERAGE=7
 
 COMMON_FILE_PATH="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 REPOSITORY_ROOT_PATH="$(dirname "$(readlink -f "${COMMON_FILE_PATH}")")"
@@ -24,6 +26,65 @@ TERRAFORM_LOCAL_BACKEND_CONFIG_DIR_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/back
 
 # shellcheck disable=SC2034
 NIX_CONFIG_DIR_PATH="${REPOSITORY_ROOT_PATH}/config/nix"
+
+SUPER_LINTER_FIX_MODE_ENV_FILE_PATH="${REPOSITORY_ROOT_PATH}/config/lint/super-linter-fix-mode.env"
+
+# Super-linter fixers that scripts/format.sh runs directly
+FORMAT_SCRIPT_COVERED_FIXERS=(
+  JAVASCRIPT_PRETTIER
+  JSON_PRETTIER
+  MARKDOWN
+  MARKDOWN_PRETTIER
+  NATURAL_LANGUAGE
+  SHELL_SHFMT
+  TERRAFORM_FMT
+  YAML_PRETTIER
+)
+
+# Super-linter fixers that scripts/format.sh knowingly delegates to
+# super-linter fix mode (LINTER_CONTAINER_FIX_MODE=true scripts/lint.sh)
+FORMAT_SCRIPT_DELEGATED_FIXERS=(
+  ANSIBLE
+  ENV
+  JAVASCRIPT_ES
+  JSON
+  PYTHON_BLACK
+  PYTHON_ISORT
+  PYTHON_RUFF
+)
+
+get_super_linter_container_image() {
+  local LINT_CI_JOB_PATH="${REPOSITORY_ROOT_PATH}/.github/workflows/lint.yaml"
+  local DEFAULT_LINTER_CONTAINER_IMAGE_VERSION
+  DEFAULT_LINTER_CONTAINER_IMAGE_VERSION="$(grep <"${LINT_CI_JOB_PATH}" "super-linter/super-linter" | awk -F '@' '{print $2}' | head --lines=1)"
+  echo "ghcr.io/super-linter/super-linter:${LINTER_CONTAINER_IMAGE_VERSION:-${DEFAULT_LINTER_CONTAINER_IMAGE_VERSION}}"
+}
+
+check_format_script_fixer_coverage() {
+  local -a UNACCOUNTED_FIXERS=()
+  local FIXER
+  local ACCOUNTED_FIXER
+  local IS_ACCOUNTED
+
+  while IFS= read -r FIXER; do
+    IS_ACCOUNTED="false"
+    for ACCOUNTED_FIXER in "${FORMAT_SCRIPT_COVERED_FIXERS[@]}" "${FORMAT_SCRIPT_DELEGATED_FIXERS[@]}"; do
+      if [[ "${FIXER}" == "${ACCOUNTED_FIXER}" ]]; then
+        IS_ACCOUNTED="true"
+        break
+      fi
+    done
+    if [[ "${IS_ACCOUNTED}" == "false" ]]; then
+      UNACCOUNTED_FIXERS+=("${FIXER}")
+    fi
+  done < <(sed -n 's/^FIX_\([A-Z0-9_]*\)=true$/\1/p' "${SUPER_LINTER_FIX_MODE_ENV_FILE_PATH}")
+
+  if [[ "${#UNACCOUNTED_FIXERS[@]}" -gt 0 ]]; then
+    echo "Error: the following fixers are enabled in ${SUPER_LINTER_FIX_MODE_ENV_FILE_PATH} but scripts/format.sh doesn't account for them: ${UNACCOUNTED_FIXERS[*]}"
+    echo "Either implement them in scripts/format.sh (FORMAT_SCRIPT_COVERED_FIXERS), or explicitly delegate them to super-linter fix mode (FORMAT_SCRIPT_DELEGATED_FIXERS). Both lists are in scripts/common.sh."
+    return 1
+  fi
+}
 
 CD_CONTAINER_URL="ferrarimarco/home-lab-cd:latest"
 

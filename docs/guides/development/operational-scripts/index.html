@@ -1518,6 +1518,32 @@ directory in the repository root:</p>
 </ul>
 <p>Prefer these files over scrolling the console output: they persist after the run
 and separate each linter's findings.</p>
+<p><code>scripts/format.sh</code> formats the given paths (default: the whole repository) with
+the formatters that super-linter validates in check mode, running them from the
+same pinned super-linter container image so results match what CI expects:</p>
+<div class="highlight"><pre><span></span><code>scripts/format.sh<span class="w"> </span><span class="o">[</span>path<span class="w"> </span>...<span class="o">]</span>
+</code></pre></div>
+<p>The script runs:</p>
+<ul>
+<li><a href="https://prettier.io/">Prettier</a> on Markdown, YAML, JSON, JavaScript, HTML,
+  and CSS files, excluding the generated <code>docs/</code> site output and the
+  <code>super-linter-output/</code> directory.</li>
+<li><a href="https://github.com/DavidAnson/markdownlint">markdownlint</a> with the repository
+  configuration (<code>config/lint/.markdown-lint.yaml</code>) on Markdown files. It fails
+  when issues that <code>--fix</code> cannot resolve remain: fix them manually.</li>
+<li><a href="https://github.com/mvdan/sh">shfmt</a> on shell scripts.</li>
+<li><a href="https://textlint.org/">textlint</a> with super-linter's default configuration on
+  Markdown and text files.</li>
+<li><code>terraform fmt -recursive</code> on Terraform files.</li>
+</ul>
+<p>Directories go through every formatter; single files only go through the
+formatters that support their file type. Use it as the fast inner loop when
+editing: the check-mode <code>scripts/lint.sh</code> run remains the authoritative verdict.</p>
+<p>The fixers that <code>scripts/format.sh</code> covers, and the ones it knowingly delegates
+to super-linter fix mode, are listed in <code>scripts/common.sh</code>. <code>scripts/lint.sh</code>
+fails when <code>config/lint/super-linter-fix-mode.env</code> enables a fixer that appears
+in neither list, forcing a deliberate decision for every new fixer: implement it
+in <code>scripts/format.sh</code>, or explicitly delegate it.</p>
 <p><code>scripts/run-pre-commit.sh</code> runs the configured
 <a href="https://pre-commit.com/">pre-commit</a> hooks
 (<code>config/pre-commit/.pre-commit-config.yaml</code>) against all files, creating a

@@ -54,6 +54,37 @@ directory in the repository root:
 Prefer these files over scrolling the console output: they persist after the run
 and separate each linter's findings.
 
+`scripts/format.sh` formats the given paths (default: the whole repository) with
+the formatters that super-linter validates in check mode, running them from the
+same pinned super-linter container image so results match what CI expects:
+
+```shell
+scripts/format.sh [path ...]
+```
+
+The script runs:
+
+- [Prettier](https://prettier.io/) on Markdown, YAML, JSON, JavaScript, HTML,
+  and CSS files, excluding the generated `docs/` site output and the
+  `super-linter-output/` directory.
+- [markdownlint](https://github.com/DavidAnson/markdownlint) with the repository
+  configuration (`config/lint/.markdown-lint.yaml`) on Markdown files. It fails
+  when issues that `--fix` cannot resolve remain: fix them manually.
+- [shfmt](https://github.com/mvdan/sh) on shell scripts.
+- [textlint](https://textlint.org/) with super-linter's default configuration on
+  Markdown and text files.
+- `terraform fmt -recursive` on Terraform files.
+
+Directories go through every formatter; single files only go through the
+formatters that support their file type. Use it as the fast inner loop when
+editing: the check-mode `scripts/lint.sh` run remains the authoritative verdict.
+
+The fixers that `scripts/format.sh` covers, and the ones it knowingly delegates
+to super-linter fix mode, are listed in `scripts/common.sh`. `scripts/lint.sh`
+fails when `config/lint/super-linter-fix-mode.env` enables a fixer that appears
+in neither list, forcing a deliberate decision for every new fixer: implement it
+in `scripts/format.sh`, or explicitly delegate it.
+
 `scripts/run-pre-commit.sh` runs the configured
 [pre-commit](https://pre-commit.com/) hooks
 (`config/pre-commit/.pre-commit-config.yaml`) against all files, creating a

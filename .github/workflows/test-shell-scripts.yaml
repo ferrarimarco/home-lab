@@ -5,10 +5,12 @@ on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/test-shell-scripts.yaml"
+      - "config/lint/**"
       - "scripts/**"
       - "test/scripts/**"
   pull_request:
     paths:
+      - "config/lint/**"
       - "scripts/common.sh"
       - "scripts/run-ansible.sh"
 
