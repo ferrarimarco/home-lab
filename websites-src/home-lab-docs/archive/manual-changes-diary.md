@@ -69,7 +69,9 @@ to eventually get to a state where we don't need this file anymore.
     - Coral PCIe TPU health signatures: healthy inference is ~5-10 ms (Frigate
       `/api/stats`); ~200 ms means thermal throttling; the
       `coral_pci_temperature_celsius` metric reads -89.7 when the TPU has
-      crashed.
+      crashed. A crashed TPU can also fail to initialize at the next boot, with
+      the apex driver logging "RAM did not enable within timeout (12000 ms)" and
+      "Couldn't initialize interrupts: -12".
     - Check CPU throttling directly via
       `/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq`.
     - Preventive maintenance: clean the heatsink fins yearly, in early summer.
