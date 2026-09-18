@@ -1646,6 +1646,14 @@ testing rationale before code implementation.</p>
 <li>Terraform provider registry</li>
 </ul>
 </li>
+<li>Cloud environment:<ul>
+<li>Configure a cloud environment on Google Cloud: create the resource
+  hierarchy.</li>
+<li>Set quotas to match the caps of the free tier when possible
+  (<a href="https://cloud.google.com/docs/quota#capping_usage">capping usage</a>,
+  <a href="https://cloud.google.com/billing/docs/how-to/notify#cap_disable_billing_to_stop_usage">disable billing to stop usage</a>).</li>
+</ul>
+</li>
 <li>Nix tests<ul>
 <li>Modularize the integration-test generator: move the per-service test
   fragments (SSH, QEMU guest agent, comin, Samba, ...) out of

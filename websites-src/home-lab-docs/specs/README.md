@@ -60,6 +60,12 @@ testing rationale before code implementation.
 - Minimize external dependencies:
     - NixOS ISO server host
     - Terraform provider registry
+- Cloud environment:
+    - Configure a cloud environment on Google Cloud: create the resource
+      hierarchy.
+    - Set quotas to match the caps of the free tier when possible
+      ([capping usage](https://cloud.google.com/docs/quota#capping_usage),
+      [disable billing to stop usage](https://cloud.google.com/billing/docs/how-to/notify#cap_disable_billing_to_stop_usage)).
 - Nix tests
     - Modularize the integration-test generator: move the per-service test
       fragments (SSH, QEMU guest agent, comin, Samba, ...) out of
