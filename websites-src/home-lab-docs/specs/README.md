@@ -71,10 +71,13 @@ testing rationale before code implementation.
     - Upgrade the operating system: Debian 11 (bullseye) is past LTS end of
       life, the April 2023 kernel is the most plausible lockup culprit, and the
       system Python 3.9 caps `requests` below 2.33, pinning the ONT exporter
-      (2026-09-14) to a release with a known security vulnerability. Decide
-      between an in-place dist-upgrade and a NixOS migration. After the upgrade,
-      bump the `requests` pin and the CI requirements test matrix
-      (`test-python-requirements.yaml`).
+      (2026-09-14) to a release with a known security vulnerability. Decision:
+      re-image with current Raspberry Pi OS, the most supported path for the
+      Raspberry Pi 4 hardware (its documentation strongly discourages in-place
+      upgrades, recommending a re-image instead); a NixOS migration was
+      deferred, to reconsider after the planned container migration to hl01
+      shrinks this host's role. After the upgrade, bump the `requests` pin and
+      the CI requirements test matrix (`test-python-requirements.yaml`).
     - Optionally prove the hardware watchdog recovery path end-to-end with a
       deliberate kernel crash (`echo c > /proc/sysrq-trigger`): the host should
       self-reboot within the 15 second timeout. Induced crash with the usual
