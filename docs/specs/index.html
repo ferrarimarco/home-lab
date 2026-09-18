@@ -1602,10 +1602,17 @@ testing rationale before code implementation.</p>
 <li>Copy ESPHome secrets.</li>
 <li>Configure the Ansible Vault password file and the per-host vault files.</li>
 <li>Configure SSH keys.</li>
-<li>Configure unattended updates:
-  <a href="https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/">Proxmox hosts</a>,
-  Raspberry Pi hosts, Debian VMs, Nix hosts.</li>
-<li>Migrate containers.</li>
+<li>Configure unattended updates for all hosts:
+  <a href="https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/">Proxmox hosts</a>
+  (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#system_software_updates">auto updates</a>),
+  Debian hosts
+  (<a href="https://wiki.debian.org/UnattendedUpgrades">UnattendedUpgrades</a>), Nix
+  hosts.</li>
+<li>Migrate containers from raspberrypi2 to hl01: Zigbee2MQTT depends on the
+  Zigbee adapter hardware; the media stack depends on data (copy the media,
+  remove the runtime data from raspberrypi2, update the endpoints in the
+  Ansible configuration); deploy Syncthing and the monitoring backend on
+  hl01 instead of migrating them.</li>
 <li>Run Ansible.</li>
 <li>Run Terraform to set up the Proxmox hosts (networking; storage: pve1 done,
   pve2 pending).</li>
@@ -1644,6 +1651,33 @@ testing rationale before code implementation.</p>
 <li>Minimize external dependencies:<ul>
 <li>NixOS ISO server host</li>
 <li>Terraform provider registry</li>
+</ul>
+</li>
+<li>Host configuration:<ul>
+<li>Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
+  certificates
+  (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management">certificate management</a>,
+  <a href="https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html">Let's Encrypt</a>).</li>
+<li>Asus RT-AX86U: copy the node public key to the Asus to allow SSH access,
+  configure the Asus host key as trusted in the node that connects via SSH,
+  deploy the Prometheus Node Exporter.</li>
+<li>Set UTC as the system timezone on the Ansible-managed Debian hosts with
+  the
+  <a href="https://docs.ansible.com/ansible/latest/collections/community/general/timezone_module.html#ansible-collections-community-general-timezone-module">timezone module</a>
+  (NixOS hosts and cloud-init VMs are UTC already; the node role only sets
+  the container TZ variable, currently Europe/London).</li>
+<li>raspberrypi2:<ul>
+<li>Enable TRIM on the external SSD
+  (<a href="https://www.jeffgeerling.com/blog/2020/enabling-trim-on-external-ssd-on-raspberry-pi">reference</a>).</li>
+<li>Verify that UAS is enabled: it seems enabled, but
+  <code>lsusb -v -d 174c:1156</code> reports SCSI
+  (<a href="https://superuser.com/questions/928741/how-can-i-check-whether-usb3-0-uasp-usb-attached-scsi-protocol-mode-is-enabled">reference</a>).</li>
+<li>Argon One M.2 case: set up logging for the fan controller
+  (<a href="https://github.com/Argon40Tech/Argon40case/blob/master/src/argonone-firmwareupdate.py">firmware updater</a>,
+  <a href="https://github.com/Argon40Tech/Argon-ONE-i2c-Codes">I2C codes</a>,
+  <a href="https://forum.argon40.com/t/much-better-argon-one-fan-linux-software-alternative/891">fan software alternative</a>).</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>Documentation automation: generate the endpoints list, the monitoring checks,
