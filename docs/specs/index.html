@@ -1729,12 +1729,52 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>Replace the <code>rm</code> ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the <code>truncate:</code> variant of
   <code>StandardOutput</code> once every host runs systemd &gt;= 248.</li>
-<li>Monitoring alerting: no Prometheus alerts are configured. Known gaps:
-  temperature alerts (pve1 <code>coretemp</code> above 85 degrees Celsius, Coral TPU above
-  90 degrees Celsius, identified during the August 2026 thermal incident),
-  staleness of node exporter textfiles (alert on <code>node_textfile_mtime_seconds</code>),
-  and unexpected reboots (alert on <code>node_boot_time_seconds</code> changing, so
-  hardware-watchdog recoveries are noticed rather than silently absorbed).</li>
+<li>Monitoring:<ul>
+<li>To monitor:<ul>
+<li>EdgeTPU: custom exporter, or
+  <a href="https://github.com/adaptant-labs/edgetpu-exporter">edgetpu-exporter</a>.</li>
+<li><a href="https://docs.frigate.video/configuration/metrics/">Frigate metrics</a>.</li>
+<li>Syncthing (supports Prometheus).</li>
+<li>CPU C states.</li>
+<li>CPU vulnerabilities.</li>
+<li><a href="https://docs.docker.com/engine/daemon/prometheus/">Docker engine metrics</a>.</li>
+<li>The ONT login endpoint (<code>https://192.168.1.1/login.html</code>).</li>
+<li><a href="https://tailscale.com/blog/client-metrics">Tailscale client metrics</a>.</li>
+<li>Home Assistant metrics via the Prometheus integration.</li>
+<li>How to configure Prometheus Blackbox monitoring for reverse lookups?</li>
+<li><a href="https://github.com/letsencrypt/unbound_exporter">Unbound</a>.</li>
+<li>Flaresolverr.</li>
+<li>HTTPS and TLS certificate validity: ferrarimarco.info, ferrari.how.</li>
+<li>Gateway: dnsmasq DNS queries and DHCP leases
+  (<a href="https://github.com/google/dnsmasq_exporter">dnsmasq_exporter</a>),
+  running processes, and host metrics via the Prometheus Node Exporter
+  (<a href="https://www.snbforums.com/threads/successfully-got-node_exporter-on-rt-ax58u.64683/">reference</a>).</li>
+</ul>
+</li>
+<li>Verify the authority section of public resource records.</li>
+<li>Setup Loki.</li>
+<li>Uptime Kuma.</li>
+<li>WoL watchdog.</li>
+<li>Restic exporter: move the monitoring jobs to the monitoring compose file
+  because they are not started when the restic compose file is updated, or
+  set them to start on changes as the other compose files do?</li>
+<li>Grafana: set a datasource uid to reuse across dashboards; set the unit of
+  measurement in the average DNS probe panel; automate updates of the
+  provisioned dashboard JSONs (PRs with updates?).</li>
+<li>Check the <a href="https://uptimerobot.com/">UptimeRobot</a> configuration.</li>
+</ul>
+</li>
+<li>Monitoring alerting: no Prometheus alerts are configured. Deploy Prometheus
+  Alertmanager
+  (<a href="https://gist.github.com/satwell/97678b9b47c54e455aa02c2bd30937c4">reference</a>).
+  Known gaps: temperature alerts (pve1 <code>coretemp</code> above 85 degrees Celsius,
+  Coral TPU above 90 degrees Celsius, identified during the August 2026 thermal
+  incident), staleness of node exporter textfiles (alert on
+  <code>node_textfile_mtime_seconds</code>), unexpected reboots (alert on
+  <code>node_boot_time_seconds</code> changing, so hardware-watchdog recoveries are noticed
+  rather than silently absorbed), backups (alert if no backup was taken for too
+  many days, and if the backup check fails), and Prometheus health (exporters
+  down, exporters sending stale data, unreachable scrape targets).</li>
 <li>NixOS VMs (<a href="proxmox-vm/">NixOS VMs on Proxmox</a>): factor the per-host
   Terraform VM resources into a shared module (or <code>for_each</code> over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code
