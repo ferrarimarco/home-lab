@@ -34,6 +34,29 @@ testing rationale before code implementation.
 - Configure static IP addresses for servers (raspberrypi2, hl01): when the
   router reboots, dnsmasq on the gateway doesn't know the hosts until they renew
   their DHCP leases, so their names don't resolve in the meantime.
+- Workload issues to solve:
+    - Frigate doesn't restart because the cam3 name is not yet available.
+      Restart it manually from the Frigate UI.
+    - Zigbee2MQTT doesn't restart. It restarted after a long time.
+    - Home Assistant doesn't connect to Zigbee2MQTT and Telegram (DNS error):
+      `/etc/resolv.conf` is empty. Need to wait for the host network to be
+      ready?
+    - Frigate: audio out of sync.
+    - Frigate: recordings don't fully capture events. References:
+      [frigate#3043](https://github.com/blakeblackshear/frigate/issues/3043),
+      [frigate#2270](https://github.com/blakeblackshear/frigate/issues/2270).
+    - Home Assistant sometimes leaves corrupted DBs behind on restart (clean up
+      if it happens). Remediation: safely restart the container by
+      [shutting Home Assistant down before updating](https://community.home-assistant.io/t/shut-down-home-assistant-cleanly-before-shutdown-docker/301438).
+    - The Syncthing HTTP endpoint blackbox probe is configured but fails
+      (authentication, HTTPS with self-signed certificate).
+- Single points of failure to mitigate:
+    - Hardware: network gateway, Wi-Fi access point, network switches, network
+      cables, power supply units, UPS, Zigbee antenna.
+    - Software: DHCP server, DNS resolver, MQTT broker, Zigbee2MQTT. Also,
+      without an internet connection the Ansible container can't be built unless
+      the image is already stored on the host running Ansible.
+    - Services: WAN.
 - Minimize external dependencies:
     - NixOS ISO server host
     - Terraform provider registry
