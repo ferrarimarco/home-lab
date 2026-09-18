@@ -204,6 +204,126 @@ testing rationale before code implementation.
   rather than silently absorbed), backups (alert if no backup was taken for too
   many days, and if the backup check fails), and Prometheus health (exporters
   down, exporters sending stale data, unreachable scrape targets).
+- Smart home:
+    - Frigate: configure the
+      [live view to use the high resolution stream](https://docs.frigate.video/configuration/live#setting-stream-for-live-ui);
+      use
+      [environment variables](https://docs.frigate.video/configuration/#full-configuration-reference)
+      to pass credentials; tune
+      [notifications](https://github.com/blakeblackshear/frigate/discussions/559).
+    - Smart desk:
+      [dimmable LCD display](https://community.home-assistant.io/t/dimmable-pcf8574-lcd-display-with-esphome/272308),
+      magnetic contact to signal actuators movement, sensor to ensure that the
+      actuators are extended to the same length, actuators that report
+      extension, programmable plug for the actuators power source so it can be
+      disabled when not needed.
+    - Sense HAT:
+      [temperature correction](https://github.com/initialstate/wunderground-sensehat/wiki/Part-3.-Sense-HAT-Temperature-Correction).
+    - Weather station:
+      [Adafruit Wi-Fi weather station](https://learn.adafruit.com/wifi-weather-station-with-tft-display),
+      [esp32-weather-epd](https://github.com/lmarzen/esp32-weather-epd).
+    - Zigbee2MQTT:
+      [zigbee2mqtt#24198](https://github.com/Koenkk/zigbee2mqtt/discussions/24198).
+    - Automations:
+        - Smart chair: contact sensor
+          ([reference](https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar)).
+        - Closet lighting.
+        - Energy: turn the studio power plug off if computers are off.
+        - Safety and security: remind people to turn the alarm on when nobody is
+          at home; low-battery alerts for smoke detectors and door/window
+          sensors; smoke and CO2 alerts to phones and speakers; leak sensors
+          with automatic water shut-off if not overridden; arm the alarm when
+          everyone is away (motion notifies everyone, turns lights off, closes
+          blinds, broadcasts on speakers).
+        - Lights: morning wake-up fade-in, nighttime catch-all shutdown, turn
+          Hue lights on when main power goes off, night red lights in the
+          corridor, holiday lights, motion lights in kitchen and hallways at
+          night, dusk-to-armed-night outdoor lights, kids lights-out mode after
+          bedtime, bedside all-on/off button, motion plus BLE presence to turn
+          lights off, movie mode, all-asleep mode dimming to 1%.
+        - Voice commands: control lights.
+        - Reminders and announcements: whole-home speaker announcements based on
+          calendar events, school pick-up reminder based on presence, commute
+          and weather briefing on work days, 17track package notifications (out
+          for delivery, delivered).
+        - Computers and servers: consumption thresholds (disk, CPU), notify when
+          a critical device goes offline, alert if SenseHat readings report 0
+          (requires physically power cycling the Raspberry Pi), UPS battery load
+          and recharge.
+        - Washer and dryer: voice notification when the washing cycle completes.
+        - Home theater and TV: "I've got company" scene, one-button
+          entertainment center power-on (may need an IR blaster), TV device as
+          master power switch, mute speakers when movies play, stop speakers
+          after 10 minutes of pause, time-based speaker and Chromecast volume,
+          cap speaker volume at 20% on power-off.
+        - Kitchen: coffee machine preheating, oven preheat status.
+        - Blinds: automate blinds (sunrise/sunset offsets, close on summer sun
+          via outside temperature and window lux), close when movies play.
+        - Shower: exhaust fan, vanity light, preheat hair tools via smart plugs,
+          house lights on, TVs off, curtains closed, heated blanket off.
+        - Heating, A/C, and fans: humidity-driven exhaust fans, alert if the
+          thermostat is off while heating is on (needs heater state detection),
+          open door/window alerts with AC/heater shutdown and restore,
+          wrong-mode detection and open-the-windows suggestions, bathroom space
+          heater on a smart plug in a closed temperature loop, thermostat
+          setpoints per presence, day/time, and alarm state.
+        - Windows and doors: open-for-X-minutes phone alerts, leaving-home check
+          with presence logic, integration with a whole-house fan.
+        - [Zigbee/Z-Wave device notification blueprint](https://www.reddit.com/r/homeassistant/comments/116tk8l/psa_blueprint_to_notify_of_zigbeezwave_devices).
+    - Routines (ideas):
+        - Good-night command: lights and TVs off, doors locked, bedroom fan on.
+        - Morning: blinds up and motion lights on a schedule, with snooze
+          buttons.
+        - Wake-up button: lights, thermostat, coffee maker (only if it has
+          water, otherwise announce it).
+        - Bedtime button: lights off, thermostat, TV off, doors locked, bedside
+          lamp at 10%.
+        - Bathroom motion light, fan only above 65% humidity.
+        - Night bathroom light at 10% within certain hours.
+        - Pressure sensor turns on the TV when sitting down.
+        - BLE beacon in the car disarms the alarm on arrival.
+        - Door unlock: kitchen lights, thermostat, TV with a welcome
+          announcement.
+        - Bathroom-door contact sensor locks the outside doors.
+        - Start streaming radio when the phone is detected in a zone (work).
+        - Occupancy-based automations driven by alarm state instead of
+          schedules; doors auto-deadbolt at a set time with a text alert.
+        - Phones-charging-after-bedtime trigger: lights off, fan on, delayed TV
+          off.
+    - Integrations to configure:
+        - [ha-smartthinq-sensors](https://github.com/ollo69/ha-smartthinq-sensors)
+        - [Syncthing](https://www.home-assistant.io/integrations/syncthing/)
+        - [Local to-do](https://www.home-assistant.io/integrations/local_todo)
+        - [Google Tasks](https://www.home-assistant.io/integrations/google_tasks)
+        - [Feedreader](https://www.home-assistant.io/integrations/feedreader)
+        - House map on dashboard
+          ([ha-floorplan](https://github.com/ExperienceLovelace/ha-floorplan))
+        - Family calendar
+        - Toyota MyT
+        - Frigate
+        - [Backup](https://www.home-assistant.io/integrations/backup/)
+        - [Bluetooth tracker](https://www.home-assistant.io/integrations/bluetooth_tracker/)
+        - [Bluetooth LE tracker](https://www.home-assistant.io/integrations/bluetooth_le_tracker/)
+        - [Certificate expiry](https://www.home-assistant.io/integrations/cert_expiry/):
+          ferrari.how
+        - [Google Assistant](https://www.home-assistant.io/integrations/google_assistant/)
+        - Needs a Google Cloud project:
+          [Google Calendars](https://www.home-assistant.io/integrations/google/),
+          [Google Pub/Sub](https://www.home-assistant.io/integrations/google_pubsub/)
+        - [Cloudflare](https://www.home-assistant.io/integrations/cloudflare/)
+        - [Google Maps](https://www.home-assistant.io/integrations/google_maps/)
+        - [Google Sheets](https://www.home-assistant.io/integrations/google_sheets)
+        - [Google Travel Time](https://www.home-assistant.io/integrations/google_travel_time/)
+        - [Energy monitoring](https://www.home-assistant.io/docs/energy/):
+          overall consumption, set energy costs,
+          [utility meter](https://www.home-assistant.io/integrations/utility_meter)
+        - Gas consumption monitoring
+        - [Mobile app](https://www.home-assistant.io/integrations/mobile_app/)
+        - Water consumption monitoring
+        - [Whois](https://www.home-assistant.io/integrations/whois): ferrari.how
+          (this TLD is not currently supported)
+        - [Speedtest.net](https://www.home-assistant.io/integrations/speedtestdotnet)
+    - Dashboard.
 - NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host
   Terraform VM resources into a shared module (or `for_each` over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code
