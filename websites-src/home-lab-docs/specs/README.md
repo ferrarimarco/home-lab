@@ -133,7 +133,39 @@ testing rationale before code implementation.
   Terraform VM resources into a shared module (or `for_each` over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code
   rather than by convention.
-- Cross-host workloads backup.
+- Backup:
+    - Cross-host workloads backup.
+    - Storage replication: prefer "one-way replication where the direction
+      reverses sometimes" over two-way replication, which is harder to
+      implement. Filesystem level: ZFS replication.
+    - Immich to copy data from phones to the NAS.
+    - Restic: enable the full-read check on a schedule. A plain restic check
+      already runs with the backup unit; the
+      [--read-data variant](https://restic.readthedocs.io/en/latest/045_working_with_repos.html#checking-integrity-and-consistency)
+      exists behind RESTIC_ENABLE_REPOSITORY_CHECK_ALL_DATA in the restic
+      entrypoint, but no unit enables it.
+    - To backup:
+        - Proxmox hosts
+          ([Proxmox Cluster File System (pmxcfs)](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#chapter_pmxcfs)).
+        - Docker Compose volumes: qBittorrent volumes.
+        - Move to network storage: ebooks, comics, photos.
+        - Media: movies, shows, ebooks, comics, game saves, software and
+          drivers.
+        - Needs disk encryption: passwords, 2 factor authentication secrets,
+          backup access codes, Ansible secrets (vault.yaml files, the
+          home-lab-node-ssh-key.pub public key file), ESPHome secrets, gateway
+          configuration, photos (RAWs, Lightroom library), GitHub (private and
+          public repositories and gists), Google accounts data.
+    - Destinations:
+        - Offsite backup: deploy an offsite host, configure Tailscale, network
+          shares, and the backup (repository, schedule, scheduled restic check,
+          retention).
+        - Cloud backup: cloud sync via Rclone if the provider is not supported
+          by Restic
+          ([VFS caching](https://rclone.org/commands/rclone_mount/#vfs-file-caching)
+          to keep retrieval costs down); providers to evaluate: Google Cloud,
+          Backblaze, Amazon Glacier, Google Drive; then configure the backup
+          (repository, schedule, scheduled restic check, retention).
 - NAS ([NAS LXC Container](./nas-lxc-container.md)):
     - **NFS support**: Re-introduce NFS sharing alongside SMB. Evaluate
       `nfs-kernel-server` in a privileged container versus the user-space

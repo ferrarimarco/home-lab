@@ -1728,7 +1728,45 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   Terraform VM resources into a shared module (or <code>for_each</code> over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code
   rather than by convention.</li>
+<li>Backup:<ul>
 <li>Cross-host workloads backup.</li>
+<li>Storage replication: prefer "one-way replication where the direction
+  reverses sometimes" over two-way replication, which is harder to
+  implement. Filesystem level: ZFS replication.</li>
+<li>Immich to copy data from phones to the NAS.</li>
+<li>Restic: enable the full-read check on a schedule. A plain restic check
+  already runs with the backup unit; the
+  <a href="https://restic.readthedocs.io/en/latest/045_working_with_repos.html#checking-integrity-and-consistency">--read-data variant</a>
+  exists behind RESTIC_ENABLE_REPOSITORY_CHECK_ALL_DATA in the restic
+  entrypoint, but no unit enables it.</li>
+<li>To backup:<ul>
+<li>Proxmox hosts
+  (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#chapter_pmxcfs">Proxmox Cluster File System (pmxcfs)</a>).</li>
+<li>Docker Compose volumes: qBittorrent volumes.</li>
+<li>Move to network storage: ebooks, comics, photos.</li>
+<li>Media: movies, shows, ebooks, comics, game saves, software and
+  drivers.</li>
+<li>Needs disk encryption: passwords, 2 factor authentication secrets,
+  backup access codes, Ansible secrets (vault.yaml files, the
+  home-lab-node-ssh-key.pub public key file), ESPHome secrets, gateway
+  configuration, photos (RAWs, Lightroom library), GitHub (private and
+  public repositories and gists), Google accounts data.</li>
+</ul>
+</li>
+<li>Destinations:<ul>
+<li>Offsite backup: deploy an offsite host, configure Tailscale, network
+  shares, and the backup (repository, schedule, scheduled restic check,
+  retention).</li>
+<li>Cloud backup: cloud sync via Rclone if the provider is not supported
+  by Restic
+  (<a href="https://rclone.org/commands/rclone_mount/#vfs-file-caching">VFS caching</a>
+  to keep retrieval costs down); providers to evaluate: Google Cloud,
+  Backblaze, Amazon Glacier, Google Drive; then configure the backup
+  (repository, schedule, scheduled restic check, retention).</li>
+</ul>
+</li>
+</ul>
+</li>
 <li>NAS (<a href="nas-lxc-container/">NAS LXC Container</a>):<ul>
 <li><strong>NFS support</strong>: Re-introduce NFS sharing alongside SMB. Evaluate
   <code>nfs-kernel-server</code> in a privileged container versus the user-space
