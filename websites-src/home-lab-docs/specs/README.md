@@ -60,6 +60,9 @@ testing rationale before code implementation.
 - Minimize external dependencies:
     - NixOS ISO server host
     - Terraform provider registry
+- Documentation automation: generate the endpoints list, the monitoring checks,
+  the inventory, the list of Home Assistant automations, and the list of cron
+  jobs from the configuration instead of maintaining them by hand.
 - Cloud environment:
     - Configure a cloud environment on Google Cloud: create the resource
       hierarchy.
