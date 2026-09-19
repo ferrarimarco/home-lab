@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/archive/raspberrypi2-stability-issues/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/monitoring-alerting/">
       
       
-        <link rel="prev" href="../ont-connection-instability/">
+        <link rel="prev" href="../home-lab-bootstrapping/">
       
       
-        <link rel="next" href="../technicolor-dga-4130-bridge/">
+        <link rel="next" href="../nas-lxc-container/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Raspberrypi2 stability issues - Home Lab docs</title>
+        <title>Design Spec: Monitoring Alerting - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#raspberrypi2-stability-issues" class="md-skip">
+        <a href="#design-spec-monitoring-alerting" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Raspberrypi2 stability issues
+              Design Spec: Monitoring Alerting
             
           </span>
         </div>
@@ -399,20 +399,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -428,7 +426,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Archive
@@ -442,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../archive/" class="md-nav__link">
         
   
   
@@ -465,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asus-rt-ax86u-tim-gateway/" class="md-nav__link">
+      <a href="../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
         
   
   
@@ -488,7 +486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../manual-changes-diary/" class="md-nav__link">
+      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -511,7 +509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ont-connection-instability/" class="md-nav__link">
+      <a href="../../archive/ont-connection-instability/" class="md-nav__link">
         
   
   
@@ -531,32 +529,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Raspberrypi2 stability issues
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
         
   
   
@@ -567,80 +543,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#symptoms" class="md-nav__link">
-    <span class="md-ellipsis">
-      Symptoms
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#theories-tested" class="md-nav__link">
-    <span class="md-ellipsis">
-      Theories tested
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-2026-09-13-freeze" class="md-nav__link">
-    <span class="md-ellipsis">
-      The 2026-09-13 freeze
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#leading-suspect" class="md-nav__link">
-    <span class="md-ellipsis">
-      Leading suspect
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#current-mitigations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Current mitigations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#other-open-follow-ups" class="md-nav__link">
-    <span class="md-ellipsis">
-      Other open follow-ups
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -653,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../technicolor-dga-4130-bridge/" class="md-nav__link">
+      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
         
   
   
@@ -676,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../zte-ont-access/" class="md-nav__link">
+      <a href="../../archive/zte-ont-access/" class="md-nav__link">
         
   
   
@@ -1345,18 +1247,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1372,7 +1276,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -1386,7 +1290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1409,7 +1313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/declarative-integration-testing/" class="md-nav__link">
+      <a href="../declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -1432,7 +1336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -1452,10 +1356,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../specs/monitoring-alerting/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Monitoring Alerting
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1466,6 +1392,254 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-why-alertmanager" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Why Alertmanager
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Scope
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-deployment-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Deployment Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Data Flow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-notification-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Notification Channel
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Notification Channel">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Secrets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-routing-and-severities" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Routing and Severities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Routing and Severities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-planned-downtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Planned Downtime
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-alert-rules-catalogue" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Alert Rules Catalogue
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Alert Rules Catalogue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-availability" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Availability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-node-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Node Health
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Temperature
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-backups" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 Backups
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-blackbox-probes" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.5 Blackbox Probes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-alerting-pipeline-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Alerting Pipeline Health
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-restart-policy-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Restart Policy Migration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Verification
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Work
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1478,7 +1652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/nas-lxc-container/" class="md-nav__link">
+      <a href="../nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -1501,7 +1675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-lxc/" class="md-nav__link">
+      <a href="../proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -1524,7 +1698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-vm/" class="md-nav__link">
+      <a href="../proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1574,54 +1748,228 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#symptoms" class="md-nav__link">
+  <a href="#implementation-status" class="md-nav__link">
     <span class="md-ellipsis">
-      Symptoms
+      Implementation Status
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#theories-tested" class="md-nav__link">
+  <a href="#1-goal" class="md-nav__link">
     <span class="md-ellipsis">
-      Theories tested
+      1. Goal
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-2026-09-13-freeze" class="md-nav__link">
+  <a href="#2-rationale" class="md-nav__link">
     <span class="md-ellipsis">
-      The 2026-09-13 freeze
+      2. Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-why-alertmanager" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Why Alertmanager
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Scope
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-deployment-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Deployment Model
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Data Flow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-notification-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Notification Channel
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Notification Channel">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Secrets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-routing-and-severities" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Routing and Severities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Routing and Severities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-planned-downtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Planned Downtime
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-alert-rules-catalogue" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Alert Rules Catalogue
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Alert Rules Catalogue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-availability" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Availability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-node-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Node Health
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Temperature
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-backups" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 Backups
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-blackbox-probes" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.5 Blackbox Probes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-alerting-pipeline-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Alerting Pipeline Health
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#leading-suspect" class="md-nav__link">
+  <a href="#8-restart-policy-migration" class="md-nav__link">
     <span class="md-ellipsis">
-      Leading suspect
+      8. Restart Policy Migration
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#current-mitigations" class="md-nav__link">
+  <a href="#9-verification" class="md-nav__link">
     <span class="md-ellipsis">
-      Current mitigations
+      9. Verification
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#other-open-follow-ups" class="md-nav__link">
+  <a href="#future-work" class="md-nav__link">
     <span class="md-ellipsis">
-      Other open follow-ups
+      Future Work
     </span>
   </a>
   
@@ -1646,94 +1994,375 @@
   
 
 
-<h1 id="raspberrypi2-stability-issues">Raspberrypi2 stability issues</h1>
-<p>Status: unresolved. This document records the symptoms, the theories we tested,
-and the current mitigations, so we don't lose progress between episodes.</p>
-<p>The <code>raspberrypi2</code> host (Raspberry Pi 4 8GB, Argon One M.2 case, powered USB3
-hub with a Coral USB accelerator, a Western Digital MyBook disk, and a Sonoff
-Zigbee dongle) freezes or becomes unreachable at irregular intervals, over
-multiple years, power supplies, and peripheral configurations.</p>
-<h2 id="symptoms">Symptoms</h2>
+<h1 id="design-spec-monitoring-alerting">Design Spec: Monitoring Alerting</h1>
+<h2 id="implementation-status">Implementation Status</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component / Feature</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Alertmanager Service</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Alertmanager container in the monitoring backend Docker Compose stack (§3).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alertmanager Configuration</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Severity-aware routing tree and the Telegram receiver (§4, §5).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Prometheus Alerting Wiring</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Rule file loading, the Alertmanager target, and the Alertmanager scrape job (§3.2, §7).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Availability</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Scrape target down (§6.1).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Node Health</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Unexpected reboots and node exporter textfile staleness (§6.2).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Temperature</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Backups</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Restic backup staleness and repository check failures (§6.4).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">ICMP, DNS, and HTTP probe failures (§6.5).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">All monitoring backend services move from <code>restart: always</code> to <code>unless-stopped</code> (§8).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-goal">1. Goal</h2>
+<p>Add alerting to the existing Prometheus-based monitoring stack so that known
+failure modes are pushed to the operator instead of waiting to be noticed on a
+Grafana dashboard. The design deploys Prometheus Alertmanager next to the
+existing Prometheus instance, defines a first catalogue of alert rules covering
+the gaps identified during past incidents (thermal events, silent
+hardware-watchdog recoveries, stale exporters, backup failures, unreachable
+targets), and routes notifications to Telegram.</p>
+<h2 id="2-rationale">2. Rationale</h2>
+<h3 id="21-why-alertmanager">2.1 Why Alertmanager</h3>
+<p>Prometheus already scrapes every signal the known gaps need; what is missing is
+evaluation and delivery. Alertmanager is the Prometheus-native component for
+that role: rules are evaluated by Prometheus itself from version-controlled rule
+files that live and deploy alongside the scrape configuration, while
+Alertmanager owns deduplication, grouping, silencing, and delivery.</p>
+<p>Rejected alternatives:</p>
 <ul>
-<li>The network stack becomes unavailable: the host stops responding on the
-  network.</li>
-<li>The Argon One M.2 case (USB to SATA bridge) appears to disconnect.</li>
-<li>
-<p>USB resets in the kernel log:</p>
-<div class="highlight"><pre><span></span><code>Apr 19 08:53:54 raspberrypi2 kernel: sd 0:0:0:0: [sda] tag#26 uas_eh_abort_handler 0 uas-tag 8 inflight: CMD
-Apr 19 08:54:02 raspberrypi2 kernel: sd 0:0:0:0: [sda] tag#26 CDB: opcode=0x85 85 06 20 00 00 00 00 00 00 00 00 00 00 00 e5 00
-Apr 19 08:54:02 raspberrypi2 kernel: sd 0:0:0:0: [sda] tag#18 uas_eh_abort_handler 0 uas-tag 1 inflight: CMD OUT
-Apr 19 08:54:02 raspberrypi2 kernel: sd 0:0:0:0: [sda] tag#18 CDB: opcode=0x2a 2a 00 00 20 33 28 00 00 20 00
-Apr 19 08:54:02 raspberrypi2 kernel: scsi host0: uas_eh_device_reset_handler start
-Apr 19 08:54:02 raspberrypi2 kernel: usb 2-2: reset SuperSpeed USB device number 3 using xhci_hcd
-Apr 19 08:54:02 raspberrypi2 kernel: scsi host0: uas_eh_device_reset_handler success
-Apr 19 08:54:02 raspberrypi2 udisksd[432]: Error performing housekeeping for drive /org/freedesktop/UDisks2/drives/KINGSTON_SA400M8240G_50026B768544D6F8: Error updating SMART data: Error sending ATA command CHECK POWER MODE: Unexpected sense data (g-io-error-quark, 0)
-</code></pre></div>
-</li>
-<li>
-<p>Metrics behavior is inconsistent across episodes: the original analysis
-  observed Prometheus still collecting samples during an episode, and inferred
-  from that that the file systems were still mounted. Later episodes show holes
-  in metrics collection, so neither continued scraping nor the
-  mounted-file-systems inference can be assumed. Record the metrics behavior of
-  each episode as a data point.</p>
-</li>
+<li><strong>Grafana-managed alerts</strong>: rejected because alert definitions would live in
+  Grafana's database (or a second provisioning pipeline) instead of the same
+  templated configuration that defines scraping, and because delivery would
+  depend on the dashboard layer being healthy.</li>
+<li><strong>Home Assistant automations on Prometheus data</strong>: rejected because Home
+  Assistant is itself one of the monitored (and historically flaky) workloads;
+  the alerting path must not depend on a monitored service.</li>
+<li><strong>Uptime Kuma or similar standalone watchers</strong>: rejected for this scope
+  because they duplicate checks Prometheus already performs; Uptime Kuma remains
+  separately tracked in the specs index as a possible complement for external,
+  outside-in checks.</li>
 </ul>
-<h2 id="theories-tested">Theories tested</h2>
+<h3 id="22-scope">2.2 Scope</h3>
+<p>This spec covers the alerting pipeline and the first rules catalogue. It does
+not cover new exporters or new metrics: every rule in §6 evaluates data the
+stack already collects.</p>
+<h2 id="3-architecture">3. Architecture</h2>
+<h3 id="31-deployment-model">3.1 Deployment Model</h3>
+<p>Alertmanager runs as an additional service in the existing monitoring backend
+Docker Compose stack, on the same host as Prometheus and Grafana. It is enabled
+by the same mechanism as the rest of the stack (the monitoring backend
+enablement flag): a host that runs the monitoring backend runs Alertmanager,
+with no separate enablement flag.</p>
+<p>Key properties:</p>
 <ul>
-<li>Excessive USB power draw from the Raspberry Pi 4 USB hub: the Coral USB
-  accelerator can draw a peak current of 900 mA (needs at least 500 mA), and the
-  Kingston SSD draws up to 123 mA.<ul>
-<li>Tried a 4 A power supply: it didn't solve the issue.</li>
-<li>Deployed a powered USB hub: the issue keeps occurring.</li>
+<li><strong>Pinned image</strong>: the Alertmanager container image is pinned in the
+  dependency-updates helper Dockerfile like every other image in the stack, so
+  Renovate manages its updates.</li>
+<li><strong>Persistent state</strong>: Alertmanager stores silences and notification state in a
+  dedicated data directory under the monitoring backend runtime data directory,
+  so container recreation neither drops active silences nor re-sends
+  already-delivered notifications.</li>
+<li><strong>Host port exposure</strong>: the Alertmanager API and UI are published on host port
+  9093 with the same host-local posture as Prometheus on 9090: reached over SSH
+  during incident investigation, for <code>amtool</code> operations, and for managing
+  silences. It is not exposed beyond the host.</li>
+<li><strong>Restart policy</strong>: <code>restart: unless-stopped</code>, together with the rest of the
+  stack (§8).</li>
 </ul>
-</li>
-<li><code>usb-persist</code> is enabled, as expected.</li>
-<li>Open lead: check whether the Argon One case has the
-  <a href="https://forum.argon40.com/t/need-to-remove-and-then-connect-usb3-bridge-to-boot-after-installing-m-2-sata-drive/1199">extra pin</a>
-  to get power from the 5 V rail directly.</li>
-</ul>
-<p>Similar experiences:</p>
+<h3 id="32-data-flow">3.2 Data Flow</h3>
+<ol>
+<li>Prometheus loads alerting rules from a dedicated, version-controlled rule
+   file rendered by the same configuration mechanism that renders
+   <code>prometheus.yaml</code>, and evaluates them on its global evaluation interval (1
+   minute).</li>
+<li>Firing alerts are sent to Alertmanager over the Compose network.</li>
+<li>Alertmanager groups, deduplicates, and routes them to the Telegram receiver
+   (§4).</li>
+<li>Prometheus also scrapes Alertmanager's own metrics endpoint, so a dead or
+   unhealthy Alertmanager surfaces as a down target (§7).</li>
+</ol>
+<h2 id="4-notification-channel">4. Notification Channel</h2>
+<p>Notifications are delivered to Telegram through Alertmanager's native Telegram
+integration, using a dedicated bot and chat.</p>
+<p>Rejected alternatives:</p>
 <ul>
-<li><a href="https://community.home-assistant.io/t/frigate-usb-coral-external-ssd/347913">Frigate + USB Coral + external SSD</a></li>
-<li><a href="https://www.hackster.io/news/benchmarking-machine-learning-on-the-new-raspberry-pi-4-model-b-88db9304ce4">Benchmarking machine learning on the Raspberry Pi 4 Model B</a></li>
+<li><strong>Webhook into Home Assistant</strong> (reusing its existing Telegram bot): rejected
+  because it makes alert delivery depend on Home Assistant, a monitored service
+  with known restart and DNS issues; the alerting path must stay independent of
+  the systems it watches.</li>
+<li><strong>SMTP email</strong>: rejected because the lab has no existing mail infrastructure;
+  it would add an external dependency and another credential for a slower
+  notification channel.</li>
+<li><strong>Self-hosted push services (ntfy, Gotify)</strong>: rejected because they add a new
+  always-on service to operate, and the managed alternative (Telegram) is
+  reliable and already in use in the lab.</li>
 </ul>
-<h2 id="the-2026-09-13-freeze">The 2026-09-13 freeze</h2>
-<p>The host hard-locked between 13:39 and 13:42 local time, with no kernel,
-undervoltage, thermal, or memory precursors in the logs or in the Prometheus
-history, and required a manual power cycle. The investigation is recorded in the
-<a href="../manual-changes-diary/#2026-09-13">manual changes diary</a> and was distilled
-into the
-<a href="../../guides/troubleshoot-unresponsive-host/">unresponsive host runbook</a>.</p>
-<h2 id="leading-suspect">Leading suspect</h2>
-<p>The outdated kernel is currently the most plausible culprit: the host runs
-Debian 11 (bullseye), past LTS end of life, with an April 2023 kernel. The
-corresponding next step is the operating system upgrade, tracked in the
-<a href="../../specs/#specifications-to-write-and-todos">specs todo list</a>: a
-re-image with current Raspberry Pi OS, which is the most supported path for the
-Raspberry Pi 4 hardware (the Raspberry Pi OS documentation strongly discourages
-in-place upgrades, recommending a re-image instead). A NixOS migration was
-considered and deferred: reconsider it after the planned container migration to
-hl01 shrinks this host's role.</p>
-<h2 id="current-mitigations">Current mitigations</h2>
+<h3 id="41-secrets">4.1 Secrets</h3>
+<p>The bot token and chat identifier are secrets and follow the repository secrets
+policy: they are stored as vaulted variables in the untracked Ansible vault of
+the monitoring backend host and referenced from the Alertmanager configuration
+template:</p>
 <ul>
-<li>The systemd hardware watchdog is armed: <code>RuntimeWatchdogSec=15</code> (the maximum
-  the BCM2711 platform watchdog supports), configured by the
-  <code>ferrarimarco_home_lab_node</code> role, so a hard lockup should now self-reboot the
-  host within 15 seconds. The end-to-end validation with a deliberate kernel
-  crash is still pending, tracked in the
-  <a href="../../specs/#specifications-to-write-and-todos">specs todo list</a>.</li>
+<li><code>vault_monitoring_backend_alertmanager_telegram_bot_token</code></li>
+<li><code>vault_monitoring_backend_alertmanager_telegram_chat_id</code></li>
 </ul>
-<h2 id="other-open-follow-ups">Other open follow-ups</h2>
-<p>Tracked in the
-<a href="../../specs/#specifications-to-write-and-todos">specs todo list</a>: the
-SMART long self-test on the WD30EZRX 3TB data disk, and the operating system
-upgrade. Additional ideas from the original investigation:</p>
+<p>The rendered configuration file on the host contains the token, matching the
+existing posture of the rendered Prometheus configuration, which embeds the Home
+Assistant bearer token.</p>
+<h2 id="5-routing-and-severities">5. Routing and Severities</h2>
+<p>Every rule carries a <code>severity</code> label with one of two values:</p>
 <ul>
-<li>Monitor the USB power consumption
-  (<a href="https://unix.stackexchange.com/questions/81508/get-power-consumption-of-a-usb-device">reference</a>).</li>
-<li>The Argon One case extra-pin check above.</li>
+<li><strong><code>critical</code></strong>: conditions that risk data loss, hardware damage, or an ongoing
+  outage (host down, overheating, failed backup integrity check).</li>
+<li><strong><code>warning</code></strong>: degradations that need attention but not immediately (stale
+  textfiles, aging backups, failing HTTP probes).</li>
 </ul>
+<p>Both severities route to the same Telegram receiver; the severity changes the
+re-notification cadence, so chronic warnings do not drown urgent alerts:</p>
+<ul>
+<li>Grouping: by alert name and instance, with a short group wait (~30 s) and a
+  group interval of ~5 minutes.</li>
+<li>Repeat interval: ~4 hours for <code>critical</code>, ~24 hours for <code>warning</code>.</li>
+</ul>
+<h3 id="51-planned-downtime">5.1 Planned Downtime</h3>
+<p>Hosts that are deliberately powered off (for example a Proxmox node shut down on
+purpose) will fire availability alerts. Planned downtime is handled with
+Alertmanager silences (via <code>amtool</code> over SSH or the UI), not with configuration
+changes.</p>
+<p>Rejected alternative: a per-host "intermittent" classification in the inventory
+that would route availability alerts for such hosts at lower severity. Rejected
+for now as premature complexity in a single-operator lab where creating a
+silence is a single command; revisit if planned power cycles become frequent
+enough that missing silences produce recurring noise.</p>
+<h2 id="6-alert-rules-catalogue">6. Alert Rules Catalogue</h2>
+<p>Rules are grouped by theme. Conditions are stated as the contract each rule
+implements; thresholds and durations are the initial values and may be tuned
+with operational experience.</p>
+<h3 id="61-availability">6.1 Availability</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>InstanceDown</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>up == 0</code></td>
+<td style="text-align: left;">10 min</td>
+<td style="text-align: left;">An exporter or host stopped answering scrapes; covers unreachable targets and dead exporters.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-node-health">6.2 Node Health</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>UnexpectedReboot</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>changes(node_boot_time_seconds[1h]) &gt; 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">Reboots (including hardware-watchdog recoveries) are noticed instead of silently absorbed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>NodeTextfileStale</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>time() - node_textfile_mtime_seconds &gt; 26 * 3600</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">A textfile collector stopped updating. 26 h covers the slowest producer (the daily apt job); per-collector tuning is future work.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-temperature">6.3 Temperature</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>HostHighCpuTemperature</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>node_hwmon_temp_celsius &gt; 85</code></td>
+<td style="text-align: left;">5 min</td>
+<td style="text-align: left;">Generic across all scraped hosts, so new hosts are covered automatically; threshold from the pve1 incident.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>CoralTpuHighTemperature</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>coral_pci_temperature_celsius &gt; 90</code></td>
+<td style="text-align: left;">5 min</td>
+<td style="text-align: left;">Coral TPU threshold identified during the August 2026 thermal incident.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>CoralTpuSensorFailure</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>coral_pci_temperature_celsius &lt; 0</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">The exporter reports <code>-1</code> on failed sysfs reads, and a hung device reports implausible negative values.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64-backups">6.4 Backups</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ResticBackupStale</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>time() - restic_backup_timestamp &gt; 2 * 86400</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">No successful backup for two days: early signal before it becomes a real gap.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ResticBackupMissing</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>time() - restic_backup_timestamp &gt; 4 * 86400</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">No successful backup for four days: standing data-loss exposure.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ResticCheckFailed</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>restic_check_success == 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The repository integrity check failed; backups may not be restorable.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="65-blackbox-probes">6.5 Blackbox Probes</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>BlackboxProbeFailed</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>probe_success == 0</code> on ICMP and DNS probe jobs</td>
+<td style="text-align: left;">10 min</td>
+<td style="text-align: left;">A host does not answer pings, or a DNS record does not resolve as declared.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>BlackboxHttpProbeFailed</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>probe_success == 0</code> on HTTP probe jobs</td>
+<td style="text-align: left;">10 min</td>
+<td style="text-align: left;">An HTTP endpoint stopped answering with the expected status.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Known-failing probe:</strong> the Syncthing HTTP endpoint probe currently fails by
+configuration (authentication and self-signed certificate; tracked in the
+specs index issues list). <code>BlackboxHttpProbeFailed</code> will therefore fire for it
+from the first deployment. This is accepted: the alert is silenced until the
+probe is fixed, keeping the rule catalogue free of one-off exclusions.</p>
+</blockquote>
+<h2 id="7-alerting-pipeline-health">7. Alerting Pipeline Health</h2>
+<p>The pipeline must not fail silently:</p>
+<ul>
+<li>Prometheus scrapes Alertmanager's metrics endpoint, so a dead Alertmanager
+  raises <code>InstanceDown</code> while Prometheus itself is alive.</li>
+<li>A full dead-man's-switch (an always-firing heartbeat alert delivered through
+  an independent channel, catching the case where Prometheus or the whole host
+  is down) is deliberately out of scope for this iteration and tracked in the
+  specs index.</li>
+</ul>
+<h2 id="8-restart-policy-migration">8. Restart Policy Migration</h2>
+<p>All services in the monitoring backend Compose stack (Prometheus, Grafana, the
+Blackbox exporter, and the new Alertmanager) use <code>restart: unless-stopped</code>
+instead of <code>restart: always</code>, so a service stopped deliberately (for example
+during a migration or an incident) stays stopped across daemon restarts. This
+completes the monitoring backend part of the repository-wide restart policy
+migration tracked in the specs index.</p>
+<h2 id="9-verification">9. Verification</h2>
+<p>A deployment of this spec is verified with read-only checks:</p>
+<ul>
+<li>The rendered rule file and Alertmanager configuration validate with the
+  <code>promtool</code> and <code>amtool</code> checkers from the same pinned container images the
+  stack runs.</li>
+<li>The Alertmanager and Prometheus health endpoints report healthy, and the
+  Prometheus rules API lists every group in the catalogue (§6).</li>
+<li>A synthetic alert posted through the Alertmanager API is delivered to the
+  Telegram chat, proving the full routing and credential path.</li>
+</ul>
+<h2 id="future-work">Future Work</h2>
+<p>Future work items are tracked centrally in the
+<a href="../#specifications-to-write-and-todos">Specifications to write and TODOs</a>
+section of the specs index.</p>
 
 
 
