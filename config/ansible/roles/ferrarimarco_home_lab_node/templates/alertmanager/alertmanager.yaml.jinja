@@ -1,0 +1,21 @@
+---
+route:
+  receiver: telegram
+  group_by:
+    - alertname
+    - instance
+  group_wait: 30s
+  group_interval: 5m
+  routes:
+    - matchers:
+        - severity = critical
+      repeat_interval: 4h
+    - matchers:
+        - severity = warning
+      repeat_interval: 24h
+
+receivers:
+  - name: telegram
+    telegram_configs:
+      - bot_token: "{{ vault_monitoring_backend_alertmanager_telegram_bot_token }}"
+        chat_id: {{ vault_monitoring_backend_alertmanager_telegram_chat_id }}

@@ -3,7 +3,21 @@ global:
   evaluation_interval: 1m
   scrape_interval: 30s
 
+rule_files:
+  - /etc/prometheus/alerting-rules.yaml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "alertmanager:9093"
+
 scrape_configs:
+  - job_name: "alertmanager"
+    static_configs:
+      - targets:
+        - "alertmanager:9093"
+
   - job_name: "grafana"
     static_configs:
       - targets:
@@ -24,6 +38,7 @@ scrape_configs:
 {% endif %}
 {% endfor %}
 
+{% if vault_home_assistant_prometheus_token is defined %}
   - job_name: "home_assistant"
     metrics_path: /api/prometheus
     bearer_token: "{{ vault_home_assistant_prometheus_token }}"
@@ -34,6 +49,7 @@ scrape_configs:
         - "{{ host }}:{{ home_assistant_user_interface_host_port }}"
 {% endif %}
 {% endfor %}
+{% endif %}
 
   - job_name: "cadvisor"
     static_configs:

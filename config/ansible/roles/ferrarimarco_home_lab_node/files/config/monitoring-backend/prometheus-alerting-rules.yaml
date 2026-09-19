@@ -1,0 +1,132 @@
+---
+groups:
+  - name: availability
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Scrape target {{ $labels.instance }} is down"
+          description: >-
+            The {{ $labels.job }} target {{ $labels.instance }} has not
+            answered scrapes for 10 minutes. The host may be down, or the
+            exporter may have stopped.
+
+  - name: node-health
+    rules:
+      - alert: UnexpectedReboot
+        expr: changes(node_boot_time_seconds[1h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host {{ $labels.instance }} rebooted"
+          description: >-
+            The boot time of {{ $labels.instance }} changed within the last
+            hour. If this reboot was not planned, investigate: it may be a
+            hardware watchdog recovery.
+      - alert: NodeTextfileStale
+        expr: time() - node_textfile_mtime_seconds > 26 * 3600
+        labels:
+          severity: warning
+        annotations:
+          summary: "Stale textfile {{ $labels.file }} on {{ $labels.instance }}"
+          description: >-
+            The node exporter textfile {{ $labels.file }} on
+            {{ $labels.instance }} has not been updated for more than 26
+            hours. The producing timer or service has probably stopped
+            working.
+
+  - name: temperature
+    rules:
+      - alert: HostHighCpuTemperature
+        expr: node_hwmon_temp_celsius > 85
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High temperature on {{ $labels.instance }}"
+          description: >-
+            Sensor {{ $labels.chip }}/{{ $labels.sensor }} on
+            {{ $labels.instance }} reports {{ $value }} degrees Celsius,
+            above the 85 degrees Celsius threshold, for 5 minutes.
+      - alert: CoralTpuHighTemperature
+        expr: coral_pci_temperature_celsius > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Coral TPU is overheating on {{ $labels.instance }}"
+          description: >-
+            The Coral PCI module on {{ $labels.instance }} reports
+            {{ $value }} degrees Celsius, above the 90 degrees Celsius
+            threshold, for 5 minutes.
+      - alert: CoralTpuSensorFailure
+        expr: coral_pci_temperature_celsius < 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Coral TPU temperature sensor failure on {{ $labels.instance }}"
+          description: >-
+            The Coral PCI module temperature on {{ $labels.instance }} reads
+            {{ $value }}: the exporter reports -1 when the sysfs read fails,
+            and a hung device reports implausible negative values.
+
+  - name: backups
+    rules:
+      - alert: ResticBackupStale
+        expr: time() - restic_backup_timestamp > 2 * 86400
+        labels:
+          severity: warning
+        annotations:
+          summary: "Restic backup on {{ $labels.instance }} is getting stale"
+          description: >-
+            The latest restic snapshot for {{ $labels.instance }}
+            ({{ $labels.client_hostname }}) is older than 2 days.
+      - alert: ResticBackupMissing
+        expr: time() - restic_backup_timestamp > 4 * 86400
+        labels:
+          severity: critical
+        annotations:
+          summary: "Restic backup on {{ $labels.instance }} is missing"
+          description: >-
+            The latest restic snapshot for {{ $labels.instance }}
+            ({{ $labels.client_hostname }}) is older than 4 days: this is a
+            standing data-loss exposure.
+      - alert: ResticCheckFailed
+        expr: restic_check_success == 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Restic repository check failed on {{ $labels.instance }}"
+          description: >-
+            The restic repository integrity check reported failure for
+            {{ $labels.instance }}. Backups in this repository may not be
+            restorable.
+
+  - name: blackbox-probes
+    rules:
+      - alert: BlackboxProbeFailed
+        expr: probe_success{job=~"blackbox-ping|blackbox-dns-.*"} == 0
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Probe {{ $labels.job }} fails for {{ $labels.instance }}"
+          description: >-
+            The {{ $labels.job }} probe against {{ $labels.instance }} has
+            been failing for 10 minutes: the host does not answer pings, or
+            a DNS record does not resolve as declared.
+      - alert: BlackboxHttpProbeFailed
+        expr: probe_success{job="blackbox-http-2xx"} == 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "HTTP probe fails for {{ $labels.instance }}"
+          description: >-
+            The HTTP probe against {{ $labels.instance }} has been failing
+            for 10 minutes: the endpoint is unreachable or does not answer
+            with the expected status.

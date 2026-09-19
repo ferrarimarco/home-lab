@@ -29,6 +29,7 @@ FROM quay.io/prometheus/node-exporter:v1.12.1 AS prometheus-node-exporter
 
 # monitoring-backend
 FROM grafana/grafana-oss:13.0.2 AS grafana
+FROM prom/alertmanager:v0.28.1 AS alertmanager
 
 # mosquitto
 FROM eclipse-mosquitto:2.0.22-openssl AS mosquitto

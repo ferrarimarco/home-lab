@@ -1,5 +1,18 @@
 ---
 services:
+  alertmanager:
+    container_name: alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yaml"
+      - "--storage.path=/alertmanager"
+    image: {{ container_images_ids["alertmanager"] }}
+    ports:
+      - "{{ monitoring_backend_alertmanager_host_port }}:9093"
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager.yaml:/etc/alertmanager/alertmanager.yaml
+      - {{ monitoring_backend_alertmanager_data_directory }}:/alertmanager
+
   blackbox_exporter:
     container_name: blackbox-exporter
     command:
@@ -7,7 +20,7 @@ services:
     image: {{ container_images_ids["prometheus-blackbox-exporter"] }}
     ports:
       - "{{ monitoring_backend_prometheus_node_exporter_host_port }}:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
-    restart: always
+    restart: unless-stopped
     volumes:
       - ./prometheus-blackbox-exporter-config.yaml:/etc/prometheus-blackbox-exporter/config.yaml
 
@@ -18,7 +31,7 @@ services:
     image: {{ container_images_ids["grafana"] }}
     environment:
       - GF_METRICS_ENABLED=true
-    restart: always
+    restart: unless-stopped
     volumes:
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
@@ -29,9 +42,12 @@ services:
   prometheus:
     image: {{ container_images_ids["prometheus"] }}
     container_name: prometheus
-    restart: always
+    depends_on:
+      - alertmanager
+    restart: unless-stopped
     volumes:
       - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./prometheus-alerting-rules.yaml:/etc/prometheus/alerting-rules.yaml
       - {{ monitoring_backend_prometheus_data_directory }}:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yaml'
