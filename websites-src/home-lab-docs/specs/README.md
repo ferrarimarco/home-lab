@@ -67,6 +67,48 @@ testing rationale before code implementation.
 - Minimize external dependencies:
     - NixOS ISO server host
     - Terraform provider registry
+- CI/CD, infrastructure-as-code, and GitOps:
+    - Compose:
+        - Move secrets to
+          [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).
+        - Change restart always to restart unless-stopped (useful for
+          migrations). Remaining: mosquitto, home-assistant, zigbee2mqtt,
+          monitoring-backend compose templates.
+        - Move environment variables to env files.
+    - Terraform:
+        - [Configure Cloudflare](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone).
+        - Configure
+          [GitHub repositories](https://registry.terraform.io/providers/integrations/github/latest/docs).
+        - [Ansible terraform module](https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module).
+        - Setup CI for Terraform.
+    - Tests to implement:
+        - Samba config file validation: `testparm -s`.
+        - Evaluate `dnsmasq --test` for testing the dnsmasq configuration.
+        - Validate the Unbound configuration: `unbound-checkconf unbound.conf`.
+        - [Home Assistant config check](https://www.home-assistant.io/common-tasks/container/#configuration-check).
+        - [Docker config validation](https://github.com/moby/moby/pull/42393).
+        - SSH configuration validation: `"{{ sshd_path }} -T -f %s"`.
+    - Ansible:
+        - Get the Proxmox VMs data from the inventory instead of using the
+          proxmox_vms list.
+        - Move the handlers to a dedicated role and reuse that role across all
+          playbooks.
+        - Refactor the molecule tests to use `group_vars` and `host_vars`
+          instead of redefining variables in the molecule file
+          ([reference](https://ansible.readthedocs.io/projects/molecule/configuration/#molecule.provisioner.ansible.Ansible)).
+        - Set the hostname (`/etc/hostname`: simple hostname).
+        - Delete the leftover cron-removal task (setup-cron.yaml) now that all
+          jobs are systemd timers.
+        - Use the `zigbee2mqtt_data_directory_path` variable in the zigbee2mqtt
+          compose file.
+        - Use the `home_assistant_configuration_config_directory_path` variable
+          in the home-assistant compose file.
+        - Validation: check that `start_xxxx` and `stop_xxxx` don't contradict
+          each other.
+        - Cleanup users after switching from appending groups to creating
+          dedicated users: set the "state" of users dynamically.
+        - Tailscale: don't run tailscale up if the flags didn't change between
+          runs.
 - Host configuration:
     - Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
       certificates

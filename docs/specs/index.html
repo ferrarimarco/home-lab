@@ -1653,6 +1653,58 @@ testing rationale before code implementation.</p>
 <li>Terraform provider registry</li>
 </ul>
 </li>
+<li>CI/CD, infrastructure-as-code, and GitOps:<ul>
+<li>Compose:<ul>
+<li>Move secrets to
+  <a href="https://docs.docker.com/compose/use-secrets/">Docker Compose secrets</a>.</li>
+<li>Change restart always to restart unless-stopped (useful for
+  migrations). Remaining: mosquitto, home-assistant, zigbee2mqtt,
+  monitoring-backend compose templates.</li>
+<li>Move environment variables to env files.</li>
+</ul>
+</li>
+<li>Terraform:<ul>
+<li><a href="https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone">Configure Cloudflare</a>.</li>
+<li>Configure
+  <a href="https://registry.terraform.io/providers/integrations/github/latest/docs">GitHub repositories</a>.</li>
+<li><a href="https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module">Ansible terraform module</a>.</li>
+<li>Setup CI for Terraform.</li>
+</ul>
+</li>
+<li>Tests to implement:<ul>
+<li>Samba config file validation: <code>testparm -s</code>.</li>
+<li>Evaluate <code>dnsmasq --test</code> for testing the dnsmasq configuration.</li>
+<li>Validate the Unbound configuration: <code>unbound-checkconf unbound.conf</code>.</li>
+<li><a href="https://www.home-assistant.io/common-tasks/container/#configuration-check">Home Assistant config check</a>.</li>
+<li><a href="https://github.com/moby/moby/pull/42393">Docker config validation</a>.</li>
+<li>SSH configuration validation: <code>"{{ sshd_path }} -T -f %s"</code>.</li>
+</ul>
+</li>
+<li>Ansible:<ul>
+<li>Get the Proxmox VMs data from the inventory instead of using the
+  proxmox_vms list.</li>
+<li>Move the handlers to a dedicated role and reuse that role across all
+  playbooks.</li>
+<li>Refactor the molecule tests to use <code>group_vars</code> and <code>host_vars</code>
+  instead of redefining variables in the molecule file
+  (<a href="https://ansible.readthedocs.io/projects/molecule/configuration/#molecule.provisioner.ansible.Ansible">reference</a>).</li>
+<li>Set the hostname (<code>/etc/hostname</code>: simple hostname).</li>
+<li>Delete the leftover cron-removal task (setup-cron.yaml) now that all
+  jobs are systemd timers.</li>
+<li>Use the <code>zigbee2mqtt_data_directory_path</code> variable in the zigbee2mqtt
+  compose file.</li>
+<li>Use the <code>home_assistant_configuration_config_directory_path</code> variable
+  in the home-assistant compose file.</li>
+<li>Validation: check that <code>start_xxxx</code> and <code>stop_xxxx</code> don't contradict
+  each other.</li>
+<li>Cleanup users after switching from appending groups to creating
+  dedicated users: set the "state" of users dynamically.</li>
+<li>Tailscale: don't run tailscale up if the flags didn't change between
+  runs.</li>
+</ul>
+</li>
+</ul>
+</li>
 <li>Host configuration:<ul>
 <li>Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
   certificates
