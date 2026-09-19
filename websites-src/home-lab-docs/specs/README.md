@@ -90,6 +90,84 @@ testing rationale before code implementation.
           ([firmware updater](https://github.com/Argon40Tech/Argon40case/blob/master/src/argonone-firmwareupdate.py),
           [I2C codes](https://github.com/Argon40Tech/Argon-ONE-i2c-Codes),
           [fan software alternative](https://forum.argon40.com/t/much-better-argon-one-fan-linux-software-alternative/891)).
+- Networking:
+    - Tailscale:
+        - Configure SSH.
+        - Don't accept DNS to avoid depending on Tailscale being up?
+        - Update the DNS resolver IP address.
+        - Configure an auth key to automate the setup.
+        - Subnet routes: don't advertise routes if there are already unapproved
+          routes for the same node (needs
+          [tailscale#5724](https://github.com/tailscale/tailscale/issues/5724)).
+        - Uninstall Tailscale from raspberrypi and from raspberrypi3.
+        - References:
+          [invite any user](https://tailscale.com/blog/invite-any-user/),
+          [exit nodes](https://tailscale.com/kb/1103/exit-nodes/),
+          [TLS certs](https://tailscale.com/blog/tls-certs/),
+          [Traefik certificate resolver](https://tailscale.com/blog/traefik-certificate-resolver/),
+          [Docker image](https://hub.docker.com/r/tailscale/tailscale),
+          [PiKVM](https://docs.pikvm.org/tailscale/),
+          [Pi-hole](https://tailscale.com/kb/1114/pi-hole/),
+          [NextDNS](https://tailscale.com/kb/1218/nextdns/),
+          [Funnel](https://tailscale.com/blog/introducing-tailscale-funnel/),
+          [Docker guide](https://tailscale.com/blog/docker-tailscale-guide),
+          [Docker KB](https://tailscale.com/kb/1282/docker),
+          [Traefik certificates](https://tailscale.com/kb/1234/traefik-certificates/),
+          [Kubernetes operator](https://tailscale.com/kb/1236/kubernetes-operator),
+          [cloud-init](https://tailscale.com/kb/1293/cloud-init),
+          [GitOps ACLs](https://tailscale.com/kb/1204/gitops-acls/),
+          [Terraform provider](https://tailscale.com/kb/1210/terraform-provider/),
+          [Proxmox](https://tailscale.com/kb/1133/proxmox).
+    - ChkWAN script: move the ExecStop command from asuswrt-chkwan.service to
+      the ChkWAN.sh script; delete the /tmp/ChkWAN.sh-running file.
+    - Network stack
+      ([reference](https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/)):
+        - DNS server: configure the lab DNS zone.
+        - DNS over TLS: dnsmasq instance on the Asus (done, but check); Unbound.
+        - DHCP server:
+            - Deploy a managed DHCP server, or take control of the dnsmasq
+              instance on the Asus.
+            - Configure the DHCP address pool as documented.
+            - Understand what the dhcp-script does.
+            - Deprecate the DNS resolver on the Asus, or take control of its
+              configuration?
+            - Deprecate the DHCP server on the Asus, or take control of its
+              configuration?
+            - If staying on dnsmasq, consider using a repology source and
+              Renovate to automatically update dependencies:
+              [Repology](https://docs.renovatebot.com/modules/datasource/repology/).
+            - Configure network boot: evaluate dnsmasq proxy DHCP for PXE,
+              [netboot.xyz](https://github.com/netbootxyz/netboot.xyz),
+              [PXE booting into netboot.xyz](https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz).
+            - Configure dnsmasq on the Asus router to use the recursive DNS
+              resolver: find a way to edit the dnsmasq configuration in the
+              stock Asuswrt firmware.
+            - Forward queries to the authoritative DNS server for the main zone.
+              If dnsmasq:
+              `server=/{{ root_fqdn }}/{{ root_dns_servers[0].ipv4_address`
+            - Remove the manual address assignments for servers.
+            - Remove the manual address assignment for cam-1 (no longer needed).
+        - Unbound: configure DNSSEC validation (trust-anchor,
+          auto-trust-anchor); harden-unverified-glue.
+        - Block port 53 outbound on the router WAN interface, keeping port 53
+          allowed within the LAN: the router acts as a local DNS cache that
+          ultimately serves from DNS-over-TLS and DNS-over-HTTPS external
+          resolvers.
+        - Deploy an ad blocking server.
+        - Configure block lists for Unbound:
+          [StevenBlack/hosts](https://github.com/StevenBlack/hosts).
+        - Keepalived to make the DNS server, the DNS resolver, and the DHCP
+          server more reliable
+          ([pihole-keepalived](https://github.com/matayto/pihole-keepalived)).
+        - [Exposing Docker's internal DNS with CoreDNS](https://theorangeone.net/posts/expose-docker-internal-dns/).
+        - Store SSH fingerprints as DNS records?
+        - DNS rebinding protection: see the dnsmasq "rebind" options.
+        - Update the DNS records in `group_vars/all/main.yaml` to point to the
+          DNS server, and define the DNS names there: refactor the roles so
+          endpoint FQDNs in the vars file are automatically configured; reverse
+          proxy (Traefik).
+    - 4G/5G WAN fallback.
+    - Disable UPnP on the gateway.
 - Documentation automation: generate the endpoints list, the monitoring checks,
   the inventory, the list of Home Assistant automations, and the list of cron
   jobs from the configuration instead of maintaining them by hand.
