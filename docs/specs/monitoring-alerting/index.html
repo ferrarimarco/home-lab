@@ -2007,48 +2007,48 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><strong>Alertmanager Service</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Alertmanager container in the monitoring backend Docker Compose stack (§3).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>prom/alertmanager</code> service in the monitoring backend compose template; deployed and healthy on raspberrypi2 (§3).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alertmanager Configuration</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Severity-aware routing tree and the Telegram receiver (§4, §5).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Prometheus Alerting Wiring</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Rule file loading, the Alertmanager target, and the Alertmanager scrape job (§3.2, §7).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Rule file loading, the Alertmanager target, and the Alertmanager scrape job; scrape target healthy (§3.2, §7).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Availability</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Scrape target down (§6.1).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>InstanceDown</code> deployed; surfaced real down targets on first evaluation (§6.1).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Node Health</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Unexpected reboots and node exporter textfile staleness (§6.2).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Temperature</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Backups</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Restic backup staleness and repository check failures (§6.4).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">ICMP, DNS, and HTTP probe failures (§6.5).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">All monitoring backend services move from <code>restart: always</code> to <code>unless-stopped</code> (§8).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">All four monitoring backend services run with <code>restart: unless-stopped</code>, verified via <code>docker inspect</code> after deployment (§8).</td>
 </tr>
 </tbody>
 </table>
@@ -2138,9 +2138,9 @@ integration, using a dedicated bot and chat.</p>
 </ul>
 <h3 id="41-secrets">4.1 Secrets</h3>
 <p>The bot token and chat identifier are secrets and follow the repository secrets
-policy: they are stored as vaulted variables in the untracked Ansible vault of
-the monitoring backend host and referenced from the Alertmanager configuration
-template:</p>
+policy: they are stored as vaulted variables in the untracked group-scoped
+Ansible vault (<code>group_vars/all</code>) and referenced from the Alertmanager
+configuration template:</p>
 <ul>
 <li><code>vault_monitoring_backend_alertmanager_telegram_bot_token</code></li>
 <li><code>vault_monitoring_backend_alertmanager_telegram_chat_id</code></li>
