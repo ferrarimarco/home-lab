@@ -13,6 +13,7 @@ testing rationale before code implementation.
 | [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                             | **Fully Implemented**         |
 | [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.           | **Fully Implemented**         |
 | [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts. Builds on the `proxmox-lxc` framework.               | **Fully Implemented**         |
+| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, and the alert rules catalogue.               | **Missing**                   |
 
 ## Specifications to write and TODOs
 
@@ -36,9 +37,9 @@ reliability risks first, then security exposure, then automation):
   pin: the host runs Debian 11 past LTS end of life, and the old system Python
   pins a dependency with a known vulnerability. Depends on the container
   migration ([Issues to solve](#issues-to-solve)).
-- Deploy Prometheus Alertmanager: unblocks every alerting gap, including backup
-  staleness and unexpected reboots
-  ([Monitoring and alerting](#monitoring-and-alerting)).
+- Implement the [Monitoring Alerting](./monitoring-alerting.md) spec (Prometheus
+  Alertmanager): unblocks every alerting gap, including backup staleness and
+  unexpected reboots.
 
 ### Bootstrapping and provisioning
 
@@ -166,8 +167,9 @@ reliability risks first, then security exposure, then automation):
     - Move secrets to
       [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).
     - Change restart always to restart unless-stopped (useful for migrations).
-      Remaining: mosquitto, home-assistant, zigbee2mqtt, monitoring-backend
-      compose templates.
+      Remaining: mosquitto, home-assistant, zigbee2mqtt compose templates (the
+      monitoring-backend template is tracked by the
+      [Monitoring Alerting](./monitoring-alerting.md) spec).
     - Move environment variables to env files.
 - Terraform:
     - [Configure Cloudflare](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone).
@@ -370,17 +372,14 @@ reliability risks first, then security exposure, then automation):
   measurement in the average DNS probe panel; automate updates of the
   provisioned dashboard JSONs (PRs with updates?).
 - Check the [UptimeRobot](https://uptimerobot.com/) configuration.
-- Monitoring alerting: no Prometheus alerts are configured. Deploy Prometheus
-  Alertmanager
-  ([reference](https://gist.github.com/satwell/97678b9b47c54e455aa02c2bd30937c4)).
-  Known gaps: temperature alerts (pve1 `coretemp` above 85 degrees Celsius,
-  Coral TPU above 90 degrees Celsius, identified during the August 2026 thermal
-  incident), staleness of node exporter textfiles (alert on
-  `node_textfile_mtime_seconds`), unexpected reboots (alert on
-  `node_boot_time_seconds` changing, so hardware-watchdog recoveries are noticed
-  rather than silently absorbed), backups (alert if no backup was taken for too
-  many days, and if the backup check fails), and Prometheus health (exporters
-  down, exporters sending stale data, unreachable scrape targets).
+- Alerting follow-ups deferred by the
+  [Monitoring Alerting](./monitoring-alerting.md) spec:
+    - Tune the textfile staleness alert threshold per collector (the first
+      iteration uses one conservative threshold sized to the slowest daily
+      timer, so a stuck frequent collector is detected late).
+    - Dead-man's-switch: an always-firing heartbeat alert delivered through a
+      channel independent of the Prometheus host, so a dead monitoring backend
+      is itself noticed.
 - Validate the reworked `sense-hat-exporter` unit (venv in a systemd state
   directory, metrics file deleted on start and exit, throttled restarts; changed
   2026-09-14) whenever a host with a Sense HAT returns to service; no such host
@@ -388,6 +387,7 @@ reliability risks first, then security exposure, then automation):
 - Replace the `rm` ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the `truncate:` variant of
   `StandardOutput` once every host runs systemd >= 248.
+- Automate Telegram bot creation
 
 ### Smart home
 
