@@ -67,6 +67,33 @@ testing rationale before code implementation.
 - Minimize external dependencies:
     - NixOS ISO server host
     - Terraform provider registry
+- Security:
+    - Add hashes to container images.
+    - Centralized user management: configure Linux system users, configure
+      network shares permissions.
+    - Check security vulnerabilities:
+      [code scanning](https://github.com/ferrarimarco/home-lab/security/code-scanning),
+      [routersploit](https://github.com/threat9/routersploit).
+    - Ansible:
+      [dev-sec hardening collection](https://github.com/dev-sec/ansible-collection-hardening/).
+    - Secure Debian:
+      [Securing Debian manual](https://www.debian.org/doc/manuals/securing-debian-manual/index.en.html).
+    - Secrets: restrict access to the Frigate configuration file to root only.
+    - Mosquitto: configure encryption, authentication, and mTLS.
+    - Docker: remove users from the Docker group?; Docker socket hardening
+      ([Traefik Docker API access](https://doc.traefik.io/traefik/providers/docker/#docker-api-access),
+      [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy));
+      don't bind ports to every host interface.
+    - Block internet access to local-only devices.
+    - [Securing Home Assistant](https://www.home-assistant.io/docs/configuration/securing/).
+    - [Commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification).
+    - qBittorrent: enable HTTPS.
+    - Proxmox hardening:
+      [against physical attacks](https://dustri.org/b/hardening-proxmox-against-physical-attacks.html),
+      [Proxmox VE 9 hardening steps](https://www.virtualizationhowto.com/2025/08/top-security-hardening-steps-for-proxmox-ve-9/).
+    - Encrypt disks; unlock remotely:
+      [LUKS unlock via Dropbear SSH](https://www.cyberciti.biz/security/how-to-unlock-luks-using-dropbear-ssh-keys-remotely-in-linux/).
+    - SSH: sshd AuthorizedKeysCommand; IdentitiesOnly.
 - CI/CD, infrastructure-as-code, and GitOps:
     - Compose:
         - Move secrets to

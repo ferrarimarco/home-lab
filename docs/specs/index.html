@@ -1653,6 +1653,35 @@ testing rationale before code implementation.</p>
 <li>Terraform provider registry</li>
 </ul>
 </li>
+<li>Security:<ul>
+<li>Add hashes to container images.</li>
+<li>Centralized user management: configure Linux system users, configure
+  network shares permissions.</li>
+<li>Check security vulnerabilities:
+  <a href="https://github.com/ferrarimarco/home-lab/security/code-scanning">code scanning</a>,
+  <a href="https://github.com/threat9/routersploit">routersploit</a>.</li>
+<li>Ansible:
+  <a href="https://github.com/dev-sec/ansible-collection-hardening/">dev-sec hardening collection</a>.</li>
+<li>Secure Debian:
+  <a href="https://www.debian.org/doc/manuals/securing-debian-manual/index.en.html">Securing Debian manual</a>.</li>
+<li>Secrets: restrict access to the Frigate configuration file to root only.</li>
+<li>Mosquitto: configure encryption, authentication, and mTLS.</li>
+<li>Docker: remove users from the Docker group?; Docker socket hardening
+  (<a href="https://doc.traefik.io/traefik/providers/docker/#docker-api-access">Traefik Docker API access</a>,
+  <a href="https://github.com/Tecnativa/docker-socket-proxy">docker-socket-proxy</a>);
+  don't bind ports to every host interface.</li>
+<li>Block internet access to local-only devices.</li>
+<li><a href="https://www.home-assistant.io/docs/configuration/securing/">Securing Home Assistant</a>.</li>
+<li><a href="https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification">Commit signature verification</a>.</li>
+<li>qBittorrent: enable HTTPS.</li>
+<li>Proxmox hardening:
+  <a href="https://dustri.org/b/hardening-proxmox-against-physical-attacks.html">against physical attacks</a>,
+  <a href="https://www.virtualizationhowto.com/2025/08/top-security-hardening-steps-for-proxmox-ve-9/">Proxmox VE 9 hardening steps</a>.</li>
+<li>Encrypt disks; unlock remotely:
+  <a href="https://www.cyberciti.biz/security/how-to-unlock-luks-using-dropbear-ssh-keys-remotely-in-linux/">LUKS unlock via Dropbear SSH</a>.</li>
+<li>SSH: sshd AuthorizedKeysCommand; IdentitiesOnly.</li>
+</ul>
+</li>
 <li>CI/CD, infrastructure-as-code, and GitOps:<ul>
 <li>Compose:<ul>
 <li>Move secrets to
