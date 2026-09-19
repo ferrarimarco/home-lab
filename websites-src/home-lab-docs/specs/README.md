@@ -67,6 +67,8 @@ testing rationale before code implementation.
 - Minimize external dependencies:
     - NixOS ISO server host
     - Terraform provider registry
+- Automated troubleshooting playbook: test the DNS server, test the DNS
+  resolver.
 - Security:
     - Add hashes to container images.
     - Centralized user management: configure Linux system users, configure
