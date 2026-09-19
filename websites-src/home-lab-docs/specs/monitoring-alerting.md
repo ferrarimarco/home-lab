@@ -2,17 +2,17 @@
 
 ## Implementation Status
 
-| Component / Feature              | Status      | Details                                                                                 |
-| :------------------------------- | :---------- | :-------------------------------------------------------------------------------------- |
-| **Alertmanager Service**         | **Missing** | Alertmanager container in the monitoring backend Docker Compose stack (§3).             |
-| **Alertmanager Configuration**   | **Missing** | Severity-aware routing tree and the Telegram receiver (§4, §5).                         |
-| **Prometheus Alerting Wiring**   | **Missing** | Rule file loading, the Alertmanager target, and the Alertmanager scrape job (§3.2, §7). |
-| **Alert Rules: Availability**    | **Missing** | Scrape target down (§6.1).                                                              |
-| **Alert Rules: Node Health**     | **Missing** | Unexpected reboots and node exporter textfile staleness (§6.2).                         |
-| **Alert Rules: Temperature**     | **Missing** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).        |
-| **Alert Rules: Backups**         | **Missing** | Restic backup staleness and repository check failures (§6.4).                           |
-| **Alert Rules: Blackbox Probes** | **Missing** | ICMP, DNS, and HTTP probe failures (§6.5).                                              |
-| **Restart Policy Migration**     | **Missing** | All monitoring backend services move from `restart: always` to `unless-stopped` (§8).   |
+| Component / Feature              | Status                | Details                                                                                                                       |
+| :------------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| **Alertmanager Service**         | **Fully Implemented** | `prom/alertmanager` service in the monitoring backend compose template; deployed and healthy on raspberrypi2 (§3).            |
+| **Alertmanager Configuration**   | **Fully Implemented** | Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).               |
+| **Prometheus Alerting Wiring**   | **Fully Implemented** | Rule file loading, the Alertmanager target, and the Alertmanager scrape job; scrape target healthy (§3.2, §7).                |
+| **Alert Rules: Availability**    | **Fully Implemented** | `InstanceDown` deployed; surfaced real down targets on first evaluation (§6.1).                                               |
+| **Alert Rules: Node Health**     | **Fully Implemented** | Unexpected reboots and node exporter textfile staleness (§6.2).                                                               |
+| **Alert Rules: Temperature**     | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                              |
+| **Alert Rules: Backups**         | **Fully Implemented** | Restic backup staleness and repository check failures (§6.4).                                                                 |
+| **Alert Rules: Blackbox Probes** | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                    |
+| **Restart Policy Migration**     | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8). |
 
 ## 1. Goal
 
@@ -113,9 +113,9 @@ Rejected alternatives:
 ### 4.1 Secrets
 
 The bot token and chat identifier are secrets and follow the repository secrets
-policy: they are stored as vaulted variables in the untracked Ansible vault of
-the monitoring backend host and referenced from the Alertmanager configuration
-template:
+policy: they are stored as vaulted variables in the untracked group-scoped
+Ansible vault (`group_vars/all`) and referenced from the Alertmanager
+configuration template:
 
 - `vault_monitoring_backend_alertmanager_telegram_bot_token`
 - `vault_monitoring_backend_alertmanager_telegram_chat_id`

@@ -13,7 +13,7 @@ testing rationale before code implementation.
 | [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                             | **Fully Implemented**         |
 | [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.           | **Fully Implemented**         |
 | [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts. Builds on the `proxmox-lxc` framework.               | **Fully Implemented**         |
-| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, and the alert rules catalogue.               | **Missing**                   |
+| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, and the alert rules catalogue.               | **Fully Implemented**         |
 
 ## Specifications to write and TODOs
 
@@ -37,9 +37,6 @@ reliability risks first, then security exposure, then automation):
   pin: the host runs Debian 11 past LTS end of life, and the old system Python
   pins a dependency with a known vulnerability. Depends on the container
   migration ([Issues to solve](#issues-to-solve)).
-- Implement the [Monitoring Alerting](./monitoring-alerting.md) spec (Prometheus
-  Alertmanager): unblocks every alerting gap, including backup staleness and
-  unexpected reboots.
 
 ### Bootstrapping and provisioning
 
@@ -167,9 +164,7 @@ reliability risks first, then security exposure, then automation):
     - Move secrets to
       [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).
     - Change restart always to restart unless-stopped (useful for migrations).
-      Remaining: mosquitto, home-assistant, zigbee2mqtt compose templates (the
-      monitoring-backend template is tracked by the
-      [Monitoring Alerting](./monitoring-alerting.md) spec).
+      Remaining: mosquitto, home-assistant, zigbee2mqtt compose templates.
     - Move environment variables to env files.
 - Terraform:
     - [Configure Cloudflare](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone).
@@ -352,7 +347,6 @@ reliability risks first, then security exposure, then automation):
     - [Docker engine metrics](https://docs.docker.com/engine/daemon/prometheus/).
     - The ONT login endpoint (`https://192.168.1.1/login.html`).
     - [Tailscale client metrics](https://tailscale.com/blog/client-metrics).
-    - Home Assistant metrics via the Prometheus integration.
     - How to configure Prometheus Blackbox monitoring for reverse lookups?
     - [Unbound](https://github.com/letsencrypt/unbound_exporter).
     - Flaresolverr.
