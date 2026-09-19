@@ -21,6 +21,25 @@ home lab: the Future Work section of each specification only points here. Items
 are grouped by theme, and stay here until they are implemented and reflected in
 the relevant specification, or explicitly discarded.
 
+### Current focus
+
+The items being actively worked toward, in priority order (data-loss and
+reliability risks first, then security exposure, then automation):
+
+- Run the SMART long self-test on the raspberrypi2 data disk and decide about a
+  replacement, after verifying that its restic backups are current: standing
+  data-loss risk ([Issues to solve](#issues-to-solve)).
+- Migrate the containers from raspberrypi2 to hl01: shrinks that host's role and
+  unblocks its re-image
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
+- Re-image raspberrypi2 with current Raspberry Pi OS, then bump the `requests`
+  pin: the host runs Debian 11 past LTS end of life, and the old system Python
+  pins a dependency with a known vulnerability. Depends on the container
+  migration ([Issues to solve](#issues-to-solve)).
+- Deploy Prometheus Alertmanager: unblocks every alerting gap, including backup
+  staleness and unexpected reboots
+  ([Monitoring and alerting](#monitoring-and-alerting)).
+
 ### Bootstrapping and provisioning
 
 - Generate a Home Lab bootstrapping keypair.
