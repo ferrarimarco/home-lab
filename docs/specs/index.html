@@ -2121,7 +2121,10 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <ul>
 <li>Configure static IP addresses for servers (raspberrypi2, hl01): when the
   router reboots, dnsmasq on the gateway doesn't know the hosts until they renew
-  their DHCP leases, so their names don't resolve in the meantime.</li>
+  their DHCP leases, so their names don't resolve in the meantime. Depends on:
+  the DHCP server items below (deploy a managed DHCP server, or take control of
+  the dnsmasq instance on the Asus). Blocks: the NAS static IP migration
+  (<a href="#nas">NAS</a>).</li>
 <li>Tailscale:<ul>
 <li>Configure SSH.</li>
 <li>Don't accept DNS to avoid depending on Tailscale being up?</li>
@@ -2384,7 +2387,8 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="backup">Backup</h3>
 <ul>
-<li>Cross-host workloads backup.</li>
+<li>Cross-host workloads backup. Depends on: configuring the backup destinations
+  (see the Destinations item below).</li>
 <li>Storage replication: prefer "one-way replication where the direction reverses
   sometimes" over two-way replication, which is harder to implement. Filesystem
   level: ZFS replication.</li>
@@ -2459,7 +2463,8 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li><strong>SMB service discovery</strong>: Enable Samba's WS-Discovery or Avahi for automatic
   share browsing on Windows and macOS clients.</li>
 <li><strong>Static IP migration</strong>: Transition from DHCP to static IP assignments defined
-  in the NixOS configuration once the network spec is written.</li>
+  in the NixOS configuration once the network spec is written. Depends on:
+  configuring static IP addresses for servers (<a href="#networking">Networking</a>).</li>
 <li><strong>Terraform-managed ZFS pools (evaluated 2026-08, deferred)</strong>: the
   <code>bpg/proxmox</code> provider (since 0.111.x) offers
   <a href="https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/node_disk_zfs"><code>proxmox_node_disk_zfs</code></a>

@@ -258,7 +258,10 @@ reliability risks first, then security exposure, then automation):
 
 - Configure static IP addresses for servers (raspberrypi2, hl01): when the
   router reboots, dnsmasq on the gateway doesn't know the hosts until they renew
-  their DHCP leases, so their names don't resolve in the meantime.
+  their DHCP leases, so their names don't resolve in the meantime. Depends on:
+  the DHCP server items below (deploy a managed DHCP server, or take control of
+  the dnsmasq instance on the Asus). Blocks: the NAS static IP migration
+  ([NAS](#nas)).
 - Tailscale:
     - Configure SSH.
     - Don't accept DNS to avoid depending on Tailscale being up?
@@ -507,7 +510,8 @@ reliability risks first, then security exposure, then automation):
 
 ### Backup
 
-- Cross-host workloads backup.
+- Cross-host workloads backup. Depends on: configuring the backup destinations
+  (see the Destinations item below).
 - Storage replication: prefer "one-way replication where the direction reverses
   sometimes" over two-way replication, which is harder to implement. Filesystem
   level: ZFS replication.
@@ -579,7 +583,8 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
 - **SMB service discovery**: Enable Samba's WS-Discovery or Avahi for automatic
   share browsing on Windows and macOS clients.
 - **Static IP migration**: Transition from DHCP to static IP assignments defined
-  in the NixOS configuration once the network spec is written.
+  in the NixOS configuration once the network spec is written. Depends on:
+  configuring static IP addresses for servers ([Networking](#networking)).
 - **Terraform-managed ZFS pools (evaluated 2026-08, deferred)**: the
   `bpg/proxmox` provider (since 0.111.x) offers
   [`proxmox_node_disk_zfs`](https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/node_disk_zfs)
