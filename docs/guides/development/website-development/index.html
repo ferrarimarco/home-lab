@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/development/website-development/">
       
       
-        <link rel="prev" href="../operational-scripts/">
+        <link rel="prev" href="../todo-list/">
       
       
         <link rel="next" href="../../operations/hardware/">
@@ -961,6 +961,29 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../todo-list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manage the centralized todo list
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1017,6 +1040,15 @@
   <a href="#build-the-site-locally" class="md-nav__link">
     <span class="md-ellipsis">
       Build the site locally
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-change-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation change workflow
     </span>
   </a>
   
@@ -1539,6 +1571,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#documentation-change-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation change workflow
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1569,6 +1610,36 @@ locally for a preview.</p>
 </code></pre></div>
 </li>
 </ol>
+<h2 id="documentation-change-workflow">Documentation change workflow</h2>
+<p>After editing any file under <code>websites-src/</code>, run this pipeline before
+committing:</p>
+<ol>
+<li>
+<p>Format the changed files:</p>
+<div class="highlight"><pre><span></span><code>scripts/format.sh<span class="w"> </span>&lt;changed<span class="w"> </span>file&gt;<span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
+</code></pre></div>
+</li>
+<li>
+<p>Rebuild the site output:</p>
+<div class="highlight"><pre><span></span><code>scripts/run-mkdocs.sh<span class="w"> </span>build<span class="w"> </span>home-lab-docs<span class="w"> </span>./websites-src/home-lab-docs<span class="w"> </span>./docs
+</code></pre></div>
+</li>
+<li>
+<p>Run the authoritative check-mode lint, capturing the full output to a log
+   file:</p>
+<div class="highlight"><pre><span></span><code>scripts/lint.sh<span class="w"> </span>&gt;<span class="w"> </span>lint.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</code></pre></div>
+<p>Review <code>super-linter-output/super-linter-summary.md</code> for the per-linter
+verdict.</p>
+</li>
+<li>
+<p>Commit the source changes together with the regenerated <code>docs/</code> output, so
+   the published site never drifts from its sources.</p>
+</li>
+</ol>
+<p>New pages don't need navigation configuration: MkDocs generates the navigation
+from the directory tree, which is why adding a page changes the rendered
+navigation of every existing page in <code>docs/</code>.</p>
 
 
 

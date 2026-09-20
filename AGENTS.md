@@ -30,7 +30,11 @@ Future work and todo items are tracked centrally in the "Specifications to write
 and TODOs" section of the specs index
 [`README.md`](./websites-src/home-lab-docs/specs/README.md), not in per-spec
 "Future Work" sections. A spec's "Future Work" section must contain only a
-pointer to that centralized list.
+pointer to that centralized list. The list is organized in themed subsections
+with a "Current focus" priority list and `Depends on:`/`Blocks:` dependency
+annotations: follow the
+[Todo list management guide](./websites-src/home-lab-docs/guides/development/todo-list.md)
+when adding, completing, or discarding items.
 
 ## 2. Agent Workflow Rules (Crucial)
 
@@ -127,6 +131,9 @@ describes them all. Key rules:
   arguments (a bare invocation fails on an unbound variable); the home-lab docs
   site build is
   `scripts/run-mkdocs.sh build home-lab-docs ./websites-src/home-lab-docs ./docs`.
+  The full format-build-lint-commit pipeline for changes under `websites-src/`
+  is described in the
+  [site development guide](./websites-src/home-lab-docs/guides/development/website-development.md).
 - **Linting:** lint and format changes with `scripts/lint.sh`, which runs
   super-linter with the same configuration as CI (set
   `LINTER_CONTAINER_FIX_MODE=true` to apply automatic fixes). Do not hand-roll
