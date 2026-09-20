@@ -1758,6 +1758,13 @@ enablement machinery works.</p>
 <p>Always run with <code>--check --diff</code> first and review the predicted changes
 (watching for unexpected <code>state: absent</code> teardowns) before repeating the
 same command without those flags to apply.</p>
+<p>The script requires a running SSH agent (<code>SSH_AUTH_SOCK</code>) holding the keys
+to connect to the nodes; it forwards the agent socket into the Ansible
+container. Shells that do not inherit the session environment (for example
+AI agent shells) must discover the socket and pass it explicitly: find it
+with <code>ls /tmp/ssh-*/agent.*</code>, verify the loaded keys with
+<code>SSH_AUTH_SOCK=&lt;socket&gt; ssh-add -l</code>, and prefix the invocation with
+<code>SSH_AUTH_SOCK=&lt;socket&gt;</code>. The socket path changes across reboots.</p>
 </li>
 <li>
 <p><code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service

@@ -1129,6 +1129,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#alerting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alerting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alerting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planned-downtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      Planned downtime
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prometheus-blackbox-exporter-example-queries" class="md-nav__link">
     <span class="md-ellipsis">
       Prometheus Blackbox Exporter example queries
@@ -1554,6 +1578,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#alerting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alerting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alerting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planned-downtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      Planned downtime
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prometheus-blackbox-exporter-example-queries" class="md-nav__link">
     <span class="md-ellipsis">
       Prometheus Blackbox Exporter example queries
@@ -1594,9 +1642,32 @@ run ad-hoc checks against it.</p>
   collects.</li>
 <li>A Prometheus Blackbox Exporter runs synthetic probes (ICMP, DNS, HTTP) against
   endpoints to verify their availability from the outside.</li>
+<li>Prometheus Alertmanager routes firing alerts to Telegram. The
+  <a href="../../../specs/monitoring-alerting/">Monitoring Alerting specification</a>
+  describes the design, the severity model, and the alert rules catalogue.</li>
 </ul>
 <p>For setup-side tasks, such as importing Grafana dashboards, see
 <a href="../../configure-monitoring/">Configure monitoring</a>.</p>
+<h2 id="alerting">Alerting</h2>
+<p>Alertmanager runs in the monitoring backend Docker Compose stack, with its API
+and UI published host-locally on port 9093 of the monitoring backend host
+(currently raspberrypi2), like the Prometheus API on port 9090. Reach it over
+SSH.</p>
+<p>Alerts carry a <code>severity</code> label: <code>critical</code> alerts re-notify about every 4
+hours, <code>warning</code> alerts about every 24 hours. Both route to the same Telegram
+chat.</p>
+<h3 id="planned-downtime">Planned downtime</h3>
+<p>Deliberately powering off a monitored host (for example a Proxmox node) fires
+availability alerts by design. Silence them for the duration of the planned
+downtime instead of changing the alert rules:</p>
+<div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>pi@raspberrypi2.edge.lab.ferrari.how<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>alertmanager<span class="w"> </span>amtool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--alertmanager.url<span class="o">=</span>http://localhost:9093<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>silence<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;instance=~\&quot;pve1.*\&quot;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--duration<span class="o">=</span>4h<span class="w"> </span>--author<span class="o">=</span>ferrarimarco<span class="w"> </span>--comment<span class="o">=</span><span class="s2">&quot;Planned maintenance&quot;</span>
+</code></pre></div>
+<p>List and expire silences with <code>amtool silence query</code> and
+<code>amtool silence expire &lt;id&gt;</code> through the same invocation pattern.</p>
 <h2 id="prometheus-blackbox-exporter-example-queries">Prometheus Blackbox Exporter example queries</h2>
 <p>The Blackbox Exporter exposes a probe endpoint at
 <code>http://&lt;blackbox-exporter-host&gt;:9115/probe</code>. You can query it directly to run a
