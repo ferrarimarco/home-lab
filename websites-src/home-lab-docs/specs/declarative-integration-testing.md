@@ -62,6 +62,9 @@ The generator dynamically:
       since production bind mounts do not exist in the sandbox), waits for
       `samba-smbd.service`, and asserts that every share appears in an anonymous
       `smbclient` enumeration.
+    - If `services.prometheus.exporters.node` is enabled, it waits for
+      `prometheus-node-exporter.service` and its configured port, and asserts
+      that the metrics endpoint serves `node_`-prefixed metrics.
     - Always asserts that `multi-user.target` is reached (successful boot).
 - **Live Attribute Extraction:** Programmatically extracts production-grade
   configuration data (such as `bootstrapPublicKeys`) directly from the evaluated

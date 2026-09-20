@@ -1861,6 +1861,9 @@ host's logical <code>configuration.nix</code>.</p>
   since production bind mounts do not exist in the sandbox), waits for
   <code>samba-smbd.service</code>, and asserts that every share appears in an anonymous
   <code>smbclient</code> enumeration.</li>
+<li>If <code>services.prometheus.exporters.node</code> is enabled, it waits for
+  <code>prometheus-node-exporter.service</code> and its configured port, and asserts
+  that the metrics endpoint serves <code>node_</code>-prefixed metrics.</li>
 <li>Always asserts that <code>multi-user.target</code> is reached (successful boot).</li>
 </ul>
 </li>
