@@ -120,6 +120,14 @@ different command inside that environment instead.
     (watching for unexpected `state: absent` teardowns) before repeating the
     same command without those flags to apply.
 
+    The script requires a running SSH agent (`SSH_AUTH_SOCK`) holding the keys
+    to connect to the nodes; it forwards the agent socket into the Ansible
+    container. Shells that do not inherit the session environment (for example
+    AI agent shells) must discover the socket and pass it explicitly: find it
+    with `ls /tmp/ssh-*/agent.*`, verify the loaded keys with
+    `SSH_AUTH_SOCK=<socket> ssh-add -l`, and prefix the invocation with
+    `SSH_AUTH_SOCK=<socket>`. The socket path changes across reboots.
+
 - `scripts/run-terraform.sh`: iterates over the numbered Terraform service
   directories in `config/terraform` and runs `terraform init` and
   `terraform apply` for each one. Run

@@ -13,9 +13,40 @@ The monitoring stack works as follows:
   collects.
 - A Prometheus Blackbox Exporter runs synthetic probes (ICMP, DNS, HTTP) against
   endpoints to verify their availability from the outside.
+- Prometheus Alertmanager routes firing alerts to Telegram. The
+  [Monitoring Alerting specification](../../specs/monitoring-alerting.md)
+  describes the design, the severity model, and the alert rules catalogue.
 
 For setup-side tasks, such as importing Grafana dashboards, see
 [Configure monitoring](../configure-monitoring.md).
+
+## Alerting
+
+Alertmanager runs in the monitoring backend Docker Compose stack, with its API
+and UI published host-locally on port 9093 of the monitoring backend host
+(currently raspberrypi2), like the Prometheus API on port 9090. Reach it over
+SSH.
+
+Alerts carry a `severity` label: `critical` alerts re-notify about every 4
+hours, `warning` alerts about every 24 hours. Both route to the same Telegram
+chat.
+
+### Planned downtime
+
+Deliberately powering off a monitored host (for example a Proxmox node) fires
+availability alerts by design. Silence them for the duration of the planned
+downtime instead of changing the alert rules:
+
+```shell
+ssh pi@raspberrypi2.edge.lab.ferrari.how \
+  docker exec alertmanager amtool \
+  --alertmanager.url=http://localhost:9093 \
+  silence add "instance=~\"pve1.*\"" \
+  --duration=4h --author=ferrarimarco --comment="Planned maintenance"
+```
+
+List and expire silences with `amtool silence query` and
+`amtool silence expire <id>` through the same invocation pattern.
 
 ## Prometheus Blackbox Exporter example queries
 

@@ -119,9 +119,12 @@ describes them all. Key rules:
 - **Ansible via `scripts/run-ansible.sh`:** runs containerized. Select the
   playbook with `ANSIBLE_PLAYBOOK_FILE_NAME`, pass extra flags (e.g. `--limit`,
   `--check`, `--diff`) via `ADDITIONAL_ANSIBLE_FLAGS`, and edit vault files with
-  `ANSIBLE_EDIT_VAULT_FILE=true` plus `ANSIBLE_VAULT_FILE_PATH`. The tag-scoped
-  invocation pattern (stack tag plus `--tags untagged` plus host limit) is
-  documented in the
+  `ANSIBLE_EDIT_VAULT_FILE=true` plus `ANSIBLE_VAULT_FILE_PATH`. The script
+  needs the SSH agent socket, which agent shells do not inherit: discover it and
+  prefix the invocation with `SSH_AUTH_SOCK=<socket>`, as documented in the
+  [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
+  The tag-scoped invocation pattern (stack tag plus `--tags untagged` plus host
+  limit) is documented in the
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
   Always run `--check --diff` first, capture the full output to a log file, and
   review the predictions for unexpected `state: absent` teardowns before
@@ -178,6 +181,12 @@ architectural patterns:
 - Agents cannot edit encrypted vault files. When a new vaulted variable is
   needed, give the user the variable name and the `ANSIBLE_EDIT_VAULT_FILE=true`
   command to add it themselves.
+- Agents may verify that a vaulted variable exists without exposing secret
+  material by listing key names only, e.g.
+  `ansible-vault view ... | grep -oE '^[a-zA-Z_0-9-]+'`.
+- `--check --diff` output embeds rendered secret-bearing files (vault values
+  included). Redirect such logs to the session scratchpad, not the repository,
+  and mask secret values when quoting from them.
 
 ## 7. Operating on Deployed Hosts
 
@@ -196,6 +205,11 @@ architectural patterns:
   the
   [unresponsive host runbook](./websites-src/home-lab-docs/guides/troubleshoot-unresponsive-host.md)
   has the query examples and the investigation workflow.
+- **Prometheus Alertmanager runs on raspberrypi2** (port 9093, host-local),
+  routing alerts to Telegram. Planned host downtime fires availability alerts by
+  design: silence it via `amtool` instead of touching the alert rules, as
+  documented in the
+  [monitoring operations guide](./websites-src/home-lab-docs/guides/operations/monitoring.md).
 - **NixOS LXC containers have no conventional PATH for `pct exec`:** a plain
   `pct exec <vmid> -- <cmd>` fails with "No such file or directory". Invoke
   binaries as `/run/current-system/sw/bin/<cmd>`, or wrap the command in
