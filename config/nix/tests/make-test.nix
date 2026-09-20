@@ -194,6 +194,21 @@ pkgs.testers.nixosTest {
         machine.wait_for_unit("qemu-guest-agent.service")
       '';
 
+      # Verify the Prometheus node exporter if it is enabled. The port is
+      # derived from the evaluated configuration, and the assertion targets
+      # the metric name prefix so it does not depend on specific collectors.
+      nodeExporterPort = toString node_config.services.prometheus.exporters.node.port;
+      nodeExporterCheck = lib.optionalString node_config.services.prometheus.exporters.node.enable ''
+        print("--- Verifying Prometheus Node Exporter ---")
+        machine.wait_for_unit("prometheus-node-exporter.service")
+        machine.wait_for_open_port(${nodeExporterPort})
+        # grep reads the full stream (no -q early exit): quitting at the first
+        # match closes the pipe while curl is still writing the large metrics
+        # payload, failing the pipeline with curl's write error under pipefail.
+        machine.succeed("curl -sSf http://localhost:${nodeExporterPort}/metrics | grep '^node_' > /dev/null")
+        print("Node exporter metrics endpoint verified successfully!")
+      '';
+
       # Verify Samba shares if the samba service is enabled. The share list is
       # derived from the evaluated configuration: every settings section
       # (besides global) that declares a path is expected to be exported.
@@ -290,6 +305,7 @@ pkgs.testers.nixosTest {
       ${bootstrapKeyCheck}
       ${sudoCheck}
       ${qemuAgentCheck}
+      ${nodeExporterCheck}
       ${sambaCheck}
       ${cominCheck}
 
