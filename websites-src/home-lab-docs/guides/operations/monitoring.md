@@ -13,6 +13,9 @@ The monitoring stack works as follows:
   collects.
 - A Prometheus Blackbox Exporter runs synthetic probes (ICMP, DNS, HTTP) against
   endpoints to verify their availability from the outside.
+- A Network UPS Tools (NUT) exporter on hl01 exposes metrics about the UPS,
+  querying the NUT server on pve1 (the host the UPS USB interface is physically
+  connected to) over the network.
 - Prometheus Alertmanager routes firing alerts to Telegram. The
   [Monitoring Alerting specification](../../specs/monitoring-alerting.md)
   describes the design, the severity model, and the alert rules catalogue.

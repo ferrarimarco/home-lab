@@ -2277,6 +2277,11 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 </li>
 <li>Verify the authority section of public resource records.</li>
+<li>Deploy a Prometheus node exporter on hl02 (NixOS): the monitoring backend
+  already scrapes and probes <code>hl02:9100</code>, which stays down and alerts until the
+  exporter exists. A deployment plan (a dedicated Nix role enabling
+  <code>services.prometheus.exporters.node</code>) was drafted on 2026-09-20 and is on hold
+  pending refinement.</li>
 <li>Setup Loki.</li>
 <li>Uptime Kuma.</li>
 <li>WoL watchdog.</li>

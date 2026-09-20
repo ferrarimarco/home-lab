@@ -356,6 +356,11 @@ reliability risks first, then security exposure, then automation):
       processes, and host metrics via the Prometheus Node Exporter
       ([reference](https://www.snbforums.com/threads/successfully-got-node_exporter-on-rt-ax58u.64683/)).
 - Verify the authority section of public resource records.
+- Deploy a Prometheus node exporter on hl02 (NixOS): the monitoring backend
+  already scrapes and probes `hl02:9100`, which stays down and alerts until the
+  exporter exists. A deployment plan (a dedicated Nix role enabling
+  `services.prometheus.exporters.node`) was drafted on 2026-09-20 and is on hold
+  pending refinement.
 - Setup Loki.
 - Uptime Kuma.
 - WoL watchdog.
