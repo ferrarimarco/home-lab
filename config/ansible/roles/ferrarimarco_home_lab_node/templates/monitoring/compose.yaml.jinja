@@ -34,7 +34,7 @@ services:
       - "/dev/disk/:/dev/disk:ro"
       - "/etc/machine-id:/etc/machine-id:ro"
 {% endif %}
-{% if configure_monitoring_nut %}
+{% if configure_monitoring_nut_exporter %}
   nut-exporter:
     image: {{ container_images_ids["nut-exporter"] }}
     container_name: nut-exporter
@@ -46,6 +46,12 @@ services:
       - "--web.listen-address=:{{ monitoring_nut_exporter_port }}"
     environment:
       - NUT_EXPORTER_PASSWORD="{{ monitoring_nut_server_admin_password }}"
+    # The image's built-in healthcheck probes the default port (9199), not the
+    # one set via --web.listen-address.
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "wget --no-verbose --tries=1 --spider http://localhost:{{ monitoring_nut_exporter_port }}/metrics || exit 1"
     ports:
       - {{ monitoring_nut_exporter_port }}:{{ monitoring_nut_exporter_port }}/tcp
 {% endif %}

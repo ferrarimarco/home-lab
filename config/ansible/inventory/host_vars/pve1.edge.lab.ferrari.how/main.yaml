@@ -4,8 +4,6 @@ configure_monitoring_nut: true
 # /var/lib/samba); must exist before the container first starts.
 directories_to_create:
   - path: /var/lib/samba-state/nas-pve1
-monitoring_nut_server_admin_password: "{{ vault_monitoring_nut_server_admin_password }}"
-monitoring_nut_server_admin_username: "{{ vault_monitoring_nut_server_admin_username }}"
 monitoring_nut_devices:
   - id: eaton-ellipse-pro-1600-din-1
     description: Eaton Ellipse PRO 1600 DIN

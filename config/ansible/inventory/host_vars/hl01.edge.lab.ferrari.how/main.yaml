@@ -5,6 +5,7 @@ configure_docker: true
 configure_frigate: true
 configure_home_assistant: true
 configure_media_stack: true
+configure_monitoring_nut_exporter: true
 configure_monitoring_sata: false
 configure_openssh_keypair: true
 configure_rsync_daemon: true

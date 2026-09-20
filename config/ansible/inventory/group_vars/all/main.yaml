@@ -16,6 +16,10 @@ home_assistant_secrets:
   spotify_client_secret: "{{ vault_home_assistant_secrets.spotify_client_secret }}"
   timezone_home: "{{ vault_home_assistant_secrets.timezone_home }}"
 home_lab_configuration_directory_path: "/etc/ferrarimarco-home-lab"
+# The NUT server renders these into upsd.users; the host running the
+# NUT exporter needs them to authenticate against the NUT server.
+monitoring_nut_server_admin_password: "{{ vault_monitoring_nut_server_admin_password }}"
+monitoring_nut_server_admin_username: "{{ vault_monitoring_nut_server_admin_username }}"
 home_lab_node_ssh_public_key_path: "{{ playbook_dir }}/files/ssh/home-lab-node-ssh-key.pub"
 home_lab_runtime_directory_path: "/var/lib/ferrarimarco-home-lab"
 
