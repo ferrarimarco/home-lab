@@ -127,10 +127,12 @@ describes them all. Key rules:
   `result` symlink, so re-run that build before applying.
 - **Ansible via `scripts/run-ansible.sh`:** runs containerized. Select the
   playbook with `ANSIBLE_PLAYBOOK_FILE_NAME`, pass extra flags (e.g. `--limit`,
-  `--check`, `--diff`) via `ADDITIONAL_ANSIBLE_FLAGS`, and edit vault files with
-  `ANSIBLE_EDIT_VAULT_FILE=true` plus `ANSIBLE_VAULT_FILE_PATH`. The script
-  needs the SSH agent socket, which agent shells do not inherit: discover it and
-  prefix the invocation with `SSH_AUTH_SOCK=<socket>`, as documented in the
+  `--check`, `--diff`) via `ADDITIONAL_ANSIBLE_FLAGS`, edit vault files with
+  `ANSIBLE_EDIT_VAULT_FILE=true`, and view them read-only with
+  `ANSIBLE_VIEW_VAULT_FILE=true` (both take `ANSIBLE_VAULT_FILE_PATH` to select
+  a non-default vault file). The script needs the SSH agent socket, which agent
+  shells do not inherit: discover it and prefix the invocation with
+  `SSH_AUTH_SOCK=<socket>`, as documented in the
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
   The tag-scoped invocation pattern (stack tag plus `--tags untagged` plus host
   limit) is documented in the
@@ -199,10 +201,11 @@ architectural patterns:
   command to add it themselves.
 - Agents may verify that a vaulted variable exists without exposing secret
   material by listing key names only, e.g.
-  `ansible-vault view ... | grep -oE '^[a-zA-Z_0-9-]+'`. The
+  `ANSIBLE_VIEW_VAULT_FILE=true scripts/run-ansible.sh | grep -oE '^vault[a-zA-Z_0-9-]*'`.
+  The
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
-  documents how to run `ansible-vault` read-only in the Ansible container
-  (neither the host nor the Nix dev shells provide it).
+  documents the script's vault view mode (neither the host nor the Nix dev
+  shells provide `ansible-vault`).
 - `--check --diff` output embeds rendered secret-bearing files (vault values
   included). Redirect such logs to the session scratchpad, not the repository,
   and mask secret values when quoting from them.

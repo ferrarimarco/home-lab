@@ -128,22 +128,24 @@ different command inside that environment instead.
     `SSH_AUTH_SOCK=<socket> ssh-add -l`, and prefix the invocation with
     `SSH_AUTH_SOCK=<socket>`. The socket path changes across reboots.
 
-    For read-only vault operations, run `ansible-vault` in the same container
-    image directly: neither the host nor the Nix dev shells provide
-    `ansible-vault`, and the script itself only wraps playbook runs and vault
-    edits (`ANSIBLE_EDIT_VAULT_FILE=true`). For example, to list the key names a
-    vault file defines without exposing secret values:
+    The script also wraps `ansible-vault` for vault file maintenance: neither
+    the host nor the Nix dev shells provide `ansible-vault`. Set
+    `ANSIBLE_EDIT_VAULT_FILE=true` to edit a vault file, or
+    `ANSIBLE_VIEW_VAULT_FILE=true` to view one read-only. Both modes default to
+    `inventory/group_vars/all/vault.yaml`; select a different file with
+    `ANSIBLE_VAULT_FILE_PATH` (relative to `config/ansible`). For example, to
+    list the key names a vault file defines without exposing secret values:
 
     ```shell
-    ANSIBLE_CONTAINER_IMAGE_TAG="$(grep "ansible==" docker/ansible/requirements.txt | awk -F '==' '{print $2}')"
-    docker run --rm -v "${PWD}/config/ansible:/etc/ansible" --workdir /etc/ansible \
-      "ferrarimarco/ansible:${ANSIBLE_CONTAINER_IMAGE_TAG}" \
-      ansible-vault view --vault-id home_lab_vault@home_lab_vault_password_file \
-      inventory/group_vars/all/vault.yaml | grep -oE '^[a-zA-Z_0-9-]+'
+    ANSIBLE_VIEW_VAULT_FILE=true scripts/run-ansible.sh \
+      | grep -oE '^vault[a-zA-Z_0-9-]*'
     ```
 
     Never print decrypted vault values: pipe `ansible-vault view` output through
-    a filter (as above) that only surfaces key names.
+    a filter (as above) that only surfaces key names. The filter anchors on the
+    `vault` prefix because all vaulted variables follow the `vault_*` naming
+    convention, and the script's own log output shares the stream with the
+    decrypted content.
 
 - `scripts/run-terraform.sh`: iterates over the numbered Terraform service
   directories in `config/terraform` and runs `terraform init` and

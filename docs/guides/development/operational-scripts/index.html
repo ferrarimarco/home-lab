@@ -1765,19 +1765,21 @@ AI agent shells) must discover the socket and pass it explicitly: find it
 with <code>ls /tmp/ssh-*/agent.*</code>, verify the loaded keys with
 <code>SSH_AUTH_SOCK=&lt;socket&gt; ssh-add -l</code>, and prefix the invocation with
 <code>SSH_AUTH_SOCK=&lt;socket&gt;</code>. The socket path changes across reboots.</p>
-<p>For read-only vault operations, run <code>ansible-vault</code> in the same container
-image directly: neither the host nor the Nix dev shells provide
-<code>ansible-vault</code>, and the script itself only wraps playbook runs and vault
-edits (<code>ANSIBLE_EDIT_VAULT_FILE=true</code>). For example, to list the key names a
-vault file defines without exposing secret values:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">ANSIBLE_CONTAINER_IMAGE_TAG</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>grep<span class="w"> </span><span class="s2">&quot;ansible==&quot;</span><span class="w"> </span>docker/ansible/requirements.txt<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="w"> </span><span class="s1">&#39;==&#39;</span><span class="w"> </span><span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
-docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/config/ansible:/etc/ansible&quot;</span><span class="w"> </span>--workdir<span class="w"> </span>/etc/ansible<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;ferrarimarco/ansible:</span><span class="si">${</span><span class="nv">ANSIBLE_CONTAINER_IMAGE_TAG</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>ansible-vault<span class="w"> </span>view<span class="w"> </span>--vault-id<span class="w"> </span>home_lab_vault@home_lab_vault_password_file<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>inventory/group_vars/all/vault.yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-oE<span class="w"> </span><span class="s1">&#39;^[a-zA-Z_0-9-]+&#39;</span>
+<p>The script also wraps <code>ansible-vault</code> for vault file maintenance: neither
+the host nor the Nix dev shells provide <code>ansible-vault</code>. Set
+<code>ANSIBLE_EDIT_VAULT_FILE=true</code> to edit a vault file, or
+<code>ANSIBLE_VIEW_VAULT_FILE=true</code> to view one read-only. Both modes default to
+<code>inventory/group_vars/all/vault.yaml</code>; select a different file with
+<code>ANSIBLE_VAULT_FILE_PATH</code> (relative to <code>config/ansible</code>). For example, to
+list the key names a vault file defines without exposing secret values:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ANSIBLE_VIEW_VAULT_FILE</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>scripts/run-ansible.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-oE<span class="w"> </span><span class="s1">&#39;^vault[a-zA-Z_0-9-]*&#39;</span>
 </code></pre></div>
 <p>Never print decrypted vault values: pipe <code>ansible-vault view</code> output through
-a filter (as above) that only surfaces key names.</p>
+a filter (as above) that only surfaces key names. The filter anchors on the
+<code>vault</code> prefix because all vaulted variables follow the <code>vault_*</code> naming
+convention, and the script's own log output shares the stream with the
+decrypted content.</p>
 </li>
 <li>
 <p><code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service
