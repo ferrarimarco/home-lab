@@ -1,34 +1,67 @@
 #jinja2:variable_start_string:'[%', variable_end_string:'%]'
 - id: '1781981625695'
   alias: Notify on Frigate events
-  description: Notify when a Frigate event occurs
+  description: Notify when a Frigate event starts and when it ends
   triggers:
   - trigger: mqtt
     options:
       topic: frigate/events
-  conditions: []
+  conditions:
+  - condition: template
+    value_template: '{{trigger.payload_json["type"] in ["new", "end"]}}'
   actions:
-  - action: telegram_bot.send_photo
-    metadata: {}
-    data:
-      verify_ssl: true
-      url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
-      caption: A {{trigger.payload_json["after"]["label"]}} was detected. Here is
-        a snapshot of the event.
   - if:
     - condition: template
-      value_template: '{{trigger.payload_json["after"]["end_time"] is not none}}'
+      value_template: '{{trigger.payload_json["type"] == "new"}}'
     then:
-    - action: telegram_bot.send_message
-      metadata: {}
-      data:
-        message: There's no recording yet because the event is still in progress.
+    - if:
+      - condition: template
+        value_template: '{{trigger.payload_json["after"]["has_snapshot"]}}'
+      then:
+      - action: telegram_bot.send_photo
+        metadata: {}
+        data:
+          verify_ssl: true
+          url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
+          caption: A {{trigger.payload_json["after"]["label"]}} was detected. Here
+            is a snapshot of the event.
+      else:
+      - action: telegram_bot.send_message
+        metadata: {}
+        data:
+          message: A {{trigger.payload_json["after"]["label"]}} was detected. No snapshot
+            is available yet.
     else:
-    - action: telegram_bot.send_video
-      metadata: {}
-      data:
-        verify_ssl: true
-        url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
+    - if:
+      - condition: template
+        value_template: '{{trigger.payload_json["after"]["has_snapshot"]}}'
+      then:
+      - action: telegram_bot.send_photo
+        metadata: {}
+        data:
+          verify_ssl: true
+          url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/snapshot.jpg
+          caption: The {{trigger.payload_json["after"]["label"]}} event ended. Here
+            is the best snapshot.
+    - if:
+      - condition: template
+        value_template: '{{trigger.payload_json["after"]["has_clip"]}}'
+      then:
+      - delay:
+          seconds: 10
+      - action: telegram_bot.send_video
+        metadata: {}
+        data:
+          verify_ssl: true
+          url: http://[% frigate_http_endpoint_fqdn %]:[% frigate_host_port %]/api/events/{{trigger.payload_json["after"]["id"]}}/clip.mp4
+          caption: The {{trigger.payload_json["after"]["label"]}} event ended. Here
+            is the recording.
+      else:
+      - action: telegram_bot.send_message
+        metadata: {}
+        data:
+          message: The {{trigger.payload_json["after"]["label"]}} event ended, but
+            no recording is available.
   mode: queued
   max: 20
 - id: '1781975622579'
@@ -97,7 +130,7 @@
       hours: 0
       minutes: 1
       seconds: 0
-    below: 13
+    below: 18
   conditions:
   - condition: device
     type: is_on
@@ -105,10 +138,10 @@
     entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
     domain: switch
   actions:
-  - device_id: 87f43ce91a0ed169ac75a705db7156e2
-    domain: select
-    entity_id: dbfaef1ec9df5d9fc68a3a766c9171d5
-    type: select_first
+  - type: turn_off
+    device_id: 87f43ce91a0ed169ac75a705db7156e2
+    entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
+    domain: switch
   - action: telegram_bot.send_message
     metadata: {}
     data:
