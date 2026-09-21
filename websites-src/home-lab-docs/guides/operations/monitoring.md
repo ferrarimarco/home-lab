@@ -34,6 +34,16 @@ Alerts carry a `severity` label: `critical` alerts re-notify about every 4
 hours, `warning` alerts about every 24 hours. Both route to the same Telegram
 chat.
 
+### Down targets are not necessarily outages
+
+The Prometheus scrape target lists and the blackbox probe target lists are
+generated from inventory-wide defaults, so they can include services that were
+never deployed on a given host. Before treating a down target as a service
+failure, verify on the target host that the service is actually deployed (check
+the rendered Docker Compose file under `/etc/ferrarimarco-home-lab/`, or the
+host's NixOS configuration): a target that has never been up points to a
+configuration gap, not an outage.
+
 ### Planned downtime
 
 Deliberately powering off a monitored host (for example a Proxmox node) fires

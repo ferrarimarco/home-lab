@@ -968,6 +968,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#run-host-integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run host integration tests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#open-a-python-shell-in-a-test-virtual-machine" class="md-nav__link">
     <span class="md-ellipsis">
       Open a Python shell in a test virtual machine
@@ -1572,6 +1581,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#run-host-integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run host integration tests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#open-a-python-shell-in-a-test-virtual-machine" class="md-nav__link">
     <span class="md-ellipsis">
       Open a Python shell in a test virtual machine
@@ -1618,6 +1636,27 @@
 
 
 <h1 id="nix-development">Nix development</h1>
+<h2 id="run-host-integration-tests">Run host integration tests</h2>
+<p>Every host directory under <code>config/nix/hosts/</code> with a <code>default.nix</code> is
+automatically registered as a flake check named <code>host-&lt;host&gt;-test</code> (see the
+<a href="../../../specs/declarative-integration-testing/">Declarative Integration Testing specification</a>).
+Run one host's test locally from the repository root with:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>./config/nix#checks.x86_64-linux.host-&lt;host&gt;-test<span class="w"> </span>--no-link<span class="w"> </span>-L
+</code></pre></div>
+<p>Keep these points in mind:</p>
+<ul>
+<li>Nix flakes evaluate only Git-tracked files: <code>git add</code> newly created files (for
+  example a new role directory) before building, or evaluation fails with a "not
+  tracked by Git" error.</li>
+<li>Pass <code>--no-link</code> so the build does not clobber the repository's single
+  <code>result</code> symlink, which the <code>220-proxmox-workloads</code> Terraform stack reads for
+  staged image artifacts.</li>
+<li>When writing test script assertions, remember that <code>machine.succeed</code> runs
+  commands under <code>pipefail</code>: an early-exiting pipe consumer such as <code>grep -q</code>
+  closes the pipe while the producer is still writing large output, failing the
+  pipeline with the producer's write error. Use a consumer that reads the full
+  stream (for example <code>grep &lt;pattern&gt; &gt; /dev/null</code>).</li>
+</ul>
 <h2 id="open-a-python-shell-in-a-test-virtual-machine">Open a Python shell in a test virtual machine</h2>
 <ol>
 <li>

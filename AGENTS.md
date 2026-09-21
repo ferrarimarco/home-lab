@@ -36,6 +36,15 @@ annotations: follow the
 [Todo list management guide](./websites-src/home-lab-docs/guides/development/todo-list.md)
 when adding, completing, or discarding items.
 
+### 1.4 Guides Are the Knowledge Base
+
+Reusable operational and development knowledge (commands, invocation patterns,
+troubleshooting workflows, verification recipes) belongs in the guides under
+[`websites-src/home-lab-docs/guides/`](./websites-src/home-lab-docs/guides/),
+not in this file. When a task produces such knowledge, record the substance in
+the relevant guide (creating one if needed) and add at most a brief pointer
+here: this file carries rules and pointers, not the knowledge itself.
+
 ## 2. Agent Workflow Rules (Crucial)
 
 When executing any task, feature addition, or refactoring inside this codebase,
@@ -129,6 +138,13 @@ describes them all. Key rules:
   Always run `--check --diff` first, capture the full output to a log file, and
   review the predictions for unexpected `state: absent` teardowns before
   applying.
+- **NixOS integration tests:** every host directory is auto-registered as a
+  flake check; run one locally with
+  `nix build ./config/nix#checks.x86_64-linux.host-<host>-test --no-link -L`.
+  Flakes only see Git-tracked files (`git add` new files first), and `--no-link`
+  protects the staged `result` symlink. See the
+  [Nix development guide](./websites-src/home-lab-docs/guides/development/nix.md)
+  for these and the test-script authoring gotchas.
 - **Docs site via `scripts/run-mkdocs.sh`:** rebuild after spec changes and
   commit the regenerated `docs/` output. The script takes required positional
   arguments (a bare invocation fails on an unbound variable); the home-lab docs
@@ -183,7 +199,10 @@ architectural patterns:
   command to add it themselves.
 - Agents may verify that a vaulted variable exists without exposing secret
   material by listing key names only, e.g.
-  `ansible-vault view ... | grep -oE '^[a-zA-Z_0-9-]+'`.
+  `ansible-vault view ... | grep -oE '^[a-zA-Z_0-9-]+'`. The
+  [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
+  documents how to run `ansible-vault` read-only in the Ansible container
+  (neither the host nor the Nix dev shells provide it).
 - `--check --diff` output embeds rendered secret-bearing files (vault values
   included). Redirect such logs to the session scratchpad, not the repository,
   and mask secret values when quoting from them.
@@ -209,6 +228,11 @@ architectural patterns:
   routing alerts to Telegram. Planned host downtime fires availability alerts by
   design: silence it via `amtool` instead of touching the alert rules, as
   documented in the
+  [monitoring operations guide](./websites-src/home-lab-docs/guides/operations/monitoring.md).
+- **A down Prometheus target is not necessarily an outage:** scrape and probe
+  target lists are generated from inventory-wide defaults, so verify the service
+  is actually deployed on the target host before treating a down target as a
+  service failure, as described in the
   [monitoring operations guide](./websites-src/home-lab-docs/guides/operations/monitoring.md).
 - **NixOS LXC containers have no conventional PATH for `pct exec`:** a plain
   `pct exec <vmid> -- <cmd>` fails with "No such file or directory". Invoke

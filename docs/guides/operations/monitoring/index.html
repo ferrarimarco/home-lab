@@ -1139,6 +1139,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#down-targets-are-not-necessarily-outages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Down targets are not necessarily outages
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#planned-downtime" class="md-nav__link">
     <span class="md-ellipsis">
       Planned downtime
@@ -1588,6 +1597,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#down-targets-are-not-necessarily-outages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Down targets are not necessarily outages
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#planned-downtime" class="md-nav__link">
     <span class="md-ellipsis">
       Planned downtime
@@ -1659,6 +1677,14 @@ SSH.</p>
 <p>Alerts carry a <code>severity</code> label: <code>critical</code> alerts re-notify about every 4
 hours, <code>warning</code> alerts about every 24 hours. Both route to the same Telegram
 chat.</p>
+<h3 id="down-targets-are-not-necessarily-outages">Down targets are not necessarily outages</h3>
+<p>The Prometheus scrape target lists and the blackbox probe target lists are
+generated from inventory-wide defaults, so they can include services that were
+never deployed on a given host. Before treating a down target as a service
+failure, verify on the target host that the service is actually deployed (check
+the rendered Docker Compose file under <code>/etc/ferrarimarco-home-lab/</code>, or the
+host's NixOS configuration): a target that has never been up points to a
+configuration gap, not an outage.</p>
 <h3 id="planned-downtime">Planned downtime</h3>
 <p>Deliberately powering off a monitored host (for example a Proxmox node) fires
 availability alerts by design. Silence them for the duration of the planned
