@@ -16,6 +16,10 @@ The monitoring stack works as follows:
 - A Network UPS Tools (NUT) exporter on hl01 exposes metrics about the UPS,
   querying the NUT server on pve1 (the host the UPS USB interface is physically
   connected to) over the network.
+- Prometheus scrapes Frigate's native metrics endpoint (`/api/metrics`) on the
+  hosts that run Frigate, covering the per-camera capture pipeline and the
+  object detector, which stay invisible to the container healthcheck and the
+  HTTP probe of the Frigate user interface.
 - Prometheus Alertmanager routes firing alerts to Telegram. The
   [Monitoring Alerting specification](../../specs/monitoring-alerting.md)
   describes the design, the severity model, and the alert rules catalogue.

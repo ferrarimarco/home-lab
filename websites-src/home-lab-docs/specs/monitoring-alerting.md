@@ -12,6 +12,7 @@
 | **Alert Rules: Temperature**     | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                              |
 | **Alert Rules: Backups**         | **Fully Implemented** | Restic backup staleness and repository check failures (§6.4).                                                                 |
 | **Alert Rules: Blackbox Probes** | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                    |
+| **Alert Rules: Frigate**         | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                               |
 | **Restart Policy Migration**     | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8). |
 
 ## 1. Goal
@@ -200,6 +201,24 @@ with operational experience.
 > specs index issues list). `BlackboxHttpProbeFailed` will therefore fire for it
 > from the first deployment. This is accepted: the alert is silenced until the
 > probe is fixed, keeping the rule catalogue free of one-off exclusions.
+
+### 6.6 Frigate
+
+These rules consume Frigate's native Prometheus metrics endpoint
+(`/api/metrics`), scraped by a dedicated `frigate` job whose target list is
+generated from the hosts that enable Frigate (the `configure_frigate` flag). The
+container-level Docker healthcheck and the HTTP probe of the Frigate UI stay
+green while the per-camera capture pipeline fails, so these rules watch the
+pipeline itself. The capture rate rule encodes the September 2026 incident,
+where a corrupted camera stream was ingested at roughly 20 times the configured
+detect rate and crashed the hardware decoder about 200 times per day for weeks
+without surfacing anywhere.
+
+| Alert                              | Severity | Condition                                        | Duration | Rationale                                                                                                       |
+| :--------------------------------- | :------- | :----------------------------------------------- | :------- | :-------------------------------------------------------------------------------------------------------------- |
+| `FrigateCameraStreamDown`          | critical | `frigate_camera_fps == 0`                        | 10 min   | A camera produces no frames: the camera is offline or the capture process fails beyond the watchdog's recovery. |
+| `FrigateCameraCaptureRateAbnormal` | warning  | `frigate_skipped_fps > 10`                       | 15 min   | A healthy stream has no skipped frames; sustained skipping is the corrupted-stream signature.                   |
+| `FrigateDetectorSlow`              | warning  | `frigate_detector_inference_speed_seconds > 0.1` | 10 min   | The Coral infers in well under 25 ms; sustained slowness means degradation or a CPU fallback.                   |
 
 ## 7. Alerting Pipeline Health
 

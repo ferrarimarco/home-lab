@@ -1663,6 +1663,10 @@ run ad-hoc checks against it.</p>
 <li>A Network UPS Tools (NUT) exporter on hl01 exposes metrics about the UPS,
   querying the NUT server on pve1 (the host the UPS USB interface is physically
   connected to) over the network.</li>
+<li>Prometheus scrapes Frigate's native metrics endpoint (<code>/api/metrics</code>) on the
+  hosts that run Frigate, covering the per-camera capture pipeline and the
+  object detector, which stay invisible to the container healthcheck and the
+  HTTP probe of the Frigate user interface.</li>
 <li>Prometheus Alertmanager routes firing alerts to Telegram. The
   <a href="../../../specs/monitoring-alerting/">Monitoring Alerting specification</a>
   describes the design, the severity model, and the alert rules catalogue.</li>

@@ -1618,6 +1618,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#66-frigate" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.6 Frigate
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1957,6 +1966,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#66-frigate" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.6 Frigate
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2067,6 +2085,11 @@
 <td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">ICMP, DNS, and HTTP probe failures (§6.5).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Frigate</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
@@ -2354,6 +2377,50 @@ specs index issues list). <code>BlackboxHttpProbeFailed</code> will therefore fi
 from the first deployment. This is accepted: the alert is silenced until the
 probe is fixed, keeping the rule catalogue free of one-off exclusions.</p>
 </blockquote>
+<h3 id="66-frigate">6.6 Frigate</h3>
+<p>These rules consume Frigate's native Prometheus metrics endpoint
+(<code>/api/metrics</code>), scraped by a dedicated <code>frigate</code> job whose target list is
+generated from the hosts that enable Frigate (the <code>configure_frigate</code> flag). The
+container-level Docker healthcheck and the HTTP probe of the Frigate UI stay
+green while the per-camera capture pipeline fails, so these rules watch the
+pipeline itself. The capture rate rule encodes the September 2026 incident,
+where a corrupted camera stream was ingested at roughly 20 times the configured
+detect rate and crashed the hardware decoder about 200 times per day for weeks
+without surfacing anywhere.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>FrigateCameraStreamDown</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>frigate_camera_fps == 0</code></td>
+<td style="text-align: left;">10 min</td>
+<td style="text-align: left;">A camera produces no frames: the camera is offline or the capture process fails beyond the watchdog's recovery.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>FrigateCameraCaptureRateAbnormal</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>frigate_skipped_fps &gt; 10</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">A healthy stream has no skipped frames; sustained skipping is the corrupted-stream signature.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>FrigateDetectorSlow</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>frigate_detector_inference_speed_seconds &gt; 0.1</code></td>
+<td style="text-align: left;">10 min</td>
+<td style="text-align: left;">The Coral infers in well under 25 ms; sustained slowness means degradation or a CPU fallback.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="7-alerting-pipeline-health">7. Alerting Pipeline Health</h2>
 <p>The pipeline must not fail silently:</p>
 <ul>
