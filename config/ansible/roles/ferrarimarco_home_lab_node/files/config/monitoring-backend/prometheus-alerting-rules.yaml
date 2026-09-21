@@ -106,6 +106,48 @@ groups:
             {{ $labels.instance }}. Backups in this repository may not be
             restorable.
 
+  - name: frigate
+    rules:
+      - alert: FrigateCameraStreamDown
+        expr: frigate_camera_fps == 0
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Frigate camera {{ $labels.camera_name }} produces no frames"
+          description: >-
+            The capture pipeline for camera {{ $labels.camera_name }} on
+            {{ $labels.instance }} has produced no frames for 10 minutes.
+            The camera may be offline, or the ffmpeg capture process is
+            failing in a way the Frigate watchdog cannot recover.
+      - alert: FrigateCameraCaptureRateAbnormal
+        expr: frigate_skipped_fps > 10
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Frigate skips frames for camera {{ $labels.camera_name }}"
+          description: >-
+            Frigate on {{ $labels.instance }} has been skipping more than 10
+            frames per second from camera {{ $labels.camera_name }} for 15
+            minutes. A healthy stream delivers at the configured detect rate
+            with no skips: sustained skipping means the camera stream is
+            delivering far more frames than configured, a known symptom of a
+            corrupted stream that also crashes the hardware decoder.
+      - alert: FrigateDetectorSlow
+        expr: frigate_detector_inference_speed_seconds > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Frigate detector {{ $labels.name }} is slow"
+          description: >-
+            The {{ $labels.name }} object detector on {{ $labels.instance }}
+            has averaged more than 100 milliseconds per inference for 10
+            minutes. The Coral normally infers in well under 25
+            milliseconds: sustained slowness means the detector is degraded
+            or detection fell back to the CPU.
+
   - name: blackbox-probes
     rules:
       - alert: BlackboxProbeFailed

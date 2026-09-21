@@ -65,6 +65,16 @@ scrape_configs:
       - targets:
         - "blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }}"
 
+  - job_name: "frigate"
+    metrics_path: /api/metrics
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].configure_frigate | default(false) %}
+        - "{{ host }}:{{ hostvars[host].frigate_host_port | default(frigate_host_port) }}"
+{% endif %}
+{% endfor %}
+
   - job_name: nix-comin
     static_configs:
       - targets:
