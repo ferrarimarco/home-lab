@@ -96,6 +96,7 @@
           state: absent
         - path: /etc/apt/sources.list.d/download_docker_com_linux_debian.list
           state: absent
+      fact_os_services: "{{ docker_os_services }}"
       fact_templates_to_render: "{{ docker_templates_to_render }}"
     - enable_custom_fact: "{{ configure_fail2ban }}"
       fact_category: "fail2ban"

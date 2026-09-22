@@ -6,7 +6,7 @@ docker_system_prune_timer_file_name: "{{ docker_system_prune_service_name }}.tim
 docker_os_services:
   - enabled: true
     service_name: "{{ docker_system_prune_timer_file_name }}"
-    service_state: "{{ configure_monitoring | ternary('started', 'stopped') }}"
+    service_state: "{{ configure_docker | ternary('started', 'stopped') }}"
 docker_templates_to_render:
   - src: "docker/system-prune-timer/{{ docker_system_prune_service_name }}.service.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ docker_system_prune_service_name }}.service"
