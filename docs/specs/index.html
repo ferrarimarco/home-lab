@@ -1916,13 +1916,20 @@ the relevant specification, or explicitly discarded.</p>
 <p>The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):</p>
 <ul>
-<li>Run the SMART long self-test on the raspberrypi2 data disk and decide about a
-  replacement, after verifying that its restic backups are current: standing
-  data-loss risk (<a href="#issues-to-solve">Issues to solve</a>).</li>
+<li>Evacuate the data off the raspberrypi2 data disk: the disk holds the only copy
+  of the media library and of a personal data directory, and the host's restic
+  repositories live on that same disk, so one disk failure loses the data and
+  its backups together. Trim the media library, then copy the data to the new
+  pve1 NAS storage (<a href="#nas">NAS</a>). SMART attributes were stable between
+  2026-09-13 and 2026-09-22 (pending and offline-uncorrectable sector counts
+  unchanged), but the drive is past its load-cycle rating, so this stays the top
+  data-loss risk. Blocks: the media stack migration cutover and the SMART long
+  self-test (<a href="#issues-to-solve">Issues to solve</a>).</li>
 <li>Migrate the containers from raspberrypi2 to hl01: shrinks that host's role and
   unblocks its re-image
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>). The
-  monitoring backend is excluded: it becomes a highly available pair instead
+  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>). Depends
+  on: the data evacuation. The monitoring backend is excluded: it becomes a
+  highly available pair instead
   (<a href="#monitoring-and-alerting">Monitoring and alerting</a>).</li>
 <li>Deploy the monitoring backend as a highly available pair on hl01 and
   raspberrypi2, starting with the design amendment to the monitoring-alerting
@@ -1986,10 +1993,15 @@ reliability risks first, then security exposure, then automation):</p>
 <li>raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):<ul>
-<li>Run a SMART long self-test on the WD30EZRX 3TB data disk (1 pending and 1
-  offline-uncorrectable sector as of 2026-09-13, ~39200 power-on hours) and
-  decide whether to plan a replacement. Verify the restic backups of that
-  disk are current first.</li>
+<li>Run a SMART long self-test on the WD30EZRX 3TB data disk only after the
+  data evacuation, then decide whether the drive is reused or retired. The
+  test is read-only but puts hours of sustained load on a drive past its
+  load-cycle rating (395k cycles against the 300k rating as of 2026-09-22),
+  and until the evacuation the disk holds the only copy of the media library
+  while the restic repositories live on the same disk, so there is no backup
+  safety net. Attributes stayed stable between 2026-09-13 and 2026-09-22: 1
+  pending and 1 offline-uncorrectable sector (unchanged), zero
+  reallocations, ~39470 power-on hours.</li>
 <li>Upgrade the operating system: Debian 11 (bullseye) is past LTS end of
   life, the April 2023 kernel is the most plausible lockup culprit, and the
   system Python 3.9 caps <code>requests</code> below 2.33, pinning the ONT exporter
@@ -2497,6 +2509,17 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <h3 id="nas">NAS</h3>
 <p>Related specification: <a href="nas-lxc-container/">NAS LXC Container</a>.</p>
 <ul>
+<li><strong>Media evacuation storage</strong>: attach the spare 2 TB USB disk to pve1 as a new
+  independent single-disk ZFS pool (for example <code>rpool-usb-2</code>) with its own NAS
+  share, as the target for the trimmed media library (~1.5 TB before trimming);
+  the personal data directory (196 GB) goes to the existing 900 GB <code>rpool-usb-1</code>
+  share, keeping the two data sets in separate failure domains. Extending
+  <code>rpool-usb-1</code> with the new disk as a second striped vdev was considered and
+  rejected: it couples two single disks into one failure domain where either
+  disk's failure loses the whole pool, aggravated by the USB transport. The
+  evacuated library remains a single copy on an aging USB drive: evaluate pve2's
+  <code>tank-hdd</code> pool as the long-term media home or as a second copy once the pve2
+  power consumption evaluation decides how often that node runs.</li>
 <li><strong>NFS support</strong>: Re-introduce NFS sharing alongside SMB. Evaluate
   <code>nfs-kernel-server</code> in a privileged container versus the user-space
   NFS-Ganesha server, which can run in an unprivileged container.</li>
