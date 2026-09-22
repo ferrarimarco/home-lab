@@ -32,11 +32,18 @@ reliability risks first, then security exposure, then automation):
   data-loss risk ([Issues to solve](#issues-to-solve)).
 - Migrate the containers from raspberrypi2 to hl01: shrinks that host's role and
   unblocks its re-image
-  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). The
+  monitoring backend is excluded: it becomes a highly available pair instead
+  ([Monitoring and alerting](#monitoring-and-alerting)).
+- Deploy the monitoring backend as a highly available pair on hl01 and
+  raspberrypi2, starting with the design amendment to the monitoring-alerting
+  spec ([Monitoring and alerting](#monitoring-and-alerting)). Blocks: the
+  raspberrypi2 re-image.
 - Re-image raspberrypi2 with current Raspberry Pi OS, then bump the `requests`
   pin: the host runs Debian 11 past LTS end of life, and the old system Python
   pins a dependency with a known vulnerability. Depends on the container
-  migration ([Issues to solve](#issues-to-solve)).
+  migration and on the hl01 monitoring backend replica being live
+  ([Issues to solve](#issues-to-solve)).
 
 ### Bootstrapping and provisioning
 
@@ -57,8 +64,10 @@ reliability risks first, then security exposure, then automation):
     - Migrate containers from raspberrypi2 to hl01: Zigbee2MQTT depends on the
       Zigbee adapter hardware; the media stack depends on data (copy the media,
       remove the runtime data from raspberrypi2, update the endpoints in the
-      Ansible configuration); deploy Syncthing and the monitoring backend on
-      hl01 instead of migrating them.
+      Ansible configuration); deploy Syncthing on hl01 instead of migrating it.
+      The monitoring backend is excluded from this migration: it becomes a
+      highly available pair
+      ([Monitoring and alerting](#monitoring-and-alerting)).
     - Run Ansible.
     - Run Terraform to set up the Proxmox hosts (networking; storage: pve1 done,
       pve2 pending).
@@ -337,6 +346,21 @@ reliability risks first, then security exposure, then automation):
 
 ### Monitoring and alerting
 
+- Deploy the monitoring backend as a highly available pair on hl01 and
+  raspberrypi2, instead of migrating the single instance off raspberrypi2: two
+  independent Prometheus instances scraping the same generated target lists
+  (with a replica external label), a clustered Alertmanager pair deduplicating
+  notifications over the gossip protocol, and a decision on the primary Grafana
+  datasource. Amend the
+  [Monitoring Alerting specification](./monitoring-alerting.md) first: it
+  currently declares a single-host deployment model and a host-local port
+  posture that clustering changes. Rationale: a monitoring backend running only
+  on hl01 (a VM on pve1) dies with the failure domain it watches, while a pair
+  spanning pve1 and the independent raspberrypi2 hardware removes the single
+  point of failure, and lets the raspberrypi2 re-image happen without a
+  monitoring blind spot (a replica carries no state that matters, so it
+  redeploys declaratively after the re-image). Depends on: the
+  monitoring-alerting spec amendment. Blocks: the raspberrypi2 re-image.
 - To monitor:
     - EdgeTPU: custom exporter, or
       [edgetpu-exporter](https://github.com/adaptant-labs/edgetpu-exporter).
