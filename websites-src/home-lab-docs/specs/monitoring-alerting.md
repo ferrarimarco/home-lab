@@ -8,11 +8,12 @@
 | **Alertmanager Configuration**   | **Fully Implemented** | Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).               |
 | **Prometheus Alerting Wiring**   | **Fully Implemented** | Rule file loading, the Alertmanager target, and the Alertmanager scrape job; scrape target healthy (§3.2, §7).                |
 | **Alert Rules: Availability**    | **Fully Implemented** | `InstanceDown` deployed; surfaced real down targets on first evaluation (§6.1).                                               |
-| **Alert Rules: Node Health**     | **Fully Implemented** | Unexpected reboots and node exporter textfile staleness (§6.2).                                                               |
+| **Alert Rules: Node Health**     | **Fully Implemented** | Unexpected reboots, node exporter textfile staleness, and filesystem space (§6.2).                                            |
 | **Alert Rules: Temperature**     | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                              |
 | **Alert Rules: Backups**         | **Fully Implemented** | Restic backup staleness and repository check failures (§6.4).                                                                 |
 | **Alert Rules: Blackbox Probes** | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                    |
 | **Alert Rules: Frigate**         | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                               |
+| **Alert Rules: Containers**      | **Fully Implemented** | Container restart-loop detection on the cadvisor metrics (§6.7).                                                              |
 | **Restart Policy Migration**     | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8). |
 
 ## 1. Goal
@@ -168,10 +169,12 @@ with operational experience.
 
 ### 6.2 Node Health
 
-| Alert               | Severity | Condition                                          | Duration | Rationale                                                                                                                         |
-| :------------------ | :------- | :------------------------------------------------- | :------- | :-------------------------------------------------------------------------------------------------------------------------------- |
-| `UnexpectedReboot`  | warning  | `changes(node_boot_time_seconds[1h]) > 0`          | —        | Reboots (including hardware-watchdog recoveries) are noticed instead of silently absorbed.                                        |
-| `NodeTextfileStale` | warning  | `time() - node_textfile_mtime_seconds > 26 * 3600` | —        | A textfile collector stopped updating. 26 h covers the slowest producer (the daily apt job); per-collector tuning is future work. |
+| Alert                         | Severity | Condition                                                                                    | Duration | Rationale                                                                                                                                                       |
+| :---------------------------- | :------- | :------------------------------------------------------------------------------------------- | :------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `UnexpectedReboot`            | warning  | `changes(node_boot_time_seconds[1h]) > 0`                                                    | —        | Reboots (including hardware-watchdog recoveries) are noticed instead of silently absorbed.                                                                      |
+| `NodeTextfileStale`           | warning  | `time() - node_textfile_mtime_seconds > 26 * 3600`                                           | —        | A textfile collector stopped updating. 26 h covers the slowest producer (the daily apt job); per-collector tuning is future work.                               |
+| `NodeFilesystemSpaceLow`      | warning  | `node_filesystem_avail_bytes / node_filesystem_size_bytes < 0.15` (tmpfs and ramfs excluded) | 30 min   | Early signal that a filesystem is filling up, with time to react; motivated by the September 2026 incident where the hl01 root filesystem silently reached 99%. |
+| `NodeFilesystemSpaceCritical` | critical | `node_filesystem_avail_bytes / node_filesystem_size_bytes < 0.05` (tmpfs and ramfs excluded) | 10 min   | Services writing to the filesystem are about to fail; pages before workloads (databases, recordings) start erroring.                                            |
 
 ### 6.3 Temperature
 
@@ -219,6 +222,18 @@ without surfacing anywhere.
 | `FrigateCameraStreamDown`          | critical | `frigate_camera_fps == 0`                        | 10 min   | A camera produces no frames: the camera is offline or the capture process fails beyond the watchdog's recovery. |
 | `FrigateCameraCaptureRateAbnormal` | warning  | `frigate_skipped_fps > 10`                       | 15 min   | A healthy stream has no skipped frames; sustained skipping is the corrupted-stream signature.                   |
 | `FrigateDetectorSlow`              | warning  | `frigate_detector_inference_speed_seconds > 0.1` | 10 min   | The Coral infers in well under 25 ms; sustained slowness means degradation or a CPU fallback.                   |
+
+### 6.7 Containers
+
+This rule consumes the `container_start_time_seconds` metric that cadvisor
+already exports for every container on the Docker hosts. A container stuck in a
+restart loop keeps its Docker healthcheck irrelevant (it never lives long enough
+to report) while the workload is effectively down, as in the September 2026
+incident where Jellyseerr crash looped for a month without surfacing anywhere.
+
+| Alert                     | Severity | Condition                                                  | Duration | Rationale                                                                                          |
+| :------------------------ | :------- | :--------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------- |
+| `ContainerRestartLooping` | warning  | `changes(container_start_time_seconds{name!=""}[30m]) > 3` | —        | More than 3 restarts in 30 minutes ignores deploys and upgrades but catches sustained crash loops. |
 
 ## 7. Alerting Pipeline Health
 

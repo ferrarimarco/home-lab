@@ -1627,6 +1627,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#67-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.7 Containers
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1975,6 +1984,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#67-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.7 Containers
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2069,7 +2087,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Node Health</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Unexpected reboots and node exporter textfile staleness (§6.2).</td>
+<td style="text-align: left;">Unexpected reboots, node exporter textfile staleness, and filesystem space (§6.2).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Temperature</strong></td>
@@ -2090,6 +2108,11 @@
 <td style="text-align: left;"><strong>Alert Rules: Frigate</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Containers</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Container restart-loop detection on the cadvisor metrics (§6.7).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
@@ -2270,6 +2293,20 @@ with operational experience.</p>
 <td style="text-align: left;">—</td>
 <td style="text-align: left;">A textfile collector stopped updating. 26 h covers the slowest producer (the daily apt job); per-collector tuning is future work.</td>
 </tr>
+<tr>
+<td style="text-align: left;"><code>NodeFilesystemSpaceLow</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>node_filesystem_avail_bytes / node_filesystem_size_bytes &lt; 0.15</code> (tmpfs and ramfs excluded)</td>
+<td style="text-align: left;">30 min</td>
+<td style="text-align: left;">Early signal that a filesystem is filling up, with time to react; motivated by the September 2026 incident where the hl01 root filesystem silently reached 99%.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>NodeFilesystemSpaceCritical</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>node_filesystem_avail_bytes / node_filesystem_size_bytes &lt; 0.05</code> (tmpfs and ramfs excluded)</td>
+<td style="text-align: left;">10 min</td>
+<td style="text-align: left;">Services writing to the filesystem are about to fail; pages before workloads (databases, recordings) start erroring.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="63-temperature">6.3 Temperature</h3>
@@ -2418,6 +2455,32 @@ without surfacing anywhere.</p>
 <td style="text-align: left;"><code>frigate_detector_inference_speed_seconds &gt; 0.1</code></td>
 <td style="text-align: left;">10 min</td>
 <td style="text-align: left;">The Coral infers in well under 25 ms; sustained slowness means degradation or a CPU fallback.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="67-containers">6.7 Containers</h3>
+<p>This rule consumes the <code>container_start_time_seconds</code> metric that cadvisor
+already exports for every container on the Docker hosts. A container stuck in a
+restart loop keeps its Docker healthcheck irrelevant (it never lives long enough
+to report) while the workload is effectively down, as in the September 2026
+incident where Jellyseerr crash looped for a month without surfacing anywhere.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ContainerRestartLooping</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>changes(container_start_time_seconds{name!=""}[30m]) &gt; 3</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">More than 3 restarts in 30 minutes ignores deploys and upgrades but catches sustained crash loops.</td>
 </tr>
 </tbody>
 </table>
