@@ -37,6 +37,34 @@ groups:
             {{ $labels.instance }} has not been updated for more than 26
             hours. The producing timer or service has probably stopped
             working.
+      - alert: NodeFilesystemSpaceLow
+        expr: >-
+          node_filesystem_avail_bytes{fstype!~"tmpfs|ramfs"}
+          / node_filesystem_size_bytes{fstype!~"tmpfs|ramfs"} < 0.15
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Filesystem {{ $labels.mountpoint }} on {{ $labels.instance }} is low on space"
+          description: >-
+            The filesystem mounted at {{ $labels.mountpoint }} on
+            {{ $labels.instance }} has had less than 15 percent of its
+            space available for 30 minutes. Investigate what is consuming
+            the disk before services start failing.
+      - alert: NodeFilesystemSpaceCritical
+        expr: >-
+          node_filesystem_avail_bytes{fstype!~"tmpfs|ramfs"}
+          / node_filesystem_size_bytes{fstype!~"tmpfs|ramfs"} < 0.05
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Filesystem {{ $labels.mountpoint }} on {{ $labels.instance }} is almost full"
+          description: >-
+            The filesystem mounted at {{ $labels.mountpoint }} on
+            {{ $labels.instance }} has had less than 5 percent of its
+            space available for 10 minutes. Services writing to it are
+            about to fail.
 
   - name: temperature
     rules:
@@ -172,3 +200,16 @@ groups:
             The HTTP probe against {{ $labels.instance }} has been failing
             for 10 minutes: the endpoint is unreachable or does not answer
             with the expected status.
+
+  - name: containers
+    rules:
+      - alert: ContainerRestartLooping
+        expr: changes(container_start_time_seconds{name!=""}[30m]) > 3
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} on {{ $labels.instance }} is restart looping"
+          description: >-
+            The container {{ $labels.name }} on {{ $labels.instance }}
+            restarted more than 3 times in the last 30 minutes. It is
+            probably crash looping; check its logs.
