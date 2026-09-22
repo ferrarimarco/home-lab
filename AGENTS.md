@@ -217,6 +217,11 @@ architectural patterns:
   `media-stack`, `monitoring`, `restic`). Manage lifecycles with
   `docker compose -f <that file> <up -d|stop|restart>`, never raw
   `docker stop/start` on containers.
+- **Migrating workloads between hosts follows the
+  [container migration guide](./websites-src/home-lab-docs/guides/operations/container-migration.md):**
+  inventory flag choreography around a verified data copy. Check target capacity
+  and stop the stack before copying its state; do not improvise migrations with
+  ad-hoc commands or scripts.
 - SSH conventions: `root@pve1`/`root@pve2` for the Proxmox nodes,
   `debian@hl01.edge.lab.ferrari.how` for the hl01 VM,
   `pi@raspberrypi2.edge.lab.ferrari.how` for the raspberrypi2 host. Use
