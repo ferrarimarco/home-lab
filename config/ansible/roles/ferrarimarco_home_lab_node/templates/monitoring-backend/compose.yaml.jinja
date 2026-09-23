@@ -5,9 +5,17 @@ services:
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yaml"
       - "--storage.path=/alertmanager"
+      - "--cluster.listen-address=0.0.0.0:{{ monitoring_backend_alertmanager_cluster_port }}"
+{% for host in groups['all'] %}
+{% if hostvars[host].configure_monitoring_backend | default(false) and host != inventory_hostname %}
+      - "--cluster.peer={{ host }}:{{ monitoring_backend_alertmanager_cluster_port }}"
+{% endif %}
+{% endfor %}
     image: {{ container_images_ids["alertmanager"] }}
-    ports:
-      - "{{ monitoring_backend_alertmanager_host_port }}:9093"
+    # Host networking so the cluster gossip advertises a routable host
+    # address instead of the compose network IP, which is meaningless to
+    # the peer replica.
+    network_mode: host
     restart: unless-stopped
     volumes:
       - ./alertmanager.yaml:/etc/alertmanager/alertmanager.yaml

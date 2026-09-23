@@ -72,7 +72,6 @@ monitoring_backend_dns_records_to_check:
     fail_if_answer_not_matches_regexp_value: ".*ns.cloudflare.com"
 monitoring_backend_http_endpoints_to_check:
   - check_target: "http://{{ frigate_http_endpoint_fqdn }}:{{ frigate_host_port }} # Frigate"
-  - check_target: "http://{{ grafana_http_endpoint_fqdn }}:{{ monitoring_backend_grafana_host_port }} # Grafana"
   - check_target: "http://{{ home_assistant_http_endpoint_fqdn }}:{{ home_assistant_user_interface_host_port }} # Home Assistant"
   - check_target: "http://{{ media_stack_flaresolverr_http_endpoint_fqdn }}:{{ media_stack_flaresolverr_port }} # Flaresolverr"
   - check_target: "http://{{ media_stack_jellyfin_http_endpoint_fqdn }}:{{ media_stack_jellyfin_port }} # Jellyfin"
@@ -95,6 +94,7 @@ monitoring_backend_icmp_ping_hosts_to_check:
   - "{{ edge_environment_gateway.fqdn }}"
   - "github.com"
   - "google.com"
+monitoring_backend_alertmanager_cluster_port: 9094
 monitoring_backend_alertmanager_host_port: 9093
 monitoring_backend_comin_exporter_port: 4243
 monitoring_backend_grafana_host_port: 3000

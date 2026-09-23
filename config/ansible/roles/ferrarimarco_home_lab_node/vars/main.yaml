@@ -479,7 +479,6 @@ zigbee2mqtt_templates_to_render:
     force: false
 
 frigate_http_endpoint_fqdn: "hl01.{{ edge_environment_root_fqdn }}"
-grafana_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 home_assistant_http_endpoint_fqdn: "hl01.{{ edge_environment_root_fqdn }}"
 media_stack_flaresolverr_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
 media_stack_jellyfin_http_endpoint_fqdn: "raspberrypi2.{{ edge_environment_root_fqdn }}"
