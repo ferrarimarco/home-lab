@@ -127,7 +127,10 @@ without a monitoring blind spot.
   of an existing replica's TSDB (the snapshot API, or a copy taken while the
   source instance is stopped), so the metrics history collected before the pair
   existed stays queryable from every replica. After seeding, the copies evolve
-  independently.
+  independently. The same pattern seeds Grafana's local database (user accounts,
+  preferences) from an existing replica, because the Grafana credentials are not
+  yet declaratively managed; making them declarative is tracked in the specs
+  index.
 - **Alertmanager cluster**: the two instances form a gossip cluster over port
   9094 between the replica hosts. The cluster deduplicates notifications and
   replicates silences, so a silence survives the loss of either replica. During
