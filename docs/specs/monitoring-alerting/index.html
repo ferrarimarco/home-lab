@@ -1510,6 +1510,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#33-high-availability-pair" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 High Availability Pair
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1867,6 +1876,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#33-high-availability-pair" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 High Availability Pair
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2119,6 +2137,21 @@
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">All four monitoring backend services run with <code>restart: unless-stopped</code>, verified via <code>docker inspect</code> after deployment (§8).</td>
 </tr>
+<tr>
+<td style="text-align: left;"><strong>HA Pair: Prometheus Replicas</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Two-replica deployment on hl01 and raspberrypi2 with cross-scrapes, replica external labels, and TSDB seeding (§3.3).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>HA Pair: Alertmanager Cluster</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Gossip cluster between the replica hosts with notification deduplication and silence replication (§3.3).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>HA Pair: Per-Host Grafana and Blackbox</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">One Grafana and one Blackbox exporter per replica host, provisioned identically (§3.3).</td>
+</tr>
 </tbody>
 </table>
 <h2 id="1-goal">1. Goal</h2>
@@ -2156,11 +2189,14 @@ not cover new exporters or new metrics: every rule in §6 evaluates data the
 stack already collects.</p>
 <h2 id="3-architecture">3. Architecture</h2>
 <h3 id="31-deployment-model">3.1 Deployment Model</h3>
-<p>Alertmanager runs as an additional service in the existing monitoring backend
-Docker Compose stack, on the same host as Prometheus and Grafana. It is enabled
-by the same mechanism as the rest of the stack (the monitoring backend
-enablement flag): a host that runs the monitoring backend runs Alertmanager,
-with no separate enablement flag.</p>
+<p>Alertmanager runs as an additional service in the monitoring backend Docker
+Compose stack, on the same host as Prometheus and Grafana. It is enabled by the
+same mechanism as the rest of the stack (the monitoring backend enablement
+flag): a host that runs the monitoring backend runs Alertmanager, with no
+separate enablement flag. The hosts that enable the flag form the backend
+replica set: the stack deploys identically to each of them, and every generated
+reference to the backend iterates the replica set instead of assuming a single
+instance (§3.3).</p>
 <p>Key properties:</p>
 <ul>
 <li><strong>Pinned image</strong>: the Alertmanager container image is pinned in the
@@ -2171,24 +2207,78 @@ with no separate enablement flag.</p>
   so container recreation neither drops active silences nor re-sends
   already-delivered notifications.</li>
 <li><strong>Host port exposure</strong>: the Alertmanager API and UI are published on host port
-  9093 with the same host-local posture as Prometheus on 9090: reached over SSH
-  during incident investigation, for <code>amtool</code> operations, and for managing
-  silences. It is not exposed beyond the host.</li>
+  9093, like the Prometheus API on 9090. These ports, together with the
+  Alertmanager cluster port 9094, are LAN-reachable between the backend replica
+  hosts, which the pair requires for cross-scraping, alert delivery to every
+  replica, and cluster gossip (§3.3). Operator access stays over SSH during
+  incident investigation, for <code>amtool</code> operations, and for managing silences.</li>
 <li><strong>Restart policy</strong>: <code>restart: unless-stopped</code>, together with the rest of the
   stack (§8).</li>
 </ul>
 <h3 id="32-data-flow">3.2 Data Flow</h3>
 <ol>
-<li>Prometheus loads alerting rules from a dedicated, version-controlled rule
-   file rendered by the same configuration mechanism that renders
-   <code>prometheus.yaml</code>, and evaluates them on its global evaluation interval (1
-   minute).</li>
-<li>Firing alerts are sent to Alertmanager over the Compose network.</li>
-<li>Alertmanager groups, deduplicates, and routes them to the Telegram receiver
-   (§4).</li>
-<li>Prometheus also scrapes Alertmanager's own metrics endpoint, so a dead or
-   unhealthy Alertmanager surfaces as a down target (§7).</li>
+<li>Each Prometheus replica loads the identical alerting rules from a dedicated,
+   version-controlled rule file rendered by the same configuration mechanism
+   that renders <code>prometheus.yaml</code>, and evaluates them on its global evaluation
+   interval (1 minute).</li>
+<li>Each replica sends its firing alerts to every Alertmanager replica by host
+   FQDN, with the replica-identifying label stripped so the copies deduplicate
+   (§3.3).</li>
+<li>The Alertmanager cluster groups, deduplicates, and routes them to the
+   Telegram receiver (§4): one notification per alert, regardless of how many
+   replicas fired it.</li>
+<li>Each Prometheus replica also scrapes every Prometheus and Alertmanager
+   instance in the replica set, so a dead or unhealthy backend component
+   surfaces as a down target on the surviving replica (§7).</li>
 </ol>
+<h3 id="33-high-availability-pair">3.3 High Availability Pair</h3>
+<p>The monitoring backend runs as a two-replica pair on hl01 and raspberrypi2. The
+replica hosts sit in different failure domains: hl01 is a VM on pve1,
+raspberrypi2 is standalone hardware, so a backend that ran only on hl01 would
+die together with the pve1 workloads it watches. The pair also lets either host
+be taken down for maintenance (notably the planned raspberrypi2 re-image)
+without a monitoring blind spot.</p>
+<ul>
+<li><strong>Prometheus replicas</strong>: both instances scrape the same generated target
+  lists, which include every Prometheus and Alertmanager replica by host FQDN;
+  the configuration contains no <code>localhost</code> or Compose-network self-references.
+  Each instance carries a replica-identifying external label
+  (<code>replica: &lt;hostname&gt;</code>), which is stripped from outgoing alerts through alert
+  relabeling so the Alertmanager cluster deduplicates the copies. There is no
+  state replication between the replicas: each accumulates its own TSDB, and
+  divergence between them is accepted.</li>
+<li><strong>TSDB seeding</strong>: a replica joining the pair is seeded from a consistent copy
+  of an existing replica's TSDB (the snapshot API, or a copy taken while the
+  source instance is stopped), so the metrics history collected before the pair
+  existed stays queryable from every replica. After seeding, the copies evolve
+  independently.</li>
+<li><strong>Alertmanager cluster</strong>: the two instances form a gossip cluster over port
+  9094 between the replica hosts. The cluster deduplicates notifications and
+  replicates silences, so a silence survives the loss of either replica. During
+  a network partition between the replicas the deduplication degrades and
+  Telegram may briefly receive duplicate notifications: accepted as the cost of
+  keeping notification delivery free of a single point of failure.</li>
+<li><strong>Grafana</strong>: one instance per replica host, provisioned identically from the
+  same templates, each using its local Prometheus replica as its datasource.
+  Grafana is not in the alerting path, so no cross-host coupling is introduced.</li>
+<li><strong>Blackbox exporter</strong>: one instance per replica host, giving the probes two
+  vantage points; duplicate probe alerts deduplicate in the Alertmanager cluster
+  like every other alert.</li>
+</ul>
+<p>Rejected alternatives:</p>
+<ul>
+<li><strong>Primary/standby notification delivery</strong> (only one Alertmanager notifies
+  unless the primary is down): rejected because it reintroduces the asymmetry
+  and failover logic the pair exists to remove; occasional duplicates during
+  partitions are the cheaper failure mode.</li>
+<li><strong>A global-view layer (Thanos, Mimir, VictoriaMetrics)</strong> merging the replicas
+  behind one query endpoint with long-term object storage: rejected as
+  operational weight a two-node lab does not need; revisit if long-term
+  retention or a merged query view becomes a goal.</li>
+<li><strong>Remote read between the replicas</strong> to paper over history divergence:
+  rejected because it couples the replicas at query time, making each depend on
+  the other's availability for historical queries.</li>
+</ul>
 <h2 id="4-notification-channel">4. Notification Channel</h2>
 <p>Notifications are delivered to Telegram through Alertmanager's native Telegram
 integration, using a dedicated bot and chat.</p>
@@ -2487,8 +2577,10 @@ incident where Jellyseerr crash looped for a month without surfacing anywhere.</
 <h2 id="7-alerting-pipeline-health">7. Alerting Pipeline Health</h2>
 <p>The pipeline must not fail silently:</p>
 <ul>
-<li>Prometheus scrapes Alertmanager's metrics endpoint, so a dead Alertmanager
-  raises <code>InstanceDown</code> while Prometheus itself is alive.</li>
+<li>Every Prometheus replica scrapes every Prometheus and Alertmanager instance in
+  the replica set (§3.3), so the death of any single backend component —
+  including a whole replica host — raises <code>InstanceDown</code> from a surviving
+  replica.</li>
 <li>A full dead-man's-switch (an always-firing heartbeat alert delivered through
   an independent channel, catching the case where Prometheus or the whole host
   is down) is deliberately out of scope for this iteration and tracked in the
@@ -2507,10 +2599,14 @@ migration tracked in the specs index.</p>
 <li>The rendered rule file and Alertmanager configuration validate with the
   <code>promtool</code> and <code>amtool</code> checkers from the same pinned container images the
   stack runs.</li>
-<li>The Alertmanager and Prometheus health endpoints report healthy, and the
-  Prometheus rules API lists every group in the catalogue (§6).</li>
+<li>The Alertmanager and Prometheus health endpoints report healthy on every
+  replica, and the Prometheus rules API lists every group in the catalogue (§6)
+  on every replica.</li>
+<li>The Alertmanager cluster status reports both peers, and a silence created on
+  one replica is visible on the other.</li>
 <li>A synthetic alert posted through the Alertmanager API is delivered to the
-  Telegram chat, proving the full routing and credential path.</li>
+  Telegram chat, proving the full routing and credential path — exactly once,
+  also when both Prometheus replicas fire it, proving the deduplication.</li>
 </ul>
 <h2 id="future-work">Future Work</h2>
 <p>Future work items are tracked centrally in the

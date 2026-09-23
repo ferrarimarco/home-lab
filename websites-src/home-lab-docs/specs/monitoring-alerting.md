@@ -2,19 +2,22 @@
 
 ## Implementation Status
 
-| Component / Feature              | Status                | Details                                                                                                                       |
-| :------------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| **Alertmanager Service**         | **Fully Implemented** | `prom/alertmanager` service in the monitoring backend compose template; deployed and healthy on raspberrypi2 (§3).            |
-| **Alertmanager Configuration**   | **Fully Implemented** | Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).               |
-| **Prometheus Alerting Wiring**   | **Fully Implemented** | Rule file loading, the Alertmanager target, and the Alertmanager scrape job; scrape target healthy (§3.2, §7).                |
-| **Alert Rules: Availability**    | **Fully Implemented** | `InstanceDown` deployed; surfaced real down targets on first evaluation (§6.1).                                               |
-| **Alert Rules: Node Health**     | **Fully Implemented** | Unexpected reboots, node exporter textfile staleness, and filesystem space (§6.2).                                            |
-| **Alert Rules: Temperature**     | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                              |
-| **Alert Rules: Backups**         | **Fully Implemented** | Restic backup staleness and repository check failures (§6.4).                                                                 |
-| **Alert Rules: Blackbox Probes** | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                    |
-| **Alert Rules: Frigate**         | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                               |
-| **Alert Rules: Containers**      | **Fully Implemented** | Container restart-loop detection on the cadvisor metrics (§6.7).                                                              |
-| **Restart Policy Migration**     | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8). |
+| Component / Feature                        | Status                | Details                                                                                                                       |
+| :----------------------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| **Alertmanager Service**                   | **Fully Implemented** | `prom/alertmanager` service in the monitoring backend compose template; deployed and healthy on raspberrypi2 (§3).            |
+| **Alertmanager Configuration**             | **Fully Implemented** | Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).               |
+| **Prometheus Alerting Wiring**             | **Fully Implemented** | Rule file loading, the Alertmanager target, and the Alertmanager scrape job; scrape target healthy (§3.2, §7).                |
+| **Alert Rules: Availability**              | **Fully Implemented** | `InstanceDown` deployed; surfaced real down targets on first evaluation (§6.1).                                               |
+| **Alert Rules: Node Health**               | **Fully Implemented** | Unexpected reboots, node exporter textfile staleness, and filesystem space (§6.2).                                            |
+| **Alert Rules: Temperature**               | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                              |
+| **Alert Rules: Backups**                   | **Fully Implemented** | Restic backup staleness and repository check failures (§6.4).                                                                 |
+| **Alert Rules: Blackbox Probes**           | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                    |
+| **Alert Rules: Frigate**                   | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                               |
+| **Alert Rules: Containers**                | **Fully Implemented** | Container restart-loop detection on the cadvisor metrics (§6.7).                                                              |
+| **Restart Policy Migration**               | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8). |
+| **HA Pair: Prometheus Replicas**           | **Missing**           | Two-replica deployment on hl01 and raspberrypi2 with cross-scrapes, replica external labels, and TSDB seeding (§3.3).         |
+| **HA Pair: Alertmanager Cluster**          | **Missing**           | Gossip cluster between the replica hosts with notification deduplication and silence replication (§3.3).                      |
+| **HA Pair: Per-Host Grafana and Blackbox** | **Missing**           | One Grafana and one Blackbox exporter per replica host, provisioned identically (§3.3).                                       |
 
 ## 1. Goal
 
@@ -60,11 +63,14 @@ stack already collects.
 
 ### 3.1 Deployment Model
 
-Alertmanager runs as an additional service in the existing monitoring backend
-Docker Compose stack, on the same host as Prometheus and Grafana. It is enabled
-by the same mechanism as the rest of the stack (the monitoring backend
-enablement flag): a host that runs the monitoring backend runs Alertmanager,
-with no separate enablement flag.
+Alertmanager runs as an additional service in the monitoring backend Docker
+Compose stack, on the same host as Prometheus and Grafana. It is enabled by the
+same mechanism as the rest of the stack (the monitoring backend enablement
+flag): a host that runs the monitoring backend runs Alertmanager, with no
+separate enablement flag. The hosts that enable the flag form the backend
+replica set: the stack deploys identically to each of them, and every generated
+reference to the backend iterates the replica set instead of assuming a single
+instance (§3.3).
 
 Key properties:
 
@@ -76,23 +82,78 @@ Key properties:
   so container recreation neither drops active silences nor re-sends
   already-delivered notifications.
 - **Host port exposure**: the Alertmanager API and UI are published on host port
-  9093 with the same host-local posture as Prometheus on 9090: reached over SSH
-  during incident investigation, for `amtool` operations, and for managing
-  silences. It is not exposed beyond the host.
+  9093, like the Prometheus API on 9090. These ports, together with the
+  Alertmanager cluster port 9094, are LAN-reachable between the backend replica
+  hosts, which the pair requires for cross-scraping, alert delivery to every
+  replica, and cluster gossip (§3.3). Operator access stays over SSH during
+  incident investigation, for `amtool` operations, and for managing silences.
 - **Restart policy**: `restart: unless-stopped`, together with the rest of the
   stack (§8).
 
 ### 3.2 Data Flow
 
-1. Prometheus loads alerting rules from a dedicated, version-controlled rule
-   file rendered by the same configuration mechanism that renders
-   `prometheus.yaml`, and evaluates them on its global evaluation interval (1
-   minute).
-2. Firing alerts are sent to Alertmanager over the Compose network.
-3. Alertmanager groups, deduplicates, and routes them to the Telegram receiver
-   (§4).
-4. Prometheus also scrapes Alertmanager's own metrics endpoint, so a dead or
-   unhealthy Alertmanager surfaces as a down target (§7).
+1. Each Prometheus replica loads the identical alerting rules from a dedicated,
+   version-controlled rule file rendered by the same configuration mechanism
+   that renders `prometheus.yaml`, and evaluates them on its global evaluation
+   interval (1 minute).
+2. Each replica sends its firing alerts to every Alertmanager replica by host
+   FQDN, with the replica-identifying label stripped so the copies deduplicate
+   (§3.3).
+3. The Alertmanager cluster groups, deduplicates, and routes them to the
+   Telegram receiver (§4): one notification per alert, regardless of how many
+   replicas fired it.
+4. Each Prometheus replica also scrapes every Prometheus and Alertmanager
+   instance in the replica set, so a dead or unhealthy backend component
+   surfaces as a down target on the surviving replica (§7).
+
+### 3.3 High Availability Pair
+
+The monitoring backend runs as a two-replica pair on hl01 and raspberrypi2. The
+replica hosts sit in different failure domains: hl01 is a VM on pve1,
+raspberrypi2 is standalone hardware, so a backend that ran only on hl01 would
+die together with the pve1 workloads it watches. The pair also lets either host
+be taken down for maintenance (notably the planned raspberrypi2 re-image)
+without a monitoring blind spot.
+
+- **Prometheus replicas**: both instances scrape the same generated target
+  lists, which include every Prometheus and Alertmanager replica by host FQDN;
+  the configuration contains no `localhost` or Compose-network self-references.
+  Each instance carries a replica-identifying external label
+  (`replica: <hostname>`), which is stripped from outgoing alerts through alert
+  relabeling so the Alertmanager cluster deduplicates the copies. There is no
+  state replication between the replicas: each accumulates its own TSDB, and
+  divergence between them is accepted.
+- **TSDB seeding**: a replica joining the pair is seeded from a consistent copy
+  of an existing replica's TSDB (the snapshot API, or a copy taken while the
+  source instance is stopped), so the metrics history collected before the pair
+  existed stays queryable from every replica. After seeding, the copies evolve
+  independently.
+- **Alertmanager cluster**: the two instances form a gossip cluster over port
+  9094 between the replica hosts. The cluster deduplicates notifications and
+  replicates silences, so a silence survives the loss of either replica. During
+  a network partition between the replicas the deduplication degrades and
+  Telegram may briefly receive duplicate notifications: accepted as the cost of
+  keeping notification delivery free of a single point of failure.
+- **Grafana**: one instance per replica host, provisioned identically from the
+  same templates, each using its local Prometheus replica as its datasource.
+  Grafana is not in the alerting path, so no cross-host coupling is introduced.
+- **Blackbox exporter**: one instance per replica host, giving the probes two
+  vantage points; duplicate probe alerts deduplicate in the Alertmanager cluster
+  like every other alert.
+
+Rejected alternatives:
+
+- **Primary/standby notification delivery** (only one Alertmanager notifies
+  unless the primary is down): rejected because it reintroduces the asymmetry
+  and failover logic the pair exists to remove; occasional duplicates during
+  partitions are the cheaper failure mode.
+- **A global-view layer (Thanos, Mimir, VictoriaMetrics)** merging the replicas
+  behind one query endpoint with long-term object storage: rejected as
+  operational weight a two-node lab does not need; revisit if long-term
+  retention or a merged query view becomes a goal.
+- **Remote read between the replicas** to paper over history divergence:
+  rejected because it couples the replicas at query time, making each depend on
+  the other's availability for historical queries.
 
 ## 4. Notification Channel
 
@@ -239,8 +300,10 @@ incident where Jellyseerr crash looped for a month without surfacing anywhere.
 
 The pipeline must not fail silently:
 
-- Prometheus scrapes Alertmanager's metrics endpoint, so a dead Alertmanager
-  raises `InstanceDown` while Prometheus itself is alive.
+- Every Prometheus replica scrapes every Prometheus and Alertmanager instance in
+  the replica set (§3.3), so the death of any single backend component —
+  including a whole replica host — raises `InstanceDown` from a surviving
+  replica.
 - A full dead-man's-switch (an always-firing heartbeat alert delivered through
   an independent channel, catching the case where Prometheus or the whole host
   is down) is deliberately out of scope for this iteration and tracked in the
@@ -262,10 +325,14 @@ A deployment of this spec is verified with read-only checks:
 - The rendered rule file and Alertmanager configuration validate with the
   `promtool` and `amtool` checkers from the same pinned container images the
   stack runs.
-- The Alertmanager and Prometheus health endpoints report healthy, and the
-  Prometheus rules API lists every group in the catalogue (§6).
+- The Alertmanager and Prometheus health endpoints report healthy on every
+  replica, and the Prometheus rules API lists every group in the catalogue (§6)
+  on every replica.
+- The Alertmanager cluster status reports both peers, and a silence created on
+  one replica is visible on the other.
 - A synthetic alert posted through the Alertmanager API is delivered to the
-  Telegram chat, proving the full routing and credential path.
+  Telegram chat, proving the full routing and credential path — exactly once,
+  also when both Prometheus replicas fire it, proving the deduplication.
 
 ## Future Work
 
