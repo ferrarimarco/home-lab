@@ -2139,18 +2139,18 @@
 </tr>
 <tr>
 <td style="text-align: left;"><strong>HA Pair: Prometheus Replicas</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Two-replica deployment on hl01 and raspberrypi2 with cross-scrapes, replica external labels, and TSDB seeding (§3.3).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Deployed on hl01 and raspberrypi2; cross-scrapes verified up from both replicas, hl01 seeded from the raspberrypi2 TSDB with history queryable (§3.3).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>HA Pair: Alertmanager Cluster</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Gossip cluster between the replica hosts with notification deduplication and silence replication (§3.3).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Gossip cluster healthy over host networking; silence replication both ways and exactly-once Telegram delivery verified (§3.3).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>HA Pair: Per-Host Grafana and Blackbox</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">One Grafana and one Blackbox exporter per replica host, provisioned identically (§3.3).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Grafana and the Blackbox exporter run on both replica hosts from identical templates; all backend targets up (§3.3).</td>
 </tr>
 </tbody>
 </table>

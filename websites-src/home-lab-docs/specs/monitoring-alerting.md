@@ -2,22 +2,22 @@
 
 ## Implementation Status
 
-| Component / Feature                        | Status                | Details                                                                                                                       |
-| :----------------------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| **Alertmanager Service**                   | **Fully Implemented** | `prom/alertmanager` service in the monitoring backend compose template; deployed and healthy on raspberrypi2 (§3).            |
-| **Alertmanager Configuration**             | **Fully Implemented** | Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).               |
-| **Prometheus Alerting Wiring**             | **Fully Implemented** | Rule file loading, the Alertmanager target, and the Alertmanager scrape job; scrape target healthy (§3.2, §7).                |
-| **Alert Rules: Availability**              | **Fully Implemented** | `InstanceDown` deployed; surfaced real down targets on first evaluation (§6.1).                                               |
-| **Alert Rules: Node Health**               | **Fully Implemented** | Unexpected reboots, node exporter textfile staleness, and filesystem space (§6.2).                                            |
-| **Alert Rules: Temperature**               | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                              |
-| **Alert Rules: Backups**                   | **Fully Implemented** | Restic backup staleness and repository check failures (§6.4).                                                                 |
-| **Alert Rules: Blackbox Probes**           | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                    |
-| **Alert Rules: Frigate**                   | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                               |
-| **Alert Rules: Containers**                | **Fully Implemented** | Container restart-loop detection on the cadvisor metrics (§6.7).                                                              |
-| **Restart Policy Migration**               | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8). |
-| **HA Pair: Prometheus Replicas**           | **Missing**           | Two-replica deployment on hl01 and raspberrypi2 with cross-scrapes, replica external labels, and TSDB seeding (§3.3).         |
-| **HA Pair: Alertmanager Cluster**          | **Missing**           | Gossip cluster between the replica hosts with notification deduplication and silence replication (§3.3).                      |
-| **HA Pair: Per-Host Grafana and Blackbox** | **Missing**           | One Grafana and one Blackbox exporter per replica host, provisioned identically (§3.3).                                       |
+| Component / Feature                        | Status                | Details                                                                                                                                                |
+| :----------------------------------------- | :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Alertmanager Service**                   | **Fully Implemented** | `prom/alertmanager` service in the monitoring backend compose template; deployed and healthy on raspberrypi2 (§3).                                     |
+| **Alertmanager Configuration**             | **Fully Implemented** | Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).                                        |
+| **Prometheus Alerting Wiring**             | **Fully Implemented** | Rule file loading, the Alertmanager target, and the Alertmanager scrape job; scrape target healthy (§3.2, §7).                                         |
+| **Alert Rules: Availability**              | **Fully Implemented** | `InstanceDown` deployed; surfaced real down targets on first evaluation (§6.1).                                                                        |
+| **Alert Rules: Node Health**               | **Fully Implemented** | Unexpected reboots, node exporter textfile staleness, and filesystem space (§6.2).                                                                     |
+| **Alert Rules: Temperature**               | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                                                       |
+| **Alert Rules: Backups**                   | **Fully Implemented** | Restic backup staleness and repository check failures (§6.4).                                                                                          |
+| **Alert Rules: Blackbox Probes**           | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                                             |
+| **Alert Rules: Frigate**                   | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                                                        |
+| **Alert Rules: Containers**                | **Fully Implemented** | Container restart-loop detection on the cadvisor metrics (§6.7).                                                                                       |
+| **Restart Policy Migration**               | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8).                          |
+| **HA Pair: Prometheus Replicas**           | **Fully Implemented** | Deployed on hl01 and raspberrypi2; cross-scrapes verified up from both replicas, hl01 seeded from the raspberrypi2 TSDB with history queryable (§3.3). |
+| **HA Pair: Alertmanager Cluster**          | **Fully Implemented** | Gossip cluster healthy over host networking; silence replication both ways and exactly-once Telegram delivery verified (§3.3).                         |
+| **HA Pair: Per-Host Grafana and Blackbox** | **Fully Implemented** | Grafana and the Blackbox exporter run on both replica hosts from identical templates; all backend targets up (§3.3).                                   |
 
 ## 1. Goal
 
