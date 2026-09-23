@@ -78,6 +78,14 @@ reliability risks first, then security exposure, then automation):
 ### Issues to solve
 
 - Workload issues to solve:
+    - Investigate the recurring cam-3 ffmpeg VAAPI decode crashes on hl01 (about
+      11 per hour: `Failed to sync surface` then `hwdownload` failures; they
+      persist over RTSP TCP, so stream transport corruption is ruled out).
+      Hardware acceleration stays enabled by decision (2026-09-23): the Frigate
+      watchdog recovers capture each time and the Frigate alert rules watch for
+      lasting degradation. Candidate angles: Intel media driver and kernel
+      versions, the camera sub-stream H.264 parameters, Frigate and ffmpeg
+      updates.
     - Frigate doesn't restart because the cam3 name is not yet available.
       Restart it manually from the Frigate UI.
     - Zigbee2MQTT doesn't restart. It restarted after a long time.

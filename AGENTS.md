@@ -95,6 +95,10 @@ agents must strictly follow these style rules:
   (such as colons `:`, periods `.`, exclamation marks `!`, or question marks
   `?`) at the end of headings. Headings should remain descriptive, clean, and
   concise.
+- **No Private Identifiers:** Do not put private or personal identifiers
+  (people's names, personal directory or share names) in committed
+  documentation; describe them neutrally (for example "a personal data
+  directory").
 
 ## 4. Operational Scripts
 
@@ -173,7 +177,9 @@ describes them all. Key rules:
   terraform fmt from the same pinned super-linter image); the check-mode
   `scripts/lint.sh` run remains the authoritative verdict. The
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
-  documents these output files and the format script.
+  documents these output files and the format script. Run only one
+  `scripts/lint.sh` at a time: concurrent runs clobber the shared
+  `super-linter-output/` directory.
 
 ## 5. Design & Modularization Rules
 
