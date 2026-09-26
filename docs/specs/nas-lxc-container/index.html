@@ -1782,9 +1782,78 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#12-future-work" class="md-nav__link">
+  <a href="#12-syncthing-service" class="md-nav__link">
     <span class="md-ellipsis">
-      12. Future Work
+      12. Syncthing Service
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Syncthing Service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-placement-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.1 Placement Rationale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-folders-and-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.2 Folders and Data Flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-storage-declarations" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.3 Storage Declarations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#124-device-identity-and-state-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.4 Device Identity and State Persistence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#125-migration-from-raspberrypi2" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.5 Migration from raspberrypi2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#126-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.6 Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Future Work
     </span>
   </a>
   
@@ -2206,9 +2275,78 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#12-future-work" class="md-nav__link">
+  <a href="#12-syncthing-service" class="md-nav__link">
     <span class="md-ellipsis">
-      12. Future Work
+      12. Syncthing Service
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Syncthing Service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-placement-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.1 Placement Rationale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-folders-and-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.2 Folders and Data Flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-storage-declarations" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.3 Storage Declarations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#124-device-identity-and-state-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.4 Device Identity and State Persistence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#125-migration-from-raspberrypi2" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.5 Migration from raspberrypi2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#126-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.6 Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Future Work
     </span>
   </a>
   
@@ -2237,7 +2375,8 @@
 <p>This spec builds on the <a href="../proxmox-lxc/">NixOS LXC Containers on Proxmox</a>
 framework, which defines the <code>proxmox-lxc</code> role, LXC template generation, the
 Terraform container-provisioning pattern, and LXC test limitations. This
-document covers only the NAS/SMB-specific additions.</p>
+document covers only the NAS-specific additions: SMB file sharing and the
+Syncthing service that runs alongside it (§12).</p>
 <h2 id="implementation-status">Implementation Status</h2>
 <table>
 <thead>
@@ -2297,6 +2436,16 @@ document covers only the NAS/SMB-specific additions.</p>
 <td style="text-align: left;"><strong>Flake Registration</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Both NAS hosts discovered by the flake (tests and machine matrix).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Syncthing Service (<code>nas-pve1</code>)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Declarative <code>services.syncthing</code> on <code>nas-pve1</code> (§12).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Syncthing Storage (dataset, bind mounts)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>rpool-usb-1/syncthing</code> dataset plus data and state bind mounts (§12.3, §12.4).</td>
 </tr>
 </tbody>
 </table>
@@ -2877,7 +3026,108 @@ stable addressing for SMB clients.</p>
 <p>Each container's network interface is assigned a pinned MAC address in
 Terraform, matching the pattern used for VMs. This ensures stable DHCP
 reservations.</p>
-<h2 id="12-future-work">12. Future Work</h2>
+<h2 id="12-syncthing-service">12. Syncthing Service</h2>
+<p>The NAS guest is also the home of Syncthing, the lab's offsite backup transport:
+it receives a remote peer's backups into a local folder, sends a small subset of
+replaceable media offsite, and may later send this lab's own backup data (for
+example, restic repositories) to the peer. <code>nas-pve1</code> runs the first instance,
+migrated from raspberrypi2 (§12.5). The model generalizes to one instance per
+storage-owning host — a future <code>nas-pve2</code> instance would serve folders on
+<code>tank-hdd</code> — with every instance joining the same Syncthing device mesh. What is
+never done is pointing one instance at another host's storage over a network
+mount (§12.1).</p>
+<h3 id="121-placement-rationale">12.1 Placement Rationale</h3>
+<p>Syncthing folders must live on storage that is local to the instance. On a
+network filesystem the change watcher receives no events for server-side changes
+(Syncthing falls back to periodic full rescans of the whole tree over the
+network), permission handling needs workarounds such as <code>ignorePerms</code>, and
+Syncthing maintainers advise running the service on the machine that owns the
+storage. Two alternatives were considered and rejected:</p>
+<ul>
+<li><strong>Syncthing on hl01 with folders on a CIFS mount of the NAS shares</strong>: rejected
+  for the network-filesystem limitations above; hl01's local disk is also too
+  small to hold the folders itself.</li>
+<li><strong>A dedicated Syncthing LXC container</strong>: rejected because the folders live on
+  datasets the NAS guest already bind-mounts for its shares, so a second
+  privileged container would duplicate the bind mounts and widen the
+  UID-alignment surface for no isolation gain.</li>
+</ul>
+<p>Inside the NAS container, a bind-mounted dataset is a local filesystem, so the
+watcher, permission handling, and atomic renames all behave normally.</p>
+<h3 id="122-folders-and-data-flow">12.2 Folders and Data Flow</h3>
+<p>The instance serves two folders migrated from raspberrypi2, keeping their
+existing Syncthing folder IDs so the remote peer reattaches them to the new
+device without recreating anything:</p>
+<ul>
+<li><strong>The personal backup folder</strong> (about 196 GB), declared <strong>receive-only</strong>: the
+  remote peer is the source of truth, and local changes are never propagated
+  back — the correct posture for a backup destination.</li>
+<li><strong>The outbound media-subset folder</strong>, declared <strong>send-only</strong>: this lab is the
+  source, and remote changes are never accepted.</li>
+</ul>
+<p>Folder types encode the backup direction declaratively. Syncthing is used
+strictly as a transport, not as the backup mechanism itself: sync faithfully
+replicates deletions and corruption, so versioning and integrity checking belong
+to the layer that produces the data (for example restic, when this lab's own
+backups are sent offsite later).</p>
+<p>The service runs as <code>ferrarimarco</code> (UID <code>1000</code>) rather than the module's default
+<code>syncthing</code> user, so file ownership on the bind-mounted datasets stays aligned
+with the host and with Samba (see §5).</p>
+<h3 id="123-storage-declarations">12.3 Storage Declarations</h3>
+<p>The folders live on a dedicated <code>rpool-usb-1/syncthing</code> dataset, following the
+per-host share pattern (§5.1) with Syncthing as the consumer instead of a Samba
+export:</p>
+<ol>
+<li><strong>The host dataset (Ansible)</strong>: <code>rpool-usb-1/syncthing</code> in pve1's
+   <code>zfs_datasets</code> list, converged by the <code>setup_disks</code> role (§11.1).</li>
+<li><strong>The bind mount (Terraform)</strong>: <code>/rpool-usb-1/syncthing</code> →
+   <code>/mnt/shared/syncthing</code> in <code>var.nas_container_bind_mounts</code>.</li>
+<li><strong>The folder declarations (NixOS)</strong>: <code>services.syncthing</code> folder entries in
+   the host's <code>configuration.nix</code>, with paths under <code>/mnt/shared/syncthing</code>.</li>
+</ol>
+<p>An SMB export of the dataset is deliberately not part of this design; if
+browsing the folders over the network becomes useful, add a per-host share for
+the same paths (§5.1).</p>
+<h3 id="124-device-identity-and-state-persistence">12.4 Device Identity and State Persistence</h3>
+<p>The instance uses a <strong>fresh device identity</strong>: the key pair is generated on the
+guest at first start and never tracked. Reusing raspberrypi2's identity by
+copying its key pair was considered and rejected: the device key is secret
+material, so it cannot flow through the public repository or the declarative
+configuration, and preserving it would require an imperative, out-of-band copy
+to spare the remote peer a single accept-new-device action.</p>
+<p>The state directory (<code>/var/lib/syncthing</code>: the device keys and the index
+database) is bind-mounted from host-persistent storage
+(<code>/var/lib/syncthing-state/nas-pve1</code>), following the Samba state pattern (§6.2,
+§11.2), so the identity survives container recreation and template updates. The
+host-side directory is declared in pve1's <code>directories_to_create</code> list and
+created by the <code>setup_disks</code> role, owned by UID <code>1000</code> to match the service
+user. The index database is rebuildable by a rescan; the key pair is the only
+unique material.</p>
+<p>The NixOS guest has no restic coverage (the restic stack manages Debian hosts
+only), and this is an accepted trade-off rather than an oversight: the synced
+data is re-syncable from the remote peer, and a lost identity is regenerable at
+the cost of one re-acceptance by the peer. Backing up the state directories on
+pve1 is tracked in the
+<a href="../#specifications-to-write-and-todos">specifications readme</a>; note
+that both the Samba and Syncthing state directories contain secret material
+(§8.2, and the device private key here).</p>
+<h3 id="125-migration-from-raspberrypi2">12.5 Migration from raspberrypi2</h3>
+<p>Seeding uses Syncthing itself instead of a manual copy: the raspberrypi2
+instance adds the new nas-pve1 device and shares both folders with it, the two
+instances discover each other via local discovery, and the data transfers
+directly over the LAN with every block hash-verified. There is no freeze window
+— changes arriving mid-transfer sync normally. Pre-seeding with <code>rsync</code> was
+considered and rejected: it requires quiescing the source, forfeits Syncthing's
+built-in verification, and saves nothing. Once the folders report in sync, the
+remote peer accepts the new device and drops the old one, the Syncthing blackbox
+probe is re-pointed at nas-pve1, and raspberrypi2's instance is removed
+(<code>configure_syncthing: false</code>).</p>
+<h3 id="126-monitoring">12.6 Monitoring</h3>
+<p>The existing Syncthing HTTP endpoint blackbox probe moves to the nas-pve1
+instance's GUI/API endpoint as part of the migration. Deeper metrics integration
+is tracked centrally in the
+<a href="../#specifications-to-write-and-todos">specifications readme</a>.</p>
+<h2 id="13-future-work">13. Future Work</h2>
 <p>Future work items for this spec are tracked centrally in the
 <a href="../#specifications-to-write-and-todos">specifications readme</a>.</p>
 

@@ -3,22 +3,25 @@
 This spec builds on the [NixOS LXC Containers on Proxmox](./proxmox-lxc.md)
 framework, which defines the `proxmox-lxc` role, LXC template generation, the
 Terraform container-provisioning pattern, and LXC test limitations. This
-document covers only the NAS/SMB-specific additions.
+document covers only the NAS-specific additions: SMB file sharing and the
+Syncthing service that runs alongside it (§12).
 
 ## Implementation Status
 
-| Component / Feature             | Status                | Details                                                                           |
-| :------------------------------ | :-------------------- | :-------------------------------------------------------------------------------- |
-| **`nas` Role (SMB)**            | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                     |
-| **`common` Role UID Pin**       | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.          |
-| **Host Config (`nas-pve1`)**    | **Fully Implemented** | NixOS host config for the pve1 instance.                                          |
-| **Host Config (`nas-pve2`)**    | **Fully Implemented** | NixOS host config for the pve2 instance.                                          |
-| **Terraform LXC (`pve1`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                  |
-| **Terraform LXC (`pve2`)**      | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                  |
-| **Terraform Template Upload**   | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
-| **Host Storage Prep (Ansible)** | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11). |
-| **Host Integration Tests**      | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
-| **Flake Registration**          | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
+| Component / Feature                          | Status                | Details                                                                           |
+| :------------------------------------------- | :-------------------- | :-------------------------------------------------------------------------------- |
+| **`nas` Role (SMB)**                         | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                     |
+| **`common` Role UID Pin**                    | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.          |
+| **Host Config (`nas-pve1`)**                 | **Fully Implemented** | NixOS host config for the pve1 instance.                                          |
+| **Host Config (`nas-pve2`)**                 | **Fully Implemented** | NixOS host config for the pve2 instance.                                          |
+| **Terraform LXC (`pve1`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                  |
+| **Terraform LXC (`pve2`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                  |
+| **Terraform Template Upload**                | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
+| **Host Storage Prep (Ansible)**              | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11). |
+| **Host Integration Tests**                   | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
+| **Flake Registration**                       | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
+| **Syncthing Service (`nas-pve1`)**           | **Missing**           | Declarative `services.syncthing` on `nas-pve1` (§12).                             |
+| **Syncthing Storage (dataset, bind mounts)** | **Missing**           | `rpool-usb-1/syncthing` dataset plus data and state bind mounts (§12.3, §12.4).   |
 
 ## 1. Goal
 
@@ -678,7 +681,125 @@ Each container's network interface is assigned a pinned MAC address in
 Terraform, matching the pattern used for VMs. This ensures stable DHCP
 reservations.
 
-## 12. Future Work
+## 12. Syncthing Service
+
+The NAS guest is also the home of Syncthing, the lab's offsite backup transport:
+it receives a remote peer's backups into a local folder, sends a small subset of
+replaceable media offsite, and may later send this lab's own backup data (for
+example, restic repositories) to the peer. `nas-pve1` runs the first instance,
+migrated from raspberrypi2 (§12.5). The model generalizes to one instance per
+storage-owning host — a future `nas-pve2` instance would serve folders on
+`tank-hdd` — with every instance joining the same Syncthing device mesh. What is
+never done is pointing one instance at another host's storage over a network
+mount (§12.1).
+
+### 12.1 Placement Rationale
+
+Syncthing folders must live on storage that is local to the instance. On a
+network filesystem the change watcher receives no events for server-side changes
+(Syncthing falls back to periodic full rescans of the whole tree over the
+network), permission handling needs workarounds such as `ignorePerms`, and
+Syncthing maintainers advise running the service on the machine that owns the
+storage. Two alternatives were considered and rejected:
+
+- **Syncthing on hl01 with folders on a CIFS mount of the NAS shares**: rejected
+  for the network-filesystem limitations above; hl01's local disk is also too
+  small to hold the folders itself.
+- **A dedicated Syncthing LXC container**: rejected because the folders live on
+  datasets the NAS guest already bind-mounts for its shares, so a second
+  privileged container would duplicate the bind mounts and widen the
+  UID-alignment surface for no isolation gain.
+
+Inside the NAS container, a bind-mounted dataset is a local filesystem, so the
+watcher, permission handling, and atomic renames all behave normally.
+
+### 12.2 Folders and Data Flow
+
+The instance serves two folders migrated from raspberrypi2, keeping their
+existing Syncthing folder IDs so the remote peer reattaches them to the new
+device without recreating anything:
+
+- **The personal backup folder** (about 196 GB), declared **receive-only**: the
+  remote peer is the source of truth, and local changes are never propagated
+  back — the correct posture for a backup destination.
+- **The outbound media-subset folder**, declared **send-only**: this lab is the
+  source, and remote changes are never accepted.
+
+Folder types encode the backup direction declaratively. Syncthing is used
+strictly as a transport, not as the backup mechanism itself: sync faithfully
+replicates deletions and corruption, so versioning and integrity checking belong
+to the layer that produces the data (for example restic, when this lab's own
+backups are sent offsite later).
+
+The service runs as `ferrarimarco` (UID `1000`) rather than the module's default
+`syncthing` user, so file ownership on the bind-mounted datasets stays aligned
+with the host and with Samba (see §5).
+
+### 12.3 Storage Declarations
+
+The folders live on a dedicated `rpool-usb-1/syncthing` dataset, following the
+per-host share pattern (§5.1) with Syncthing as the consumer instead of a Samba
+export:
+
+1. **The host dataset (Ansible)**: `rpool-usb-1/syncthing` in pve1's
+   `zfs_datasets` list, converged by the `setup_disks` role (§11.1).
+2. **The bind mount (Terraform)**: `/rpool-usb-1/syncthing` →
+   `/mnt/shared/syncthing` in `var.nas_container_bind_mounts`.
+3. **The folder declarations (NixOS)**: `services.syncthing` folder entries in
+   the host's `configuration.nix`, with paths under `/mnt/shared/syncthing`.
+
+An SMB export of the dataset is deliberately not part of this design; if
+browsing the folders over the network becomes useful, add a per-host share for
+the same paths (§5.1).
+
+### 12.4 Device Identity and State Persistence
+
+The instance uses a **fresh device identity**: the key pair is generated on the
+guest at first start and never tracked. Reusing raspberrypi2's identity by
+copying its key pair was considered and rejected: the device key is secret
+material, so it cannot flow through the public repository or the declarative
+configuration, and preserving it would require an imperative, out-of-band copy
+to spare the remote peer a single accept-new-device action.
+
+The state directory (`/var/lib/syncthing`: the device keys and the index
+database) is bind-mounted from host-persistent storage
+(`/var/lib/syncthing-state/nas-pve1`), following the Samba state pattern (§6.2,
+§11.2), so the identity survives container recreation and template updates. The
+host-side directory is declared in pve1's `directories_to_create` list and
+created by the `setup_disks` role, owned by UID `1000` to match the service
+user. The index database is rebuildable by a rescan; the key pair is the only
+unique material.
+
+The NixOS guest has no restic coverage (the restic stack manages Debian hosts
+only), and this is an accepted trade-off rather than an oversight: the synced
+data is re-syncable from the remote peer, and a lost identity is regenerable at
+the cost of one re-acceptance by the peer. Backing up the state directories on
+pve1 is tracked in the
+[specifications readme](./README.md#specifications-to-write-and-todos); note
+that both the Samba and Syncthing state directories contain secret material
+(§8.2, and the device private key here).
+
+### 12.5 Migration from raspberrypi2
+
+Seeding uses Syncthing itself instead of a manual copy: the raspberrypi2
+instance adds the new nas-pve1 device and shares both folders with it, the two
+instances discover each other via local discovery, and the data transfers
+directly over the LAN with every block hash-verified. There is no freeze window
+— changes arriving mid-transfer sync normally. Pre-seeding with `rsync` was
+considered and rejected: it requires quiescing the source, forfeits Syncthing's
+built-in verification, and saves nothing. Once the folders report in sync, the
+remote peer accepts the new device and drops the old one, the Syncthing blackbox
+probe is re-pointed at nas-pve1, and raspberrypi2's instance is removed
+(`configure_syncthing: false`).
+
+### 12.6 Monitoring
+
+The existing Syncthing HTTP endpoint blackbox probe moves to the nas-pve1
+instance's GUI/API endpoint as part of the migration. Deeper metrics integration
+is tracked centrally in the
+[specifications readme](./README.md#specifications-to-write-and-todos).
+
+## 13. Future Work
 
 Future work items for this spec are tracked centrally in the
 [specifications readme](./README.md#specifications-to-write-and-todos).

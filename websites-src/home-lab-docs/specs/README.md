@@ -12,7 +12,7 @@ testing rationale before code implementation.
 | [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                                        | **Fully Implemented**         |
 | [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                                                  | **Fully Implemented**         |
 | [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.                                | **Fully Implemented**         |
-| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts. Builds on the `proxmox-lxc` framework.                                    | **Fully Implemented**         |
+| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.        | **Partially Implemented**     |
 | [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair. | **Fully Implemented**         |
 
 ## Specifications to write and TODOs
@@ -27,15 +27,20 @@ the relevant specification, or explicitly discarded.
 The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):
 
-- Evacuate the data off the raspberrypi2 data disk: the disk holds the only copy
-  of the media library and of a personal data directory, and the host's restic
-  repositories live on that same disk, so one disk failure loses the data and
-  its backups together. Trim the media library, then copy the data to the new
-  pve1 NAS storage ([NAS](#nas)). SMART attributes were stable between
-  2026-09-13 and 2026-09-22 (pending and offline-uncorrectable sector counts
-  unchanged), but the drive is past its load-cycle rating, so this stays the top
-  data-loss risk. Blocks: the media stack migration cutover and the SMART long
-  self-test ([Issues to solve](#issues-to-solve)).
+- Evacuate the data off the raspberrypi2 data disk: the disk holds the only
+  local copy of the media library and of a personal data directory, and the
+  host's restic repositories live on that same disk, so one disk failure loses
+  the data and its backups together. Two tracks ([NAS](#nas)): the personal data
+  directory (a Syncthing folder) evacuates via the Syncthing migration to
+  nas-pve1, which is unblocked because its target pool (`rpool-usb-1`) already
+  exists; the media library evacuates to the new 2 TB pool (`rpool-usb-2`) once
+  the disk is attached — trimming the library is recommended for headroom (the
+  untrimmed library fills about 80% of the pool) but no longer required for fit.
+  SMART attributes were stable between 2026-09-13 and 2026-09-22 (pending and
+  offline-uncorrectable sector counts unchanged), but the drive is past its
+  load-cycle rating, so this stays the top data-loss risk. Blocks: the media
+  stack migration cutover and the SMART long self-test
+  ([Issues to solve](#issues-to-solve)).
 - Migrate the containers from raspberrypi2 to hl01: shrinks that host's role and
   unblocks its re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). Depends
@@ -67,10 +72,11 @@ reliability risks first, then security exposure, then automation):
     - Migrate containers from raspberrypi2 to hl01: Zigbee2MQTT depends on the
       Zigbee adapter hardware; the media stack depends on data (copy the media,
       remove the runtime data from raspberrypi2, update the endpoints in the
-      Ansible configuration); deploy Syncthing on hl01 instead of migrating it.
-      The monitoring backend is excluded from this migration: it runs as a
-      highly available pair on hl01 and raspberrypi2 (monitoring-alerting spec
-      §3.3).
+      Ansible configuration). Syncthing migrates to the nas-pve1 NixOS guest
+      instead of hl01, so its folders live on storage local to the service
+      ([NAS](#nas)). The monitoring backend is excluded from this migration: it
+      runs as a highly available pair on hl01 and raspberrypi2
+      (monitoring-alerting spec §3.3).
     - Run Ansible.
     - Run Terraform to set up the Proxmox hosts (networking; storage: pve1 done,
       pve2 pending).
@@ -100,7 +106,8 @@ reliability risks first, then security exposure, then automation):
       if it happens). Remediation: safely restart the container by
       [shutting Home Assistant down before updating](https://community.home-assistant.io/t/shut-down-home-assistant-cleanly-before-shutdown-docker/301438).
     - The Syncthing HTTP endpoint blackbox probe is configured but fails
-      (authentication, HTTPS with self-signed certificate).
+      (authentication, HTTPS with self-signed certificate). The probe target
+      moves to the nas-pve1 instance with the Syncthing migration ([NAS](#nas)).
 - raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):
@@ -575,17 +582,53 @@ reliability risks first, then security exposure, then automation):
 
 Related specification: [NAS LXC Container](./nas-lxc-container.md).
 
-- **Media evacuation storage**: attach the spare 2 TB USB disk to pve1 as a new
-  independent single-disk ZFS pool (for example `rpool-usb-2`) with its own NAS
-  share, as the target for the trimmed media library (~1.5 TB before trimming);
-  the personal data directory (196 GB) goes to the existing 900 GB `rpool-usb-1`
-  share, keeping the two data sets in separate failure domains. Extending
-  `rpool-usb-1` with the new disk as a second striped vdev was considered and
-  rejected: it couples two single disks into one failure domain where either
-  disk's failure loses the whole pool, aggravated by the USB transport. The
-  evacuated library remains a single copy on an aging USB drive: evaluate pve2's
-  `tank-hdd` pool as the long-term media home or as a second copy once the pve2
-  power consumption evaluation decides how often that node runs.
+- **Media evacuation storage (pool layout decided 2026-09-26)**: attach the
+  spare 2 TB USB disk to pve1 as a new independent single-disk ZFS pool
+  (`rpool-usb-2`) holding replaceable media only, as the target for the media
+  library (~1.5 TB, about 80% of the pool before trimming, so trimming is
+  recommended for headroom and growth room but not required for fit). The
+  existing 900 GB `rpool-usb-1` pool holds the valuable data instead: the
+  Syncthing folders (about 200 GB) and its `backups` dataset (currently unused,
+  reserved for future backup use such as offsite-send staging). The `media-usb`
+  share re-homes from `rpool-usb-1` to `rpool-usb-2` at the media cutover. The
+  split separates the pools by data replaceability, so neither single disk holds
+  sole custody of irreplaceable data. Extending `rpool-usb-1` with the new disk
+  as a second striped vdev was considered and rejected: it couples two single
+  disks into one failure domain where either disk's failure loses the whole
+  pool, aggravated by the USB transport. The evacuated library remains a single
+  copy on an aging USB drive: evaluate pve2's `tank-hdd` pool as the long-term
+  media home or as a second copy once the pve2 power consumption evaluation
+  decides how often that node runs.
+- **Syncthing migration to nas-pve1**: run Syncthing declaratively on the
+  nas-pve1 NixOS guest (`services.syncthing`), where its folders are local
+  storage; the
+  [Syncthing service section](./nas-lxc-container.md#12-syncthing-service) of
+  the NAS spec records the design (placement rationale, folder inventory, device
+  identity, state persistence, and the rejected alternatives). Implementation
+  steps: create the `rpool-usb-1/syncthing` dataset and the host-side state
+  directory (Ansible `setup_disks`), add the two bind mounts (Terraform), add
+  the Syncthing service to the nas-pve1 host configuration (NixOS), let the
+  raspberrypi2 instance share the folders with the new device so the data seeds
+  over the LAN, have the remote peer accept the new device identity, re-point
+  the Syncthing blackbox probe ([Issues to solve](#issues-to-solve)), then set
+  `configure_syncthing: false` on raspberrypi2 and remove the old data.
+  Unblocked: the target pool already exists and is empty.
+- **raspberrypi2 restic repository wind-down (decided 2026-09-26)**: hl01's
+  restic repository stays on `rpool-sata` via the existing `backups` share (no
+  consolidation onto the USB pools). raspberrypi2's repository covers only the
+  workloads running there and retires with the host: the backup job keeps
+  running until the last workload leaves, and each migrated workload's old
+  snapshots can be discarded after about a week of healthy hl01 snapshots (the
+  workloads job keeps 7 days of dailies, and hl01 picks up a migrated workload's
+  state directory automatically).
+- **Back up the NAS guest state directories on pve1**: the Samba state directory
+  and the Syncthing state directory persist service state (the Samba password
+  database, the Syncthing device keys and index database) across guest rebuilds
+  via host bind mounts, but nothing backs them up: losing pve1's root filesystem
+  means re-running `smbpasswd` and re-accepting a new Syncthing device at the
+  remote peer. Both directories contain secret material (NT password hashes,
+  device private keys), so any backup mechanism must keep them out of the
+  repository and restrict access, consistent with the secrets policy.
 - **NFS support**: Re-introduce NFS sharing alongside SMB. Evaluate
   `nfs-kernel-server` in a privileged container versus the user-space
   NFS-Ganesha server, which can run in an unprivileged container.
