@@ -22,6 +22,10 @@ variable "nas_container_bind_mounts" {
         host_path      = "/rpool-usb-1/backups"
         container_path = "/mnt/shared/backups-usb"
       },
+      {
+        host_path      = "/rpool-usb-1/syncthing"
+        container_path = "/mnt/shared/syncthing"
+      },
     ]
     "pve2" = [
       {

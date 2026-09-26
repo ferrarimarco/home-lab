@@ -607,12 +607,19 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   identity, state persistence, and the rejected alternatives). Implementation
   steps: create the `rpool-usb-1/syncthing` dataset and the host-side state
   directory (Ansible `setup_disks`), add the two bind mounts (Terraform), add
-  the Syncthing service to the nas-pve1 host configuration (NixOS), let the
+  the Syncthing service and the folder directories to the nas-pve1 host
+  configuration (NixOS), configure the devices and folders via the GUI/API
+  (device IDs are private material and stay out of the repository), let the
   raspberrypi2 instance share the folders with the new device so the data seeds
   over the LAN, have the remote peer accept the new device identity, re-point
   the Syncthing blackbox probe ([Issues to solve](#issues-to-solve)), then set
   `configure_syncthing: false` on raspberrypi2 and remove the old data.
-  Unblocked: the target pool already exists and is empty.
+  Follow-up once the instance is cut over: a Prometheus scrape of the Syncthing
+  metrics endpoint on both replicas (vault-backed API credential) plus alert
+  rules (offsite peer not seen for too long, folders out of sync or erroring),
+  designed against the post-migration steady state
+  ([Monitoring and alerting](#monitoring-and-alerting)). Unblocked: the target
+  pool already exists and is empty.
 - **raspberrypi2 restic repository wind-down (decided 2026-09-26)**: hl01's
   restic repository stays on `rpool-sata` via the existing `backups` share (no
   consolidation onto the USB pools). raspberrypi2's repository covers only the
@@ -661,7 +668,11 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   (untracked) variable, so the container's existing `/var/lib/samba` bind mount
   delivers it. Container recreation then self-heals the password database,
   rotation is an Ansible run plus a unit restart, and disaster recovery reduces
-  to the local Ansible vault, as for every other secret in the lab.
+  to the local Ansible vault, as for every other secret in the lab. The same
+  mechanism could deliver the Syncthing sync topology and GUI credentials on
+  nas-pve1, which are imperative for the same keep-private-material-out reason
+  (see the NAS spec,
+  [device identity and state persistence](./nas-lxc-container.md#124-device-identity-and-state-persistence)).
 - **SMB service discovery**: Enable Samba's WS-Discovery or Avahi for automatic
   share browsing on Windows and macOS clients.
 - **Static IP migration**: Transition from DHCP to static IP assignments defined

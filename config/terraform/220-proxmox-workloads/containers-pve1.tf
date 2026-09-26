@@ -64,4 +64,12 @@ resource "proxmox_virtual_environment_container" "nas_pve1" {
     volume = "/var/lib/samba-state/nas-pve1"
     path   = "/var/lib/samba"
   }
+
+  # Persistent Syncthing state (device keys, index database) to survive
+  # container recreations, following the Samba state pattern; see the NAS
+  # spec, section 12.4.
+  mount_point {
+    volume = "/var/lib/syncthing-state/nas-pve1"
+    path   = "/var/lib/syncthing"
+  }
 }

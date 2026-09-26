@@ -1,9 +1,17 @@
 ---
 configure_monitoring_nut: true
-# Persistent Samba state for the nas-pve1 LXC container (bind-mounted onto
-# /var/lib/samba); must exist before the container first starts.
+# Persistent service state for the nas-pve1 LXC container (bind-mounted onto
+# /var/lib/samba and /var/lib/syncthing); must exist before the container
+# first starts. The Syncthing state is owned by UID 1000 because the service
+# runs as that user (see the NAS LXC container spec, section 12.4).
 directories_to_create:
   - path: /var/lib/samba-state/nas-pve1
+  - path: /var/lib/syncthing-state/nas-pve1
+    owner: "1000"
+    group: "100"
+    # Holds the Syncthing device private key; keep it owner-only, matching
+    # the tmpfiles rule in the nas-pve1 NixOS configuration.
+    mode: "0700"
 monitoring_nut_devices:
   - id: eaton-ellipse-pro-1600-din-1
     description: Eaton Ellipse PRO 1600 DIN
@@ -36,6 +44,10 @@ zfs_datasets:
     group: "100"
   - name: rpool-usb-1/backups
     mount_point: /rpool-usb-1/backups
+    owner: "1000"
+    group: "100"
+  - name: rpool-usb-1/syncthing
+    mount_point: /rpool-usb-1/syncthing
     owner: "1000"
     group: "100"
 # Pools are asserted, not created; topology and options document the manual

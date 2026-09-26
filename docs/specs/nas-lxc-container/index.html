@@ -2440,7 +2440,7 @@ Syncthing service that runs alongside it (§12).</p>
 <tr>
 <td style="text-align: left;"><strong>Syncthing Service (<code>nas-pve1</code>)</strong></td>
 <td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Declarative <code>services.syncthing</code> on <code>nas-pve1</code> (§12).</td>
+<td style="text-align: left;"><code>services.syncthing</code> on <code>nas-pve1</code>; the sync topology is imperative (§12.4).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Syncthing Storage (dataset, bind mounts)</strong></td>
@@ -3082,8 +3082,13 @@ export:</p>
    <code>zfs_datasets</code> list, converged by the <code>setup_disks</code> role (§11.1).</li>
 <li><strong>The bind mount (Terraform)</strong>: <code>/rpool-usb-1/syncthing</code> →
    <code>/mnt/shared/syncthing</code> in <code>var.nas_container_bind_mounts</code>.</li>
-<li><strong>The folder declarations (NixOS)</strong>: <code>services.syncthing</code> folder entries in
-   the host's <code>configuration.nix</code>, with paths under <code>/mnt/shared/syncthing</code>.</li>
+<li><strong>The folder directories (NixOS)</strong>: the directories under
+   <code>/mnt/shared/syncthing</code> are created declaratively (<code>systemd.tmpfiles</code> rules
+   in the host's <code>configuration.nix</code>), owned by the service user; their neutral
+   names carry no identifying material. The Syncthing folder objects pointing at
+   them are configured via the GUI/API and persist in the state bind mount,
+   because their definitions are coupled to device IDs, which are private
+   material (§12.4).</li>
 </ol>
 <p>An SMB export of the dataset is deliberately not part of this design; if
 browsing the folders over the network becomes useful, add a per-host share for
@@ -3095,6 +3100,23 @@ copying its key pair was considered and rejected: the device key is secret
 material, so it cannot flow through the public repository or the declarative
 configuration, and preserving it would require an imperative, out-of-band copy
 to spare the remote peer a single accept-new-device action.</p>
+<p><strong>Device IDs are treated as private material.</strong> For authentication they are not
+sensitive — a device ID is the fingerprint of the device's public TLS
+certificate, and knowing it lets nobody impersonate or connect to the device —
+but Syncthing's global discovery resolves a device ID to the device's current
+public addresses, so a published ID lets anyone track that device's IP over
+time. Committing device IDs (the remote peer's or this lab's) to the public
+repository was therefore rejected. As a consequence, the sync topology — device
+entries, folder definitions, and their sharing — is configured once via the
+GUI/API instead of being declared in NixOS, and persists in the state bind mount
+below, the same posture as the GUI credentials and the Samba password (§7.2).
+Declaring only the folders while keeping the devices imperative was also
+rejected: the NixOS module re-applies declared folder objects on every
+activation, which would strip the imperatively added device sharing. The folder
+directories themselves carry no identifying material, so they stay declarative
+(§12.3). Automating the topology delivery without publishing the IDs could reuse
+the Samba password automation design tracked in the
+<a href="../#specifications-to-write-and-todos">specifications readme</a>.</p>
 <p>The state directory (<code>/var/lib/syncthing</code>: the device keys and the index
 database) is bind-mounted from host-persistent storage
 (<code>/var/lib/syncthing-state/nas-pve1</code>), following the Samba state pattern (§6.2,
