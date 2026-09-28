@@ -14,9 +14,7 @@
           "--config",
           "/workspaces/home-lab/config/lint/.hadolint.yaml"
         ],
-        "markdownlint.config": {
-          "extends": "${workspaceFolder}/config/lint/.markdown-lint.yaml"
-        },
+        "markdownlint.configFile": "${workspaceFolder}/config/lint/.markdown-lint.yaml",
         "prettier.resolveGlobalModules": true,
         "pylint.args": ["--rcfile=${workspaceFolder}/config/lint/.python-lint"],
         "redhat.telemetry.enabled": false,
