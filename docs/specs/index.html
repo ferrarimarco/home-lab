@@ -2105,6 +2105,14 @@ reliability risks first, then security exposure, then automation):</p>
   <a href="https://registry.terraform.io/providers/integrations/github/latest/docs">GitHub repositories</a>.</li>
 <li><a href="https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module">Ansible terraform module</a>.</li>
 <li>Setup CI for Terraform.</li>
+<li>Tolerate powered-off Proxmox nodes: every stack configures a provider per
+  node, so a single unreachable node (pve2 is off pending its power
+  evaluation) fails the whole <code>run-terraform.sh</code> sequence, even for changes
+  that only touch pve1 resources. Candidate directions: split the multi-node
+  stacks into per-node stacks so each node's resources apply independently,
+  and let <code>run-terraform.sh</code> select which stacks to run; evaluate whether
+  the <code>bpg/proxmox</code> provider can defer node connectivity until a resource
+  actually needs it.</li>
 </ul>
 </li>
 <li>Tests to implement:<ul>

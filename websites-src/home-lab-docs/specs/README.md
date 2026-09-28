@@ -204,6 +204,14 @@ reliability risks first, then security exposure, then automation):
       [GitHub repositories](https://registry.terraform.io/providers/integrations/github/latest/docs).
     - [Ansible terraform module](https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module).
     - Setup CI for Terraform.
+    - Tolerate powered-off Proxmox nodes: every stack configures a provider per
+      node, so a single unreachable node (pve2 is off pending its power
+      evaluation) fails the whole `run-terraform.sh` sequence, even for changes
+      that only touch pve1 resources. Candidate directions: split the multi-node
+      stacks into per-node stacks so each node's resources apply independently,
+      and let `run-terraform.sh` select which stacks to run; evaluate whether
+      the `bpg/proxmox` provider can defer node connectivity until a resource
+      actually needs it.
 - Tests to implement:
     - Samba config file validation: `testparm -s`.
     - Evaluate `dnsmasq --test` for testing the dnsmasq configuration.
