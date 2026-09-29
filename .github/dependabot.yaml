@@ -1,134 +1,122 @@
 ---
-multi-ecosystem-groups:
-  dev-ci-tools:
-    commit-message:
-      prefix: "deps"
-    open-pull-requests-limit: 100
-    schedule:
-      interval: "daily"
-  home-lab-platform:
-    commit-message:
-      prefix: "deps"
-    open-pull-requests-limit: 100
-    schedule:
-      interval: "daily"
-  home-lab-workloads:
-    commit-message:
-      prefix: "deps"
-    open-pull-requests-limit: 100
-    schedule:
-      interval: "daily"
-  security-updates:
-    commit-message:
-      prefix: "deps(security)"
-    open-pull-requests-limit: 0
-    schedule:
-      interval: "daily"
 updates:
   - package-ecosystem: "devcontainers"
+    commit-message:
+      prefix: "deps"
     directory: "/"
-    multi-ecosystem-group: "dev-ci-tools"
-    patterns:
-      - "*"
-  - directory: "/"
-    multi-ecosystem-group: "dev-ci-tools"
-    package-ecosystem: "github-actions"
-    patterns:
-      - actions/*
-      - cachix/install-nix-action
-      - DeterminateSystems/magic-nix-cache-action
-      - docker/*
-      - github/*
-      - googleapis/*
-      - ossf/scorecard-action
-      - renovatebot/*
-      - stefanzweifel/git-auto-commit-action
-      - super-linter/super-linter
-  - directories:
+    groups:
+      dev-ci-tools:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    commit-message:
+      prefix: "deps"
+    directory: "/"
+    groups:
+      dev-ci-tools:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    commit-message:
+      prefix: "deps"
+    directories:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter
       - /config/smart-desk/esphome
-    package-ecosystem: "pip"
-    multi-ecosystem-group: "home-lab-workloads"
-    patterns:
-      - esphome
-      - prometheus-client
-      - requests
-  - directories:
+    groups:
+      home-lab-workloads:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    commit-message:
+      prefix: "deps"
+    directories:
       - /config/pre-commit
       - /docker/ansible
       - /docker/ansible/molecule
-    package-ecosystem: "pip"
-    multi-ecosystem-group: "dev-ci-tools"
-    patterns:
-      - ansible
-      - fqdn
-      - molecule
-      - molecule-plugins*
-      - netaddr
-      - pre-commit
-      - paramiko
-  - directories:
+    groups:
+      dev-ci-tools:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    commit-message:
+      prefix: "deps"
+    directories:
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
-    package-ecosystem: "docker"
-    multi-ecosystem-group: "home-lab-workloads"
-    patterns:
-      - blakeblackshear/frigate
-      - cadvisor/cadvisor
-      - coredns/coredns
-      - druggeri/nut_exporter
-      - eclipse-mosquitto
-      - fallenbagel/jellyseerr
-      - flaresolverr/flaresolverr
-      - google/cadvisor
-      - grafana/grafana-oss
-      - home-assistant/home-assistant
-      - jellyfin/jellyfin
-      - klutchell/unbound
-      - koenkk/zigbee2mqtt
-      - linuxserver/*
-      - ngosang/restic-exporter
-      - prom/blackbox-exporter
-      - prom/prometheus
-      - prometheus/node-exporter
-      - restic/restic
-      - syncthing/syncthing
-      - traefik
-  - directories:
+    groups:
+      home-lab-workloads:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "docker"
+    commit-message:
+      prefix: "deps"
+    directories:
       - /docker/ansible
+      - /docker/arduino-cli
       - /docker/ci-cd-tools
-    package-ecosystem: "docker"
-    multi-ecosystem-group: "home-lab-workloads"
-    patterns:
-      - node
-      - python
-  - directories:
+    groups:
+      dev-ci-tools:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    commit-message:
+      prefix: "deps"
+    directories:
       - /docker/ci-cd-tools
-    package-ecosystem: "npm"
-    multi-ecosystem-group: "dev-ci-tools"
-    patterns:
-      - release-please
-  - directories:
+    groups:
+      dev-ci-tools:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
+    commit-message:
+      prefix: "deps"
+    directories:
       - /config/terraform/**
-    multi-ecosystem-group: "dev-ci-tools"
-    package-ecosystem: "terraform"
-    patterns:
-      - bpg/proxmox
-      - hashicorp/local
-      - hashicorp/random
+    groups:
+      dev-ci-tools:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
   - package-ecosystem: "nix"
+    commit-message:
+      prefix: "deps"
     directories:
       - /config/nix
-    multi-ecosystem-group: "home-lab-platform"
-    patterns:
-      - disko
-      - nixpkgs
-  - package-ecosystem: "nix"
-    directories:
-      - /config/nix
-    multi-ecosystem-group: "dev-ci-tools"
-    patterns:
-      - treefmt-nix
+    # A dependency joins the first group it matches, so keep the specific
+    # groups before the catch-all one.
+    groups:
+      dev-ci-tools:
+        patterns:
+          - treefmt-nix
+      home-lab-platform:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 100
+    schedule:
+      interval: "daily"
 version: 2
