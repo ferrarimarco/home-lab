@@ -299,6 +299,11 @@ reliability risks first, then security exposure, then automation):
   the DHCP server items below (deploy a managed DHCP server, or take control of
   the dnsmasq instance on the Asus). Blocks: the NAS static IP migration
   ([NAS](#nas)).
+- Set a static DHCP assignment for the pve2 BMC on the router, so the BMC stays
+  reachable at a stable address for remote power control — pve2 is normally
+  powered off pending its power consumption evaluation, and powering it on
+  remotely (for example for Terraform runs that need both Proxmox nodes
+  reachable) depends on finding the BMC reliably.
 - Tailscale:
     - Configure SSH.
     - Don't accept DNS to avoid depending on Tailscale being up?
