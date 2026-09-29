@@ -1,4 +1,4 @@
-FROM debian:11.11
+FROM debian:13.7
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
