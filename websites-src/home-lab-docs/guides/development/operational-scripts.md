@@ -36,6 +36,19 @@ The script supports the following environment variables:
 - `LINTER_CONTAINER_OPEN_SHELL`: set to `true` to open an interactive Bash shell
   inside the linter container instead of running the linters, useful to debug
   linter configuration.
+- `LINTER_CONTAINER_LINT_COMMIT_MESSAGE`: set to `true` to validate a commit
+  message from the standard input instead of running the linters, with the same
+  configuration (`commitlint.config.js`) and strictness as the lint run:
+
+    ```shell
+    LINTER_CONTAINER_LINT_COMMIT_MESSAGE=true scripts/lint.sh < <message file>
+    ```
+
+    Validate commit messages before committing: the lint run only validates the
+    message of the last commit, while the `Lint` CI workflow validates the
+    messages of all the pushed commits. You can run this check while a lint run
+    is in progress.
+
 - `LINTER_CONTAINER_IMAGE_VERSION`: override the linter container image version.
   Defaults to the version that the `Lint` CI workflow pins.
 - `LOG_LEVEL`: super-linter log level. Defaults to `INFO`.

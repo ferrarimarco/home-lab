@@ -184,6 +184,12 @@ describes them all. Key rules:
   documents these output files and the format script. Run only one
   `scripts/lint.sh` at a time: concurrent runs clobber the shared
   `super-linter-output/` directory.
+- **Validate commit messages before proposing commits:** pipe each proposed
+  message to `LINTER_CONTAINER_LINT_COMMIT_MESSAGE=true scripts/lint.sh`, as
+  described in the
+  [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
+  A lint run only validates the message of the last commit, while CI validates
+  all the pushed commits.
 
 ## 5. Design & Modularization Rules
 

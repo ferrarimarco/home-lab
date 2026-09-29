@@ -1708,8 +1708,21 @@ CI run:</p>
   inside the linter container instead of running the linters, useful to debug
   linter configuration.</p>
 </li>
-<li><code>LINTER_CONTAINER_IMAGE_VERSION</code>: override the linter container image version.
-  Defaults to the version that the <code>Lint</code> CI workflow pins.</li>
+<li>
+<p><code>LINTER_CONTAINER_LINT_COMMIT_MESSAGE</code>: set to <code>true</code> to validate a commit
+  message from the standard input instead of running the linters, with the same
+  configuration (<code>commitlint.config.js</code>) and strictness as the lint run:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">LINTER_CONTAINER_LINT_COMMIT_MESSAGE</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>scripts/lint.sh<span class="w"> </span>&lt;<span class="w"> </span>&lt;message<span class="w"> </span>file&gt;
+</code></pre></div>
+<p>Validate commit messages before committing: the lint run only validates the
+message of the last commit, while the <code>Lint</code> CI workflow validates the
+messages of all the pushed commits. You can run this check while a lint run
+is in progress.</p>
+</li>
+<li>
+<p><code>LINTER_CONTAINER_IMAGE_VERSION</code>: override the linter container image version.
+  Defaults to the version that the <code>Lint</code> CI workflow pins.</p>
+</li>
 <li><code>LOG_LEVEL</code>: super-linter log level. Defaults to <code>INFO</code>.</li>
 </ul>
 <p>Super-linter writes its results to the gitignored <code>super-linter-output</code>
