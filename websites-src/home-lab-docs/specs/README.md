@@ -239,6 +239,14 @@ reliability risks first, then security exposure, then automation):
     - Cleanup users after switching from appending groups to creating dedicated
       users: set the "state" of users dynamically.
     - Tailscale: don't run tailscale up if the flags didn't change between runs.
+- Dependency updates: fully migrate from Dependabot to Renovate, so a single
+  tool manages all dependency updates. Renovate is already configured
+  (`.github/renovate.json`) behind Dependency Dashboard approval, and covers
+  sources that Dependabot does not (Ansible Galaxy requirements, pre-commit
+  hooks, and the `_VERSION` variables in Dockerfiles and scripts). Decide on the
+  approval flow, port the grouping, then remove `.github/dependabot.yaml`.
+  Dependabot multi-ecosystem groups were abandoned on 2026-09-29 because group
+  pull requests stopped updating after their creation.
 - Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role.
 - NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host

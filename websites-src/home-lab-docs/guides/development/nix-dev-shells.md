@@ -94,8 +94,8 @@ Use the GitHub CLI to:
     the latest runs of the same workflow on the default branch
     (`gh run list --workflow <workflow file> --branch master`).
 
-- Review pull requests, including the ones that Renovate opens (`gh pr list`,
-  `gh pr view`, `gh pr checks`).
+- Review pull requests, including the ones that Dependabot and Renovate open
+  (`gh pr list`, `gh pr view`, `gh pr checks`).
 - Read issues and releases (`gh issue list`, `gh issue view`,
   `gh release list`).
 
