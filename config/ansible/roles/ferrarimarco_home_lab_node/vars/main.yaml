@@ -412,7 +412,7 @@ syncthing_docker_compose_up_items:
   - compose_file_path: "{{ syncthing_docker_compose_destination_file_path }}"
     enable_containerized_services: "{{ configure_syncthing }}"
     pull_container_images: "{{ configure_syncthing }}"
-    start_containerized_services: "{{ start_yncthing | default(configure_syncthing) }}"
+    start_containerized_services: "{{ start_syncthing | default(configure_syncthing) }}"
 syncthing_templates_to_render:
   - src: "syncthing/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ syncthing_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
