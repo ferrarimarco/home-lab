@@ -7,7 +7,9 @@ driver:
 platforms:
   - name: instance
     image: "${ANSIBLE_TEST_DISTRO}"
-    command: ${ANSIBLE_TEST_DOCKER_COMMAND}
+    # Default to an empty command to run the default command of the image.
+    # Molecule fails the validation of this file if the command is null.
+    command: ${ANSIBLE_TEST_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
@@ -107,6 +109,8 @@ provisioner:
         vault_asuswrt_administrator_username: "vault_asuswrt_administrator_username"
         vault_asuswrt_administration_ssh_port: "1234"
         vault_media_stack_qbittorrent_webui_password: "vault_media_stack_qbittorrent_webui_password"
+        vault_monitoring_backend_alertmanager_telegram_bot_token: "vault_monitoring_backend_alertmanager_telegram_bot_token"
+        vault_monitoring_backend_alertmanager_telegram_chat_id: "1234"
         workloads_backup_disk_mount_path: "/media/backup-0"
   options:
     # Enable Ansible diff mode
