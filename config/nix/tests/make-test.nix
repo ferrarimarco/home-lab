@@ -219,21 +219,19 @@ pkgs.testers.nixosTest {
       );
       sambaCheck = lib.optionalString node_config.services.samba.enable ''
         machine.wait_for_unit("samba-smbd.service")
-        # The unit reporting active does not guarantee smbd is accepting
-        # connections yet, and hosts that run additional services (e.g.
-        # Syncthing on nas-pve1) boot slowly enough in the sandbox to expose
-        # the race: wait until the enumeration answers before asserting on
-        # its content.
-        machine.wait_until_succeeds("smbclient -L localhost -N", timeout=120)
         # Anonymous (-N) share enumeration over the null session; this checks
         # that the shares are exported, not the authenticated access path,
-        # since Samba passwords cannot be set declaratively. The consumer must
-        # read the full stream (no `grep -q`): the driver runs commands under
-        # pipefail, and an early-exiting consumer closes the pipe while
-        # smbclient is still writing its trailing sections, failing the
-        # pipeline on EPIPE despite the successful match.
+        # since Samba passwords cannot be set declaratively. Each assertion
+        # retries with a bounded timeout: the unit reporting active does not
+        # guarantee smbd is accepting connections, and under boot load (for
+        # example Syncthing on nas-pve1) early enumerations intermittently
+        # fail or return incomplete listings. The consumer reads the full
+        # stream (no `grep -q`): the driver runs commands under pipefail, and
+        # an early-exiting consumer closes the pipe while smbclient is still
+        # writing, failing the pipeline on EPIPE despite a successful match.
         ${lib.concatMapStringsSep "\n" (
-          share: ''machine.succeed("smbclient -L localhost -N | grep '${share}' > /dev/null")''
+          share:
+          ''machine.wait_until_succeeds("smbclient -L localhost -N | grep '${share}' > /dev/null", timeout=120)''
         ) sambaShareNames}
       '';
 
