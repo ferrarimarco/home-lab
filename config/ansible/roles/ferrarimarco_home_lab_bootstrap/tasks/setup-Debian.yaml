@@ -1,6 +1,13 @@
 ---
 - name: Setup Debian repositories
   ansible.builtin.deb822_repository:
+    # This module needs the python3-debian package. This task runs before the
+    # role installs OS packages because it supports OS upgrades: it points APT
+    # to the repositories of the new release without depending on the ones of
+    # the old release. Let the module install the package if it's missing,
+    # such as on minimal installations. The module only updates the APT cache
+    # when it installs the package.
+    install_python_debian: true
     name: "{{ repo.name }}"
     uris: "{{ repo.uris }}"
     suites: "{{ repo.suites }}"

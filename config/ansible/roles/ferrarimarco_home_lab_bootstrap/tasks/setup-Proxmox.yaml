@@ -13,6 +13,11 @@
 
 - name: Enable PVE no-subscription repositories
   ansible.builtin.deb822_repository:
+    # This module needs the python3-debian package. This is the first task
+    # that uses the module on Proxmox nodes, and it runs before the role
+    # installs OS packages, so let the module install the package if it's
+    # missing, such as on minimal installations.
+    install_python_debian: true
     name: "{{ item.name }}"
     uris: "{{ item.uris }}"
     suites: "{{ debian_release }}"
