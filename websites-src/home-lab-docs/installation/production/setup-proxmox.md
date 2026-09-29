@@ -9,6 +9,10 @@ Terraform handles:
 - The configuration of Proxmox hosts.
 - The provisioning of Proxmox virtual machines (VMs) and LXC containers.
 
+The following procedures use the tools that the `operations` Nix shell provides.
+For more information, see the
+[Nix development shells guide](../../guides/development/nix-dev-shells.md).
+
 From your Linux shell, after setting the working directory to the root of this
 repository:
 

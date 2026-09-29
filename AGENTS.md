@@ -111,7 +111,11 @@ describes them all. Key rules:
   comes from the dev shells defined in `config/nix` (`default` and
   `operations`). Invoke tools as
   `nix develop ./config/nix#operations --command <cmd>` from the repository
-  root. Terraform is only available in the `operations` shell.
+  root. The
+  [Nix development shells guide](./websites-src/home-lab-docs/guides/development/nix-dev-shells.md)
+  lists the tools in each shell and how to invoke them, including when to use
+  the GitHub CLI (`gh`) and which of its subcommands need approval. When
+  changing the packages of a shell, update the guide in the same change.
 - **Terraform only via `scripts/run-terraform.sh`:** the script performs the
   required environment and local-backend setup and runs `terraform init` before
   applying every numbered stack under `config/terraform/` in sequence. It

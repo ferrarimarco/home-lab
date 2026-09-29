@@ -891,6 +891,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/development/nix-dev-shells/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development shells
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/development/nix/" class="md-nav__link">
         
   
@@ -1794,7 +1817,7 @@
 <tr>
 <td style="text-align: left;"><strong>Operations Shell</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Operations shell includes both <code>terraform</code> and <code>nixos-anywhere</code>.</td>
+<td style="text-align: left;">Operations shell includes <code>terraform</code>, <code>nixos-anywhere</code>, and <code>nixos-rebuild</code>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Provisioning and installation lifecycle</strong></td>
@@ -1866,7 +1889,11 @@ expanded to include:</p>
 <ul>
 <li><code>terraform</code> (for virtual hardware provisioning).</li>
 <li><code>nixos-anywhere</code> (for automated OS installation).</li>
+<li><code>nixos-rebuild</code> (for deploying to hosts without a <code>disko.nix</code>, such as LXC
+  containers).</li>
 </ul>
+<p>The <a href="../../guides/development/nix-dev-shells/">Nix development shells guide</a>
+lists all the tools that the shell provides.</p>
 <h3 id="34-provisioning-and-installation-lifecycle">3.4 Provisioning and Installation Lifecycle</h3>
 <p>The execution workflow transitions from a stateless installer environment to an
 immutable, disk-backed production machine via the following sequential phases:</p>

@@ -7,7 +7,7 @@
 | **Nix Custom ISO**                          | **Fully Implemented** | Custom nixos-installer ISO configured with the proxmox-vm role.                                        |
 | **Bootstrap Keys Dir**                      | **Fully Implemented** | Keys directory created and staged in Git (private key ignored).                                        |
 | **Security Guardrail**                      | **Fully Implemented** | Pure-evaluation check blocks tracked private keys in flake.nix.                                        |
-| **Operations Shell**                        | **Fully Implemented** | Operations shell includes both `terraform` and `nixos-anywhere`.                                       |
+| **Operations Shell**                        | **Fully Implemented** | Operations shell includes `terraform`, `nixos-anywhere`, and `nixos-rebuild`.                          |
 | **Provisioning and installation lifecycle** | **Fully Implemented** | `scripts/bootstrap-host.sh` automates discovery, the MAC guardrail, and per-model deployment (§3.4.1). |
 | **GitOps CD (Comin)**                       | **Fully Implemented** | Pull-based continuous deployment for Day-2 state management.                                           |
 
@@ -75,6 +75,11 @@ expanded to include:
 
 - `terraform` (for virtual hardware provisioning).
 - `nixos-anywhere` (for automated OS installation).
+- `nixos-rebuild` (for deploying to hosts without a `disko.nix`, such as LXC
+  containers).
+
+The [Nix development shells guide](../guides/development/nix-dev-shells.md)
+lists all the tools that the shell provides.
 
 ### 3.4 Provisioning and Installation Lifecycle
 

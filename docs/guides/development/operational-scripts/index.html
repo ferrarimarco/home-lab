@@ -895,6 +895,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../nix-dev-shells/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development shells
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../nix/" class="md-nav__link">
         
   
@@ -1734,6 +1757,9 @@ in <code>scripts/format.sh</code>, or explicitly delegate it.</p>
 dedicated Python virtual environment on first run. Pass an argument to run a
 different command inside that environment instead.</p>
 <h2 id="provisioning-and-configuration">Provisioning and configuration</h2>
+<p><code>scripts/bootstrap-host.sh</code> and <code>scripts/run-terraform.sh</code> depend on tools that
+only the <code>operations</code> Nix development shell provides, so run them inside that
+shell. See the <a href="../nix-dev-shells/">Nix development shells guide</a>.</p>
 <ul>
 <li><code>scripts/bootstrap-host.sh &lt;hostname&gt; &lt;expected_mac&gt;</code>: bootstraps a home lab
   host, validating that the target machine's MAC address matches the expected

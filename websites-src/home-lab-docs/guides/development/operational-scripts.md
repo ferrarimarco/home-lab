@@ -93,6 +93,10 @@ different command inside that environment instead.
 
 ## Provisioning and configuration
 
+`scripts/bootstrap-host.sh` and `scripts/run-terraform.sh` depend on tools that
+only the `operations` Nix development shell provides, so run them inside that
+shell. See the [Nix development shells guide](./nix-dev-shells.md).
+
 - `scripts/bootstrap-host.sh <hostname> <expected_mac>`: bootstraps a home lab
   host, validating that the target machine's MAC address matches the expected
   one before deploying. Hosts with a `disko.nix` are installed with

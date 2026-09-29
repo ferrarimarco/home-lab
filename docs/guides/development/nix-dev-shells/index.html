@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/container-migration/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/development/nix-dev-shells/">
       
       
-        <link rel="prev" href="../../development/website-development/">
+        <link rel="prev" href="../ansible/">
       
       
-        <link rel="next" href="../hardware/">
+        <link rel="next" href="../nix/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Container migration - Home Lab docs</title>
+        <title>Nix development shells - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#container-migration" class="md-skip">
+        <a href="#nix-development-shells" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Container migration
+              Nix development shells
             
           </span>
         </div>
@@ -829,18 +829,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" checked>
         
           
           <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
@@ -856,7 +858,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_9">
             <span class="md-nav__icon md-icon"></span>
             Development
@@ -870,7 +872,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/ansible/" class="md-nav__link">
+      <a href="../ansible/" class="md-nav__link">
         
   
   
@@ -890,10 +892,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../development/nix-dev-shells/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Nix development shells
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -904,6 +928,86 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#use-a-shell" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use a shell
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-shell-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Default shell tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operations-shell-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operations shell tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operations shell tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub CLI
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools-outside-the-shells" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools outside the shells
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-tool-to-a-shell" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add a tool to a shell
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -916,7 +1020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/nix/" class="md-nav__link">
+      <a href="../nix/" class="md-nav__link">
         
   
   
@@ -939,7 +1043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/operational-scripts/" class="md-nav__link">
+      <a href="../operational-scripts/" class="md-nav__link">
         
   
   
@@ -962,7 +1066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/todo-list/" class="md-nav__link">
+      <a href="../todo-list/" class="md-nav__link">
         
   
   
@@ -985,7 +1089,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/website-development/" class="md-nav__link">
+      <a href="../website-development/" class="md-nav__link">
         
   
   
@@ -1013,20 +1117,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
         
           
           <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
@@ -1042,7 +1144,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_10">
             <span class="md-nav__icon md-icon"></span>
             Operations
@@ -1053,32 +1155,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Container migration
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../operations/container-migration/" class="md-nav__link">
         
   
   
@@ -1089,53 +1169,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#before-starting" class="md-nav__link">
-    <span class="md-ellipsis">
-      Before starting
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#procedure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Procedure
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-migration-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data migration examples
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1148,7 +1181,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../hardware/" class="md-nav__link">
+      <a href="../../operations/hardware/" class="md-nav__link">
         
   
   
@@ -1171,7 +1204,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../monitoring/" class="md-nav__link">
+      <a href="../../operations/monitoring/" class="md-nav__link">
         
   
   
@@ -1595,27 +1628,60 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#before-starting" class="md-nav__link">
+  <a href="#use-a-shell" class="md-nav__link">
     <span class="md-ellipsis">
-      Before starting
+      Use a shell
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#procedure" class="md-nav__link">
+  <a href="#default-shell-tools" class="md-nav__link">
     <span class="md-ellipsis">
-      Procedure
+      Default shell tools
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-migration-examples" class="md-nav__link">
+  <a href="#operations-shell-tools" class="md-nav__link">
     <span class="md-ellipsis">
-      Data migration examples
+      Operations shell tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operations shell tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub CLI
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools-outside-the-shells" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools outside the shells
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-a-tool-to-a-shell" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add a tool to a shell
     </span>
   </a>
   
@@ -1640,87 +1706,190 @@
   
 
 
-<h1 id="container-migration">Container migration</h1>
-<p>This guide describes how to migrate containerized workloads and their data
-between hosts. The migration is driven by the inventory enablement flags and the
-repository's operational scripts: there is deliberately no migration playbook or
-script, because migrations are rare and their risky parts (capacity, stateful
-cutover, hardware dependencies) need case-by-case review.</p>
-<h2 id="before-starting">Before starting</h2>
-<ol>
-<li><strong>Check capacity before copying anything</strong>: measure the source directories
-   with <code>du -s</code> and compare against <code>df</code> of the target filesystem, leaving
-   growth headroom. A migration plan can be invalidated entirely by a target
-   share smaller than the data set, and an rsync run that discovers this
-   mid-copy leaves a half-filled target to clean up.</li>
-<li><strong>Verify recent restic workload backups exist</strong> for the stack being migrated:
-   the backed-up configuration and state directories are the rollback safety net
-   if the cutover goes wrong.</li>
-<li><strong>Identify hardware dependencies</strong> (USB devices such as Zigbee adapters or
-   Coral accelerators): these need a physical move and, when the target is a
-   virtual machine, a hypervisor passthrough change before the workload can
-   start on the target host.</li>
-</ol>
-<h2 id="procedure">Procedure</h2>
-<ol>
-<li>Set the <code>configure_rsync_daemon</code> variable for the target host to <code>true</code> to
-   set up an rsync daemon.</li>
-<li>Initialize the <code>rsync_daemon_modules</code> variable for the target host to
-   configure rsync modules.</li>
-<li>Set the <code>configure_xxxxx</code> variable for the target host to <code>true</code> to prepare
-   the target host.</li>
-<li>Set the <code>start_xxxxx</code> variable for the target host to <code>false</code> because we
-   don't want to start any services before copying data.</li>
-<li>Run Ansible. With the above configuration, it will prepare the target host
-   without starting any service.</li>
-<li>Set the <code>start_xxxxx</code> variable for the source host to <code>false</code> to stop the
-   service we're migrating.</li>
-<li>Run Ansible. Stopping the source services before copying is mandatory for
-   stateful workloads: their state databases (typically SQLite) must be
-   quiesced, because copying them while the services run risks a corrupted copy.</li>
-<li>Copy the data directories AND the untracked configuration and state
-   directories (under <code>/etc/ferrarimarco-home-lab/&lt;service&gt;</code>) from the source
-   host to the target host with <code>scripts/copy-data.sh</code>, running each copy with
-   <code>ENABLE_DRY_RUN=true</code> first. Files that Ansible renders from templates (for
-   example <code>compose.yaml</code> files or <code>qBittorrent.conf</code>) need no copying: the next
-   Ansible run re-renders them on the target.</li>
-<li>Remove the <code>start_xxxxx</code> from the target host configuration because it
-   defaults to the <code>configure_xxxxx</code> value, which is set to <code>true</code>.</li>
-<li>Update endpoint definitions in
-   <code>config/ansible/inventory/group_vars/all/main.yaml</code> (the <code>*_endpoint_fqdn</code>
-   variables) so monitoring probes and cross-host references point at the target
-   host.</li>
-<li>Run Ansible.</li>
-<li>Verify that the containers work in the target environment as expected:
-   service health, application state present (libraries, histories, settings),
-   and clean logs. Re-check any credential or token the copied state carries
-   against the target's services.</li>
-<li>Remove the <code>start_xxxxx</code> variable from the source host configuration.</li>
-<li>Remove the <code>configure_xxxxx</code> variable from the source host configuration.</li>
-<li>Run Ansible. This will remove all the copied data from the source host.</li>
-<li>Delete data in the source host if it's not deleted automatically, such as
-   media directories.</li>
-<li>If not needed anymore, disable the rsync daemon by removing the
-   <code>configure_rsync_daemon</code> and <code>rsync_daemon_modules</code> variables in the target
-   host configuration.</li>
-<li>Commit the changes in the repository.</li>
-</ol>
-<h2 id="data-migration-examples">Data migration examples</h2>
-<p>These examples assume that the current working directory is the root of this
-repository:</p>
+<h1 id="nix-development-shells">Nix development shells</h1>
+<p>Command-line tooling for this repository is not installed on the host. It comes
+from the Nix development shells that the flake in <code>config/nix</code> defines, so every
+contributor and automation runs the same pinned tool versions.</p>
+<p>The flake defines two shells:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Shell</th>
+<th style="text-align: left;">Definition</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>default</code></td>
+<td style="text-align: left;"><code>config/nix/shells/shell.nix</code></td>
+<td style="text-align: left;">Develop, format, and lint the Nix code.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>operations</code></td>
+<td style="text-align: left;"><code>config/nix/shells/shell-operations.nix</code></td>
+<td style="text-align: left;">Provision, deploy, and operate the environment.</td>
+</tr>
+</tbody>
+</table>
+<p>The flake also registers both shells as flake checks (<code>shell-devShell</code> and
+<code>shell-opsShell</code>), so <code>nix flake check</code> fails when a shell no longer builds. The
+CI workflow does not build these checks.</p>
+<h2 id="use-a-shell">Use a shell</h2>
+<p>Run the following commands from the repository root.</p>
 <ul>
 <li>
-<p>Copy one directory from one host to another by connecting an rsync daemon
-  running on the target host:</p>
-<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;rsync://rsync_user@target.host/destination/directory&quot;</span>
+<p>To open an interactive shell:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations
 </code></pre></div>
+<p>Omit the <code>#operations</code> suffix to open the <code>default</code> shell.</p>
 </li>
 <li>
-<p>Copy one directory from one host to another using rsync:</p>
-<div class="highlight"><pre><span></span><code>scripts/copy-data.sh<span class="w"> </span><span class="s2">&quot;user@source.host&quot;</span><span class="w"> </span><span class="s2">&quot;/source/directory&quot;</span><span class="w"> </span><span class="s2">&quot;user@target.host:/destination/directory/&quot;</span>
+<p>To run a single command without opening an interactive shell:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span>&lt;command&gt;<span class="w"> </span><span class="o">[</span>&lt;argument&gt;<span class="w"> </span>...<span class="o">]</span>
 </code></pre></div>
 </li>
 </ul>
+<p>Keep these points in mind:</p>
+<ul>
+<li>The shells write their activation banner to the standard error stream, and so
+  does Nix for its own warnings (for example, the warning about uncommitted
+  changes in the Git tree). The standard output stream only carries the output
+  of the command, so it is safe to parse or to redirect to a file.</li>
+<li>Nix flakes evaluate only Git-tracked files: <code>git add</code> a new shell definition
+  before using it.</li>
+<li>The operational scripts do not open a shell on their own. Scripts that depend
+  on tools from a shell must run inside that shell.</li>
+</ul>
+<h2 id="default-shell-tools">Default shell tools</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tool</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>deadnix</code></td>
+<td style="text-align: left;">Find unused code in Nix files.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nixd</code></td>
+<td style="text-align: left;">Nix language server, for editor integration.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nixfmt</code></td>
+<td style="text-align: left;">Format Nix files.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>statix</code></td>
+<td style="text-align: left;">Lint Nix files for antipatterns and suggest replacements.</td>
+</tr>
+</tbody>
+</table>
+<p>To format and lint the whole Nix codebase, prefer the flake's formatter and
+check, which run <code>deadnix</code>, <code>nixfmt</code>, and <code>statix</code> with the repository
+configuration (<code>config/nix/treefmt.nix</code>). See the
+<a href="../nix/#nix-commands">Nix development guide</a>.</p>
+<h2 id="operations-shell-tools">Operations shell tools</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tool</th>
+<th style="text-align: left;">Purpose</th>
+<th style="text-align: left;">How to invoke</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>gh</code></td>
+<td style="text-align: left;">Interact with GitHub: CI workflow runs, pull requests.</td>
+<td style="text-align: left;">Directly. See <a href="#github-cli">GitHub CLI</a>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>jq</code></td>
+<td style="text-align: left;">Parse and filter JSON, such as Terraform outputs.</td>
+<td style="text-align: left;">Directly.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nixos-anywhere</code></td>
+<td style="text-align: left;">Install NixOS on hosts that have a <code>disko.nix</code> disk layout.</td>
+<td style="text-align: left;">Through <code>scripts/bootstrap-host.sh</code>, inside the shell.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nixos-rebuild</code></td>
+<td style="text-align: left;">Push a NixOS configuration to a running host over SSH.</td>
+<td style="text-align: left;">Through <code>scripts/bootstrap-host.sh</code>, inside the shell.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>terraform</code></td>
+<td style="text-align: left;">Provision the infrastructure.</td>
+<td style="text-align: left;">Only through <code>scripts/run-terraform.sh</code>, inside the shell.</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="../operational-scripts/">operational scripts guide</a> describes the scripts
+that wrap these tools.</p>
+<h3 id="github-cli">GitHub CLI</h3>
+<p>The <a href="https://cli.github.com/">GitHub CLI</a> (<code>gh</code>) authenticates with per-user
+state that <code>gh auth login</code> stores outside the repository. Verify it with
+<code>gh auth status</code>.</p>
+<p>Use the GitHub CLI to:</p>
+<ul>
+<li>
+<p>Inspect CI workflow runs after a push, which matters most for the workflows
+  that have no convenient local equivalent. List the runs for the current
+  commit, then capture the logs of the failed jobs in full to a log file:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--commit<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>git<span class="w"> </span>rev-parse<span class="w"> </span>HEAD<span class="k">)</span><span class="s2">&quot;</span>
+nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>gh<span class="w"> </span>run<span class="w"> </span>view<span class="w"> </span>&lt;run-id&gt;<span class="w"> </span>--log-failed<span class="w"> </span>&gt;<span class="w"> </span>&lt;log<span class="w"> </span>file&gt;<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</code></pre></div>
+<p>To tell a regression from a failure that predates the change, compare with
+the latest runs of the same workflow on the default branch
+(<code>gh run list --workflow &lt;workflow file&gt; --branch master</code>).</p>
+</li>
+<li>
+<p>Review pull requests, including the ones that Renovate opens (<code>gh pr list</code>,
+  <code>gh pr view</code>, <code>gh pr checks</code>).</p>
+</li>
+<li>Read issues and releases (<code>gh issue list</code>, <code>gh issue view</code>,
+  <code>gh release list</code>).</li>
+</ul>
+<p>Read-only subcommands (<code>list</code>, <code>view</code>, <code>checks</code>, <code>status</code>, and <code>gh api</code> GET
+requests) are safe for discovery. Subcommands that change state on GitHub are
+outward-facing and need explicit approval first: for example <code>gh pr create</code>,
+<code>gh pr merge</code>, <code>gh pr comment</code>, <code>gh issue create</code>, <code>gh workflow run</code>,
+<code>gh run rerun</code>, <code>gh release create</code>, and <code>gh api</code> requests with a method other
+than GET.</p>
+<p>Filter JSON output with the built-in <code>--jq</code> flag:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>gh<span class="w"> </span>pr<span class="w"> </span>list<span class="w"> </span>--json<span class="w"> </span>number,title<span class="w"> </span>--jq<span class="w"> </span><span class="s1">&#39;.[] | &quot;\(.number) \(.title)&quot;&#39;</span>
+</code></pre></div>
+<h2 id="tools-outside-the-shells">Tools outside the shells</h2>
+<p>Some tools run in containers instead, through the scripts that the
+<a href="../operational-scripts/">operational scripts guide</a> describes. Neither the
+host nor the shells provide them:</p>
+<ul>
+<li>Ansible, including <code>ansible-vault</code>: <code>scripts/run-ansible.sh</code>.</li>
+<li>Linters and formatters for the languages other than Nix: <code>scripts/lint.sh</code> and
+  <code>scripts/format.sh</code>.</li>
+<li>Material for MkDocs: <code>scripts/run-mkdocs.sh</code>.</li>
+</ul>
+<h2 id="add-a-tool-to-a-shell">Add a tool to a shell</h2>
+<ol>
+<li>Add the package to the <code>packages</code> list of the shell definition, keeping the
+   list sorted alphabetically.</li>
+<li>Add a row for the tool to the matching table in this document, in the same
+   change. If the tool needs usage guidance, add a dedicated section like the
+   one for the <a href="#github-cli">GitHub CLI</a>.</li>
+<li>
+<p>Verify that the shell builds and provides the tool:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#&lt;shell&gt;<span class="w"> </span>--command<span class="w"> </span>&lt;tool&gt;<span class="w"> </span>--version
+</code></pre></div>
+</li>
+</ol>
 
 
 
