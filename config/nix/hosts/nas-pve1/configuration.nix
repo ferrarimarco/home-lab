@@ -31,6 +31,23 @@ _: {
     openDefaultPorts = true;
     # LAN-reachable GUI/API for administration and the blackbox probe.
     guiAddress = "0.0.0.0:8384";
+    # Non-topology settings are merged on activation: declared keys are
+    # enforced, keys left undeclared (like the imperative GUI credentials)
+    # are preserved.
+    settings = {
+      options = {
+        # Static-address connectivity over the tailnet only: no public
+        # discovery, relays, or NAT traversal. This also avoids advertising
+        # this device's addresses to the global discovery network.
+        globalAnnounceEnabled = false;
+        relaysEnabled = false;
+        natEnabled = false;
+        # Usage reporting declined.
+        urAccepted = -1;
+      };
+      # HTTPS for the LAN-exposed GUI (self-signed certificate).
+      gui.useTLS = true;
+    };
   };
 
   # The Syncthing GUI/API port; openDefaultPorts covers the sync ports.
