@@ -99,6 +99,12 @@ updates:
       dev-ci-tools:
         patterns:
           - "*"
+    # Built-in providers ship with the Terraform binary and no registry serves
+    # them, so looking them up fails the update job. Remove this rule when
+    # Dependabot skips them. See
+    # https://github.com/dependabot/dependabot-core/issues/11130
+    ignore:
+      - dependency-name: "builtin/terraform"
     open-pull-requests-limit: 100
     schedule:
       interval: "daily"
