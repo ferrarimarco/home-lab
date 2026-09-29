@@ -2,6 +2,7 @@
 
 pkgs.mkShell {
   packages = with pkgs; [
+    gh
     jq
     nixos-anywhere
     nixos-rebuild
