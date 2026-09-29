@@ -227,9 +227,13 @@ pkgs.testers.nixosTest {
         machine.wait_until_succeeds("smbclient -L localhost -N", timeout=120)
         # Anonymous (-N) share enumeration over the null session; this checks
         # that the shares are exported, not the authenticated access path,
-        # since Samba passwords cannot be set declaratively.
+        # since Samba passwords cannot be set declaratively. The consumer must
+        # read the full stream (no `grep -q`): the driver runs commands under
+        # pipefail, and an early-exiting consumer closes the pipe while
+        # smbclient is still writing its trailing sections, failing the
+        # pipeline on EPIPE despite the successful match.
         ${lib.concatMapStringsSep "\n" (
-          share: ''machine.succeed("smbclient -L localhost -N | grep -q '${share}'")''
+          share: ''machine.succeed("smbclient -L localhost -N | grep '${share}' > /dev/null")''
         ) sambaShareNames}
       '';
 
