@@ -31,10 +31,9 @@ monitoring_apt_files_to_download:
     owner: "root"
     group: "root"
 
+# Only declare the timer because the service runs to completion: a started
+# state for the service makes each run start it again, and report a change.
 monitoring_apt_os_services:
-  - enabled: true
-    service_name: "{{ monitoring_apt_service_file_name }}"
-    service_state: "{{ configure_monitoring_apt | ternary('started', 'stopped') }}"
   - enabled: true
     service_name: "{{ monitoring_apt_timer_file_name }}"
     service_state: "{{ configure_monitoring_apt | ternary('started', 'stopped') }}"
