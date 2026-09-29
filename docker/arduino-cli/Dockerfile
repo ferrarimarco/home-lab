@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:11.11
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
