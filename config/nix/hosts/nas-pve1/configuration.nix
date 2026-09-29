@@ -52,6 +52,9 @@ _: {
       };
       # HTTPS for the LAN-exposed GUI (self-signed certificate).
       gui.useTLS = true;
+      # New folders default onto the data dataset, not the state directory:
+      # the GUI pre-fills folder paths from this value.
+      defaults.folder.path = "/mnt/shared/syncthing";
     };
   };
 
