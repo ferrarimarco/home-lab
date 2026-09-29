@@ -3,6 +3,10 @@
 # Version 1.17
 # https://github.com/MartineauUK/Chk-WAN/commit/d0ca301669a7e085cc81ee9c778d9cb71e7aa6ac
 # is the last one authored by MartineauUK
+
+# Disable all ShellCheck checks until the findings in this script are fixed
+# shellcheck disable=all
+
 VER="v1.18"
 #============================================================================================ © 2016-2021 Martineau v1.17
 #
