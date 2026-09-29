@@ -760,13 +760,19 @@ export:
    `zfs_datasets` list, converged by the `setup_disks` role (§11.1).
 2. **The bind mount (Terraform)**: `/rpool-usb-1/syncthing` →
    `/mnt/shared/syncthing` in `var.nas_container_bind_mounts`.
-3. **The folder directories (NixOS)**: the directories under
-   `/mnt/shared/syncthing` are created declaratively (`systemd.tmpfiles` rules
-   in the host's `configuration.nix`), owned by the service user; their neutral
-   names carry no identifying material. The Syncthing folder objects pointing at
-   them are configured via the GUI/API and persist in the state bind mount,
-   because their definitions are coupled to device IDs, which are private
-   material (§12.4).
+3. **The folder directories (imperative, on acceptance)**: the directories under
+   `/mnt/shared/syncthing` are created by Syncthing itself when a shared folder
+   is accepted, running as the service user on the `ferrarimarco`-owned dataset.
+   They are deliberately not provisioned in the NixOS configuration: keeping the
+   directory names out of the repository lets them stay personal, matching the
+   folder objects themselves, which are configured via the GUI/API and persist
+   in the state bind mount because their definitions are coupled to device IDs —
+   private material (§12.4). Declaring the directories with neutralized names
+   was considered and rejected: folder paths are device-local in Syncthing, so
+   renaming bought no compatibility and cost continuity with the existing names,
+   and encoding the current traffic direction in a name (for example
+   "inbound"/"outbound") misleads as soon as the folder type changes — direction
+   is configuration, not identity.
 
 An SMB export of the dataset is deliberately not part of this design; if
 browsing the folders over the network becomes useful, add a per-host share for
@@ -793,10 +799,15 @@ GUI/API instead of being declared in NixOS, and persists in the state bind mount
 below, the same posture as the GUI credentials and the Samba password (§7.2).
 Declaring only the folders while keeping the devices imperative was also
 rejected: the NixOS module re-applies declared folder objects on every
-activation, which would strip the imperatively added device sharing. The folder
-directories themselves carry no identifying material, so they stay declarative
-(§12.3). Automating the topology delivery without publishing the IDs could reuse
-the Samba password automation design tracked in the
+activation, which would strip the imperatively added device sharing. The
+imperative topology additionally **requires `overrideDevices = false` and
+`overrideFolders = false`** in the host configuration: the module defaults both
+to true and then deletes undeclared devices and folders as "stale" on every
+activation, even when the configuration declares none (observed 2026-09-29: the
+first activation after the pairing wiped the configured devices). The folder
+directories on disk are likewise created on folder acceptance rather than
+declared (§12.3). Automating the topology delivery without publishing the IDs
+could reuse the Samba password automation design tracked in the
 [specifications readme](./README.md#specifications-to-write-and-todos).
 
 The state directory (`/var/lib/syncthing`: the device keys and the index
