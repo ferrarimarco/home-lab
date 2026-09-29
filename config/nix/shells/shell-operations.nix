@@ -10,6 +10,6 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    echo "Nix Operations Shell Active"
+    echo "Nix Operations Shell Active" >&2
   '';
 }
