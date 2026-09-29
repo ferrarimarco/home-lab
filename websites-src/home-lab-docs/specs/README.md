@@ -666,6 +666,20 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   `/dev/net/tun` availability inside the LXC; and recording the connectivity
   model in the NAS spec's Syncthing section. Blocks: the Syncthing migration
   peer swap (the LAN seeding from raspberrypi2 is unaffected).
+- **Move the Syncthing configuration into a Nix role**: the `services.syncthing`
+  configuration (service, connectivity policy, state directory rule) currently
+  lives entirely in the nas-pve1 host configuration. Factor the reusable parts
+  into a role under `config/nix/roles/`, following the repository's
+  role-versus-host split (shared service defaults in the role, per-host values
+  in the host configuration), so a future nas-pve2 instance — one Syncthing
+  instance per storage-owning host — reuses it instead of duplicating it.
+- **Remove the Ansible Syncthing stack after the raspberrypi2 re-image**: once
+  the Syncthing migration to nas-pve1 is cut over and raspberrypi2 is re-imaged,
+  no Ansible-managed host runs Syncthing, and the role's Syncthing machinery
+  (the compose template, the stack variables and enablement flag, and the
+  endpoint wiring) becomes dead code to delete. Depends on: the Syncthing
+  migration cutover and the raspberrypi2 re-image
+  ([Current focus](#current-focus)).
 - **raspberrypi2 restic repository wind-down (decided 2026-09-26)**: hl01's
   restic repository stays on `rpool-sata` via the existing `backups` share (no
   consolidation onto the USB pools). raspberrypi2's repository covers only the
