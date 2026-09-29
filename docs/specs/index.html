@@ -2282,8 +2282,15 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <a href="https://tailscale.com/kb/1133/proxmox">Proxmox</a>.</li>
 </ul>
 </li>
-<li>ChkWAN script: move the ExecStop command from asuswrt-chkwan.service to the
-  ChkWAN.sh script; delete the /tmp/ChkWAN.sh-running file.</li>
+<li>ChkWAN script:<ul>
+<li>Move the ExecStop command from asuswrt-chkwan.service to the ChkWAN.sh
+  script; delete the /tmp/ChkWAN.sh-running file.</li>
+<li>Fix the ShellCheck findings in the ChkWan.sh script (129 on 2026-09-29,
+  mostly unquoted expansions), then remove its <code>shellcheck disable=all</code>
+  directive. The script runs on the router, so test each change against it
+  before deploying.</li>
+</ul>
+</li>
 <li>Network stack
   (<a href="https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/">reference</a>):<ul>
 <li>DNS server: configure the lab DNS zone.</li>

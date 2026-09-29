@@ -344,8 +344,13 @@ reliability risks first, then security exposure, then automation):
       [GitOps ACLs](https://tailscale.com/kb/1204/gitops-acls/),
       [Terraform provider](https://tailscale.com/kb/1210/terraform-provider/),
       [Proxmox](https://tailscale.com/kb/1133/proxmox).
-- ChkWAN script: move the ExecStop command from asuswrt-chkwan.service to the
-  ChkWAN.sh script; delete the /tmp/ChkWAN.sh-running file.
+- ChkWAN script:
+    - Move the ExecStop command from asuswrt-chkwan.service to the ChkWAN.sh
+      script; delete the /tmp/ChkWAN.sh-running file.
+    - Fix the ShellCheck findings in the ChkWan.sh script (129 on 2026-09-29,
+      mostly unquoted expansions), then remove its `shellcheck disable=all`
+      directive. The script runs on the router, so test each change against it
+      before deploying.
 - Network stack
   ([reference](https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/)):
     - DNS server: configure the lab DNS zone.
