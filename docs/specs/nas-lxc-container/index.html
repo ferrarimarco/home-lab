@@ -2467,8 +2467,8 @@ Syncthing service that runs alongside it (§12).</p>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Syncthing Storage (dataset, bind mounts)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;"><code>rpool-usb-1/syncthing</code> dataset plus data and state bind mounts (§12.3, §12.4).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).</td>
 </tr>
 </tbody>
 </table>
@@ -2776,6 +2776,22 @@ host-persistent storage so the Samba password database survives container
 recreation (see §7.2). The host-side directory must exist before the container
 first starts; see <a href="#112-samba-state-directory-on-the-host">§11.2</a> for its
 prerequisites and backup implications.</p>
+<blockquote>
+<p><strong>Mount point changes force container replacement at the Terraform layer.</strong>
+The <code>bpg/proxmox</code> provider (through at least 0.114.0) cannot update a
+container's mount points in place: any added or changed <code>mount_point</code> block
+plans a destroy-and-recreate of the container, which would revert it to the
+bare bootstrap template and require the GitOps handoff again (§10.1). In-place
+management is an open upstream request
+(<a href="https://github.com/bpg/terraform-provider-proxmox/issues/1392">bpg/terraform-provider-proxmox#1392</a>,
+scheduled for the provider's v2.0 milestone). Until it lands, roll out mount
+point changes by fast-forwarding reality with <code>pct set</code> on the owning node —
+replicating exactly the mount slot order Terraform renders: the dynamic
+dataset bind mounts first, in list order, then the static state mounts —
+followed by one container restart. The next Terraform run then refreshes the
+new layout into state and plans no changes (verified for the Syncthing mounts
+on 2026-09-29).</p>
+</blockquote>
 <h2 id="7-smb-user-management">7. SMB User Management</h2>
 <p>Samba maintains its own password database (<code>passdb.tdb</code>) separate from the Linux
 system's <code>/etc/shadow</code>. NixOS does not provide a fully declarative mechanism to

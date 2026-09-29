@@ -21,7 +21,7 @@ Syncthing service that runs alongside it (§12).
 | **Host Integration Tests**                   | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
 | **Flake Registration**                       | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
 | **Syncthing Service (`nas-pve1`)**           | **Missing**           | `services.syncthing` on `nas-pve1`; the sync topology is imperative (§12.4).      |
-| **Syncthing Storage (dataset, bind mounts)** | **Missing**           | `rpool-usb-1/syncthing` dataset plus data and state bind mounts (§12.3, §12.4).   |
+| **Syncthing Storage (dataset, bind mounts)** | **Fully Implemented** | Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).    |
 
 ## 1. Goal
 
@@ -366,6 +366,21 @@ host-persistent storage so the Samba password database survives container
 recreation (see §7.2). The host-side directory must exist before the container
 first starts; see [§11.2](#112-samba-state-directory-on-the-host) for its
 prerequisites and backup implications.
+
+> **Mount point changes force container replacement at the Terraform layer.**
+> The `bpg/proxmox` provider (through at least 0.114.0) cannot update a
+> container's mount points in place: any added or changed `mount_point` block
+> plans a destroy-and-recreate of the container, which would revert it to the
+> bare bootstrap template and require the GitOps handoff again (§10.1). In-place
+> management is an open upstream request
+> ([bpg/terraform-provider-proxmox#1392](https://github.com/bpg/terraform-provider-proxmox/issues/1392),
+> scheduled for the provider's v2.0 milestone). Until it lands, roll out mount
+> point changes by fast-forwarding reality with `pct set` on the owning node —
+> replicating exactly the mount slot order Terraform renders: the dynamic
+> dataset bind mounts first, in list order, then the static state mounts —
+> followed by one container restart. The next Terraform run then refreshes the
+> new layout into state and plans no changes (verified for the Syncthing mounts
+> on 2026-09-29).
 
 ## 7. SMB User Management
 

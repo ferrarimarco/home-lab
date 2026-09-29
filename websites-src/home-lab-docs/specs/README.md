@@ -704,6 +704,15 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
 - **Static IP migration**: Transition from DHCP to static IP assignments defined
   in the NixOS configuration once the network spec is written. Depends on:
   configuring static IP addresses for servers ([Networking](#networking)).
+- **Terraform in-place mount point updates (blocked upstream)**: the
+  `bpg/proxmox` provider (through at least 0.114.0) cannot update a container's
+  mount points in place — any change plans a container replacement, reverting
+  the guest to the bare bootstrap template. The
+  [bind mounts section](./nas-lxc-container.md#62-zfs-dataset-bind-mounts) of
+  the NAS spec records the `pct set` fast-forward procedure used instead.
+  Revisit when upstream lands in-place management
+  ([bpg/terraform-provider-proxmox#1392](https://github.com/bpg/terraform-provider-proxmox/issues/1392),
+  scheduled for the provider's v2.0 milestone).
 - **Terraform-managed ZFS pools (evaluated 2026-08, deferred)**: the
   `bpg/proxmox` provider (since 0.111.x) offers
   [`proxmox_node_disk_zfs`](https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/node_disk_zfs)
