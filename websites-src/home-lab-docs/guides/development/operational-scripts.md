@@ -151,6 +151,28 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     convention, and the script's own log output shares the stream with the
     decrypted content.
 
+    The script builds the Ansible container image on each run. To run an
+    existing container image instead, set `ANSIBLE_CONTAINER_IMAGE_ID` to the
+    container image to run, and `ANSIBLE_CONTAINER_IMAGE_SKIP_BUILD=true` to
+    skip the build. The `Test Ansible collections, roles, playbooks` CI workflow
+    uses these variables to build the container image once per job with the
+    build cache that all the test jobs share.
+
+    To test a playbook with Molecule, set `ANSIBLE_TEST_DISTRO` to the container
+    image of the test instance, `ANSIBLE_TEST_PLAYBOOK_NAME` to the name of the
+    playbook to test, and pass the Molecule command to run:
+
+    ```shell
+    ANSIBLE_TEST_DISTRO="geerlingguy/docker-debian12-ansible:latest" \
+      ANSIBLE_TEST_PLAYBOOK_NAME="bootstrap" \
+      scripts/run-ansible.sh "molecule test"
+    ```
+
+    The test starts a privileged container for the test instance, and removes it
+    when the test completes. Molecule skips the tasks that have the
+    `molecule-notest` tag: tests don't pull container images, and don't start
+    containerized services.
+
 - `scripts/run-terraform.sh`: iterates over the numbered Terraform service
   directories in `config/terraform` and runs `terraform init` and
   `terraform apply` for each one. Run

@@ -45,26 +45,31 @@ jobs:
       group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}-${{ github.event_name }}-${{ matrix.test_container_image_id }}-${{ matrix.test_playbook_name }}
       cancel-in-progress: true
     env:
-      ANSIBLE_TEST_CONTAINER_IMAGE_ID: "${{ github.repository }}-ansible"
+      ANSIBLE_TEST_CONTAINER_IMAGE_ID: "${{ github.repository }}-ansible:test"
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          # This might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: false
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+      # Build the container image here instead of letting the script build it
+      # so that all the test jobs share the container image layers using the
+      # build cache.
+      - name: Build the Ansible container image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          build-contexts: |
+            ansible-configuration=config/ansible
+          cache-from: type=gha,scope=ansible-molecule
+          cache-to: type=gha,mode=max,scope=ansible-molecule
+          context: docker/ansible
+          load: true
+          tags: ${{ env.ANSIBLE_TEST_CONTAINER_IMAGE_ID }}
+          target: molecule
       - name: Run molecule
+        env:
+          ANSIBLE_CONTAINER_IMAGE_ID: ${{ env.ANSIBLE_TEST_CONTAINER_IMAGE_ID }}
+          ANSIBLE_CONTAINER_IMAGE_SKIP_BUILD: "true"
         run: |
           set -o errexit
           set -o nounset
@@ -78,6 +83,8 @@ jobs:
           scripts/run-ansible.sh "molecule test"
     runs-on: ubuntu-latest
     strategy:
+      # Run all the tests to completion to report the result of each playbook
+      fail-fast: false
       matrix:
         test_container_image_id:
           - "geerlingguy/docker-debian12-ansible:latest"
