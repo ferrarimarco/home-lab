@@ -645,7 +645,22 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   rules (offsite peer not seen for too long, folders out of sync or erroring),
   designed against the post-migration steady state
   ([Monitoring and alerting](#monitoring-and-alerting)). Unblocked: the target
-  pool already exists and is empty.
+  pool already exists and is empty; the peer swap step additionally depends on
+  the Tailscale design item below.
+- **Tailscale on nas-pve1 (design needed)**: Syncthing peer connectivity uses
+  static addresses over the tailnet only — global discovery, relays, and NAT
+  traversal are deliberately disabled on both instances, and raspberrypi2
+  reaches the remote peer through its own `tailscaled` — but nas-pve1 is not on
+  the tailnet (verified 2026-09-29: the peer's tailnet address routes to the
+  default gateway and is unreachable from the guest). Design the setup properly
+  before implementing. Considerations: NixOS `services.tailscale` on the guest
+  versus alternatives such as a subnet router on another host; node-state
+  persistence across container recreation (a third state bind mount, subject to
+  the Terraform mount point limitation below); auth key delivery without
+  committing secrets (candidate: the Samba password automation mechanism);
+  `/dev/net/tun` availability inside the LXC; and recording the connectivity
+  model in the NAS spec's Syncthing section. Blocks: the Syncthing migration
+  peer swap (the LAN seeding from raspberrypi2 is unaffected).
 - **raspberrypi2 restic repository wind-down (decided 2026-09-26)**: hl01's
   restic repository stays on `rpool-sata` via the existing `backups` share (no
   consolidation onto the USB pools). raspberrypi2's repository covers only the

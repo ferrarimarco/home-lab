@@ -1806,6 +1806,23 @@ a filter (as above) that only surfaces key names. The filter anchors on the
 <code>vault</code> prefix because all vaulted variables follow the <code>vault_*</code> naming
 convention, and the script's own log output shares the stream with the
 decrypted content.</p>
+<p>The script builds the Ansible container image on each run. To run an
+existing container image instead, set <code>ANSIBLE_CONTAINER_IMAGE_ID</code> to the
+container image to run, and <code>ANSIBLE_CONTAINER_IMAGE_SKIP_BUILD=true</code> to
+skip the build. The <code>Test Ansible collections, roles, playbooks</code> CI workflow
+uses these variables to build the container image once per job with the
+build cache that all the test jobs share.</p>
+<p>To test a playbook with Molecule, set <code>ANSIBLE_TEST_DISTRO</code> to the container
+image of the test instance, <code>ANSIBLE_TEST_PLAYBOOK_NAME</code> to the name of the
+playbook to test, and pass the Molecule command to run:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ANSIBLE_TEST_DISTRO</span><span class="o">=</span><span class="s2">&quot;geerlingguy/docker-debian12-ansible:latest&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_TEST_PLAYBOOK_NAME</span><span class="o">=</span><span class="s2">&quot;bootstrap&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>scripts/run-ansible.sh<span class="w"> </span><span class="s2">&quot;molecule test&quot;</span>
+</code></pre></div>
+<p>The test starts a privileged container for the test instance, and removes it
+when the test completes. Molecule skips the tasks that have the
+<code>molecule-notest</code> tag: tests don't pull container images, and don't start
+containerized services.</p>
 </li>
 <li>
 <p><code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service
