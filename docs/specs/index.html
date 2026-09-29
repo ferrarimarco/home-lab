@@ -2185,6 +2185,11 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Check that configured users have their SSH keys authorized (reuse the
   existing bootstrap key check because it already does most of the stuff we
   need for this check).</li>
+<li>Build the development shell flake checks (<code>shell-devShell</code> and
+  <code>shell-opsShell</code>) in the CI workflow (<code>.github/workflows/nix.yaml</code>), which
+  only builds the <code>lint-treefmt-nix</code> and <code>host-&lt;host&gt;-test</code> checks, so a
+  shell that no longer builds fails CI instead of surfacing on a control
+  machine.</li>
 </ul>
 </li>
 </ul>
