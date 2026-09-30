@@ -238,11 +238,11 @@ architectural patterns:
   inventory flag choreography around a verified data copy. Check target capacity
   and stop the stack before copying its state; do not improvise migrations with
   ad-hoc commands or scripts.
-- SSH conventions: `root@pve1`/`root@pve2` for the Proxmox nodes,
-  `debian@hl01.edge.lab.ferrari.how` for the hl01 VM,
-  `pi@raspberrypi2.edge.lab.ferrari.how` for the raspberrypi2 host. Use
-  read-only commands freely for discovery; get approval for state-changing
-  commands.
+- SSH conventions: connect using each host's fully qualified domain name, as
+  listed in the Ansible inventory — short hostnames do not resolve from the
+  control machine. Connect as `root` to the Proxmox nodes, as `debian` to the
+  hl01 VM, and as `pi` to the raspberrypi2 host. Use read-only commands freely
+  for discovery; get approval for state-changing commands.
 - **The Prometheus backend runs on raspberrypi2** (port 9090, host-local). Query
   it over SSH for historical metrics evidence during incident investigations;
   the
@@ -288,3 +288,10 @@ architectural patterns:
 - **Python exporter services build their venv via the shared `build-python-venv`
   script into a systemd `StateDirectory=`**, never into `/run` or via inline
   `ExecStartPre` venv/pip commands.
+- **Run the Molecule tests locally before pushing Ansible changes:** test the
+  playbooks that the change affects (`main` covers all the roles) with
+  `scripts/run-ansible.sh "molecule test"`, as described in the
+  [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
+  The tests start privileged containers on the control machine, so get approval
+  first. Tag new tasks that pull container images or start containerized
+  services with `molecule-notest`.
