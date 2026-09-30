@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/hardware/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/dependency-updates/">
       
       
-        <link rel="prev" href="../dependency-updates/">
+        <link rel="prev" href="../container-migration/">
       
       
-        <link rel="next" href="../monitoring/">
+        <link rel="next" href="../hardware/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Hardware operations - Home Lab docs</title>
+        <title>Dependency updates - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#hardware-operations" class="md-skip">
+        <a href="#dependency-updates" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Hardware operations
+              Dependency updates
             
           </span>
         </div>
@@ -1076,29 +1076,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../dependency-updates/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Dependency updates
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -1116,7 +1093,7 @@
   
   
   <span class="md-ellipsis">
-    Hardware operations
+    Dependency updates
     
   </span>
   
@@ -1129,7 +1106,7 @@
   
   
   <span class="md-ellipsis">
-    Hardware operations
+    Dependency updates
     
   </span>
   
@@ -1152,33 +1129,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bmc-management-with-ipmi" class="md-nav__link">
+  <a href="#dependabot-configuration-conventions" class="md-nav__link">
     <span class="md-ellipsis">
-      BMC management with IPMI
+      Dependabot configuration conventions
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="BMC management with IPMI">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configure-fan-thresholds" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configure fan thresholds
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#supermicro-x10srl-f-motherboard-standoff-short" class="md-nav__link">
+  <a href="#how-dependabot-runs" class="md-nav__link">
     <span class="md-ellipsis">
-      Supermicro X10SRL-F motherboard standoff short
+      How Dependabot runs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshoot-dependabot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshoot Dependabot
     </span>
   </a>
   
@@ -1188,6 +1159,29 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hardware operations
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1624,33 +1618,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bmc-management-with-ipmi" class="md-nav__link">
+  <a href="#dependabot-configuration-conventions" class="md-nav__link">
     <span class="md-ellipsis">
-      BMC management with IPMI
+      Dependabot configuration conventions
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="BMC management with IPMI">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configure-fan-thresholds" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configure fan thresholds
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#supermicro-x10srl-f-motherboard-standoff-short" class="md-nav__link">
+  <a href="#how-dependabot-runs" class="md-nav__link">
     <span class="md-ellipsis">
-      Supermicro X10SRL-F motherboard standoff short
+      How Dependabot runs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshoot-dependabot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshoot Dependabot
     </span>
   </a>
   
@@ -1675,33 +1663,106 @@
   
 
 
-<h1 id="hardware-operations">Hardware operations</h1>
-<p>This guide collects hardware maintenance procedures and hardware issues we
-diagnosed, so we don't have to rediscover them.</p>
-<h2 id="bmc-management-with-ipmi">BMC management with IPMI</h2>
-<p>The <code>pve2</code> node (Supermicro X10SRL-F motherboard) has a BMC reachable at
-<code>10.246.67.56</code>. Query and configure it with <code>ipmitool</code> over the LAN interface:</p>
-<div class="highlight"><pre><span></span><code>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span><span class="m">10</span>.246.67.56<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>list
+<h1 id="dependency-updates">Dependency updates</h1>
+<p>This guide describes how automated dependency updates work in this repository,
+and how to troubleshoot them.</p>
+<p>Two tools manage dependency updates:</p>
+<ul>
+<li>Dependabot opens the dependency update pull requests. Its configuration is in
+  <code>.github/dependabot.yaml</code>.</li>
+<li>Renovate runs from the <code>Renovate</code> CI workflow, and only opens pull requests
+  after an approval in the Dependency Dashboard issue. Its configuration is in
+  <code>.github/renovate.json</code>.</li>
+</ul>
+<p>The <a href="../../../specs/">specifications index</a> tracks the migration of all
+dependency updates to Renovate.</p>
+<h2 id="dependabot-configuration-conventions">Dependabot configuration conventions</h2>
+<ul>
+<li>Each entry in <code>updates</code> groups its updates with the <code>groups</code> option, so
+  Dependabot opens one pull request for each group of each entry.</li>
+<li>Groups match all dependencies (<code>"*"</code>). A dependency that matches no group gets
+  its own pull request, so a gap in the patterns never hides an update.</li>
+<li>A dependency joins the first group it matches: list specific groups before a
+  group that matches all dependencies.</li>
+<li>Each entry needs a unique combination of ecosystem and directories. To assign
+  the dependencies in the same directory to different groups, use one entry with
+  several groups.</li>
+<li>An <code>ignore</code> rule that names a dependency without versions removes that
+  dependency before Dependabot looks it up. The <code>terraform</code> entry uses this for
+  the built-in Terraform provider, which no registry serves.</li>
+<li>Don't use <code>multi-ecosystem-groups</code>: their pull requests stopped updating after
+  their creation, and accumulated notices about a rebase that never completed.
+  See the Dependabot issues
+  <a href="https://github.com/dependabot/dependabot-core/issues/12903">12903</a> and
+  <a href="https://github.com/dependabot/dependabot-core/issues/12957">12957</a>.</li>
+</ul>
+<p>To validate the syntax of the configuration file, check it against its schema in
+a container:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--volume<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/.github:/work:ro&quot;</span><span class="w"> </span>python:3-slim<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;pip install --quiet check-jsonschema \</span>
+<span class="s1">    &amp;&amp; check-jsonschema \</span>
+<span class="s1">      --schemafile https://json.schemastore.org/dependabot-2.0.json \</span>
+<span class="s1">      /work/dependabot.yaml&#39;</span>
 </code></pre></div>
-<h3 id="configure-fan-thresholds">Configure fan thresholds</h3>
-<p>Quiet, low-RPM fans can dip below the factory lower thresholds, triggering false
-critical events and BMC fan-boost cycling. Lower the thresholds of the affected
-fan sensors to stop that:</p>
-<div class="highlight"><pre><span></span><code>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span><span class="m">10</span>.246.67.56<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>thresh<span class="w"> </span>FAN1<span class="w"> </span>lower<span class="w"> </span><span class="m">150</span><span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="m">250</span>
-ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span><span class="m">10</span>.246.67.56<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>thresh<span class="w"> </span>FAN2<span class="w"> </span>lower<span class="w"> </span><span class="m">150</span><span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="m">250</span>
+<p>The schema check only validates the syntax. Dependabot reads the configuration
+file when you push it to the default branch, and starts a job for each entry.</p>
+<h2 id="how-dependabot-runs">How Dependabot runs</h2>
+<ul>
+<li>Jobs run as the <code>Dependabot Updates</code> CI workflow, one run for each entry.</li>
+<li>The <code>daily</code> schedule runs on weekdays.</li>
+<li>Pushing a change to the configuration file starts a run for each entry.
+  Merging a pull request doesn't.</li>
+<li>Dependabot waits a few days after the release of a version before proposing
+  it, unless the registry doesn't report publication dates.</li>
+<li>A job first checks for updates, and then a separate job refreshes each
+  existing pull request. The title of a refresh job names the dependencies of
+  the pull request.</li>
+</ul>
+<h2 id="troubleshoot-dependabot">Troubleshoot Dependabot</h2>
+<p>Use the GitHub CLI from the <code>operations</code> Nix shell, as described in the
+<a href="../../development/nix-dev-shells/">Nix development shells guide</a>.</p>
+<ol>
+<li>
+<p>List the latest runs, and find the run for the ecosystem to investigate:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--workflow<span class="w"> </span><span class="s2">&quot;Dependabot Updates&quot;</span><span class="w"> </span>--limit<span class="w"> </span><span class="m">30</span>
 </code></pre></div>
-<p>The three values after <code>lower</code> are, in order: lower non-recoverable, lower
-critical, and lower non-critical.</p>
-<p>Thresholds are stored in the BMC, so they may need re-applying after a BMC
-firmware update or a BMC factory reset.</p>
-<h2 id="supermicro-x10srl-f-motherboard-standoff-short">Supermicro X10SRL-F motherboard standoff short</h2>
-<p>The Supermicro X10SRL-F motherboard doesn't have the standard ATX mounting hole
-layout. In a case with standoffs installed for the standard layout, one standoff
-has no matching hole and shorts the C1/C2 DIMM slot solder contacts on the
-underside of the board. Removing that standoff fixed the issue, with no
-permanent damage in our case.</p>
-<p>When mounting a motherboard, verify that every installed case standoff aligns
-with a motherboard mounting hole, and remove the unmatched ones.</p>
+</li>
+<li>
+<p>Save the log of the run to a file:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>gh<span class="w"> </span>run<span class="w"> </span>view<span class="w"> </span>&lt;run-id&gt;<span class="w"> </span>--log<span class="w"> </span>&gt;<span class="w"> </span>&lt;log<span class="w"> </span>file&gt;<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</code></pre></div>
+</li>
+<li>
+<p>Inspect the log:</p>
+<ul>
+<li>The <code>Job definition</code> line shows how Dependabot interpreted the
+  configuration: <code>dependency-groups</code>, <code>ignore-conditions</code>,
+  <code>existing-group-pull-requests</code>, and whether the job refreshes a pull
+  request (<code>updating-a-pull-request</code>).</li>
+<li>The <code>Checking if &lt;dependency&gt; &lt;version&gt; needs updating</code> lines list the
+  dependencies that the job considered. A dependency that doesn't appear was
+  filtered out.</li>
+<li>The <code>Results</code> table at the end of the log lists the pull requests that the
+  job created, updated, or closed, and the dependencies that failed to
+  update.</li>
+</ul>
+</li>
+<li>
+<p>Compare the results with the pull requests:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>gh<span class="w"> </span>pr<span class="w"> </span>list<span class="w"> </span>--author<span class="w"> </span><span class="s2">&quot;app/dependabot&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--json<span class="w"> </span>number,title,updatedAt,commits<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--jq<span class="w"> </span><span class="s1">&#39;.[] | &quot;\(.number) \(.title) \(.commits[-1].committedDate)&quot;&#39;</span>
+</code></pre></div>
+<p>A pull request that Dependabot keeps updating has recent commits. A pull
+request whose description changes while its commits don't is stuck.</p>
+</li>
+</ol>
+<p>A job can succeed and create a pull request, and still report a failure for a
+dependency that it couldn't look up. Read the <code>Results</code> table before treating a
+failed run as a missing update.</p>
 
 
 

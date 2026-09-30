@@ -1054,6 +1054,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#build-the-site-from-committed-sources-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build the site from committed sources only
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1122,6 +1131,29 @@
   
   <span class="md-ellipsis">
     Container migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/dependency-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dependency updates
     
   </span>
   
@@ -1603,6 +1635,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#build-the-site-from-committed-sources-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build the site from committed sources only
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1663,6 +1704,37 @@ verdict.</p>
 <p>New pages don't need navigation configuration: MkDocs generates the navigation
 from the directory tree, which is why adding a page changes the rendered
 navigation of every existing page in <code>docs/</code>.</p>
+<h2 id="build-the-site-from-committed-sources-only">Build the site from committed sources only</h2>
+<p>The build reads the working tree, including uncommitted changes and untracked
+files. If the working tree contains source changes that don't belong to the
+commit, such as the changes of another session, the generated output includes
+them. Before committing, review the differences in <code>docs/</code> to confirm that they
+only reflect the sources in the same commit.</p>
+<p>To build the site from the sources of a commit only, build it in a temporary
+worktree. A copy of the files is not enough because the build script needs a Git
+repository.</p>
+<ol>
+<li>
+<p>Create the worktree outside the repository:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>worktree<span class="w"> </span>add<span class="w"> </span>--detach<span class="w"> </span>&lt;worktree<span class="w"> </span>directory&gt;<span class="w"> </span>&lt;commit&gt;
+</code></pre></div>
+</li>
+<li>
+<p>Build the site from the worktree directory:</p>
+<div class="highlight"><pre><span></span><code>scripts/run-mkdocs.sh<span class="w"> </span>build<span class="w"> </span>home-lab-docs<span class="w"> </span>./websites-src/home-lab-docs<span class="w"> </span>./docs
+</code></pre></div>
+</li>
+<li>
+<p>Compare the output in the worktree with the output to commit. For example,
+   <code>git status</code> in the worktree lists the generated files that differ from the
+   ones in the commit.</p>
+</li>
+<li>
+<p>Remove the worktree:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>worktree<span class="w"> </span>remove<span class="w"> </span>--force<span class="w"> </span>&lt;worktree<span class="w"> </span>directory&gt;
+</code></pre></div>
+</li>
+</ol>
 
 
 

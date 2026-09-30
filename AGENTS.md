@@ -195,6 +195,10 @@ describes them all. Key rules:
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
   A lint run only validates the message of the last commit, while CI validates
   all the pushed commits.
+- **Dependency updates:** Dependabot opens the dependency update pull requests,
+  configured in `.github/dependabot.yaml`. Read the
+  [dependency updates guide](./websites-src/home-lab-docs/guides/operations/dependency-updates.md)
+  before changing that file or investigating missing or stuck pull requests.
 
 ## 5. Design & Modularization Rules
 
