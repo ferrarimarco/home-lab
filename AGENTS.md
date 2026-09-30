@@ -122,7 +122,11 @@ describes them all. Key rules:
   supports `output <service> [<name>]` but has no `validate` path (rely on
   super-linter for static checks). Run it with stdin closed (`</dev/null`) to
   abort instead of hanging on apply-approval prompts, and ask the user before
-  any run that contacts the Proxmox API (nodes may be powered off).
+  any run that contacts the Proxmox API (nodes may be powered off). With stdin
+  closed, stacks with no changes complete and the first stack with pending
+  changes prints its plan and aborts at the approval prompt: use that as the
+  review pass, and supply the approval on a second run only after reviewing the
+  plan it printed.
 - **Terraform state inspection:** each stack's local state lives at
   `config/terraform/environments/backend/local/<service>/terraform.tfstate`;
   reading it (read-only) is the sanctioned way to verify what an apply recorded,
