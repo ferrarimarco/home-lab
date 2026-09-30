@@ -163,6 +163,10 @@ describes them all. Key rules:
   The full format-build-lint-commit pipeline for changes under `websites-src/`
   is described in the
   [site development guide](./websites-src/home-lab-docs/guides/development/website-development.md).
+  The build reads the working tree, including the uncommitted and untracked
+  files of other sessions: before committing generated output, confirm that its
+  differences only reflect the sources in the same commit, as the guide
+  describes.
 - **Linting:** lint and format changes with `scripts/lint.sh`, which runs
   super-linter with the same configuration as CI (set
   `LINTER_CONTAINER_FIX_MODE=true` to apply automatic fixes). Do not hand-roll
