@@ -1756,6 +1756,8 @@ same pinned super-linter container image so results match what CI expects:</p>
   Markdown and text files.</li>
 <li><code>terraform fmt -recursive</code> on Terraform files.</li>
 </ul>
+<p>The script runs textlint and markdownlint before Prettier, so that Prettier
+formats the results of their fixes.</p>
 <p>Directories go through every formatter; single files only go through the
 formatters that support their file type. Use it as the fast inner loop when
 editing: the check-mode <code>scripts/lint.sh</code> run remains the authoritative verdict.</p>

@@ -88,6 +88,9 @@ The script runs:
   Markdown and text files.
 - `terraform fmt -recursive` on Terraform files.
 
+The script runs textlint and markdownlint before Prettier, so that Prettier
+formats the results of their fixes.
+
 Directories go through every formatter; single files only go through the
 formatters that support their file type. Use it as the fast inner loop when
 editing: the check-mode `scripts/lint.sh` run remains the authoritative verdict.

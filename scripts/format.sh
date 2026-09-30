@@ -79,11 +79,12 @@ quote_paths() {
   printf '%q ' "$@"
 }
 
-if [ "${#PRETTIER_TARGETS[@]}" -gt 0 ]; then
-  # Exclude the generated docs site output and the super-linter output
-  # directory, matching the FILTER_REGEX_EXCLUDE and gitignore setup that
-  # super-linter runs with.
-  run_formatter "prettier --write $(quote_paths "${PRETTIER_TARGETS[@]}") '!docs/**' '!super-linter-output/**'"
+# Run the formatters that change the contents of text files before Prettier, so
+# that Prettier formats their results. Otherwise, a fix that changes the length
+# of a line leaves the file with formatting issues.
+
+if [ "${#TEXTLINT_TARGETS[@]}" -gt 0 ]; then
+  run_formatter "textlint --config /action/lib/.automation/.textlintrc --fix $(quote_paths "${TEXTLINT_TARGETS[@]}")"
 fi
 
 if [ "${#MARKDOWNLINT_TARGETS[@]}" -gt 0 ]; then
@@ -92,12 +93,15 @@ if [ "${#MARKDOWNLINT_TARGETS[@]}" -gt 0 ]; then
   run_formatter "markdownlint --config config/lint/.markdown-lint.yaml --fix --ignore docs --ignore super-linter-output $(quote_paths "${MARKDOWNLINT_TARGETS[@]}")"
 fi
 
-if [ "${#SHFMT_TARGETS[@]}" -gt 0 ]; then
-  run_formatter "shfmt --write $(quote_paths "${SHFMT_TARGETS[@]}")"
+if [ "${#PRETTIER_TARGETS[@]}" -gt 0 ]; then
+  # Exclude the generated docs site output and the super-linter output
+  # directory, matching the FILTER_REGEX_EXCLUDE and gitignore setup that
+  # super-linter runs with.
+  run_formatter "prettier --write $(quote_paths "${PRETTIER_TARGETS[@]}") '!docs/**' '!super-linter-output/**'"
 fi
 
-if [ "${#TEXTLINT_TARGETS[@]}" -gt 0 ]; then
-  run_formatter "textlint --config /action/lib/.automation/.textlintrc --fix $(quote_paths "${TEXTLINT_TARGETS[@]}")"
+if [ "${#SHFMT_TARGETS[@]}" -gt 0 ]; then
+  run_formatter "shfmt --write $(quote_paths "${SHFMT_TARGETS[@]}")"
 fi
 
 if [ "${#TERRAFORM_TARGETS[@]}" -gt 0 ]; then
