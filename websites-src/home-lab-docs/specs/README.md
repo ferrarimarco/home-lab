@@ -192,6 +192,11 @@ reliability risks first, then security exposure, then automation):
 
 ### CI/CD, infrastructure-as-code, and GitOps
 
+- Validate the Dependabot configuration in CI: check `.github/dependabot.yaml`
+  against its schema, as the
+  [dependency updates guide](../guides/operations/dependency-updates.md)
+  documents for manual runs, so configuration errors surface in the pull request
+  instead of after the push to the default branch starts the jobs.
 - Compose:
     - Move secrets to
       [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).

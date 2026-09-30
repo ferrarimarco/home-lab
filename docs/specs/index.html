@@ -2137,6 +2137,11 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="cicd-infrastructure-as-code-and-gitops">CI/CD, infrastructure-as-code, and GitOps</h3>
 <ul>
+<li>Validate the Dependabot configuration in CI: check <code>.github/dependabot.yaml</code>
+  against its schema, as the
+  <a href="../guides/operations/dependency-updates/">dependency updates guide</a>
+  documents for manual runs, so configuration errors surface in the pull request
+  instead of after the push to the default branch starts the jobs.</li>
 <li>Compose:<ul>
 <li>Move secrets to
   <a href="https://docs.docker.com/compose/use-secrets/">Docker Compose secrets</a>.</li>
