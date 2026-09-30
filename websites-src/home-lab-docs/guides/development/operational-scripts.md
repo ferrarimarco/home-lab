@@ -67,6 +67,11 @@ directory in the repository root:
 Prefer these files over scrolling the console output: they persist after the run
 and separate each linter's findings.
 
+The linter container runs as `root` and rewrites the Git index (`.git/index`),
+which then belongs to `root`. A lint run can also unstage staged changes, so
+stage files after linting, right before committing. Committing still works
+because Git replaces the index file instead of writing to it.
+
 `scripts/format.sh` formats the given paths (default: the whole repository) with
 the formatters that super-linter validates in check mode, running them from the
 same pinned super-linter container image so results match what CI expects:

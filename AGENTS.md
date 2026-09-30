@@ -183,7 +183,8 @@ describes them all. Key rules:
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
   documents these output files and the format script. Run only one
   `scripts/lint.sh` at a time: concurrent runs clobber the shared
-  `super-linter-output/` directory.
+  `super-linter-output/` directory. A lint run can unstage staged changes, so
+  stage files after linting, right before committing.
 - **Validate commit messages before proposing commits:** pipe each proposed
   message to `LINTER_CONTAINER_LINT_COMMIT_MESSAGE=true scripts/lint.sh`, as
   described in the
