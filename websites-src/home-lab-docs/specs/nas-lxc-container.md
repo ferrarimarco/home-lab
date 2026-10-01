@@ -3,8 +3,9 @@
 This spec builds on the [NixOS LXC Containers on Proxmox](./proxmox-lxc.md)
 framework, which defines the `proxmox-lxc` role, LXC template generation, the
 Terraform container-provisioning pattern, and LXC test limitations. This
-document covers only the NAS-specific additions: SMB file sharing and the
-Syncthing service that runs alongside it (§12).
+document covers only the NAS-specific additions: SMB file sharing, the Syncthing
+service that runs alongside it (§12), and the Tailscale connectivity the
+Syncthing offsite transport depends on (§13).
 
 ## Implementation Status
 
@@ -22,6 +23,8 @@ Syncthing service that runs alongside it (§12).
 | **Flake Registration**                       | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
 | **Syncthing Service (`nas-pve1`)**           | **Missing**           | `services.syncthing` on `nas-pve1`; the sync topology is imperative (§12.4).      |
 | **Syncthing Storage (dataset, bind mounts)** | **Fully Implemented** | Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).    |
+| **Tailscale Storage (state bind mount)**     | **Missing**           | Host-side state directory and bind mount for `/var/lib/tailscale` (§13.3).        |
+| **Tailscale Service (`nas-pve1`)**           | **Missing**           | `services.tailscale` on `nas-pve1`; joining the tailnet is imperative (§13.4).    |
 
 ## 1. Goal
 
@@ -848,7 +851,100 @@ instance's GUI/API endpoint as part of the migration. Deeper metrics integration
 is tracked centrally in the
 [specifications readme](./README.md#specifications-to-write-and-todos).
 
-## 13. Future Work
+## 13. Tailscale Connectivity
+
+### 13.1 Purpose and Scope
+
+The Syncthing offsite transport (§12) connects to its remote peer over the
+tailnet only: global discovery, relays, and NAT traversal are disabled on both
+instances (§12.4), and the peer addresses are static tailnet addresses. The
+remote peer is a device on this lab's own tailnet (Tailscale's free Personal
+plan: six users, unlimited devices), so no cross-tailnet node sharing is
+involved. This section covers tailnet connectivity for the nas-pve1 guest and
+nothing else: a subnet router for general remote access to the LAN and an exit
+node are tracked as separate items in the
+[specifications readme](./README.md#specifications-to-write-and-todos).
+
+### 13.2 Placement Rationale
+
+Tailscale runs as a **direct node inside the nas-pve1 guest**, giving the
+Syncthing instance an end-to-end WireGuard path and a stable, collision-free
+tailnet address that the remote peer dials directly. Alternatives considered and
+rejected:
+
+- **Reaching the tailnet through a subnet router on another host.** Inbound
+  traffic works once the advertised route is approved, but outbound dialing from
+  the guest to the peer's tailnet address requires a static route for
+  `100.64.0.0/10` toward the router plus source NAT on it — imperative
+  site-to-site plumbing. A subnet-routed peer would also dial the guest at its
+  LAN address, which breaks if the remote network ever uses the same RFC1918
+  range, while tailnet addresses cannot collide. Today's candidate router
+  (raspberrypi2) is scheduled for retirement, which would rebuild the backup
+  transport on a host that is going away. High-availability route failover is a
+  paid feature, so redundant routers would not fail over on the free plan.
+- **Running `tailscaled` on the pve1 host.** The Proxmox host stays lean
+  (framework spec rationale), and terminating the tunnel in the guest keeps the
+  service and its transport in the same failure and security domain. Redundancy
+  for this path is a non-goal: the endpoint lives with the service, so a tunnel
+  that survives the guest buys nothing.
+- **Installing Tailscale fleet-wide.** No other host currently terminates a
+  tailnet-facing service; the free plan does not constrain device count, so the
+  only effect would be a larger operational surface. Nodes are added when a host
+  starts terminating a tailnet-facing service of its own.
+
+### 13.3 Infrastructure Provisioning
+
+Two host-level changes provision the guest, following the existing patterns:
+
+1. **`/dev/net/tun` device passthrough (Terraform)**: the container is
+   unprivileged, so `tailscaled` needs the TUN device passed through. The
+   provider supports this declaratively via the container resource's
+   `device_passthrough` block (verified in the provider documentation at the
+   pinned version, 0.111.1). Whether adding the block forces a container
+   replacement is not documented: review the plan for `forces replacement`
+   before approving, and fall back to the imperative fast-forward procedure
+   (§6.2) if it does.
+2. **Node-state bind mount (Ansible and Terraform)**: `/var/lib/tailscale` (the
+   node key and preferences) is bind-mounted from
+   `/var/lib/tailscale-state/nas-pve1` on the host, following the Samba and
+   Syncthing state pattern (§6.2, §11.2), so the node identity survives
+   container recreation. The host directory is declared in pve1's
+   `directories_to_create` list, owned by `root` with mode `0700` — `tailscaled`
+   runs as root, and the directory holds the node's private key. Adding the
+   mount point hits the known in-place mount update limitation and requires the
+   §6.2 fast-forward.
+
+### 13.4 Node Identity and Joining
+
+The guest enables the service declaratively (`services.tailscale.enable`) and
+**joins the tailnet imperatively, once**, via an interactive `tailscale up`
+login; the resulting node state persists in the bind mount (§13.3). This mirrors
+the Syncthing pairing posture (§12.4). Delivering a pre-authentication key
+through the repository was rejected (nothing secret is ever committed) and
+automating the key delivery out-of-band was deferred: keys expire within 90
+days, so automation only pays off when nodes join regularly, and this design
+adds one node once. The Samba password automation design remains the candidate
+mechanism if that changes
+([specifications readme](./README.md#specifications-to-write-and-todos)).
+
+Tailnet device names and addresses stay out of the repository, like the
+Syncthing device IDs (§12.4): they are not authentication material, but they map
+the lab and its peers to network locations.
+
+### 13.5 Operational Requirements
+
+- **Disable node key expiry for nas-pve1** in the Tailscale admin console after
+  joining: the default expiry (about 180 days) would otherwise silently take the
+  backup transport offline until a manual re-authentication.
+- **Access control** stays on the tailnet's default allow-all policy for now:
+  the free plan's ACL capacity (three groups) is not a constraint at this scale,
+  and the tailnet has a single administrator. Tightening the policy to port
+  22000 between the peers is possible later without touching the guest.
+- **Peer swap**: once the guest is on the tailnet, the migration's peer swap
+  (§12.5) proceeds — the remote peer adds the new device ID and the guest's
+  tailnet address, and drops raspberrypi2.
+
+## 14. Future Work
 
 Future work items for this spec are tracked centrally in the
 [specifications readme](./README.md#specifications-to-write-and-todos).

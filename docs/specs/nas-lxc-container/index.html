@@ -1897,9 +1897,69 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#13-future-work" class="md-nav__link">
+  <a href="#13-tailscale-connectivity" class="md-nav__link">
     <span class="md-ellipsis">
-      13. Future Work
+      13. Tailscale Connectivity
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Tailscale Connectivity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-purpose-and-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.1 Purpose and Scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-placement-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.2 Placement Rationale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#133-infrastructure-provisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.3 Infrastructure Provisioning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#134-node-identity-and-joining" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.4 Node Identity and Joining
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#135-operational-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.5 Operational Requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      14. Future Work
     </span>
   </a>
   
@@ -2390,9 +2450,69 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#13-future-work" class="md-nav__link">
+  <a href="#13-tailscale-connectivity" class="md-nav__link">
     <span class="md-ellipsis">
-      13. Future Work
+      13. Tailscale Connectivity
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Tailscale Connectivity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-purpose-and-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.1 Purpose and Scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-placement-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.2 Placement Rationale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#133-infrastructure-provisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.3 Infrastructure Provisioning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#134-node-identity-and-joining" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.4 Node Identity and Joining
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#135-operational-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.5 Operational Requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      14. Future Work
     </span>
   </a>
   
@@ -2421,8 +2541,9 @@
 <p>This spec builds on the <a href="../proxmox-lxc/">NixOS LXC Containers on Proxmox</a>
 framework, which defines the <code>proxmox-lxc</code> role, LXC template generation, the
 Terraform container-provisioning pattern, and LXC test limitations. This
-document covers only the NAS-specific additions: SMB file sharing and the
-Syncthing service that runs alongside it (§12).</p>
+document covers only the NAS-specific additions: SMB file sharing, the Syncthing
+service that runs alongside it (§12), and the Tailscale connectivity the
+Syncthing offsite transport depends on (§13).</p>
 <h2 id="implementation-status">Implementation Status</h2>
 <table>
 <thead>
@@ -2492,6 +2613,16 @@ Syncthing service that runs alongside it (§12).</p>
 <td style="text-align: left;"><strong>Syncthing Storage (dataset, bind mounts)</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tailscale Storage (state bind mount)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Host-side state directory and bind mount for <code>/var/lib/tailscale</code> (§13.3).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Tailscale Service (<code>nas-pve1</code>)</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>services.tailscale</code> on <code>nas-pve1</code>; joining the tailnet is imperative (§13.4).</td>
 </tr>
 </tbody>
 </table>
@@ -3222,7 +3353,92 @@ probe is re-pointed at nas-pve1, and raspberrypi2's instance is removed
 instance's GUI/API endpoint as part of the migration. Deeper metrics integration
 is tracked centrally in the
 <a href="../#specifications-to-write-and-todos">specifications readme</a>.</p>
-<h2 id="13-future-work">13. Future Work</h2>
+<h2 id="13-tailscale-connectivity">13. Tailscale Connectivity</h2>
+<h3 id="131-purpose-and-scope">13.1 Purpose and Scope</h3>
+<p>The Syncthing offsite transport (§12) connects to its remote peer over the
+tailnet only: global discovery, relays, and NAT traversal are disabled on both
+instances (§12.4), and the peer addresses are static tailnet addresses. The
+remote peer is a device on this lab's own tailnet (Tailscale's free Personal
+plan: six users, unlimited devices), so no cross-tailnet node sharing is
+involved. This section covers tailnet connectivity for the nas-pve1 guest and
+nothing else: a subnet router for general remote access to the LAN and an exit
+node are tracked as separate items in the
+<a href="../#specifications-to-write-and-todos">specifications readme</a>.</p>
+<h3 id="132-placement-rationale">13.2 Placement Rationale</h3>
+<p>Tailscale runs as a <strong>direct node inside the nas-pve1 guest</strong>, giving the
+Syncthing instance an end-to-end WireGuard path and a stable, collision-free
+tailnet address that the remote peer dials directly. Alternatives considered and
+rejected:</p>
+<ul>
+<li><strong>Reaching the tailnet through a subnet router on another host.</strong> Inbound
+  traffic works once the advertised route is approved, but outbound dialing from
+  the guest to the peer's tailnet address requires a static route for
+  <code>100.64.0.0/10</code> toward the router plus source NAT on it — imperative
+  site-to-site plumbing. A subnet-routed peer would also dial the guest at its
+  LAN address, which breaks if the remote network ever uses the same RFC1918
+  range, while tailnet addresses cannot collide. Today's candidate router
+  (raspberrypi2) is scheduled for retirement, which would rebuild the backup
+  transport on a host that is going away. High-availability route failover is a
+  paid feature, so redundant routers would not fail over on the free plan.</li>
+<li><strong>Running <code>tailscaled</code> on the pve1 host.</strong> The Proxmox host stays lean
+  (framework spec rationale), and terminating the tunnel in the guest keeps the
+  service and its transport in the same failure and security domain. Redundancy
+  for this path is a non-goal: the endpoint lives with the service, so a tunnel
+  that survives the guest buys nothing.</li>
+<li><strong>Installing Tailscale fleet-wide.</strong> No other host currently terminates a
+  tailnet-facing service; the free plan does not constrain device count, so the
+  only effect would be a larger operational surface. Nodes are added when a host
+  starts terminating a tailnet-facing service of its own.</li>
+</ul>
+<h3 id="133-infrastructure-provisioning">13.3 Infrastructure Provisioning</h3>
+<p>Two host-level changes provision the guest, following the existing patterns:</p>
+<ol>
+<li><strong><code>/dev/net/tun</code> device passthrough (Terraform)</strong>: the container is
+   unprivileged, so <code>tailscaled</code> needs the TUN device passed through. The
+   provider supports this declaratively via the container resource's
+   <code>device_passthrough</code> block (verified in the provider documentation at the
+   pinned version, 0.111.1). Whether adding the block forces a container
+   replacement is not documented: review the plan for <code>forces replacement</code>
+   before approving, and fall back to the imperative fast-forward procedure
+   (§6.2) if it does.</li>
+<li><strong>Node-state bind mount (Ansible and Terraform)</strong>: <code>/var/lib/tailscale</code> (the
+   node key and preferences) is bind-mounted from
+   <code>/var/lib/tailscale-state/nas-pve1</code> on the host, following the Samba and
+   Syncthing state pattern (§6.2, §11.2), so the node identity survives
+   container recreation. The host directory is declared in pve1's
+   <code>directories_to_create</code> list, owned by <code>root</code> with mode <code>0700</code> — <code>tailscaled</code>
+   runs as root, and the directory holds the node's private key. Adding the
+   mount point hits the known in-place mount update limitation and requires the
+   §6.2 fast-forward.</li>
+</ol>
+<h3 id="134-node-identity-and-joining">13.4 Node Identity and Joining</h3>
+<p>The guest enables the service declaratively (<code>services.tailscale.enable</code>) and
+<strong>joins the tailnet imperatively, once</strong>, via an interactive <code>tailscale up</code>
+login; the resulting node state persists in the bind mount (§13.3). This mirrors
+the Syncthing pairing posture (§12.4). Delivering a pre-authentication key
+through the repository was rejected (nothing secret is ever committed) and
+automating the key delivery out-of-band was deferred: keys expire within 90
+days, so automation only pays off when nodes join regularly, and this design
+adds one node once. The Samba password automation design remains the candidate
+mechanism if that changes
+(<a href="../#specifications-to-write-and-todos">specifications readme</a>).</p>
+<p>Tailnet device names and addresses stay out of the repository, like the
+Syncthing device IDs (§12.4): they are not authentication material, but they map
+the lab and its peers to network locations.</p>
+<h3 id="135-operational-requirements">13.5 Operational Requirements</h3>
+<ul>
+<li><strong>Disable node key expiry for nas-pve1</strong> in the Tailscale admin console after
+  joining: the default expiry (about 180 days) would otherwise silently take the
+  backup transport offline until a manual re-authentication.</li>
+<li><strong>Access control</strong> stays on the tailnet's default allow-all policy for now:
+  the free plan's ACL capacity (three groups) is not a constraint at this scale,
+  and the tailnet has a single administrator. Tightening the policy to port
+  22000 between the peers is possible later without touching the guest.</li>
+<li><strong>Peer swap</strong>: once the guest is on the tailnet, the migration's peer swap
+  (§12.5) proceeds — the remote peer adds the new device ID and the guest's
+  tailnet address, and drops raspberrypi2.</li>
+</ul>
+<h2 id="14-future-work">14. Future Work</h2>
 <p>Future work items for this spec are tracked centrally in the
 <a href="../#specifications-to-write-and-todos">specifications readme</a>.</p>
 

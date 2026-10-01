@@ -322,6 +322,24 @@ reliability risks first, then security exposure, then automation):
   powered off pending its power consumption evaluation, and powering it on
   remotely (for example for Terraform runs that need both Proxmox nodes
   reachable) depends on finding the BMC reliably.
+- **Tailscale subnet router on hl02 for general remote access**: one node
+  advertising the LAN covers ad-hoc remote access (service GUIs, SSH, the
+  Proxmox web interfaces) without installing Tailscale fleet-wide; service
+  endpoints get direct nodes instead, per the NAS spec's
+  [placement rationale](./nas-lxc-container.md#13-tailscale-connectivity).
+  Candidate host: hl02 — NixOS, so the router is declarative
+  (`services.tailscale` plus route advertisement and an IP-forwarding sysctl),
+  and a full VM with a native `/dev/net/tun`. Considerations for the design:
+  hl02 runs on pve1, so remote access through it is unavailable when the
+  virtualization layer is down, and the current physical fallback on the tailnet
+  (raspberrypi2) is scheduled for retirement — evaluate whether a physical
+  device should stay on the tailnet for out-of-band reach; high-availability
+  route failover is a paid feature, so a second router would not fail over
+  automatically on the free plan.
+- **Tailscale exit node**: evaluate routing remote client traffic through the
+  home network (for example, for untrusted networks). Separate from the subnet
+  router item: an exit node routes the client's internet traffic, not access to
+  the LAN.
 - Tailscale:
     - Configure SSH.
     - Don't accept DNS to avoid depending on Tailscale being up?
@@ -656,21 +674,22 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   designed against the post-migration steady state
   ([Monitoring and alerting](#monitoring-and-alerting)). Unblocked: the target
   pool already exists and is empty; the peer swap step additionally depends on
-  the Tailscale design item below.
-- **Tailscale on nas-pve1 (design needed)**: Syncthing peer connectivity uses
-  static addresses over the tailnet only — global discovery, relays, and NAT
-  traversal are deliberately disabled on both instances, and raspberrypi2
-  reaches the remote peer through its own `tailscaled` — but nas-pve1 is not on
-  the tailnet (verified 2026-09-29: the peer's tailnet address routes to the
-  default gateway and is unreachable from the guest). Design the setup properly
-  before implementing. Considerations: NixOS `services.tailscale` on the guest
-  versus alternatives such as a subnet router on another host; node-state
-  persistence across container recreation (a third state bind mount, subject to
-  the Terraform mount point limitation below); auth key delivery without
-  committing secrets (candidate: the Samba password automation mechanism);
-  `/dev/net/tun` availability inside the LXC; and recording the connectivity
-  model in the NAS spec's Syncthing section. Blocks: the Syncthing migration
-  peer swap (the LAN seeding from raspberrypi2 is unaffected).
+  the Tailscale item below.
+- **Tailscale on nas-pve1 (designed 2026-10-01)**: Syncthing peer connectivity
+  uses static addresses over the tailnet only, but nas-pve1 is not on the
+  tailnet (verified 2026-09-29: the peer's tailnet address routes to the default
+  gateway and is unreachable from the guest). The
+  [Tailscale connectivity section](./nas-lxc-container.md#13-tailscale-connectivity)
+  of the NAS spec records the design: a direct `tailscaled` node in the guest
+  (subnet-router and host-level alternatives rejected there), with the TUN
+  device passed through and the node state bind-mounted from the host.
+  Implementation steps: create the host-side state directory (Ansible
+  `setup_disks`), add the `device_passthrough` block and the third bind mount
+  (Terraform; review the plan for `forces replacement` — the bind mount hits the
+  mount point limitation below), enable `services.tailscale` (NixOS), run the
+  one-time interactive `tailscale up`, and disable the node's key expiry in the
+  admin console. Blocks: the Syncthing migration peer swap (the LAN seeding from
+  raspberrypi2 is unaffected).
 - **Move the Syncthing configuration into a Nix role**: the `services.syncthing`
   configuration (service, connectivity policy, state directory rule) currently
   lives entirely in the nas-pve1 host configuration. Factor the reusable parts
