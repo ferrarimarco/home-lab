@@ -335,7 +335,9 @@ reliability risks first, then security exposure, then automation):
   (raspberrypi2) is scheduled for retirement — evaluate whether a physical
   device should stay on the tailnet for out-of-band reach; high-availability
   route failover is a paid feature, so a second router would not fail over
-  automatically on the free plan.
+  automatically on the free plan. The Tailscale Terraform provider can approve
+  the advertised routes declaratively (`tailscale_device_subnet_routes`), which
+  also relates to the unapproved-routes item below.
 - **Tailscale exit node**: evaluate routing remote client traffic through the
   home network (for example, for untrusted networks). Separate from the subnet
   router item: an exit node routes the client's internet traffic, not access to
@@ -687,9 +689,11 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   `setup_disks`), add the `device_passthrough` block and the third bind mount
   (Terraform; review the plan for `forces replacement` — the bind mount hits the
   mount point limitation below), enable `services.tailscale` (NixOS), run the
-  one-time interactive `tailscale up`, and disable the node's key expiry in the
-  admin console. Blocks: the Syncthing migration peer swap (the LAN seeding from
-  raspberrypi2 is unaffected).
+  one-time interactive `tailscale up`, then set up the Tailscale Terraform
+  provider (API access token through the untracked tfvars files) and disable the
+  node's key expiry declaratively (`tailscale_device_key`; the device must exist
+  in the tailnet before the first apply). Blocks: the Syncthing migration peer
+  swap (the LAN seeding from raspberrypi2 is unaffected).
 - **Move the Syncthing configuration into a Nix role**: the `services.syncthing`
   configuration (service, connectivity policy, state directory rule) currently
   lives entirely in the nas-pve1 host configuration. Factor the reusable parts

@@ -923,8 +923,12 @@ the Syncthing pairing posture (§12.4). Delivering a pre-authentication key
 through the repository was rejected (nothing secret is ever committed) and
 automating the key delivery out-of-band was deferred: keys expire within 90
 days, so automation only pays off when nodes join regularly, and this design
-adds one node once. The Samba password automation design remains the candidate
-mechanism if that changes
+adds one node once. Minting the key with the Tailscale Terraform provider
+(`tailscale_tailnet_key`) was considered and deferred for the same reason: the
+provider generates the key, but delivering it into the comin-managed guest
+without committing it remains the unsolved part, and the key would land in the
+Terraform state as a second secret location. The Samba password automation
+design remains the candidate mechanism if that changes
 ([specifications readme](./README.md#specifications-to-write-and-todos)).
 
 Tailnet device names and addresses stay out of the repository, like the
@@ -933,9 +937,17 @@ the lab and its peers to network locations.
 
 ### 13.5 Operational Requirements
 
-- **Disable node key expiry for nas-pve1** in the Tailscale admin console after
-  joining: the default expiry (about 180 days) would otherwise silently take the
-  backup transport offline until a manual re-authentication.
+- **Disable node key expiry for nas-pve1 declaratively**: the default expiry
+  (about 180 days) would otherwise silently take the backup transport offline
+  until a manual re-authentication. The
+  [Tailscale Terraform provider](https://registry.terraform.io/providers/tailscale/tailscale)'s
+  `tailscale_device_key` resource sets `key_expiry_disabled`; toggling it in the
+  admin console was rejected as click-ops. The provider authenticates with an
+  API access token that flows through the untracked tfvars files, like the
+  Proxmox credentials, and adds an internet dependency on the Tailscale
+  control-plane API to Terraform runs. Ordering constraint: the device resource
+  can only be managed after the guest has joined the tailnet — the device must
+  exist before the first apply that references it.
 - **Access control** stays on the tailnet's default allow-all policy for now:
   the free plan's ACL capacity (three groups) is not a constraint at this scale,
   and the tailnet has a single administrator. Tightening the policy to port

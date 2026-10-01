@@ -2294,7 +2294,9 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   (raspberrypi2) is scheduled for retirement — evaluate whether a physical
   device should stay on the tailnet for out-of-band reach; high-availability
   route failover is a paid feature, so a second router would not fail over
-  automatically on the free plan.</li>
+  automatically on the free plan. The Tailscale Terraform provider can approve
+  the advertised routes declaratively (<code>tailscale_device_subnet_routes</code>), which
+  also relates to the unapproved-routes item below.</li>
 <li><strong>Tailscale exit node</strong>: evaluate routing remote client traffic through the
   home network (for example, for untrusted networks). Separate from the subnet
   router item: an exit node routes the client's internet traffic, not access to
@@ -2667,9 +2669,11 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <code>setup_disks</code>), add the <code>device_passthrough</code> block and the third bind mount
   (Terraform; review the plan for <code>forces replacement</code> — the bind mount hits the
   mount point limitation below), enable <code>services.tailscale</code> (NixOS), run the
-  one-time interactive <code>tailscale up</code>, and disable the node's key expiry in the
-  admin console. Blocks: the Syncthing migration peer swap (the LAN seeding from
-  raspberrypi2 is unaffected).</li>
+  one-time interactive <code>tailscale up</code>, then set up the Tailscale Terraform
+  provider (API access token through the untracked tfvars files) and disable the
+  node's key expiry declaratively (<code>tailscale_device_key</code>; the device must exist
+  in the tailnet before the first apply). Blocks: the Syncthing migration peer
+  swap (the LAN seeding from raspberrypi2 is unaffected).</li>
 <li><strong>Move the Syncthing configuration into a Nix role</strong>: the <code>services.syncthing</code>
   configuration (service, connectivity policy, state directory rule) currently
   lives entirely in the nas-pve1 host configuration. Factor the reusable parts
