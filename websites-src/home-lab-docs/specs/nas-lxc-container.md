@@ -9,22 +9,22 @@ Syncthing offsite transport depends on (§13).
 
 ## Implementation Status
 
-| Component / Feature                          | Status                | Details                                                                           |
-| :------------------------------------------- | :-------------------- | :-------------------------------------------------------------------------------- |
-| **`nas` Role (SMB)**                         | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                     |
-| **`common` Role UID Pin**                    | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.          |
-| **Host Config (`nas-pve1`)**                 | **Fully Implemented** | NixOS host config for the pve1 instance.                                          |
-| **Host Config (`nas-pve2`)**                 | **Fully Implemented** | NixOS host config for the pve2 instance.                                          |
-| **Terraform LXC (`pve1`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                  |
-| **Terraform LXC (`pve2`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                  |
-| **Terraform Template Upload**                | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
-| **Host Storage Prep (Ansible)**              | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11). |
-| **Host Integration Tests**                   | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
-| **Flake Registration**                       | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                |
-| **Syncthing Service (`nas-pve1`)**           | **Missing**           | `services.syncthing` on `nas-pve1`; the sync topology is imperative (§12.4).      |
-| **Syncthing Storage (dataset, bind mounts)** | **Fully Implemented** | Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).    |
-| **Tailscale Storage (state bind mount)**     | **Missing**           | Host-side state directory and bind mount for `/var/lib/tailscale` (§13.3).        |
-| **Tailscale Service (`nas-pve1`)**           | **Missing**           | `services.tailscale` on `nas-pve1`; joining the tailnet is imperative (§13.4).    |
+| Component / Feature                          | Status                    | Details                                                                           |
+| :------------------------------------------- | :------------------------ | :-------------------------------------------------------------------------------- |
+| **`nas` Role (SMB)**                         | **Fully Implemented**     | NixOS role enabling Samba with declarative share definitions.                     |
+| **`common` Role UID Pin**                    | **Fully Implemented**     | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.          |
+| **Host Config (`nas-pve1`)**                 | **Fully Implemented**     | NixOS host config for the pve1 instance.                                          |
+| **Host Config (`nas-pve2`)**                 | **Fully Implemented**     | NixOS host config for the pve2 instance.                                          |
+| **Terraform LXC (`pve1`)**                   | **Fully Implemented**     | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                  |
+| **Terraform LXC (`pve2`)**                   | **Fully Implemented**     | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                  |
+| **Terraform Template Upload**                | **Fully Implemented**     | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
+| **Host Storage Prep (Ansible)**              | **Fully Implemented**     | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11). |
+| **Host Integration Tests**                   | **Fully Implemented**     | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
+| **Flake Registration**                       | **Fully Implemented**     | Both NAS hosts discovered by the flake (tests and machine matrix).                |
+| **Syncthing Service (`nas-pve1`)**           | **Partially Implemented** | Service deployed and syncing; the migration cutover (§12.5) is pending.           |
+| **Syncthing Storage (dataset, bind mounts)** | **Fully Implemented**     | Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).    |
+| **Tailscale Storage (state bind mount)**     | **Missing**               | Host-side state directory and bind mount for `/var/lib/tailscale` (§13.3).        |
+| **Tailscale Service (`nas-pve1`)**           | **Missing**               | `services.tailscale` on `nas-pve1`; joining the tailnet is imperative (§13.4).    |
 
 ## 1. Goal
 
