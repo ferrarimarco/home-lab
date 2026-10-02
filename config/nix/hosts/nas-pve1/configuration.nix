@@ -61,6 +61,17 @@ _: {
   # The Syncthing GUI/API port; openDefaultPorts covers the sync ports.
   networking.firewall.allowedTCPPorts = [ 8384 ];
 
+  # Tailnet connectivity for the Syncthing offsite transport (see the NAS
+  # spec, section 13). Joining is imperative, once (tailscale up): the node
+  # key persists in /var/lib/tailscale, which is bind-mounted from
+  # host-persistent storage, so no secret or tailnet identifier enters the
+  # repository. openFirewall opens the WireGuard UDP port, letting the
+  # remote peer establish a direct (unrelayed) connection inbound.
+  services.tailscale = {
+    enable = true;
+    openFirewall = true;
+  };
+
   # The /var/lib/syncthing rule serves two purposes: the service runs as an
   # unprivileged user that cannot create its own state directory under the
   # root-owned /var/lib, so without the rule the service only works where the
