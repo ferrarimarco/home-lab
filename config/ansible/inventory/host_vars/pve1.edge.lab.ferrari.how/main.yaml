@@ -12,6 +12,10 @@ directories_to_create:
     # Holds the Syncthing device private key; keep it owner-only, matching
     # the tmpfiles rule in the nas-pve1 NixOS configuration.
     mode: "0700"
+  - path: /var/lib/tailscale-state/nas-pve1
+    # Holds the Tailscale node private key; tailscaled runs as root, so the
+    # directory stays root-owned and owner-only.
+    mode: "0700"
 monitoring_nut_devices:
   - id: eaton-ellipse-pro-1600-din-1
     description: Eaton Ellipse PRO 1600 DIN
