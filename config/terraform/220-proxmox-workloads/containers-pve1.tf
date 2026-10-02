@@ -11,6 +11,12 @@ resource "proxmox_virtual_environment_container" "nas_pve1" {
     nesting = true
   }
 
+  # Tailscale needs the TUN device, which is not in the container's /dev by
+  # default; see the NAS spec, section 13.3.
+  device_passthrough {
+    path = "/dev/net/tun"
+  }
+
   cpu {
     cores = 2
   }
@@ -71,5 +77,13 @@ resource "proxmox_virtual_environment_container" "nas_pve1" {
   mount_point {
     volume = "/var/lib/syncthing-state/nas-pve1"
     path   = "/var/lib/syncthing"
+  }
+
+  # Persistent Tailscale node state (the node key) to survive container
+  # recreations, following the Samba state pattern; see the NAS spec,
+  # section 13.3.
+  mount_point {
+    volume = "/var/lib/tailscale-state/nas-pve1"
+    path   = "/var/lib/tailscale"
   }
 }
