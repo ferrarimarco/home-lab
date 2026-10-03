@@ -2178,13 +2178,12 @@ passthrough attributes. The passthrough is load-bearing for testing: the
 <code>minimal-lxc</code> fixture's <code>test-override.nix</code> imports <code>lxcBootstrap.modules</code>, so
 its integration test exercises exactly the module set the template ships rather
 than a parallel reconstruction of it.</p>
-<p>The template deliberately omits the <code>comin</code> role. comin requires a hostname at
+<p>The template deliberately omits the <code>comin</code> role: comin requires a hostname at
 build time (<code>networking.hostName</code> or <code>services.comin.hostname</code>), which a
 generic, hostname-less template cannot provide — including it makes the build
-fail. Workloads adopt GitOps instead by importing the <code>comin</code> role in their own
-per-host <code>configuration.nix</code>, where the hostname is set. That configuration is
-applied through the one-time <code>nixos-rebuild switch</code> handoff described in
-<a href="../home-lab-bootstrapping/#35-continuous-deployment-gitops">Continuous Deployment (GitOps)</a>,
+fail. Workloads adopt GitOps by importing the <code>comin</code> role in their per-host
+<code>configuration.nix</code>, applied through the one-time <code>nixos-rebuild switch</code> handoff
+(<a href="../home-lab-bootstrapping/#35-continuous-deployment-gitops">Continuous Deployment (GitOps)</a>),
 after which comin maintains the container. No per-host template is built.</p>
 <h3 id="52-flake-registration">5.2 Flake Registration</h3>
 <div class="highlight"><pre><span></span><code>packages<span class="o">.</span><span class="si">${</span>system<span class="si">}</span> <span class="o">=</span> <span class="p">{</span>
@@ -2201,23 +2200,18 @@ after which comin maintains the container. No per-host template is built.</p>
 <span class="c1"># commit. Example:</span>
 <span class="c1"># result/tarball/nixos-image-lxc-proxmox-25.11.20260417.c7f4703-x86_64-linux.tar.xz</span>
 </code></pre></div>
-<p>The tarball filename comes from <code>image.baseName</code>, which embeds the NixOS label
-(release, date, and commit) — the same behavior as the installer ISO. Terraform
-therefore matches it with a filename pattern rather than a fixed path (see §6);
-the versioned name is also what makes template rebuilds visible to Terraform,
-since a rebuilt template changes the source path.</p>
-<p>The resulting tarball is uploaded to each Proxmox node's <code>local</code> storage as a
-container template (see §6). Before running Terraform, stage the artifact with
-the aggregate package described in
-<a href="#54-artifact-staging-for-terraform-proxmox-images">§5.4</a>.</p>
+<p>The filename comes from <code>image.baseName</code> and embeds the NixOS label (release,
+date, and commit), like the installer ISO: Terraform matches it with a filename
+pattern rather than a fixed path (§6), and a rebuilt template changes the source
+path, which is what triggers a re-upload. Before running Terraform, stage the
+artifact with the aggregate package
+(<a href="#54-artifact-staging-for-terraform-proxmox-images">§5.4</a>).</p>
 <h3 id="54-artifact-staging-for-terraform-proxmox-images">5.4 Artifact Staging for Terraform (<code>proxmox-images</code>)</h3>
-<p><code>nix build</code> refreshes the single <code>result</code> symlink to point at the last-built
-package, so the installer ISO (<code>result/iso/...</code>) and the LXC template
-(<code>result/tarball/...</code>) cannot coexist behind it when built individually:
-whichever artifact was built last breaks the Terraform lookup for the other one.</p>
-<p>The <code>proxmox-images</code> aggregate package solves this without custom output links:
-it symlinks the artifact directories of both image packages into one output, so
-a single build stages everything Terraform reads:</p>
+<p><code>nix build</code> refreshes the single <code>result</code> symlink to the last-built package, so
+the installer ISO (<code>result/iso/...</code>) and the LXC template (<code>result/tarball/...</code>)
+cannot coexist behind it when built individually. The <code>proxmox-images</code> aggregate
+package symlinks both image packages' artifact directories into one output, so a
+single build stages everything Terraform reads:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># config/nix/packages/proxmox-images.nix</span>
 <span class="c1"># Registered in the flake like the other packages.</span>
 <span class="p">{</span>
@@ -2236,14 +2230,12 @@ pkgs<span class="o">.</span>runCommand <span class="s2">&quot;proxmox-images&quo
 <span class="c1"># result/iso/nixos-minimal-&lt;label&gt;-x86_64-linux.iso</span>
 <span class="c1"># result/tarball/nixos-image-&lt;label&gt;-x86_64-linux.tar.xz</span>
 </code></pre></div>
-<p>Run this build before <code>terraform apply</code>. The Terraform lookups (the ISO upload
-and the template upload in §6) address the artifacts through literal
-<code>result/iso/...</code> and <code>result/tarball/...</code> path segments, with globbing only on
-the filename, so the directory symlinks resolve transparently. The individual
-packages remain buildable on their own for development.</p>
-<p>Because the aggregate is a flake package, the CI package matrix discovers and
-builds it automatically, which also verifies that the staging layout stays
-intact.</p>
+<p>Run this build before <code>terraform apply</code>: the Terraform lookups (§6) address the
+artifacts through literal <code>result/iso/...</code> and <code>result/tarball/...</code> path
+segments, globbing only the filename, so the directory symlinks resolve
+transparently. The individual packages stay buildable on their own, and the CI
+package matrix builds the aggregate automatically, verifying that the staging
+layout stays intact.</p>
 <h2 id="6-infrastructure-provisioning-terraform">6. Infrastructure Provisioning (Terraform)</h2>
 <p>The framework's Terraform footprint is the <strong>template upload</strong> (§6.1), which it
 owns and implements. Containers themselves are not a framework component: each

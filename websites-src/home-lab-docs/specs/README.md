@@ -776,8 +776,3 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
 - Documentation automation: generate the endpoints list, the monitoring checks,
   the inventory, the list of Home Assistant automations, and the list of cron
   jobs from the configuration instead of maintaining them by hand.
-- Make the specs more concise: the specs have grown long-form (restating
-  context, spelling out rationale that a decision record line would carry);
-  review them section by section, tightening prose without losing the design
-  decisions, the rejected alternatives, and the interface-level contracts they
-  record.

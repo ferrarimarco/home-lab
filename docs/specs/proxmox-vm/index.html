@@ -2001,8 +2001,7 @@ virtual disk (<code>/dev/sda</code>):</p>
 <p>This layout is the default for new VM hosts. A host with different storage needs
 overrides it in its own <code>disko.nix</code>; the layout is per-host by design.</p>
 <h2 id="6-iso-artifact-delivery">6. ISO Artifact Delivery</h2>
-<p>To bridge the local Nix build pipeline with the hypervisor environment, the
-compiled installer ISO must be staged on the Proxmox target node prior to VM
+<p>The compiled installer ISO must be staged on the Proxmox target node before VM
 orchestration.</p>
 <ul>
 <li>Mechanism: Handled declaratively via the <code>proxmox_virtual_environment_file</code>

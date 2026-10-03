@@ -109,8 +109,7 @@ overrides it in its own `disko.nix`; the layout is per-host by design.
 
 ## 6. ISO Artifact Delivery
 
-To bridge the local Nix build pipeline with the hypervisor environment, the
-compiled installer ISO must be staged on the Proxmox target node prior to VM
+The compiled installer ISO must be staged on the Proxmox target node before VM
 orchestration.
 
 - Mechanism: Handled declaratively via the `proxmox_virtual_environment_file`

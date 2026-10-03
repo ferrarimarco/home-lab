@@ -199,13 +199,12 @@ passthrough attributes. The passthrough is load-bearing for testing: the
 its integration test exercises exactly the module set the template ships rather
 than a parallel reconstruction of it.
 
-The template deliberately omits the `comin` role. comin requires a hostname at
+The template deliberately omits the `comin` role: comin requires a hostname at
 build time (`networking.hostName` or `services.comin.hostname`), which a
 generic, hostname-less template cannot provide — including it makes the build
-fail. Workloads adopt GitOps instead by importing the `comin` role in their own
-per-host `configuration.nix`, where the hostname is set. That configuration is
-applied through the one-time `nixos-rebuild switch` handoff described in
-[Continuous Deployment (GitOps)](./home-lab-bootstrapping.md#35-continuous-deployment-gitops),
+fail. Workloads adopt GitOps by importing the `comin` role in their per-host
+`configuration.nix`, applied through the one-time `nixos-rebuild switch` handoff
+([Continuous Deployment (GitOps)](./home-lab-bootstrapping.md#35-continuous-deployment-gitops)),
 after which comin maintains the container. No per-host template is built.
 
 ### 5.2 Flake Registration
@@ -229,27 +228,20 @@ nix build .#nixos-lxc-bootstrap
 # result/tarball/nixos-image-lxc-proxmox-25.11.20260417.c7f4703-x86_64-linux.tar.xz
 ```
 
-The tarball filename comes from `image.baseName`, which embeds the NixOS label
-(release, date, and commit) — the same behavior as the installer ISO. Terraform
-therefore matches it with a filename pattern rather than a fixed path (see §6);
-the versioned name is also what makes template rebuilds visible to Terraform,
-since a rebuilt template changes the source path.
-
-The resulting tarball is uploaded to each Proxmox node's `local` storage as a
-container template (see §6). Before running Terraform, stage the artifact with
-the aggregate package described in
-[§5.4](#54-artifact-staging-for-terraform-proxmox-images).
+The filename comes from `image.baseName` and embeds the NixOS label (release,
+date, and commit), like the installer ISO: Terraform matches it with a filename
+pattern rather than a fixed path (§6), and a rebuilt template changes the source
+path, which is what triggers a re-upload. Before running Terraform, stage the
+artifact with the aggregate package
+([§5.4](#54-artifact-staging-for-terraform-proxmox-images)).
 
 ### 5.4 Artifact Staging for Terraform (`proxmox-images`)
 
-`nix build` refreshes the single `result` symlink to point at the last-built
-package, so the installer ISO (`result/iso/...`) and the LXC template
-(`result/tarball/...`) cannot coexist behind it when built individually:
-whichever artifact was built last breaks the Terraform lookup for the other one.
-
-The `proxmox-images` aggregate package solves this without custom output links:
-it symlinks the artifact directories of both image packages into one output, so
-a single build stages everything Terraform reads:
+`nix build` refreshes the single `result` symlink to the last-built package, so
+the installer ISO (`result/iso/...`) and the LXC template (`result/tarball/...`)
+cannot coexist behind it when built individually. The `proxmox-images` aggregate
+package symlinks both image packages' artifact directories into one output, so a
+single build stages everything Terraform reads:
 
 ```nix
 # config/nix/packages/proxmox-images.nix
@@ -273,15 +265,12 @@ nix build .#proxmox-images
 # result/tarball/nixos-image-<label>-x86_64-linux.tar.xz
 ```
 
-Run this build before `terraform apply`. The Terraform lookups (the ISO upload
-and the template upload in §6) address the artifacts through literal
-`result/iso/...` and `result/tarball/...` path segments, with globbing only on
-the filename, so the directory symlinks resolve transparently. The individual
-packages remain buildable on their own for development.
-
-Because the aggregate is a flake package, the CI package matrix discovers and
-builds it automatically, which also verifies that the staging layout stays
-intact.
+Run this build before `terraform apply`: the Terraform lookups (§6) address the
+artifacts through literal `result/iso/...` and `result/tarball/...` path
+segments, globbing only the filename, so the directory symlinks resolve
+transparently. The individual packages stay buildable on their own, and the CI
+package matrix builds the aggregate automatically, verifying that the staging
+layout stays intact.
 
 ## 6. Infrastructure Provisioning (Terraform)
 
