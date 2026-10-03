@@ -36,10 +36,16 @@ _: {
     # "stale" on every activation — even when none are declared here.
     overrideDevices = false;
     overrideFolders = false;
-    # Non-topology settings are merged on activation: declared keys are
-    # enforced, keys left undeclared (like the imperative GUI credentials)
-    # are preserved.
+    # At the pinned nixpkgs, each declared settings section is PUT to the
+    # REST API on every activation, which REPLACES the whole section:
+    # undeclared keys in a declared section reset to their defaults
+    # (observed 2026-10-03: a declared gui key wiped the imperative GUI
+    # username). nixpkgs master switched to PATCH (merge); redeclare the
+    # gui section only after that lands (NAS spec, section 12.4, and the
+    # readme todo).
     settings = {
+      # Declaring the whole options section is deliberate: these keys plus
+      # defaults for the rest IS the intended connectivity posture.
       options = {
         # Static-address connectivity over the tailnet only: no public
         # discovery, relays, or NAT traversal. This also avoids advertising
@@ -50,10 +56,16 @@ _: {
         # Usage reporting declined.
         urAccepted = -1;
       };
-      # HTTPS for the LAN-exposed GUI (self-signed certificate).
-      gui.useTLS = true;
+      # The gui section is deliberately NOT declared: the GUI credentials
+      # are imperative (persisted in the state bind mount), and declaring
+      # any gui key would wipe them on every activation. HTTPS for the GUI
+      # is set imperatively for the same reason.
+      #
       # New folders default onto the data dataset, not the state directory:
-      # the GUI pre-fills folder paths from this value.
+      # the GUI pre-fills folder paths from this value. Inert at the pinned
+      # nixpkgs (the module targets a nonexistent endpoint; the value was
+      # set imperatively) but harmless, and it converges once the fixed
+      # module lands.
       defaults.folder.path = "/mnt/shared/syncthing";
     };
   };
