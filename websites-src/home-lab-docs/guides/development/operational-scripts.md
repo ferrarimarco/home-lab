@@ -126,9 +126,16 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
 - `scripts/run-ansible.sh`: runs Ansible playbooks from `config/ansible` inside
   a purpose-built container. Select the playbook with
   `ANSIBLE_PLAYBOOK_FILE_NAME` and pass extra flags via
-  `ADDITIONAL_ANSIBLE_FLAGS`. To scope a run to one workload stack on one host,
-  combine the stack's tag with the `untagged` pseudo-tag (global, untagged
-  initialization tasks must always run) and a host limit:
+  `ADDITIONAL_ANSIBLE_FLAGS`. Pick the narrowest playbook for the change first:
+  per-purpose playbooks under `config/ansible/playbooks/` exist alongside
+  `home-lab-node.yaml` (for example, `setup-disks.yaml` converges pools,
+  datasets, mounts, and the `directories_to_create` list), and `main.yaml`
+  chains all the playbooks, so tag-scoping it also runs the untagged tasks of
+  every other role — on a host outside those roles' normal scope, the check run
+  then predicts unrelated, possibly destructive changes. To scope a run to one
+  workload stack on one host, combine the stack's tag with the `untagged`
+  pseudo-tag (global, untagged initialization tasks must always run) and a host
+  limit:
 
     ```shell
     ADDITIONAL_ANSIBLE_FLAGS="--check --diff --tags='monitoring-apt' --tags untagged --limit raspberrypi2.edge.lab.ferrari.how" \
