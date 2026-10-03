@@ -41,44 +41,28 @@ specific to the NAS workload.
 
 ### 2.1 Why One Container Per Node
 
-The Proxmox nodes share neither hardware nor a distributed filesystem. Each has
+The Proxmox nodes share neither hardware nor a distributed filesystem: each has
 its own local ZFS pools, with different names, layouts, and capacities (for
 example `rpool-sata` on `pve1`, `tank-hdd` on `pve2`). Data lives on whichever
-node owns the disks and stays there: there is no shared backend to serve a file
-across nodes, and therefore no need for VM-style live migration.
+node owns the disks, so there is no shared backend to serve a file across nodes
+and no need for VM-style live migration.
 
-Running one NAS container per node embraces this. Each container serves only its
+Running one NAS container per node embraces this: each container serves only its
 own host's datasets over bind mounts, with no cross-node storage dependency. The
-hardware differences are **host-dependent facts** — pool names, dataset paths,
-capacities, and per-node resource sizing — and they live entirely in the
-per-node Terraform definitions (§6). The container normalizes them onto uniform
-in-container mount points (`/mnt/shared/...`), which is precisely why the NixOS
-configuration is identical across nodes even though the storage beneath each one
-differs (§5). The container boundary is the adapter that turns heterogeneous,
-host-dependent storage into a uniform service — so "host-dependent hardware" and
-"identical service config" are not in tension: the former is confined to
-Terraform, the latter holds in NixOS.
-
-Concretely, tracing the `media` and `backups` datasets down the stack:
+host-dependent facts — pool names, dataset paths, capacities, per-node sizing —
+live entirely in the per-node Terraform definitions (§6), which normalize them
+onto uniform in-container mount points (`/mnt/shared/...`); the NixOS
+configuration is therefore identical across nodes (§5). Tracing the `media` and
+`backups` datasets down the stack:
 
 - **Hardware** — differs: `pve1` has SATA SSDs, `pve2` has spinning HDDs.
-- **ZFS (host)** — differs: the datasets are mounted at `/rpool-sata/media` and
-  `/rpool-sata/backups` on `pve1`, and at `/tank-hdd/media` and
-  `/tank-hdd/backups` on `pve2`.
+- **ZFS (host)** — differs: `/rpool-sata/{media,backups}` on `pve1`,
+  `/tank-hdd/{media,backups}` on `pve2`.
 - **Terraform (bind mounts)** — source differs, target is uniform: each node
-  binds its own host paths onto the same in-container targets, e.g.
-  `/rpool-sata/{media,backups}` → `/mnt/shared/{media,backups}` on `pve1`, and
-  `/tank-hdd/{media,backups}` → `/mnt/shared/{media,backups}` on `pve2`.
-- **NixOS (service)** — identical for these default datasets: Samba serves
-  `/mnt/shared/media` and `/mnt/shared/backups` on both nodes; for the defaults,
-  the only difference in the NixOS layer is `networking.hostName` (`nas-pve1` vs
-  `nas-pve2`).
-
-The host-dependent values stop at the Terraform bind-mount _source_. Because the
-_target_ (`/mnt/shared/...`) is uniform, the NixOS layer has nothing
-host-specific left to express beyond the hostname — the one exception being
-optional per-host shares, kept small and additive (see
-[§5.1](#51-adding-per-host-shares)).
+  binds its own host paths onto `/mnt/shared/{media,backups}`.
+- **NixOS (service)** — identical: Samba serves the same in-container paths on
+  both nodes; only `networking.hostName` differs, plus optional per-host shares,
+  kept small and additive ([§5.1](#51-adding-per-host-shares)).
 
 ### 2.2 Why Bind Mounts Instead of ZFS-in-Container
 
@@ -250,25 +234,22 @@ host's `configuration.nix` sets just the hostname:
 This matches the `[common, platform role, comin]` import shape used by
 [`hl02`](./proxmox-vm.md); the `nas` role pulls in `proxmox-lxc` itself (§4).
 
-This works because both nodes expose the **same in-container mount points**
-(`/mnt/shared/media`, `/mnt/shared/backups`); each node's Terraform bind mounts
-map its own host datasets onto those paths (see §6). The node-specific storage
-details therefore live entirely in Terraform, never in the NixOS config. No ZFS
-runs inside the container, so no per-host `networking.hostId` is needed either.
+This works because both nodes expose the **same in-container mount points**,
+with the node-specific storage confined to Terraform (§2.1, §6). No ZFS runs
+inside the container, so no per-host `networking.hostId` is needed either.
 
-As with the [`hl02`](./proxmox-vm.md) VM, the `comin` role delivers and
-maintains this configuration through the pull-based
-[GitOps model](./home-lab-bootstrapping.md#35-continuous-deployment-gitops), so
-no per-host template is built. comin selects the matching `nixosConfigurations`
-output by hostname, which is why the hostname is the one value each host pins.
+As for [`hl02`](./proxmox-vm.md), the `comin` role delivers and maintains the
+configuration through the pull-based
+[GitOps model](./home-lab-bootstrapping.md#35-continuous-deployment-gitops):
+comin selects the matching `nixosConfigurations` output by hostname — which is
+why the hostname is the one value each host pins — and no per-host template is
+built.
 
-The configuration deliberately declares no user accounts. All user identity is
-centralized in the `common` role, which every host imports. Because the
-container is privileged (set in the `nas` role), its UIDs are not shifted: Samba
-runs as `ferrarimarco`, and for that to line up with the bind-mounted ZFS
-datasets (owned by host UID `1000`) the container's `ferrarimarco` must also be
-UID `1000`. The `common` role must therefore pin a stable UID rather than
-letting `isNormalUser` auto-allocate one:
+The configuration declares no user accounts: user identity is centralized in the
+`common` role, which every host imports. Because the container is privileged
+(§6.1), UIDs are not shifted: Samba runs as `ferrarimarco`, and to line up with
+the bind-mounted datasets (owned by host UID `1000`) the `common` role pins the
+UID rather than letting `isNormalUser` auto-allocate one:
 
 ```nix
 # config/nix/roles/common/default.nix
@@ -763,19 +744,16 @@ export:
    `zfs_datasets` list, converged by the `setup_disks` role (§11.1).
 2. **The bind mount (Terraform)**: `/rpool-usb-1/syncthing` →
    `/mnt/shared/syncthing` in `var.nas_container_bind_mounts`.
-3. **The folder directories (imperative, on acceptance)**: the directories under
-   `/mnt/shared/syncthing` are created by Syncthing itself when a shared folder
+3. **The folder directories (imperative, on acceptance)**: Syncthing creates
+   each folder's directory under `/mnt/shared/syncthing` when the shared folder
    is accepted, running as the service user on the `ferrarimarco`-owned dataset.
-   They are deliberately not provisioned in the NixOS configuration: keeping the
-   directory names out of the repository lets them stay personal, matching the
-   folder objects themselves, which are configured via the GUI/API and persist
-   in the state bind mount because their definitions are coupled to device IDs —
-   private material (§12.4). Declaring the directories with neutralized names
-   was considered and rejected: folder paths are device-local in Syncthing, so
-   renaming bought no compatibility and cost continuity with the existing names,
-   and encoding the current traffic direction in a name (for example
-   "inbound"/"outbound") misleads as soon as the folder type changes — direction
-   is configuration, not identity.
+   They are deliberately not provisioned in the NixOS configuration: the
+   directory names stay personal and out of the repository, like the folder
+   objects themselves (§12.4). Rejected: declaring the directories with
+   neutralized names — folder paths are device-local in Syncthing, so renaming
+   bought no compatibility and cost continuity, and encoding the traffic
+   direction in a name (for example "inbound") misleads as soon as the folder
+   type changes — direction is configuration, not identity.
 
 An SMB export of the dataset is deliberately not part of this design; if
 browsing the folders over the network becomes useful, add a per-host share for
@@ -783,69 +761,58 @@ the same paths (§5.1).
 
 ### 12.4 Device Identity and State Persistence
 
-The instance uses a **fresh device identity**: the key pair is generated on the
-guest at first start and never tracked. Reusing raspberrypi2's identity by
-copying its key pair was considered and rejected: the device key is secret
-material, so it cannot flow through the public repository or the declarative
-configuration, and preserving it would require an imperative, out-of-band copy
-to spare the remote peer a single accept-new-device action.
+The instance uses a **fresh device identity**, generated on the guest at first
+start and never tracked. Rejected: reusing raspberrypi2's identity by copying
+its key pair — the device key is secret material, so it cannot flow through the
+public repository or the declarative configuration, and preserving it would only
+spare the remote peer a single accept-new-device action.
 
-**Device IDs are treated as private material.** For authentication they are not
-sensitive — a device ID is the fingerprint of the device's public TLS
-certificate, and knowing it lets nobody impersonate or connect to the device —
-but Syncthing's global discovery resolves a device ID to the device's current
-public addresses, so a published ID lets anyone track that device's IP over
-time. Committing device IDs (the remote peer's or this lab's) to the public
-repository was therefore rejected. As a consequence, the sync topology — device
+**Device IDs are treated as private material.** Not for authentication — a
+device ID is the fingerprint of the device's public TLS certificate — but
+because Syncthing's global discovery resolves an ID to the device's current
+public addresses, a published ID lets anyone track that device's IP over time.
+Committing device IDs was therefore rejected, and the sync topology — device
 entries, folder definitions, and their sharing — is configured once via the
-GUI/API instead of being declared in NixOS, and persists in the state bind mount
-below, the same posture as the GUI credentials and the Samba password (§7.2).
-Declaring only the folders while keeping the devices imperative was also
-rejected: the NixOS module re-applies declared folder objects on every
-activation, which would strip the imperatively added device sharing. The
-imperative topology additionally **requires `overrideDevices = false` and
-`overrideFolders = false`** in the host configuration: the module defaults both
-to true and then deletes undeclared devices and folders as "stale" on every
-activation, even when the configuration declares none (observed 2026-09-29: the
-first activation after the pairing wiped the configured devices). The folder
-directories on disk are likewise created on folder acceptance rather than
-declared (§12.3). Automating the topology delivery without publishing the IDs
-could reuse the Samba password automation design tracked in the
-[specifications readme](./README.md#specifications-to-write-and-todos).
-
-The same caution extends beyond topology at the nixpkgs version in use: the
-module PUTs each declared `settings` section to the REST API on every
-activation, and PUT replaces the whole section, resetting the keys left
-undeclared to their defaults (observed 2026-10-03: declaring `gui.useTLS` wiped
-the imperatively set GUI username on activation, leaving the GUI password-less).
-The `gui` section is therefore not declared — HTTPS and the credentials stay
-imperative, persisting in the state bind mount — while the `options` section is
-declared deliberately: its declared keys plus the defaults are the intended
-connectivity posture. nixpkgs master has since switched these calls to PATCH
-(merge) and routed `defaults` to its real endpoint (the pinned module targets a
-nonexistent path, so the declared default folder path is silently dropped and
-was set imperatively instead). Redeclaring the `gui` section and verifying the
-declared default folder path once a nixpkgs release ships the fixed module is
+GUI/API and persists in the state bind mount below, the same posture as the GUI
+credentials and the Samba password (§7.2). Automating the topology delivery
+without publishing the IDs could reuse the Samba password automation design
 tracked in the
-[specifications readme](./README.md#specifications-to-write-and-todos).
+[specifications readme](./README.md#specifications-to-write-and-todos). The
+imperative topology has two consequences in the host configuration:
+
+- **`overrideDevices = false` and `overrideFolders = false` are required**: the
+  module defaults both to true and deletes undeclared devices and folders as
+  "stale" on every activation, even when the configuration declares none
+  (observed 2026-09-29: the first activation after pairing wiped the configured
+  devices). Rejected: declaring only the folders — declared folder objects are
+  re-applied wholesale on every activation, stripping the imperatively added
+  device sharing.
+- **The `gui` settings section stays undeclared**: at the pinned nixpkgs the
+  module PUTs each declared settings section on every activation, and PUT
+  replaces the whole section (observed 2026-10-03: a declared `gui.useTLS` wiped
+  the imperative GUI username, leaving the GUI password-less). HTTPS and the
+  credentials are set imperatively instead. The `options` section is declared
+  deliberately — its keys plus the defaults are the intended connectivity
+  posture — and the declared `defaults.folder.path` is currently inert (the
+  pinned module targets a nonexistent endpoint; the value was set imperatively).
+  nixpkgs master fixes both (PATCH-based merge, real defaults endpoint);
+  redeclaring once a release ships the fixed module is tracked in the
+  [specifications readme](./README.md#specifications-to-write-and-todos).
 
 The state directory (`/var/lib/syncthing`: the device keys and the index
-database) is bind-mounted from host-persistent storage
-(`/var/lib/syncthing-state/nas-pve1`), following the Samba state pattern (§6.2,
-§11.2), so the identity survives container recreation and template updates. The
-host-side directory is declared in pve1's `directories_to_create` list and
-created by the `setup_disks` role, owned by UID `1000` to match the service
-user. The index database is rebuildable by a rescan; the key pair is the only
-unique material.
+database) is bind-mounted from `/var/lib/syncthing-state/nas-pve1` on the host,
+following the Samba state pattern (§6.2, §11.2), so the identity survives
+container recreation. The host directory is declared in pve1's
+`directories_to_create` list, owned by UID `1000` to match the service user. The
+index database is rebuildable by a rescan; the key pair is the only unique
+material.
 
 The NixOS guest has no restic coverage (the restic stack manages Debian hosts
-only), and this is an accepted trade-off rather than an oversight: the synced
-data is re-syncable from the remote peer, and a lost identity is regenerable at
-the cost of one re-acceptance by the peer. Backing up the state directories on
-pve1 is tracked in the
-[specifications readme](./README.md#specifications-to-write-and-todos); note
-that both the Samba and Syncthing state directories contain secret material
-(§8.2, and the device private key here).
+only) — an accepted trade-off: the synced data is re-syncable from the remote
+peer, and a lost identity is regenerable at the cost of one re-acceptance.
+Backing up the state directories on pve1 is tracked in the
+[specifications readme](./README.md#specifications-to-write-and-todos); they
+hold secret material (§8.2, and the device private key here).
 
 ### 12.5 Migration from raspberrypi2
 
@@ -885,28 +852,24 @@ node are tracked as separate items in the
 
 Tailscale runs as a **direct node inside the nas-pve1 guest**, giving the
 Syncthing instance an end-to-end WireGuard path and a stable, collision-free
-tailnet address that the remote peer dials directly. Alternatives considered and
-rejected:
+tailnet address that the remote peer dials directly. Rejected alternatives:
 
-- **Reaching the tailnet through a subnet router on another host.** Inbound
-  traffic works once the advertised route is approved, but outbound dialing from
-  the guest to the peer's tailnet address requires a static route for
-  `100.64.0.0/10` toward the router plus source NAT on it — imperative
-  site-to-site plumbing. A subnet-routed peer would also dial the guest at its
-  LAN address, which breaks if the remote network ever uses the same RFC1918
-  range, while tailnet addresses cannot collide. Today's candidate router
-  (raspberrypi2) is scheduled for retirement, which would rebuild the backup
-  transport on a host that is going away. High-availability route failover is a
-  paid feature, so redundant routers would not fail over on the free plan.
-- **Running `tailscaled` on the pve1 host.** The Proxmox host stays lean
-  (framework spec rationale), and terminating the tunnel in the guest keeps the
-  service and its transport in the same failure and security domain. Redundancy
-  for this path is a non-goal: the endpoint lives with the service, so a tunnel
-  that survives the guest buys nothing.
-- **Installing Tailscale fleet-wide.** No other host currently terminates a
-  tailnet-facing service; the free plan does not constrain device count, so the
-  only effect would be a larger operational surface. Nodes are added when a host
-  starts terminating a tailnet-facing service of its own.
+- **A subnet router on another host**: outbound dialing from the guest to the
+  peer's tailnet address would need a static route for `100.64.0.0/10` plus
+  source NAT on the router — imperative site-to-site plumbing; the peer would
+  dial the guest at its LAN address, which breaks if the remote network ever
+  uses the same RFC1918 range; the candidate router (raspberrypi2) is being
+  retired; and high-availability route failover is a paid feature, so redundant
+  routers would not fail over on the free plan.
+- **`tailscaled` on the pve1 host**: the Proxmox host stays lean, and
+  terminating the tunnel in the guest keeps the service and its transport in the
+  same failure and security domain. Redundancy for this path is a non-goal: the
+  endpoint lives with the service, so a tunnel that survives the guest buys
+  nothing.
+- **Fleet-wide installs**: no other host terminates a tailnet-facing service,
+  and the free plan does not constrain device count, so the only effect would be
+  a larger operational surface. Nodes are added when a host starts terminating a
+  tailnet-facing service of its own.
 
 ### 13.3 Infrastructure Provisioning
 
@@ -934,17 +897,16 @@ Two host-level changes provision the guest, following the existing patterns:
 
 The guest enables the service declaratively (`services.tailscale.enable`) and
 **joins the tailnet imperatively, once**, via an interactive `tailscale up`
-login; the resulting node state persists in the bind mount (§13.3). This mirrors
-the Syncthing pairing posture (§12.4). Delivering a pre-authentication key
-through the repository was rejected (nothing secret is ever committed) and
-automating the key delivery out-of-band was deferred: keys expire within 90
-days, so automation only pays off when nodes join regularly, and this design
-adds one node once. Minting the key with the Tailscale Terraform provider
-(`tailscale_tailnet_key`) was considered and deferred for the same reason: the
-provider generates the key, but delivering it into the comin-managed guest
-without committing it remains the unsolved part, and the key would land in the
-Terraform state as a second secret location. The Samba password automation
-design remains the candidate mechanism if that changes
+login; the node state persists in the bind mount (§13.3), mirroring the
+Syncthing pairing posture (§12.4). Delivering a pre-authentication key through
+the repository was rejected (nothing secret is ever committed), and automating
+the delivery out-of-band — including minting the key with the Tailscale
+Terraform provider (`tailscale_tailnet_key`) — was deferred: keys expire within
+90 days, so automation only pays off when nodes join regularly, this design adds
+one node once, and a provider-minted key would land in the Terraform state as a
+second secret location while its delivery into the comin-managed guest stays
+unsolved. The Samba password automation design remains the candidate mechanism
+if that changes
 ([specifications readme](./README.md#specifications-to-write-and-todos)).
 
 Tailnet device names and addresses stay out of the repository, like the
@@ -954,16 +916,13 @@ the lab and its peers to network locations.
 ### 13.5 Operational Requirements
 
 - **Disable node key expiry for nas-pve1 declaratively**: the default expiry
-  (about 180 days) would otherwise silently take the backup transport offline
-  until a manual re-authentication. The
+  (about 180 days) would silently take the backup transport offline. The
   [Tailscale Terraform provider](https://registry.terraform.io/providers/tailscale/tailscale)'s
-  `tailscale_device_key` resource sets `key_expiry_disabled`; toggling it in the
-  admin console was rejected as click-ops. The provider authenticates with an
-  API access token that flows through the untracked tfvars files, like the
-  Proxmox credentials, and adds an internet dependency on the Tailscale
-  control-plane API to Terraform runs. Ordering constraint: the device resource
-  can only be managed after the guest has joined the tailnet — the device must
-  exist before the first apply that references it.
+  `tailscale_device_key` resource sets `key_expiry_disabled`; the admin-console
+  toggle was rejected as click-ops. The provider authenticates with an API
+  access token through the untracked tfvars files, like the Proxmox credentials,
+  and adds a Tailscale control-plane dependency to Terraform runs; the device
+  must exist in the tailnet before the first apply that references it.
 - **Access control** stays on the tailnet's default allow-all policy for now:
   the free plan's ACL capacity (three groups) is not a constraint at this scale,
   and the tailnet has a single administrator. Tightening the policy to port
