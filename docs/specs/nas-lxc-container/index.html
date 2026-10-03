@@ -2616,13 +2616,13 @@ Syncthing offsite transport depends on (§13).</p>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Tailscale Storage (state bind mount)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Host-side state directory and bind mount for <code>/var/lib/tailscale</code> (§13.3).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">State dir and bind mount live on pve1; Terraform plans no changes (2026-10-03).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Tailscale Service (<code>nas-pve1</code>)</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;"><code>services.tailscale</code> on <code>nas-pve1</code>; joining the tailnet is imperative (§13.4).</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Deployed and joined (2026-10-03); declarative key expiry is a readme todo.</td>
 </tr>
 </tbody>
 </table>
@@ -3393,14 +3393,13 @@ rejected:</p>
 <h3 id="133-infrastructure-provisioning">13.3 Infrastructure Provisioning</h3>
 <p>Two host-level changes provision the guest, following the existing patterns:</p>
 <ol>
-<li><strong><code>/dev/net/tun</code> device passthrough (Terraform)</strong>: the container is
-   unprivileged, so <code>tailscaled</code> needs the TUN device passed through. The
-   provider supports this declaratively via the container resource's
-   <code>device_passthrough</code> block (verified in the provider documentation at the
-   pinned version, 0.111.1). Whether adding the block forces a container
-   replacement is not documented: review the plan for <code>forces replacement</code>
-   before approving, and fall back to the imperative fast-forward procedure
-   (§6.2) if it does.</li>
+<li><strong><code>/dev/net/tun</code> device passthrough (Terraform)</strong>: the TUN device node is not
+   in the container's <code>/dev</code> by default (the container is privileged, §8.1, but
+   device nodes still need passing through), so <code>tailscaled</code> needs the device
+   passed through. The provider supports this declaratively via the container
+   resource's <code>device_passthrough</code> block, and adding the block applies in place
+   (verified 2026-10-03: the plan showed a plain addition with no
+   <code>forces replacement</code> marker — only the mount point below forced replacement).</li>
 <li><strong>Node-state bind mount (Ansible and Terraform)</strong>: <code>/var/lib/tailscale</code> (the
    node key and preferences) is bind-mounted from
    <code>/var/lib/tailscale-state/nas-pve1</code> on the host, following the Samba and
@@ -3409,7 +3408,8 @@ rejected:</p>
    <code>directories_to_create</code> list, owned by <code>root</code> with mode <code>0700</code> — <code>tailscaled</code>
    runs as root, and the directory holds the node's private key. Adding the
    mount point hits the known in-place mount update limitation and requires the
-   §6.2 fast-forward.</li>
+   §6.2 fast-forward (performed and converged 2026-10-03, including the
+   provider-default device mode <code>0660</code> in the <code>pct</code> arguments).</li>
 </ol>
 <h3 id="134-node-identity-and-joining">13.4 Node Identity and Joining</h3>
 <p>The guest enables the service declaratively (<code>services.tailscale.enable</code>) and

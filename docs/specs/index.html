@@ -1998,6 +1998,10 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Copy ESPHome secrets.</li>
 <li>Configure the Ansible Vault password file and the per-host vault files.</li>
 <li>Configure SSH keys.</li>
+<li>Join hosts to the tailnet: <code>tailscale up</code> is interactive, one run per node
+  (NAS spec §13.4 records the deferral and the candidates: a
+  Terraform-minted pre-authentication key with out-of-band delivery, or the
+  Samba password automation mechanism).</li>
 <li>Configure unattended updates for all hosts:
   <a href="https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/">Proxmox hosts</a>
   (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#system_software_updates">auto updates</a>),
@@ -2305,7 +2309,6 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>Configure SSH.</li>
 <li>Don't accept DNS to avoid depending on Tailscale being up?</li>
 <li>Update the DNS resolver IP address.</li>
-<li>Configure an auth key to automate the setup.</li>
 <li>Subnet routes: don't advertise routes if there are already unapproved
   routes for the same node (needs
   <a href="https://github.com/tailscale/tailscale/issues/5724">tailscale#5724</a>).</li>
@@ -2655,25 +2658,18 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   rules (offsite peer not seen for too long, folders out of sync or erroring),
   designed against the post-migration steady state
   (<a href="#monitoring-and-alerting">Monitoring and alerting</a>). Unblocked: the target
-  pool already exists and is empty; the peer swap step additionally depends on
-  the Tailscale item below.</li>
-<li><strong>Tailscale on nas-pve1 (designed 2026-10-01)</strong>: Syncthing peer connectivity
-  uses static addresses over the tailnet only, but nas-pve1 is not on the
-  tailnet (verified 2026-09-29: the peer's tailnet address routes to the default
-  gateway and is unreachable from the guest). The
+  pool already exists and is empty, and nas-pve1 joined the tailnet on
+  2026-10-03, so the peer swap can proceed.</li>
+<li><strong>Tailscale on nas-pve1: declarative device management</strong>: the guest joined the
+  tailnet on 2026-10-03 per the
   <a href="nas-lxc-container/#13-tailscale-connectivity">Tailscale connectivity section</a>
-  of the NAS spec records the design: a direct <code>tailscaled</code> node in the guest
-  (subnet-router and host-level alternatives rejected there), with the TUN
-  device passed through and the node state bind-mounted from the host.
-  Implementation steps: create the host-side state directory (Ansible
-  <code>setup_disks</code>), add the <code>device_passthrough</code> block and the third bind mount
-  (Terraform; review the plan for <code>forces replacement</code> — the bind mount hits the
-  mount point limitation below), enable <code>services.tailscale</code> (NixOS), run the
-  one-time interactive <code>tailscale up</code>, then set up the Tailscale Terraform
-  provider (API access token through the untracked tfvars files) and disable the
-  node's key expiry declaratively (<code>tailscale_device_key</code>; the device must exist
-  in the tailnet before the first apply). Blocks: the Syncthing migration peer
-  swap (the LAN seeding from raspberrypi2 is unaffected).</li>
+  of the NAS spec; what remains is managing the device via the Tailscale
+  Terraform provider: a new Terraform stack holding the provider (API access
+  token through the untracked tfvars files; no Proxmox provider, so it runs with
+  pve2 powered off) and <code>tailscale_device_key</code> disabling the node's key expiry
+  (the default expiry, about 180 days, would silently take the backup transport
+  offline, so this should land well before that horizon). The peer swap no
+  longer depends on this item: connectivity is in place.</li>
 <li><strong>Move the Syncthing configuration into a Nix role</strong>: the <code>services.syncthing</code>
   configuration (service, connectivity policy, state directory rule) currently
   lives entirely in the nas-pve1 host configuration. Factor the reusable parts

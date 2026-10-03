@@ -63,6 +63,10 @@ reliability risks first, then security exposure, then automation):
     - Copy ESPHome secrets.
     - Configure the Ansible Vault password file and the per-host vault files.
     - Configure SSH keys.
+    - Join hosts to the tailnet: `tailscale up` is interactive, one run per node
+      (NAS spec §13.4 records the deferral and the candidates: a
+      Terraform-minted pre-authentication key with out-of-band delivery, or the
+      Samba password automation mechanism).
     - Configure unattended updates for all hosts:
       [Proxmox hosts](https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/)
       ([auto updates](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#system_software_updates)),
@@ -346,7 +350,6 @@ reliability risks first, then security exposure, then automation):
     - Configure SSH.
     - Don't accept DNS to avoid depending on Tailscale being up?
     - Update the DNS resolver IP address.
-    - Configure an auth key to automate the setup.
     - Subnet routes: don't advertise routes if there are already unapproved
       routes for the same node (needs
       [tailscale#5724](https://github.com/tailscale/tailscale/issues/5724)).
@@ -675,25 +678,18 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   rules (offsite peer not seen for too long, folders out of sync or erroring),
   designed against the post-migration steady state
   ([Monitoring and alerting](#monitoring-and-alerting)). Unblocked: the target
-  pool already exists and is empty; the peer swap step additionally depends on
-  the Tailscale item below.
-- **Tailscale on nas-pve1 (designed 2026-10-01)**: Syncthing peer connectivity
-  uses static addresses over the tailnet only, but nas-pve1 is not on the
-  tailnet (verified 2026-09-29: the peer's tailnet address routes to the default
-  gateway and is unreachable from the guest). The
+  pool already exists and is empty, and nas-pve1 joined the tailnet on
+  2026-10-03, so the peer swap can proceed.
+- **Tailscale on nas-pve1: declarative device management**: the guest joined the
+  tailnet on 2026-10-03 per the
   [Tailscale connectivity section](./nas-lxc-container.md#13-tailscale-connectivity)
-  of the NAS spec records the design: a direct `tailscaled` node in the guest
-  (subnet-router and host-level alternatives rejected there), with the TUN
-  device passed through and the node state bind-mounted from the host.
-  Implementation steps: create the host-side state directory (Ansible
-  `setup_disks`), add the `device_passthrough` block and the third bind mount
-  (Terraform; review the plan for `forces replacement` — the bind mount hits the
-  mount point limitation below), enable `services.tailscale` (NixOS), run the
-  one-time interactive `tailscale up`, then set up the Tailscale Terraform
-  provider (API access token through the untracked tfvars files) and disable the
-  node's key expiry declaratively (`tailscale_device_key`; the device must exist
-  in the tailnet before the first apply). Blocks: the Syncthing migration peer
-  swap (the LAN seeding from raspberrypi2 is unaffected).
+  of the NAS spec; what remains is managing the device via the Tailscale
+  Terraform provider: a new Terraform stack holding the provider (API access
+  token through the untracked tfvars files; no Proxmox provider, so it runs with
+  pve2 powered off) and `tailscale_device_key` disabling the node's key expiry
+  (the default expiry, about 180 days, would silently take the backup transport
+  offline, so this should land well before that horizon). The peer swap no
+  longer depends on this item: connectivity is in place.
 - **Move the Syncthing configuration into a Nix role**: the `services.syncthing`
   configuration (service, connectivity policy, state directory rule) currently
   lives entirely in the nas-pve1 host configuration. Factor the reusable parts
