@@ -1691,6 +1691,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#68-syncthing" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.8 Syncthing
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2057,6 +2066,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#68-syncthing" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.8 Syncthing
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2177,6 +2195,11 @@
 <td style="text-align: left;"><strong>Alert Rules: Containers</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Container restart-loop detection on the cadvisor metrics (§6.7).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Syncthing</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Syncthing metrics scrape job plus folder error, out-of-sync, and peer disconnection rules (§6.8).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
@@ -2620,6 +2643,57 @@ incident where Jellyseerr crash looped for a month without surfacing anywhere.</
 <td style="text-align: left;"><code>changes(container_start_time_seconds{name!=""}[30m]) &gt; 3</code></td>
 <td style="text-align: left;">—</td>
 <td style="text-align: left;">More than 3 restarts in 30 minutes ignores deploys and upgrades but catches sustained crash loops.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="68-syncthing">6.8 Syncthing</h3>
+<p>These rules consume Syncthing's native metrics endpoint (<code>/metrics</code> on the GUI
+port), scraped by a dedicated <code>syncthing</code> job over HTTPS (self-signed GUI
+certificate, so certificate verification is skipped) authenticating with a
+vault-backed API key as a bearer token (<code>vault_syncthing_prometheus_api_key</code>).
+The endpoint refuses unauthenticated requests, and exposing it without
+authentication (Syncthing's <code>metricsWithoutAuth</code>) was rejected: the metrics
+carry device IDs and personal folder names as labels — private material the GUI
+port would otherwise serve LAN-wide. Targets are gated by the
+<code>monitoring_scrape_syncthing</code> host variable (nas-pve1; the retiring raspberrypi2
+instance is deliberately not scraped). The identifying labels flow into the TSDB
+and the Telegram notifications, both private, but the committed rule expressions
+stay generic: the only identifier a rule names is the public <code>nas-pve1</code>
+hostname, which excludes the instance's own device entry from the disconnection
+rule (a device always reports zero connections to itself). The device join
+matches on <code>(device, instance)</code> so the two Prometheus replicas' series pair
+correctly.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>SyncthingFolderError</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>syncthing_model_folder_state == 8</code></td>
+<td style="text-align: left;">30 min</td>
+<td style="text-align: left;">State 8 is <code>FolderError</code> (verified in the v2.0.12 source): the folder stopped operating, so the backup transport is broken.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SyncthingFolderOutOfSync</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>sum by (folder, instance) (syncthing_model_folder_summary{scope="need"}) &gt; 0</code></td>
+<td style="text-align: left;">24 h</td>
+<td style="text-align: left;">Steady-state incremental syncs clear within hours; a day of unmet need means the sync is stuck (the initial seed took ~14 h).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SyncthingDeviceDisconnected</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>syncthing_connections_active == 0 and on (device, instance) syncthing_config_device_info{name!="nas-pve1",paused="false"}</code></td>
+<td style="text-align: left;">72 h</td>
+<td style="text-align: left;">The offsite peer is intermittently online by design; three days unseen means backups stopped flowing. Paused devices stay quiet.</td>
 </tr>
 </tbody>
 </table>

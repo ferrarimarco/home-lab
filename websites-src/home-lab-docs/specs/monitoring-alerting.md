@@ -14,6 +14,7 @@
 | **Alert Rules: Blackbox Probes**           | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                                             |
 | **Alert Rules: Frigate**                   | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                                                        |
 | **Alert Rules: Containers**                | **Fully Implemented** | Container restart-loop detection on the cadvisor metrics (§6.7).                                                                                       |
+| **Alert Rules: Syncthing**                 | **Missing**           | Syncthing metrics scrape job plus folder error, out-of-sync, and peer disconnection rules (§6.8).                                                      |
 | **Restart Policy Migration**               | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8).                          |
 | **HA Pair: Prometheus Replicas**           | **Fully Implemented** | Deployed on hl01 and raspberrypi2; cross-scrapes verified up from both replicas, hl01 seeded from the raspberrypi2 TSDB with history queryable (§3.3). |
 | **HA Pair: Alertmanager Cluster**          | **Fully Implemented** | Gossip cluster healthy over host networking; silence replication both ways and exactly-once Telegram delivery verified (§3.3).                         |
@@ -298,6 +299,31 @@ incident where Jellyseerr crash looped for a month without surfacing anywhere.
 | Alert                     | Severity | Condition                                                  | Duration | Rationale                                                                                          |
 | :------------------------ | :------- | :--------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------- |
 | `ContainerRestartLooping` | warning  | `changes(container_start_time_seconds{name!=""}[30m]) > 3` | —        | More than 3 restarts in 30 minutes ignores deploys and upgrades but catches sustained crash loops. |
+
+### 6.8 Syncthing
+
+These rules consume Syncthing's native metrics endpoint (`/metrics` on the GUI
+port), scraped by a dedicated `syncthing` job over HTTPS (self-signed GUI
+certificate, so certificate verification is skipped) authenticating with a
+vault-backed API key as a bearer token (`vault_syncthing_prometheus_api_key`).
+The endpoint refuses unauthenticated requests, and exposing it without
+authentication (Syncthing's `metricsWithoutAuth`) was rejected: the metrics
+carry device IDs and personal folder names as labels — private material the GUI
+port would otherwise serve LAN-wide. Targets are gated by the
+`monitoring_scrape_syncthing` host variable (nas-pve1; the retiring raspberrypi2
+instance is deliberately not scraped). The identifying labels flow into the TSDB
+and the Telegram notifications, both private, but the committed rule expressions
+stay generic: the only identifier a rule names is the public `nas-pve1`
+hostname, which excludes the instance's own device entry from the disconnection
+rule (a device always reports zero connections to itself). The device join
+matches on `(device, instance)` so the two Prometheus replicas' series pair
+correctly.
+
+| Alert                         | Severity | Condition                                                                                                                   | Duration | Rationale                                                                                                                        |
+| :---------------------------- | :------- | :-------------------------------------------------------------------------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| `SyncthingFolderError`        | critical | `syncthing_model_folder_state == 8`                                                                                         | 30 min   | State 8 is `FolderError` (verified in the v2.0.12 source): the folder stopped operating, so the backup transport is broken.      |
+| `SyncthingFolderOutOfSync`    | warning  | `sum by (folder, instance) (syncthing_model_folder_summary{scope="need"}) > 0`                                              | 24 h     | Steady-state incremental syncs clear within hours; a day of unmet need means the sync is stuck (the initial seed took ~14 h).    |
+| `SyncthingDeviceDisconnected` | warning  | `syncthing_connections_active == 0 and on (device, instance) syncthing_config_device_info{name!="nas-pve1",paused="false"}` | 72 h     | The offsite peer is intermittently online by design; three days unseen means backups stopped flowing. Paused devices stay quiet. |
 
 ## 7. Alerting Pipeline Health
 

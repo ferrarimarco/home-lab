@@ -829,10 +829,12 @@ probe is re-pointed at nas-pve1, and raspberrypi2's instance is removed
 
 ### 12.6 Monitoring
 
-The existing Syncthing HTTP endpoint blackbox probe moves to the nas-pve1
-instance's GUI/API endpoint as part of the migration. Deeper metrics integration
-is tracked centrally in the
-[specifications readme](./README.md#specifications-to-write-and-todos).
+The monitoring backend scrapes the instance's native metrics endpoint and alerts
+on folder errors, stuck syncs, and unseen peers; the
+[monitoring-alerting spec](./monitoring-alerting.md) (§6.8) records the job, the
+rules, and the privacy constraints on the metric labels. The existing Syncthing
+HTTP endpoint blackbox probe moves to the nas-pve1 GUI/API endpoint as part of
+the migration cutover.
 
 ## 13. Tailscale Connectivity
 

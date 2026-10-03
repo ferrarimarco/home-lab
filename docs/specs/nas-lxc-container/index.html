@@ -3335,10 +3335,12 @@ remote peer accepts the new device and drops the old one, the Syncthing blackbox
 probe is re-pointed at nas-pve1, and raspberrypi2's instance is removed
 (<code>configure_syncthing: false</code>).</p>
 <h3 id="126-monitoring">12.6 Monitoring</h3>
-<p>The existing Syncthing HTTP endpoint blackbox probe moves to the nas-pve1
-instance's GUI/API endpoint as part of the migration. Deeper metrics integration
-is tracked centrally in the
-<a href="../#specifications-to-write-and-todos">specifications readme</a>.</p>
+<p>The monitoring backend scrapes the instance's native metrics endpoint and alerts
+on folder errors, stuck syncs, and unseen peers; the
+<a href="../monitoring-alerting/">monitoring-alerting spec</a> (§6.8) records the job, the
+rules, and the privacy constraints on the metric labels. The existing Syncthing
+HTTP endpoint blackbox probe moves to the nas-pve1 GUI/API endpoint as part of
+the migration cutover.</p>
 <h2 id="13-tailscale-connectivity">13. Tailscale Connectivity</h2>
 <h3 id="131-purpose-and-scope">13.1 Purpose and Scope</h3>
 <p>The Syncthing offsite transport (§12) connects to its remote peer over the

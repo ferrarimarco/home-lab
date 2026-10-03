@@ -100,6 +100,14 @@ reliability risks first, then security exposure, then automation):
     - The Syncthing HTTP endpoint blackbox probe is configured but fails
       (authentication, HTTPS with self-signed certificate). The probe target
       moves to the nas-pve1 instance with the Syncthing migration ([NAS](#nas)).
+- The Coral EdgeTPU apt repository (`packages.cloud.google.com/apt`,
+  `coral-edgetpu-stable`) returns 403 Forbidden (verified 2026-10-03 with a
+  direct request; Google is sunsetting Coral). Every `apt update` against it
+  fails: the Molecule converge of the main playbook fails on the apt cache
+  refresh, and hosts with the repository configured (hl01) fail their apt
+  metadata updates. Decide between removing the repository while pinning the
+  already-installed packages, vendoring the packages, or another delivery path —
+  hl01's Frigate depends on the EdgeTPU runtime, so this needs its own session.
 - raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):
@@ -189,6 +197,14 @@ reliability risks first, then security exposure, then automation):
   [dependency updates guide](../guides/operations/dependency-updates.md)
   documents for manual runs, so configuration errors surface in the pull request
   instead of after the push to the default branch starts the jobs.
+- Let `scripts/format.sh` converge Markdown table edits in one run: the script
+  exits at its markdownlint step when an issue that `--fix` cannot resolve
+  remains, but table alignment (MD060) is fixed by Prettier, which runs after
+  markdownlint — so any edit that changes a table's column widths aborts the
+  script one step before the tool that would fix it, forcing a full super-linter
+  fix-mode run instead. Keep running Prettier when markdownlint leaves unfixable
+  findings (or reorder the formatters), keeping the check-mode lint as the
+  authoritative verdict.
 - Compose:
     - Move secrets to
       [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).
@@ -646,9 +662,8 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   complete the peer swap (in progress since nas-pve1 joined the tailnet on
   2026-10-03), re-point the Syncthing blackbox probe
   ([Issues to solve](#issues-to-solve)), set `configure_syncthing: false` on
-  raspberrypi2, and remove the old data. Follow-up after the cutover: a
-  Prometheus scrape of the Syncthing metrics endpoint on both replicas plus
-  alert rules ([Monitoring and alerting](#monitoring-and-alerting)).
+  raspberrypi2, and remove the old data. The Prometheus metrics scrape and alert
+  rules landed ahead of the cutover (monitoring-alerting spec §6.8).
 - **Tailscale on nas-pve1: declarative device management**: manage the joined
   device via the Tailscale Terraform provider, per the
   [Tailscale connectivity section](./nas-lxc-container.md#13-tailscale-connectivity)
