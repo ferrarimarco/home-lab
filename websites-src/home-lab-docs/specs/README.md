@@ -690,6 +690,17 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   (the default expiry, about 180 days, would silently take the backup transport
   offline, so this should land well before that horizon). The peer swap no
   longer depends on this item: connectivity is in place.
+- **Redeclare the Syncthing GUI settings on the fixed nixpkgs module**: at the
+  pinned nixpkgs, the Syncthing module PUTs each declared settings section on
+  every activation, replacing the whole section — a declared `gui.useTLS` wiped
+  the imperative GUI username (observed 2026-10-03), so the `gui` section is
+  undeclared and HTTPS plus the credentials are imperative, and the declared
+  `defaults.folder.path` is silently dropped because the module targets a
+  nonexistent endpoint (NAS spec §12.4). nixpkgs master fixes both (PATCH-based
+  merge, real defaults endpoint); the fix is not in nixos-26.05 (verified
+  against the Dependabot bump), so this needs the next release (expected NixOS
+  26.11). Once on it: redeclare `gui.useTLS`, verify `defaults.folder.path`
+  applies, and confirm the imperative GUI credentials survive an activation.
 - **Move the Syncthing configuration into a Nix role**: the `services.syncthing`
   configuration (service, connectivity policy, state directory rule) currently
   lives entirely in the nas-pve1 host configuration. Factor the reusable parts

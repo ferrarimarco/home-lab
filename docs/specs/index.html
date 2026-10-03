@@ -2670,6 +2670,17 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   (the default expiry, about 180 days, would silently take the backup transport
   offline, so this should land well before that horizon). The peer swap no
   longer depends on this item: connectivity is in place.</li>
+<li><strong>Redeclare the Syncthing GUI settings on the fixed nixpkgs module</strong>: at the
+  pinned nixpkgs, the Syncthing module PUTs each declared settings section on
+  every activation, replacing the whole section — a declared <code>gui.useTLS</code> wiped
+  the imperative GUI username (observed 2026-10-03), so the <code>gui</code> section is
+  undeclared and HTTPS plus the credentials are imperative, and the declared
+  <code>defaults.folder.path</code> is silently dropped because the module targets a
+  nonexistent endpoint (NAS spec §12.4). nixpkgs master fixes both (PATCH-based
+  merge, real defaults endpoint); the fix is not in nixos-26.05 (verified
+  against the Dependabot bump), so this needs the next release (expected NixOS
+  26.11). Once on it: redeclare <code>gui.useTLS</code>, verify <code>defaults.folder.path</code>
+  applies, and confirm the imperative GUI credentials survive an activation.</li>
 <li><strong>Move the Syncthing configuration into a Nix role</strong>: the <code>services.syncthing</code>
   configuration (service, connectivity policy, state directory rule) currently
   lives entirely in the nas-pve1 host configuration. Factor the reusable parts

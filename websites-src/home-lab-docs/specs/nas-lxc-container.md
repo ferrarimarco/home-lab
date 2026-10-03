@@ -813,6 +813,22 @@ declared (§12.3). Automating the topology delivery without publishing the IDs
 could reuse the Samba password automation design tracked in the
 [specifications readme](./README.md#specifications-to-write-and-todos).
 
+The same caution extends beyond topology at the nixpkgs version in use: the
+module PUTs each declared `settings` section to the REST API on every
+activation, and PUT replaces the whole section, resetting the keys left
+undeclared to their defaults (observed 2026-10-03: declaring `gui.useTLS` wiped
+the imperatively set GUI username on activation, leaving the GUI password-less).
+The `gui` section is therefore not declared — HTTPS and the credentials stay
+imperative, persisting in the state bind mount — while the `options` section is
+declared deliberately: its declared keys plus the defaults are the intended
+connectivity posture. nixpkgs master has since switched these calls to PATCH
+(merge) and routed `defaults` to its real endpoint (the pinned module targets a
+nonexistent path, so the declared default folder path is silently dropped and
+was set imperatively instead). Redeclaring the `gui` section and verifying the
+declared default folder path once a nixpkgs release ships the fixed module is
+tracked in the
+[specifications readme](./README.md#specifications-to-write-and-todos).
+
 The state directory (`/var/lib/syncthing`: the device keys and the index
 database) is bind-mounted from host-persistent storage
 (`/var/lib/syncthing-state/nas-pve1`), following the Samba state pattern (§6.2,
