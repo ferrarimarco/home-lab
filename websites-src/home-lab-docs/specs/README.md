@@ -27,31 +27,19 @@ the relevant specification, or explicitly discarded.
 The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):
 
-- Evacuate the data off the raspberrypi2 data disk: the disk holds the only
-  local copy of the media library and of a personal data directory, and the
-  host's restic repositories live on that same disk, so one disk failure loses
-  the data and its backups together. Two tracks ([NAS](#nas)): the personal data
-  directory (a Syncthing folder) evacuates via the Syncthing migration to
-  nas-pve1, which is unblocked because its target pool (`rpool-usb-1`) already
-  exists; the media library evacuates to the new 2 TB pool (`rpool-usb-2`) once
-  the disk is attached — trimming the library is recommended for headroom (the
-  untrimmed library fills about 80% of the pool) but no longer required for fit.
-  SMART attributes were stable between 2026-09-13 and 2026-09-22 (pending and
-  offline-uncorrectable sector counts unchanged), but the drive is past its
-  load-cycle rating, so this stays the top data-loss risk. Blocks: the media
-  stack migration cutover and the SMART long self-test
-  ([Issues to solve](#issues-to-solve)).
+- Evacuate the data off the raspberrypi2 data disk: one aging disk holds the
+  only copy of the media library, a personal data directory, and the restic
+  repositories, so this stays the top data-loss risk. Two tracks ([NAS](#nas)):
+  the Syncthing folders are seeded to nas-pve1 and awaiting cutover; the media
+  library waits for the `rpool-usb-2` pool. Blocks: the media stack migration
+  cutover and the SMART long self-test ([Issues to solve](#issues-to-solve)).
 - Migrate the containers from raspberrypi2 to hl01: shrinks that host's role and
   unblocks its re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). Depends
-  on: the data evacuation. The monitoring backend is excluded: it already runs
-  as a highly available pair on hl01 and raspberrypi2 (monitoring-alerting spec
-  §3.3).
+  on: the data evacuation.
 - Re-image raspberrypi2 with current Raspberry Pi OS, then bump the `requests`
-  pin: the host runs Debian 11 past LTS end of life, and the old system Python
-  pins a dependency with a known vulnerability. Depends on the container
-  migration; the hl01 monitoring backend replica keeps alerting during the
-  re-image ([Issues to solve](#issues-to-solve)).
+  pin ([Issues to solve](#issues-to-solve)). Depends on: the container
+  migration.
 
 ### Bootstrapping and provisioning
 
@@ -327,21 +315,18 @@ reliability risks first, then security exposure, then automation):
   remotely (for example for Terraform runs that need both Proxmox nodes
   reachable) depends on finding the BMC reliably.
 - **Tailscale subnet router on hl02 for general remote access**: one node
-  advertising the LAN covers ad-hoc remote access (service GUIs, SSH, the
-  Proxmox web interfaces) without installing Tailscale fleet-wide; service
-  endpoints get direct nodes instead, per the NAS spec's
+  advertising the LAN covers ad-hoc remote access without installing Tailscale
+  fleet-wide; service endpoints get direct nodes instead, per the NAS spec's
   [placement rationale](./nas-lxc-container.md#13-tailscale-connectivity).
-  Candidate host: hl02 — NixOS, so the router is declarative
-  (`services.tailscale` plus route advertisement and an IP-forwarding sysctl),
-  and a full VM with a native `/dev/net/tun`. Considerations for the design:
-  hl02 runs on pve1, so remote access through it is unavailable when the
-  virtualization layer is down, and the current physical fallback on the tailnet
-  (raspberrypi2) is scheduled for retirement — evaluate whether a physical
-  device should stay on the tailnet for out-of-band reach; high-availability
-  route failover is a paid feature, so a second router would not fail over
-  automatically on the free plan. The Tailscale Terraform provider can approve
-  the advertised routes declaratively (`tailscale_device_subnet_routes`), which
-  also relates to the unapproved-routes item below.
+  Candidate host: hl02 (NixOS, so declarative; a full VM with a native
+  `/dev/net/tun`). Design considerations: remote access through an hl02 router
+  is down whenever pve1's virtualization layer is, and the current physical
+  tailnet fallback (raspberrypi2) is being retired — evaluate keeping a physical
+  device on the tailnet for out-of-band reach; high-availability route failover
+  is paid, so a second router would not fail over on the free plan; the
+  Tailscale Terraform provider can approve advertised routes declaratively
+  (`tailscale_device_subnet_routes`, related to the unapproved-routes item
+  below).
 - **Tailscale exit node**: evaluate routing remote client traffic through the
   home network (for example, for untrusted networks). Separate from the subnet
   router item: an exit node routes the client's internet traffic, not access to
@@ -643,77 +628,52 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
 
 - **Media evacuation storage (pool layout decided 2026-09-26)**: attach the
   spare 2 TB USB disk to pve1 as a new independent single-disk ZFS pool
-  (`rpool-usb-2`) holding replaceable media only, as the target for the media
-  library (~1.5 TB, about 80% of the pool before trimming, so trimming is
-  recommended for headroom and growth room but not required for fit). The
-  existing 900 GB `rpool-usb-1` pool holds the valuable data instead: the
-  Syncthing folders (about 200 GB) and its `backups` dataset (currently unused,
-  reserved for future backup use such as offsite-send staging). The `media-usb`
-  share re-homes from `rpool-usb-1` to `rpool-usb-2` at the media cutover. The
-  split separates the pools by data replaceability, so neither single disk holds
-  sole custody of irreplaceable data. Extending `rpool-usb-1` with the new disk
-  as a second striped vdev was considered and rejected: it couples two single
-  disks into one failure domain where either disk's failure loses the whole
-  pool, aggravated by the USB transport. The evacuated library remains a single
-  copy on an aging USB drive: evaluate pve2's `tank-hdd` pool as the long-term
-  media home or as a second copy once the pve2 power consumption evaluation
-  decides how often that node runs.
-- **Syncthing migration to nas-pve1**: run Syncthing declaratively on the
-  nas-pve1 NixOS guest (`services.syncthing`), where its folders are local
-  storage; the
+  (`rpool-usb-2`) for replaceable media only; the media library (~1.5 TB, about
+  80% of the pool untrimmed — trimming recommended, not required) moves there,
+  and the `media-usb` share re-homes to it at the media cutover. The 900 GB
+  `rpool-usb-1` pool keeps the valuable data: the Syncthing folders (about 200
+  GB) and the reserved `backups` dataset. The split separates the pools by data
+  replaceability, so neither single disk holds sole custody of irreplaceable
+  data. Rejected: extending `rpool-usb-1` with a second striped vdev — it
+  couples two single disks into one failure domain, aggravated by the USB
+  transport. The evacuated library remains a single copy on an aging USB drive:
+  evaluate pve2's `tank-hdd` as the long-term media home or second copy once the
+  pve2 power evaluation decides how often that node runs.
+- **Syncthing migration to nas-pve1**: the service runs on the nas-pve1 guest
+  and the folders finished seeding over the LAN on 2026-10-01; the
   [Syncthing service section](./nas-lxc-container.md#12-syncthing-service) of
-  the NAS spec records the design (placement rationale, folder inventory, device
-  identity, state persistence, and the rejected alternatives). Implementation
-  steps: create the `rpool-usb-1/syncthing` dataset and the host-side state
-  directory (Ansible `setup_disks`), add the two bind mounts (Terraform), add
-  the Syncthing service and the folder directories to the nas-pve1 host
-  configuration (NixOS), configure the devices and folders via the GUI/API
-  (device IDs are private material and stay out of the repository), let the
-  raspberrypi2 instance share the folders with the new device so the data seeds
-  over the LAN, have the remote peer accept the new device identity, re-point
-  the Syncthing blackbox probe ([Issues to solve](#issues-to-solve)), then set
-  `configure_syncthing: false` on raspberrypi2 and remove the old data.
-  Follow-up once the instance is cut over: a Prometheus scrape of the Syncthing
-  metrics endpoint on both replicas (vault-backed API credential) plus alert
-  rules (offsite peer not seen for too long, folders out of sync or erroring),
-  designed against the post-migration steady state
-  ([Monitoring and alerting](#monitoring-and-alerting)). Unblocked: the target
-  pool already exists and is empty, and nas-pve1 joined the tailnet on
-  2026-10-03, so the peer swap can proceed.
-- **Tailscale on nas-pve1: declarative device management**: the guest joined the
-  tailnet on 2026-10-03 per the
+  the NAS spec records the design and the migration procedure. Remaining:
+  complete the peer swap (in progress since nas-pve1 joined the tailnet on
+  2026-10-03), re-point the Syncthing blackbox probe
+  ([Issues to solve](#issues-to-solve)), set `configure_syncthing: false` on
+  raspberrypi2, and remove the old data. Follow-up after the cutover: a
+  Prometheus scrape of the Syncthing metrics endpoint on both replicas plus
+  alert rules ([Monitoring and alerting](#monitoring-and-alerting)).
+- **Tailscale on nas-pve1: declarative device management**: manage the joined
+  device via the Tailscale Terraform provider, per the
   [Tailscale connectivity section](./nas-lxc-container.md#13-tailscale-connectivity)
-  of the NAS spec; what remains is managing the device via the Tailscale
-  Terraform provider: a new Terraform stack holding the provider (API access
-  token through the untracked tfvars files; no Proxmox provider, so it runs with
-  pve2 powered off) and `tailscale_device_key` disabling the node's key expiry
-  (the default expiry, about 180 days, would silently take the backup transport
-  offline, so this should land well before that horizon). The peer swap no
-  longer depends on this item: connectivity is in place.
-- **Redeclare the Syncthing GUI settings on the fixed nixpkgs module**: at the
-  pinned nixpkgs, the Syncthing module PUTs each declared settings section on
-  every activation, replacing the whole section — a declared `gui.useTLS` wiped
-  the imperative GUI username (observed 2026-10-03), so the `gui` section is
-  undeclared and HTTPS plus the credentials are imperative, and the declared
-  `defaults.folder.path` is silently dropped because the module targets a
-  nonexistent endpoint (NAS spec §12.4). nixpkgs master fixes both (PATCH-based
-  merge, real defaults endpoint); the fix is not in nixos-26.05 (verified
-  against the Dependabot bump), so this needs the next release (expected NixOS
-  26.11). Once on it: redeclare `gui.useTLS`, verify `defaults.folder.path`
-  applies, and confirm the imperative GUI credentials survive an activation.
-- **Move the Syncthing configuration into a Nix role**: the `services.syncthing`
-  configuration (service, connectivity policy, state directory rule) currently
-  lives entirely in the nas-pve1 host configuration. Factor the reusable parts
-  into a role under `config/nix/roles/`, following the repository's
-  role-versus-host split (shared service defaults in the role, per-host values
-  in the host configuration), so a future nas-pve2 instance — one Syncthing
-  instance per storage-owning host — reuses it instead of duplicating it.
-- **Remove the Ansible Syncthing stack after the raspberrypi2 re-image**: once
-  the Syncthing migration to nas-pve1 is cut over and raspberrypi2 is re-imaged,
-  no Ansible-managed host runs Syncthing, and the role's Syncthing machinery
-  (the compose template, the stack variables and enablement flag, and the
-  endpoint wiring) becomes dead code to delete. Depends on: the Syncthing
-  migration cutover and the raspberrypi2 re-image
+  of the NAS spec: a new Terraform stack (no Proxmox provider, so it runs with
+  pve2 off) with `tailscale_device_key` disabling the node's key expiry. Land
+  well before the default expiry (about 180 days from the 2026-10-03 join)
+  silently takes the backup transport offline.
+- **Redeclare the Syncthing GUI settings on the fixed nixpkgs module**: the
+  `gui` section and the folder-path default stay imperative at the pinned
+  nixpkgs (section-replace semantics and a dead endpoint; the
+  [device identity section](./nas-lxc-container.md#124-device-identity-and-state-persistence)
+  of the NAS spec records both). The fix is on nixpkgs master but not in
+  nixos-26.05 (verified against the Dependabot bump), so this needs the next
+  release (expected NixOS 26.11). Once on it: redeclare `gui.useTLS`, verify
+  `defaults.folder.path` applies, and confirm the imperative GUI credentials
+  survive an activation.
+- **Move the Syncthing configuration into a Nix role**: factor the reusable
+  parts of the nas-pve1 `services.syncthing` configuration into a role under
+  `config/nix/roles/` (shared service defaults in the role, per-host values in
+  the host configuration), so a future nas-pve2 instance reuses it instead of
+  duplicating it.
+- **Remove the Ansible Syncthing stack**: once no Ansible-managed host runs
+  Syncthing, the role's Syncthing machinery (compose template, stack variables
+  and enablement flag, endpoint wiring) becomes dead code to delete. Depends on:
+  the Syncthing migration cutover and the raspberrypi2 re-image
   ([Current focus](#current-focus)).
 - **raspberrypi2 restic repository wind-down (decided 2026-09-26)**: hl01's
   restic repository stays on `rpool-sata` via the existing `backups` share (no
@@ -723,14 +683,13 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   snapshots can be discarded after about a week of healthy hl01 snapshots (the
   workloads job keeps 7 days of dailies, and hl01 picks up a migrated workload's
   state directory automatically).
-- **Back up the NAS guest state directories on pve1**: the Samba state directory
-  and the Syncthing state directory persist service state (the Samba password
-  database, the Syncthing device keys and index database) across guest rebuilds
-  via host bind mounts, but nothing backs them up: losing pve1's root filesystem
-  means re-running `smbpasswd` and re-accepting a new Syncthing device at the
-  remote peer. Both directories contain secret material (NT password hashes,
-  device private keys), so any backup mechanism must keep them out of the
-  repository and restrict access, consistent with the secrets policy.
+- **Back up the NAS guest state directories on pve1**: nothing backs up the
+  Samba, Syncthing, and Tailscale state directories that the guest bind-mounts
+  from the host: losing pve1's root filesystem means re-running `smbpasswd`,
+  re-accepting a new Syncthing device at the remote peer, and re-joining the
+  tailnet. All three hold secret material (password hashes, device and node
+  private keys), so any mechanism must keep it out of the repository and
+  restrict access, consistent with the secrets policy.
 - **NFS support**: Re-introduce NFS sharing alongside SMB. Evaluate
   `nfs-kernel-server` in a privileged container versus the user-space
   NFS-Ganesha server, which can run in an unprivileged container.
