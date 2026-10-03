@@ -213,3 +213,44 @@ groups:
             The container {{ $labels.name }} on {{ $labels.instance }}
             restarted more than 3 times in the last 30 minutes. It is
             probably crash looping; check its logs.
+
+  - name: syncthing
+    rules:
+      - alert: SyncthingFolderError
+        expr: syncthing_model_folder_state == 8
+        for: 30m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Syncthing folder {{ $labels.folder }} on {{ $labels.instance }} is in error"
+          description: >-
+            The Syncthing folder {{ $labels.folder }} on
+            {{ $labels.instance }} has been in the error state for 30
+            minutes: the backup transport for that folder stopped operating.
+            Check the folder's error message in the Syncthing GUI.
+      - alert: SyncthingFolderOutOfSync
+        expr: sum by (folder, instance) (syncthing_model_folder_summary{scope="need"}) > 0
+        for: 24h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Syncthing folder {{ $labels.folder }} on {{ $labels.instance }} is out of sync"
+          description: >-
+            The Syncthing folder {{ $labels.folder }} on
+            {{ $labels.instance }} has had unmet sync needs for 24 hours.
+            Steady-state transfers clear within hours, so the sync is
+            probably stuck.
+      - alert: SyncthingDeviceDisconnected
+        expr: >-
+          syncthing_connections_active == 0
+          and on (device, instance)
+          syncthing_config_device_info{name!="nas-pve1",paused="false"}
+        for: 72h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Syncthing peer {{ $labels.device }} unseen by {{ $labels.instance }}"
+          description: >-
+            The Syncthing device {{ $labels.device }} has not been connected
+            to {{ $labels.instance }} for 3 days: offsite backups stopped
+            flowing. Check the peer device and the tailnet connectivity.

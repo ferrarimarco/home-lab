@@ -102,6 +102,24 @@ scrape_configs:
 {% endif %}
 {% endfor %}
 
+{% if vault_syncthing_prometheus_api_key is defined %}
+  - job_name: "syncthing"
+    scheme: https
+    tls_config:
+      # The Syncthing GUI serves a self-signed certificate.
+      insecure_skip_verify: true
+    authorization:
+      type: Bearer
+      credentials: "{{ vault_syncthing_prometheus_api_key }}"
+    static_configs:
+      - targets:
+{% for host in groups['all'] %}
+{% if hostvars[host].monitoring_scrape_syncthing | default(false) %}
+        - "{{ host }}:{{ syncthing_user_interface_port }}"
+{% endif %}
+{% endfor %}
+{% endif %}
+
   - job_name: nix-comin
     static_configs:
       - targets:

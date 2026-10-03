@@ -1,0 +1,5 @@
+---
+# Scrape the Syncthing metrics endpoint on this host (monitoring-alerting
+# spec, section 6.8). The Syncthing service itself is NixOS-managed; this
+# flag only adds the host to the Prometheus scrape targets.
+monitoring_scrape_syncthing: true
