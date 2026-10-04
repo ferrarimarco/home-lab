@@ -43,6 +43,7 @@ resource "proxmox_virtual_environment_vm" "vm_100" {
     discard      = "on"
     interface    = "scsi0"
     iothread     = true
+    size         = 64
     ssd          = true
   }
 
