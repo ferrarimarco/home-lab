@@ -1829,7 +1829,12 @@ shell. See the <a href="../nix-dev-shells/">Nix development shells guide</a>.</p
 <p>Stack tags are the <code>fact_category</code> names declared in the
 <code>ferrarimarco_home_lab_node</code> role's <code>include-variables.yaml</code>. See the
 <a href="../ansible/">Ansible development guide</a> for how the role's tagging and
-enablement machinery works.</p>
+enablement machinery works. The Docker Compose lifecycle tasks (image pulls,
+service starts, and the restarts that configuration changes trigger) carry
+the <code>always</code> tag so tag-scoped runs still execute them — their
+<code>molecule-notest</code> tag alone would deselect them, deploying changed
+configuration without restarting the services that read it; Molecule still
+skips them via <code>--skip-tags</code>.</p>
 <p>Always run with <code>--check --diff</code> first and review the predicted changes
 (watching for unexpected <code>state: absent</code> teardowns) before repeating the
 same command without those flags to apply.</p>

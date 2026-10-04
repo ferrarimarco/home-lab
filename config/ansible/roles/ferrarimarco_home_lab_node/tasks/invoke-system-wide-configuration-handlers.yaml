@@ -39,10 +39,14 @@
     - configure_docker
     - item.pull_container_images
   with_items: "{{ docker_compose_up_items | unique }}"
-  # Molecule skips the tasks with this tag. Don't pull container images in
-  # tests to avoid downloading them on each test run.
+  # Molecule skips the tasks with the molecule-notest tag (--skip-tags wins
+  # over always). Don't pull container images in tests to avoid downloading
+  # them on each test run. The always tag keeps the task selected in
+  # tag-scoped runs (--tags <stack>,untagged), which would otherwise deselect
+  # it: a tagged task is not untagged.
   tags:
     - molecule-notest
+    - always
 
 - name: Start Docker Compose services
   changed_when: '"Started" in docker_compose_up_result.stdout or "Started" in docker_compose_up_result.stderr'
@@ -58,10 +62,12 @@
     - configure_docker
     - item.start_containerized_services
   with_items: "{{ docker_compose_up_items | unique }}"
-  # Molecule skips the tasks with this tag. Don't start containerized services
-  # in tests because starting them needs their container images.
+  # Molecule skips the tasks with the molecule-notest tag. Don't start
+  # containerized services in tests because starting them needs their
+  # container images. See the pull task above for why always is needed.
   tags:
     - molecule-notest
+    - always
 
 - name: Debug docker_compose_up_result
   ansible.builtin.debug:
@@ -115,7 +121,9 @@
     # Don't restart this Docker Compose service if we just started it
     - item.compose_file_path not in started_docker_compose_services | default([])
   with_items: "{{ docker_compose_services_to_restart | unique }}"
-  # Molecule skips the tasks with this tag. There are no containerized
-  # services to restart in tests because tests don't start them.
+  # Molecule skips the tasks with the molecule-notest tag. There are no
+  # containerized services to restart in tests because tests don't start
+  # them. See the pull task above for why always is needed.
   tags:
     - molecule-notest
+    - always

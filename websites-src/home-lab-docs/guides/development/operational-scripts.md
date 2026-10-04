@@ -146,7 +146,12 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     Stack tags are the `fact_category` names declared in the
     `ferrarimarco_home_lab_node` role's `include-variables.yaml`. See the
     [Ansible development guide](./ansible.md) for how the role's tagging and
-    enablement machinery works.
+    enablement machinery works. The Docker Compose lifecycle tasks (image pulls,
+    service starts, and the restarts that configuration changes trigger) carry
+    the `always` tag so tag-scoped runs still execute them — their
+    `molecule-notest` tag alone would deselect them, deploying changed
+    configuration without restarting the services that read it; Molecule still
+    skips them via `--skip-tags`.
 
     Always run with `--check --diff` first and review the predicted changes
     (watching for unexpected `state: absent` teardowns) before repeating the
