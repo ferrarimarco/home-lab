@@ -8,3 +8,6 @@
   roles:
     - role: geerlingguy.docker
       become: true
+      # Hosts opt into the container engine with configure_docker:
+      # Proxmox nodes and NixOS hosts must not get Docker installed.
+      when: configure_docker | default(false)
