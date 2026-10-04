@@ -5,6 +5,35 @@ whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.
 
+## 2026-10-04
+
+- `pve2`: powered on for the power reduction investigation (goal: run the host
+  24/7 once its idle draw comes down; see the
+  [specs todo list](../specs/README.md#host-configuration)). Findings that
+  extend or correct the 2026-08-25 entry:
+    - The smart plug series in Home Assistant (scraped by Prometheus) confirms
+      the baseline across three power-on windows: ~24 W with pve2 off, 67-71 W
+      with pve2 on and idle with the nas-pve2 guest running, ~110 W at boot.
+    - RAM is 128 GB (8 x 16 GB DDR4-2133 RDIMM at 1866 MT/s), not 256 GB.
+    - PSU: OCZ ModXStream Pro 600 W (`OCZ600MXSP`), a 2008-era 80 Plus unit with
+      no PMBus: the BMC's DCMI power reading and the kernel's ACPI power meter
+      both read 0 W.
+    - BMC readings via `ipmitool` (now installed through the bootstrap role,
+      `has_bmc` host flag): fan mode already Optimal, fans at 300-1100 RPM (FAN1
+      reads below its lower threshold), CPU 36 degrees Celsius, PCH 50, DIMMs
+      32-37. The fan lever is negligible.
+    - Settled idle: RAPL package 7.6 W, DRAM 3.5 W, cores 99.8% in C6. The
+      untapped levers from the 2026-08-25 entry are still untouched.
+    - The cable is on `nic0` (link up) while the inventory assigns the reserved
+      address to `nic1` (link down); not a power issue, to reconcile.
+- `pve2`: ran `pvecm updatecerts` by hand to restore the Proxmox
+  `authorized_keys` symlink after a bootstrap playbook run replaced it with a
+  regular file. The bootstrap role now converges the link target and declares
+  the node's own root key, so the shared file stays stable across runs and
+  reboots (see the
+  [Ansible development guide](../guides/development/ansible.md#authorized-keys-on-proxmox-nodes));
+  the two hardware security keys that the file carried were dropped on purpose.
+
 ## 2026-09-13
 
 - `raspberrypi2`: manually power-cycled after the host froze (hard lockup

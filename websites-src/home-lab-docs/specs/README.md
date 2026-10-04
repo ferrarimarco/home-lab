@@ -219,12 +219,13 @@ reliability risks first, then security exposure, then automation):
     - [Ansible terraform module](https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module).
     - Setup CI for Terraform.
     - Tolerate powered-off Proxmox nodes: every stack configures a provider per
-      node, so a single unreachable node (pve2 is off pending its power
-      evaluation) fails the whole `run-terraform.sh` sequence, even for changes
-      that only touch pve1 resources. Candidate directions: split the multi-node
-      stacks into per-node stacks so each node's resources apply independently,
-      and let `run-terraform.sh` select which stacks to run; evaluate whether
-      the `bpg/proxmox` provider can defer node connectivity until a resource
+      node, so a single unreachable node (pve2 stays off until its power
+      reduction work completes, see [Host configuration](#host-configuration))
+      fails the whole `run-terraform.sh` sequence, even for changes that only
+      touch pve1 resources. Candidate directions: split the multi-node stacks
+      into per-node stacks so each node's resources apply independently, and let
+      `run-terraform.sh` select which stacks to run; evaluate whether the
+      `bpg/proxmox` provider can defer node connectivity until a resource
       actually needs it.
 - Tests to implement:
     - Samba config file validation: `testparm -s`.
@@ -285,6 +286,39 @@ reliability risks first, then security exposure, then automation):
 
 ### Host configuration
 
+- **pve2 power reduction before running it 24/7**: the goal is to run pve2
+  around the clock, but it stays powered off until its idle draw comes down.
+  Measured idle wall power is about 45 W (the smart plug that feeds it reads ~24
+  W with pve2 off and ~68 W with pve2 on and idle), about 39 EUR per year at the
+  current tariff; the CPU side is already optimal (RAPL package ~8 W, 99.8% C6
+  residency), the BMC fan mode is already Optimal with fans at 300-1100 RPM, and
+  the PSU has no PMBus, so the plug is the only instrument. The measurements are
+  in the [manual changes diary](../archive/manual-changes-diary.md) (2026-08-25
+  and 2026-10-04). Levers, in order of expected gain:
+    - Replace the PSU: the OCZ ModXStream Pro 600 W is a 2008-era 80 Plus unit
+      running at ~7% load, where its efficiency is an expected 65-75%, and it is
+      a reliability concern for 24/7 duty. A modern Platinum or Titanium unit
+      sized at 450-550 W is expected to save 7-10 W. Do this last, so it is
+      measured at the final DC load.
+    - Remove the two scratch drives (Samsung HD103SJ and OCZ Vertex 3, both
+      effectively empty): expected ~7 W. Needs the `tank-hdd-scratch` and
+      `tank-ssd-scratch` pools removed from the pve2 host_vars, the two
+      Terraform storage resources and bind mounts, and the two nas-pve2 shares.
+      HDD spin-down of the data disk stays excluded by policy.
+    - Runtime tunables, measured one at a time through the plug series
+      (`sensor.presa_studio_home_lab_2_power` in Home Assistant, scraped by
+      Prometheus): CPU governor (`performance` on the passive `intel_cpufreq`
+      driver), SATA link power management (`max_performance` on all 10 hosts),
+      PCIe ASPM policy (`default`; both i210 NICs have ASPM disabled), and PCI
+      runtime PM (99 devices on `on`). Expected 2-5 W in total; persist the
+      winners declaratively through Ansible.
+    - BIOS: energy-efficient power technology, DRAM power-down, disable the
+      unused sSATA controller, EHCI controllers, and serial ports. Small gains,
+      needs a reboot and console access.
+    - Realistic tuned idle: 24-28 W. Blocks: the media second copy on `tank-hdd`
+      ([NAS](#nas)); the Proxmox node downtime alerts stay enabled by choice
+      until pve2 runs 24/7
+      ([Monitoring and alerting](#monitoring-and-alerting)).
 - Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
   certificates
   ([certificate management](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management),
@@ -327,10 +361,11 @@ reliability risks first, then security exposure, then automation):
   the dnsmasq instance on the Asus). Blocks: the NAS static IP migration
   ([NAS](#nas)).
 - Set a static DHCP assignment for the pve2 BMC on the router, so the BMC stays
-  reachable at a stable address for remote power control — pve2 is normally
-  powered off pending its power consumption evaluation, and powering it on
-  remotely (for example for Terraform runs that need both Proxmox nodes
-  reachable) depends on finding the BMC reliably.
+  reachable at a stable address for remote power control — pve2 stays powered
+  off until its power reduction work completes
+  ([Host configuration](#host-configuration)), and powering it on remotely (for
+  example for Terraform runs that need both Proxmox nodes reachable) depends on
+  finding the BMC reliably.
 - **Tailscale subnet router on hl02 for general remote access**: one node
   advertising the LAN covers ad-hoc remote access without installing Tailscale
   fleet-wide; service endpoints get direct nodes instead, per the NAS spec's
@@ -654,8 +689,9 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   data. Rejected: extending `rpool-usb-1` with a second striped vdev — it
   couples two single disks into one failure domain, aggravated by the USB
   transport. The evacuated library remains a single copy on an aging USB drive:
-  evaluate pve2's `tank-hdd` as the long-term media home or second copy once the
-  pve2 power evaluation decides how often that node runs.
+  evaluate pve2's `tank-hdd` as the long-term media home or second copy once
+  pve2 runs 24/7. Depends on: the pve2 power reduction
+  ([Host configuration](#host-configuration)).
 - **Syncthing migration to nas-pve1**: the service runs on the nas-pve1 guest
   and the folders finished seeding over the LAN on 2026-10-01; the
   [Syncthing service section](./nas-lxc-container.md#12-syncthing-service) of

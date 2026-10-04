@@ -538,6 +538,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-10-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-10-04
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-09-13" class="md-nav__link">
     <span class="md-ellipsis">
       2026-09-13
@@ -1748,6 +1757,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-10-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-10-04
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-09-13" class="md-nav__link">
     <span class="md-ellipsis">
       2026-09-13
@@ -1930,6 +1948,37 @@
 whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.</p>
+<h2 id="2026-10-04">2026-10-04</h2>
+<ul>
+<li><code>pve2</code>: powered on for the power reduction investigation (goal: run the host
+  24/7 once its idle draw comes down; see the
+  <a href="../../specs/#host-configuration">specs todo list</a>). Findings that
+  extend or correct the 2026-08-25 entry:<ul>
+<li>The smart plug series in Home Assistant (scraped by Prometheus) confirms
+  the baseline across three power-on windows: ~24 W with pve2 off, 67-71 W
+  with pve2 on and idle with the nas-pve2 guest running, ~110 W at boot.</li>
+<li>RAM is 128 GB (8 x 16 GB DDR4-2133 RDIMM at 1866 MT/s), not 256 GB.</li>
+<li>PSU: OCZ ModXStream Pro 600 W (<code>OCZ600MXSP</code>), a 2008-era 80 Plus unit with
+  no PMBus: the BMC's DCMI power reading and the kernel's ACPI power meter
+  both read 0 W.</li>
+<li>BMC readings via <code>ipmitool</code> (now installed through the bootstrap role,
+  <code>has_bmc</code> host flag): fan mode already Optimal, fans at 300-1100 RPM (FAN1
+  reads below its lower threshold), CPU 36 degrees Celsius, PCH 50, DIMMs
+  32-37. The fan lever is negligible.</li>
+<li>Settled idle: RAPL package 7.6 W, DRAM 3.5 W, cores 99.8% in C6. The
+  untapped levers from the 2026-08-25 entry are still untouched.</li>
+<li>The cable is on <code>nic0</code> (link up) while the inventory assigns the reserved
+  address to <code>nic1</code> (link down); not a power issue, to reconcile.</li>
+</ul>
+</li>
+<li><code>pve2</code>: ran <code>pvecm updatecerts</code> by hand to restore the Proxmox
+  <code>authorized_keys</code> symlink after a bootstrap playbook run replaced it with a
+  regular file. The bootstrap role now converges the link target and declares
+  the node's own root key, so the shared file stays stable across runs and
+  reboots (see the
+  <a href="../../guides/development/ansible/#authorized-keys-on-proxmox-nodes">Ansible development guide</a>);
+  the two hardware security keys that the file carried were dropped on purpose.</li>
+</ul>
 <h2 id="2026-09-13">2026-09-13</h2>
 <ul>
 <li><code>raspberrypi2</code>: manually power-cycled after the host froze (hard lockup

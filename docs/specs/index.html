@@ -2166,12 +2166,13 @@ reliability risks first, then security exposure, then automation):</p>
 <li><a href="https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module">Ansible terraform module</a>.</li>
 <li>Setup CI for Terraform.</li>
 <li>Tolerate powered-off Proxmox nodes: every stack configures a provider per
-  node, so a single unreachable node (pve2 is off pending its power
-  evaluation) fails the whole <code>run-terraform.sh</code> sequence, even for changes
-  that only touch pve1 resources. Candidate directions: split the multi-node
-  stacks into per-node stacks so each node's resources apply independently,
-  and let <code>run-terraform.sh</code> select which stacks to run; evaluate whether
-  the <code>bpg/proxmox</code> provider can defer node connectivity until a resource
+  node, so a single unreachable node (pve2 stays off until its power
+  reduction work completes, see <a href="#host-configuration">Host configuration</a>)
+  fails the whole <code>run-terraform.sh</code> sequence, even for changes that only
+  touch pve1 resources. Candidate directions: split the multi-node stacks
+  into per-node stacks so each node's resources apply independently, and let
+  <code>run-terraform.sh</code> select which stacks to run; evaluate whether the
+  <code>bpg/proxmox</code> provider can defer node connectivity until a resource
   actually needs it.</li>
 </ul>
 </li>
@@ -2240,6 +2241,41 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="host-configuration">Host configuration</h3>
 <ul>
+<li><strong>pve2 power reduction before running it 24/7</strong>: the goal is to run pve2
+  around the clock, but it stays powered off until its idle draw comes down.
+  Measured idle wall power is about 45 W (the smart plug that feeds it reads ~24
+  W with pve2 off and ~68 W with pve2 on and idle), about 39 EUR per year at the
+  current tariff; the CPU side is already optimal (RAPL package ~8 W, 99.8% C6
+  residency), the BMC fan mode is already Optimal with fans at 300-1100 RPM, and
+  the PSU has no PMBus, so the plug is the only instrument. The measurements are
+  in the <a href="../archive/manual-changes-diary/">manual changes diary</a> (2026-08-25
+  and 2026-10-04). Levers, in order of expected gain:<ul>
+<li>Replace the PSU: the OCZ ModXStream Pro 600 W is a 2008-era 80 Plus unit
+  running at ~7% load, where its efficiency is an expected 65-75%, and it is
+  a reliability concern for 24/7 duty. A modern Platinum or Titanium unit
+  sized at 450-550 W is expected to save 7-10 W. Do this last, so it is
+  measured at the final DC load.</li>
+<li>Remove the two scratch drives (Samsung HD103SJ and OCZ Vertex 3, both
+  effectively empty): expected ~7 W. Needs the <code>tank-hdd-scratch</code> and
+  <code>tank-ssd-scratch</code> pools removed from the pve2 host_vars, the two
+  Terraform storage resources and bind mounts, and the two nas-pve2 shares.
+  HDD spin-down of the data disk stays excluded by policy.</li>
+<li>Runtime tunables, measured one at a time through the plug series
+  (<code>sensor.presa_studio_home_lab_2_power</code> in Home Assistant, scraped by
+  Prometheus): CPU governor (<code>performance</code> on the passive <code>intel_cpufreq</code>
+  driver), SATA link power management (<code>max_performance</code> on all 10 hosts),
+  PCIe ASPM policy (<code>default</code>; both i210 NICs have ASPM disabled), and PCI
+  runtime PM (99 devices on <code>on</code>). Expected 2-5 W in total; persist the
+  winners declaratively through Ansible.</li>
+<li>BIOS: energy-efficient power technology, DRAM power-down, disable the
+  unused sSATA controller, EHCI controllers, and serial ports. Small gains,
+  needs a reboot and console access.</li>
+<li>Realistic tuned idle: 24-28 W. Blocks: the media second copy on <code>tank-hdd</code>
+  (<a href="#nas">NAS</a>); the Proxmox node downtime alerts stay enabled by choice
+  until pve2 runs 24/7
+  (<a href="#monitoring-and-alerting">Monitoring and alerting</a>).</li>
+</ul>
+</li>
 <li>Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
   certificates
   (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management">certificate management</a>,
@@ -2286,10 +2322,11 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   the dnsmasq instance on the Asus). Blocks: the NAS static IP migration
   (<a href="#nas">NAS</a>).</li>
 <li>Set a static DHCP assignment for the pve2 BMC on the router, so the BMC stays
-  reachable at a stable address for remote power control — pve2 is normally
-  powered off pending its power consumption evaluation, and powering it on
-  remotely (for example for Terraform runs that need both Proxmox nodes
-  reachable) depends on finding the BMC reliably.</li>
+  reachable at a stable address for remote power control — pve2 stays powered
+  off until its power reduction work completes
+  (<a href="#host-configuration">Host configuration</a>), and powering it on remotely (for
+  example for Terraform runs that need both Proxmox nodes reachable) depends on
+  finding the BMC reliably.</li>
 <li><strong>Tailscale subnet router on hl02 for general remote access</strong>: one node
   advertising the LAN covers ad-hoc remote access without installing Tailscale
   fleet-wide; service endpoints get direct nodes instead, per the NAS spec's
@@ -2634,8 +2671,9 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   data. Rejected: extending <code>rpool-usb-1</code> with a second striped vdev — it
   couples two single disks into one failure domain, aggravated by the USB
   transport. The evacuated library remains a single copy on an aging USB drive:
-  evaluate pve2's <code>tank-hdd</code> as the long-term media home or second copy once the
-  pve2 power evaluation decides how often that node runs.</li>
+  evaluate pve2's <code>tank-hdd</code> as the long-term media home or second copy once
+  pve2 runs 24/7. Depends on: the pve2 power reduction
+  (<a href="#host-configuration">Host configuration</a>).</li>
 <li><strong>Syncthing migration to nas-pve1</strong>: the service runs on the nas-pve1 guest
   and the folders finished seeding over the LAN on 2026-10-01; the
   <a href="nas-lxc-container/#12-syncthing-service">Syncthing service section</a> of
