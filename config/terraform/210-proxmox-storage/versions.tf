@@ -5,7 +5,7 @@ terraform {
     # https://registry.terraform.io/providers/bpg/proxmox
     proxmox = {
       source  = "bpg/proxmox"
-      version = "~> 0.111.1"
+      version = "~> 0.114.0"
     }
 
     random = {
