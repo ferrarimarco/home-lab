@@ -42,8 +42,13 @@ updates:
       prefix: "deps"
     directories:
       - /config/pre-commit
+      # /docker/ansible also covers the requirements file in its molecule
+      # subdirectory: the branches of this directory's update job
+      # (dependabot/pip/docker/ansible/...) change both files. Listing the
+      # subdirectory as well registered the molecule requirements twice, and
+      # the two jobs superseded each other's pull requests into duplicates
+      # (observed on #2185/#2189 and #2192/#2193).
       - /docker/ansible
-      - /docker/ansible/molecule
     groups:
       dev-ci-tools:
         patterns:
