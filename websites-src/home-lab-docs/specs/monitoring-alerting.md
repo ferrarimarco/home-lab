@@ -8,13 +8,17 @@
 | **Alertmanager Configuration**             | **Fully Implemented** | Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).                                        |
 | **Prometheus Alerting Wiring**             | **Fully Implemented** | Rule file loading, the Alertmanager target, and the Alertmanager scrape job; scrape target healthy (§3.2, §7).                                         |
 | **Alert Rules: Availability**              | **Fully Implemented** | `InstanceDown` deployed; surfaced real down targets on first evaluation (§6.1).                                                                        |
-| **Alert Rules: Node Health**               | **Fully Implemented** | Unexpected reboots, node exporter textfile staleness, and filesystem space (§6.2).                                                                     |
+| **Alert Rules: Node Health**               | **Fully Implemented** | Unexpected reboots, textfile staleness, filesystem space and inodes, failed systemd units, clock skew, and memory errors (§6.2).                       |
 | **Alert Rules: Temperature**               | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                                                       |
 | **Alert Rules: Backups**                   | **Fully Implemented** | Restic backup staleness and repository check failures (§6.4).                                                                                          |
 | **Alert Rules: Blackbox Probes**           | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                                             |
 | **Alert Rules: Frigate**                   | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                                                        |
-| **Alert Rules: Containers**                | **Fully Implemented** | Container restart-loop detection on the cadvisor metrics (§6.7).                                                                                       |
+| **Alert Rules: Containers**                | **Fully Implemented** | Restart-loop and OOM-kill detection on the cadvisor metrics (§6.7).                                                                                    |
 | **Alert Rules: Syncthing**                 | **Fully Implemented** | Scrape job and rules deployed; target up and rules loaded on both replicas (2026-10-03, §6.8).                                                         |
+| **Alert Rules: SMART Disk Health**         | **Fully Implemented** | SMART health verdict and sector-growth rules on the smartmon textfile metrics (§6.9).                                                                  |
+| **Alert Rules: UPS**                       | **Fully Implemented** | On-battery and low-battery rules on the NUT flag-encoded status (§6.10).                                                                               |
+| **Alert Rules: NixOS Deployments**         | **Fully Implemented** | comin fetch and deployment failure rules on the nix-comin job (§6.11).                                                                                 |
+| **Alert Rules: Monitoring Pipeline**       | **Fully Implemented** | Notification delivery, configuration reload, rule evaluation, and Alertmanager cluster health (§6.12).                                                 |
 | **Restart Policy Migration**               | **Fully Implemented** | All four monitoring backend services run with `restart: unless-stopped`, verified via `docker inspect` after deployment (§8).                          |
 | **HA Pair: Prometheus Replicas**           | **Fully Implemented** | Deployed on hl01 and raspberrypi2; cross-scrapes verified up from both replicas, hl01 seeded from the raspberrypi2 TSDB with history queryable (§3.3). |
 | **HA Pair: Alertmanager Cluster**          | **Fully Implemented** | Gossip cluster healthy over host networking; silence replication both ways and exactly-once Telegram delivery verified (§3.3).                         |
@@ -240,6 +244,10 @@ with operational experience.
 | `NodeTextfileStale`           | warning  | `time() - node_textfile_mtime_seconds > 26 * 3600`                                           | —        | A textfile collector stopped updating. 26 h covers the slowest producer (the daily apt job); per-collector tuning is future work.                               |
 | `NodeFilesystemSpaceLow`      | warning  | `node_filesystem_avail_bytes / node_filesystem_size_bytes < 0.15` (tmpfs and ramfs excluded) | 30 min   | Early signal that a filesystem is filling up, with time to react; motivated by the September 2026 incident where the hl01 root filesystem silently reached 99%. |
 | `NodeFilesystemSpaceCritical` | critical | `node_filesystem_avail_bytes / node_filesystem_size_bytes < 0.05` (tmpfs and ramfs excluded) | 10 min   | Services writing to the filesystem are about to fail; pages before workloads (databases, recordings) start erroring.                                            |
+| `NodeFilesystemInodesLow`     | warning  | `node_filesystem_files_free / node_filesystem_files < 0.10` (tmpfs and ramfs excluded)       | 30 min   | Inode exhaustion fails writes even with free space left; symmetric with the space rules.                                                                        |
+| `SystemdUnitFailed`           | warning  | `node_systemd_unit_state{state="failed"} == 1`                                               | 15 min   | A failed unit sits between a dead host (`InstanceDown`) and service-specific rules; the fleet starts from zero failed units (openipmi cleared 2026-10-04).      |
+| `NodeClockSkewed`             | warning  | `abs(node_timex_offset_seconds) > 0.05`                                                      | 15 min   | A skewed clock breaks TLS validation and metric ordering; 50 ms is far above the NTP steady state (all hosts within 10 ms when introduced).                     |
+| `EdacUncorrectableErrors`     | critical | `increase(node_edac_uncorrectable_errors_total[1h]) > 0`                                     | —        | Uncorrectable memory errors mean a failing module and possible data corruption; only hosts exposing EDAC (pve1) produce the metric.                             |
 
 ### 6.3 Temperature
 
@@ -296,9 +304,10 @@ restart loop keeps its Docker healthcheck irrelevant (it never lives long enough
 to report) while the workload is effectively down, as in the September 2026
 incident where Jellyseerr crash looped for a month without surfacing anywhere.
 
-| Alert                     | Severity | Condition                                                  | Duration | Rationale                                                                                          |
-| :------------------------ | :------- | :--------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------- |
-| `ContainerRestartLooping` | warning  | `changes(container_start_time_seconds{name!=""}[30m]) > 3` | —        | More than 3 restarts in 30 minutes ignores deploys and upgrades but catches sustained crash loops. |
+| Alert                     | Severity | Condition                                                  | Duration | Rationale                                                                                                    |
+| :------------------------ | :------- | :--------------------------------------------------------- | :------- | :----------------------------------------------------------------------------------------------------------- |
+| `ContainerRestartLooping` | warning  | `changes(container_start_time_seconds{name!=""}[30m]) > 3` | —        | More than 3 restarts in 30 minutes ignores deploys and upgrades but catches sustained crash loops.           |
+| `ContainerOomKilled`      | warning  | `increase(container_oom_events_total{name!=""}[30m]) > 0`  | —        | An OOM kill is silent when the container restarts cleanly; the memory limit or the workload needs attention. |
 
 ### 6.8 Syncthing
 
@@ -325,6 +334,56 @@ correctly.
 | `SyncthingFolderOutOfSync`    | warning  | `sum by (folder, instance) (syncthing_model_folder_summary{scope="need"}) > 0`                                              | 24 h     | Steady-state incremental syncs clear within hours; a day of unmet need means the sync is stuck (the initial seed took ~14 h).    |
 | `SyncthingDeviceDisconnected` | warning  | `syncthing_connections_active == 0 and on (device, instance) syncthing_config_device_info{name!="nas-pve1",paused="false"}` | 72 h     | The offsite peer is intermittently online by design; three days unseen means backups stopped flowing. Paused devices stay quiet. |
 
+### 6.9 SMART Disk Health
+
+These rules consume the `smartmon` textfile collector metrics that the node
+exporter already exposes on the hosts with local disks. The textfile staleness
+rule (§6.2) covers the collector itself; these rules cover the disks it reports
+on.
+
+| Alert                   | Severity | Condition                                                                                                               | Duration | Rationale                                                                                                                   |
+| :---------------------- | :------- | :---------------------------------------------------------------------------------------------------------------------- | :------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `SmartDeviceUnhealthy`  | critical | `smartmon_device_smart_healthy == 0`                                                                                    | —        | The drive's own overall health verdict; by the time it flips, replacement is overdue.                                       |
+| `SmartSectorsDegrading` | warning  | `delta(smartmon_current_pending_sector_raw_value[24h]) > 0 or delta(smartmon_reallocated_sector_ct_raw_value[24h]) > 0` | —        | Growth in pending or reallocated sectors is the classic pre-failure signal; the delta form ignores historic nonzero counts. |
+
+### 6.10 UPS
+
+These rules consume the Network UPS Tools exporter metrics (the `ups` scrape
+job). The NUT status is flag-encoded: one series per status flag, valued zero or
+one. Delivery of these alerts during a real outage depends on the notification
+path staying powered; brownouts and battery degradation are the primary cases.
+
+| Alert           | Severity | Condition                                      | Duration | Rationale                                                                      |
+| :-------------- | :------- | :--------------------------------------------- | :------- | :----------------------------------------------------------------------------- |
+| `UpsOnBattery`  | warning  | `network_ups_tools_ups_status{flag="OB"} == 1` | 2 min    | Mains power lost or browning out; 2 minutes ignores micro-cuts and self-tests. |
+| `UpsLowBattery` | critical | `network_ups_tools_ups_status{flag="LB"} == 1` | —        | The UPS itself signals imminent shutdown; no duration, every scrape counts.    |
+
+### 6.11 NixOS Deployments
+
+These rules consume the comin exporter metrics (the `nix-comin` job, every NixOS
+host). GitOps is the only deployment path for these hosts, so a failed fetch or
+activation is silent configuration drift until alerted.
+
+| Alert                   | Severity | Condition                                                                                          | Duration | Rationale                                                                                    |
+| :---------------------- | :------- | :------------------------------------------------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------- |
+| `CominDeploymentFailed` | warning  | `comin_last_eval_failed == 1 or comin_last_build_failed == 1 or comin_last_deployment_failed == 1` | 30 min   | The host keeps running its previous generation; 30 minutes rides out transient build issues. |
+| `CominFetchFailed`      | warning  | `comin_last_fetch_failed == 1`                                                                     | 2 h      | The host stopped following the repository; 2 hours tolerates forge and network blips.        |
+
+### 6.12 Monitoring Pipeline
+
+The cross-scrape design (§7) catches dead pipeline components via
+`InstanceDown`; these rules catch the components that are up but silently
+broken. Every rule evaluates on both replicas against both instances' metrics,
+so a replica that cannot alert on itself is covered by the other.
+
+| Alert                              | Severity | Condition                                                                                          | Duration | Rationale                                                                                          |
+| :--------------------------------- | :------- | :------------------------------------------------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------- |
+| `AlertmanagerNotificationsFailing` | critical | `increase(alertmanager_notifications_failed_total[15m]) > 0`                                       | —        | The Telegram delivery leg failing is the one pipeline fault nothing else can report.               |
+| `PrometheusNotificationsErroring`  | warning  | `increase(prometheus_notifications_errors_total[15m]) > 0`                                         | —        | The Prometheus-to-Alertmanager leg; warning because the HA pair tolerates one failing replica.     |
+| `ConfigReloadFailed`               | warning  | `prometheus_config_last_reload_successful == 0 or alertmanager_config_last_reload_successful == 0` | 10 min   | A rejected configuration leaves the previous one running indefinitely while the files on disk lie. |
+| `PrometheusRuleEvaluationFailures` | warning  | `increase(prometheus_rule_evaluation_failures_total[15m]) > 0`                                     | —        | A broken rule silently stops the alerts it defines.                                                |
+| `AlertmanagerClusterDegraded`      | warning  | `alertmanager_cluster_members < 2`                                                                 | 15 min   | Both Alertmanagers up but not gossiping breaks deduplication: duplicate or missing notifications.  |
+
 ## 7. Alerting Pipeline Health
 
 The pipeline must not fail silently:
@@ -333,6 +392,9 @@ The pipeline must not fail silently:
   the replica set (§3.3), so the death of any single backend component —
   including a whole replica host — raises `InstanceDown` from a surviving
   replica.
+- The monitoring pipeline rule group (§6.12) covers the components that are up
+  but silently broken: failed notification delivery, rejected configuration
+  reloads, failing rule evaluations, and a degraded Alertmanager cluster.
 - A full dead-man's-switch (an always-firing heartbeat alert delivered through
   an independent channel, catching the case where Prometheus or the whole host
   is down) is deliberately out of scope for this iteration and tracked in the

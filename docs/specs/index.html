@@ -2046,6 +2046,22 @@ reliability risks first, then security exposure, then automation):</p>
 <li>The Syncthing HTTP endpoint blackbox probe is configured but fails
   (authentication, HTTPS with self-signed certificate). The probe target
   moves to the nas-pve1 instance with the Syncthing migration (<a href="#nas">NAS</a>).</li>
+<li>The pve2 node exporter has never answered a scrape (verified over 30 days
+  of TSDB history on 2026-10-04, including power-on windows where the host
+  answered pings): the exporter is probably not installed, so <code>InstanceDown</code>
+  for pve2 does not resolve even while the host runs. Run the node playbook
+  against pve2 at its next power-on.</li>
+<li>The <code>network-stack-coredns</code> Prometheus scrape job renders zero targets: no
+  inventory host sets <code>configure_network_stack</code>, so the job is dead
+  configuration (found 2026-10-04). Either set the flag on the host that
+  runs the network stack or remove the job; the blackbox DNS probes cover
+  the resolution path meanwhile.</li>
+<li>The node role's <code>Download files</code> task fails in check mode on hosts that
+  were never converged since a download's destination directory was
+  introduced (observed 2026-10-04:
+  <code>/etc/ferrarimarco-home-lab/ monitoring-apt</code> on pve1), because the
+  directory-creation task only predicts the directory. Make the task
+  check-mode friendly per the repository's check-mode conventions.</li>
 </ul>
 </li>
 <li>The Coral EdgeTPU apt repository (<code>packages.cloud.google.com/apt</code>,

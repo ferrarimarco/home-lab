@@ -1700,6 +1700,42 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#69-smart-disk-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.9 SMART Disk Health
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#610-ups" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.10 UPS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#611-nixos-deployments" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.11 NixOS Deployments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#612-monitoring-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.12 Monitoring Pipeline
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2075,6 +2111,42 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#69-smart-disk-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.9 SMART Disk Health
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#610-ups" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.10 UPS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#611-nixos-deployments" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.11 NixOS Deployments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#612-monitoring-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.12 Monitoring Pipeline
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2169,7 +2241,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Node Health</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Unexpected reboots, node exporter textfile staleness, and filesystem space (§6.2).</td>
+<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, failed systemd units, clock skew, and memory errors (§6.2).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Temperature</strong></td>
@@ -2194,12 +2266,32 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Containers</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Container restart-loop detection on the cadvisor metrics (§6.7).</td>
+<td style="text-align: left;">Restart-loop and OOM-kill detection on the cadvisor metrics (§6.7).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Syncthing</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Scrape job and rules deployed; target up and rules loaded on both replicas (2026-10-03, §6.8).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: SMART Disk Health</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">SMART health verdict and sector-growth rules on the smartmon textfile metrics (§6.9).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: UPS</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">On-battery and low-battery rules on the NUT flag-encoded status (§6.10).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: NixOS Deployments</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">comin fetch and deployment failure rules on the nix-comin job (§6.11).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Monitoring Pipeline</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Notification delivery, configuration reload, rule evaluation, and Alertmanager cluster health (§6.12).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
@@ -2469,6 +2561,34 @@ with operational experience.</p>
 <td style="text-align: left;">10 min</td>
 <td style="text-align: left;">Services writing to the filesystem are about to fail; pages before workloads (databases, recordings) start erroring.</td>
 </tr>
+<tr>
+<td style="text-align: left;"><code>NodeFilesystemInodesLow</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>node_filesystem_files_free / node_filesystem_files &lt; 0.10</code> (tmpfs and ramfs excluded)</td>
+<td style="text-align: left;">30 min</td>
+<td style="text-align: left;">Inode exhaustion fails writes even with free space left; symmetric with the space rules.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SystemdUnitFailed</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>node_systemd_unit_state{state="failed"} == 1</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">A failed unit sits between a dead host (<code>InstanceDown</code>) and service-specific rules; the fleet starts from zero failed units (openipmi cleared 2026-10-04).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>NodeClockSkewed</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>abs(node_timex_offset_seconds) &gt; 0.05</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">A skewed clock breaks TLS validation and metric ordering; 50 ms is far above the NTP steady state (all hosts within 10 ms when introduced).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>EdacUncorrectableErrors</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>increase(node_edac_uncorrectable_errors_total[1h]) &gt; 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">Uncorrectable memory errors mean a failing module and possible data corruption; only hosts exposing EDAC (pve1) produce the metric.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="63-temperature">6.3 Temperature</h3>
@@ -2644,6 +2764,13 @@ incident where Jellyseerr crash looped for a month without surfacing anywhere.</
 <td style="text-align: left;">—</td>
 <td style="text-align: left;">More than 3 restarts in 30 minutes ignores deploys and upgrades but catches sustained crash loops.</td>
 </tr>
+<tr>
+<td style="text-align: left;"><code>ContainerOomKilled</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>increase(container_oom_events_total{name!=""}[30m]) &gt; 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">An OOM kill is silent when the container restarts cleanly; the memory limit or the workload needs attention.</td>
+</tr>
 </tbody>
 </table>
 <h3 id="68-syncthing">6.8 Syncthing</h3>
@@ -2697,6 +2824,154 @@ correctly.</p>
 </tr>
 </tbody>
 </table>
+<h3 id="69-smart-disk-health">6.9 SMART Disk Health</h3>
+<p>These rules consume the <code>smartmon</code> textfile collector metrics that the node
+exporter already exposes on the hosts with local disks. The textfile staleness
+rule (§6.2) covers the collector itself; these rules cover the disks it reports
+on.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>SmartDeviceUnhealthy</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>smartmon_device_smart_healthy == 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The drive's own overall health verdict; by the time it flips, replacement is overdue.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SmartSectorsDegrading</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>delta(smartmon_current_pending_sector_raw_value[24h]) &gt; 0 or delta(smartmon_reallocated_sector_ct_raw_value[24h]) &gt; 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">Growth in pending or reallocated sectors is the classic pre-failure signal; the delta form ignores historic nonzero counts.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="610-ups">6.10 UPS</h3>
+<p>These rules consume the Network UPS Tools exporter metrics (the <code>ups</code> scrape
+job). The NUT status is flag-encoded: one series per status flag, valued zero or
+one. Delivery of these alerts during a real outage depends on the notification
+path staying powered; brownouts and battery degradation are the primary cases.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>UpsOnBattery</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>network_ups_tools_ups_status{flag="OB"} == 1</code></td>
+<td style="text-align: left;">2 min</td>
+<td style="text-align: left;">Mains power lost or browning out; 2 minutes ignores micro-cuts and self-tests.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>UpsLowBattery</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>network_ups_tools_ups_status{flag="LB"} == 1</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The UPS itself signals imminent shutdown; no duration, every scrape counts.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="611-nixos-deployments">6.11 NixOS Deployments</h3>
+<p>These rules consume the comin exporter metrics (the <code>nix-comin</code> job, every NixOS
+host). GitOps is the only deployment path for these hosts, so a failed fetch or
+activation is silent configuration drift until alerted.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>CominDeploymentFailed</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>comin_last_eval_failed == 1 or comin_last_build_failed == 1 or comin_last_deployment_failed == 1</code></td>
+<td style="text-align: left;">30 min</td>
+<td style="text-align: left;">The host keeps running its previous generation; 30 minutes rides out transient build issues.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>CominFetchFailed</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>comin_last_fetch_failed == 1</code></td>
+<td style="text-align: left;">2 h</td>
+<td style="text-align: left;">The host stopped following the repository; 2 hours tolerates forge and network blips.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="612-monitoring-pipeline">6.12 Monitoring Pipeline</h3>
+<p>The cross-scrape design (§7) catches dead pipeline components via
+<code>InstanceDown</code>; these rules catch the components that are up but silently
+broken. Every rule evaluates on both replicas against both instances' metrics,
+so a replica that cannot alert on itself is covered by the other.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>AlertmanagerNotificationsFailing</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>increase(alertmanager_notifications_failed_total[15m]) &gt; 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The Telegram delivery leg failing is the one pipeline fault nothing else can report.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PrometheusNotificationsErroring</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>increase(prometheus_notifications_errors_total[15m]) &gt; 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The Prometheus-to-Alertmanager leg; warning because the HA pair tolerates one failing replica.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ConfigReloadFailed</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>prometheus_config_last_reload_successful == 0 or alertmanager_config_last_reload_successful == 0</code></td>
+<td style="text-align: left;">10 min</td>
+<td style="text-align: left;">A rejected configuration leaves the previous one running indefinitely while the files on disk lie.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PrometheusRuleEvaluationFailures</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>increase(prometheus_rule_evaluation_failures_total[15m]) &gt; 0</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">A broken rule silently stops the alerts it defines.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>AlertmanagerClusterDegraded</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>alertmanager_cluster_members &lt; 2</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">Both Alertmanagers up but not gossiping breaks deduplication: duplicate or missing notifications.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="7-alerting-pipeline-health">7. Alerting Pipeline Health</h2>
 <p>The pipeline must not fail silently:</p>
 <ul>
@@ -2704,6 +2979,9 @@ correctly.</p>
   the replica set (§3.3), so the death of any single backend component —
   including a whole replica host — raises <code>InstanceDown</code> from a surviving
   replica.</li>
+<li>The monitoring pipeline rule group (§6.12) covers the components that are up
+  but silently broken: failed notification delivery, rejected configuration
+  reloads, failing rule evaluations, and a degraded Alertmanager cluster.</li>
 <li>A full dead-man's-switch (an always-firing heartbeat alert delivered through
   an independent channel, catching the case where Prometheus or the whole host
   is down) is deliberately out of scope for this iteration and tracked in the

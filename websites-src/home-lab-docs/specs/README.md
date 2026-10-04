@@ -109,6 +109,22 @@ reliability risks first, then security exposure, then automation):
     - The Syncthing HTTP endpoint blackbox probe is configured but fails
       (authentication, HTTPS with self-signed certificate). The probe target
       moves to the nas-pve1 instance with the Syncthing migration ([NAS](#nas)).
+    - The pve2 node exporter has never answered a scrape (verified over 30 days
+      of TSDB history on 2026-10-04, including power-on windows where the host
+      answered pings): the exporter is probably not installed, so `InstanceDown`
+      for pve2 does not resolve even while the host runs. Run the node playbook
+      against pve2 at its next power-on.
+    - The `network-stack-coredns` Prometheus scrape job renders zero targets: no
+      inventory host sets `configure_network_stack`, so the job is dead
+      configuration (found 2026-10-04). Either set the flag on the host that
+      runs the network stack or remove the job; the blackbox DNS probes cover
+      the resolution path meanwhile.
+    - The node role's `Download files` task fails in check mode on hosts that
+      were never converged since a download's destination directory was
+      introduced (observed 2026-10-04:
+      `/etc/ferrarimarco-home-lab/ monitoring-apt` on pve1), because the
+      directory-creation task only predicts the directory. Make the task
+      check-mode friendly per the repository's check-mode conventions.
 - The Coral EdgeTPU apt repository (`packages.cloud.google.com/apt`,
   `coral-edgetpu-stable`) returns 403 Forbidden (verified 2026-10-03 with a
   direct request; Google is sunsetting Coral). Every `apt update` against it
@@ -288,37 +304,48 @@ reliability risks first, then security exposure, then automation):
 
 - **pve2 power reduction before running it 24/7**: the goal is to run pve2
   around the clock, but it stays powered off until its idle draw comes down.
-  Measured idle wall power is about 45 W (the smart plug that feeds it reads ~24
-  W with pve2 off and ~68 W with pve2 on and idle), about 39 EUR per year at the
-  current tariff; the CPU side is already optimal (RAPL package ~8 W, 99.8% C6
-  residency), the BMC fan mode is already Optimal with fans at 300-1100 RPM, and
-  the PSU has no PMBus, so the plug is the only instrument. The measurements are
-  in the [manual changes diary](../archive/manual-changes-diary.md) (2026-08-25
-  and 2026-10-04). Levers, in order of expected gain:
+  Measured idle wall power is about 45 W (plug: ~25 W with pve2 off, ~68 W on
+  and idle, 20 W unplugged, so 5 W of standby for the PSU and the BMC), about 39
+  EUR per year at the current tariff. The CPU side is at its platform floor
+  (RAPL package ~8 W, package C6 88%, cores 99.8% C6; a Broadwell-EP platform
+  has no deeper package state), the BMC fan mode is already Optimal with fans at
+  300-1100 RPM, and the PSU has no PMBus, so the plug is the only instrument.
+  Measurements, the query recipe, and the experiment log are in the
+  [host power guide](../guides/operations/host-power.md). Decisions: the two
+  scratch drives (Samsung HD103SJ, OCZ Vertex 3, ~7 W DC together) stay for now,
+  and HDD spin-down stays excluded by policy. Levers, in order of expected gain:
     - Replace the PSU: the OCZ ModXStream Pro 600 W is a 2008-era 80 Plus unit
       running at ~7% load, where its efficiency is an expected 65-75%, and it is
       a reliability concern for 24/7 duty. A modern Platinum or Titanium unit
-      sized at 450-550 W is expected to save 7-10 W. Do this last, so it is
-      measured at the final DC load.
-    - Remove the two scratch drives (Samsung HD103SJ and OCZ Vertex 3, both
-      effectively empty): expected ~7 W. Needs the `tank-hdd-scratch` and
-      `tank-ssd-scratch` pools removed from the pve2 host_vars, the two
-      Terraform storage resources and bind mounts, and the two nas-pve2 shares.
-      HDD spin-down of the data disk stays excluded by policy.
-    - Runtime tunables, measured one at a time through the plug series
-      (`sensor.presa_studio_home_lab_2_power` in Home Assistant, scraped by
-      Prometheus): CPU governor (`performance` on the passive `intel_cpufreq`
-      driver), SATA link power management (`max_performance` on all 10 hosts),
-      PCIe ASPM policy (`default`; both i210 NICs have ASPM disabled), and PCI
-      runtime PM (99 devices on `on`). Expected 2-5 W in total; persist the
-      winners declaratively through Ansible.
+      sized at 450-550 W is expected to save 7-10 W, plus 1-2 W of standby. Do
+      this last, so it is measured at the final DC load.
+    - Runtime tunables, measured one at a time through the plug with 10-minute
+      windows. Done: PCIe ASPM policy `powersave` (2026-10-04; both i210 links
+      in L0s/L1, within the plug's 1 W noise, no errors). Remaining: SATA link
+      power management (`med_power_with_dipm`, one populated port at a time with
+      the kernel log watched: the old scratch drives are prone to link resets;
+      check `hdparm -I` for DIPM and DevSleep support first) and PCI runtime PM
+      (99 devices on `on`). Expected 1-3 W in total. Persist the measured
+      winners through a dedicated `ferrarimarco_home_lab_power_management` role
+      rendering a `tmpfiles.d` file from a per-host list of sysfs writes; one
+      pve2 reboot proves the boot-time path. Deferred until the pve2 workload is
+      defined: the CPU governor (`performance` on the passive `intel_cpufreq`
+      driver). Its idle gain is under 1 W because the cores sleep 99.8% of the
+      time; its benefit appears under sustained light load, to quantify with a
+      controlled load under both governors.
     - BIOS: energy-efficient power technology, DRAM power-down, disable the
       unused sSATA controller, EHCI controllers, and serial ports. Small gains,
       needs a reboot and console access.
-    - Realistic tuned idle: 24-28 W. Blocks: the media second copy on `tank-hdd`
+    - Realistic tuned idle with the scratch drives kept: 31-35 W. Depends on: a
+      stable BMC address for remote recovery during runtime experiments
+      ([Networking](#networking)). Blocks: the media second copy on `tank-hdd`
       ([NAS](#nas)); the Proxmox node downtime alerts stay enabled by choice
       until pve2 runs 24/7
       ([Monitoring and alerting](#monitoring-and-alerting)).
+- Reconcile pve2's network cabling with the inventory: the cable is on `nic0`
+  (link up), while the inventory assigns the reserved address to `nic1` (link
+  down). Decide which is intended and align the cable or the inventory and the
+  DHCP reservation.
 - Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
   certificates
   ([certificate management](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management),
