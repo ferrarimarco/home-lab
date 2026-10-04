@@ -37,3 +37,28 @@
 
 - name: Ensure handlers are notified now
   ansible.builtin.meta: flush_handlers
+
+# Proxmox appends the node's root SSH public key to the shared authorized_keys
+# file on every pveproxy start (pvecm updatecerts). Declaring it as part of the
+# exclusive key set keeps the file stable instead of flapping between runs and
+# boots. The Proxmox installer generates the key, so test instances lack it.
+- name: Check whether the Proxmox node root SSH public key exists
+  ansible.builtin.stat:
+    path: "{{ proxmox_node_root_ssh_public_key_path }}"
+  register: proxmox_node_root_ssh_public_key_stat
+  become: true
+
+- name: Read the Proxmox node root SSH public key
+  ansible.builtin.slurp:
+    src: "{{ proxmox_node_root_ssh_public_key_path }}"
+  register: proxmox_node_root_ssh_public_key
+  become: true
+  check_mode: false
+  when: proxmox_node_root_ssh_public_key_stat.stat.exists
+
+- name: Register the Proxmox node root SSH public key as an authorized key
+  ansible.builtin.set_fact:
+    bootstrap_additional_authorized_keys: >-
+      {{ bootstrap_additional_authorized_keys | default([])
+          + [proxmox_node_root_ssh_public_key.content | b64decode | trim] }}
+  when: proxmox_node_root_ssh_public_key_stat.stat.exists

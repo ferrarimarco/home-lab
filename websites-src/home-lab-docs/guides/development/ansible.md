@@ -69,6 +69,38 @@ never through inline `ExecStartPre` venv and pip commands:
 - Reference implementation: the `monitoring-apt` unit template
   (`templates/monitoring-apt/monitoring-apt.service.jinja`).
 
+## Authorized keys on Proxmox nodes
+
+The bootstrap role declares the complete set of root authorized keys with
+`exclusive: true`. On Proxmox nodes two things complicate that:
+
+- `/root/.ssh/authorized_keys` is a symlink to the cluster-shared
+  `/etc/pve/priv/authorized_keys`. The `ansible.posix.authorized_key` module
+  writes a temporary file and renames it over the target, which replaces the
+  symlink with a regular file and leaves the shared file untouched. At the next
+  `pveproxy` start (every boot runs `pvecm updatecerts --silent`), Proxmox
+  renames the regular file aside, recreates the symlink, and merges the file
+  back into the shared one, so stale keys return and the repository key
+  accumulates duplicates. The role therefore stats the user's file and, when it
+  is a symlink, converges the link target (`path` set to the target,
+  `manage_dir: false`).
+- The same merge step always appends the node's own root key
+  (`/root/.ssh/id_rsa.pub`), so an exclusive key set that omits it flaps on
+  every boot. `setup-Proxmox.yaml` reads that key and registers it in
+  `bootstrap_additional_authorized_keys`, which the key task appends to the
+  repository key. The read is guarded by a `stat` because only the Proxmox
+  installer generates the key: the Molecule instance runs the Proxmox tasks
+  without it.
+
+Two Jinja details matter in that key task: the additional keys default to an
+empty list because a task skipped by tags registers nothing, and the scalar is
+double-quoted so that YAML turns the `\n` separator into a real newline. In a
+folded scalar the escape reaches Jinja literally, and the module then writes all
+the keys on one line.
+
+A future cluster needs the peer nodes' keys in the set as well (read them with
+`delegate_to`, tolerating a powered-off node); there is no cluster today.
+
 ## Check mode conventions
 
 - Always run `--check --diff` (capturing the full output to a log file) and

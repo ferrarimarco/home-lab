@@ -20,10 +20,32 @@
     - home_lab_node_ssh_public_key_path is defined
     - home_lab_node_ssh_public_key_path | length > 0
 
+- name: Check whether the authorized keys file of the user is a symlink - {{ ansible_user }}
+  # Some systems link the file to a shared one (Proxmox links it to
+  # /etc/pve/priv/authorized_keys). The authorized_key module writes a
+  # temporary file and renames it over the target, which replaces the link with
+  # a regular file: the shared file is left untouched and the system merges
+  # the regular file back into it later, so the keys flap between runs and
+  # reboots. Converge the link target instead.
+  ansible.builtin.stat:
+    path: "~{{ ansible_user }}/.ssh/authorized_keys"
+  register: authorized_keys_file_stat
+  become: true
+
 - name: Set authorized key for the user - {{ ansible_user }}
   ansible.posix.authorized_key:
     exclusive: true
-    key: "{{ lookup('ansible.builtin.file', home_lab_node_ssh_public_key_path) }}"
+    # Only the module's default location needs its directory managed.
+    manage_dir: "{{ false if authorized_keys_file_stat.stat.islnk | default(false) else omit }}"
+    path: "{{ authorized_keys_file_stat.stat.lnk_source if authorized_keys_file_stat.stat.islnk | default(false) else omit }}"
+    # The additional keys are registered by OS-specific setup tasks that run
+    # earlier (for example setup-Proxmox.yaml); they are undefined when those
+    # tasks are skipped by tags, hence the default. The scalar is double-quoted
+    # so that YAML turns the newline escape into a real newline: Jinja keeps it
+    # literal, and the module would then write both keys on one line.
+    key:
+      "{{ ([lookup('ansible.builtin.file', home_lab_node_ssh_public_key_path)]
+      + bootstrap_additional_authorized_keys | default([])) | join('\n') }}"
     state: present
     user: "{{ ansible_user }}"
   when:

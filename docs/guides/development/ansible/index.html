@@ -949,6 +949,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#authorized-keys-on-proxmox-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authorized keys on Proxmox nodes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#check-mode-conventions" class="md-nav__link">
     <span class="md-ellipsis">
       Check mode conventions
@@ -1654,6 +1663,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#authorized-keys-on-proxmox-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authorized keys on Proxmox nodes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#check-mode-conventions" class="md-nav__link">
     <span class="md-ellipsis">
       Check mode conventions
@@ -1746,6 +1764,35 @@ never through inline <code>ExecStartPre</code> venv and pip commands:</p>
 <li>Reference implementation: the <code>monitoring-apt</code> unit template
   (<code>templates/monitoring-apt/monitoring-apt.service.jinja</code>).</li>
 </ul>
+<h2 id="authorized-keys-on-proxmox-nodes">Authorized keys on Proxmox nodes</h2>
+<p>The bootstrap role declares the complete set of root authorized keys with
+<code>exclusive: true</code>. On Proxmox nodes two things complicate that:</p>
+<ul>
+<li><code>/root/.ssh/authorized_keys</code> is a symlink to the cluster-shared
+  <code>/etc/pve/priv/authorized_keys</code>. The <code>ansible.posix.authorized_key</code> module
+  writes a temporary file and renames it over the target, which replaces the
+  symlink with a regular file and leaves the shared file untouched. At the next
+  <code>pveproxy</code> start (every boot runs <code>pvecm updatecerts --silent</code>), Proxmox
+  renames the regular file aside, recreates the symlink, and merges the file
+  back into the shared one, so stale keys return and the repository key
+  accumulates duplicates. The role therefore stats the user's file and, when it
+  is a symlink, converges the link target (<code>path</code> set to the target,
+  <code>manage_dir: false</code>).</li>
+<li>The same merge step always appends the node's own root key
+  (<code>/root/.ssh/id_rsa.pub</code>), so an exclusive key set that omits it flaps on
+  every boot. <code>setup-Proxmox.yaml</code> reads that key and registers it in
+  <code>bootstrap_additional_authorized_keys</code>, which the key task appends to the
+  repository key. The read is guarded by a <code>stat</code> because only the Proxmox
+  installer generates the key: the Molecule instance runs the Proxmox tasks
+  without it.</li>
+</ul>
+<p>Two Jinja details matter in that key task: the additional keys default to an
+empty list because a task skipped by tags registers nothing, and the scalar is
+double-quoted so that YAML turns the <code>\n</code> separator into a real newline. In a
+folded scalar the escape reaches Jinja literally, and the module then writes all
+the keys on one line.</p>
+<p>A future cluster needs the peer nodes' keys in the set as well (read them with
+<code>delegate_to</code>, tolerating a powered-off node); there is no cluster today.</p>
 <h2 id="check-mode-conventions">Check mode conventions</h2>
 <ul>
 <li>Always run <code>--check --diff</code> (capturing the full output to a log file) and
