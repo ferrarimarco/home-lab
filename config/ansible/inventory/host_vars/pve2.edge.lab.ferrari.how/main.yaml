@@ -1,4 +1,7 @@
 ---
+# Supermicro X10SRL-F with an on-board ASPEED BMC: install the IPMI tooling
+# to read its sensors (fans, temperatures) and manage its fan mode.
+has_bmc: true
 # Persistent Samba state for the nas-pve2 LXC container (bind-mounted onto
 # /var/lib/samba); must exist before the container first starts.
 directories_to_create:

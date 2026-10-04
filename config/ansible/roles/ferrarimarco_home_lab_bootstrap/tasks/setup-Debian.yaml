@@ -120,6 +120,16 @@
   when:
     - has_intel_igpu
 
+- name: Install BMC management tools
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name:
+      - ipmitool
+    update_cache: true
+  become: true
+  when:
+    - has_bmc
+
 - name: Force a cache update before running apt-get dist-upgrade
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
