@@ -1763,6 +1763,16 @@ request whose description changes while its commits don't is stuck.</p>
 <p>A job can succeed and create a pull request, and still report a failure for a
 dependency that it couldn't look up. Read the <code>Results</code> table before treating a
 failed run as a missing update.</p>
+<p>Duplicate pull requests that touch the same manifest files point at overlapping
+<code>directories</code> entries in the configuration. The pull request branch names are
+the decisive evidence: Dependabot names them
+<code>dependabot/&lt;ecosystem&gt;/&lt;directory&gt;/...</code>, so a branch rooted at one directory
+whose pull request also changes another entry's manifest proves that the first
+directory's job already covers both — the second entry registers the manifest
+twice, and the competing jobs supersede each other's pull requests into
+duplicates. This happened for the <code>pip</code> entries <code>/docker/ansible</code> and
+<code>/docker/ansible/molecule</code>, fixed on 2026-10-04 by removing the subdirectory
+entry.</p>
 
 
 

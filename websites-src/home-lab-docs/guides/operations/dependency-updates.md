@@ -106,3 +106,14 @@ Use the GitHub CLI from the `operations` Nix shell, as described in the
 A job can succeed and create a pull request, and still report a failure for a
 dependency that it couldn't look up. Read the `Results` table before treating a
 failed run as a missing update.
+
+Duplicate pull requests that touch the same manifest files point at overlapping
+`directories` entries in the configuration. The pull request branch names are
+the decisive evidence: Dependabot names them
+`dependabot/<ecosystem>/<directory>/...`, so a branch rooted at one directory
+whose pull request also changes another entry's manifest proves that the first
+directory's job already covers both — the second entry registers the manifest
+twice, and the competing jobs supersede each other's pull requests into
+duplicates. This happened for the `pip` entries `/docker/ansible` and
+`/docker/ansible/molecule`, fixed on 2026-10-04 by removing the subdirectory
+entry.
