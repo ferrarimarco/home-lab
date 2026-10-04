@@ -65,6 +65,53 @@ groups:
             {{ $labels.instance }} has had less than 5 percent of its
             space available for 10 minutes. Services writing to it are
             about to fail.
+      - alert: NodeFilesystemInodesLow
+        expr: >-
+          node_filesystem_files_free{fstype!~"tmpfs|ramfs"}
+          / node_filesystem_files{fstype!~"tmpfs|ramfs"} < 0.10
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Filesystem {{ $labels.mountpoint }} on {{ $labels.instance }} is low on inodes"
+          description: >-
+            The filesystem mounted at {{ $labels.mountpoint }} on
+            {{ $labels.instance }} has had less than 10 percent of its
+            inodes available for 30 minutes. Writes start failing when
+            inodes run out, even with free space left.
+      - alert: SystemdUnitFailed
+        expr: node_systemd_unit_state{state="failed"} == 1
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unit {{ $labels.name }} failed on {{ $labels.instance }}"
+          description: >-
+            The systemd unit {{ $labels.name }} on {{ $labels.instance }}
+            has been in the failed state for 15 minutes. Check its journal
+            on the host.
+      - alert: NodeClockSkewed
+        expr: abs(node_timex_offset_seconds) > 0.05
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Clock on {{ $labels.instance }} is skewed"
+          description: >-
+            The clock on {{ $labels.instance }} has been more than 50
+            milliseconds away from its time source for 15 minutes. Time
+            synchronization has probably stopped working, which breaks
+            TLS validation and metric ordering.
+      - alert: EdacUncorrectableErrors
+        expr: increase(node_edac_uncorrectable_errors_total[1h]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Uncorrectable memory errors on {{ $labels.instance }}"
+          description: >-
+            The memory controller on {{ $labels.instance }} reported
+            {{ $value }} uncorrectable errors in the last hour. A memory
+            module is failing; data corruption is possible.
 
   - name: temperature
     rules:
@@ -213,6 +260,157 @@ groups:
             The container {{ $labels.name }} on {{ $labels.instance }}
             restarted more than 3 times in the last 30 minutes. It is
             probably crash looping; check its logs.
+      - alert: ContainerOomKilled
+        expr: increase(container_oom_events_total{name!=""}[30m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} on {{ $labels.instance }} was OOM killed"
+          description: >-
+            The kernel killed a process in the container
+            {{ $labels.name }} on {{ $labels.instance }} for exceeding
+            its memory limit within the last 30 minutes. Raise the limit
+            or investigate the memory growth.
+
+  - name: smart
+    rules:
+      - alert: SmartDeviceUnhealthy
+        expr: smartmon_device_smart_healthy == 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk {{ $labels.disk }} on {{ $labels.instance }} fails its SMART health check"
+          description: >-
+            The disk {{ $labels.disk }} on {{ $labels.instance }} fails
+            the SMART overall health self-assessment. The drive considers
+            itself failing: replace it, and verify the backups of the
+            data it holds.
+      - alert: SmartSectorsDegrading
+        expr: >-
+          delta(smartmon_current_pending_sector_raw_value[24h]) > 0
+          or delta(smartmon_reallocated_sector_ct_raw_value[24h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk {{ $labels.disk }} on {{ $labels.instance }} is accumulating bad sectors"
+          description: >-
+            The pending or reallocated sector count of the disk
+            {{ $labels.disk }} on {{ $labels.instance }} grew within the
+            last day. The drive surface is degrading: plan a replacement
+            before it fails.
+
+  - name: ups
+    rules:
+      - alert: UpsOnBattery
+        expr: network_ups_tools_ups_status{flag="OB"} == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "UPS monitored by {{ $labels.instance }} is on battery"
+          description: >-
+            The UPS monitored by {{ $labels.instance }} has been running
+            on battery for 2 minutes: mains power is out or browning out.
+            Hosts shut down when the battery runs low.
+      - alert: UpsLowBattery
+        expr: network_ups_tools_ups_status{flag="LB"} == 1
+        labels:
+          severity: critical
+        annotations:
+          summary: "UPS monitored by {{ $labels.instance }} battery is low"
+          description: >-
+            The UPS monitored by {{ $labels.instance }} reports a low
+            battery while on mains loss: connected hosts are about to
+            shut down.
+
+  - name: nixos-deployments
+    rules:
+      - alert: CominDeploymentFailed
+        expr: >-
+          comin_last_eval_failed == 1
+          or comin_last_build_failed == 1
+          or comin_last_deployment_failed == 1
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "comin cannot deploy on {{ $labels.instance }}"
+          description: >-
+            The comin GitOps service on {{ $labels.instance }} has been
+            failing to evaluate, build, or activate the latest commit
+            for 30 minutes. The host keeps running its previous
+            configuration: check the comin journal on the host.
+      - alert: CominFetchFailed
+        expr: comin_last_fetch_failed == 1
+        for: 2h
+        labels:
+          severity: warning
+        annotations:
+          summary: "comin cannot fetch on {{ $labels.instance }}"
+          description: >-
+            The comin GitOps service on {{ $labels.instance }} has been
+            failing to fetch from {{ $labels.remote_name }} for 2 hours.
+            The host silently stopped following the configuration
+            repository.
+
+  - name: monitoring-pipeline
+    rules:
+      - alert: AlertmanagerNotificationsFailing
+        expr: increase(alertmanager_notifications_failed_total[15m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Alertmanager {{ $labels.instance }} fails to deliver notifications"
+          description: >-
+            The Alertmanager instance {{ $labels.instance }} failed to
+            deliver {{ $labels.integration }} notifications within the
+            last 15 minutes. Alerts are not reaching the notification
+            channel: the pipeline is failing silently.
+      - alert: PrometheusNotificationsErroring
+        expr: increase(prometheus_notifications_errors_total[15m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus {{ $labels.instance }} cannot reach Alertmanager"
+          description: >-
+            The Prometheus replica {{ $labels.instance }} saw errors
+            sending alerts to {{ $labels.alertmanager }} within the last
+            15 minutes. If both replicas are affected, alerting is down.
+      - alert: ConfigReloadFailed
+        expr: >-
+          prometheus_config_last_reload_successful == 0
+          or alertmanager_config_last_reload_successful == 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Configuration reload failed on {{ $labels.instance }}"
+          description: >-
+            The {{ $labels.job }} instance {{ $labels.instance }} failed
+            to reload its configuration and keeps running the previous
+            one. The deployed configuration on disk is broken.
+      - alert: PrometheusRuleEvaluationFailures
+        expr: increase(prometheus_rule_evaluation_failures_total[15m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rule evaluation failures on {{ $labels.instance }}"
+          description: >-
+            The Prometheus replica {{ $labels.instance }} failed rule
+            evaluations within the last 15 minutes. A broken rule
+            silently stops the alerts it defines.
+      - alert: AlertmanagerClusterDegraded
+        expr: alertmanager_cluster_members < 2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Alertmanager cluster is degraded on {{ $labels.instance }}"
+          description: >-
+            The Alertmanager instance {{ $labels.instance }} has seen
+            fewer than 2 cluster members for 15 minutes. The instances
+            are not gossiping, so notification deduplication between the
+            replicas is broken.
 
   - name: syncthing
     rules:
