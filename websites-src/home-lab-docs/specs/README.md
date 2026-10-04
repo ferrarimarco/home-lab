@@ -197,14 +197,6 @@ reliability risks first, then security exposure, then automation):
   [dependency updates guide](../guides/operations/dependency-updates.md)
   documents for manual runs, so configuration errors surface in the pull request
   instead of after the push to the default branch starts the jobs.
-- Let `scripts/format.sh` converge Markdown table edits in one run: the script
-  exits at its markdownlint step when an issue that `--fix` cannot resolve
-  remains, but table alignment (MD060) is fixed by Prettier, which runs after
-  markdownlint — so any edit that changes a table's column widths aborts the
-  script one step before the tool that would fix it, forcing a full super-linter
-  fix-mode run instead. Keep running Prettier when markdownlint leaves unfixable
-  findings (or reorder the formatters), keeping the check-mode lint as the
-  authoritative verdict.
 - Compose:
     - Move secrets to
       [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).

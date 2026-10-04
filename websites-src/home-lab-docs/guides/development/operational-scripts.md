@@ -86,8 +86,11 @@ The script runs:
   and CSS files, excluding the generated `docs/` site output and the
   `super-linter-output/` directory.
 - [markdownlint](https://github.com/DavidAnson/markdownlint) with the repository
-  configuration (`config/lint/.markdown-lint.yaml`) on Markdown files. It fails
-  when issues that `--fix` cannot resolve remain: fix them manually.
+  configuration (`config/lint/.markdown-lint.yaml`) on Markdown files. Issues
+  that `--fix` cannot resolve do not stop the run: the ones Prettier fixes (for
+  example, table pipe alignment) are cleared by a second markdownlint pass that
+  runs after the other formatters, and the script fails only when that pass
+  still reports issues — those need manual fixes.
 - [shfmt](https://github.com/mvdan/sh) on shell scripts.
 - [textlint](https://textlint.org/) with super-linter's default configuration on
   Markdown and text files.

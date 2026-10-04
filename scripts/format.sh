@@ -87,10 +87,13 @@ if [ "${#TEXTLINT_TARGETS[@]}" -gt 0 ]; then
   run_formatter "textlint --config /action/lib/.automation/.textlintrc --fix $(quote_paths "${TEXTLINT_TARGETS[@]}")"
 fi
 
+MARKDOWNLINT_EXIT_CODE=0
 if [ "${#MARKDOWNLINT_TARGETS[@]}" -gt 0 ]; then
-  # markdownlint fails when issues that --fix cannot resolve remain: fix them
-  # manually.
-  run_formatter "markdownlint --config config/lint/.markdown-lint.yaml --fix --ignore docs --ignore super-linter-output $(quote_paths "${MARKDOWNLINT_TARGETS[@]}")"
+  # markdownlint fails when issues that --fix cannot resolve remain, but some
+  # of those (e.g. table pipe alignment, MD060) are fixed by Prettier, which
+  # runs later. Don't stop here: remember the failure and re-run markdownlint
+  # after the other formatters for the authoritative verdict.
+  run_formatter "markdownlint --config config/lint/.markdown-lint.yaml --fix --ignore docs --ignore super-linter-output $(quote_paths "${MARKDOWNLINT_TARGETS[@]}")" || MARKDOWNLINT_EXIT_CODE="$?"
 fi
 
 if [ "${#PRETTIER_TARGETS[@]}" -gt 0 ]; then
@@ -110,3 +113,12 @@ fi
 
 echo "The following super-linter fixers are not covered by this script: ${FORMAT_SCRIPT_DELEGATED_FIXERS[*]}"
 echo "Run LINTER_CONTAINER_FIX_MODE=true scripts/lint.sh to apply them."
+
+if [ "${MARKDOWNLINT_EXIT_CODE}" -ne 0 ]; then
+  # Prettier may have resolved what markdownlint could not fix (e.g. table
+  # alignment). Re-run markdownlint for the authoritative verdict: a failure
+  # here means issues that need manual fixes remain, and errexit propagates
+  # it as this script's exit status.
+  echo "markdownlint reported issues before Prettier ran. Re-running markdownlint to verify whether they remain."
+  run_formatter "markdownlint --config config/lint/.markdown-lint.yaml --fix --ignore docs --ignore super-linter-output $(quote_paths "${MARKDOWNLINT_TARGETS[@]}")"
+fi
