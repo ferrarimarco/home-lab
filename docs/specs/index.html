@@ -2332,7 +2332,12 @@ reliability risks first, then security exposure, then automation):</p>
   <a href="https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html">Let's Encrypt</a>).</li>
 <li>Asus RT-AX86U: copy the node public key to the Asus to allow SSH access,
   configure the Asus host key as trusted in the node that connects via SSH,
-  deploy the Prometheus Node Exporter.</li>
+  deploy the Prometheus Node Exporter: run the arm64 release binary from the USB
+  storage, relaunch it when not running from a <code>cru</code> cron entry registered by a
+  persistent <code>/jffs/scripts/init-start</code> hook (the root filesystem is volatile),
+  add the router to the <code>node</code> scrape job, and verify the netdev collector
+  reports the interface counters, since some exporter releases failed on this
+  firmware.</li>
 <li>Set UTC as the system timezone on the Ansible-managed Debian hosts with the
   <a href="https://docs.ansible.com/ansible/latest/collections/community/general/timezone_module.html#ansible-collections-community-general-timezone-module">timezone module</a>
   (NixOS hosts and cloud-init VMs are UTC already; the node role only sets the
@@ -2464,6 +2469,13 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>Block port 53 outbound on the router WAN interface, keeping port 53
   allowed within the LAN: the router acts as a local DNS cache that
   ultimately serves from DNS-over-TLS and DNS-over-HTTPS external resolvers.</li>
+<li>Prevent LAN clients from bypassing the local resolver: NAT-redirect all
+  LAN port 53 traffic to it (excluding the resolver itself), block outbound
+  port 853 (DNS over TLS and DNS over QUIC), block outbound UDP 443 (QUIC,
+  browsers fall back to HTTP/2), and add a DNS-over-HTTPS blocklist by
+  domain on the resolver and by IP on the firewall (for example the HaGeZi
+  lists). Known gaps: apps that bundle DNS over HTTPS with their application
+  traffic, private DNS-over-HTTPS servers, and VPN tunnels.</li>
 <li>Deploy an ad blocking server.</li>
 <li>Configure block lists for Unbound:
   <a href="https://github.com/StevenBlack/hosts">StevenBlack/hosts</a>.</li>

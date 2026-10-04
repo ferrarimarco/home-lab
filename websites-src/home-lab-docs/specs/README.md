@@ -352,7 +352,12 @@ reliability risks first, then security exposure, then automation):
   [Let's Encrypt](https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html)).
 - Asus RT-AX86U: copy the node public key to the Asus to allow SSH access,
   configure the Asus host key as trusted in the node that connects via SSH,
-  deploy the Prometheus Node Exporter.
+  deploy the Prometheus Node Exporter: run the arm64 release binary from the USB
+  storage, relaunch it when not running from a `cru` cron entry registered by a
+  persistent `/jffs/scripts/init-start` hook (the root filesystem is volatile),
+  add the router to the `node` scrape job, and verify the netdev collector
+  reports the interface counters, since some exporter releases failed on this
+  firmware.
 - Set UTC as the system timezone on the Ansible-managed Debian hosts with the
   [timezone module](https://docs.ansible.com/ansible/latest/collections/community/general/timezone_module.html#ansible-collections-community-general-timezone-module)
   (NixOS hosts and cloud-init VMs are UTC already; the node role only sets the
@@ -474,6 +479,13 @@ reliability risks first, then security exposure, then automation):
     - Block port 53 outbound on the router WAN interface, keeping port 53
       allowed within the LAN: the router acts as a local DNS cache that
       ultimately serves from DNS-over-TLS and DNS-over-HTTPS external resolvers.
+    - Prevent LAN clients from bypassing the local resolver: NAT-redirect all
+      LAN port 53 traffic to it (excluding the resolver itself), block outbound
+      port 853 (DNS over TLS and DNS over QUIC), block outbound UDP 443 (QUIC,
+      browsers fall back to HTTP/2), and add a DNS-over-HTTPS blocklist by
+      domain on the resolver and by IP on the firewall (for example the HaGeZi
+      lists). Known gaps: apps that bundle DNS over HTTPS with their application
+      traffic, private DNS-over-HTTPS servers, and VPN tunnels.
     - Deploy an ad blocking server.
     - Configure block lists for Unbound:
       [StevenBlack/hosts](https://github.com/StevenBlack/hosts).
