@@ -111,13 +111,14 @@ reliability risks first, then security exposure, then automation):
       moves to the nas-pve1 instance with the Syncthing migration ([NAS](#nas)).
     - The pve2 node exporter has never answered a scrape (verified over 30 days
       of TSDB history on 2026-10-04, including power-on windows where the host
-      answered pings): the exporter is probably not installed, so `InstanceDown`
-      for pve2 does not resolve even while the host runs. Run the node playbook
-      against pve2 at its next power-on.
+      answered pings), so `InstanceDown` for pve2 does not resolve even while
+      the host runs. The `ferrarimarco_home_lab_monitoring` role installs the
+      exporter, but its `monitoring.yaml` playbook is not part of `main.yaml`
+      and was never run against pve2: run it against pve2 at its next power-on.
     - The `network-stack-coredns` Prometheus scrape job renders zero targets: no
-      inventory host sets `configure_network_stack`, so the job is dead
-      configuration (found 2026-10-04). Either set the flag on the host that
-      runs the network stack or remove the job; the blackbox DNS probes cover
+      inventory host sets `configure_network_stack` yet. Decision (2026-10-04):
+      the job stays as preparation for the CoreDNS deployment, and the
+      zero-target state is accepted until then; the blackbox DNS probes cover
       the resolution path meanwhile.
     - The node role's `Download files` task fails in check mode on hosts that
       were never converged since a download's destination directory was
