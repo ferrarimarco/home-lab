@@ -33,6 +33,15 @@ to eventually get to a state where we don't need this file anymore.
   reboots (see the
   [Ansible development guide](../guides/development/ansible.md#authorized-keys-on-proxmox-nodes));
   the two hardware security keys that the file carried were dropped on purpose.
+- `pve2`: set the PCIe ASPM policy to `powersave` at runtime (19:17 local) as
+  the first power tuning experiment, with a 20-minute self-reverting timer that
+  was cancelled after the health checks passed. Both i210 links moved to L0s/L1
+  with no errors; the plug median stayed at 68 W over 3.3 hours, so the gain is
+  within the plug's 1 W resolution. The setting lasts until the next boot;
+  nothing persists it yet. The host was shut down the same evening; the plug
+  read 25 W with it off and 20 W with it unplugged, so its standby draw is 5 W.
+  Measurements and the query recipe are in the
+  [host power guide](../guides/operations/host-power.md).
 
 ## 2026-09-13
 

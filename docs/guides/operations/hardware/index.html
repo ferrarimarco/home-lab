@@ -14,7 +14,7 @@
         <link rel="prev" href="../dependency-updates/">
       
       
-        <link rel="next" href="../monitoring/">
+        <link rel="next" href="../host-power/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
@@ -1200,6 +1200,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../host-power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host power evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../monitoring/" class="md-nav__link">
         
   
@@ -1694,6 +1717,13 @@ ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"
 critical, and lower non-critical.</p>
 <p>Thresholds are stored in the BMC, so they may need re-applying after a BMC
 firmware update or a BMC factory reset.</p>
+<p>The BMC address is a DHCP lease, so it can change. The bootstrap role also
+installs <code>ipmitool</code> on the host itself for hosts flagged <code>has_bmc</code> in their
+host_vars: in-band commands (<code>ipmitool sdr type Fan</code>, <code>ipmitool sensor</code>) work
+over SSH regardless of the BMC's address, through the <code>/dev/ipmi0</code> interface the
+kernel exposes. On 2026-10-04 the fan mode read Optimal, the fans 300-1100 RPM,
+and FAN1 sat below its lower non-critical threshold at 300 RPM, the symptom the
+thresholds above address.</p>
 <h2 id="supermicro-x10srl-f-motherboard-standoff-short">Supermicro X10SRL-F motherboard standoff short</h2>
 <p>The Supermicro X10SRL-F motherboard doesn't have the standard ATX mounting hole
 layout. In a case with standoffs installed for the standard layout, one standoff

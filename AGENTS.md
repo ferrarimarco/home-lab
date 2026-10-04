@@ -283,6 +283,10 @@ architectural patterns:
 - **Verify state-changing operations** (Terraform applies, playbook runs,
   bootstrap handoffs) afterward with read-only checks over SSH (`findmnt`,
   `zfs list`, `pct config`, `systemctl is-active`, ...) and report the evidence.
+- **Power measurements use the smart plug series in Prometheus**, not software
+  estimates: the
+  [host power guide](./websites-src/home-lab-docs/guides/operations/host-power.md)
+  has the query recipe and the measured baselines per host.
 
 ## 8. Ansible Conventions
 
@@ -303,7 +307,8 @@ architectural patterns:
   `ExecStartPre` venv/pip commands.
 - **Run the Molecule tests locally before pushing Ansible changes:** test the
   playbooks that the change affects (`main` covers all the roles) with
-  `scripts/run-ansible.sh "molecule test"`, as described in the
+  `ANSIBLE_TEST_DISTRO=<image> ANSIBLE_TEST_PLAYBOOK_NAME=<playbook> scripts/run-ansible.sh "molecule test"`
+  (both variables and the SSH agent socket are required), as described in the
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
   The tests start privileged containers on the control machine, so get approval
   first. Tag new tasks that pull container images or start containerized

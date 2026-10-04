@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/proxmox-admin-notes/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/host-power/">
       
       
-        <link rel="prev" href="../home-assistant-configuration/">
+        <link rel="prev" href="../hardware/">
       
       
-        <link rel="next" href="../troubleshoot-unresponsive-host/">
+        <link rel="next" href="../monitoring/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Proxmox administration notes - Home Lab docs</title>
+        <title>Host power evaluation - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#proxmox-administration-notes" class="md-skip">
+        <a href="#host-power-evaluation" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Proxmox administration notes
+              Host power evaluation
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../../../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nix/" class="md-nav__link">
+      <a href="../../../architecture/nix/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../../../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -440,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
@@ -463,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
+      <a href="../../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
         
   
   
@@ -486,7 +486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -509,7 +509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/ont-connection-instability/" class="md-nav__link">
+      <a href="../../../archive/ont-connection-instability/" class="md-nav__link">
         
   
   
@@ -532,7 +532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
+      <a href="../../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
         
   
   
@@ -555,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
+      <a href="../../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
         
   
   
@@ -578,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/zte-ont-access/" class="md-nav__link">
+      <a href="../../../archive/zte-ont-access/" class="md-nav__link">
         
   
   
@@ -648,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
+      <a href="../../configure-monitoring/" class="md-nav__link">
         
   
   
@@ -671,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../configure-network-shares/" class="md-nav__link">
         
   
   
@@ -694,7 +694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../../configure-tailscale/" class="md-nav__link">
         
   
   
@@ -717,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../copy-jinja-templates/" class="md-nav__link">
         
   
   
@@ -740,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../home-assistant-configuration/" class="md-nav__link">
+      <a href="../../home-assistant-configuration/" class="md-nav__link">
         
   
   
@@ -760,32 +760,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Proxmox administration notes
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../proxmox-admin-notes/" class="md-nav__link">
         
   
   
@@ -796,53 +774,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#disable-secure-boot" class="md-nav__link">
-    <span class="md-ellipsis">
-      Disable Secure Boot
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#expand-disk-filesystem-and-partition" class="md-nav__link">
-    <span class="md-ellipsis">
-      Expand disk, filesystem, and partition
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#capture-network-traffic-of-a-proxmox-vm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capture network traffic of a Proxmox VM
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -855,7 +786,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../troubleshoot-unresponsive-host/" class="md-nav__link">
+      <a href="../../troubleshoot-unresponsive-host/" class="md-nav__link">
         
   
   
@@ -878,7 +809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
+      <a href="../../useful-linux-admin-commands/" class="md-nav__link">
         
   
   
@@ -939,7 +870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/ansible/" class="md-nav__link">
+      <a href="../../development/ansible/" class="md-nav__link">
         
   
   
@@ -962,7 +893,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/nix-dev-shells/" class="md-nav__link">
+      <a href="../../development/nix-dev-shells/" class="md-nav__link">
         
   
   
@@ -985,7 +916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
+      <a href="../../development/nix/" class="md-nav__link">
         
   
   
@@ -1008,7 +939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/operational-scripts/" class="md-nav__link">
+      <a href="../../development/operational-scripts/" class="md-nav__link">
         
   
   
@@ -1031,7 +962,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/todo-list/" class="md-nav__link">
+      <a href="../../development/todo-list/" class="md-nav__link">
         
   
   
@@ -1054,7 +985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
+      <a href="../../development/website-development/" class="md-nav__link">
         
   
   
@@ -1082,18 +1013,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" checked>
         
           
           <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
@@ -1109,7 +1042,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4_10">
             <span class="md-nav__icon md-icon"></span>
             Operations
@@ -1123,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/container-migration/" class="md-nav__link">
+      <a href="../container-migration/" class="md-nav__link">
         
   
   
@@ -1146,7 +1079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/dependency-updates/" class="md-nav__link">
+      <a href="../dependency-updates/" class="md-nav__link">
         
   
   
@@ -1169,7 +1102,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/hardware/" class="md-nav__link">
+      <a href="../hardware/" class="md-nav__link">
         
   
   
@@ -1189,10 +1122,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../operations/host-power/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Host power evaluation
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1203,6 +1158,68 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#instrument" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instrument
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#software-readings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Software readings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pve2-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      pve2 measurements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pve2 measurements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#runtime-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime experiments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1215,7 +1232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/monitoring/" class="md-nav__link">
+      <a href="../monitoring/" class="md-nav__link">
         
   
   
@@ -1329,7 +1346,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -1352,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -1375,7 +1392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -1451,7 +1468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../../../specs/" class="md-nav__link">
         
   
   
@@ -1474,7 +1491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/declarative-integration-testing/" class="md-nav__link">
+      <a href="../../../specs/declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -1497,7 +1514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../../../specs/home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -1520,7 +1537,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/monitoring-alerting/" class="md-nav__link">
+      <a href="../../../specs/monitoring-alerting/" class="md-nav__link">
         
   
   
@@ -1543,7 +1560,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/nas-lxc-container/" class="md-nav__link">
+      <a href="../../../specs/nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -1566,7 +1583,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-lxc/" class="md-nav__link">
+      <a href="../../../specs/proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -1589,7 +1606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-vm/" class="md-nav__link">
+      <a href="../../../specs/proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1639,29 +1656,44 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#disable-secure-boot" class="md-nav__link">
+  <a href="#instrument" class="md-nav__link">
     <span class="md-ellipsis">
-      Disable Secure Boot
+      Instrument
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#expand-disk-filesystem-and-partition" class="md-nav__link">
+  <a href="#software-readings" class="md-nav__link">
     <span class="md-ellipsis">
-      Expand disk, filesystem, and partition
+      Software readings
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#capture-network-traffic-of-a-proxmox-vm" class="md-nav__link">
+  <a href="#pve2-measurements" class="md-nav__link">
     <span class="md-ellipsis">
-      Capture network traffic of a Proxmox VM
+      pve2 measurements
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="pve2 measurements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#runtime-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime experiments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1684,72 +1716,145 @@
   
 
 
-<h1 id="proxmox-administration-notes">Proxmox administration notes</h1>
+<h1 id="host-power-evaluation">Host power evaluation</h1>
+<p>This guide records how we measure the power consumption of the home lab hosts
+and the numbers we measured, so that a new evaluation starts from them instead
+of re-measuring. The generic method (instrument choice, attribution, levers,
+experiment discipline) is not repeated here; the specs todo list tracks the open
+work per host under
+<a href="../../../specs/#host-configuration">Host configuration</a>.</p>
+<h2 id="instrument">Instrument</h2>
+<p>The studio smart plugs report power to Home Assistant, which Prometheus on
+raspberrypi2 scrapes every 30 seconds (job <code>home_assistant</code>, metric
+<code>homeassistant_sensor_power_w</code>). The plug that feeds pve2 is
+<code>sensor.presa_studio_home_lab_2_power</code>; it also feeds other devices, so every
+pve2 figure is a difference against the plug's "pve2 off" baseline. The plug
+resolves 1 W.</p>
+<p>Query it over SSH on raspberrypi2 (the Prometheus port is host-local). The
+median over a window is the figure to compare; the quartiles show the noise:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">P</span><span class="o">=</span><span class="s1">&#39;homeassistant_sensor_power_w{entity=&quot;sensor.presa_studio_home_lab_2_power&quot;}&#39;</span>
+ssh<span class="w"> </span>pi@raspberrypi2.edge.lab.ferrari.how<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>curl<span class="w"> </span>-sf<span class="w"> </span>--get<span class="w"> </span>http://localhost:9090/api/v1/query<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data-urlencode<span class="w"> </span><span class="s2">&quot;query=quantile_over_time(0.5, </span><span class="si">${</span><span class="nv">P</span><span class="si">}</span><span class="s2">[15m])&quot;</span>
+</code></pre></div>
+<p>For a window in the past, append the <code>@ &lt;unix timestamp&gt;</code> modifier to the range
+selector. To see the per-sample series around a transition (a boot, a shutdown,
+a tunable change), use <code>query_range</code> with <code>step=30</code>. Prometheus retains 60 days,
+so past power-on and power-off windows of a host give independent on/off pairs
+without a new experiment.</p>
+<p>Before comparing two windows, confirm that the host is idle in both (no
+diagnostics running on it, same guests running) and use at least 10 minutes per
+window, 20 samples. A change smaller than 1 W is within the plug's noise.</p>
+<h2 id="software-readings">Software readings</h2>
 <ul>
-<li>Check if there are cloud-init datasource updates:
-  <code>qm cloudinit pending &lt;VM_ID&gt;</code></li>
-<li>Update cloud-init datasource: <code>qm cloudinit update &lt;VM_ID&gt;</code></li>
-<li>Get the next proxmox VM ID: <code>pvesh get /cluster/nextid</code></li>
-<li>Get the list of PCI devices of a given Proxmox host:
-  <code>pvesh get /nodes/{nodename}/hardware/pci --pci-class-blacklist ""</code></li>
-<li>Delete the EFI disk: <code>qm set &lt;VM_ID&gt; -delete efidisk0</code></li>
+<li>CPU package and DRAM: <code>/sys/class/powercap/intel-rapl:0/energy_uj</code> and
+  <code>intel-rapl:0:0/energy_uj</code>, differenced over 10 seconds.</li>
+<li>C-state residency and tunables: <code>powertop --time=20 --csv=&lt;file&gt;</code> (never
+  <code>powertop --auto-tune</code>).</li>
+<li>BMC sensors on hosts with a BMC, in-band after the bootstrap role installed
+  the IPMI tooling (<code>has_bmc</code> host flag): <code>ipmitool sdr type Fan</code>,
+  <code>ipmitool sdr type Temperature</code>, <code>ipmitool raw 0x30 0x45 0x00</code> for the
+  Supermicro fan mode (0 standard, 1 full, 2 optimal, 4 heavy IO), and
+  <code>ipmitool dcmi power reading</code>, which reads 0 W when the PSU has no PMBus. The
+  <a href="../hardware/">hardware operations guide</a> covers the BMC's LAN access and fan
+  thresholds.</li>
 </ul>
-<h2 id="disable-secure-boot">Disable Secure Boot</h2>
-<p>Either enter the UEFI console and disable Secure Boot manually, or delete the
-EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</p>
-<p>Notes:</p>
-<ul>
-<li>Secure Boot prevents unsigned kernel modules from loading. Example: Coral PCIe
-  modules (<code>apex</code>, <code>gasket</code>)</li>
-</ul>
-<h2 id="expand-disk-filesystem-and-partition">Expand disk, filesystem, and partition</h2>
-<p>On the Proxmox host:</p>
-<ol>
-<li>Resize the partition using the GUI (VM -&gt; Hardware -&gt; Select disk -&gt; Disk
-   action -&gt; Resize disk). To get the max capacity, see the corresponding
-   storage pool page in the Proxmox admin GUI.</li>
-</ol>
-<p>On the VM:</p>
-<ol>
-<li>
-<p>Get the device ID: <code>sudo dmesg | grep capacity</code></p>
-</li>
-<li>
-<p>Resize the partition:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>parted<span class="w"> </span>/dev/&lt;DEVICE_ID&gt;
-
-<span class="c1"># Get the partition ID</span>
-print
-
-<span class="c1"># Resize the partition</span>
-resizepart<span class="w"> </span>&lt;PARTITION_ID&gt;<span class="w"> </span><span class="m">100</span>%
-
-quit
-</code></pre></div>
-</li>
-<li>
-<p>Grow the filesystem:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>resize2fs<span class="w"> </span>/dev/&lt;DEVICE_ID&gt;&lt;PARTITION_ID&gt;
-</code></pre></div>
-</li>
-</ol>
-<p>For more information, see <a href="https://pve.proxmox.com/wiki/Resize_disks">https://pve.proxmox.com/wiki/Resize_disks</a>.</p>
-<h2 id="capture-network-traffic-of-a-proxmox-vm">Capture network traffic of a Proxmox VM</h2>
-<p>In order to capture the network traffic that goes through a network interface of
-a Proxmox VM, do the following:</p>
-<ol>
-<li>Get the Proxmox VM ID.</li>
-<li>Get the Proxmox VM interface name.</li>
-<li>On the Proxmox node that hosts the VM, check that there's a <code>tap</code> network
-   interface named <code>tap&lt;VM_ID&gt;i&lt;NET_INTERFACE_ID&gt;</code>.</li>
-<li>
-<p>On the Proxmox node that hosts the VM, run <code>tcpdump</code> in order to capture
-   network traffic to a file:</p>
-<div class="highlight"><pre><span></span><code>tcpdump<span class="w"> </span>-i<span class="w"> </span>tap&lt;VM_ID&gt;i&lt;NET_INTERFACE_ID&gt;<span class="w"> </span>-n<span class="w"> </span>-w<span class="w"> </span>&lt;filename&gt;.pcap
-</code></pre></div>
-</li>
-</ol>
-<p>Source: <a href="https://www.apalrd.net/posts/2023/tip_pcap/">https://www.apalrd.net/posts/2023/tip_pcap/</a></p>
+<h2 id="pve2-measurements">pve2 measurements</h2>
+<p>Supermicro X10SRL-F, Xeon E5-2683 v4 (16 cores), 8 x 16 GB DDR4 RDIMM, Crucial
+P310 NVMe boot, Seagate ST4000VN006 data disk, Samsung HD103SJ and OCZ Vertex 3
+scratch drives, two on-board i210 NICs, OCZ ModXStream Pro 600 W PSU (2008-era
+80 Plus, no PMBus). Measured on 2026-08-25 and 2026-10-04 with only the nas-pve2
+guest running:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Plug reading</th>
+<th>pve2 share</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pve2 unplugged</td>
+<td>20 W</td>
+<td>0 W</td>
+</tr>
+<tr>
+<td>pve2 off, plugged in</td>
+<td>25 W</td>
+<td>5 W</td>
+</tr>
+<tr>
+<td>pve2 on, idle</td>
+<td>67-71 W</td>
+<td>~45 W</td>
+</tr>
+<tr>
+<td>pve2 booting (peak)</td>
+<td>~110 W</td>
+<td></td>
+</tr>
+<tr>
+<td>pve2 shutting down (peak)</td>
+<td>~77 W</td>
+<td></td>
+</tr>
+<tr>
+<td>RAPL package, idle</td>
+<td></td>
+<td>7.6 W</td>
+</tr>
+<tr>
+<td>RAPL DRAM, idle</td>
+<td></td>
+<td>3.5 W</td>
+</tr>
+<tr>
+<td>Package C6 residency, cores in C6</td>
+<td></td>
+<td>88%, 99.8%</td>
+</tr>
+<tr>
+<td>BMC fans (mode Optimal)</td>
+<td></td>
+<td>300-1100 RPM</td>
+</tr>
+</tbody>
+</table>
+<p>The 5 W standby figure is the PSU standby rail plus the BMC. At 0.099 EUR/kWh,
+the idle host costs about 39 EUR per year around the clock and about 4 EUR per
+year while off but plugged in.</p>
+<p>The CPU side is at its platform floor: a Broadwell-EP server platform stops at
+package C6, so the remaining ~34 W of non-CPU draw is the board, the BMC, the
+DIMMs, the drives, and PSU losses, and only hardware changes move it
+substantially.</p>
+<h3 id="runtime-experiments">Runtime experiments</h3>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Change</th>
+<th>Before (median)</th>
+<th>After (median)</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-10-04</td>
+<td>PCIe ASPM policy <code>default</code> to <code>powersave</code></td>
+<td>68 W, 1.6 h</td>
+<td>68 W, 3.3 h</td>
+<td>Within noise, no errors</td>
+</tr>
+</tbody>
+</table>
+<p>The ASPM change enabled L0s and L1 on both i210 links and L1 on their root ports
+(the NVMe already ran L1). The runtime write
+(<code>echo powersave &gt; /sys/module/pcie_aspm/parameters/policy</code>) does not survive a
+reboot; nothing persists it yet. When a runtime change can cut remote access,
+arm a self-reverting timer first (<code>systemd-run --on-active=20min</code> writing the
+previous value) and cancel it only after the window is clean.</p>
 
 
 
@@ -1804,10 +1909,10 @@ a Proxmox VM, do the following:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>

@@ -1333,6 +1333,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/operations/host-power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host power evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/operations/monitoring/" class="md-nav__link">
         
   
@@ -1978,6 +2001,15 @@ to eventually get to a state where we don't need this file anymore.</p>
   reboots (see the
   <a href="../../guides/development/ansible/#authorized-keys-on-proxmox-nodes">Ansible development guide</a>);
   the two hardware security keys that the file carried were dropped on purpose.</li>
+<li><code>pve2</code>: set the PCIe ASPM policy to <code>powersave</code> at runtime (19:17 local) as
+  the first power tuning experiment, with a 20-minute self-reverting timer that
+  was cancelled after the health checks passed. Both i210 links moved to L0s/L1
+  with no errors; the plug median stayed at 68 W over 3.3 hours, so the gain is
+  within the plug's 1 W resolution. The setting lasts until the next boot;
+  nothing persists it yet. The host was shut down the same evening; the plug
+  read 25 W with it off and 20 W with it unplugged, so its standby draw is 5 W.
+  Measurements and the query recipe are in the
+  <a href="../../guides/operations/host-power/">host power guide</a>.</li>
 </ul>
 <h2 id="2026-09-13">2026-09-13</h2>
 <ul>

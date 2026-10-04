@@ -1121,6 +1121,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/operations/host-power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host power evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/operations/monitoring/" class="md-nav__link">
         
   
@@ -2259,39 +2282,50 @@ reliability risks first, then security exposure, then automation):</p>
 <ul>
 <li><strong>pve2 power reduction before running it 24/7</strong>: the goal is to run pve2
   around the clock, but it stays powered off until its idle draw comes down.
-  Measured idle wall power is about 45 W (the smart plug that feeds it reads ~24
-  W with pve2 off and ~68 W with pve2 on and idle), about 39 EUR per year at the
-  current tariff; the CPU side is already optimal (RAPL package ~8 W, 99.8% C6
-  residency), the BMC fan mode is already Optimal with fans at 300-1100 RPM, and
-  the PSU has no PMBus, so the plug is the only instrument. The measurements are
-  in the <a href="../archive/manual-changes-diary/">manual changes diary</a> (2026-08-25
-  and 2026-10-04). Levers, in order of expected gain:<ul>
+  Measured idle wall power is about 45 W (plug: ~25 W with pve2 off, ~68 W on
+  and idle, 20 W unplugged, so 5 W of standby for the PSU and the BMC), about 39
+  EUR per year at the current tariff. The CPU side is at its platform floor
+  (RAPL package ~8 W, package C6 88%, cores 99.8% C6; a Broadwell-EP platform
+  has no deeper package state), the BMC fan mode is already Optimal with fans at
+  300-1100 RPM, and the PSU has no PMBus, so the plug is the only instrument.
+  Measurements, the query recipe, and the experiment log are in the
+  <a href="../guides/operations/host-power/">host power guide</a>. Decisions: the two
+  scratch drives (Samsung HD103SJ, OCZ Vertex 3, ~7 W DC together) stay for now,
+  and HDD spin-down stays excluded by policy. Levers, in order of expected gain:<ul>
 <li>Replace the PSU: the OCZ ModXStream Pro 600 W is a 2008-era 80 Plus unit
   running at ~7% load, where its efficiency is an expected 65-75%, and it is
   a reliability concern for 24/7 duty. A modern Platinum or Titanium unit
-  sized at 450-550 W is expected to save 7-10 W. Do this last, so it is
-  measured at the final DC load.</li>
-<li>Remove the two scratch drives (Samsung HD103SJ and OCZ Vertex 3, both
-  effectively empty): expected ~7 W. Needs the <code>tank-hdd-scratch</code> and
-  <code>tank-ssd-scratch</code> pools removed from the pve2 host_vars, the two
-  Terraform storage resources and bind mounts, and the two nas-pve2 shares.
-  HDD spin-down of the data disk stays excluded by policy.</li>
-<li>Runtime tunables, measured one at a time through the plug series
-  (<code>sensor.presa_studio_home_lab_2_power</code> in Home Assistant, scraped by
-  Prometheus): CPU governor (<code>performance</code> on the passive <code>intel_cpufreq</code>
-  driver), SATA link power management (<code>max_performance</code> on all 10 hosts),
-  PCIe ASPM policy (<code>default</code>; both i210 NICs have ASPM disabled), and PCI
-  runtime PM (99 devices on <code>on</code>). Expected 2-5 W in total; persist the
-  winners declaratively through Ansible.</li>
+  sized at 450-550 W is expected to save 7-10 W, plus 1-2 W of standby. Do
+  this last, so it is measured at the final DC load.</li>
+<li>Runtime tunables, measured one at a time through the plug with 10-minute
+  windows. Done: PCIe ASPM policy <code>powersave</code> (2026-10-04; both i210 links
+  in L0s/L1, within the plug's 1 W noise, no errors). Remaining: SATA link
+  power management (<code>med_power_with_dipm</code>, one populated port at a time with
+  the kernel log watched: the old scratch drives are prone to link resets;
+  check <code>hdparm -I</code> for DIPM and DevSleep support first) and PCI runtime PM
+  (99 devices on <code>on</code>). Expected 1-3 W in total. Persist the measured
+  winners through a dedicated <code>ferrarimarco_home_lab_power_management</code> role
+  rendering a <code>tmpfiles.d</code> file from a per-host list of sysfs writes; one
+  pve2 reboot proves the boot-time path. Deferred until the pve2 workload is
+  defined: the CPU governor (<code>performance</code> on the passive <code>intel_cpufreq</code>
+  driver). Its idle gain is under 1 W because the cores sleep 99.8% of the
+  time; its benefit appears under sustained light load, to quantify with a
+  controlled load under both governors.</li>
 <li>BIOS: energy-efficient power technology, DRAM power-down, disable the
   unused sSATA controller, EHCI controllers, and serial ports. Small gains,
   needs a reboot and console access.</li>
-<li>Realistic tuned idle: 24-28 W. Blocks: the media second copy on <code>tank-hdd</code>
+<li>Realistic tuned idle with the scratch drives kept: 31-35 W. Depends on: a
+  stable BMC address for remote recovery during runtime experiments
+  (<a href="#networking">Networking</a>). Blocks: the media second copy on <code>tank-hdd</code>
   (<a href="#nas">NAS</a>); the Proxmox node downtime alerts stay enabled by choice
   until pve2 runs 24/7
   (<a href="#monitoring-and-alerting">Monitoring and alerting</a>).</li>
 </ul>
 </li>
+<li>Reconcile pve2's network cabling with the inventory: the cable is on <code>nic0</code>
+  (link up), while the inventory assigns the reserved address to <code>nic1</code> (link
+  down). Decide which is intended and align the cable or the inventory and the
+  DHCP reservation.</li>
 <li>Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
   certificates
   (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management">certificate management</a>,

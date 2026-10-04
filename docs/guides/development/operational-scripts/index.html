@@ -1212,6 +1212,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../operations/host-power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host power evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../operations/monitoring/" class="md-nav__link">
         
   
@@ -1880,6 +1903,12 @@ playbook to test, and pass the Molecule command to run:</p>
 when the test completes. Molecule skips the tasks that have the
 <code>molecule-notest</code> tag: tests don't pull container images, and don't start
 containerized services.</p>
+<p>Both variables are required: <code>ANSIBLE_TEST_DISTRO</code> also switches the
+container image build to the target that contains Molecule, so a bare
+<code>scripts/run-ansible.sh "molecule test"</code> fails with
+<code>exec: "molecule": executable file not found</code>. The SSH agent socket is
+required for Molecule runs too, because the script forwards it before
+checking the command: set <code>SSH_AUTH_SOCK</code> as described above.</p>
 </li>
 <li>
 <p><code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service

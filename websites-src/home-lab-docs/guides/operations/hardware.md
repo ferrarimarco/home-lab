@@ -29,6 +29,14 @@ critical, and lower non-critical.
 Thresholds are stored in the BMC, so they may need re-applying after a BMC
 firmware update or a BMC factory reset.
 
+The BMC address is a DHCP lease, so it can change. The bootstrap role also
+installs `ipmitool` on the host itself for hosts flagged `has_bmc` in their
+host_vars: in-band commands (`ipmitool sdr type Fan`, `ipmitool sensor`) work
+over SSH regardless of the BMC's address, through the `/dev/ipmi0` interface the
+kernel exposes. On 2026-10-04 the fan mode read Optimal, the fans 300-1100 RPM,
+and FAN1 sat below its lower non-critical threshold at 300 RPM, the symptom the
+thresholds above address.
+
 ## Supermicro X10SRL-F motherboard standoff short
 
 The Supermicro X10SRL-F motherboard doesn't have the standard ATX mounting hole
