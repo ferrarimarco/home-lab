@@ -94,6 +94,15 @@ reliability risks first, then security exposure, then automation):
     - Frigate: recordings don't fully capture events. References:
       [frigate#3043](https://github.com/blakeblackshear/frigate/issues/3043),
       [frigate#2270](https://github.com/blakeblackshear/frigate/issues/2270).
+    - Frigate pins its disk near full by design: its storage maintainer frees
+      recordings only when the free space drops below one hour of camera
+      bandwidth (about 1.8 GB on hl01), so the free space oscillates around that
+      floor, which on a 38 GB disk matched the 5 percent
+      `NodeFilesystemSpaceCritical` threshold and made the alert flap
+      (2026-10-04; fixed by growing the disk to 64 GB). Budget the hl01 root
+      disk for retention days times daily recording volume (about 1 GB per day
+      today) plus the Prometheus TSDB growth under its 60-day retention, and
+      resize before the headroom shrinks to that floor.
     - Home Assistant sometimes leaves corrupted DBs behind on restart (clean up
       if it happens). Remediation: safely restart the container by
       [shutting Home Assistant down before updating](https://community.home-assistant.io/t/shut-down-home-assistant-cleanly-before-shutdown-docker/301438).
