@@ -272,11 +272,16 @@ with operational experience.
 | `BlackboxProbeFailed`     | critical | `probe_success == 0` on ICMP and DNS probe jobs | 10 min   | A host does not answer pings, or a DNS record does not resolve as declared. |
 | `BlackboxHttpProbeFailed` | warning  | `probe_success == 0` on HTTP probe jobs         | 10 min   | An HTTP endpoint stopped answering with the expected status.                |
 
-> **Known-failing probe:** the Syncthing HTTP endpoint probe currently fails by
-> configuration (authentication and self-signed certificate; tracked in the
-> specs index issues list). `BlackboxHttpProbeFailed` will therefore fire for it
-> from the first deployment. This is accepted: the alert is silenced until the
-> probe is fixed, keeping the rule catalogue free of one-off exclusions.
+> **Syncthing probe:** the Syncthing check targets the instance's dedicated
+> unauthenticated health endpoint (`/rest/noauth/health` on the nas-pve1 GUI
+> port) over HTTPS, with certificate verification skipped in the `http_2xx`
+> module because internal HTTPS endpoints serve self-signed certificates
+> (Syncthing is currently the only HTTPS target; split the module into a
+> verifying one when a certificate-validated target appears). Probing the GUI
+> root was rejected because it requires authentication, and embedding the API
+> key in the Blackbox exporter configuration was rejected because the health
+> endpoint exists exactly for this purpose. Verified passing on both replicas
+> (2026-10-05).
 
 ### 6.6 Frigate
 

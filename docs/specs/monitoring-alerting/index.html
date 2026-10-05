@@ -1878,6 +1878,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../software-candidates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Software candidates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2713,11 +2736,16 @@ with operational experience.</p>
 </tbody>
 </table>
 <blockquote>
-<p><strong>Known-failing probe:</strong> the Syncthing HTTP endpoint probe currently fails by
-configuration (authentication and self-signed certificate; tracked in the
-specs index issues list). <code>BlackboxHttpProbeFailed</code> will therefore fire for it
-from the first deployment. This is accepted: the alert is silenced until the
-probe is fixed, keeping the rule catalogue free of one-off exclusions.</p>
+<p><strong>Syncthing probe:</strong> the Syncthing check targets the instance's dedicated
+unauthenticated health endpoint (<code>/rest/noauth/health</code> on the nas-pve1 GUI
+port) over HTTPS, with certificate verification skipped in the <code>http_2xx</code>
+module because internal HTTPS endpoints serve self-signed certificates
+(Syncthing is currently the only HTTPS target; split the module into a
+verifying one when a certificate-validated target appears). Probing the GUI
+root was rejected because it requires authentication, and embedding the API
+key in the Blackbox exporter configuration was rejected because the health
+endpoint exists exactly for this purpose. Verified passing on both replicas
+(2026-10-05).</p>
 </blockquote>
 <h3 id="66-frigate">6.6 Frigate</h3>
 <p>These rules consume Frigate's native Prometheus metrics endpoint

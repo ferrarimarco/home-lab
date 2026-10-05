@@ -106,9 +106,6 @@ reliability risks first, then security exposure, then automation):
     - Home Assistant sometimes leaves corrupted DBs behind on restart (clean up
       if it happens). Remediation: safely restart the container by
       [shutting Home Assistant down before updating](https://community.home-assistant.io/t/shut-down-home-assistant-cleanly-before-shutdown-docker/301438).
-    - The Syncthing HTTP endpoint blackbox probe is configured but fails
-      (authentication, HTTPS with self-signed certificate). The probe target
-      moves to the nas-pve1 instance with the Syncthing migration ([NAS](#nas)).
     - The pve2 node exporter has never answered a scrape (verified over 30 days
       of TSDB history on 2026-10-04, including power-on windows where the host
       answered pings), so `InstanceDown` for pve2 does not resolve even while
