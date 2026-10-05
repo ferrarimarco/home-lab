@@ -1763,6 +1763,12 @@ repository, using the same container image version and configuration as the
 CI run:</p>
 <div class="highlight"><pre><span></span><code>scripts/lint.sh
 </code></pre></div>
+<p>The script also runs from a
+<a href="https://git-scm.com/docs/git-worktree">Git worktree</a>: a worktree holds only the
+working files, so the script mounts the main repository's metadata directory
+into the container at the same absolute path, as the
+<a href="https://github.com/super-linter/super-linter/blob/main/docs/run-linter-locally.md">super-linter local run documentation</a>
+describes.</p>
 <p>The script supports the following environment variables:</p>
 <ul>
 <li>

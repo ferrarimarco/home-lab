@@ -73,6 +73,11 @@ repository.
    `git status` in the worktree lists the generated files that differ from the
    ones in the commit.
 
+    The lint script runs from the worktree as well, so the check-mode lint run
+    can cover the same sources as the build; the
+    [operational scripts guide](./operational-scripts.md) describes how it
+    mounts the main repository's metadata.
+
 4. Remove the worktree:
 
     ```shell

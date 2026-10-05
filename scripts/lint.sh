@@ -15,6 +15,16 @@ LINTER_CONTAINER_IMAGE="$(get_super_linter_container_image)"
 
 echo "Running linter container image: ${LINTER_CONTAINER_IMAGE}"
 
+# A Git worktree holds only the working files: the repository metadata lives in
+# the main repository, and the container needs it at the same absolute path.
+# Ref: https://github.com/super-linter/super-linter/blob/main/docs/run-linter-locally.md
+GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir)"
+GIT_WORKTREE_VOLUMES=()
+if [ "${GIT_COMMON_DIR}" != "$(pwd)/.git" ]; then
+  echo "Running from a Git worktree. Mounting the main repository metadata: ${GIT_COMMON_DIR}"
+  GIT_WORKTREE_VOLUMES+=(--volume "${GIT_COMMON_DIR}:${GIT_COMMON_DIR}:ro")
+fi
+
 if [ "${LINTER_CONTAINER_LINT_COMMIT_MESSAGE:-}" == "true" ]; then
   echo "Validating the commit message from the standard input"
 
@@ -29,6 +39,7 @@ if [ "${LINTER_CONTAINER_LINT_COMMIT_MESSAGE:-}" == "true" ]; then
     --interactive
     --rm
     --volume "$(pwd)":/tmp/lint:ro
+    ${GIT_WORKTREE_VOLUMES[@]+"${GIT_WORKTREE_VOLUMES[@]}"}
     --workdir /tmp/lint
     "${LINTER_CONTAINER_IMAGE}"
   )
@@ -74,6 +85,7 @@ SUPER_LINTER_COMMAND+=(
   --name "super-linter"
   --rm
   --volume "$(pwd)":/tmp/lint
+  ${GIT_WORKTREE_VOLUMES[@]+"${GIT_WORKTREE_VOLUMES[@]}"}
   --volume /etc/localtime:/etc/localtime:ro
   --workdir /tmp/lint
   "${LINTER_CONTAINER_IMAGE}"

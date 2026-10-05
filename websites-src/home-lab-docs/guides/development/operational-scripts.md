@@ -23,6 +23,13 @@ CI run:
 scripts/lint.sh
 ```
 
+The script also runs from a
+[Git worktree](https://git-scm.com/docs/git-worktree): a worktree holds only the
+working files, so the script mounts the main repository's metadata directory
+into the container at the same absolute path, as the
+[super-linter local run documentation](https://github.com/super-linter/super-linter/blob/main/docs/run-linter-locally.md)
+describes.
+
 The script supports the following environment variables:
 
 - `LINTER_CONTAINER_FIX_MODE`: set to `true` to run the linters in fix mode

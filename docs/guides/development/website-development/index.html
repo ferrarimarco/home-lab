@@ -1774,6 +1774,10 @@ repository.</p>
 <p>Compare the output in the worktree with the output to commit. For example,
    <code>git status</code> in the worktree lists the generated files that differ from the
    ones in the commit.</p>
+<p>The lint script runs from the worktree as well, so the check-mode lint run
+can cover the same sources as the build; the
+<a href="../operational-scripts/">operational scripts guide</a> describes how it
+mounts the main repository's metadata.</p>
 </li>
 <li>
 <p>Remove the worktree:</p>
