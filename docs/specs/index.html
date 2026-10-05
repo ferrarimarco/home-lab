@@ -2027,6 +2027,22 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
+<li>Add <code>ipmitool</code> to the <code>operations</code> Nix shell and document in the
+  <a href="../guides/development/nix-dev-shells/">Nix development shells guide</a> how to
+  run BMC commands from it
+  (<code>ipmitool -I lanplus -H &lt;bmc&gt; -U &lt;user&gt; chassis power status|on|off</code>, sensor
+  reads), with the credentials supplied interactively or from the environment,
+  never from tracked files. The in-band <code>ipmitool</code> installed on <code>has_bmc</code> hosts
+  only works while the host runs; the shell covers the powered-off case.</li>
+<li>Extend <code>ferrarimarco_home_lab_boot_bare_metal</code> to power on hosts through their
+  BMC: today the role only sends Wake-on-LAN packets to every MAC in
+  <code>network_interfaces</code> and waits for SSH. For hosts that declare a BMC address,
+  use <code>community.general.ipmi_power</code> (state <code>on</code>, delegated to the control
+  machine; it needs the <code>pyghmi</code> library in the Ansible container image) with
+  the BMC address from the inventory and the credentials from the vault, before
+  the SSH wait. Depends on: the BMC DHCP reservation
+  (<a href="#networking">Networking</a>), so the inventory can carry a stable address or
+  name.</li>
 <li>Generate a Home Lab bootstrapping keypair.</li>
 <li>Fully automate Terraform runs. Reference:
   <a href="https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform">Running Terraform in automation</a>.</li>
@@ -2413,7 +2429,10 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   off until its power reduction work completes
   (<a href="#host-configuration">Host configuration</a>), and powering it on remotely (for
   example for Terraform runs that need both Proxmox nodes reachable) depends on
-  finding the BMC reliably.</li>
+  finding the BMC reliably. Blocks: the BMC availability probe
+  (<a href="#monitoring-and-alerting">Monitoring and alerting</a>); the BMC-based power-on
+  in the boot role
+  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>).</li>
 <li><strong>Tailscale subnet router on hl02 for general remote access</strong>: one node
   advertising the LAN covers ad-hoc remote access without installing Tailscale
   fleet-wide; service endpoints get direct nodes instead, per the NAS spec's
@@ -2555,6 +2574,12 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   (<a href="https://github.com/google/dnsmasq_exporter">dnsmasq_exporter</a>), running
   processes, and host metrics via the Prometheus Node Exporter
   (<a href="https://www.snbforums.com/threads/successfully-got-node_exporter-on-rt-ax58u.64683/">reference</a>).</li>
+<li>The pve2 BMC: a blackbox probe (ICMP ping, or HTTPS against its web
+  interface) so that a host that is powered off but reachable for remote
+  power-on is distinguishable from one that is unplugged or whose BMC lost
+  its network. Depends on: the BMC DHCP reservation
+  (<a href="#networking">Networking</a>), since the probe target must be a stable
+  address or a name that resolves to it.</li>
 </ul>
 </li>
 <li>Verify the authority section of public resource records.</li>
