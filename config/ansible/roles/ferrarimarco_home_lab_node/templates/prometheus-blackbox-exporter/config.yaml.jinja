@@ -34,6 +34,12 @@ modules:
 {% endfor %}
   http_2xx:
     prober: http
+    http:
+      tls_config:
+        # Internal HTTPS endpoints (currently only the Syncthing GUI) serve
+        # self-signed certificates. Split this module into a verifying one
+        # when a certificate-validated HTTPS target appears.
+        insecure_skip_verify: true
   icmp:
     prober: icmp
     timeout: 5s
