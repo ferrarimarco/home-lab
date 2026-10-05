@@ -2544,7 +2544,11 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   timer, so a stuck frequent collector is detected late).</li>
 <li>Dead-man's-switch: an always-firing heartbeat alert delivered through a
   channel independent of the Prometheus host, so a dead monitoring backend
-  is itself noticed.</li>
+  is itself noticed. Candidate channels: a hosted check that expects the
+  heartbeat and notifies on absence (Healthchecks.io, UptimeRobot), or a
+  scheduled GitHub Actions workflow that probes the heartbeat endpoint and
+  notifies on failure, which needs no infrastructure beyond the repository
+  and is independent of the home connection.</li>
 </ul>
 </li>
 <li>Validate the reworked <code>sense-hat-exporter</code> unit (venv in a systemd state

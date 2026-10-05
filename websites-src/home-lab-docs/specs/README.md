@@ -550,7 +550,11 @@ reliability risks first, then security exposure, then automation):
       timer, so a stuck frequent collector is detected late).
     - Dead-man's-switch: an always-firing heartbeat alert delivered through a
       channel independent of the Prometheus host, so a dead monitoring backend
-      is itself noticed.
+      is itself noticed. Candidate channels: a hosted check that expects the
+      heartbeat and notifies on absence (Healthchecks.io, UptimeRobot), or a
+      scheduled GitHub Actions workflow that probes the heartbeat endpoint and
+      notifies on failure, which needs no infrastructure beyond the repository
+      and is independent of the home connection.
 - Validate the reworked `sense-hat-exporter` unit (venv in a systemd state
   directory, metrics file deleted on start and exit, throttled restarts; changed
   2026-09-14) whenever a host with a Sense HAT returns to service; no such host
