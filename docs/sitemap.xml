@@ -168,4 +168,8 @@
          <loc>https://ferrarimarco.info/home-lab/specs/proxmox-vm/</loc>
          <lastmod>2026-10-05</lastmod>
     </url>
+    <url>
+         <loc>https://ferrarimarco.info/home-lab/specs/software-candidates/</loc>
+         <lastmod>2026-10-05</lastmod>
+    </url>
 </urlset>

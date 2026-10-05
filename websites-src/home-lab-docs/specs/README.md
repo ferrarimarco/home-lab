@@ -20,7 +20,10 @@ testing rationale before code implementation.
 This section is the centralized list of future work and todo items for the whole
 home lab: the Future Work section of each specification only points here. Items
 are grouped by theme, and stay here until they are implemented and reflected in
-the relevant specification, or explicitly discarded.
+the relevant specification, or explicitly discarded. The software considered for
+each need, in use or candidate, is tracked in
+[Software candidates](./software-candidates.md): only active evaluations become
+items here.
 
 ### Current focus
 
