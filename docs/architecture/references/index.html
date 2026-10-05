@@ -476,6 +476,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#out-of-band-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Out-of-band management
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#immutable-infrastructure" class="md-nav__link">
     <span class="md-ellipsis">
       Immutable infrastructure
@@ -1771,6 +1780,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#out-of-band-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Out-of-band management
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#immutable-infrastructure" class="md-nav__link">
     <span class="md-ellipsis">
       Immutable infrastructure
@@ -1809,6 +1827,11 @@
 <h2 id="home-lab-examples">Home lab examples</h2>
 <ul>
 <li><a href="https://github.com/khuedoan/homelab">khuedoan/homelab</a></li>
+<li><a href="https://github.com/niki-on-github/nixos-k3s/">niki-on-github/nixos-k3s</a>:
+  single-node k3s on NixOS, installed with nixos-anywhere and disko, Flux for
+  GitOps, and a fallback Git server on the host for recovery.</li>
+<li><a href="https://github.com/clearlybaffled/homelab">clearlybaffled/homelab</a>: kubeadm
+  on Debian provisioned by Ansible, Argo CD, and a scripted offline root CA.</li>
 </ul>
 <h2 id="software-directories">Software directories</h2>
 <ul>
@@ -1820,11 +1843,18 @@
   automation ecosystem.</li>
 <li><a href="https://opensourcesecurityindex.io/">Open Source Security Index</a>: a ranking
   of open source security projects by activity.</li>
+<li><a href="https://www.privacyguides.org/">Privacy Guides</a>: recommendations for privacy
+  tools and services, including DNS resolvers and VPN providers.</li>
 </ul>
 <h2 id="nix-and-nixos">Nix and NixOS</h2>
 <ul>
 <li><a href="https://www.tweag.io/blog/2020-07-31-nixos-flakes/">NixOS flakes tutorial</a></li>
 <li><a href="https://jnsgr.uk/2024/02/nixos-vms-in-github-actions/">Integration testing with NixOS in GitHub Actions</a></li>
+<li><a href="https://danielunderwood.dev/post/nixos-nas/">Building a NixOS-Based NAS</a>:
+  LUKS under ZFS, with the root volume unlocked over SSH from the initrd.</li>
+<li><a href="https://xeiaso.net/blog/paranoid-nixos-2021-07-18/">Paranoid NixOS Setup</a>:
+  defence in depth with the firewall, systemd sandboxing, a restricted Nix
+  daemon, a tmpfs root, audit rules, and noexec mounts.</li>
 </ul>
 <h3 id="nix-commands">Nix commands</h3>
 <ul>
@@ -1845,10 +1875,18 @@
 <li><a href="https://klarasystems.com/articles/choosing-the-right-zfs-pool-layout/">Choosing the right ZFS pool layout</a>,
   by Klara Systems</li>
 </ul>
+<h2 id="out-of-band-management">Out-of-band management</h2>
+<ul>
+<li><a href="https://michael.stapelberg.ch/posts/2022-08-27-out-of-band-remote-console/">DIY out-of-band management: remote console server</a>,
+  by Michael Stapelberg: a gokrazy Raspberry Pi serial console reached over
+  Tailscale, plus a Tasmota smart plug for power cycling.</li>
+</ul>
 <h2 id="immutable-infrastructure">Immutable infrastructure</h2>
 <ul>
 <li><a href="https://grahamc.com/blog/erase-your-darlings/">Erase your darlings</a>, by
   Graham Christensen</li>
+<li><a href="https://mt-caret.github.io/blog/posts/2020-06-29-optin-state.html">Encrypted Btrfs Root with Opt-in State on NixOS</a>,
+  by mt_caret: the Btrfs variant, with a script to discover accumulated state.</li>
 </ul>
 
 
