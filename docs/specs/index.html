@@ -2581,6 +2581,14 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <a href="https://github.com/lmarzen/esp32-weather-epd">esp32-weather-epd</a>.</li>
 <li>Zigbee2MQTT:
   <a href="https://github.com/Koenkk/zigbee2mqtt/discussions/24198">zigbee2mqtt#24198</a>.</li>
+<li>Lock-state sensing for the existing door locks: a Zigbee water-leak sensor
+  with an external two-wire probe, hidden in the door frame, with each probe
+  wire ending in a foil pad inside the strike box; the thrown deadbolt bridges
+  the pads, so "leak" means "locked". Fails safe (any fault reads as not locked)
+  and cannot actuate. In Zigbee2MQTT, invert the device's leak payload and show
+  the entity as a lock, since a leak reads as on while a lock entity expects off
+  for locked. Constraints: room for the wires in the strike box, a conductive
+  deadbolt, and a contact that holds across the play of the key.</li>
 <li>Automations:<ul>
 <li>Smart chair: contact sensor
   (<a href="https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar">reference</a>).</li>

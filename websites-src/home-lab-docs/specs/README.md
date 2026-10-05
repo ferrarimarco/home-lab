@@ -585,6 +585,14 @@ reliability risks first, then security exposure, then automation):
   [esp32-weather-epd](https://github.com/lmarzen/esp32-weather-epd).
 - Zigbee2MQTT:
   [zigbee2mqtt#24198](https://github.com/Koenkk/zigbee2mqtt/discussions/24198).
+- Lock-state sensing for the existing door locks: a Zigbee water-leak sensor
+  with an external two-wire probe, hidden in the door frame, with each probe
+  wire ending in a foil pad inside the strike box; the thrown deadbolt bridges
+  the pads, so "leak" means "locked". Fails safe (any fault reads as not locked)
+  and cannot actuate. In Zigbee2MQTT, invert the device's leak payload and show
+  the entity as a lock, since a leak reads as on while a lock entity expects off
+  for locked. Constraints: room for the wires in the strike box, a conductive
+  deadbolt, and a contact that holds across the play of the key.
 - Automations:
     - Smart chair: contact sensor
       ([reference](https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar)).
