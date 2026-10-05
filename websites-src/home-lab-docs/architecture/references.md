@@ -4,10 +4,23 @@
 
 - How to change the
   [NUT integration configuration](https://community.home-assistant.io/t/how-do-i-change-nut-ip-address/597162/5).
+- [Awesome Home Assistant](https://www.awesome-ha.com/): a curated list of Home
+  Assistant integrations, add-ons, and resources.
 
 ## Home lab examples
 
 - [khuedoan/homelab](https://github.com/khuedoan/homelab)
+
+## Software directories
+
+- [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted):
+  a curated list of self-hosted software.
+- [awesome-sysadmin](https://github.com/awesome-foss/awesome-sysadmin): a
+  curated list of system administration software.
+- [awesome-arr](https://github.com/Ravencentric/awesome-arr): the arr media
+  automation ecosystem.
+- [Open Source Security Index](https://opensourcesecurityindex.io/): a ranking
+  of open source security projects by activity.
 
 ## Nix and NixOS
 
