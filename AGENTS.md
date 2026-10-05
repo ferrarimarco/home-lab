@@ -36,7 +36,16 @@ annotations: follow the
 [Todo list management guide](./websites-src/home-lab-docs/guides/development/todo-list.md)
 when adding, completing, or discarding items.
 
-### 1.4 Guides Are the Knowledge Base
+### 1.4 Documentation Placement
+
+[`websites-src/home-lab-docs/architecture/`](./websites-src/home-lab-docs/architecture/)
+describes the lab as it is, including the references behind existing decisions.
+Forward-looking material, such as candidate software and plans, belongs under
+[`websites-src/home-lab-docs/specs/`](./websites-src/home-lab-docs/specs/) next
+to the todo list; a page there that is not a specification carries no status
+table and gets no row in the specifications index table.
+
+### 1.5 Guides Are the Knowledge Base
 
 Reusable operational and development knowledge (commands, invocation patterns,
 troubleshooting workflows, verification recipes) belongs in the guides under

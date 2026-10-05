@@ -124,6 +124,14 @@ host nor the shells provide them:
   `scripts/format.sh`.
 - Material for MkDocs: `scripts/run-mkdocs.sh`.
 
+A tool that neither the host, the shells, nor the containers provide can run
+once from nixpkgs without installing it, for example poppler-utils to extract
+the text of a PDF:
+
+```shell
+nix shell nixpkgs#poppler-utils --command pdftotext -layout <file.pdf> <output.txt>
+```
+
 ## Add a tool to a shell
 
 1. Add the package to the `packages` list of the shell definition, keeping the

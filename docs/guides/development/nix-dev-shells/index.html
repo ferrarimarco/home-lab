@@ -1946,6 +1946,11 @@ host nor the shells provide them:</p>
   <code>scripts/format.sh</code>.</li>
 <li>Material for MkDocs: <code>scripts/run-mkdocs.sh</code>.</li>
 </ul>
+<p>A tool that neither the host, the shells, nor the containers provide can run
+once from nixpkgs without installing it, for example poppler-utils to extract
+the text of a PDF:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>shell<span class="w"> </span>nixpkgs#poppler-utils<span class="w"> </span>--command<span class="w"> </span>pdftotext<span class="w"> </span>-layout<span class="w"> </span>&lt;file.pdf&gt;<span class="w"> </span>&lt;output.txt&gt;
+</code></pre></div>
 <h2 id="add-a-tool-to-a-shell">Add a tool to a shell</h2>
 <ol>
 <li>Add the package to the <code>packages</code> list of the shell definition, keeping the
