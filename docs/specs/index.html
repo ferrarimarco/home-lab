@@ -2183,6 +2183,14 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Encrypt disks; unlock remotely:
   <a href="https://www.cyberciti.biz/security/how-to-unlock-luks-using-dropbear-ssh-keys-remotely-in-linux/">LUKS unlock via Dropbear SSH</a>.</li>
 <li>SSH: sshd AuthorizedKeysCommand; IdentitiesOnly.</li>
+<li>NixOS hardening, in order of intrusiveness: enable the NixOS firewall with the
+  Tailscale interface trusted; harden each service unit with the systemd
+  sandboxing directives (ProtectSystem, ProtectHome, NoNewPrivileges, the
+  ProtectKernel family), using <code>systemd-analyze security</code> as the yardstick;
+  audit every <code>execve</code> with the kernel audit subsystem and ship the logs off the
+  host; strip the default packages. Later options: an ephemeral root with opt-in
+  persistence (impermanence or preservation), and <code>noexec</code> on every mount except
+  the Nix store, which can break Nix builds and needs a break-glass path back.</li>
 </ul>
 <h3 id="cicd-infrastructure-as-code-and-gitops">CI/CD, infrastructure-as-code, and GitOps</h3>
 <ul>

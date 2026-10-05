@@ -215,6 +215,14 @@ reliability risks first, then security exposure, then automation):
 - Encrypt disks; unlock remotely:
   [LUKS unlock via Dropbear SSH](https://www.cyberciti.biz/security/how-to-unlock-luks-using-dropbear-ssh-keys-remotely-in-linux/).
 - SSH: sshd AuthorizedKeysCommand; IdentitiesOnly.
+- NixOS hardening, in order of intrusiveness: enable the NixOS firewall with the
+  Tailscale interface trusted; harden each service unit with the systemd
+  sandboxing directives (ProtectSystem, ProtectHome, NoNewPrivileges, the
+  ProtectKernel family), using `systemd-analyze security` as the yardstick;
+  audit every `execve` with the kernel audit subsystem and ship the logs off the
+  host; strip the default packages. Later options: an ephemeral root with opt-in
+  persistence (impermanence or preservation), and `noexec` on every mount except
+  the Nix store, which can break Nix builds and needs a break-glass path back.
 
 ### CI/CD, infrastructure-as-code, and GitOps
 
