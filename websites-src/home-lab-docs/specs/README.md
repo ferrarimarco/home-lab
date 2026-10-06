@@ -353,10 +353,15 @@ reliability risks first, then security exposure, then automation):
   status, the experiment log, the BIOS export, and the decisions taken (scratch
   drives kept, HDD spin-down excluded, runtime tunables not persisted) are in
   the [host power guide](../guides/operations/host-power.md). Remaining steps:
-    - Stress-test the SATA link power management that the BIOS change of
+    - Keep watching the SATA link power management that the BIOS change of
       2026-10-06 enabled (the kernel applies `min_power_with_partial` on the
-      three links at boot): run a ZFS scrub of `tank-hdd` with the kernel log
-      watched for link resets before trusting it for 24/7 duty.
+      three links at boot): the nas-pve2 root filesystem on the data disk wakes
+      its link at every transaction group sync, and a 4 GiB sequential read pass
+      per drive on 2026-10-06 ran at full speed with no link events and no new
+      UDMA CRC errors. Before declaring it fit for 24/7 duty, check the kernel
+      log for `ata1`-`ata3` resets and the `UDMA_CRC_Error_Count` attributes
+      after a few days of uptime, and run a ZFS scrub once the pools hold enough
+      data for a scrub to exercise the links (today they hold about 1 GB).
     - Replace the PSU, last, so it is measured at the final DC load.
     - Deferred until the pve2 workload is defined: the CPU governor, the energy
       performance bias (Balanced Performance today, BIOS-controlled at boot,

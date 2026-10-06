@@ -114,13 +114,14 @@ EUR per year.
 
 ### Runtime experiments
 
-| Date       | Change                                                                                                                    | Before (median)      | After (median)             | Result                                    |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------- | ----------------------------------------- |
-| 2026-10-04 | PCIe ASPM policy `default` to `powersave`                                                                                 | 68 W, 1.6 h          | 68 W, 3.3 h                | Within noise, no errors                   |
-| 2026-10-05 | PCIe ASPM `powersave` again after a boot                                                                                  | 69 W                 | 68-73 W (shared plug)      | Within noise, no errors                   |
-| 2026-10-05 | PCI runtime PM `auto` on 99 devices                                                                                       | 69 W                 | 68 W                       | 80 devices suspended, no errors           |
-| 2026-10-05 | SATA `med_power_with_dipm` on host0                                                                                       | 69 W                 | not applied                | Kernel refused: `Operation not supported` |
-| 2026-10-06 | BIOS: sSATA ALPM on, hot-plug off, six-port SATA controller, audio, serial port 1 off; links now `min_power_with_partial` | 68-70 W (1 h before) | 69 W, 1 h (p25 67, p75 71) | Within noise, at most 1-2 W; no errors    |
+| Date       | Change                                                                                                                    | Before (median)      | After (median)             | Result                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------- | --------------------------------------------------- |
+| 2026-10-04 | PCIe ASPM policy `default` to `powersave`                                                                                 | 68 W, 1.6 h          | 68 W, 3.3 h                | Within noise, no errors                             |
+| 2026-10-05 | PCIe ASPM `powersave` again after a boot                                                                                  | 69 W                 | 68-73 W (shared plug)      | Within noise, no errors                             |
+| 2026-10-05 | PCI runtime PM `auto` on 99 devices                                                                                       | 69 W                 | 68 W                       | 80 devices suspended, no errors                     |
+| 2026-10-05 | SATA `med_power_with_dipm` on host0                                                                                       | 69 W                 | not applied                | Kernel refused: `Operation not supported`           |
+| 2026-10-06 | BIOS: sSATA ALPM on, hot-plug off, six-port SATA controller, audio, serial port 1 off; links now `min_power_with_partial` | 68-70 W (1 h before) | 69 W, 1 h (p25 67, p75 71) | Within noise, at most 1-2 W; no errors              |
+| 2026-10-06 | Sequential read pass, 4 GiB per drive, under link PM                                                                      | n/a                  | n/a                        | 140/210/539 MB/s, no link events, no new CRC errors |
 
 The ASPM change enabled L0s and L1 on both i210 links and L1 on their root ports
 (the NVMe already ran L1). Runtime PM suspended the uncore stubs, idle bridges,
@@ -161,8 +162,11 @@ controller reports `ahci_host_caps` `0xc730ff43` (SALP set), the three used
 ports no longer carry the hot-plug bit, and the kernel applied its default
 policy `min_power_with_partial` to all three links at boot, with the links up at
 full speed, no errors, and the drives active (not in standby: link power
-management acts on the SATA link, not on the spindle). The ZFS scrub remains the
-stress test before trusting it.
+management acts on the SATA link, not on the spindle). A 4 GiB sequential read
+per drive after idle gaps (direct I/O) ran at 140, 210, and 539 MB/s with no
+link events and no new `UDMA_CRC_Error_Count`; a scrub only reads allocated
+blocks, so it becomes a meaningful test once the pools hold data. Check the
+kernel log and the CRC counters again after a few days of uptime.
 
 ### BIOS settings
 

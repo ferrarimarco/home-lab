@@ -2042,6 +2042,13 @@ EUR per year.</p>
 <td>69 W, 1 h (p25 67, p75 71)</td>
 <td>Within noise, at most 1-2 W; no errors</td>
 </tr>
+<tr>
+<td>2026-10-06</td>
+<td>Sequential read pass, 4 GiB per drive, under link PM</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>140/210/539 MB/s, no link events, no new CRC errors</td>
+</tr>
 </tbody>
 </table>
 <p>The ASPM change enabled L0s and L1 on both i210 links and L1 on their root ports
@@ -2079,8 +2086,11 @@ controller reports <code>ahci_host_caps</code> <code>0xc730ff43</code> (SALP set
 ports no longer carry the hot-plug bit, and the kernel applied its default
 policy <code>min_power_with_partial</code> to all three links at boot, with the links up at
 full speed, no errors, and the drives active (not in standby: link power
-management acts on the SATA link, not on the spindle). The ZFS scrub remains the
-stress test before trusting it.</p>
+management acts on the SATA link, not on the spindle). A 4 GiB sequential read
+per drive after idle gaps (direct I/O) ran at 140, 210, and 539 MB/s with no
+link events and no new <code>UDMA_CRC_Error_Count</code>; a scrub only reads allocated
+blocks, so it becomes a meaningful test once the pools hold data. Check the
+kernel log and the CRC counters again after a few days of uptime.</p>
 <h3 id="bios-settings">BIOS settings</h3>
 <p>The export below was taken with Supermicro Update Manager, following the
 <a href="../hardware/#bios-configuration-with-sum">BIOS configuration procedure</a> in the
