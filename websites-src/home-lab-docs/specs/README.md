@@ -126,12 +126,6 @@ reliability risks first, then security exposure, then automation):
     - Home Assistant sometimes leaves corrupted DBs behind on restart (clean up
       if it happens). Remediation: safely restart the container by
       [shutting Home Assistant down before updating](https://community.home-assistant.io/t/shut-down-home-assistant-cleanly-before-shutdown-docker/301438).
-    - The pve2 node exporter has never answered a scrape (verified over 30 days
-      of TSDB history on 2026-10-04, including power-on windows where the host
-      answered pings), so `InstanceDown` for pve2 does not resolve even while
-      the host runs. The `ferrarimarco_home_lab_monitoring` role installs the
-      exporter, but its `monitoring.yaml` playbook is not part of `main.yaml`
-      and was never run against pve2: run it against pve2 at its next power-on.
     - The `network-stack-coredns` Prometheus scrape job renders zero targets: no
       inventory host sets `configure_network_stack` yet. Decision (2026-10-04):
       the job stays as preparation for the CoreDNS deployment, and the
@@ -816,10 +810,6 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   `config/nix/roles/` (shared service defaults in the role, per-host values in
   the host configuration), so a future nas-pve2 instance reuses it instead of
   duplicating it.
-- **Remove the Ansible Syncthing stack**: once no Ansible-managed host runs
-  Syncthing, the role's Syncthing machinery (compose template, stack variables
-  and enablement flag, endpoint wiring) becomes dead code to delete. Depends on:
-  the raspberrypi2 re-image ([Current focus](#current-focus)).
 - **raspberrypi2 restic repository wind-down (decided 2026-09-26)**: hl01's
   restic repository stays on `rpool-sata` via the existing `backups` share (no
   consolidation onto the USB pools). raspberrypi2's repository covers only the

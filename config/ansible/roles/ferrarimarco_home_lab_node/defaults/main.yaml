@@ -20,6 +20,10 @@ configure_openssh_keypair: false
 configure_backup_restic: false
 configure_rsync_daemon: false
 configure_ssh: true
+# No host currently enables Syncthing (the nas-pve1 instance is
+# NixOS-managed), but the stack stays deliberately: it is the deployment
+# path for Syncthing on non-NixOS hosts, such as raspberrypi2 after its
+# re-image (decision 2026-10-06).
 configure_syncthing: false
 configure_tailscale: false
 configure_wifi: false
