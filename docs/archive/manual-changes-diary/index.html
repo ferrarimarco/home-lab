@@ -538,6 +538,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-10-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-10-05
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-10-04" class="md-nav__link">
     <span class="md-ellipsis">
       2026-10-04
@@ -1803,6 +1812,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-10-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-10-05
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-10-04" class="md-nav__link">
     <span class="md-ellipsis">
       2026-10-04
@@ -1994,6 +2012,24 @@
 whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.</p>
+<h2 id="2026-10-05">2026-10-05</h2>
+<ul>
+<li><code>pve2</code>: plugged back in (BMC up at its DHCP lease) and powered on for the
+  second round of power experiments; the node exporter was deployed with the
+  monitoring playbook, which resolved the <code>InstanceDown</code> and HTTP probe alerts
+  for the host. Manual runtime changes, none persisted:<ul>
+<li>PCIe ASPM policy set to <code>powersave</code> again; it lasts until the next boot.</li>
+<li>PCI runtime PM set to <code>auto</code> on 99 devices for a measured window, then
+  restored to <code>on</code> by its own 20-minute timer.</li>
+<li>SATA <code>med_power_with_dipm</code> on <code>host0</code> was refused by the kernel: the
+  firmware flags every port hot-plug-capable and both controllers lack the
+  aggressive link power management capability (details in the
+  <a href="../../guides/operations/host-power/">host power guide</a>).</li>
+<li>Supermicro Update Manager was copied to <code>/root/sum</code>, run in-band once to
+  export the BIOS configuration (<code>GetCurrentBiosCfg</code>), and removed again.</li>
+</ul>
+</li>
+</ul>
 <h2 id="2026-10-04">2026-10-04</h2>
 <ul>
 <li><code>pve2</code>: powered on for the power reduction investigation (goal: run the host

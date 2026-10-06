@@ -1176,6 +1176,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#bios-configuration-with-sum" class="md-nav__link">
+    <span class="md-ellipsis">
+      BIOS configuration with SUM
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supermicro-x10srl-f-motherboard-standoff-short" class="md-nav__link">
     <span class="md-ellipsis">
       Supermicro X10SRL-F motherboard standoff short
@@ -1694,6 +1703,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#bios-configuration-with-sum" class="md-nav__link">
+    <span class="md-ellipsis">
+      BIOS configuration with SUM
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supermicro-x10srl-f-motherboard-standoff-short" class="md-nav__link">
     <span class="md-ellipsis">
       Supermicro X10SRL-F motherboard standoff short
@@ -1747,6 +1765,34 @@ over SSH regardless of the BMC's address, through the <code>/dev/ipmi0</code> in
 kernel exposes. On 2026-10-04 the fan mode read Optimal, the fans 300-1100 RPM,
 and FAN1 sat below its lower non-critical threshold at 300 RPM, the symptom the
 thresholds above address.</p>
+<h2 id="bios-configuration-with-sum">BIOS configuration with SUM</h2>
+<p>Supermicro Update Manager (SUM) reads and writes the BIOS configuration as a
+text file. On this board generation it is the only programmatic path: the BMC's
+Redfish 1.0.1 service has no BIOS resource, and IPMI does not expose settings.</p>
+<ul>
+<li>The tool is proprietary and stays out of the repository: keep the downloaded
+  archive outside the working tree (the control machine's downloads directory)
+  and copy the extracted directory to the host only for the duration of a
+  command, then remove it.</li>
+<li>In-band use needs no license and no driver on Linux unless Secure Boot is
+  enabled (disabled on pve2). Out-of-band use through the BMC requires
+  Supermicro's per-node activation key, which X10 boards do not include.</li>
+<li>
+<p>Export the current configuration, as root on the host:</p>
+<div class="highlight"><pre><span></span><code>./sum<span class="w"> </span>-c<span class="w"> </span>GetCurrentBiosCfg<span class="w"> </span>--file<span class="w"> </span>pve2-bios-current.cfg<span class="w"> </span>--overwrite
+</code></pre></div>
+</li>
+<li>
+<p>Apply changes from a compact file holding only the changed settings:</p>
+<div class="highlight"><pre><span></span><code>./sum<span class="w"> </span>-c<span class="w"> </span>ChangeBiosCfg<span class="w"> </span>--file<span class="w"> </span>pve2-bios-changes.cfg
+</code></pre></div>
+<p>The uploaded configuration takes effect only after a reboot or power-up;
+<code>--reboot</code> restarts the host right away. Verify from the OS after the boot
+(SATA capability bits and port flags, memory speed, controllers present in
+<code>lspci</code>), then measure on the plug. The compact file is the declared BIOS
+state and belongs in the repository once applied; the full export does not.</p>
+</li>
+</ul>
 <h2 id="supermicro-x10srl-f-motherboard-standoff-short">Supermicro X10SRL-F motherboard standoff short</h2>
 <p>The Supermicro X10SRL-F motherboard doesn't have the standard ATX mounting hole
 layout. In a case with standoffs installed for the standard layout, one standoff

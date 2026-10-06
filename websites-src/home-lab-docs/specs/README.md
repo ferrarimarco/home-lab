@@ -333,44 +333,26 @@ reliability risks first, then security exposure, then automation):
 ### Host configuration
 
 - **pve2 power reduction before running it 24/7**: the goal is to run pve2
-  around the clock, but it stays powered off until its idle draw comes down.
-  Measured idle wall power is about 45 W (plug: ~25 W with pve2 off, ~68 W on
-  and idle, 20 W unplugged, so 5 W of standby for the PSU and the BMC), about 39
-  EUR per year at the current tariff. The CPU side is at its platform floor
-  (RAPL package ~8 W, package C6 88%, cores 99.8% C6; a Broadwell-EP platform
-  has no deeper package state), the BMC fan mode is already Optimal with fans at
-  300-1100 RPM, and the PSU has no PMBus, so the plug is the only instrument.
-  Measurements, the query recipe, and the experiment log are in the
-  [host power guide](../guides/operations/host-power.md). Decisions: the two
-  scratch drives (Samsung HD103SJ, OCZ Vertex 3, ~7 W DC together) stay for now,
-  and HDD spin-down stays excluded by policy. Levers, in order of expected gain:
-    - Replace the PSU: the OCZ ModXStream Pro 600 W is a 2008-era 80 Plus unit
-      running at ~7% load, where its efficiency is an expected 65-75%, and it is
-      a reliability concern for 24/7 duty. A modern Platinum or Titanium unit
-      sized at 450-550 W is expected to save 7-10 W, plus 1-2 W of standby. Do
-      this last, so it is measured at the final DC load.
-    - Runtime tunables, measured one at a time through the plug with 10-minute
-      windows. Done: PCIe ASPM policy `powersave` (2026-10-04; both i210 links
-      in L0s/L1, within the plug's 1 W noise, no errors). Remaining: SATA link
-      power management (`med_power_with_dipm`, one populated port at a time with
-      the kernel log watched: the old scratch drives are prone to link resets;
-      check `hdparm -I` for DIPM and DevSleep support first) and PCI runtime PM
-      (99 devices on `on`). Expected 1-3 W in total. Persist the measured
-      winners through a dedicated `ferrarimarco_home_lab_power_management` role
-      rendering a `tmpfiles.d` file from a per-host list of sysfs writes; one
-      pve2 reboot proves the boot-time path. Deferred until the pve2 workload is
-      defined: the CPU governor (`performance` on the passive `intel_cpufreq`
-      driver). Its idle gain is under 1 W because the cores sleep 99.8% of the
-      time; its benefit appears under sustained light load, to quantify with a
-      controlled load under both governors.
-    - BIOS: energy-efficient power technology, DRAM power-down, disable the
-      unused sSATA controller, EHCI controllers, and serial ports. Small gains,
-      needs a reboot and console access.
-    - Realistic tuned idle with the scratch drives kept: 31-35 W. Depends on: a
-      stable BMC address for remote recovery during runtime experiments
-      ([Networking](#networking)). Blocks: the media second copy on `tank-hdd`
-      ([NAS](#nas)); the Proxmox node downtime alerts stay enabled by choice
-      until pve2 runs 24/7
+  around the clock, but it stays powered off until its idle draw (~45 W at the
+  wall) comes down. The measurements, the attribution, the levers with their
+  status, the experiment log, the BIOS export, and the decisions taken (scratch
+  drives kept, HDD spin-down excluded, runtime tunables not persisted) are in
+  the [host power guide](../guides/operations/host-power.md). Remaining steps:
+    - Test the energy performance bias at runtime (Balanced Performance to
+      Balanced Power) before deciding whether it joins the BIOS changes.
+    - Apply the BIOS changes listed in the guide through a SUM compact file,
+      reboot once, verify from the OS, and measure.
+    - Run the SATA link power management step (`med_power_with_dipm`, one port
+      at a time, kernel log watched, then a ZFS scrub). Depends on: the BIOS
+      changes, which clear the hot-plug flags and enable aggressive link power
+      management.
+    - Replace the PSU, last, so it is measured at the final DC load.
+    - Deferred until the pve2 workload is defined: the CPU governor, to quantify
+      under a controlled light load.
+    - Depends on: a stable BMC address for remote recovery during runtime
+      experiments ([Networking](#networking)). Blocks: the media second copy on
+      `tank-hdd` ([NAS](#nas)); the Proxmox node downtime alerts stay enabled by
+      choice until pve2 runs 24/7
       ([Monitoring and alerting](#monitoring-and-alerting)).
 - Reconcile pve2's network cabling with the inventory: the cable is on `nic0`
   (link up), while the inventory assigns the reserved address to `nic1` (link

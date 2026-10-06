@@ -5,6 +5,22 @@ whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.
 
+## 2026-10-05
+
+- `pve2`: plugged back in (BMC up at its DHCP lease) and powered on for the
+  second round of power experiments; the node exporter was deployed with the
+  monitoring playbook, which resolved the `InstanceDown` and HTTP probe alerts
+  for the host. Manual runtime changes, none persisted:
+    - PCIe ASPM policy set to `powersave` again; it lasts until the next boot.
+    - PCI runtime PM set to `auto` on 99 devices for a measured window, then
+      restored to `on` by its own 20-minute timer.
+    - SATA `med_power_with_dipm` on `host0` was refused by the kernel: the
+      firmware flags every port hot-plug-capable and both controllers lack the
+      aggressive link power management capability (details in the
+      [host power guide](../guides/operations/host-power.md)).
+    - Supermicro Update Manager was copied to `/root/sum`, run in-band once to
+      export the BIOS configuration (`GetCurrentBiosCfg`), and removed again.
+
 ## 2026-10-04
 
 - `pve2`: powered on for the power reduction investigation (goal: run the host

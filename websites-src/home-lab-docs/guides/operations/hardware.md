@@ -37,6 +37,37 @@ kernel exposes. On 2026-10-04 the fan mode read Optimal, the fans 300-1100 RPM,
 and FAN1 sat below its lower non-critical threshold at 300 RPM, the symptom the
 thresholds above address.
 
+## BIOS configuration with SUM
+
+Supermicro Update Manager (SUM) reads and writes the BIOS configuration as a
+text file. On this board generation it is the only programmatic path: the BMC's
+Redfish 1.0.1 service has no BIOS resource, and IPMI does not expose settings.
+
+- The tool is proprietary and stays out of the repository: keep the downloaded
+  archive outside the working tree (the control machine's downloads directory)
+  and copy the extracted directory to the host only for the duration of a
+  command, then remove it.
+- In-band use needs no license and no driver on Linux unless Secure Boot is
+  enabled (disabled on pve2). Out-of-band use through the BMC requires
+  Supermicro's per-node activation key, which X10 boards do not include.
+- Export the current configuration, as root on the host:
+
+    ```shell
+    ./sum -c GetCurrentBiosCfg --file pve2-bios-current.cfg --overwrite
+    ```
+
+- Apply changes from a compact file holding only the changed settings:
+
+    ```shell
+    ./sum -c ChangeBiosCfg --file pve2-bios-changes.cfg
+    ```
+
+    The uploaded configuration takes effect only after a reboot or power-up;
+    `--reboot` restarts the host right away. Verify from the OS after the boot
+    (SATA capability bits and port flags, memory speed, controllers present in
+    `lspci`), then measure on the plug. The compact file is the declared BIOS
+    state and belongs in the repository once applied; the full export does not.
+
 ## Supermicro X10SRL-F motherboard standoff short
 
 The Supermicro X10SRL-F motherboard doesn't have the standard ATX mounting hole
