@@ -2795,10 +2795,7 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li><strong>Syncthing migration cleanup</strong>: the migration completed on 2026-10-06 (the
   <a href="nas-lxc-container/#125-migration-from-raspberrypi2">migration section</a> of
   the NAS spec records the execution). Remaining: delete the old folder data on
-  the raspberrypi2 data disk (destructive, needs its own approval), and remove
-  the raspberrypi2 device entries from the nas-pve1 and remote-peer device lists
-  (until then, <code>SyncthingDeviceDisconnected</code> fires after 72 hours as a
-  reminder).</li>
+  the raspberrypi2 data disk (destructive, needs its own approval).</li>
 <li><strong>Tailscale on nas-pve1: declarative device management</strong>: manage the joined
   device via the Tailscale Terraform provider, per the
   <a href="nas-lxc-container/#13-tailscale-connectivity">Tailscale connectivity section</a>
