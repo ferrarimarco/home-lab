@@ -9,22 +9,22 @@ Syncthing offsite transport depends on (§13).
 
 ## Implementation Status
 
-| Component / Feature                          | Status                    | Details                                                                           |
-| :------------------------------------------- | :------------------------ | :-------------------------------------------------------------------------------- |
-| **`nas` Role (SMB)**                         | **Fully Implemented**     | NixOS role enabling Samba with declarative share definitions.                     |
-| **`common` Role UID Pin**                    | **Fully Implemented**     | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.          |
-| **Host Config (`nas-pve1`)**                 | **Fully Implemented**     | NixOS host config for the pve1 instance.                                          |
-| **Host Config (`nas-pve2`)**                 | **Fully Implemented**     | NixOS host config for the pve2 instance.                                          |
-| **Terraform LXC (`pve1`)**                   | **Fully Implemented**     | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                  |
-| **Terraform LXC (`pve2`)**                   | **Fully Implemented**     | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                  |
-| **Terraform Template Upload**                | **Fully Implemented**     | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).  |
-| **Host Storage Prep (Ansible)**              | **Fully Implemented**     | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11). |
-| **Host Integration Tests**                   | **Fully Implemented**     | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.             |
-| **Flake Registration**                       | **Fully Implemented**     | Both NAS hosts discovered by the flake (tests and machine matrix).                |
-| **Syncthing Service (`nas-pve1`)**           | **Partially Implemented** | Service deployed and syncing; the migration cutover (§12.5) is pending.           |
-| **Syncthing Storage (dataset, bind mounts)** | **Fully Implemented**     | Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).    |
-| **Tailscale Storage (state bind mount)**     | **Fully Implemented**     | State dir and bind mount live on pve1; Terraform plans no changes (2026-10-03).   |
-| **Tailscale Service (`nas-pve1`)**           | **Fully Implemented**     | Deployed and joined (2026-10-03); declarative key expiry is a readme todo.        |
+| Component / Feature                          | Status                | Details                                                                                                   |
+| :------------------------------------------- | :-------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **`nas` Role (SMB)**                         | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                                             |
+| **`common` Role UID Pin**                    | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.                                  |
+| **Host Config (`nas-pve1`)**                 | **Fully Implemented** | NixOS host config for the pve1 instance.                                                                  |
+| **Host Config (`nas-pve2`)**                 | **Fully Implemented** | NixOS host config for the pve2 instance.                                                                  |
+| **Terraform LXC (`pve1`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                                          |
+| **Terraform LXC (`pve2`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                                          |
+| **Terraform Template Upload**                | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).                          |
+| **Host Storage Prep (Ansible)**              | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11).                         |
+| **Host Integration Tests**                   | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.                                     |
+| **Flake Registration**                       | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                                        |
+| **Syncthing Service (`nas-pve1`)**           | **Fully Implemented** | Migrated: remote peer in sync over the tailnet, raspberrypi2 instance decommissioned (2026-10-06, §12.5). |
+| **Syncthing Storage (dataset, bind mounts)** | **Fully Implemented** | Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).                            |
+| **Tailscale Storage (state bind mount)**     | **Fully Implemented** | State dir and bind mount live on pve1; Terraform plans no changes (2026-10-03).                           |
+| **Tailscale Service (`nas-pve1`)**           | **Fully Implemented** | Deployed and joined (2026-10-03); declarative key expiry is a readme todo.                                |
 
 ## 1. Goal
 
@@ -826,6 +826,15 @@ built-in verification, and saves nothing. Once the folders report in sync, the
 remote peer accepts the new device and drops the old one, the Syncthing blackbox
 probe is re-pointed at nas-pve1, and raspberrypi2's instance is removed
 (`configure_syncthing: false`).
+
+Executed 2026-10-05/06: the remote peer connected over the tailnet through a
+static device address (the instance neither announces to nor queries global
+discovery, so the peer cannot resolve it dynamically) and reconciled both
+folders without conflicts or transfers; the personal-data folder was set to
+receive only on nas-pve1 beforehand, making the remote's authority structural.
+The raspberrypi2 instance was then stopped and its configuration and device
+identity removed. The old folder data on the raspberrypi2 data disk is untouched
+and awaits a separately approved deletion (tracked in the specs index).
 
 ### 12.6 Monitoring
 

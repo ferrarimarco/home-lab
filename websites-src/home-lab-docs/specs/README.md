@@ -33,9 +33,10 @@ reliability risks first, then security exposure, then automation):
 - Evacuate the data off the raspberrypi2 data disk: one aging disk holds the
   only copy of the media library, a personal data directory, and the restic
   repositories, so this stays the top data-loss risk. Two tracks ([NAS](#nas)):
-  the Syncthing folders are seeded to nas-pve1 and awaiting cutover; the media
-  library waits for the `rpool-usb-2` pool. Blocks: the media stack migration
-  cutover and the SMART long self-test ([Issues to solve](#issues-to-solve)).
+  the Syncthing folders now live on nas-pve1 (migration complete 2026-10-06; the
+  old copies on the data disk await deletion); the media library waits for the
+  `rpool-usb-2` pool. Blocks: the media stack migration cutover and the SMART
+  long self-test ([Issues to solve](#issues-to-solve)).
 - Migrate the containers from raspberrypi2 to hl01: shrinks that host's role and
   unblocks its re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). Depends
@@ -787,15 +788,13 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   evaluate pve2's `tank-hdd` as the long-term media home or second copy once
   pve2 runs 24/7. Depends on: the pve2 power reduction
   ([Host configuration](#host-configuration)).
-- **Syncthing migration to nas-pve1**: the service runs on the nas-pve1 guest
-  and the folders finished seeding over the LAN on 2026-10-01; the
-  [Syncthing service section](./nas-lxc-container.md#12-syncthing-service) of
-  the NAS spec records the design and the migration procedure. Remaining:
-  complete the peer swap (in progress since nas-pve1 joined the tailnet on
-  2026-10-03), re-point the Syncthing blackbox probe
-  ([Issues to solve](#issues-to-solve)), set `configure_syncthing: false` on
-  raspberrypi2, and remove the old data. The Prometheus metrics scrape and alert
-  rules landed ahead of the cutover (monitoring-alerting spec §6.8).
+- **Syncthing migration cleanup**: the migration completed on 2026-10-06 (the
+  [migration section](./nas-lxc-container.md#125-migration-from-raspberrypi2) of
+  the NAS spec records the execution). Remaining: delete the old folder data on
+  the raspberrypi2 data disk (destructive, needs its own approval), and remove
+  the raspberrypi2 device entries from the nas-pve1 and remote-peer device lists
+  (until then, `SyncthingDeviceDisconnected` fires after 72 hours as a
+  reminder).
 - **Tailscale on nas-pve1: declarative device management**: manage the joined
   device via the Tailscale Terraform provider, per the
   [Tailscale connectivity section](./nas-lxc-container.md#13-tailscale-connectivity)
@@ -820,8 +819,7 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
 - **Remove the Ansible Syncthing stack**: once no Ansible-managed host runs
   Syncthing, the role's Syncthing machinery (compose template, stack variables
   and enablement flag, endpoint wiring) becomes dead code to delete. Depends on:
-  the Syncthing migration cutover and the raspberrypi2 re-image
-  ([Current focus](#current-focus)).
+  the raspberrypi2 re-image ([Current focus](#current-focus)).
 - **raspberrypi2 restic repository wind-down (decided 2026-09-26)**: hl01's
   restic repository stays on `rpool-sata` via the existing `backups` share (no
   consolidation onto the USB pools). raspberrypi2's repository covers only the

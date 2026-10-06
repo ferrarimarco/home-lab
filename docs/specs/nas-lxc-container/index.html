@@ -2652,8 +2652,8 @@ Syncthing offsite transport depends on (§13).</p>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Syncthing Service (<code>nas-pve1</code>)</strong></td>
-<td style="text-align: left;"><strong>Partially Implemented</strong></td>
-<td style="text-align: left;">Service deployed and syncing; the migration cutover (§12.5) is pending.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Migrated: remote peer in sync over the tailnet, raspberrypi2 instance decommissioned (2026-10-06, §12.5).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Syncthing Storage (dataset, bind mounts)</strong></td>
@@ -3380,6 +3380,14 @@ built-in verification, and saves nothing. Once the folders report in sync, the
 remote peer accepts the new device and drops the old one, the Syncthing blackbox
 probe is re-pointed at nas-pve1, and raspberrypi2's instance is removed
 (<code>configure_syncthing: false</code>).</p>
+<p>Executed 2026-10-05/06: the remote peer connected over the tailnet through a
+static device address (the instance neither announces to nor queries global
+discovery, so the peer cannot resolve it dynamically) and reconciled both
+folders without conflicts or transfers; the personal-data folder was set to
+receive only on nas-pve1 beforehand, making the remote's authority structural.
+The raspberrypi2 instance was then stopped and its configuration and device
+identity removed. The old folder data on the raspberrypi2 data disk is untouched
+and awaits a separately approved deletion (tracked in the specs index).</p>
 <h3 id="126-monitoring">12.6 Monitoring</h3>
 <p>The monitoring backend scrapes the instance's native metrics endpoint and alerts
 on folder errors, stuck syncs, and unseen peers; the
