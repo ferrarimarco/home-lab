@@ -147,9 +147,11 @@ describes them all. Key rules:
   `nix build .#proxmox-images`. Any other `nix build` clobbers the single
   `result` symlink, so re-run that build before applying.
 - **Ansible via `scripts/run-ansible.sh`:** runs containerized. Select the
-  playbook with `ANSIBLE_PLAYBOOK_FILE_NAME`, pass extra flags (e.g. `--limit`,
-  `--check`, `--diff`) via `ADDITIONAL_ANSIBLE_FLAGS`, edit vault files with
-  `ANSIBLE_EDIT_VAULT_FILE=true`, and view them read-only with
+  narrowest playbook under `config/ansible/playbooks/` that covers the change
+  (`main.yaml` chains most of the other playbooks, several of whose plays target
+  all hosts) with `ANSIBLE_PLAYBOOK_FILE_NAME`, pass extra flags (e.g.
+  `--limit`, `--check`, `--diff`) via `ADDITIONAL_ANSIBLE_FLAGS`, edit vault
+  files with `ANSIBLE_EDIT_VAULT_FILE=true`, and view them read-only with
   `ANSIBLE_VIEW_VAULT_FILE=true` (both take `ANSIBLE_VAULT_FILE_PATH` to select
   a non-default vault file). The script needs the SSH agent socket, which agent
   shells do not inherit: discover it and prefix the invocation with

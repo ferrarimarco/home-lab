@@ -65,6 +65,33 @@ ssh pi@raspberrypi2.edge.lab.ferrari.how \
 List and expire silences with `amtool silence query` and
 `amtool silence expire <id>` through the same invocation pattern.
 
+## Interpreting query results
+
+- **A gap in `query_range` samples is a state change.** `ALERTS` series exist
+  only while an alert is pending or firing, so summarizing a range by
+  compressing sample values without splitting on gaps reports an alert as
+  continuously firing when it resolved mid-window. The same applies to `up` and
+  probe series after a configuration change removes their target.
+- **Instant queries look back five minutes for the latest sample** (the default
+  lookback delta). A live configuration reload writes staleness markers for a
+  removed target's series, so they disappear quickly; a Prometheus restart does
+  not, so after a restart-applied scrape-configuration change (how this stack
+  deploys them), removed targets linger in instant results for up to five
+  minutes.
+- **PromQL set operators match on full label sets, ignoring the metric name.**
+  `a or b` suppresses right-hand series whose labels match a left-hand series,
+  so enumerating several metrics in one `or` chain silently drops some: query
+  each metric separately instead.
+
+### Auditing alert coverage
+
+To find unalerted signals, diff the scrape jobs against the alert rule file's
+groups: `count by (job) (up)` lists every job with at least one scraped target
+(up or down), a configured job missing from the result rendered zero targets,
+and each job without a corresponding rule group is a candidate gap. Verify every
+candidate rule expression against the metric names actually present in the TSDB
+before writing it: exporters rename and re-label metrics between versions.
+
 ## Prometheus Blackbox Exporter example queries
 
 The Blackbox Exporter exposes a probe endpoint at

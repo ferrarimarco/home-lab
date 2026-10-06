@@ -1231,6 +1231,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#interpreting-query-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interpreting query results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interpreting query results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auditing-alert-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auditing alert coverage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prometheus-blackbox-exporter-example-queries" class="md-nav__link">
     <span class="md-ellipsis">
       Prometheus Blackbox Exporter example queries
@@ -1712,6 +1736,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#interpreting-query-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interpreting query results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interpreting query results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auditing-alert-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auditing alert coverage
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prometheus-blackbox-exporter-example-queries" class="md-nav__link">
     <span class="md-ellipsis">
       Prometheus Blackbox Exporter example queries
@@ -1793,6 +1841,31 @@ downtime instead of changing the alert rules:</p>
 </code></pre></div>
 <p>List and expire silences with <code>amtool silence query</code> and
 <code>amtool silence expire &lt;id&gt;</code> through the same invocation pattern.</p>
+<h2 id="interpreting-query-results">Interpreting query results</h2>
+<ul>
+<li><strong>A gap in <code>query_range</code> samples is a state change.</strong> <code>ALERTS</code> series exist
+  only while an alert is pending or firing, so summarizing a range by
+  compressing sample values without splitting on gaps reports an alert as
+  continuously firing when it resolved mid-window. The same applies to <code>up</code> and
+  probe series after a configuration change removes their target.</li>
+<li><strong>Instant queries look back five minutes for the latest sample</strong> (the default
+  lookback delta). A live configuration reload writes staleness markers for a
+  removed target's series, so they disappear quickly; a Prometheus restart does
+  not, so after a restart-applied scrape-configuration change (how this stack
+  deploys them), removed targets linger in instant results for up to five
+  minutes.</li>
+<li><strong>PromQL set operators match on full label sets, ignoring the metric name.</strong>
+  <code>a or b</code> suppresses right-hand series whose labels match a left-hand series,
+  so enumerating several metrics in one <code>or</code> chain silently drops some: query
+  each metric separately instead.</li>
+</ul>
+<h3 id="auditing-alert-coverage">Auditing alert coverage</h3>
+<p>To find unalerted signals, diff the scrape jobs against the alert rule file's
+groups: <code>count by (job) (up)</code> lists every job with at least one scraped target
+(up or down), a configured job missing from the result rendered zero targets,
+and each job without a corresponding rule group is a candidate gap. Verify every
+candidate rule expression against the metric names actually present in the TSDB
+before writing it: exporters rename and re-label metrics between versions.</p>
 <h2 id="prometheus-blackbox-exporter-example-queries">Prometheus Blackbox Exporter example queries</h2>
 <p>The Blackbox Exporter exposes a probe endpoint at
 <code>http://&lt;blackbox-exporter-host&gt;:9115/probe</code>. You can query it directly to run a
