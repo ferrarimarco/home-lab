@@ -95,6 +95,9 @@
     entity_id: switch.presa_studio_gaming
     state:
     - 'on'
+  - condition: numeric_state
+    entity_id: sensor.presa_studio_gaming_current
+    below: 0.15
   actions:
   - action: switch.turn_off
     metadata: {}
@@ -137,6 +140,9 @@
     device_id: 87f43ce91a0ed169ac75a705db7156e2
     entity_id: 2f61ce29f95a117b1d672a06ed2b1cc6
     domain: switch
+  - condition: numeric_state
+    entity_id: sensor.presa_sala_gaming_current
+    below: 0.15
   actions:
   - type: turn_off
     device_id: 87f43ce91a0ed169ac75a705db7156e2
