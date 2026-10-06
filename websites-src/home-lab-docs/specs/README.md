@@ -56,13 +56,19 @@ reliability risks first, then security exposure, then automation):
   only works while the host runs; the shell covers the powered-off case.
 - Extend `ferrarimarco_home_lab_boot_bare_metal` to power on hosts through their
   BMC: today the role only sends Wake-on-LAN packets to every MAC in
-  `network_interfaces` and waits for SSH. For hosts that declare a BMC address,
-  use `community.general.ipmi_power` (state `on`, delegated to the control
-  machine; it needs the `pyghmi` library in the Ansible container image) with
-  the BMC address from the inventory and the credentials from the vault, before
-  the SSH wait. Depends on: the BMC DHCP reservation
-  ([Networking](#networking)), so the inventory can carry a stable address or
-  name.
+  `network_interfaces` and waits for SSH. Verify the existing Wake-on-LAN path
+  first: the task sends the magic packets from inside the Ansible container,
+  delegated to localhost, and the runner does not use host networking, so the
+  broadcast may never leave Docker's bridge. A magic packet sent from a LAN host
+  (raspberrypi2) did wake pve2 on 2026-10-06, so the host side works (the i210
+  reports `Wake-on: g`). Test the playbook against pve2 while it is off,
+  watching the plug; if it fails, either run that playbook with host networking
+  or delegate the send to a LAN host. For hosts that declare a BMC address, use
+  `community.general.ipmi_power` (state `on`, delegated to the control machine;
+  it needs the `pyghmi` library in the Ansible container image) with the BMC
+  address from the inventory and the credentials from the vault, before the SSH
+  wait. Depends on: the BMC DHCP reservation ([Networking](#networking)), so the
+  inventory can carry a stable address or name.
 - Generate a Home Lab bootstrapping keypair.
 - Fully automate Terraform runs. Reference:
   [Running Terraform in automation](https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform).
@@ -197,6 +203,15 @@ reliability risks first, then security exposure, then automation):
     - Terraform provider registry
 - Automated troubleshooting playbook: test the DNS server, test the DNS
   resolver.
+- raspberrypi2: a watchdog that covers a root filesystem stall. The armed
+  hardware watchdog (`RuntimeWatchdogSec=15`) only resets a hung kernel: PID 1
+  keeps petting it during a root I/O stall, which is the failure the host
+  actually has (2026-10-06, see the
+  [stability notes](../archive/raspberrypi2-stability-issues.md)). Candidate:
+  the `watchdog` daemon with a file-write test on the root device and a short
+  timeout, or an alert-driven external reset. The OS re-image
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)) remains
+  the leading fix for the cause.
 
 ### Security
 
@@ -338,17 +353,22 @@ reliability risks first, then security exposure, then automation):
   status, the experiment log, the BIOS export, and the decisions taken (scratch
   drives kept, HDD spin-down excluded, runtime tunables not persisted) are in
   the [host power guide](../guides/operations/host-power.md). Remaining steps:
-    - Test the energy performance bias at runtime (Balanced Performance to
-      Balanced Power) before deciding whether it joins the BIOS changes.
-    - Apply the BIOS changes listed in the guide through a SUM compact file,
-      reboot once, verify from the OS, and measure.
-    - Run the SATA link power management step (`med_power_with_dipm`, one port
-      at a time, kernel log watched, then a ZFS scrub). Depends on: the BIOS
-      changes, which clear the hot-plug flags and enable aggressive link power
-      management.
+    - Stress-test the SATA link power management that the BIOS change of
+      2026-10-06 enabled (the kernel applies `min_power_with_partial` on the
+      three links at boot): run a ZFS scrub of `tank-hdd` with the kernel log
+      watched for link resets before trusting it for 24/7 duty.
     - Replace the PSU, last, so it is measured at the final DC load.
-    - Deferred until the pve2 workload is defined: the CPU governor, to quantify
-      under a controlled light load.
+    - Deferred until the pve2 workload is defined: the CPU governor, the energy
+      performance bias (Balanced Performance today, BIOS-controlled at boot,
+      writable at runtime through `energy_perf_bias`), and the memory frequency
+      (1866 MT/s today; 1333 or 1600 MT/s is a BIOS line in the compact file).
+      All three trade performance for power under load: compare them with a
+      controlled load on the plug, then decide what goes into the BIOS file or
+      the host configuration.
+    - The power instrument depends on raspberrypi2: the Zigbee plugs reach Home
+      Assistant through Zigbee2MQTT on that host, so measurements pause when it
+      stalls (2026-10-06). Depends on: the container migration
+      ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
     - Depends on: a stable BMC address for remote recovery during runtime
       experiments ([Networking](#networking)). Blocks: the media second copy on
       `tank-hdd` ([NAS](#nas)); the Proxmox node downtime alerts stay enabled by

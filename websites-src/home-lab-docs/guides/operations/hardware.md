@@ -66,7 +66,11 @@ Redfish 1.0.1 service has no BIOS resource, and IPMI does not expose settings.
     `--reboot` restarts the host right away. Verify from the OS after the boot
     (SATA capability bits and port flags, memory speed, controllers present in
     `lspci`), then measure on the plug. The compact file is the declared BIOS
-    state and belongs in the repository once applied; the full export does not.
+    state and belongs in the repository once applied (pve2's is
+    [`config/bios/pve2/bios-changes.cfg`](https://github.com/ferrarimarco/home-lab/blob/master/config/bios/pve2/bios-changes.cfg));
+    the full export does not. An export taken right after `ChangeBiosCfg` still
+    shows the old values: the change is staged and only visible after the
+    reboot.
 
 ## Supermicro X10SRL-F motherboard standoff short
 

@@ -59,6 +59,40 @@ history, and required a manual power cycle. The investigation is recorded in the
 into the
 [unresponsive host runbook](../guides/troubleshoot-unresponsive-host.md).
 
+## The 2026-10-06 root storage stall
+
+A partial variant: the host kept answering pings while everything that needed
+the root filesystem hung. Timeline (local time):
+
+- 09:27: a UAS device reset on the Argon One bridge (`usb 2-2`,
+  `scsi host0: uas_eh_device_reset_handler start ... success`), logged as
+  successful. The only precursor; memory, temperature, and load stayed normal.
+- 12:15: last journal entry of the boot. The journal could not write afterwards.
+- 12:18-12:19: the stall, visible in the last metrics the host's node exporter
+  delivered: load average 28, 29 processes blocked on I/O, the root SSD (`sda`,
+  behind the bridge) busy 477 ms per second while the data disk was idle, 5.8 GB
+  of memory available, no OOM kill, CPU at 50 degrees Celsius.
+- 12:19 onwards: sshd reset every connection at the key exchange (from three
+  different hosts, so not a per-source ban); node exporter, cAdvisor, Grafana,
+  the media containers, and the Zigbee pipeline died over the next ten minutes.
+  Containers already resident in memory (Prometheus, Alertmanager, blackbox
+  exporter, restic exporter) kept serving: Prometheus kept appending samples
+  throughout.
+- 12:42: manual power cycle. The root filesystem replayed its journal with one
+  orphan inode.
+
+Metrics behavior for this episode: scraping continued (the host's Prometheus
+kept running) but host-level collectors died, so the hl01 replica holds the
+usable history. Side effect: the smart plug series used for power measurements
+went offline on both replicas for 25 minutes, because the Zigbee plugs reach
+Home Assistant through Zigbee2MQTT on this host.
+
+The armed hardware watchdog did not fire and could not have: systemd keeps
+petting it as long as PID 1 runs, and PID 1 needs no disk I/O to do so. A root
+I/O stall is a different failure mode from the hung kernel the watchdog guards
+against; the mitigation that matches it is tracked in the
+[specs todo list](../specs/README.md#reliability-and-resilience).
+
 ## Leading suspect
 
 The outdated kernel is currently the most plausible culprit: the host runs
@@ -78,7 +112,8 @@ hl01 shrinks this host's role.
   `ferrarimarco_home_lab_node` role, so a hard lockup should now self-reboot the
   host within 15 seconds. The end-to-end validation with a deliberate kernel
   crash is still pending, tracked in the
-  [specs todo list](../specs/README.md#specifications-to-write-and-todos).
+  [specs todo list](../specs/README.md#specifications-to-write-and-todos). It
+  does not cover a root I/O stall (see the 2026-10-06 episode above).
 
 ## Other open follow-ups
 

@@ -1824,7 +1824,9 @@ raspberrypi2 scrapes every 30 seconds (job <code>home_assistant</code>, metric
 <code>homeassistant_sensor_power_w</code>). The plug that feeds pve2 is
 <code>sensor.presa_studio_home_lab_2_power</code>; it also feeds other devices, so every
 pve2 figure is a difference against the plug's "pve2 off" baseline. The plug
-resolves 1 W.</p>
+resolves 1 W. The Zigbee plugs reach Home Assistant through Zigbee2MQTT on
+raspberrypi2, so the instrument is unavailable while that host is down (the
+2026-10-06 stall took every plug series offline for 25 minutes).</p>
 <p>Query it over SSH on raspberrypi2 (the Prometheus port is host-local). The
 median over a window is the figure to compare; the quartiles show the noise:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">P</span><span class="o">=</span><span class="s1">&#39;homeassistant_sensor_power_w{entity=&quot;sensor.presa_studio_home_lab_2_power&quot;}&#39;</span>
@@ -1954,13 +1956,13 @@ above.</p>
 </tr>
 <tr>
 <td>BIOS changes (see below)</td>
-<td>3-7 W</td>
-<td>Planned: SUM compact file, one reboot</td>
+<td>under 1 W (applied set)</td>
+<td>Applied 2026-10-06 via SUM; memory frequency deferred</td>
 </tr>
 <tr>
 <td>SATA link power management</td>
 <td>1-3 W</td>
-<td>Blocked by BIOS settings (see below); runs after the BIOS change</td>
+<td>Active since the BIOS change (kernel default <code>min_power_with_partial</code>)</td>
 </tr>
 <tr>
 <td>PCIe ASPM <code>powersave</code></td>
@@ -2033,6 +2035,13 @@ EUR per year.</p>
 <td>not applied</td>
 <td>Kernel refused: <code>Operation not supported</code></td>
 </tr>
+<tr>
+<td>2026-10-06</td>
+<td>BIOS: sSATA ALPM on, hot-plug off, six-port SATA controller, audio, serial port 1 off; links now <code>min_power_with_partial</code></td>
+<td>68-70 W (1 h before)</td>
+<td>69 W, 1 h (p25 67, p75 71)</td>
+<td>Within noise, at most 1-2 W; no errors</td>
+</tr>
 </tbody>
 </table>
 <p>The ASPM change enabled L0s and L1 on both i210 links and L1 on their root ports
@@ -2065,12 +2074,22 @@ ten ports, for two reasons verified against the kernel source at that version:</
 <p>The fix is in the BIOS (hot-plug off on the used ports, aggressive link power
 management on). The kernel parameter <code>ahci.mask_port_ext=&lt;mask&gt;</code> ignores the
 hot-plug bit without a BIOS change, but leaves the capability bit alone.</p>
+<p>The BIOS change of 2026-10-06 cleared both: after the reboot the sSATA
+controller reports <code>ahci_host_caps</code> <code>0xc730ff43</code> (SALP set), the three used
+ports no longer carry the hot-plug bit, and the kernel applied its default
+policy <code>min_power_with_partial</code> to all three links at boot, with the links up at
+full speed, no errors, and the drives active (not in standby: link power
+management acts on the SATA link, not on the spindle). The ZFS scrub remains the
+stress test before trusting it.</p>
 <h3 id="bios-settings">BIOS settings</h3>
 <p>The export below was taken with Supermicro Update Manager, following the
 <a href="../hardware/#bios-configuration-with-sum">BIOS configuration procedure</a> in the
-hardware operations guide. The compact file of changes is the declared BIOS
-state and belongs in the repository once applied; the full export does not.</p>
-<p>Power-relevant settings exported on 2026-10-05 (<code>*</code> marks the BIOS default):</p>
+hardware operations guide. The changes applied on 2026-10-06 are the declared
+BIOS state, committed as
+<a href="https://github.com/ferrarimarco/home-lab/blob/master/config/bios/pve2/bios-changes.cfg"><code>config/bios/pve2/bios-changes.cfg</code></a>;
+the full export is not committed.</p>
+<p>Power-relevant settings exported on 2026-10-05 (<code>*</code> marks the BIOS default) and
+what was done with them:</p>
 <table>
 <thead>
 <tr>
@@ -2093,7 +2112,7 @@ state and belongs in the repository once applied; the full export does not.</p>
 <tr>
 <td>Energy Performance BIAS</td>
 <td>Balanced Performance <code>*</code></td>
-<td>Runtime test first</td>
+<td>Deferred with the governor</td>
 </tr>
 <tr>
 <td>ASPM Support</td>
@@ -2103,37 +2122,37 @@ state and belongs in the repository once applied; the full export does not.</p>
 <tr>
 <td>sSATA Support Aggressive Link Power Mgmt</td>
 <td>Disabled <code>*</code></td>
-<td>Enable</td>
+<td>Enabled (2026-10-06)</td>
 </tr>
 <tr>
 <td>sSATA Port 0-2 Hot Plug</td>
 <td>Enabled <code>*</code></td>
-<td>Disable (the three used ports)</td>
+<td>Disabled (2026-10-06)</td>
 </tr>
 <tr>
 <td>SATA Controller (six-port, unused)</td>
 <td>Enabled <code>*</code></td>
-<td>Disable</td>
+<td>Disabled (2026-10-06)</td>
 </tr>
 <tr>
 <td>Memory Frequency</td>
 <td>Auto <code>*</code> (1866 MT/s)</td>
-<td>Test 1333 or 1600 MT/s</td>
+<td>Deferred until the workload is known</td>
 </tr>
 <tr>
 <td>EHCI1, EHCI2</td>
 <td>Enabled <code>*</code></td>
-<td>Disable (BMC keyboard is on xHCI)</td>
+<td>Kept: USB 2.0 ports need them</td>
 </tr>
 <tr>
 <td>Azalia</td>
 <td>Auto <code>*</code></td>
-<td>Disable</td>
+<td>Disabled (2026-10-06)</td>
 </tr>
 <tr>
 <td>Serial Port 1</td>
 <td>Enabled <code>*</code></td>
-<td>Disable; keep port 2 (SOL)</td>
+<td>Disabled (2026-10-06); port 2 kept (SOL)</td>
 </tr>
 <tr>
 <td>Restore on AC Power Loss</td>

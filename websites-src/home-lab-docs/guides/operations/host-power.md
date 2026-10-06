@@ -14,7 +14,9 @@ raspberrypi2 scrapes every 30 seconds (job `home_assistant`, metric
 `homeassistant_sensor_power_w`). The plug that feeds pve2 is
 `sensor.presa_studio_home_lab_2_power`; it also feeds other devices, so every
 pve2 figure is a difference against the plug's "pve2 off" baseline. The plug
-resolves 1 W.
+resolves 1 W. The Zigbee plugs reach Home Assistant through Zigbee2MQTT on
+raspberrypi2, so the instrument is unavailable while that host is down (the
+2026-10-06 stall took every plug series offline for 25 minutes).
 
 Query it over SSH on raspberrypi2 (the Prometheus port is host-local). The
 median over a window is the figure to compare; the quartiles show the noise:
@@ -97,8 +99,8 @@ In order of expected gain, with status as of 2026-10-05:
 | --------------------------------------------- | -------------------------- | ----------------------------------------------------------------------- |
 | PSU replacement (450-550 W Platinum/Titanium) | 7-10 W, plus 1-2 W standby | Planned last, so it is measured at the final DC load                    |
 | Scratch drives removal                        | ~7 W DC                    | Rejected for now: the drives stay (decision 2026-10-04)                 |
-| BIOS changes (see below)                      | 3-7 W                      | Planned: SUM compact file, one reboot                                   |
-| SATA link power management                    | 1-3 W                      | Blocked by BIOS settings (see below); runs after the BIOS change        |
+| BIOS changes (see below)                      | under 1 W (applied set)    | Applied 2026-10-06 via SUM; memory frequency deferred                   |
+| SATA link power management                    | 1-3 W                      | Active since the BIOS change (kernel default `min_power_with_partial`)  |
 | PCIe ASPM `powersave`                         | under 1 W                  | Measured within noise; not persisted                                    |
 | PCI runtime PM `auto`                         | under 1 W                  | Measured within noise; not persisted                                    |
 | BMC fan mode                                  | none                       | Already Optimal, fans at 300-1100 RPM                                   |
@@ -112,12 +114,13 @@ EUR per year.
 
 ### Runtime experiments
 
-| Date       | Change                                    | Before (median) | After (median)        | Result                                    |
-| ---------- | ----------------------------------------- | --------------- | --------------------- | ----------------------------------------- |
-| 2026-10-04 | PCIe ASPM policy `default` to `powersave` | 68 W, 1.6 h     | 68 W, 3.3 h           | Within noise, no errors                   |
-| 2026-10-05 | PCIe ASPM `powersave` again after a boot  | 69 W            | 68-73 W (shared plug) | Within noise, no errors                   |
-| 2026-10-05 | PCI runtime PM `auto` on 99 devices       | 69 W            | 68 W                  | 80 devices suspended, no errors           |
-| 2026-10-05 | SATA `med_power_with_dipm` on host0       | 69 W            | not applied           | Kernel refused: `Operation not supported` |
+| Date       | Change                                                                                                                    | Before (median)      | After (median)             | Result                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------- | ----------------------------------------- |
+| 2026-10-04 | PCIe ASPM policy `default` to `powersave`                                                                                 | 68 W, 1.6 h          | 68 W, 3.3 h                | Within noise, no errors                   |
+| 2026-10-05 | PCIe ASPM `powersave` again after a boot                                                                                  | 69 W                 | 68-73 W (shared plug)      | Within noise, no errors                   |
+| 2026-10-05 | PCI runtime PM `auto` on 99 devices                                                                                       | 69 W                 | 68 W                       | 80 devices suspended, no errors           |
+| 2026-10-05 | SATA `med_power_with_dipm` on host0                                                                                       | 69 W                 | not applied                | Kernel refused: `Operation not supported` |
+| 2026-10-06 | BIOS: sSATA ALPM on, hot-plug off, six-port SATA controller, audio, serial port 1 off; links now `min_power_with_partial` | 68-70 W (1 h before) | 69 W, 1 h (p25 67, p75 71) | Within noise, at most 1-2 W; no errors    |
 
 The ASPM change enabled L0s and L1 on both i210 links and L1 on their root ports
 (the NVMe already ran L1). Runtime PM suspended the uncore stubs, idle bridges,
@@ -153,26 +156,37 @@ The fix is in the BIOS (hot-plug off on the used ports, aggressive link power
 management on). The kernel parameter `ahci.mask_port_ext=<mask>` ignores the
 hot-plug bit without a BIOS change, but leaves the capability bit alone.
 
+The BIOS change of 2026-10-06 cleared both: after the reboot the sSATA
+controller reports `ahci_host_caps` `0xc730ff43` (SALP set), the three used
+ports no longer carry the hot-plug bit, and the kernel applied its default
+policy `min_power_with_partial` to all three links at boot, with the links up at
+full speed, no errors, and the drives active (not in standby: link power
+management acts on the SATA link, not on the spindle). The ZFS scrub remains the
+stress test before trusting it.
+
 ### BIOS settings
 
 The export below was taken with Supermicro Update Manager, following the
 [BIOS configuration procedure](./hardware.md#bios-configuration-with-sum) in the
-hardware operations guide. The compact file of changes is the declared BIOS
-state and belongs in the repository once applied; the full export does not.
+hardware operations guide. The changes applied on 2026-10-06 are the declared
+BIOS state, committed as
+[`config/bios/pve2/bios-changes.cfg`](https://github.com/ferrarimarco/home-lab/blob/master/config/bios/pve2/bios-changes.cfg);
+the full export is not committed.
 
-Power-relevant settings exported on 2026-10-05 (`*` marks the BIOS default):
+Power-relevant settings exported on 2026-10-05 (`*` marks the BIOS default) and
+what was done with them:
 
-| Setting                                  | Current                  | Plan                              |
-| ---------------------------------------- | ------------------------ | --------------------------------- |
-| Power Technology                         | Energy Efficient `*`     | Keep                              |
-| Package C State Limit                    | C6 (Retention) `*`       | Keep, deepest available           |
-| Energy Performance BIAS                  | Balanced Performance `*` | Runtime test first                |
-| ASPM Support                             | Auto (default Disabled)  | Keep                              |
-| sSATA Support Aggressive Link Power Mgmt | Disabled `*`             | Enable                            |
-| sSATA Port 0-2 Hot Plug                  | Enabled `*`              | Disable (the three used ports)    |
-| SATA Controller (six-port, unused)       | Enabled `*`              | Disable                           |
-| Memory Frequency                         | Auto `*` (1866 MT/s)     | Test 1333 or 1600 MT/s            |
-| EHCI1, EHCI2                             | Enabled `*`              | Disable (BMC keyboard is on xHCI) |
-| Azalia                                   | Auto `*`                 | Disable                           |
-| Serial Port 1                            | Enabled `*`              | Disable; keep port 2 (SOL)        |
-| Restore on AC Power Loss                 | Last State `*`           | Keep for 24/7 duty                |
+| Setting                                  | Current                  | Plan                                     |
+| ---------------------------------------- | ------------------------ | ---------------------------------------- |
+| Power Technology                         | Energy Efficient `*`     | Keep                                     |
+| Package C State Limit                    | C6 (Retention) `*`       | Keep, deepest available                  |
+| Energy Performance BIAS                  | Balanced Performance `*` | Deferred with the governor               |
+| ASPM Support                             | Auto (default Disabled)  | Keep                                     |
+| sSATA Support Aggressive Link Power Mgmt | Disabled `*`             | Enabled (2026-10-06)                     |
+| sSATA Port 0-2 Hot Plug                  | Enabled `*`              | Disabled (2026-10-06)                    |
+| SATA Controller (six-port, unused)       | Enabled `*`              | Disabled (2026-10-06)                    |
+| Memory Frequency                         | Auto `*` (1866 MT/s)     | Deferred until the workload is known     |
+| EHCI1, EHCI2                             | Enabled `*`              | Kept: USB 2.0 ports need them            |
+| Azalia                                   | Auto `*`                 | Disabled (2026-10-06)                    |
+| Serial Port 1                            | Enabled `*`              | Disabled (2026-10-06); port 2 kept (SOL) |
+| Restore on AC Power Loss                 | Last State `*`           | Keep for 24/7 duty                       |
