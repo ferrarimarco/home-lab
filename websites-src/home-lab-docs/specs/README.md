@@ -259,12 +259,16 @@ reliability risks first, then security exposure, then automation):
 - raspberrypi2: a watchdog that covers a root filesystem stall. The armed
   hardware watchdog (`RuntimeWatchdogSec=15`) only resets a hung kernel: PID 1
   keeps petting it during a root I/O stall, which is the failure the host
-  actually has (2026-10-06, see the
-  [stability notes](../archive/raspberrypi2-stability-issues.md)). Candidate:
-  the `watchdog` daemon with a file-write test on the root device and a short
-  timeout, or an alert-driven external reset. The OS re-image
+  actually has (2026-10-06 and 2026-10-07, see the
+  [stability notes](../archive/raspberrypi2-stability-issues.md)). Design: a
+  systemd timer, every minute, running a script that writes and syncs a file on
+  the root filesystem under `timeout`; after two consecutive failures it forces
+  a reboot through `/proc/sysrq-trigger`, which needs no disk I/O. A stack of
+  the node role, enabled on raspberrypi2 only; the hardware watchdog stays armed
+  for the hung-kernel case. Depends on nothing; do it after the UAS quirk
+  ([Host configuration](#host-configuration)). The OS re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)) remains
-  the leading fix for the cause.
+  the long-term fix.
 
 ### Security
 
@@ -459,9 +463,13 @@ reliability risks first, then security exposure, then automation):
 - raspberrypi2:
     - Enable TRIM on the external SSD
       ([reference](https://www.jeffgeerling.com/blog/2020/enabling-trim-on-external-ssd-on-raspberry-pi)).
-    - Verify that UAS is enabled: it seems enabled, but `lsusb -v -d 174c:1156`
-      reports SCSI
-      ([reference](https://superuser.com/questions/928741/how-can-i-check-whether-usb3-0-uasp-usb-attached-scsi-protocol-mode-is-enabled)).
+    - Force the Argon One M.2 bridge (ASMedia `174c:1156`, the root SSD) off the
+      `uas` driver with `usb-storage.quirks=174c:1156:u` in `cmdline.txt`,
+      rendered by the node role from a per-host list of kernel command line
+      options, with the reboot handler. This is the first mitigation for the
+      root storage stalls of 2026-10-06 and 2026-10-07 (see the
+      [stability notes](../archive/raspberrypi2-stability-issues.md)); verify
+      with `lsusb -t` that the bridge binds to `usb-storage` after the reboot.
     - Argon One M.2 case: set up logging for the fan controller
       ([firmware updater](https://github.com/Argon40Tech/Argon40case/blob/master/src/argonone-firmwareupdate.py),
       [I2C codes](https://github.com/Argon40Tech/Argon-ONE-i2c-Codes),

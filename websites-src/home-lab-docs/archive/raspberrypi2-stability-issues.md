@@ -93,11 +93,55 @@ I/O stall is a different failure mode from the hung kernel the watchdog guards
 against; the mitigation that matches it is tracked in the
 [specs todo list](../specs/README.md#reliability-and-resilience).
 
+## The 2026-10-07 root storage stall
+
+The same failure one day later, caught earlier in its course thanks to the
+previous episode's analysis. Timeline (local time):
+
+- 15:35: last journal entry of the boot. Nothing in the kernel log before it
+  points at the storage: the last kernel lines are Docker network noise from
+  01:03.
+- 16:05: the host's Prometheus stopped answering; its data directory is on the
+  root SSD.
+- 16:49: node exporter stopped answering scrapes. By the time the host was
+  inspected it returned "Limit of concurrent requests reached (40)": every
+  scrape since then hung inside its filesystem and disk collectors. Its last
+  delivered sample showed the root SSD busy 477 ms per second with load and
+  blocked processes still low, so the stall was recorded at its onset.
+- Until the power cycle: ping answered; sshd timed out from two different hosts
+  (so not a per-source ban); cAdvisor, Grafana, Alertmanager, and part of the
+  media stack kept serving from memory; the Zigbee pipeline was down, so the
+  smart plug series stopped on both monitoring replicas.
+- 18:54: manual power cycle. The root filesystem replayed its journal with one
+  orphan inode again.
+
+Two findings:
+
+- The first thing to fail is the write path of the root filesystem, silently:
+  journald stops persisting about an hour before anything is visible from the
+  outside, and whatever the kernel reports about the device afterwards never
+  reaches the disk. Two episodes in a row have an empty kernel log where the
+  cause should be.
+- The root SSD sits behind the Argon One M.2 case's USB-to-SATA bridge, an
+  ASMedia device (`174c:1156`, `usb 2-2`), bound to the `uas` driver. The WD
+  data disk on the same USB 3 hub uses the plain `usb-storage` driver, and the
+  Coral accelerator shares that hub.
+
 ## Leading suspect
 
-The outdated kernel is currently the most plausible culprit: the host runs
-Debian 11 (bullseye), past LTS end of life, with an April 2023 kernel. The
-corresponding next step is the operating system upgrade, tracked in the
+The UAS binding of the Argon One bridge is the first thing to change. The
+Raspberry Pi forum's reference guide for USB 3 storage on the Raspberry Pi 4
+prescribes `usb-storage.quirks=<vendor>:<product>:u` in `cmdline.txt` for
+bridges with non-compliant UAS implementations, naming "frequent
+disconnects-reconnects" among the symptoms; the kernel documents the `u` flag as
+`IGNORE_UAS (don't bind to the uas driver)`. The cost is throughput (150-200
+MB/s instead of a 350 MB/s peak), irrelevant for this host. It has never been
+tried here: until 2026-10-07 the open item was to verify that UAS was enabled.
+For this bridge the line is `usb-storage.quirks=174c:1156:u`.
+
+The outdated kernel remains the other plausible culprit, and the fix for it is
+the same either way: the host runs Debian 11 (bullseye), past LTS end of life,
+with an April 2023 kernel. The operating system upgrade is tracked in the
 [specs todo list](../specs/README.md#specifications-to-write-and-todos): a
 re-image with current Raspberry Pi OS, which is the most supported path for the
 Raspberry Pi 4 hardware (the Raspberry Pi OS documentation strongly discourages
@@ -113,7 +157,11 @@ hl01 shrinks this host's role.
   host within 15 seconds. The end-to-end validation with a deliberate kernel
   crash is still pending, tracked in the
   [specs todo list](../specs/README.md#specifications-to-write-and-todos). It
-  does not cover a root I/O stall (see the 2026-10-06 episode above).
+  does not cover a root I/O stall (see the 2026-10-06 and 2026-10-07 episodes
+  above): the planned complement is a systemd timer that writes and syncs a file
+  on the root filesystem under a timeout and forces a reboot through
+  `/proc/sysrq-trigger` after two consecutive failures, tracked in the same
+  list.
 
 ## Other open follow-ups
 

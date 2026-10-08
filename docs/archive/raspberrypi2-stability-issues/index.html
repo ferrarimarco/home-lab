@@ -620,6 +620,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-2026-10-07-root-storage-stall" class="md-nav__link">
+    <span class="md-ellipsis">
+      The 2026-10-07 root storage stall
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#leading-suspect" class="md-nav__link">
     <span class="md-ellipsis">
       Leading suspect
@@ -1757,6 +1766,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-2026-10-07-root-storage-stall" class="md-nav__link">
+    <span class="md-ellipsis">
+      The 2026-10-07 root storage stall
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#leading-suspect" class="md-nav__link">
     <span class="md-ellipsis">
       Leading suspect
@@ -1892,10 +1910,52 @@ petting it as long as PID 1 runs, and PID 1 needs no disk I/O to do so. A root
 I/O stall is a different failure mode from the hung kernel the watchdog guards
 against; the mitigation that matches it is tracked in the
 <a href="../../specs/#reliability-and-resilience">specs todo list</a>.</p>
+<h2 id="the-2026-10-07-root-storage-stall">The 2026-10-07 root storage stall</h2>
+<p>The same failure one day later, caught earlier in its course thanks to the
+previous episode's analysis. Timeline (local time):</p>
+<ul>
+<li>15:35: last journal entry of the boot. Nothing in the kernel log before it
+  points at the storage: the last kernel lines are Docker network noise from
+  01:03.</li>
+<li>16:05: the host's Prometheus stopped answering; its data directory is on the
+  root SSD.</li>
+<li>16:49: node exporter stopped answering scrapes. By the time the host was
+  inspected it returned "Limit of concurrent requests reached (40)": every
+  scrape since then hung inside its filesystem and disk collectors. Its last
+  delivered sample showed the root SSD busy 477 ms per second with load and
+  blocked processes still low, so the stall was recorded at its onset.</li>
+<li>Until the power cycle: ping answered; sshd timed out from two different hosts
+  (so not a per-source ban); cAdvisor, Grafana, Alertmanager, and part of the
+  media stack kept serving from memory; the Zigbee pipeline was down, so the
+  smart plug series stopped on both monitoring replicas.</li>
+<li>18:54: manual power cycle. The root filesystem replayed its journal with one
+  orphan inode again.</li>
+</ul>
+<p>Two findings:</p>
+<ul>
+<li>The first thing to fail is the write path of the root filesystem, silently:
+  journald stops persisting about an hour before anything is visible from the
+  outside, and whatever the kernel reports about the device afterwards never
+  reaches the disk. Two episodes in a row have an empty kernel log where the
+  cause should be.</li>
+<li>The root SSD sits behind the Argon One M.2 case's USB-to-SATA bridge, an
+  ASMedia device (<code>174c:1156</code>, <code>usb 2-2</code>), bound to the <code>uas</code> driver. The WD
+  data disk on the same USB 3 hub uses the plain <code>usb-storage</code> driver, and the
+  Coral accelerator shares that hub.</li>
+</ul>
 <h2 id="leading-suspect">Leading suspect</h2>
-<p>The outdated kernel is currently the most plausible culprit: the host runs
-Debian 11 (bullseye), past LTS end of life, with an April 2023 kernel. The
-corresponding next step is the operating system upgrade, tracked in the
+<p>The UAS binding of the Argon One bridge is the first thing to change. The
+Raspberry Pi forum's reference guide for USB 3 storage on the Raspberry Pi 4
+prescribes <code>usb-storage.quirks=&lt;vendor&gt;:&lt;product&gt;:u</code> in <code>cmdline.txt</code> for
+bridges with non-compliant UAS implementations, naming "frequent
+disconnects-reconnects" among the symptoms; the kernel documents the <code>u</code> flag as
+<code>IGNORE_UAS (don't bind to the uas driver)</code>. The cost is throughput (150-200
+MB/s instead of a 350 MB/s peak), irrelevant for this host. It has never been
+tried here: until 2026-10-07 the open item was to verify that UAS was enabled.
+For this bridge the line is <code>usb-storage.quirks=174c:1156:u</code>.</p>
+<p>The outdated kernel remains the other plausible culprit, and the fix for it is
+the same either way: the host runs Debian 11 (bullseye), past LTS end of life,
+with an April 2023 kernel. The operating system upgrade is tracked in the
 <a href="../../specs/#specifications-to-write-and-todos">specs todo list</a>: a
 re-image with current Raspberry Pi OS, which is the most supported path for the
 Raspberry Pi 4 hardware (the Raspberry Pi OS documentation strongly discourages
@@ -1910,7 +1970,11 @@ hl01 shrinks this host's role.</p>
   host within 15 seconds. The end-to-end validation with a deliberate kernel
   crash is still pending, tracked in the
   <a href="../../specs/#specifications-to-write-and-todos">specs todo list</a>. It
-  does not cover a root I/O stall (see the 2026-10-06 episode above).</li>
+  does not cover a root I/O stall (see the 2026-10-06 and 2026-10-07 episodes
+  above): the planned complement is a systemd timer that writes and syncs a file
+  on the root filesystem under a timeout and forces a reboot through
+  <code>/proc/sysrq-trigger</code> after two consecutive failures, tracked in the same
+  list.</li>
 </ul>
 <h2 id="other-open-follow-ups">Other open follow-ups</h2>
 <p>Tracked in the
