@@ -1,9 +1,9 @@
 # Manage the centralized todo list
 
 The [specs index](../../specs/README.md) tracks all future work and todo items
-for the home lab in its "Specifications to write and TODOs" section. Per-spec
-"Future Work" sections only point there. This guide describes the conventions
-that keep that list useful.
+for the home lab in its "Specifications to write and TODOs" section, so that
+specifications carry no future work sections or todo items of their own. This
+guide describes the conventions that keep that list useful.
 
 ## Structure
 

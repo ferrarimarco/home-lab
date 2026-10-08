@@ -941,8 +941,3 @@ the lab and its peers to network locations.
 - **Peer swap**: once the guest is on the tailnet, the migration's peer swap
   (§12.5) proceeds — the remote peer adds the new device ID and the guest's
   tailnet address, and drops raspberrypi2.
-
-## 14. Future Work
-
-Future work items for this spec are tracked centrally in the
-[specifications readme](./README.md#specifications-to-write-and-todos).

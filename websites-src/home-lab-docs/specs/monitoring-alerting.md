@@ -429,9 +429,3 @@ A deployment of this spec is verified with read-only checks:
 - A synthetic alert posted through the Alertmanager API is delivered to the
   Telegram chat, proving the full routing and credential path — exactly once,
   also when both Prometheus replicas fire it, proving the deduplication.
-
-## Future Work
-
-Future work items are tracked centrally in the
-[Specifications to write and TODOs](./README.md#specifications-to-write-and-todos)
-section of the specs index.

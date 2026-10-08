@@ -223,8 +223,3 @@ disk will present as `/dev/vda` and partitioning will fail.
 VM hosts use DHCP for simplicity in this phase, with stable addressing provided
 by MAC-pinned router DHCP reservations. Transitioning to static IPs can be done
 in a future specification.
-
-## 11. Future Work
-
-Future work items are tracked centrally in the
-[specs index](./README.md#specifications-to-write-and-todos).

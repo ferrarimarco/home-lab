@@ -28,10 +28,10 @@ table tracks the status (`Fully Implemented`, `Partially Implemented`, or
 
 Future work and todo items are tracked centrally in the "Specifications to write
 and TODOs" section of the specs index
-[`README.md`](./websites-src/home-lab-docs/specs/README.md), not in per-spec
-"Future Work" sections. A spec's "Future Work" section must contain only a
-pointer to that centralized list. The list is organized in themed subsections
-with a "Current focus" priority list and `Depends on:`/`Blocks:` dependency
+[`README.md`](./websites-src/home-lab-docs/specs/README.md), so they are never
+scattered across specifications: a spec carries no "Future Work" section and no
+todo items of its own. The list is organized in themed subsections with a
+"Current focus" priority list and `Depends on:`/`Blocks:` dependency
 annotations: follow the
 [Todo list management guide](./websites-src/home-lab-docs/guides/development/todo-list.md)
 when adding, completing, or discarding items.
