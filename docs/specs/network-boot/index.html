@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/archive/manual-changes-diary/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/network-boot/">
       
       
-        <link rel="prev" href="../asus-rt-ax86u-tim-gateway/">
+        <link rel="prev" href="../nas-lxc-container/">
       
       
-        <link rel="next" href="../ont-connection-instability/">
+        <link rel="next" href="../proxmox-lxc/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Manual changes diary - Home Lab docs</title>
+        <title>Design Spec: Network Boot Service - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#manual-changes-diary" class="md-skip">
+        <a href="#design-spec-network-boot-service" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Manual changes diary
+              Design Spec: Network Boot Service
             
           </span>
         </div>
@@ -399,20 +399,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -428,7 +426,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Archive
@@ -442,7 +440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../archive/" class="md-nav__link">
         
   
   
@@ -465,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asus-rt-ax86u-tim-gateway/" class="md-nav__link">
+      <a href="../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
         
   
   
@@ -485,32 +483,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Manual changes diary
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -521,203 +497,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#2026-10-05" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-10-05
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-10-04" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-10-04
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-09-13" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-09-13
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-08-25" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-08-25
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-08-12" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-08-12
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-08-11" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-08-11
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-04-23" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-04-23
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-02-28" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-02-28
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2025-09-15" class="md-nav__link">
-    <span class="md-ellipsis">
-      2025-09-15
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2025-04-03" class="md-nav__link">
-    <span class="md-ellipsis">
-      2025-04-03
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2025-04-03">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#notes-to-create-the-100-vm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Notes to create the 100 VM
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2025" class="md-nav__link">
-    <span class="md-ellipsis">
-      2025
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2023-05-03" class="md-nav__link">
-    <span class="md-ellipsis">
-      2023-05-03
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2023-04-27" class="md-nav__link">
-    <span class="md-ellipsis">
-      2023-04-27
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2023-04-26" class="md-nav__link">
-    <span class="md-ellipsis">
-      2023-04-26
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2023-03-30" class="md-nav__link">
-    <span class="md-ellipsis">
-      2023-03-30
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2023-02" class="md-nav__link">
-    <span class="md-ellipsis">
-      2023-02
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2023" class="md-nav__link">
-    <span class="md-ellipsis">
-      2023
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2022-05-16" class="md-nav__link">
-    <span class="md-ellipsis">
-      2022-05-16
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -730,7 +509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ont-connection-instability/" class="md-nav__link">
+      <a href="../../archive/ont-connection-instability/" class="md-nav__link">
         
   
   
@@ -753,7 +532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../raspberrypi2-stability-issues/" class="md-nav__link">
+      <a href="../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
         
   
   
@@ -776,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../technicolor-dga-4130-bridge/" class="md-nav__link">
+      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
         
   
   
@@ -799,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../zte-ont-access/" class="md-nav__link">
+      <a href="../../archive/zte-ont-access/" class="md-nav__link">
         
   
   
@@ -1560,18 +1339,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -1587,7 +1368,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Specs
@@ -1601,7 +1382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1624,7 +1405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/declarative-integration-testing/" class="md-nav__link">
+      <a href="../declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -1647,7 +1428,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -1670,7 +1451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/monitoring-alerting/" class="md-nav__link">
+      <a href="../monitoring-alerting/" class="md-nav__link">
         
   
   
@@ -1693,7 +1474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/nas-lxc-container/" class="md-nav__link">
+      <a href="../nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -1713,10 +1494,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../specs/network-boot/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Network Boot Service
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1727,6 +1530,197 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rejected-alternatives" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rejected alternatives
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Coverage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boot-server-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      Boot Server Role
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boot-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      Boot Paths
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Boot Paths">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#raspberry-pi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raspberry Pi
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#x86-pxe-deferred" class="md-nav__link">
+    <span class="md-ellipsis">
+      x86 PXE (deferred)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#payloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      Payloads
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Payloads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#raspberry-pi-os-lite-over-nfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raspberry Pi OS Lite over NFS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#later-candidates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Later candidates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consumer-raspberry-pi-re-provisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consumer: Raspberry Pi Re-provisioning
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assumptions-and-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assumptions and Constraints
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1739,7 +1733,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-lxc/" class="md-nav__link">
+      <a href="../proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -1762,7 +1756,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-vm/" class="md-nav__link">
+      <a href="../proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1785,7 +1779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/software-candidates/" class="md-nav__link">
+      <a href="../software-candidates/" class="md-nav__link">
         
   
   
@@ -1835,100 +1829,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#2026-10-05" class="md-nav__link">
+  <a href="#implementation-status" class="md-nav__link">
     <span class="md-ellipsis">
-      2026-10-05
+      Implementation Status
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2026-10-04" class="md-nav__link">
+  <a href="#goal" class="md-nav__link">
     <span class="md-ellipsis">
-      2026-10-04
+      Goal
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2026-09-13" class="md-nav__link">
+  <a href="#rationale" class="md-nav__link">
     <span class="md-ellipsis">
-      2026-09-13
+      Rationale
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-08-25" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-08-25
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-08-12" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-08-12
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-08-11" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-08-11
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-04-23" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-04-23
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2026-02-28" class="md-nav__link">
-    <span class="md-ellipsis">
-      2026-02-28
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2025-09-15" class="md-nav__link">
-    <span class="md-ellipsis">
-      2025-09-15
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2025-04-03" class="md-nav__link">
-    <span class="md-ellipsis">
-      2025-04-03
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2025-04-03">
+    <nav class="md-nav" aria-label="Rationale">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#notes-to-create-the-100-vm" class="md-nav__link">
+  <a href="#rejected-alternatives" class="md-nav__link">
     <span class="md-ellipsis">
-      Notes to create the 100 VM
+      Rejected alternatives
     </span>
   </a>
   
@@ -1940,72 +1871,129 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2025" class="md-nav__link">
+  <a href="#coverage" class="md-nav__link">
     <span class="md-ellipsis">
-      2025
+      Coverage
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2023-05-03" class="md-nav__link">
+  <a href="#architecture-overview" class="md-nav__link">
     <span class="md-ellipsis">
-      2023-05-03
+      Architecture Overview
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2023-04-27" class="md-nav__link">
+  <a href="#boot-server-role" class="md-nav__link">
     <span class="md-ellipsis">
-      2023-04-27
+      Boot Server Role
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2023-04-26" class="md-nav__link">
+  <a href="#boot-paths" class="md-nav__link">
     <span class="md-ellipsis">
-      2023-04-26
+      Boot Paths
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Boot Paths">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#raspberry-pi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raspberry Pi
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#x86-pxe-deferred" class="md-nav__link">
+    <span class="md-ellipsis">
+      x86 PXE (deferred)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#payloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      Payloads
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Payloads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#raspberry-pi-os-lite-over-nfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raspberry Pi OS Lite over NFS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#later-candidates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Later candidates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consumer-raspberry-pi-re-provisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consumer: Raspberry Pi Re-provisioning
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2023-03-30" class="md-nav__link">
+  <a href="#security-considerations" class="md-nav__link">
     <span class="md-ellipsis">
-      2023-03-30
+      Security Considerations
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2023-02" class="md-nav__link">
+  <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
-      2023-02
+      Testing
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2023" class="md-nav__link">
+  <a href="#assumptions-and-constraints" class="md-nav__link">
     <span class="md-ellipsis">
-      2023
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2022-05-16" class="md-nav__link">
-    <span class="md-ellipsis">
-      2022-05-16
+      Assumptions and Constraints
     </span>
   </a>
   
@@ -2030,312 +2018,338 @@
   
 
 
-<h1 id="manual-changes-diary">Manual changes diary</h1>
-<p>The design of this home lab is to have a completely declarative configuration,
-whenever possible. At times, this is not possible yet because of an
-architectural or tooling limitation, so we perform manual changes. The goal is
-to eventually get to a state where we don't need this file anymore.</p>
-<h2 id="2026-10-05">2026-10-05</h2>
+<h1 id="design-spec-network-boot-service">Design Spec: Network Boot Service</h1>
+<h2 id="implementation-status">Implementation Status</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component / Feature</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong><code>netboot-server</code> Nix role on hl02</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Payload trees, per-host registry, and the rescue toggle.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Server address reservation</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">hl02 has no DHCP reservation; the Raspberry Pi path needs a stable address.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Raspberry Pi boot path</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">raspberrypi2 still boots SD then USB (<code>0xf41</code>) with no TFTP server address.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>x86 PXE boot path</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Deferred; design direction recorded, nothing verified.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Raspberry Pi OS Lite payload</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Pinned image unpacked on hl02, served over TFTP and NFS.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Flash workflow</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">The <code>flash-os</code> script delivered to the rescue system through cloud-init.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Raspberry Pi re-provisioning</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">Restore path, Trixie playbook fixes, and guides, tracked in the todo list.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="goal">Goal</h2>
+<p>One boot server on hl02 that can network-boot any lab host on demand, for rescue
+or for re-provisioning, with normal boot from the host's own disk as the
+default. A host network-boots only while its toggle on the server is started, so
+a host whose operating system is dead is rescued from hl02 without a physical
+visit, and re-provisioning needs no flashing station.</p>
+<p>The first consumer is raspberrypi2, whose Debian 11 installation is past end of
+life and which the archived
+<a href="../../archive/raspberrypi2-stability-issues/">stability notes</a> recommend
+re-imaging rather than upgrading in place. The target is the Lite (no desktop)
+64-bit release of Raspberry Pi OS. The Proxmox nodes are the next candidates,
+through a PXE path that is designed for but deferred.</p>
+<h2 id="rationale">Rationale</h2>
+<p>The decision whether a host boots from the network or from its disk belongs on
+the server, not in the host: a host-side switch (a boot order flipped from the
+running system, a fallback that triggers only on firmware-level failures) needs
+the host to be alive or the failure to be of the right kind. With the network
+first in every host's boot order and the server answering "not found" by
+default, the toggle covers every failure the host can have, at the cost of a few
+seconds per normal boot.</p>
+<p>The payloads are vendor or lab images served as they are and customized at boot,
+reset before every use, so nothing is maintained by hand and nothing has to be
+built for a foreign architecture.</p>
+<h3 id="rejected-alternatives">Rejected alternatives</h3>
 <ul>
-<li><code>pve2</code>: plugged back in (BMC up at its DHCP lease) and powered on for the
-  second round of power experiments; the node exporter was deployed with the
-  monitoring playbook, which resolved the <code>InstanceDown</code> and HTTP probe alerts
-  for the host. Manual runtime changes, none persisted:<ul>
-<li>PCIe ASPM policy set to <code>powersave</code> again; it lasts until the next boot.</li>
-<li>PCI runtime PM set to <code>auto</code> on 99 devices for a measured window, then
-  restored to <code>on</code> by its own 20-minute timer.</li>
-<li>SATA <code>med_power_with_dipm</code> on <code>host0</code> was refused by the kernel: the
-  firmware flags every port hot-plug-capable and both controllers lack the
-  aggressive link power management capability (details in the
-  <a href="../../guides/operations/host-power/">host power guide</a>).</li>
-<li>Supermicro Update Manager was copied to <code>/root/sum</code>, run in-band once to
-  export the BIOS configuration (<code>GetCurrentBiosCfg</code>), and removed again.</li>
+<li><strong>Boot disk first with the network as fallback.</strong> The fallback triggers only
+  when the bootloader finds no bootable firmware. The failure raspberrypi2
+  actually has, a root filesystem stall after the firmware stage, would not fall
+  through. Rejected on 2026-10-08.</li>
+<li><strong>A NixOS netboot payload for the Raspberry Pi hosts.</strong> An aarch64 artifact in
+  a lab whose builders are x86_64: it needs a remote builder (the host being
+  rescued) or emulation, plus a release pipeline, because hl02 builds its own
+  configuration through comin on two cores. Rejected on 2026-10-08.</li>
+<li><strong>Resident rescue SD card.</strong> Written by hand, ages outside version control,
+  and the first insertion needs the host's case opened. Kept only as the
+  recovery path for a host whose EEPROM configuration is lost.</li>
+<li><strong>HTTP boot for the Raspberry Pi hosts.</strong> Requires the boot image to be signed
+  with a key stored in the EEPROM, which a public bootloader update erases;
+  raspberrypi2 keeps bootloader self-update enabled.</li>
+<li><strong>Bootloader network install</strong>: needs a display and a keyboard.</li>
+<li><strong>Reinstall from the running system</strong> (RAM root or <code>kexec</code>): no rescue path if
+  the write fails midway.</li>
 </ul>
-</li>
-</ul>
-<h2 id="2026-10-04">2026-10-04</h2>
+<h2 id="coverage">Coverage</h2>
+<p>The service rescues a host only while the server runs, so it cannot cover its
+own failure domain:</p>
 <ul>
-<li><code>pve2</code>: powered on for the power reduction investigation (goal: run the host
-  24/7 once its idle draw comes down; see the
-  <a href="../../specs/#host-configuration">specs todo list</a>). Findings that
-  extend or correct the 2026-08-25 entry:<ul>
-<li>The smart plug series in Home Assistant (scraped by Prometheus) confirms
-  the baseline across three power-on windows: ~24 W with pve2 off, 67-71 W
-  with pve2 on and idle with the nas-pve2 guest running, ~110 W at boot.</li>
-<li>RAM is 128 GB (8 x 16 GB DDR4-2133 RDIMM at 1866 MT/s), not 256 GB.</li>
-<li>PSU: OCZ ModXStream Pro 600 W (<code>OCZ600MXSP</code>), a 2008-era 80 Plus unit with
-  no PMBus: the BMC's DCMI power reading and the kernel's ACPI power meter
-  both read 0 W.</li>
-<li>BMC readings via <code>ipmitool</code> (now installed through the bootstrap role,
-  <code>has_bmc</code> host flag): fan mode already Optimal, fans at 300-1100 RPM (FAN1
-  reads below its lower threshold), CPU 36 degrees Celsius, PCH 50, DIMMs
-  32-37. The fan lever is negligible.</li>
-<li>Settled idle: RAPL package 7.6 W, DRAM 3.5 W, cores 99.8% in C6. The
-  untapped levers from the 2026-08-25 entry are still untouched.</li>
-<li>The cable is on <code>nic0</code> (link up) while the inventory assigns the reserved
-  address to <code>nic1</code> (link down); not a power issue, to reconcile.</li>
+<li><strong>Covered:</strong> the Raspberry Pi hosts; later, through the PXE path, any physical
+  node other than the one hosting the server.</li>
+<li><strong>Not covered:</strong> pve1, the node that hosts hl02; hl02 itself; and any host
+  whose rescue would happen while pve1 is down. For those the recovery path
+  stays the one of the <a href="../home-lab-bootstrapping/">bootstrapping spec</a>: the
+  installer artifacts and the SD card path of the provisioning guide.</li>
+<li><strong>Out of scope:</strong> Proxmox guests. Terraform re-creates them from the installer
+  artifacts, so they never need a rescue boot.</li>
 </ul>
-</li>
-<li><code>pve2</code>: ran <code>pvecm updatecerts</code> by hand to restore the Proxmox
-  <code>authorized_keys</code> symlink after a bootstrap playbook run replaced it with a
-  regular file. The bootstrap role now converges the link target and declares
-  the node's own root key, so the shared file stays stable across runs and
-  reboots (see the
-  <a href="../../guides/development/ansible/#authorized-keys-on-proxmox-nodes">Ansible development guide</a>);
-  the two hardware security keys that the file carried were dropped on purpose.</li>
-<li><code>pve2</code>: set the PCIe ASPM policy to <code>powersave</code> at runtime (19:17 local) as
-  the first power tuning experiment, with a 20-minute self-reverting timer that
-  was cancelled after the health checks passed. Both i210 links moved to L0s/L1
-  with no errors; the plug median stayed at 68 W over 3.3 hours, so the gain is
-  within the plug's 1 W resolution. The setting lasts until the next boot;
-  nothing persists it yet. The host was shut down the same evening; the plug
-  read 25 W with it off and 20 W with it unplugged, so its standby draw is 5 W.
-  Measurements and the query recipe are in the
-  <a href="../../guides/operations/host-power/">host power guide</a>.</li>
-</ul>
-<h2 id="2026-09-13">2026-09-13</h2>
-<ul>
-<li><code>raspberrypi2</code>: manually power-cycled after the host froze (hard lockup
-  between 13:39 and 13:42 local time; no kernel, undervoltage, thermal, or
-  memory precursors in logs or Prometheus history). The investigation was
-  distilled into the
-  <a href="../../guides/troubleshoot-unresponsive-host/">unresponsive host runbook</a>;
-  follow-ups (hardware watchdog, data-disk SMART test, OS upgrade) are tracked
-  in the
-  <a href="../../specs/#specifications-to-write-and-todos">specs todo list</a>.</li>
-</ul>
-<h2 id="2026-08-25">2026-08-25</h2>
-<ul>
-<li><code>pve2</code>: measured the idle power baseline (Supermicro X10SRL-F, Xeon E5-2683
-  v4, 256 GB RAM, kernel 6.17.2-1-pve, no VMs or containers running):<ul>
-<li>Wall power: ~45 W (smart plug reads 67 W with pve2 idle and 22 W with pve2
-  off; other devices share the plug, so 22 W is the plug baseline). At 0.099
-  EUR/kWh, 45 W around the clock costs about 39 EUR/year.</li>
-<li>RAPL package-0 ~8.7 W, DRAM ~3.3 W; package C6 residency 88.5%, cores ~99%
-  cc6. The remainder is HDDs, platform, fans, and PSU losses.</li>
-<li>Untapped levers (powertop): governor <code>performance</code> on <code>intel_cpufreq</code>
-  (passive), all 10 SATA hosts at <code>max_performance</code> link power policy, PCIe
-  ASPM policy <code>default</code>, most PCI devices with runtime PM <code>on</code>. Realistic
-  tuned idle is ~30-35 W (~8-13 EUR/year saved). HDD spin-down is excluded
-  by policy: pve2 keeps its platters spinning to avoid start/stop wear.</li>
-<li>Duty-cycle reduction (shutdown plus wake-on-LAN) is the bigger lever if
-  pve2 does not need to run around the clock.</li>
-<li><code>ipmitool</code> is not installed on pve2; lm-sensors only shows <code>x86_pkg_temp</code>.
-  The ASPEED BMC may expose DCMI power readings if the PSU has PMBus.</li>
-<li>The short hostname <code>pve2</code> does not resolve from the workstation; use
-  <code>pve2.edge.lab.ferrari.how</code>.</li>
-</ul>
-</li>
-</ul>
-<h2 id="2026-08-12">2026-08-12</h2>
-<ul>
-<li><code>pve1</code>: updated the Beelink BIOS from N95V104 to N95V107 to fix the Eaton UPS
-  (Eaton Ellipse PRO 1600 DIN, USB ID <code>0463:ffff</code>, <code>usbhid-ups</code> driver for
-  <code>nut-driver@eaton-ellipse-pro-1600-din-1</code>; NUT runs on pve1) failing USB
-  enumeration at cold boot (<code>device descriptor read/64, error -71</code>), which
-  previously only a physical replug recovered. If it recurs:<ul>
-<li>Software recovery on the root port is not possible: the hub has no
-  per-port power switching, and the self-powered UPS only resets its USB
-  state machine on VBUS loss. Cycling <code>usb1-port1/disable</code> in sysfs and the
-  old-scheme enumeration quirk were both tried and failed.</li>
-<li>Fallback plan: place a PPPS-capable USB 2.0 hub (verified with <code>uhubctl</code>)
-  between the UPS and the host, enabling a true software replug via
-  <code>uhubctl -a cycle</code>.</li>
-<li>Keep the Toshiba USB disk (backing hl01's <code>rpool-usb-1</code> 885G volume, same
-  xHCI controller) directly on the root port, and never unbind the xHCI
-  driver while hl01 is running.</li>
-</ul>
-</li>
-</ul>
-<h2 id="2026-08-11">2026-08-11</h2>
-<ul>
-<li><code>pve1</code>: cleaned the clogged heatsink fins and replaced the degraded thermal
-  paste after the host (Beelink EQ-series, Intel N100) throttled to its 200 MHz
-  floor, pinning VM hl01 at 100% CPU and pushing the Coral PCIe TPU past its
-  94.8 degrees Celsius trip point. Diagnostics learned:<ul>
-<li>Trust <code>platform_coretemp_0</code> / <code>x86_pkg_temp</code> readings; the <code>acpitz</code>
-  thermal zone on this board reads a bogus ~27.8 degrees Celsius regardless
-  of load.</li>
-<li>The fans are EC-controlled and invisible to the OS (no hwmon fan sensors),
-  so "fans look fine in monitoring" carries no information on this host.</li>
-<li>Coral PCIe TPU health signatures: healthy inference is ~5-10 ms (Frigate
-  <code>/api/stats</code>); ~200 ms means thermal throttling; the
-  <code>coral_pci_temperature_celsius</code> metric reads -89.7 when the TPU has
-  crashed. A crashed TPU can also fail to initialize at the next boot, with
-  the apex driver logging "RAM did not enable within timeout (12000 ms)" and
-  "Couldn't initialize interrupts: -12".</li>
-<li>Check CPU throttling directly via
-  <code>/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq</code>.</li>
-<li>Preventive maintenance: clean the heatsink fins yearly, in early summer.</li>
-</ul>
-</li>
-</ul>
-<h2 id="2026-04-23">2026-04-23</h2>
-<ul>
-<li><code>pve2</code>: manually created (through the Proxmox GUI) two new ZFS pools:
-  <code>tank-hdd-scratch</code> and <code>tank-ssd-scratch</code>. They are intended to be used as
-  scratch space for temporary files. Rationale: ZFS Ansible modules are not
-  idempotent, and I didn't find a suitable ZFS Terraform provider.</li>
-</ul>
-<h2 id="2026-02-28">2026-02-28</h2>
-<ul>
-<li><code>pve2</code>: updated the BMC firmware to 3.93, and configured the lower thresholds
-  for the FAN1 and FAN2 sensors. The
-  <a href="../../guides/operations/hardware/">hardware operations guide</a> describes the
-  procedure.</li>
-</ul>
-<h2 id="2025-09-15">2025-09-15</h2>
-<ul>
-<li><code>gateway</code>: updated the Asus RT-AX86U firmware to 3.0.0.4.388_24386.</li>
-</ul>
-<h2 id="2025-04-03">2025-04-03</h2>
-<h3 id="notes-to-create-the-100-vm">Notes to create the 100 VM</h3>
-<p>The following notes describe the manual creation of the <code>100</code> VM on <code>pve1</code>.
-These instructions are a reference that I used as a base to define the <code>100</code> VM
-Terraform configuration.</p>
+<p>A second server instance on pve2 would cover pve1 and hl02 once pve2 runs 24/7
+and the PXE path exists; it is tracked in the todo list.</p>
+<h2 id="architecture-overview">Architecture Overview</h2>
 <ol>
-<li>
-<p>Create VM:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span>create<span class="w"> </span><span class="m">100</span><span class="w"> </span>--name<span class="w"> </span>hl01<span class="w"> </span>--net0<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">virtio</span><span class="o">=</span>BC:24:11:D4:F6:64,bridge<span class="o">=</span>vmbr0,firewall<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--scsihw<span class="w"> </span>virtio-scsi-single<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--machine<span class="w"> </span>q35<span class="w"> </span>--ostype<span class="w"> </span>l26
-</code></pre></div>
-</li>
-<li>
-<p>Configure CPU and memory:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--cpu<span class="w"> </span>host<span class="w"> </span>--cores<span class="w"> </span><span class="m">2</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8192</span>
-</code></pre></div>
-</li>
-<li>
-<p>Configure the VM to start at boot:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--onboot<span class="w"> </span><span class="m">1</span>
-</code></pre></div>
-</li>
-<li>
-<p>Enable QEMU guest agent:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--agent<span class="w"> </span><span class="nv">enabled</span><span class="o">=</span><span class="m">1</span>
-</code></pre></div>
-</li>
-<li>
-<p>Import raw disk:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span>disk<span class="w"> </span>import<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
-/var/lib/vz/template/raw/debian-12-generic-amd64-20240211-1654.raw<span class="w"> </span>local-zfs
-</code></pre></div>
-</li>
-<li>
-<p>Attach and configure disk to the vm:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>-scsi0<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>local-zfs:vm-100-disk-0,discard<span class="o">=</span>on,iothread<span class="o">=</span><span class="m">1</span>,size<span class="o">=</span>2G,ssd<span class="o">=</span><span class="m">1</span>,aio<span class="o">=</span>io_uring
-</code></pre></div>
-</li>
-<li>
-<p>Resize:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span>disk<span class="w"> </span>resize<span class="w"> </span><span class="m">100</span><span class="w"> </span>scsi0<span class="w"> </span>8G
-</code></pre></div>
-</li>
-<li>
-<p>Set boot order:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--boot<span class="w"> </span><span class="nv">order</span><span class="o">=</span>scsi0
-</code></pre></div>
-</li>
-<li>
-<p>Attach and configure a second disk from the <code>rpool-sata pool</code>:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>-scsi1<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>rpool-sata:vm-100-disk-0,discard<span class="o">=</span>on,iothread<span class="o">=</span><span class="m">1</span>,size<span class="o">=</span>113G,ssd<span class="o">=</span><span class="m">1</span>,aio<span class="o">=</span>io_uring
-</code></pre></div>
-</li>
-<li>
-<p>Attach and configure a third disk from the <code>rpool-usb-1</code> pool:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>-scsi1<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>rpool-usb-1:vm-100-disk-1,discard<span class="o">=</span>on,iothread<span class="o">=</span><span class="m">1</span>,size<span class="o">=</span>885G,ssd<span class="o">=</span><span class="m">1</span>,aio<span class="o">=</span>io_uring
-</code></pre></div>
-</li>
-<li>
-<p>Enable UEFI and create a UEFI disk volume:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--bios<span class="w"> </span>ovmf
-</code></pre></div>
-</li>
-<li>
-<p>Configure UEFI disk volume:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--efidisk0<span class="w"> </span>local-zfs:0,efitype<span class="o">=</span>4m
-</code></pre></div>
-<p>If you need to enable Secure Boot, add the <code>pre-enrolled-keys=1</code> option.</p>
-</li>
-<li>
-<p>Configure cloud-init datasource:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--cicustom
-<span class="s2">&quot;user=local:snippets/cloud-init-hl01-user-data.yaml,network=local:snippets/cloud-init-hl01-network.yaml&quot;</span>
-</code></pre></div>
-</li>
-<li>
-<p>Configure cloud-init drive:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--ide2<span class="w"> </span>local-zfs:cloudinit,media<span class="o">=</span>cdrom
-</code></pre></div>
-</li>
-<li>
-<p>Pass the Coral PCIe module to the VM, mark it as a PCIe device:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--hostpci0<span class="w"> </span><span class="m">0000</span>:03:00,pcie<span class="o">=</span><span class="m">1</span>
-</code></pre></div>
-</li>
-<li>
-<p>Pass the iGPU to the VM, mark it as a PCIe device, make the firmware ROM
-   visible to the guest, set it as the primary GPU:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>-hostpci1<span class="w"> </span><span class="m">0000</span>:00:02.0,pcie<span class="o">=</span>on,rombar<span class="o">=</span>on,x-vga<span class="o">=</span>on
-</code></pre></div>
-</li>
-<li>
-<p>Start the VM:</p>
-<div class="highlight"><pre><span></span><code>qm<span class="w"> </span>start<span class="w"> </span><span class="m">100</span>
-</code></pre></div>
-</li>
+<li><strong>Boot server on hl02</strong> (<code>netboot-server</code> Nix role): the services of each
+   boot path, the payload trees, and a per-host registry.</li>
+<li><strong>Rescue toggle</strong>: a templated systemd unit per host, stopped by default.
+   Starting it publishes the host's payload; stopping it withdraws it. The
+   published state lives under a runtime path, so after a server reboot every
+   host is in normal boot.</li>
+<li><strong>Boot paths</strong>: how a host of a given platform finds the server and what it
+   fetches. Raspberry Pi over TFTP now, x86 PXE deferred.</li>
+<li><strong>Payloads</strong>: what a host runs once it network-boots. Raspberry Pi OS Lite
+   over NFS now; later candidates recorded in the todo list.</li>
+<li><strong>Consumers</strong>: the workflows built on a rescue boot. Raspberry Pi
+   re-provisioning now.</li>
 </ol>
-<h2 id="2025">2025</h2>
-<p>Exact date unknown.</p>
+<h2 id="boot-server-role">Boot Server Role</h2>
+<p>The <code>netboot-server</code> role under <code>config/nix/roles/</code> takes an attribute set of
+hosts, each naming its boot path and payload, and manages the trees under
+<code>/var/lib/netboot/</code>:</p>
 <ul>
-<li>Fury 2: installed BIOS version 3801.</li>
+<li><strong>TFTP root</strong> (<code>tftp/</code>): one directory per host. The directory the host asks
+  for is a link under a runtime path that the toggle manages, pointing at the
+  payload's files.</li>
+<li><strong>NFS exports</strong> (<code>nfs/&lt;hostname&gt;</code>): a writable per-host copy of a payload's
+  root filesystem, exported to the lab network only, root squashing disabled
+  because it is a root filesystem. It exists only while a rescue is active: the
+  toggle creates it from the pristine tree when it starts and removes it after
+  it stops.</li>
+<li><strong>HTTP root</strong> (<code>http/</code>): per-host cloud-init seeds, installed-system
+  cloud-init files, and the pinned images with their checksums.</li>
+<li><strong>The toggle</strong>: <code>netboot-rescue@&lt;hostname&gt;</code>. Starting it cancels any pending
+  removal, creates the host's export from the pristine tree, and publishes the
+  TFTP link. Stopping it withdraws the link at once and removes the export after
+  a grace period, because the workflow stops the toggle while the host still
+  runs from that export and reboots afterwards: an immediate removal would pull
+  the root filesystem from under a live system. A tmpfiles age rule on the
+  export directory is the backstop for an hl02 reboot during the grace period.</li>
 </ul>
-<h2 id="2023-05-03">2023-05-03</h2>
+<p>On a normal boot a host asks for its directory, gets "not found", and continues
+to its disk. With the toggle started, the host boots the payload on its next
+reboot or power cycle, and keeps doing so until the toggle is stopped, which is
+the last step of every rescue.</p>
+<p>The firewall admits TFTP (UDP 69), NFSv4 (TCP 2049), and HTTP (TCP 80) from the
+lab network only. The trees contain no secrets: firmware, public images, and
+cloud-init files holding a hostname and a public key.</p>
+<p><strong>Prerequisite: a DHCP reservation for hl02</strong>, recorded in the inventory like
+the other reserved addresses, because the Raspberry Pi path names the server by
+address.</p>
+<h2 id="boot-paths">Boot Paths</h2>
+<h3 id="raspberry-pi">Raspberry Pi</h3>
+<p>The Raspberry Pi 4 bootloader fetches firmware, kernel, and ramdisk over TFTP
+from a server named in its EEPROM, so the router keeps its DHCP role. The
+configuration is applied once from the running operating system with the
+vendor's EEPROM tooling, which also installs the bootloader release bundled in
+its package (accepted: the host keeps self-update enabled). It never changes
+afterwards.</p>
+<p>Bootloader releases are not this service's job: they come from the operating
+system's <code>rpi-eeprom</code> package and the boot-time update service, which applies
+the package's default channel while preserving the EEPROM configuration. Debian
+11 froze that package at the January 2023 release, which is why raspberrypi2
+reports no update available although upstream is at 2026-09-23; the re-image to
+Trixie brings a current package and the update with it. Network boot needs no
+newer release than the one installed.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Option</th>
+<th style="text-align: left;">Value</th>
+<th style="text-align: left;">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>BOOT_ORDER</code></td>
+<td style="text-align: left;"><code>0xf42</code></td>
+<td style="text-align: left;">Network first, then the boot disk, loop.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>TFTP_IP</code></td>
+<td style="text-align: left;">hl02's address</td>
+<td style="text-align: left;">Names the server, so the router's DHCP configuration stays untouched.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>TFTP_PREFIX</code></td>
+<td style="text-align: left;"><code>1</code></td>
+<td style="text-align: left;">Use a fixed per-host directory name.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>TFTP_PREFIX_STR</code></td>
+<td style="text-align: left;"><code>&lt;hostname&gt;/</code></td>
+<td style="text-align: left;">Per-host directory, no serial numbers in the repository.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="x86-pxe-deferred">x86 PXE (deferred)</h3>
+<p>An x86 firmware finds the boot server through DHCP, which the router owns. The
+design direction is a proxy-DHCP responder on hl02 that answers only the PXE
+part of the exchange, leaving leases to the router; the pinned nixpkgs ships a
+service that combines proxy DHCP, TFTP, and HTTP for PXE in one daemon, the
+candidate to verify when this path is implemented. The toggle semantics are the
+same: the responder answers only hosts whose toggle is started.</p>
+<h2 id="payloads">Payloads</h2>
+<h3 id="raspberry-pi-os-lite-over-nfs">Raspberry Pi OS Lite over NFS</h3>
+<p>The pinned Lite image, fetched by URL and checksum, is unpacked at build time (a
+Nix derivation): its boot partition files go to the host's TFTP directory, its
+root filesystem tree is the pristine copy of the host's NFS export. One pinned
+image serves both as the rescue system and as the image the flash workflow
+installs.</p>
+<p>The role renders <code>config.txt</code> (64-bit mode, the Lite kernel and initramfs,
+serial console) and a <code>cmdline.txt</code> that replaces the image's own: NFS root on
+the host's export over NFSv4, DHCP addressing, the cloud-init seed URL, and none
+of the image's first-boot resize hooks. The image's own cloud-init applies the
+seed at boot: hostname, the <code>pi</code> user with the lab's bootstrap key and
+passwordless sudo, password login disabled, and the <code>flash-os</code> script as a
+written file. The tooling the rescue needs ships with Lite: EEPROM utilities,
+<code>xz</code>, partition tools, <code>curl</code>, SMART tools.</p>
+<h3 id="later-candidates">Later candidates</h3>
+<p>The lab's own NixOS installer ISO for bare-metal nodes, and a generic rescue
+menu, are recorded in the todo list without design.</p>
+<h2 id="consumer-raspberry-pi-re-provisioning">Consumer: Raspberry Pi Re-provisioning</h2>
+<p><strong>Flash workflow.</strong> <code>flash-os</code> takes the image URL on hl02, its checksum, the
+target disk by stable device ID, and the URL prefix of the installed system's
+cloud-init files. It refuses to run without all four, or against a target that
+is not a whole disk or has a mounted filesystem; prints the target's model and
+size and waits for an explicit confirmation token; then downloads and verifies
+the image, writes it, re-reads the partition table, writes the three cloud-init
+files to the new boot partition, and reports. It does not reboot and does not
+touch the EEPROM.</p>
+<p><strong>Workflow.</strong></p>
+<ol>
+<li>Preparation on the current system: workload images upgraded in place to the
+   repository's pins, the playbook fixes for the target release merged and
+   tested, the EEPROM configuration applied, hl02 serving the host.</li>
+<li>A dry rescue: start the toggle, reboot, confirm SSH access to the rescue
+   system and that it sees the boot disk and the data disks, stop the toggle,
+   reboot. This is the only test the payload gets before a real flash.</li>
+<li>Silence the host's availability alerts. Stop every workload stack, run the
+   backup job once with its repository check, record the snapshot ID, confirm
+   the exporter reports it.</li>
+<li>Start the toggle, reboot into the rescue system, run <code>flash-os</code> with the
+   confirmation token, stop the toggle, reboot into the new system.</li>
+<li>Replace the host's entry in the control machine's known hosts, run the
+   bootstrap playbook, then the node playbooks limited to the host with the
+   workload start flags disabled: the data disks mount and every stack is
+   rendered without starting.</li>
+<li>Restore the recorded snapshot through the host's restic container into the
+   two state trees, remove the start flags, run the playbooks again.</li>
+<li>The manual steps below, then verify and expire the silence.</li>
+</ol>
+<p>A rescue outside re-provisioning (a host that stopped booting) is step 4 without
+the flash: start the toggle, power-cycle, investigate over SSH with the disks
+attached, stop the toggle, reboot. The host's availability alert is what signals
+the need; the rescue system never reboots on its own.</p>
+<p><strong>State outside the snapshots.</strong> The restic job snapshots
+<code>/etc/ferrarimarco-home-lab</code> and <code>/var/lib/ferrarimarco-home-lab</code>. Everything
+else comes back from the playbooks, except:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">State</th>
+<th style="text-align: left;">Recovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Tailscale node identity</td>
+<td style="text-align: left;">Re-join, re-approve routes, delete the old node.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Samba passwords</td>
+<td style="text-align: left;">Set by hand; the playbooks create users and shares only.</td>
+</tr>
+<tr>
+<td style="text-align: left;">SSH host keys</td>
+<td style="text-align: left;">Regenerated; replace the control machine's known hosts.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Container images</td>
+<td style="text-align: left;">Re-pulled from the registries.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hand-installed case tooling</td>
+<td style="text-align: left;">Reinstall; the role only enables the I2C and serial buses.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="security-considerations">Security Considerations</h2>
 <ul>
-<li><code>gateway</code>: fixed the 2.4 GHz Wi-Fi control channel to 1, trying to address the
-  ESP32 disconnection issue. The issue still occurs after this change.</li>
+<li>The NFS exports are root filesystems, so root squashing is off. They are
+  limited to the lab network, hold public images only, exist only during a
+  rescue, and are created fresh for each one, so nothing written during a rescue
+  persists or lingers.</li>
+<li>Flashing is never automatic: a rescue system boots into an idle shell, and the
+  write needs an SSH session, a confirmation token, and a disk named by its
+  stable ID.</li>
+<li>The boot firmware's trust is the LAN: a rogue server could serve a different
+  system to a host whose toggle is started. The lab network is private and the
+  toggle is started on demand; secure boot with signed payloads is out of scope.</li>
 </ul>
-<h2 id="2023-04-27">2023-04-27</h2>
+<h2 id="testing">Testing</h2>
 <ul>
-<li><code>gateway</code>: disabled WMM APSD on the 2.4 GHz Wi-Fi network, trying to address
-  the ESP32 disconnection issue.</li>
+<li>The <code>netboot-server</code> role gets a NixOS integration test through the existing
+  test generator: for a sample host, the TFTP service serves the payload files,
+  the NFS export and the HTTP seed are reachable, and starting and stopping the
+  toggle publishes and withdraws the host and resets the export.</li>
+<li>Payloads cannot boot in the x86_64 test framework. The dry rescue is the
+  acceptance test, on real hardware with the boot disk untouched; it also
+  verifies the two expectations below.</li>
 </ul>
-<h2 id="2023-04-26">2023-04-26</h2>
+<h2 id="assumptions-and-constraints">Assumptions and Constraints</h2>
 <ul>
-<li><code>gateway</code>: disabled target wake time on the 2.4 GHz Wi-Fi network, trying to
-  address the ESP32 disconnection issue.</li>
-</ul>
-<h2 id="2023-03-30">2023-03-30</h2>
-<ul>
-<li><code>gateway</code>: updated the Asus RT-AX86U firmware to 3.0.0.4.388_22525. The exact
-  date is approximate.</li>
-</ul>
-<h2 id="2023-02">2023-02</h2>
-<p>Exact days unknown.</p>
-<ul>
-<li><code>gateway</code>: on the 2.4 GHz Wi-Fi network, trying to address the ESP32
-  disconnection issue:<ul>
-<li>Disabled 802.11ax.</li>
-<li>Disabled Wi-Fi Agile Multiband.</li>
-<li>Disabled Protected Management Frames.</li>
-</ul>
-</li>
-</ul>
-<h2 id="2023">2023</h2>
-<p>Exact date unknown.</p>
-<ul>
-<li><code>gateway</code>: disabled Smart Connect for both the 2.4 GHz and 5 GHz Wi-Fi bands,
-  to fix cam-1 disconnecting from the network after a power loss (the camera
-  stopped responding to pings).</li>
-</ul>
-<h2 id="2022-05-16">2022-05-16</h2>
-<ul>
-<li><code>gateway</code>: updated the Asus RT-AX86U firmware to 3.0.0.4.386_46061 at 9:30.</li>
+<li>Wired Ethernet, and for the Raspberry Pi hosts a bootloader release of 2023 or
+  later (raspberrypi2 runs the January 2023 release).</li>
+<li>The EEPROM configuration is applied from a running operating system; a host
+  with a lost configuration falls back to the SD card recovery path in the
+  provisioning guide.</li>
+<li>When pve1 is down, raspberrypi2 is the monitoring replica still watching, and
+  its own rescue waits for pve1 (see the coverage section).</li>
+<li>Two expectations verified by the dry rescue: the Lite kernel and initramfs
+  boot from an NFS root, the layout the vendor's own network boot tutorial uses;
+  and the image's cloud-init accepts a seed URL from the kernel command line.
+  The installed system's first boot uses the same cloud-init mechanism,
+  introduced by the Trixie release for headless setup.</li>
+<li>hl02 holds each pinned image plus an unpacked root tree per host, a few
+  gigabytes on its 20 GB disk; image pins are bumped like other pinned
+  artifacts.</li>
 </ul>
 
 

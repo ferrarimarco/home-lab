@@ -1689,6 +1689,29 @@
   
   
     <li class="md-nav__item">
+      <a href="network-boot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Network Boot Service
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="proxmox-lxc/" class="md-nav__link">
         
   
@@ -1997,13 +2020,18 @@ testing rationale before code implementation.</p>
 <td style="text-align: left;">Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.</td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 </tr>
+<tr>
+<td style="text-align: left;"><a href="network-boot/"><strong>Network Boot Service</strong></a></td>
+<td style="text-align: left;">Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi TFTP path now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer.</td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+</tr>
 </tbody>
 </table>
 <h2 id="specifications-to-write-and-todos">Specifications to write and TODOs</h2>
 <p>This section is the centralized list of future work and todo items for the whole
-home lab: the Future Work section of each specification only points here. Items
-are grouped by theme, and stay here until they are implemented and reflected in
-the relevant specification, or explicitly discarded. The software considered for
+home lab; specifications carry no future work sections of their own. Items are
+grouped by theme, and stay here until they are implemented and reflected in the
+relevant specification, or explicitly discarded. The software considered for
 each need, in use or candidate, is tracked in
 <a href="software-candidates/">Software candidates</a>: only active evaluations become
 items here.</p>
@@ -2018,13 +2046,19 @@ reliability risks first, then security exposure, then automation):</p>
   old copies on the data disk await deletion); the media library waits for the
   <code>rpool-usb-2</code> pool. Blocks: the media stack migration cutover and the SMART
   long self-test (<a href="#issues-to-solve">Issues to solve</a>).</li>
-<li>Migrate the containers from raspberrypi2 to hl01: shrinks that host's role and
-  unblocks its re-image
+<li>Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
+  rescue (<a href="network-boot/">Network Boot Service</a>), then bump the <code>requests</code>
+  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the hl02 address
+  reservation (<a href="#networking">Networking</a>), the boot server and rescue payload
+  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>), and the
+  restic restore recipe (<a href="#backup">Backup</a>). Does not depend on the data
+  evacuation or the container migration: the re-image rewrites the boot disk
+  only, and the restic repository on the data disk restores the services in
+  place (decided 2026-10-08).</li>
+<li>Migrate the containers from raspberrypi2 to hl01, after the re-image
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>). Depends
-  on: the data evacuation.</li>
-<li>Re-image raspberrypi2 with current Raspberry Pi OS, then bump the <code>requests</code>
-  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the container
-  migration.</li>
+  on: the data evacuation for the media stack only; Zigbee2MQTT and Mosquitto
+  can move at any time.</li>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
@@ -2068,14 +2102,59 @@ reliability risks first, then security exposure, then automation):</p>
   Debian hosts
   (<a href="https://wiki.debian.org/UnattendedUpgrades">UnattendedUpgrades</a>), Nix
   hosts.</li>
-<li>Migrate containers from raspberrypi2 to hl01: Zigbee2MQTT depends on the
-  Zigbee adapter hardware; the media stack depends on data (copy the media,
-  remove the runtime data from raspberrypi2, update the endpoints in the
-  Ansible configuration). Syncthing migrates to the nas-pve1 NixOS guest
-  instead of hl01, so its folders live on storage local to the service
-  (<a href="#nas">NAS</a>). The monitoring backend is excluded from this migration: it
-  runs as a highly available pair on hl01 and raspberrypi2
-  (monitoring-alerting spec §3.3).</li>
+<li>Migrate containers from raspberrypi2 to hl01, after the re-image
+  (decisions of 2026-10-08): hl01 is the sole target, since hl02 has no
+  container workload role yet. The state moves by restic restore from the
+  host's own repository (snapshot taken with the stack stopped, repository
+  copied to hl01's backup share, selective restore), with rsync as the
+  fallback; the container images are upgraded in place on raspberrypi2 to
+  the repository's pins first, so the move changes only the host. Per
+  workload: Zigbee2MQTT carries its device database, network key, and state,
+  and needs the dongle moved to pve1 with a USB passthrough on the hl01 VM
+  (declared in the <a href="proxmox-vm/">NixOS VMs on Proxmox</a> spec) plus the
+  udev rule for a stable device path on both hosts
+  (<a href="#host-configuration">Host configuration</a>); Mosquitto is redeployed
+  fresh, and the Home Assistant MQTT integration's broker host changes in
+  its UI; the media stack carries the Jellyfin users and metadata and the
+  Sonarr, Radarr, Prowlarr, and Lidarr databases over hl01's empty
+  instances, drops Readarr (retired upstream), and depends on the media
+  evacuation (<a href="#nas">NAS</a>); Flaresolverr and qBittorrent carry nothing worth
+  moving. The endpoint variables live in the node role's <code>vars/main.yaml</code>,
+  not in <code>group_vars</code>. Syncthing already moved to nas-pve1 (<a href="#nas">NAS</a>).
+  The monitoring backend stays: it runs as a highly available pair on hl01
+  and raspberrypi2 (monitoring-alerting spec §3.3). Afterwards: move the ONT
+  exporter and the router WAN check to hl01, retire the raspberrypi2 restic
+  job after a week of healthy hl01 snapshots (<a href="#nas">NAS</a>), and delete the
+  source data with separate approvals.</li>
+<li>Network boot service and Raspberry Pi re-provisioning, per the
+  <a href="network-boot/">Network Boot Service</a> spec:<ul>
+<li><code>netboot-server</code> Nix role on hl02 (TFTP tree, NFS export, and
+  cloud-init seed per host, the pinned OS image over HTTP, and the
+  per-host rescue toggle unit) with its integration test. Depends on:
+  the hl02 address reservation (<a href="#networking">Networking</a>).</li>
+<li>Rescue system and flash workflow: the pinned Raspberry Pi OS Lite
+  image unpacked on hl02 (boot partition over TFTP, root over NFS),
+  customized at boot by cloud-init from an HTTP seed, with the
+  <code>flash-os</code> script delivered through the seed.</li>
+<li>A second server instance on pve2, so that pve1 and hl02 are covered
+  too. Depends on: the x86 PXE path (deferred, see the spec) and the
+  pve2 power reduction (<a href="#host-configuration">Host configuration</a>).</li>
+<li>Bootloader configuration on raspberrypi2 (<code>BOOT_ORDER=0xf42</code>,
+  <code>TFTP_IP</code>, per-host <code>TFTP_PREFIX_STR</code>), applied once from the running
+  OS, then a dry rescue with the boot disk untouched.</li>
+<li>Playbook compatibility with Raspberry Pi OS Trixie (Debian 13),
+  verified with Molecule against a Debian 13 image. Known breakages: the
+  firmware configuration path moved under <code>/boot/firmware</code>; dhcpcd was
+  replaced by NetworkManager, so the dhcpcd task and its restart handler
+  have no target; fail2ban needs the systemd backend without rsyslog;
+  the swap file package may be gone. Also drop the unused Coral flag
+  from raspberrypi2: nothing there uses the USB accelerator since
+  Frigate left, and the Coral apt repository is stale.</li>
+<li>Documentation: the provisioning guide (EEPROM editing from the OS, the
+  rescue procedure, the manual follow-ups), the restore recipe
+  (<a href="#backup">Backup</a>), and the unresponsive host runbook.</li>
+</ul>
+</li>
 <li>Run Ansible.</li>
 <li>Run Terraform to set up the Proxmox hosts (networking; storage: pve1 done,
   pve2 pending).</li>
@@ -2156,8 +2235,11 @@ reliability risks first, then security exposure, then automation):</p>
   Raspberry Pi 4 hardware (its documentation strongly discourages in-place
   upgrades, recommending a re-image instead); a NixOS migration was
   deferred, to reconsider after the planned container migration to hl01
-  shrinks this host's role. After the upgrade, bump the <code>requests</code> pin and
-  the CI requirements test matrix (<code>test-python-requirements.yaml</code>).</li>
+  shrinks this host's role. Path (2026-10-08): the network-boot rescue of
+  the <a href="network-boot/">Network Boot Service</a> spec, with the services
+  restored in place from the host's restic repository. After the upgrade,
+  bump the <code>requests</code> pin and the CI requirements test matrix
+  (<code>test-python-requirements.yaml</code>).</li>
 <li>Optionally prove the hardware watchdog recovery path end-to-end with a
   deliberate kernel crash (<code>echo c &gt; /proc/sysrq-trigger</code>): the host should
   self-reboot within the 15 second timeout. Induced crash with the usual
@@ -2243,6 +2325,10 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="cicd-infrastructure-as-code-and-gitops">CI/CD, infrastructure-as-code, and GitOps</h3>
 <ul>
+<li>Move artifact builds to GitHub Actions, and later to a self-hosted pipeline
+  (Gitea or Forgejo) once one exists: the Proxmox images and the NixOS host
+  configurations, so consumers fetch pinned artifacts instead of depending on a
+  local build. Related: the automated template upload item (<a href="#nas">NAS</a>).</li>
 <li>Validate the Dependabot configuration in CI: check <code>.github/dependabot.yaml</code>
   against its schema, as the
   <a href="../guides/operations/dependency-updates/">dependency updates guide</a>
@@ -2436,6 +2522,10 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   the DHCP server items below (deploy a managed DHCP server, or take control of
   the dnsmasq instance on the Asus). Blocks: the NAS static IP migration
   (<a href="#nas">NAS</a>).</li>
+<li>Reserve a DHCP address for hl02 on the router and record it in the inventory:
+  the Raspberry Pi network-boot rescue names the boot server by address
+  (<code>TFTP_IP</code>). Blocks: the Raspberry Pi network-boot rescue
+  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>).</li>
 <li>Set a static DHCP assignment for the pve2 BMC on the router, so the BMC stays
   reachable at a stable address for remote power control — pve2 stays powered
   off until its power reduction work completes
@@ -2515,9 +2605,13 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>If staying on dnsmasq, consider using a repology source and Renovate
   to automatically update dependencies:
   <a href="https://docs.renovatebot.com/modules/datasource/repology/">Repology</a>.</li>
-<li>Configure network boot: evaluate dnsmasq proxy DHCP for PXE,
+<li>Configure network boot for the x86 Proxmox nodes: evaluate dnsmasq
+  proxy DHCP for PXE,
   <a href="https://github.com/netbootxyz/netboot.xyz">netboot.xyz</a>,
-  <a href="https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz">PXE booting into netboot.xyz</a>.</li>
+  <a href="https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz">PXE booting into netboot.xyz</a>.
+  The Raspberry Pi hosts are covered by the
+  <a href="network-boot/">Network Boot Service</a> spec, whose server on hl02
+  leaves room for the x86 nodes.</li>
 <li>Configure dnsmasq on the Asus router to use the recursive DNS
   resolver: find a way to edit the dnsmasq configuration in the stock
   Asuswrt firmware.</li>
@@ -2769,6 +2863,17 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   sometimes" over two-way replication, which is harder to implement. Filesystem
   level: ZFS replication.</li>
 <li>Immich to copy data from phones to the NAS.</li>
+<li>Restic restore recipe and drill: document restoring a host's state trees from
+  its repository (full and selective, and from another host's repository) in a
+  backup operations guide, then run a restore drill on a schedule. Both the
+  raspberrypi2 re-image and the container migration rely on restore. Blocks: the
+  raspberrypi2 re-image
+  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>).</li>
+<li>Back up the Tailscale node state and automate the Samba passwords on the
+  Debian hosts, so a re-provisioned host needs neither a manual tailnet re-join
+  with route re-approval nor <code>smbpasswd</code> runs. Both hold secret material; the
+  Samba password automation item (<a href="#nas">NAS</a>) describes a mechanism that keeps
+  it out of the repository.</li>
 <li>Restic: enable the full-read check on a schedule. A plain restic check already
   runs with the backup unit; the
   <a href="https://restic.readthedocs.io/en/latest/045_working_with_repos.html#checking-integrity-and-consistency">--read-data variant</a>

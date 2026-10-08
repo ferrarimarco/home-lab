@@ -6,14 +6,15 @@ testing rationale before code implementation.
 
 ## Specifications Directory Index
 
-| Specification                                                               | Description                                                                                                                                                                   | Current Implementation Status |
-| :-------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
-| [**Home Lab Bootstrapping**](./home-lab-bootstrapping.md)                   | Global VM installation infrastructure: Nix-native custom installer ISO, secure bootstrap key loading with Git-tracking guardrails, and `nixos-anywhere`.                      | **Fully Implemented**         |
-| [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                                        | **Fully Implemented**         |
-| [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                                                  | **Fully Implemented**         |
-| [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.                                | **Fully Implemented**         |
-| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.        | **Partially Implemented**     |
-| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair. | **Fully Implemented**         |
+| Specification                                                               | Description                                                                                                                                                                                                                                        | Current Implementation Status |
+| :-------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
+| [**Home Lab Bootstrapping**](./home-lab-bootstrapping.md)                   | Global VM installation infrastructure: Nix-native custom installer ISO, secure bootstrap key loading with Git-tracking guardrails, and `nixos-anywhere`.                                                                                           | **Fully Implemented**         |
+| [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                                                                                                             | **Fully Implemented**         |
+| [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                                                                                                                       | **Fully Implemented**         |
+| [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.                                                                                                     | **Fully Implemented**         |
+| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.                                                                             | **Partially Implemented**     |
+| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.                                                                      | **Fully Implemented**         |
+| [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi TFTP path now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer. | **Missing**                   |
 
 ## Specifications to write and TODOs
 
@@ -37,13 +38,19 @@ reliability risks first, then security exposure, then automation):
   old copies on the data disk await deletion); the media library waits for the
   `rpool-usb-2` pool. Blocks: the media stack migration cutover and the SMART
   long self-test ([Issues to solve](#issues-to-solve)).
-- Migrate the containers from raspberrypi2 to hl01: shrinks that host's role and
-  unblocks its re-image
+- Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
+  rescue ([Network Boot Service](./network-boot.md)), then bump the `requests`
+  pin ([Issues to solve](#issues-to-solve)). Depends on: the hl02 address
+  reservation ([Networking](#networking)), the boot server and rescue payload
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)), and the
+  restic restore recipe ([Backup](#backup)). Does not depend on the data
+  evacuation or the container migration: the re-image rewrites the boot disk
+  only, and the restic repository on the data disk restores the services in
+  place (decided 2026-10-08).
+- Migrate the containers from raspberrypi2 to hl01, after the re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). Depends
-  on: the data evacuation.
-- Re-image raspberrypi2 with current Raspberry Pi OS, then bump the `requests`
-  pin ([Issues to solve](#issues-to-solve)). Depends on: the container
-  migration.
+  on: the data evacuation for the media stack only; Zigbee2MQTT and Mosquitto
+  can move at any time.
 
 ### Bootstrapping and provisioning
 
@@ -87,14 +94,57 @@ reliability risks first, then security exposure, then automation):
       Debian hosts
       ([UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)), Nix
       hosts.
-    - Migrate containers from raspberrypi2 to hl01: Zigbee2MQTT depends on the
-      Zigbee adapter hardware; the media stack depends on data (copy the media,
-      remove the runtime data from raspberrypi2, update the endpoints in the
-      Ansible configuration). Syncthing migrates to the nas-pve1 NixOS guest
-      instead of hl01, so its folders live on storage local to the service
-      ([NAS](#nas)). The monitoring backend is excluded from this migration: it
-      runs as a highly available pair on hl01 and raspberrypi2
-      (monitoring-alerting spec §3.3).
+    - Migrate containers from raspberrypi2 to hl01, after the re-image
+      (decisions of 2026-10-08): hl01 is the sole target, since hl02 has no
+      container workload role yet. The state moves by restic restore from the
+      host's own repository (snapshot taken with the stack stopped, repository
+      copied to hl01's backup share, selective restore), with rsync as the
+      fallback; the container images are upgraded in place on raspberrypi2 to
+      the repository's pins first, so the move changes only the host. Per
+      workload: Zigbee2MQTT carries its device database, network key, and state,
+      and needs the dongle moved to pve1 with a USB passthrough on the hl01 VM
+      (declared in the [NixOS VMs on Proxmox](./proxmox-vm.md) spec) plus the
+      udev rule for a stable device path on both hosts
+      ([Host configuration](#host-configuration)); Mosquitto is redeployed
+      fresh, and the Home Assistant MQTT integration's broker host changes in
+      its UI; the media stack carries the Jellyfin users and metadata and the
+      Sonarr, Radarr, Prowlarr, and Lidarr databases over hl01's empty
+      instances, drops Readarr (retired upstream), and depends on the media
+      evacuation ([NAS](#nas)); Flaresolverr and qBittorrent carry nothing worth
+      moving. The endpoint variables live in the node role's `vars/main.yaml`,
+      not in `group_vars`. Syncthing already moved to nas-pve1 ([NAS](#nas)).
+      The monitoring backend stays: it runs as a highly available pair on hl01
+      and raspberrypi2 (monitoring-alerting spec §3.3). Afterwards: move the ONT
+      exporter and the router WAN check to hl01, retire the raspberrypi2 restic
+      job after a week of healthy hl01 snapshots ([NAS](#nas)), and delete the
+      source data with separate approvals.
+    - Network boot service and Raspberry Pi re-provisioning, per the
+      [Network Boot Service](./network-boot.md) spec:
+        - `netboot-server` Nix role on hl02 (TFTP tree, NFS export, and
+          cloud-init seed per host, the pinned OS image over HTTP, and the
+          per-host rescue toggle unit) with its integration test. Depends on:
+          the hl02 address reservation ([Networking](#networking)).
+        - Rescue system and flash workflow: the pinned Raspberry Pi OS Lite
+          image unpacked on hl02 (boot partition over TFTP, root over NFS),
+          customized at boot by cloud-init from an HTTP seed, with the
+          `flash-os` script delivered through the seed.
+        - A second server instance on pve2, so that pve1 and hl02 are covered
+          too. Depends on: the x86 PXE path (deferred, see the spec) and the
+          pve2 power reduction ([Host configuration](#host-configuration)).
+        - Bootloader configuration on raspberrypi2 (`BOOT_ORDER=0xf42`,
+          `TFTP_IP`, per-host `TFTP_PREFIX_STR`), applied once from the running
+          OS, then a dry rescue with the boot disk untouched.
+        - Playbook compatibility with Raspberry Pi OS Trixie (Debian 13),
+          verified with Molecule against a Debian 13 image. Known breakages: the
+          firmware configuration path moved under `/boot/firmware`; dhcpcd was
+          replaced by NetworkManager, so the dhcpcd task and its restart handler
+          have no target; fail2ban needs the systemd backend without rsyslog;
+          the swap file package may be gone. Also drop the unused Coral flag
+          from raspberrypi2: nothing there uses the USB accelerator since
+          Frigate left, and the Coral apt repository is stale.
+        - Documentation: the provisioning guide (EEPROM editing from the OS, the
+          rescue procedure, the manual follow-ups), the restore recipe
+          ([Backup](#backup)), and the unresponsive host runbook.
     - Run Ansible.
     - Run Terraform to set up the Proxmox hosts (networking; storage: pve1 done,
       pve2 pending).
@@ -171,8 +221,11 @@ reliability risks first, then security exposure, then automation):
       Raspberry Pi 4 hardware (its documentation strongly discourages in-place
       upgrades, recommending a re-image instead); a NixOS migration was
       deferred, to reconsider after the planned container migration to hl01
-      shrinks this host's role. After the upgrade, bump the `requests` pin and
-      the CI requirements test matrix (`test-python-requirements.yaml`).
+      shrinks this host's role. Path (2026-10-08): the network-boot rescue of
+      the [Network Boot Service](./network-boot.md) spec, with the services
+      restored in place from the host's restic repository. After the upgrade,
+      bump the `requests` pin and the CI requirements test matrix
+      (`test-python-requirements.yaml`).
     - Optionally prove the hardware watchdog recovery path end-to-end with a
       deliberate kernel crash (`echo c > /proc/sysrq-trigger`): the host should
       self-reboot within the 15 second timeout. Induced crash with the usual
@@ -252,6 +305,10 @@ reliability risks first, then security exposure, then automation):
 
 ### CI/CD, infrastructure-as-code, and GitOps
 
+- Move artifact builds to GitHub Actions, and later to a self-hosted pipeline
+  (Gitea or Forgejo) once one exists: the Proxmox images and the NixOS host
+  configurations, so consumers fetch pinned artifacts instead of depending on a
+  local build. Related: the automated template upload item ([NAS](#nas)).
 - Validate the Dependabot configuration in CI: check `.github/dependabot.yaml`
   against its schema, as the
   [dependency updates guide](../guides/operations/dependency-updates.md)
@@ -429,6 +486,10 @@ reliability risks first, then security exposure, then automation):
   the DHCP server items below (deploy a managed DHCP server, or take control of
   the dnsmasq instance on the Asus). Blocks: the NAS static IP migration
   ([NAS](#nas)).
+- Reserve a DHCP address for hl02 on the router and record it in the inventory:
+  the Raspberry Pi network-boot rescue names the boot server by address
+  (`TFTP_IP`). Blocks: the Raspberry Pi network-boot rescue
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
 - Set a static DHCP assignment for the pve2 BMC on the router, so the BMC stays
   reachable at a stable address for remote power control — pve2 stays powered
   off until its power reduction work completes
@@ -504,9 +565,13 @@ reliability risks first, then security exposure, then automation):
         - If staying on dnsmasq, consider using a repology source and Renovate
           to automatically update dependencies:
           [Repology](https://docs.renovatebot.com/modules/datasource/repology/).
-        - Configure network boot: evaluate dnsmasq proxy DHCP for PXE,
+        - Configure network boot for the x86 Proxmox nodes: evaluate dnsmasq
+          proxy DHCP for PXE,
           [netboot.xyz](https://github.com/netbootxyz/netboot.xyz),
           [PXE booting into netboot.xyz](https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz).
+          The Raspberry Pi hosts are covered by the
+          [Network Boot Service](./network-boot.md) spec, whose server on hl02
+          leaves room for the x86 nodes.
         - Configure dnsmasq on the Asus router to use the recursive DNS
           resolver: find a way to edit the dnsmasq configuration in the stock
           Asuswrt firmware.
@@ -744,6 +809,17 @@ reliability risks first, then security exposure, then automation):
   sometimes" over two-way replication, which is harder to implement. Filesystem
   level: ZFS replication.
 - Immich to copy data from phones to the NAS.
+- Restic restore recipe and drill: document restoring a host's state trees from
+  its repository (full and selective, and from another host's repository) in a
+  backup operations guide, then run a restore drill on a schedule. Both the
+  raspberrypi2 re-image and the container migration rely on restore. Blocks: the
+  raspberrypi2 re-image
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
+- Back up the Tailscale node state and automate the Samba passwords on the
+  Debian hosts, so a re-provisioned host needs neither a manual tailnet re-join
+  with route re-approval nor `smbpasswd` runs. Both hold secret material; the
+  Samba password automation item ([NAS](#nas)) describes a mechanism that keeps
+  it out of the repository.
 - Restic: enable the full-read check on a schedule. A plain restic check already
   runs with the backup unit; the
   [--read-data variant](https://restic.readthedocs.io/en/latest/045_working_with_repos.html#checking-integrity-and-consistency)
