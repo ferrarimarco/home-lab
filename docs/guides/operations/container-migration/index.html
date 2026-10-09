@@ -1778,10 +1778,10 @@ cutover, hardware dependencies) need case-by-case review.</p>
    Ansible run re-renders them on the target.</li>
 <li>Remove the <code>start_xxxxx</code> from the target host configuration because it
    defaults to the <code>configure_xxxxx</code> value, which is set to <code>true</code>.</li>
-<li>Update endpoint definitions in
-   <code>config/ansible/inventory/group_vars/all/main.yaml</code> (the <code>*_endpoint_fqdn</code>
-   variables) so monitoring probes and cross-host references point at the target
-   host.</li>
+<li>Update the endpoint definitions (the <code>*_endpoint_fqdn</code> variables in the
+   <code>ferrarimarco_home_lab_node</code> role's <code>vars/main.yaml</code>) so monitoring probes
+   and cross-host references point at the target host, then re-render the
+   monitoring backend on both members of its pair.</li>
 <li>Run Ansible.</li>
 <li>Verify that the containers work in the target environment as expected:
    service health, application state present (libraries, histories, settings),

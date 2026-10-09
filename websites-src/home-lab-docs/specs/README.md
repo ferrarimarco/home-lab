@@ -49,10 +49,10 @@ reliability risks first, then security exposure, then automation):
   only, and a restic repository restores the services in place (decided
   2026-10-08). The repository on the data disk was lost on 2026-10-09, so the
   restore source is the interim repository ([Backup](#backup)).
-- Migrate the containers from raspberrypi2 to hl01, after the re-image
-  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). Depends
-  on: the data evacuation for the media stack only; Zigbee2MQTT and Mosquitto
-  can move at any time.
+- Finish moving the containers from raspberrypi2 to hl01
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)): the media
+  stack moved on 2026-10-09 and its cutover is nearly complete; Zigbee2MQTT and
+  Mosquitto can move at any time.
 
 ### Bootstrapping and provisioning
 
@@ -96,30 +96,33 @@ reliability risks first, then security exposure, then automation):
       Debian hosts
       ([UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)), Nix
       hosts.
-    - Migrate containers from raspberrypi2 to hl01, after the re-image
-      (decisions of 2026-10-08): hl01 is the sole target, since hl02 has no
-      container workload role yet. The state moves by restic restore from the
-      host's own repository (snapshot taken with the stack stopped, repository
-      copied to hl01's backup share, selective restore), with rsync as the
-      fallback; the container images are upgraded in place on raspberrypi2 to
-      the repository's pins first, so the move changes only the host. Per
-      workload: Zigbee2MQTT carries its device database, network key, and state,
-      and needs the dongle moved to pve1 with a USB passthrough on the hl01 VM
-      (declared in the [NixOS VMs on Proxmox](./proxmox-vm.md) spec) plus the
-      udev rule for a stable device path on both hosts
+    - Migrate containers from raspberrypi2 to hl01 (decisions of 2026-10-08):
+      hl01 is the sole target, since hl02 has no container workload role yet.
+      The media stack moved on 2026-10-09, ahead of the re-image, when the
+      raspberrypi2 data disk died: its state (Jellyfin users and metadata, the
+      Sonarr, Radarr, Prowlarr, and Lidarr databases, Jellyseerr) went over
+      hl01's empty instances with `scripts/copy-data.sh`, since the restic
+      repository died with the disk; Readarr was dropped (retired upstream);
+      Flaresolverr and qBittorrent carried nothing. Remaining for the media
+      stack: the raspberrypi2 cleanup, that is removing `configure_media_stack`
+      from its inventory and running the playbook there, which deletes the
+      copied state and is safe only after the Zigbee2MQTT 2.x upgrade plan
+      ([Smart home](#smart-home)); and verifying the hl01 stack against the
+      library rebuilt on `rpool-usb-2` ([NAS](#nas)). The endpoint variables
+      live in the node role's `vars/main.yaml`, not in `group_vars`; the media
+      ones point at hl01 since 2026-10-10. Still to move: Zigbee2MQTT carries
+      its device database, network key, and state, and needs the dongle moved to
+      pve1 with a USB passthrough on the hl01 VM (declared in the
+      [NixOS VMs on Proxmox](./proxmox-vm.md) spec) plus the udev rule for a
+      stable device path on both hosts
       ([Host configuration](#host-configuration)); Mosquitto is redeployed
       fresh, and the Home Assistant MQTT integration's broker host changes in
-      its UI; the media stack carries the Jellyfin users and metadata and the
-      Sonarr, Radarr, Prowlarr, and Lidarr databases over hl01's empty
-      instances, drops Readarr (retired upstream), and depends on the media
-      evacuation ([NAS](#nas)); Flaresolverr and qBittorrent carry nothing worth
-      moving. The endpoint variables live in the node role's `vars/main.yaml`,
-      not in `group_vars`. Syncthing already moved to nas-pve1 ([NAS](#nas)).
-      The monitoring backend stays: it runs as a highly available pair on hl01
-      and raspberrypi2 (monitoring-alerting spec §3.3). Afterwards: move the ONT
-      exporter and the router WAN check to hl01, retire the raspberrypi2 restic
-      job after a week of healthy hl01 snapshots ([NAS](#nas)), and delete the
-      source data with separate approvals.
+      its UI. Syncthing already moved to nas-pve1 ([NAS](#nas)). The monitoring
+      backend stays: it runs as a highly available pair on hl01 and raspberrypi2
+      (monitoring-alerting spec §3.3). Afterwards: move the ONT exporter and the
+      router WAN check to hl01, and delete the source data with separate
+      approvals; the raspberrypi2 restic job is the interim repository item
+      ([Backup](#backup)).
     - Network boot service and Raspberry Pi re-provisioning, per the
       [Network Boot Service](./network-boot.md) spec:
         - `netboot-server` Nix role on hl02 (TFTP tree, NFS export, and
@@ -214,15 +217,6 @@ reliability risks first, then security exposure, then automation):
 - raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):
-    - Run a SMART long self-test on the WD30EZRX 3TB data disk only after the
-      data evacuation, then decide whether the drive is reused or retired. The
-      test is read-only but puts hours of sustained load on a drive past its
-      load-cycle rating (395k cycles against the 300k rating as of 2026-09-22),
-      and until the evacuation the disk holds the only copy of the media library
-      while the restic repositories live on the same disk, so there is no backup
-      safety net. Attributes stayed stable between 2026-09-13 and 2026-09-22: 1
-      pending and 1 offline-uncorrectable sector (unchanged), zero
-      reallocations, ~39470 power-on hours.
     - Upgrade the operating system: Debian 11 (bullseye) is past LTS end of
       life, the April 2023 kernel is the most plausible lockup culprit, and the
       system Python 3.9 caps `requests` below 2.33, pinning the ONT exporter
