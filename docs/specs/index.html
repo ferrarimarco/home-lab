@@ -2291,14 +2291,15 @@ reliability risks first, then security exposure, then automation):</p>
   (<a href="#host-configuration">Host configuration</a>). The OS re-image
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>) remains
   the long-term fix.</li>
-<li><strong>raspberrypi2 data disk mount must not block the boot (2026-10-09)</strong>: the
-  hand-managed <code>/media/data0</code> fstab line had no <code>nofail</code>, so when the data disk
-  died the boot stalled in emergency mode, and the locked root account left no
-  console: recovery needed a rescue SD card. The line now carries
-  <code>nofail,x-systemd.device-timeout=10</code>, edited by hand on 2026-10-09 and
-  recorded nowhere else. Declare the data disk mount in the node role with those
-  options, so a dead disk degrades to a missing mount. hl01's mounts already
-  carry <code>nofail</code>.</li>
+<li><strong>Data disk mounts must not block the boot (2026-10-09)</strong>: the raspberrypi2
+  <code>/media/data0</code> fstab line, rendered by the setup-disks role from the host's
+  <code>disks_to_mount</code> entry, had no <code>nofail</code>, so when the data disk died the boot
+  stalled in emergency mode, and the locked root account left no console:
+  recovery needed a rescue SD card. The entry now carries
+  <code>nofail,x-systemd.device-timeout=10</code> and is marked absent for the dead disk.
+  Make <code>nofail</code> the default for every <code>disks_to_mount</code> entry that is not the
+  root filesystem, so a dead disk degrades to a missing mount on any host.
+  hl01's CIFS mounts already carry it.</li>
 <li><strong>Docker prune on raspberrypi2 deletes stopped stacks (2026-10-09)</strong>: the node
   role ships a weekly <code>docker-system-prune.timer</code>, but on raspberrypi2 the
   service unit is also enabled, so <code>docker system prune --all --force --volumes</code>

@@ -1803,8 +1803,27 @@ can cover the same sources as the build; the
 mounts the main repository's metadata.</p>
 </li>
 <li>
-<p>Remove the worktree:</p>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>worktree<span class="w"> </span>remove<span class="w"> </span>--force<span class="w"> </span>&lt;worktree<span class="w"> </span>directory&gt;
+<p>Put the output into the commit without touching the main working tree, which
+   may hold another session's generated files: stage <code>docs/</code> in the worktree and
+   amend the commit there, then, with the main checkout on the branch whose tip
+   that commit is, move the branch to the amended commit with a mixed reset,
+   which refreshes the index and leaves the working tree alone:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>-C<span class="w"> </span>&lt;worktree<span class="w"> </span>directory&gt;<span class="w"> </span>add<span class="w"> </span>docs
+git<span class="w"> </span>-C<span class="w"> </span>&lt;worktree<span class="w"> </span>directory&gt;<span class="w"> </span>commit<span class="w"> </span>--amend<span class="w"> </span>--no-edit
+git<span class="w"> </span>reset<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>git<span class="w"> </span>-C<span class="w"> </span>&lt;worktree<span class="w"> </span>directory&gt;<span class="w"> </span>rev-parse<span class="w"> </span>HEAD<span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Until its next build, the main working tree then shows the pages the commit
+added as deleted and the existing pages as modified, because its generated
+files predate the commit.</p>
+</li>
+<li>
+<p>Remove the worktree. A lint run from the worktree leaves root-owned
+   <code>super-linter-output/</code> and <code>super-linter.log</code> behind, which make the removal
+   fail with a permission error. Delete those two lint outputs, and nothing
+   else, through a container first:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--volume<span class="w"> </span>&lt;worktree<span class="w"> </span>directory&gt;:/wt<span class="w"> </span>alpine:3<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;rm -rf /wt/super-linter-output /wt/super-linter.log&#39;</span>
+git<span class="w"> </span>worktree<span class="w"> </span>remove<span class="w"> </span>--force<span class="w"> </span>&lt;worktree<span class="w"> </span>directory&gt;
 </code></pre></div>
 </li>
 </ol>
