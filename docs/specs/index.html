@@ -2043,10 +2043,10 @@ reliability risks first, then security exposure, then automation):</p>
   copy of the media library, a personal data directory, and the restic
   repositories. The disk failed on 2026-10-09 (unreadable from sector 0): the
   Syncthing folders were already on nas-pve1 (migration complete 2026-10-06),
-  the media library copy is lost unless the drive can be imaged, and the restic
-  repository is gone (<a href="#backup">Backup</a>). The media library now waits for a
-  replacement disk or the <code>rpool-usb-2</code> pool (<a href="#nas">NAS</a>). Blocks: the media
-  stack migration cutover (<a href="#issues-to-solve">Issues to solve</a>).</li>
+  the media library copy is lost (the drive is unreadable from sector 0), and
+  the restic repository is gone (<a href="#backup">Backup</a>). The media stack state moved
+  to hl01 and the library is being rebuilt on the <code>rpool-usb-2</code> pool
+  (<a href="#nas">NAS</a>) from the arr databases (2026-10-10).</li>
 <li>Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue (<a href="network-boot/">Network Boot Service</a>), then bump the <code>requests</code>
   pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the hl02 address
@@ -2165,6 +2165,14 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="issues-to-solve">Issues to solve</h3>
 <ul>
+<li><strong>Molecule: the node role's APT key task needs <code>gpg</code> (2026-10-10)</strong>: the
+  <code>home-lab-node</code> Molecule run on the Debian 12 image fails in "Setup APT
+  repository keys" with <code>Failed to find required executable "gpg"</code>, while an
+  earlier run on the same image got past it, so the outcome depends on what the
+  image or the preceding package tasks happen to provide. The task uses the
+  deprecated <code>apt_key</code> module, which needs <code>gnupg</code> installed. Replace it with
+  keyrings fetched by <code>get_url</code> into <code>/etc/apt/keyrings</code> (and <code>signed-by</code>
+  entries in the repository lines), or install <code>gnupg</code> before the task.</li>
 <li>Workload issues to solve:<ul>
 <li>Investigate the recurring cam-3 ffmpeg VAAPI decode crashes on hl01 (about
   11 per hour: <code>Failed to sync surface</code> then <code>hwdownload</code> failures; they
@@ -2967,17 +2975,19 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <h3 id="nas">NAS</h3>
 <p>Related specification: <a href="nas-lxc-container/">NAS LXC Container</a>.</p>
 <ul>
-<li><strong>Media evacuation storage (pool layout decided 2026-09-26)</strong>: attach the
-  spare 2 TB USB disk to pve1 as a new independent single-disk ZFS pool
-  (<code>rpool-usb-2</code>) for replaceable media only; the media library (~1.5 TB, about
-  80% of the pool untrimmed — trimming recommended, not required) moves there,
-  and the <code>media-usb</code> share re-homes to it at the media cutover. The 900 GB
-  <code>rpool-usb-1</code> pool keeps the valuable data: the Syncthing folders (about 200
-  GB) and the reserved <code>backups</code> dataset. The split separates the pools by data
-  replaceability, so neither single disk holds sole custody of irreplaceable
-  data. Rejected: extending <code>rpool-usb-1</code> with a second striped vdev — it
-  couples two single disks into one failure domain, aggravated by the USB
-  transport. The evacuated library remains a single copy on an aging USB drive:
+<li><strong>Media storage on <code>rpool-usb-2</code> (pool layout decided 2026-09-26, pool created
+  2026-10-10)</strong>: the 2 TB USB disk is pve1's independent single-disk ZFS pool
+  <code>rpool-usb-2</code> for replaceable media only, and the <code>media-usb</code> share is backed
+  by <code>rpool-usb-2/media</code>. The 900 GB <code>rpool-usb-1</code> pool keeps the valuable data:
+  the Syncthing folders (about 200 GB) and the reserved <code>backups</code> dataset. The
+  split separates the pools by data replaceability, so neither single disk holds
+  sole custody of irreplaceable data. Rejected: extending <code>rpool-usb-1</code> with a
+  second striped vdev — it couples two single disks into one failure domain,
+  aggravated by the USB transport. Remaining: rebuild the library there from the
+  arr databases (the raspberrypi2 copy was lost with its disk on 2026-10-09; the
+  reconstructed inventory lists what to re-acquire), then destroy the empty
+  <code>rpool-usb-1/media</code> dataset and drop its declaration. The library remains a
+  single copy on an aging drive (the ST2000DM001 has a poor reliability record):
   evaluate pve2's <code>tank-hdd</code> as the long-term media home or second copy once
   pve2 runs 24/7. Depends on: the pve2 power reduction
   (<a href="#host-configuration">Host configuration</a>).</li>

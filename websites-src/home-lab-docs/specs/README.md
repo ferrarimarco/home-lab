@@ -35,10 +35,10 @@ reliability risks first, then security exposure, then automation):
   copy of the media library, a personal data directory, and the restic
   repositories. The disk failed on 2026-10-09 (unreadable from sector 0): the
   Syncthing folders were already on nas-pve1 (migration complete 2026-10-06),
-  the media library copy is lost unless the drive can be imaged, and the restic
-  repository is gone ([Backup](#backup)). The media library now waits for a
-  replacement disk or the `rpool-usb-2` pool ([NAS](#nas)). Blocks: the media
-  stack migration cutover ([Issues to solve](#issues-to-solve)).
+  the media library copy is lost (the drive is unreadable from sector 0), and
+  the restic repository is gone ([Backup](#backup)). The media stack state moved
+  to hl01 and the library is being rebuilt on the `rpool-usb-2` pool
+  ([NAS](#nas)) from the arr databases (2026-10-10).
 - Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue ([Network Boot Service](./network-boot.md)), then bump the `requests`
   pin ([Issues to solve](#issues-to-solve)). Depends on: the hl02 address
@@ -153,6 +153,14 @@ reliability risks first, then security exposure, then automation):
 
 ### Issues to solve
 
+- **Molecule: the node role's APT key task needs `gpg` (2026-10-10)**: the
+  `home-lab-node` Molecule run on the Debian 12 image fails in "Setup APT
+  repository keys" with `Failed to find required executable "gpg"`, while an
+  earlier run on the same image got past it, so the outcome depends on what the
+  image or the preceding package tasks happen to provide. The task uses the
+  deprecated `apt_key` module, which needs `gnupg` installed. Replace it with
+  keyrings fetched by `get_url` into `/etc/apt/keyrings` (and `signed-by`
+  entries in the repository lines), or install `gnupg` before the task.
 - Workload issues to solve:
     - Investigate the recurring cam-3 ffmpeg VAAPI decode crashes on hl01 (about
       11 per hour: `Failed to sync surface` then `hwdownload` failures; they
@@ -908,17 +916,19 @@ reliability risks first, then security exposure, then automation):
 
 Related specification: [NAS LXC Container](./nas-lxc-container.md).
 
-- **Media evacuation storage (pool layout decided 2026-09-26)**: attach the
-  spare 2 TB USB disk to pve1 as a new independent single-disk ZFS pool
-  (`rpool-usb-2`) for replaceable media only; the media library (~1.5 TB, about
-  80% of the pool untrimmed — trimming recommended, not required) moves there,
-  and the `media-usb` share re-homes to it at the media cutover. The 900 GB
-  `rpool-usb-1` pool keeps the valuable data: the Syncthing folders (about 200
-  GB) and the reserved `backups` dataset. The split separates the pools by data
-  replaceability, so neither single disk holds sole custody of irreplaceable
-  data. Rejected: extending `rpool-usb-1` with a second striped vdev — it
-  couples two single disks into one failure domain, aggravated by the USB
-  transport. The evacuated library remains a single copy on an aging USB drive:
+- **Media storage on `rpool-usb-2` (pool layout decided 2026-09-26, pool created
+  2026-10-10)**: the 2 TB USB disk is pve1's independent single-disk ZFS pool
+  `rpool-usb-2` for replaceable media only, and the `media-usb` share is backed
+  by `rpool-usb-2/media`. The 900 GB `rpool-usb-1` pool keeps the valuable data:
+  the Syncthing folders (about 200 GB) and the reserved `backups` dataset. The
+  split separates the pools by data replaceability, so neither single disk holds
+  sole custody of irreplaceable data. Rejected: extending `rpool-usb-1` with a
+  second striped vdev — it couples two single disks into one failure domain,
+  aggravated by the USB transport. Remaining: rebuild the library there from the
+  arr databases (the raspberrypi2 copy was lost with its disk on 2026-10-09; the
+  reconstructed inventory lists what to re-acquire), then destroy the empty
+  `rpool-usb-1/media` dataset and drop its declaration. The library remains a
+  single copy on an aging drive (the ST2000DM001 has a poor reliability record):
   evaluate pve2's `tank-hdd` as the long-term media home or second copy once
   pve2 runs 24/7. Depends on: the pve2 power reduction
   ([Host configuration](#host-configuration)).

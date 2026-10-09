@@ -3165,7 +3165,8 @@ configured paths:</p>
   replacing the deleted backup virtual disk; the restic backup stack keeps its
   target path.</li>
 <li>the <code>media-usb</code> share — the first consumer of a per-host share
-  (<a href="#51-adding-per-host-shares">§5.1</a>), backed by <code>pve1</code>'s USB pool — at
+  (<a href="#51-adding-per-host-shares">§5.1</a>), backed by <code>pve1</code>'s media-only USB pool
+  (<code>rpool-usb-2/media</code> since 2026-10-10; <code>rpool-usb-1/media</code> before) — at
   <code>/media/data0</code> (<code>data_disk_mount_path</code>), replacing the deleted data virtual
   disk. <code>media_directory_path</code> (<code>/media/data0/media</code>) is unchanged and now
   resolves to a <code>media/</code> subdirectory inside the share.</li>

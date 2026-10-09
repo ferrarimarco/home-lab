@@ -5,6 +5,28 @@ whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.
 
+## 2026-10-10
+
+- `pve1`: created the `rpool-usb-2` ZFS pool on the 2 TB LaCie USB disk for
+  replaceable media (pool layout decided 2026-09-26; the `setup_disks` role
+  asserts pools and documents the command but never creates them):
+
+    ```shell
+    zpool create -f -o ashift=12 rpool-usb-2 \
+      /dev/disk/by-id/usb-LaCie_P9230_0000000035741a1320ed-0:0
+    ```
+
+    `-f` was needed for the disk's leftover Windows partition table. The
+    `rpool-usb-2/media` dataset and its ownership came from the setup-disks
+    playbook, and the pool's Proxmox storage registration from Terraform.
+
+- `pve1`: re-homed the NAS container's `media-usb` bind mount from
+  `/rpool-usb-1/media` to `/rpool-usb-2/media` with
+  `pct set 200 -mp2 /rpool-usb-2/media,mp=/mnt/shared/media-usb` and one
+  container reboot, the fast-forward the NAS spec prescribes for mount point
+  changes; the next Terraform run then planned no changes. The old, empty
+  `rpool-usb-1/media` dataset is still declared and present, pending cleanup.
+
 ## 2026-10-05
 
 - `pve2`: plugged back in (BMC up at its DHCP lease) and powered on for the
