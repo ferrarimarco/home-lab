@@ -78,8 +78,29 @@ repository.
     [operational scripts guide](./operational-scripts.md) describes how it
     mounts the main repository's metadata.
 
-4. Remove the worktree:
+4. Put the output into the commit without touching the main working tree, which
+   may hold another session's generated files: stage `docs/` in the worktree and
+   amend the commit there, then, with the main checkout on the branch whose tip
+   that commit is, move the branch to the amended commit with a mixed reset,
+   which refreshes the index and leaves the working tree alone:
 
     ```shell
+    git -C <worktree directory> add docs
+    git -C <worktree directory> commit --amend --no-edit
+    git reset "$(git -C <worktree directory> rev-parse HEAD)"
+    ```
+
+    Until its next build, the main working tree then shows the pages the commit
+    added as deleted and the existing pages as modified, because its generated
+    files predate the commit.
+
+5. Remove the worktree. A lint run from the worktree leaves root-owned
+   `super-linter-output/` and `super-linter.log` behind, which make the removal
+   fail with a permission error. Delete those two lint outputs, and nothing
+   else, through a container first:
+
+    ```shell
+    docker run --rm --volume <worktree directory>:/wt alpine:3 \
+      sh -c 'rm -rf /wt/super-linter-output /wt/super-linter.log'
     git worktree remove --force <worktree directory>
     ```

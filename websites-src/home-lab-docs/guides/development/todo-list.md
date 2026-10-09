@@ -19,6 +19,10 @@ guide describes the conventions that keep that list useful.
 
 - Record dependencies between items as trailing sentences with consistent
   phrasing, so they stay greppable: `Depends on: ...` and `Blocks: ...`.
+- `Depends on:` and its inverse `Blocks:` record hard prerequisites only, items
+  without which the work cannot be done. An ordering preference (doing one item
+  first because it shrinks another) is a plain sentence, not a dependency: a
+  preference recorded as a dependency later has to be untangled.
 - Link cross-subsection references to the themed subsection anchors (for example
   `[Networking](#networking)`).
 
