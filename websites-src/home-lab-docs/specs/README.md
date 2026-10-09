@@ -575,6 +575,21 @@ reliability risks first, then security exposure, then automation):
       mostly unquoted expansions), then remove its `shellcheck disable=all`
       directive. The script runs on the router, so test each change against it
       before deploying.
+- Asus gateway 2.4 GHz Wi-Fi (2026-10-09: clutter placed next to the router
+  raised the band's noise floor until the radio reset itself repeatedly and
+  dropped every 2.4 GHz client; clearing it restored the clients):
+    - Record the incident, its cause, and the measurements in the manual changes
+      diary, and correct the firmware entry there: the router runs
+      3.0.0.4.388_24436, while the diary last records 24386.
+    - Move the 2.4 GHz band from channel 11 at 40 MHz to channel 1 at 20 MHz:
+      the per-channel sweep (`wl -i eth6 chanim_stats all` over SSH) showed
+      channel 1 as the quietest, and 20 MHz halves the exposure to the next
+      noise source. Record the change in the diary.
+    - Investigate the chronic 2.4 GHz radio resets
+      (`wl0: fatal error, reinitializing` in the router syslog, about four per
+      day, none on 5 GHz): check for a firmware build newer than 24436, and
+      consider exporting the reset counter and the noise floor once the node
+      exporter runs on the router ([Host configuration](#host-configuration)).
 - Network stack
   ([reference](https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/)):
     - DNS server: configure the lab DNS zone.

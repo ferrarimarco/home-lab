@@ -2615,6 +2615,23 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   before deploying.</li>
 </ul>
 </li>
+<li>Asus gateway 2.4 GHz Wi-Fi (2026-10-09: clutter placed next to the router
+  raised the band's noise floor until the radio reset itself repeatedly and
+  dropped every 2.4 GHz client; clearing it restored the clients):<ul>
+<li>Record the incident, its cause, and the measurements in the manual changes
+  diary, and correct the firmware entry there: the router runs
+  3.0.0.4.388_24436, while the diary last records 24386.</li>
+<li>Move the 2.4 GHz band from channel 11 at 40 MHz to channel 1 at 20 MHz:
+  the per-channel sweep (<code>wl -i eth6 chanim_stats all</code> over SSH) showed
+  channel 1 as the quietest, and 20 MHz halves the exposure to the next
+  noise source. Record the change in the diary.</li>
+<li>Investigate the chronic 2.4 GHz radio resets
+  (<code>wl0: fatal error, reinitializing</code> in the router syslog, about four per
+  day, none on 5 GHz): check for a firmware build newer than 24436, and
+  consider exporting the reset counter and the noise floor once the node
+  exporter runs on the router (<a href="#host-configuration">Host configuration</a>).</li>
+</ul>
+</li>
 <li>Network stack
   (<a href="https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/">reference</a>):<ul>
 <li>DNS server: configure the lab DNS zone.</li>
