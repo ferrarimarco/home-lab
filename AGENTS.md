@@ -198,7 +198,9 @@ describes them all. Key rules:
   exit code. For targeted formatting while editing, use
   `scripts/format.sh [path ...]` (Prettier, markdownlint, shfmt, textlint, and
   terraform fmt from the same pinned super-linter image); the check-mode
-  `scripts/lint.sh` run remains the authoritative verdict. The
+  `scripts/lint.sh` run remains the authoritative verdict; it rewraps prose and
+  re-pads tables, so the global re-read-after-formatting rule applies to every
+  run. The
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
   documents these output files and the format script. Run only one
   `scripts/lint.sh` at a time: concurrent runs clobber the shared
@@ -257,6 +259,11 @@ architectural patterns:
   `media-stack`, `monitoring`, `restic`). Manage lifecycles with
   `docker compose -f <that file> <up -d|stop|restart>`, never raw
   `docker stop/start` on containers.
+- **Repository image pins are not what runs until Ansible re-rendered the
+  stack:** dependency bumps merged without a playbook run leave hosts on older
+  images, and a rendered file may carry hand edits. Read the host's rendered
+  compose file or `docker ps` before stating a deployed version, and expect the
+  first run after a gap to upgrade every container whose pin changed.
 - **Migrating workloads between hosts follows the
   [container migration guide](./websites-src/home-lab-docs/guides/operations/container-migration.md):**
   inventory flag choreography around a verified data copy. Check target capacity
