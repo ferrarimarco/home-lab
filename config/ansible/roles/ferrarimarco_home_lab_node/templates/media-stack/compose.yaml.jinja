@@ -29,6 +29,8 @@ services:
   jellyseerr:
     image: {{ container_images_ids["jellyseerr"] }}
     container_name: jellyseerr
+    # The Seerr image ships no init process
+    init: true
     environment:
       - PUID={{ media_stack_owner_group_id }}
       - PGID={{ media_stack_owner_user_id }}
