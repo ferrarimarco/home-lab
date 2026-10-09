@@ -2917,6 +2917,17 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="backup">Backup</h3>
 <ul>
+<li><strong>Nightly file manifest of replaceable media (2026-10-10)</strong>: when the
+  raspberrypi2 data disk died, the list of what it held had to be rebuilt from
+  the Sonarr, Lidarr, Readarr, and Jellyfin databases, which only cover what
+  those applications had scanned (Radarr's file table was already empty) and
+  took hours. Media is replaceable by decision and stays out of restic, but its
+  file list is cheap to keep: a timer on the host that mounts the share (hl01,
+  or pve1 against the <code>rpool-usb-2/media</code> dataset) writes a manifest (path,
+  size, modification time) into the host's state directory, which the nightly
+  restic workloads job already backs up to a repository on another disk.
+  Complement it with the arr and Jellyfin API exports for titles and
+  identifiers. A stack of the node role, enabled where a media disk is mounted.</li>
 <li><strong>raspberrypi2 workloads have no backup (since 2026-10-09)</strong>: the restic
   repository lived on the data disk that failed, so the nightly workloads job
   has no destination and the last usable snapshot is from 01:00 on 2026-10-09.
