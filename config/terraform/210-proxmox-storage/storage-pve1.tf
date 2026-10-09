@@ -51,3 +51,16 @@ resource "proxmox_storage_zfspool" "rpool_usb_1" {
 
   content = ["images", "rootdir"]
 }
+
+resource "proxmox_storage_zfspool" "rpool_usb_2" {
+  provider = proxmox.pve1
+
+  id       = "rpool-usb-2"
+  zfs_pool = "rpool-usb-2"
+
+  disable = false
+
+  nodes = ["pve1"]
+
+  content = ["images", "rootdir"]
+}

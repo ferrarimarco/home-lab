@@ -15,7 +15,7 @@ variable "nas_container_bind_mounts" {
         container_path = "/mnt/shared/backups"
       },
       {
-        host_path      = "/rpool-usb-1/media"
+        host_path      = "/rpool-usb-2/media"
         container_path = "/mnt/shared/media-usb"
       },
       {

@@ -54,6 +54,12 @@ zfs_datasets:
     mount_point: /rpool-usb-1/syncthing
     owner: "1000"
     group: "100"
+  # Replaceable media only (pool layout decided 2026-09-26): the library that
+  # was lost with the raspberrypi2 data disk is rebuilt here.
+  - name: rpool-usb-2/media
+    mount_point: /rpool-usb-2/media
+    owner: "1000"
+    group: "100"
 # Pools are asserted, not created; topology and options document the manual
 # creation command (see the NAS LXC container spec, section 11.1).
 zfs_pools:
@@ -63,3 +69,6 @@ zfs_pools:
   - name: rpool-usb-1
     create_options: "-o ashift=12"
     topology: /dev/disk/by-id/usb-TOSHIBA_External_USB_3.0_20150215010113F-0:0
+  - name: rpool-usb-2
+    create_options: "-o ashift=12"
+    topology: /dev/disk/by-id/usb-LaCie_P9230_0000000035741a1320ed-0:0
