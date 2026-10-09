@@ -2917,6 +2917,18 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="backup">Backup</h3>
 <ul>
+<li><strong>Second copy of the media library (2026-10-10)</strong>: the library on
+  <code>rpool-usb-2/media</code> is a single copy on an aging USB disk, and the previous
+  copy died with the raspberrypi2 data disk. Media is replaceable and mostly
+  deleted after watching, so restic's deduplication, versioning, and encryption
+  buy nothing here: use one-way ZFS snapshot replication (<code>zfs send</code> and
+  <code>zfs receive</code>) to a dataset on pve2's <code>tank-hdd</code>, so deletions propagate and
+  the copy follows the library instead of hoarding it, with a short snapshot
+  retention on the target as the undo for an accidental deletion. Replication
+  can only run while pve2 is on: a timer that tolerates an absent target, or the
+  pve2 24/7 decision. The evaluation of <code>tank-hdd</code> as the long-term media home
+  or second copy lives here. Depends on: the pve2 power reduction
+  (<a href="#host-configuration">Host configuration</a>).</li>
 <li><strong>Nightly file manifest of replaceable media (2026-10-10)</strong>: when the
   raspberrypi2 data disk died, the list of what it held had to be rebuilt from
   the Sonarr, Lidarr, Readarr, and Jellyfin databases, which only cover what
@@ -2998,10 +3010,8 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   arr databases (the raspberrypi2 copy was lost with its disk on 2026-10-09; the
   reconstructed inventory lists what to re-acquire), then destroy the empty
   <code>rpool-usb-1/media</code> dataset and drop its declaration. The library remains a
-  single copy on an aging drive (the ST2000DM001 has a poor reliability record):
-  evaluate pve2's <code>tank-hdd</code> as the long-term media home or second copy once
-  pve2 runs 24/7. Depends on: the pve2 power reduction
-  (<a href="#host-configuration">Host configuration</a>).</li>
+  single copy on an aging drive (the ST2000DM001 has a poor reliability record);
+  the second copy on pve2's <code>tank-hdd</code> is a <a href="#backup">Backup</a> item.</li>
 <li><strong>Syncthing migration cleanup</strong>: the migration completed on 2026-10-06 (the
   <a href="nas-lxc-container/#125-migration-from-raspberrypi2">migration section</a> of
   the NAS spec records the execution). Remaining: delete the old folder data on

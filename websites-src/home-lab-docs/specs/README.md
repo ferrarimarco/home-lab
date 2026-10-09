@@ -861,6 +861,18 @@ reliability risks first, then security exposure, then automation):
 
 ### Backup
 
+- **Second copy of the media library (2026-10-10)**: the library on
+  `rpool-usb-2/media` is a single copy on an aging USB disk, and the previous
+  copy died with the raspberrypi2 data disk. Media is replaceable and mostly
+  deleted after watching, so restic's deduplication, versioning, and encryption
+  buy nothing here: use one-way ZFS snapshot replication (`zfs send` and
+  `zfs receive`) to a dataset on pve2's `tank-hdd`, so deletions propagate and
+  the copy follows the library instead of hoarding it, with a short snapshot
+  retention on the target as the undo for an accidental deletion. Replication
+  can only run while pve2 is on: a timer that tolerates an absent target, or the
+  pve2 24/7 decision. The evaluation of `tank-hdd` as the long-term media home
+  or second copy lives here. Depends on: the pve2 power reduction
+  ([Host configuration](#host-configuration)).
 - **Nightly file manifest of replaceable media (2026-10-10)**: when the
   raspberrypi2 data disk died, the list of what it held had to be rebuilt from
   the Sonarr, Lidarr, Readarr, and Jellyfin databases, which only cover what
@@ -939,10 +951,8 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   arr databases (the raspberrypi2 copy was lost with its disk on 2026-10-09; the
   reconstructed inventory lists what to re-acquire), then destroy the empty
   `rpool-usb-1/media` dataset and drop its declaration. The library remains a
-  single copy on an aging drive (the ST2000DM001 has a poor reliability record):
-  evaluate pve2's `tank-hdd` as the long-term media home or second copy once
-  pve2 runs 24/7. Depends on: the pve2 power reduction
-  ([Host configuration](#host-configuration)).
+  single copy on an aging drive (the ST2000DM001 has a poor reliability record);
+  the second copy on pve2's `tank-hdd` is a [Backup](#backup) item.
 - **Syncthing migration cleanup**: the migration completed on 2026-10-06 (the
   [migration section](./nas-lxc-container.md#125-migration-from-raspberrypi2) of
   the NAS spec records the execution). Remaining: delete the old folder data on
