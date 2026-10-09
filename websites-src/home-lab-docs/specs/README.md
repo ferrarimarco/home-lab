@@ -31,13 +31,14 @@ items here.
 The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):
 
-- Evacuate the data off the raspberrypi2 data disk: one aging disk holds the
-  only copy of the media library, a personal data directory, and the restic
-  repositories, so this stays the top data-loss risk. Two tracks ([NAS](#nas)):
-  the Syncthing folders now live on nas-pve1 (migration complete 2026-10-06; the
-  old copies on the data disk await deletion); the media library waits for the
-  `rpool-usb-2` pool. Blocks: the media stack migration cutover and the SMART
-  long self-test ([Issues to solve](#issues-to-solve)).
+- Evacuate the data off the raspberrypi2 data disk: one aging disk held the only
+  copy of the media library, a personal data directory, and the restic
+  repositories. The disk failed on 2026-10-09 (unreadable from sector 0): the
+  Syncthing folders were already on nas-pve1 (migration complete 2026-10-06),
+  the media library copy is lost unless the drive can be imaged, and the restic
+  repository is gone ([Backup](#backup)). The media library now waits for a
+  replacement disk or the `rpool-usb-2` pool ([NAS](#nas)). Blocks: the media
+  stack migration cutover ([Issues to solve](#issues-to-solve)).
 - Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue ([Network Boot Service](./network-boot.md)), then bump the `requests`
   pin ([Issues to solve](#issues-to-solve)). Depends on: the hl02 address
@@ -45,8 +46,9 @@ reliability risks first, then security exposure, then automation):
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)), and the
   restic restore recipe ([Backup](#backup)). Does not depend on the data
   evacuation or the container migration: the re-image rewrites the boot disk
-  only, and the restic repository on the data disk restores the services in
-  place (decided 2026-10-08).
+  only, and a restic repository restores the services in place (decided
+  2026-10-08). The repository on the data disk was lost on 2026-10-09, so the
+  restore source is the interim repository ([Backup](#backup)).
 - Migrate the containers from raspberrypi2 to hl01, after the re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). Depends
   on: the data evacuation for the media stack only; Zigbee2MQTT and Mosquitto
@@ -269,6 +271,22 @@ reliability risks first, then security exposure, then automation):
   ([Host configuration](#host-configuration)). The OS re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)) remains
   the long-term fix.
+- **raspberrypi2 data disk mount must not block the boot (2026-10-09)**: the
+  hand-managed `/media/data0` fstab line had no `nofail`, so when the data disk
+  died the boot stalled in emergency mode, and the locked root account left no
+  console: recovery needed a rescue SD card. The line now carries
+  `nofail,x-systemd.device-timeout=10`, edited by hand on 2026-10-09 and
+  recorded nowhere else. Declare the data disk mount in the node role with those
+  options, so a dead disk degrades to a missing mount. hl01's mounts already
+  carry `nofail`.
+- **Docker prune on raspberrypi2 deletes stopped stacks (2026-10-09)**: the node
+  role ships a weekly `docker-system-prune.timer`, but on raspberrypi2 the
+  service unit is also enabled, so `docker system prune --all --force --volumes`
+  runs at every boot. On 2026-10-09 it ran while the zigbee2mqtt container was
+  failed (its dongle sat on an unplugged hub) and removed the container and its
+  image. Disable the service unit through the role (hl01 has it disabled), and
+  reconsider the flags: `--all` and `--volumes` turn any stopped stack into a
+  loss of images and anonymous volumes.
 
 ### Security
 
@@ -811,6 +829,13 @@ reliability risks first, then security exposure, then automation):
 
 ### Backup
 
+- **raspberrypi2 workloads have no backup (since 2026-10-09)**: the restic
+  repository lived on the data disk that failed, so the nightly workloads job
+  has no destination and the last usable snapshot is from 01:00 on 2026-10-09.
+  Decide the interim repository location until the container migration retires
+  the job: the root SSD, the replacement disk, or the nas-pve1 `backups` share
+  hl01 already uses. The wind-down decision ([NAS](#nas)) assumed the repository
+  outlives the workloads.
 - Cross-host workloads backup. Depends on: configuring the backup destinations
   (see the Destinations item below).
 - Storage replication: prefer "one-way replication where the direction reverses
@@ -905,7 +930,8 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   running until the last workload leaves, and each migrated workload's old
   snapshots can be discarded after about a week of healthy hl01 snapshots (the
   workloads job keeps 7 days of dailies, and hl01 picks up a migrated workload's
-  state directory automatically).
+  state directory automatically). The repository was lost with the data disk on
+  2026-10-09; the interim repository is an open item ([Backup](#backup)).
 - **Back up the NAS guest state directories on pve1**: nothing backs up the
   Samba, Syncthing, and Tailscale state directories that the guest bind-mounts
   from the host: losing pve1's root filesystem means re-running `smbpasswd`,
