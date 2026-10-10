@@ -127,7 +127,9 @@ describes them all. Key rules:
   changing the packages of a shell, update the guide in the same change.
 - **Terraform only via `scripts/run-terraform.sh`:** the script performs the
   required environment and local-backend setup and runs `terraform init` before
-  applying every numbered stack under `config/terraform/` in sequence. It
+  applying every numbered stack under `config/terraform/` in sequence. It needs
+  `terraform` from the operations dev shell, so invoke it as
+  `nix develop ./config/nix#operations --command scripts/run-terraform.sh`. It
   supports `output <service> [<name>]` but has no `validate` path (rely on
   super-linter for static checks). Run it with stdin closed (`</dev/null`) to
   abort instead of hanging on apply-approval prompts, and ask the user before
@@ -268,7 +270,11 @@ architectural patterns:
   [container migration guide](./websites-src/home-lab-docs/guides/operations/container-migration.md):**
   inventory flag choreography around a verified data copy. Check target capacity
   and stop the stack before copying its state; do not improvise migrations with
-  ad-hoc commands or scripts.
+  ad-hoc commands or scripts. Cross-host service endpoints (the
+  `*_endpoint_fqdn` variables) live in the node role's `vars/main.yaml`, not in
+  the inventory: after a move, point them at the new host and re-render the
+  monitoring backend on both members of its pair, or the probes keep alerting on
+  the old host while the running stack goes unprobed.
 - SSH conventions: connect using each host's fully qualified domain name, as
   listed in the Ansible inventory — short hostnames do not resolve from the
   control machine. Connect as `root` to the Proxmox nodes, as `debian` to the
