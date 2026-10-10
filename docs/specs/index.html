@@ -2168,6 +2168,22 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="issues-to-solve">Issues to solve</h3>
 <ul>
+<li><strong>qBittorrent configuration template rendered to a dead path (2026-10-10)</strong>:
+  the node role renders <code>qBittorrent.conf.jinja</code> to the qBittorrent
+  configuration directory root, while the linuxserver image reads
+  <code>qBittorrent/qBittorrent.conf</code> one level down and seeds it from its own
+  defaults when missing; the rendered file has been unread since January 2025
+  (the live files on hl01 and raspberrypi2 carry the template's values from an
+  earlier seed, so nothing is broken yet, but template changes never reach the
+  client). Fix: render to the <code>qBittorrent/</code> subdirectory, create it in the
+  media stack directory list owned by the media user, mark the entry
+  <code>force: false</code> so it seeds a fresh host and never fights the running client
+  (qBittorrent rewrites the live file with runtime keys, which a forced template
+  would overwrite and restart on every run), remove the old top-level file with
+  a <code>state: absent</code> entry without a restart hook, and note in the Ansible
+  development guide that qBittorrent settings beyond the seed are owned by the
+  Web UI. Roll out with the media stack scoped check on hl01, expecting only the
+  old file's removal; raspberrypi2's stopped stack waits for its cleanup run.</li>
 <li><strong>Molecule: the node role's APT key task needs <code>gpg</code> (2026-10-10)</strong>: the
   <code>home-lab-node</code> Molecule run on the Debian 12 image fails in "Setup APT
   repository keys" with <code>Failed to find required executable "gpg"</code>, while an
