@@ -1,11 +1,11 @@
 # Troubleshoot an unresponsive host
 
 Runbook for investigating a home lab host that froze, crashed, or stopped
-accepting connections, after it has been recovered (typically by a power cycle).
-The goal is a defensible timeline and root-cause hypothesis; "silent freeze with
-no precursors" is a valid conclusion when the evidence supports nothing
-stronger. This runbook was distilled from the raspberrypi2 freeze investigation
-of 2026-09-13.
+accepting connections, after it has been recovered, or that will not finish
+booting (typically by a power cycle). The goal is a defensible timeline and
+root-cause hypothesis; "silent freeze with no precursors" is a valid conclusion
+when the evidence supports nothing stronger. This runbook was distilled from the
+raspberrypi2 freeze investigation of 2026-09-13.
 
 ## Establish the timeline
 
@@ -79,6 +79,30 @@ docker ps --format '{{.Names}}\t{{.Status}}'
 
 Filesystem journal recovery and orphan-inode cleanup confirm the stop was
 unclean. Confirm all expected workloads restarted.
+
+## Boot stalls in emergency mode
+
+A host that stops answering pings after a reboot, with no SSH, may be stuck at
+systemd's emergency prompt rather than dead: an fstab entry without `nofail`
+whose device never appears (a failed data disk) fails `local-fs.target` after
+the device timeout (90 seconds by default), and on Raspberry Pi OS the locked
+root account turns the prompt into "cannot open access to console, the root
+account is locked". Networking never comes up, so nothing is reachable. Confirm
+on an attached display: the console shows the emergency message, and the systemd
+messages above it (`Timed out waiting for device ...`,
+`Dependency failed for ...`) name the device. Pressing Enter re-runs the start
+job and lands back at the prompt while the device is still missing (observed
+2026-10-09), so the console is no way out.
+
+Recovery needs another boot medium: the network-boot rescue once the
+[Network Boot Service](../specs/network-boot.md) exists, otherwise a
+hand-written rescue SD card. Boot it, mount the host's root filesystem, and edit
+its `etc/fstab` so the entry carries `nofail,x-systemd.device-timeout=10` or is
+removed, then boot from the host's own disk again. The inventory entry in
+`disks_to_mount` must change the same way, or the next playbook run re-renders
+the line without `nofail`. Unplug the failed disk before any of these reboots: a
+USB disk that resets every few seconds stalls udev and provokes UAS aborts on
+the other disks of the same controller, the root disk included.
 
 ## Report and remediate
 

@@ -653,6 +653,27 @@ reliability risks first, then security exposure, then automation):
 
 ### Monitoring and alerting
 
+- **Kernel log error exporter (2026-10-10)**: the kernel-level signs of the
+  raspberrypi2 data disk failure and of the root SSD stalls (medium errors, a
+  USB reset loop, UAS command aborts; see the
+  [stability notes](../archive/raspberrypi2-stability-issues.md)) carried no
+  metric, while the SMART pending-sector alert did fire. Add a textfile
+  collector that keeps a cumulative counter per device and signature (block I/O
+  errors, medium errors, USB device resets, UAS aborts, ext4 errors) from a
+  journal cursor file, alerting with `increase(...[1h]) > 0` as
+  `EdacUncorrectableErrors` does, so a failing disk or bridge is flagged before
+  the application symptoms.
+- **Expected mount missing alert (2026-10-10)**: once data disk mounts carry
+  `nofail` (hl01's CIFS mounts do; the default is pending in
+  [Reliability and resilience](#reliability-and-resilience)), a dead or
+  unplugged disk no longer blocks the boot but leaves no trace either: the host
+  comes up with an empty mount point and the containers write to the root disk.
+  `SystemdUnitFailed` does not cover it, since the node exporter's default unit
+  filter drops `.mount` units (expectation from its defaults). Derive the
+  expected mount points from each host's `disks_to_mount` (a textfile metric or
+  a templated rule) and alert when `node_filesystem_size_bytes` for one of them
+  is absent, guarded with `and on (instance) up == 1` so a dead exporter raises
+  `InstanceDown` only.
 - Configure the Grafana admin credentials declaratively: vault-backed
   `GF_SECURITY_ADMIN_USER` and `GF_SECURITY_ADMIN_PASSWORD` environment
   variables in the monitoring backend compose template, so a fresh replica

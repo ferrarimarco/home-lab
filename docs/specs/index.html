@@ -2699,6 +2699,27 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="monitoring-and-alerting">Monitoring and alerting</h3>
 <ul>
+<li><strong>Kernel log error exporter (2026-10-10)</strong>: the kernel-level signs of the
+  raspberrypi2 data disk failure and of the root SSD stalls (medium errors, a
+  USB reset loop, UAS command aborts; see the
+  <a href="../archive/raspberrypi2-stability-issues/">stability notes</a>) carried no
+  metric, while the SMART pending-sector alert did fire. Add a textfile
+  collector that keeps a cumulative counter per device and signature (block I/O
+  errors, medium errors, USB device resets, UAS aborts, ext4 errors) from a
+  journal cursor file, alerting with <code>increase(...[1h]) &gt; 0</code> as
+  <code>EdacUncorrectableErrors</code> does, so a failing disk or bridge is flagged before
+  the application symptoms.</li>
+<li><strong>Expected mount missing alert (2026-10-10)</strong>: once data disk mounts carry
+  <code>nofail</code> (hl01's CIFS mounts do; the default is pending in
+  <a href="#reliability-and-resilience">Reliability and resilience</a>), a dead or
+  unplugged disk no longer blocks the boot but leaves no trace either: the host
+  comes up with an empty mount point and the containers write to the root disk.
+  <code>SystemdUnitFailed</code> does not cover it, since the node exporter's default unit
+  filter drops <code>.mount</code> units (expectation from its defaults). Derive the
+  expected mount points from each host's <code>disks_to_mount</code> (a textfile metric or
+  a templated rule) and alert when <code>node_filesystem_size_bytes</code> for one of them
+  is absent, guarded with <code>and on (instance) up == 1</code> so a dead exporter raises
+  <code>InstanceDown</code> only.</li>
 <li>Configure the Grafana admin credentials declaratively: vault-backed
   <code>GF_SECURITY_ADMIN_USER</code> and <code>GF_SECURITY_ADMIN_PASSWORD</code> environment
   variables in the monitoring backend compose template, so a fresh replica
