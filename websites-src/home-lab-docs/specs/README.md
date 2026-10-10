@@ -876,6 +876,23 @@ reliability risks first, then security exposure, then automation):
 
 ### Backup
 
+- **State-only backups, no machine-level replication (decided 2026-10-10)**:
+  configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
+  host is rebuilt from Terraform, the playbooks or the flake, and a restic
+  restore of its state; shipping VM disks between the Proxmox nodes was
+  considered and rejected as a second mechanism that only shortens recovery. Two
+  things keep this true. Debian workloads must keep every stateful path under
+  `/etc/ferrarimarco-home-lab` and `/var/lib/ferrarimarco-home-lab`, the two
+  trees the restic workloads job covers: an audit on 2026-10-10 found only
+  FlareSolverr's anonymous `/config` volume (a browser cache) outside them on
+  hl01 and raspberrypi2, to be replaced by a declared bind mount or `tmpfs`,
+  plus rebuildable exporter virtual environments; re-run the audit (named
+  volumes, container mounts outside the trees, systemd state directories)
+  whenever a workload is added. NixOS hosts back up state directories only,
+  never the machine: enumerate them per host (for the NAS containers, the Samba,
+  Syncthing, and Tailscale state directories bind-mounted from the Proxmox node)
+  and give them a backup job on the node that holds them. Depends on: the restic
+  restore recipe and drill, which is what proves the rebuild path.
 - **Second copy of the media library (2026-10-10)**: the library on
   `rpool-usb-2/media` is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
@@ -931,7 +948,6 @@ reliability risks first, then security exposure, then automation):
 - To backup:
     - Proxmox hosts
       ([Proxmox Cluster File System (pmxcfs)](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#chapter_pmxcfs)).
-    - Docker Compose volumes: qBittorrent volumes.
     - Move to network storage: ebooks, comics, photos.
     - Media: movies, shows, ebooks, comics, game saves, software and drivers.
     - Needs disk encryption: passwords, 2 factor authentication secrets, backup

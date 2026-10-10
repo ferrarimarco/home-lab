@@ -2932,6 +2932,23 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="backup">Backup</h3>
 <ul>
+<li><strong>State-only backups, no machine-level replication (decided 2026-10-10)</strong>:
+  configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
+  host is rebuilt from Terraform, the playbooks or the flake, and a restic
+  restore of its state; shipping VM disks between the Proxmox nodes was
+  considered and rejected as a second mechanism that only shortens recovery. Two
+  things keep this true. Debian workloads must keep every stateful path under
+  <code>/etc/ferrarimarco-home-lab</code> and <code>/var/lib/ferrarimarco-home-lab</code>, the two
+  trees the restic workloads job covers: an audit on 2026-10-10 found only
+  FlareSolverr's anonymous <code>/config</code> volume (a browser cache) outside them on
+  hl01 and raspberrypi2, to be replaced by a declared bind mount or <code>tmpfs</code>,
+  plus rebuildable exporter virtual environments; re-run the audit (named
+  volumes, container mounts outside the trees, systemd state directories)
+  whenever a workload is added. NixOS hosts back up state directories only,
+  never the machine: enumerate them per host (for the NAS containers, the Samba,
+  Syncthing, and Tailscale state directories bind-mounted from the Proxmox node)
+  and give them a backup job on the node that holds them. Depends on: the restic
+  restore recipe and drill, which is what proves the rebuild path.</li>
 <li><strong>Second copy of the media library (2026-10-10)</strong>: the library on
   <code>rpool-usb-2/media</code> is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
@@ -2987,7 +3004,6 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>To backup:<ul>
 <li>Proxmox hosts
   (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#chapter_pmxcfs">Proxmox Cluster File System (pmxcfs)</a>).</li>
-<li>Docker Compose volumes: qBittorrent volumes.</li>
 <li>Move to network storage: ebooks, comics, photos.</li>
 <li>Media: movies, shows, ebooks, comics, game saves, software and drivers.</li>
 <li>Needs disk encryption: passwords, 2 factor authentication secrets, backup
