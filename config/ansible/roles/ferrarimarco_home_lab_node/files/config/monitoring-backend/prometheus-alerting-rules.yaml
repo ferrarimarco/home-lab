@@ -162,6 +162,18 @@ groups:
             The restic exporter for {{ $labels.instance }} stopped answering
             scrapes. The backup rules are expressions over its series, so while
             it is down a stale or misplaced backup raises nothing else.
+      - alert: ResticMetricsMissing
+        expr: up{job="restic"} == 1 unless on (instance) restic_backup_timestamp
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Restic exporter on {{ $labels.instance }} reports no backup"
+          description: >-
+            The restic exporter for {{ $labels.instance }} answers scrapes but
+            exposes no snapshot series: its collection failed (an unreachable
+            or uninitialized repository) and it retries only every 12 hours,
+            so the stale and missing backup rules cannot fire.
       - alert: ResticBackupStale
         expr: time() - restic_backup_timestamp > 2 * 86400
         labels:

@@ -2697,6 +2697,13 @@ with operational experience.</p>
 <td style="text-align: left;">The backup rules below are expressions over the exporter's series: while the exporter is down, a stale or misplaced backup raises nothing else (raspberrypi2 backed up to its own root disk unnoticed, 2026-10-10).</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>ResticMetricsMissing</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>up{job="restic"} == 1 unless on (instance) restic_backup_timestamp</code></td>
+<td style="text-align: left;">30 min</td>
+<td style="text-align: left;">The exporter answers scrapes but exposes no snapshot series: its collection failed and it retries only every 12 hours (raspberrypi2's exporter started before its repository existed, 2026-10-11), so the rules below cannot fire.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>ResticBackupStale</code></td>
 <td style="text-align: left;">warning</td>
 <td style="text-align: left;"><code>time() - restic_backup_timestamp &gt; 2 * 86400</code></td>
