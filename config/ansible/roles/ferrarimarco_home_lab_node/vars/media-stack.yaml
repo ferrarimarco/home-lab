@@ -121,6 +121,9 @@ media_stack_torrent_map_destination_download_path: /data/downloads
 media_stack_flaresolverr_port: 8191
 media_stack_lidarr_port: 8686
 media_stack_jellyfin_port: 8096
+# UDP port the Jellyfin clients broadcast to when discovering servers on the
+# local network
+media_stack_jellyfin_discovery_port: 7359
 media_stack_jellyseerr_port: 5055
 media_stack_prowlarr_port: 9696
 media_stack_radarr_port: 7878

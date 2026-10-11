@@ -19,12 +19,18 @@ services:
     group_add:
       - {{ intel_igpu_render_group_id }}
 {% endif %}
+    environment:
+      # The container runs on a bridge network, so the server would otherwise
+      # advertise its container address in the auto-discovery replies
+      - JELLYFIN_PublishedServerUrl=http://{{ inventory_hostname }}:{{ media_stack_jellyfin_port }}
     volumes:
       - {{ jellyfin_configuration_directory_path }}:/config
       - {{ jellyfin_cache_directory_path }}:/cache
       - {{ media_stack_media_library_path }}:/media:ro
     ports:
       - {{ media_stack_jellyfin_port }}:8096
+      # Clients broadcast to this port to discover servers on the local network
+      - {{ media_stack_jellyfin_discovery_port }}:7359/udp
     restart: unless-stopped
   jellyseerr:
     image: {{ container_images_ids["jellyseerr"] }}
