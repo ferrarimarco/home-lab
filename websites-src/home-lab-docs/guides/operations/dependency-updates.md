@@ -62,6 +62,13 @@ file when you push it to the default branch, and starts a job for each entry.
 
 ## Troubleshoot Dependabot
 
+A pin that stops moving for months while the project keeps releasing may mean
+the project moved to a new image or repository, which Dependabot cannot follow:
+Jellyseerr became Seerr on a new image in February 2026 and its old image
+received no version tags afterwards, so the pin sat on a release 14 months old
+until it was re-pointed by hand (2026-10-09). When a pin looks stale, compare it
+with the project's releases before investigating the Dependabot job.
+
 Use the GitHub CLI from the `operations` Nix shell, as described in the
 [Nix development shells guide](../development/nix-dev-shells.md).
 

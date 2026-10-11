@@ -335,5 +335,6 @@ architectural patterns:
   (both variables and the SSH agent socket are required), as described in the
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
   The tests start privileged containers on the control machine, so get approval
-  first. Tag new tasks that pull container images or start containerized
+  first, and state in the commit proposal whether the run happened or why it was
+  skipped. Tag new tasks that pull container images or start containerized
   services with `molecule-notest`.

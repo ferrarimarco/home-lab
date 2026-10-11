@@ -227,7 +227,15 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   directories in `config/terraform` and runs `terraform init` and
   `terraform apply` for each one. Run
   `scripts/run-terraform.sh output <service> [<output-name>]` to print a
-  service's outputs as JSON instead.
+  service's outputs as JSON instead. The script needs `terraform` from the
+  `operations` Nix shell. Reviewing and applying in two passes: with stdin
+  closed (`</dev/null`) the stacks without changes complete and the first stack
+  with changes prints its plan and aborts at the approval prompt; after
+  reviewing that plan, a run with a single approval on stdin
+  (`printf 'yes\n' | nix develop ./config/nix#operations --command scripts/run-terraform.sh`)
+  applies that stack and still aborts at the next stack with changes, so nothing
+  later is applied unreviewed. The approved run plans again, so compare its plan
+  with the reviewed one before trusting the apply.
 
 ## Documentation site
 

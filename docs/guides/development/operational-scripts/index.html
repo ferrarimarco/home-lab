@@ -1967,7 +1967,15 @@ checking the command: set <code>SSH_AUTH_SOCK</code> as described above.</p>
   directories in <code>config/terraform</code> and runs <code>terraform init</code> and
   <code>terraform apply</code> for each one. Run
   <code>scripts/run-terraform.sh output &lt;service&gt; [&lt;output-name&gt;]</code> to print a
-  service's outputs as JSON instead.</p>
+  service's outputs as JSON instead. The script needs <code>terraform</code> from the
+  <code>operations</code> Nix shell. Reviewing and applying in two passes: with stdin
+  closed (<code>&lt;/dev/null</code>) the stacks without changes complete and the first stack
+  with changes prints its plan and aborts at the approval prompt; after
+  reviewing that plan, a run with a single approval on stdin
+  (<code>printf 'yes\n' | nix develop ./config/nix#operations --command scripts/run-terraform.sh</code>)
+  applies that stack and still aborts at the next stack with changes, so nothing
+  later is applied unreviewed. The approved run plans again, so compare its plan
+  with the reviewed one before trusting the apply.</p>
 </li>
 </ul>
 <h2 id="documentation-site">Documentation site</h2>
