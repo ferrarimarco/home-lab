@@ -172,6 +172,17 @@ reliability risks first, then security exposure, then automation):
   development guide that qBittorrent settings beyond the seed are owned by the
   Web UI. Roll out with the media stack scoped check on hl01, expecting only the
   old file's removal; raspberrypi2's stopped stack waits for its cleanup run.
+- **Media library group declared as `users` but forced to the media group on
+  hl01 (2026-10-11)**: the node role declares the media library directories
+  (`media_library_owner_group_id`) with group 100, a leftover from the
+  raspberrypi2 local disk, while hl01 mounts the library over CIFS with
+  `gid=1000,forcegid`, so the chgrp silently never sticks and the "Configure
+  directories" task reports eight spurious changes on every media stack run
+  (confirmed on the 2026-10-11 apply and the following check). A host override
+  cannot fix it because role vars beat host vars. Fix: derive the variable from
+  `media_stack_owner_group_id` (1000), which matches the mount options and the
+  containers' `PGID`, then roll out with the media stack scoped check on hl01,
+  expecting no change.
 - **Molecule: the node role's APT key task needs `gpg` (2026-10-10)**: the
   `home-lab-node` Molecule run on the Debian 12 image fails in "Setup APT
   repository keys" with `Failed to find required executable "gpg"`, while an
