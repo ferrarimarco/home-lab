@@ -42,10 +42,6 @@ zfs_datasets:
     mount_point: /rpool-sata/backups
     owner: "1000"
     group: "100"
-  - name: rpool-usb-1/media
-    mount_point: /rpool-usb-1/media
-    owner: "1000"
-    group: "100"
   - name: rpool-usb-1/backups
     mount_point: /rpool-usb-1/backups
     owner: "1000"

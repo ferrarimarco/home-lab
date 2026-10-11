@@ -994,12 +994,12 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   split separates the pools by data replaceability, so neither single disk holds
   sole custody of irreplaceable data. Rejected: extending `rpool-usb-1` with a
   second striped vdev — it couples two single disks into one failure domain,
-  aggravated by the USB transport. Remaining: rebuild the library there from the
-  arr databases (the raspberrypi2 copy was lost with its disk on 2026-10-09; the
-  reconstructed inventory lists what to re-acquire), then destroy the empty
-  `rpool-usb-1/media` dataset and drop its declaration. The library remains a
-  single copy on an aging drive (the ST2000DM001 has a poor reliability record);
-  the second copy on pve2's `tank-hdd` is a [Backup](#backup) item.
+  aggravated by the USB transport. The library was rebuilt there from the arr
+  databases by 2026-10-11 (what was not wanted back stayed out), and the empty
+  `rpool-usb-1/media` dataset was destroyed and undeclared the same day. The
+  library remains a single copy on an aging drive (the ST2000DM001 has a poor
+  reliability record); the second copy on pve2's `tank-hdd` is a
+  [Backup](#backup) item.
 - **Syncthing migration cleanup**: the migration completed on 2026-10-06 (the
   [migration section](./nas-lxc-container.md#125-migration-from-raspberrypi2) of
   the NAS spec records the execution). Remaining: delete the old folder data on

@@ -538,6 +538,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-10-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-10-11
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-10-10" class="md-nav__link">
     <span class="md-ellipsis">
       2026-10-10
@@ -1844,6 +1853,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-10-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      2026-10-11
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-10-10" class="md-nav__link">
     <span class="md-ellipsis">
       2026-10-10
@@ -2053,6 +2071,14 @@
 whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.</p>
+<h2 id="2026-10-11">2026-10-11</h2>
+<ul>
+<li><code>pve1</code>: destroyed the empty <code>rpool-usb-1/media</code> dataset
+  (<code>zfs destroy rpool-usb-1/media</code>, 120 KB of directory skeleton, no snapshots,
+  no remaining mount or share reference) now that the media library lives on
+  <code>rpool-usb-2/media</code>; the dataset's inventory declaration was dropped in the
+  same change, since the setup-disks role would otherwise recreate it.</li>
+</ul>
 <h2 id="2026-10-10">2026-10-10</h2>
 <ul>
 <li>

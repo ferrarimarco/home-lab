@@ -5,6 +5,14 @@ whenever possible. At times, this is not possible yet because of an
 architectural or tooling limitation, so we perform manual changes. The goal is
 to eventually get to a state where we don't need this file anymore.
 
+## 2026-10-11
+
+- `pve1`: destroyed the empty `rpool-usb-1/media` dataset
+  (`zfs destroy rpool-usb-1/media`, 120 KB of directory skeleton, no snapshots,
+  no remaining mount or share reference) now that the media library lives on
+  `rpool-usb-2/media`; the dataset's inventory declaration was dropped in the
+  same change, since the setup-disks role would otherwise recreate it.
+
 ## 2026-10-10
 
 - `pve1`: created the `rpool-usb-2` ZFS pool on the 2 TB LaCie USB disk for
