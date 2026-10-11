@@ -259,11 +259,12 @@ with operational experience.
 
 ### 6.4 Backups
 
-| Alert                 | Severity | Condition                                      | Duration | Rationale                                                                     |
-| :-------------------- | :------- | :--------------------------------------------- | :------- | :---------------------------------------------------------------------------- |
-| `ResticBackupStale`   | warning  | `time() - restic_backup_timestamp > 2 * 86400` | —        | No successful backup for two days: early signal before it becomes a real gap. |
-| `ResticBackupMissing` | critical | `time() - restic_backup_timestamp > 4 * 86400` | —        | No successful backup for four days: standing data-loss exposure.              |
-| `ResticCheckFailed`   | critical | `restic_check_success == 0`                    | —        | The repository integrity check failed; backups may not be restorable.         |
+| Alert                 | Severity | Condition                                      | Duration | Rationale                                                                                                                                                                                                           |
+| :-------------------- | :------- | :--------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ResticExporterDown`  | warning  | `up{job="restic"} == 0`                        | 30 min   | The backup rules below are expressions over the exporter's series: while the exporter is down, a stale or misplaced backup raises nothing else (raspberrypi2 backed up to its own root disk unnoticed, 2026-10-10). |
+| `ResticBackupStale`   | warning  | `time() - restic_backup_timestamp > 2 * 86400` | —        | No successful backup for two days: early signal before it becomes a real gap.                                                                                                                                       |
+| `ResticBackupMissing` | critical | `time() - restic_backup_timestamp > 4 * 86400` | —        | No successful backup for four days: standing data-loss exposure.                                                                                                                                                    |
+| `ResticCheckFailed`   | critical | `restic_check_success == 0`                    | —        | The repository integrity check failed; backups may not be restorable.                                                                                                                                               |
 
 ### 6.5 Blackbox Probes
 

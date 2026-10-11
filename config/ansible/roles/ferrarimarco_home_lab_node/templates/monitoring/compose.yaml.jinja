@@ -5,6 +5,7 @@ services:
     container_name: node_exporter
     command:
       - "--collector.textfile.directory={{ monitoring_prometheus_node_exporter_textfile_collector_directory }}"
+      - "--collector.systemd"
       - "--path.rootfs=/host"
     network_mode: host
     pid: host
@@ -12,6 +13,8 @@ services:
     volumes:
       - "/:/host:ro,rslave"
       - {{ monitoring_prometheus_node_exporter_textfile_collector_directory }}:{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}
+      # The systemd collector reads unit states over the system bus
+      - "/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro"
 {% if configure_docker %}
   cadvisor:
     container_name: cadvisor

@@ -2309,15 +2309,6 @@ reliability risks first, then security exposure, then automation):</p>
   (<a href="#host-configuration">Host configuration</a>). The OS re-image
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>) remains
   the long-term fix.</li>
-<li><strong>Data disk mounts must not block the boot (2026-10-09)</strong>: the raspberrypi2
-  <code>/media/data0</code> fstab line, rendered by the setup-disks role from the host's
-  <code>disks_to_mount</code> entry, had no <code>nofail</code>, so when the data disk died the boot
-  stalled in emergency mode, and the locked root account left no console:
-  recovery needed a rescue SD card. The entry now carries
-  <code>nofail,x-systemd.device-timeout=10</code> and is marked absent for the dead disk.
-  Make <code>nofail</code> the default for every <code>disks_to_mount</code> entry that is not the
-  root filesystem, so a dead disk degrades to a missing mount on any host.
-  hl01's CIFS mounts already carry it.</li>
 <li><strong>Docker prune on raspberrypi2 deletes stopped stacks (2026-10-09)</strong>: the node
   role ships a weekly <code>docker-system-prune.timer</code>, but on raspberrypi2 the
   service unit is also enabled, so <code>docker system prune --all --force --volumes</code>
@@ -2988,13 +2979,6 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   restic workloads job already backs up to a repository on another disk.
   Complement it with the arr and Jellyfin API exports for titles and
   identifiers. A stack of the node role, enabled where a media disk is mounted.</li>
-<li><strong>raspberrypi2 workloads have no backup (since 2026-10-09)</strong>: the restic
-  repository lived on the data disk that failed, so the nightly workloads job
-  has no destination and the last usable snapshot is from 01:00 on 2026-10-09.
-  Decide the interim repository location until the container migration retires
-  the job: the root SSD, the replacement disk, or the nas-pve1 <code>backups</code> share
-  hl01 already uses. The wind-down decision (<a href="#nas">NAS</a>) assumed the repository
-  outlives the workloads.</li>
 <li>Cross-host workloads backup. Depends on: configuring the backup destinations
   (see the Destinations item below).</li>
 <li>Storage replication: prefer "one-way replication where the direction reverses
@@ -3092,7 +3076,8 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   snapshots can be discarded after about a week of healthy hl01 snapshots (the
   workloads job keeps 7 days of dailies, and hl01 picks up a migrated workload's
   state directory automatically). The repository was lost with the data disk on
-  2026-10-09; the interim repository is an open item (<a href="#backup">Backup</a>).</li>
+  2026-10-09; since 2026-10-11 the job writes to a per-host directory on the
+  nas-pve1 <code>backups</code> share, which retires with the job.</li>
 <li><strong>Back up the NAS guest state directories on pve1</strong>: nothing backs up the
   Samba, Syncthing, and Tailscale state directories that the guest bind-mounts
   from the host: losing pve1's root filesystem means re-running <code>smbpasswd</code>,

@@ -58,11 +58,19 @@
     resizefs: "{{ item.resizefs | default(omit) }}"
   with_items: "{{ filesystems_to_create | default([]) }}"
 
+# Every mount except the root filesystem gets nofail, so a dead or absent
+# device degrades to a missing mount instead of stalling the boot in the
+# emergency shell (raspberrypi2, 2026-10-09). An entry that must block the boot
+# sets block_boot: true.
 - name: Mount devices
   become: true
   ansible.posix.mount:
     fstype: "{{ item.fstype }}"
-    opts: "{{ item.opts }}"
+    opts: >-
+      {{ item.opts | default('defaults')
+      if (item.path == '/' or item.block_boot | default(false)
+      or 'nofail' in (item.opts | default('defaults')).split(','))
+      else (item.opts | default('defaults')) ~ ',nofail' }}
     path: "{{ item.path }}"
     src: "{{ item.src }}"
     state: "{{ item.state }}"

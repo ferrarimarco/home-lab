@@ -289,15 +289,6 @@ reliability risks first, then security exposure, then automation):
   ([Host configuration](#host-configuration)). The OS re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)) remains
   the long-term fix.
-- **Data disk mounts must not block the boot (2026-10-09)**: the raspberrypi2
-  `/media/data0` fstab line, rendered by the setup-disks role from the host's
-  `disks_to_mount` entry, had no `nofail`, so when the data disk died the boot
-  stalled in emergency mode, and the locked root account left no console:
-  recovery needed a rescue SD card. The entry now carries
-  `nofail,x-systemd.device-timeout=10` and is marked absent for the dead disk.
-  Make `nofail` the default for every `disks_to_mount` entry that is not the
-  root filesystem, so a dead disk degrades to a missing mount on any host.
-  hl01's CIFS mounts already carry it.
 - **Docker prune on raspberrypi2 deletes stopped stacks (2026-10-09)**: the node
   role ships a weekly `docker-system-prune.timer`, but on raspberrypi2 the
   service unit is also enabled, so `docker system prune --all --force --volumes`
@@ -932,13 +923,6 @@ reliability risks first, then security exposure, then automation):
   restic workloads job already backs up to a repository on another disk.
   Complement it with the arr and Jellyfin API exports for titles and
   identifiers. A stack of the node role, enabled where a media disk is mounted.
-- **raspberrypi2 workloads have no backup (since 2026-10-09)**: the restic
-  repository lived on the data disk that failed, so the nightly workloads job
-  has no destination and the last usable snapshot is from 01:00 on 2026-10-09.
-  Decide the interim repository location until the container migration retires
-  the job: the root SSD, the replacement disk, or the nas-pve1 `backups` share
-  hl01 already uses. The wind-down decision ([NAS](#nas)) assumed the repository
-  outlives the workloads.
 - Cross-host workloads backup. Depends on: configuring the backup destinations
   (see the Destinations item below).
 - Storage replication: prefer "one-way replication where the direction reverses
@@ -1033,7 +1017,8 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   snapshots can be discarded after about a week of healthy hl01 snapshots (the
   workloads job keeps 7 days of dailies, and hl01 picks up a migrated workload's
   state directory automatically). The repository was lost with the data disk on
-  2026-10-09; the interim repository is an open item ([Backup](#backup)).
+  2026-10-09; since 2026-10-11 the job writes to a per-host directory on the
+  nas-pve1 `backups` share, which retires with the job.
 - **Back up the NAS guest state directories on pve1**: nothing backs up the
   Samba, Syncthing, and Tailscale state directories that the guest bind-mounts
   from the host: losing pve1's root filesystem means re-running `smbpasswd`,

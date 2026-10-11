@@ -3159,7 +3159,9 @@ datasets natively, and mounting a container's export back onto its own host
 would add a network filesystem loop over local data.</p>
 <p>The first client is <code>hl01</code>, which mounts two <code>nas-pve1</code> shares at the mount
 points its former local virtual disks occupied, so every consumer keeps its
-configured paths:</p>
+configured paths (<code>raspberrypi2</code> mounts the <code>backups</code> share the same way since
+2026-10-11, for its interim restic repository in a per-host directory, because
+each host keeps its own repository password):</p>
 <ul>
 <li>the <code>backups</code> share at <code>/media/backup-0</code> (<code>workloads_backup_disk_mount_path</code>),
   replacing the deleted backup virtual disk; the restic backup stack keeps its
@@ -3227,6 +3229,11 @@ this lives in the Ansible layer that already manages the Proxmox nodes:</p>
 Ansible and Terraform declarations are two views of the same layout and are not
 cross-checked: if a dataset path changes, update both together (and the Samba
 share if it is a per-host one; see <a href="#51-adding-per-host-shares">§5.1</a>).</p>
+<p>The same role renders every <code>disks_to_mount</code> entry, and adds <code>nofail</code> to the
+mount options of every entry except the root filesystem unless the entry sets
+<code>block_boot: true</code>: a dead or absent device then degrades to a missing mount
+instead of stalling the boot in the emergency shell, which on a headless host
+with a locked root account is unreachable (raspberrypi2, 2026-10-09).</p>
 <h3 id="112-samba-state-directory-on-the-host">11.2 Samba State Directory on the Host</h3>
 <p>Each node must provide the persistent directory backing the <code>/var/lib/samba</code>
 bind mount (<code>/var/lib/samba-state/nas-pve1</code> on <code>pve1</code>,

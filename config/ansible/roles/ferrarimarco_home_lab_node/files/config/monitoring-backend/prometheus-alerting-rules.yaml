@@ -151,6 +151,17 @@ groups:
 
   - name: backups
     rules:
+      - alert: ResticExporterDown
+        expr: up{job="restic"} == 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Restic exporter on {{ $labels.instance }} is down"
+          description: >-
+            The restic exporter for {{ $labels.instance }} stopped answering
+            scrapes. The backup rules are expressions over its series, so while
+            it is down a stale or misplaced backup raises nothing else.
       - alert: ResticBackupStale
         expr: time() - restic_backup_timestamp > 2 * 86400
         labels:

@@ -575,7 +575,9 @@ would add a network filesystem loop over local data.
 
 The first client is `hl01`, which mounts two `nas-pve1` shares at the mount
 points its former local virtual disks occupied, so every consumer keeps its
-configured paths:
+configured paths (`raspberrypi2` mounts the `backups` share the same way since
+2026-10-11, for its interim restic repository in a per-host directory, because
+each host keeps its own repository password):
 
 - the `backups` share at `/media/backup-0` (`workloads_backup_disk_mount_path`),
   replacing the deleted backup virtual disk; the restic backup stack keeps its
@@ -646,6 +648,12 @@ The same paths appear as the bind-mount _sources_ in Terraform
 Ansible and Terraform declarations are two views of the same layout and are not
 cross-checked: if a dataset path changes, update both together (and the Samba
 share if it is a per-host one; see [§5.1](#51-adding-per-host-shares)).
+
+The same role renders every `disks_to_mount` entry, and adds `nofail` to the
+mount options of every entry except the root filesystem unless the entry sets
+`block_boot: true`: a dead or absent device then degrades to a missing mount
+instead of stalling the boot in the emergency shell, which on a headless host
+with a locked root account is unreachable (raspberrypi2, 2026-10-09).
 
 ### 11.2 Samba State Directory on the Host
 
