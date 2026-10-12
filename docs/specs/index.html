@@ -2743,6 +2743,16 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   journal cursor file, alerting with <code>increase(...[1h]) &gt; 0</code> as
   <code>EdacUncorrectableErrors</code> does, so a failing disk or bridge is flagged before
   the application symptoms.</li>
+<li><strong>Backup coverage alert (2026-10-12)</strong>: the backup alerts are expressions over
+  the restic exporter's series, and the restic scrape targets are generated only
+  for hosts with <code>configure_backup_restic</code> enabled, so a host that holds state
+  but has no backup job (today the NixOS hosts, and the Proxmox nodes holding
+  the NAS containers' state directories) produces no series and raises nothing.
+  Declare in the inventory which hosts hold state that must be backed up, render
+  that as a static expected-backup series as the expected-mounts textfile does
+  for mounts, and alert when no restic snapshot series matches a declared host.
+  Add it before the NixOS state backup jobs (<a href="#backup">Backup</a>), so it fires on
+  the current gap and clears once the jobs exist.</li>
 <li>Configure the Grafana admin credentials declaratively: vault-backed
   <code>GF_SECURITY_ADMIN_USER</code> and <code>GF_SECURITY_ADMIN_PASSWORD</code> environment
   variables in the monitoring backend compose template, so a fresh replica

@@ -697,6 +697,16 @@ reliability risks first, then security exposure, then automation):
   journal cursor file, alerting with `increase(...[1h]) > 0` as
   `EdacUncorrectableErrors` does, so a failing disk or bridge is flagged before
   the application symptoms.
+- **Backup coverage alert (2026-10-12)**: the backup alerts are expressions over
+  the restic exporter's series, and the restic scrape targets are generated only
+  for hosts with `configure_backup_restic` enabled, so a host that holds state
+  but has no backup job (today the NixOS hosts, and the Proxmox nodes holding
+  the NAS containers' state directories) produces no series and raises nothing.
+  Declare in the inventory which hosts hold state that must be backed up, render
+  that as a static expected-backup series as the expected-mounts textfile does
+  for mounts, and alert when no restic snapshot series matches a declared host.
+  Add it before the NixOS state backup jobs ([Backup](#backup)), so it fires on
+  the current gap and clears once the jobs exist.
 - Configure the Grafana admin credentials declaratively: vault-backed
   `GF_SECURITY_ADMIN_USER` and `GF_SECURITY_ADMIN_PASSWORD` environment
   variables in the monitoring backend compose template, so a fresh replica
