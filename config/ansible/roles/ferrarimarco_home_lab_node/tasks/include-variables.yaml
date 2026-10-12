@@ -94,6 +94,10 @@
           state: absent
         - path: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
           state: absent
+        # Remove because the prune service unit was enabled on raspberrypi2 and
+        # ran at every boot; the unit has no [Install] section anymore
+        - path: "{{ systemd_system_services_configuration_directory }}/multi-user.target.wants/{{ docker_system_prune_service_name }}.service"
+          state: absent
         - path: /etc/apt/sources.list.d/download_docker_com_linux_debian.list
           state: absent
       fact_os_services: "{{ docker_os_services }}"

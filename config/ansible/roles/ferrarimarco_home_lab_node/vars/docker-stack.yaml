@@ -7,14 +7,17 @@ docker_os_services:
   - enabled: true
     service_name: "{{ docker_system_prune_timer_file_name }}"
     service_state: "{{ configure_docker | ternary('started', 'stopped') }}"
+# The service is timer-driven and carries no [Install] section, so it is not
+# declared in docker_os_services: a unit without one reports "static", which
+# the systemd module counts as enabled, and an enabled: false entry would try
+# to disable it on every run. Neither unit lists a service to restart:
+# restarting the service runs a prune, and so does restarting the timer on
+# systemd 252 (hl01, 2026-10-12). The daemon reload that follows rendering
+# re-reads both units and recomputes the timer's next elapse.
 docker_templates_to_render:
   - src: "docker/system-prune-timer/{{ docker_system_prune_service_name }}.service.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ docker_system_prune_service_name }}.service"
     state: "{{ configure_docker | ternary('file', 'absent') }}"
-    os_services_to_restart:
-      - "{{ docker_system_prune_service_name }}"
   - src: "docker/system-prune-timer/{{ docker_system_prune_timer_file_name }}.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ docker_system_prune_timer_file_name }}"
     state: "{{ configure_docker | ternary('file', 'absent') }}"
-    os_services_to_restart:
-      - "{{ docker_system_prune_service_name }}"

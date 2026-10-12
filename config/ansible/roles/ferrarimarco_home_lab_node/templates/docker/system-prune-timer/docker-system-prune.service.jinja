@@ -2,8 +2,14 @@
 Description=Run docker system prune
 Requires=docker.service
 
+# Timer-driven: no [Install] section, so the unit cannot be enabled on its own
+# and never runs at boot, where it would remove the containers of stacks that
+# have not started yet (raspberrypi2, 2026-10-09).
+# The aggressive flags are safe by convention: containers and images are
+# disposable (compose recreates, registries re-serve), and workload state lives
+# in bind-mounted directories under the backed-up configuration and runtime
+# trees, never in volumes. --volumes keeps misplaced state from accumulating
+# unbacked; the restic backups are the recovery path.
 [Service]
+Type=oneshot
 ExecStart=docker system prune --all --force --volumes
-
-[Install]
-WantedBy=multi-user.target

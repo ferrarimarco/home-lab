@@ -29,6 +29,26 @@ set of generic tasks applies that data:
 4. Generic, untagged tasks in `tasks/main.yaml` (configure directories, render
    templates, download files, manage services) then apply the aggregated data.
 
+Two conventions the stacks rely on:
+
+- **Timer-driven units carry no `[Install]` section and no restart entry.** A
+  oneshot service with `WantedBy=multi-user.target` can be enabled on its own
+  and then runs at every boot (the Docker prune did on raspberrypi2 until
+  2026-10-12); restarting the service runs the job, and so does restarting the
+  timer on systemd 252 (observed on hl01 the same day, not on raspberrypi2's
+  247). Leave `os_services_to_restart` out of both entries: the daemon reload
+  that follows rendering re-reads the units and recomputes the timer's next
+  elapse (expected from systemd's reload semantics; a schedule change has not
+  exercised it yet). A unit without `[Install]` reports `static`, which the
+  systemd module counts as enabled, so it is not declared in `os_services`
+  either: declare the timer.
+- **Workload state lives in bind-mounted directories** under the configuration
+  and runtime trees, which restic backs up, never in named or anonymous volumes.
+  Containers and images are disposable, so the weekly
+  `docker system prune --all --force --volumes` can remove them without losing
+  anything; the backups are the recovery path, and a volume that ever held state
+  would be unbacked.
+
 Because a disabled stack still contributes its resources with `state: absent`,
 running a stack's tag with its enablement flag unset **tears the stack down**
 rather than skipping it. This is intentional (declarative removal), but it means

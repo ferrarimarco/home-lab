@@ -274,17 +274,6 @@ reliability risks first, then security exposure, then automation):
   ([Host configuration](#host-configuration)). The OS re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)) remains
   the long-term fix.
-- **Docker prune on raspberrypi2 deletes stopped stacks (2026-10-09)**: the node
-  role ships a weekly `docker-system-prune.timer`, but on raspberrypi2 the
-  service unit is also enabled, so `docker system prune --all --force --volumes`
-  runs at every boot. On 2026-10-09 it ran while the zigbee2mqtt container was
-  failed (its dongle sat on an unplugged hub) and removed the container and its
-  image. Disable the service unit through the role (hl01 has it disabled), and
-  reconsider the flags: `--all` and `--volumes` turn any stopped stack into a
-  loss of images and anonymous volumes. The unit's template entry also lists the
-  service, not the timer, under `os_services_to_restart`, so re-rendering the
-  unit file runs a prune on the spot (seen in the Molecule run of 2026-10-12);
-  point the restart at the timer.
 
 ### Security
 
@@ -361,6 +350,19 @@ reliability risks first, then security exposure, then automation):
     - Validate the Unbound configuration: `unbound-checkconf unbound.conf`.
     - [Home Assistant config check](https://www.home-assistant.io/common-tasks/container/#configuration-check).
     - [Docker config validation](https://github.com/moby/moby/pull/42393).
+    - Guard the workload state convention (2026-10-12): the weekly Docker prune
+      runs with `--all --volumes`, which is safe only while every stack keeps
+      its state in bind-mounted directories under the backed-up configuration
+      and runtime trees and never in named or anonymous volumes (audited true on
+      2026-10-12: the only anonymous volume in the fleet is the one
+      Flaresolverr's image declares, empty). Add a check that fails when a
+      compose definition declares a volume or mounts one: rendering the compose
+      files and inspecting `docker compose config --format json` (top-level
+      `volumes` empty, every mount of type `bind`) is one option, inside the
+      existing Molecule run or as a standalone step; keep the check independent
+      of Ansible where possible, since the long-term direction is Nix. Volumes
+      declared by an image stay out of reach without a pull and hold no state by
+      the same convention.
     - SSH configuration validation: `"{{ sshd_path }} -T -f %s"`.
 - Ansible:
     - Get the Proxmox VMs data from the inventory instead of using the
@@ -953,7 +955,9 @@ reliability risks first, then security exposure, then automation):
 - Restic restore recipe and drill: document restoring a host's state trees from
   its repository (full and selective, and from another host's repository) in a
   backup operations guide, then run a restore drill on a schedule. Both the
-  raspberrypi2 re-image and the container migration rely on restore. Blocks: the
+  raspberrypi2 re-image and the container migration rely on restore, and so does
+  the weekly Docker prune, whose aggressive flags are acceptable only because
+  the bind-mounted state trees are restorable (decided 2026-10-12). Blocks: the
   raspberrypi2 re-image
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
 - Back up the Tailscale node state and automate the Samba passwords on the
