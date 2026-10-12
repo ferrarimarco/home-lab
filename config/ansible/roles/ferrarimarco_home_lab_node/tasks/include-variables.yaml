@@ -189,7 +189,9 @@
           service_name: "{{ samba_service_name }}"
           service_state: "{{ configure_network_shares | ternary('started', 'stopped') }}"
       fact_os_users: "{{ samba_os_users }}"
-      fact_templates_to_render:
+      # The samba package creates /etc/samba, so the configuration renders
+      # after the OS packages are installed.
+      fact_templates_to_render_after_installing_os_packages:
         - src: "samba/smb.conf.jinja"
           dest: "/etc/samba/smb.conf"
           state: "{{ configure_network_shares | ternary('file', 'absent') }}"
