@@ -1,12 +1,13 @@
 [Unit]
 Description=Run {{ restic_backup_job_name }} Restic backup job
 Requires=docker.service
-# Skip the run when the backup share is not mounted: the entrypoint would
-# otherwise initialize a new repository on whatever filesystem backs the path
-# (raspberrypi2 backed up to its own root disk for two nights, 2026-10-10).
-ConditionPathIsMountPoint={{ workloads_backup_disk_mount_path }}
 
 [Service]
+# Fail the run when the repository path is backed by the root filesystem: with
+# its mount gone, the path is a bare directory and the backup would land on
+# the host's own disk (raspberrypi2, 2026-10-10). A failed unit reaches the
+# SystemdUnitFailed alert; a skipped one would not.
+ExecStartPre=/bin/sh -c 'test "$(findmnt --target {{ restic_backup_job_repository_host_path }} -no TARGET)" != /'
 ExecStart= docker compose --file {{ restic_docker_compose_destination_file_path }} --profile "{{ restic_backup_default_backup_job_docker_compose_profile }}" run --build --env RESTIC_ENABLE_BACKUP="true" --env RESTIC_ENABLE_REPOSITORY_CHECK="true" --env RESTIC_ENABLE_PRUNE="true" --rm {{ restic_backup_job_name }}
 
 [Install]

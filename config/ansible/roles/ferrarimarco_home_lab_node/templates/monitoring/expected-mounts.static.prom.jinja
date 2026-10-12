@@ -1,0 +1,7 @@
+# Rendered by Ansible from this host's disks_to_mount; the .static.prom suffix
+# exempts it from the textfile staleness alert, since no timer rewrites it.
+# HELP node_mount_expected A mount this host's inventory declares as mounted.
+# TYPE node_mount_expected gauge
+{% for mount in disks_to_mount | default([]) if mount.state == 'mounted' %}
+node_mount_expected{mountpoint="{{ mount.path }}",fstype="{{ mount.fstype }}"} 1
+{% endfor %}

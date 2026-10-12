@@ -12,6 +12,7 @@ services:
       - RESTIC_FORGET_POLICY={{ backup_job.restic_forget_policy | join(' ') }}
       - RESTIC_REPOSITORY={{ restic_repository_container_destination_path }}
       - RESTIC_PASSWORD="{{ backup_job.restic_repository_password }}"
+      - RESTIC_TEXTFILE_COLLECTOR_DIRECTORY={{ monitoring_prometheus_node_exporter_textfile_collector_directory }}
     hostname: "{{ backup_job.job_name }}-{{ inventory_hostname }}"
     # Define a profile so we don't start the backup job every time we start the Docker Compose stack
     # unless we activate the profile. This avoids breaking the idempotence check when running
@@ -21,6 +22,7 @@ services:
     restart: on-failure
     volumes:
       - {{ backup_job.restic_repository_host_path }}:{{ restic_repository_container_destination_path }}
+      - {{ monitoring_prometheus_node_exporter_textfile_collector_directory }}:{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}
 {% for directory_to_backup in backup_job.directories_to_backup %}
       - {{ directory_to_backup.source_host_directory }}:{{ directory_to_backup.container_mount_destination_directory }}
 {% endfor %}

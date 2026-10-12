@@ -2594,9 +2594,9 @@ with operational experience.</p>
 <tr>
 <td style="text-align: left;"><code>NodeTextfileStale</code></td>
 <td style="text-align: left;">warning</td>
-<td style="text-align: left;"><code>time() - node_textfile_mtime_seconds &gt; 26 * 3600</code></td>
+<td style="text-align: left;"><code>time() - node_textfile_mtime_seconds{file!~".*\\.static\\.prom"} &gt; 26 * 3600</code></td>
 <td style="text-align: left;">—</td>
-<td style="text-align: left;">A textfile collector stopped updating. 26 h covers the slowest producer (the daily apt job); per-collector tuning is future work.</td>
+<td style="text-align: left;">A textfile collector stopped updating. 26 h covers the slowest producer (the daily apt job); per-collector tuning is future work. Files named <code>*.static.prom</code> are rendered by Ansible with no producer timer and are exempt.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>NodeFilesystemSpaceLow</code></td>
@@ -2618,6 +2618,13 @@ with operational experience.</p>
 <td style="text-align: left;"><code>node_filesystem_files_free / node_filesystem_files &lt; 0.10</code> (tmpfs and ramfs excluded)</td>
 <td style="text-align: left;">30 min</td>
 <td style="text-align: left;">Inode exhaustion fails writes even with free space left; symmetric with the space rules.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ExpectedMountMissing</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>node_mount_expected == 1 unless on (instance, mountpoint) node_filesystem_size_bytes</code></td>
+<td style="text-align: left;">10 min</td>
+<td style="text-align: left;">A mount the host's inventory declares (<code>disks_to_mount</code>, rendered into <code>expected-mounts.static.prom</code>) is not mounted. Mounts carry <code>nofail</code>, so a dead disk or a dropped share leaves a bare directory that every consumer keeps writing into on the root disk: the media share on hl01, a backup share.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>SystemdUnitFailed</code></td>
@@ -2702,6 +2709,13 @@ with operational experience.</p>
 <td style="text-align: left;"><code>up{job="restic"} == 1 unless on (instance) restic_backup_timestamp</code></td>
 <td style="text-align: left;">30 min</td>
 <td style="text-align: left;">The exporter answers scrapes but exposes no snapshot series: its collection failed and it retries only every 12 hours (raspberrypi2's exporter started before its repository existed, 2026-10-11), so the rules below cannot fire.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ResticRepositoryChanged</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>count by (instance, backup_job) (count_over_time(restic_repository_id[3d])) &gt; 1</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The job wrote more than one repository identity (from <code>restic cat config</code>, exported by the job to a textfile) in three days: it was pointed at another repository or a new one was initialized under its path. The entrypoint refuses implicit initialization, so this is the observed check behind that guard.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>ResticBackupStale</code></td>

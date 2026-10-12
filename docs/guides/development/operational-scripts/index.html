@@ -1904,6 +1904,14 @@ shell. See the <a href="../nix-dev-shells/">Nix development shells guide</a>.</p
 <span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;home-lab-node.yaml&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>scripts/run-ansible.sh
 </code></pre></div>
+<p>Restic repositories are initialized by the node role's read-then-act task
+only, never by the backup job: the task runs <code>restic init</code> through the job
+container with <code>RESTIC_ALLOW_INIT=true</code> when the repository's <code>config</code> file
+is absent and <code>findmnt --target</code> shows the repository path backed by a
+filesystem other than the root one; the job's unit refuses to run on the
+root filesystem for the same reason, and the entrypoint refuses an implicit
+initialization. A replacement host whose repository already exists on the
+share is therefore never re-initialized.</p>
 <p>Stack tags are the <code>fact_category</code> names declared in the
 <code>ferrarimarco_home_lab_node</code> role's <code>include-variables.yaml</code>. See the
 <a href="../ansible/">Ansible development guide</a> for how the role's tagging and

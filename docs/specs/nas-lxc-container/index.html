@@ -3233,7 +3233,10 @@ share if it is a per-host one; see <a href="#51-adding-per-host-shares">§5.1</a
 mount options of every entry except the root filesystem unless the entry sets
 <code>block_boot: true</code>: a dead or absent device then degrades to a missing mount
 instead of stalling the boot in the emergency shell, which on a headless host
-with a locked root account is unreachable (raspberrypi2, 2026-10-09).</p>
+with a locked root account is unreachable (raspberrypi2, 2026-10-09). The same
+entries feed the <code>ExpectedMountMissing</code> alert
+(<a href="../monitoring-alerting/">Monitoring Alerting</a>), so a mount that is missing
+after such a boot is reported instead of silently replaced by a directory.</p>
 <h3 id="112-samba-state-directory-on-the-host">11.2 Samba State Directory on the Host</h3>
 <p>Each node must provide the persistent directory backing the <code>/var/lib/samba</code>
 bind mount (<code>/var/lib/samba-state/nas-pve1</code> on <code>pve1</code>,

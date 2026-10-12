@@ -8,6 +8,7 @@
     mode: "0644"
   vars:
     restic_backup_job_name: "{{ item.job_name }}"
+    restic_backup_job_repository_host_path: "{{ item.restic_repository_host_path }}"
     restic_backup_job_timer_definition: "{{ item.job_schedule }}"
   when:
     - configure_backup_restic
@@ -63,3 +64,44 @@
     state: absent
   with_items:
     - /host_path/restic/data
+
+# Repositories are initialized once, by this task only (the entrypoint refuses
+# an implicit init): read whether the repository exists and which filesystem
+# backs its path, then act only on a missing repository whose path is not on
+# the root filesystem, which is what the path becomes when its mount is gone.
+- name: Check whether the Restic repositories are initialized
+  ansible.builtin.stat:
+    path: "{{ item.restic_repository_host_path }}/config"
+  become: true
+  check_mode: false
+  register: restic_repository_config
+  when:
+    - configure_backup_restic
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
+
+- name: Find the filesystem backing the Restic repositories
+  ansible.builtin.command: findmnt --target {{ item.restic_repository_host_path }} -no TARGET
+  become: true
+  changed_when: false
+  check_mode: false
+  register: restic_repository_mount
+  when:
+    - configure_backup_restic
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
+
+- name: Initialize missing Restic repositories
+  ansible.builtin.command: >-
+    docker compose --file {{ restic_docker_compose_destination_file_path }}
+    --profile "{{ restic_backup_default_backup_job_docker_compose_profile }}"
+    run --build --rm --env RESTIC_ALLOW_INIT=true --env RESTIC_ENABLE_BACKUP=false
+    {{ item.job_name }}
+  become: true
+  loop: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
+  loop_control:
+    index_var: restic_job_index
+  when:
+    - configure_backup_restic
+    - not restic_repository_config.results[restic_job_index].stat.exists
+    - restic_repository_mount.results[restic_job_index].stdout != "/"
+  tags:
+    - molecule-notest

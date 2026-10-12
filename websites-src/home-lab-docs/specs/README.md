@@ -681,17 +681,6 @@ reliability risks first, then security exposure, then automation):
   journal cursor file, alerting with `increase(...[1h]) > 0` as
   `EdacUncorrectableErrors` does, so a failing disk or bridge is flagged before
   the application symptoms.
-- **Expected mount missing alert (2026-10-10)**: once data disk mounts carry
-  `nofail` (hl01's CIFS mounts do; the default is pending in
-  [Reliability and resilience](#reliability-and-resilience)), a dead or
-  unplugged disk no longer blocks the boot but leaves no trace either: the host
-  comes up with an empty mount point and the containers write to the root disk.
-  `SystemdUnitFailed` does not cover it, since the node exporter's default unit
-  filter drops `.mount` units (expectation from its defaults). Derive the
-  expected mount points from each host's `disks_to_mount` (a textfile metric or
-  a templated rule) and alert when `node_filesystem_size_bytes` for one of them
-  is absent, guarded with `and on (instance) up == 1` so a dead exporter raises
-  `InstanceDown` only.
 - Configure the Grafana admin credentials declaratively: vault-backed
   `GF_SECURITY_ADMIN_USER` and `GF_SECURITY_ADMIN_PASSWORD` environment
   variables in the monitoring backend compose template, so a fresh replica

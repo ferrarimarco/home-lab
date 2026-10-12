@@ -653,7 +653,10 @@ The same role renders every `disks_to_mount` entry, and adds `nofail` to the
 mount options of every entry except the root filesystem unless the entry sets
 `block_boot: true`: a dead or absent device then degrades to a missing mount
 instead of stalling the boot in the emergency shell, which on a headless host
-with a locked root account is unreachable (raspberrypi2, 2026-10-09).
+with a locked root account is unreachable (raspberrypi2, 2026-10-09). The same
+entries feed the `ExpectedMountMissing` alert
+([Monitoring Alerting](./monitoring-alerting.md)), so a mount that is missing
+after such a boot is reported instead of silently replaced by a directory.
 
 ### 11.2 Samba State Directory on the Host
 

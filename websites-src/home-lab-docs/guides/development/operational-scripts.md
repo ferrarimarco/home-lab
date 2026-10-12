@@ -153,6 +153,15 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
       scripts/run-ansible.sh
     ```
 
+    Restic repositories are initialized by the node role's read-then-act task
+    only, never by the backup job: the task runs `restic init` through the job
+    container with `RESTIC_ALLOW_INIT=true` when the repository's `config` file
+    is absent and `findmnt --target` shows the repository path backed by a
+    filesystem other than the root one; the job's unit refuses to run on the
+    root filesystem for the same reason, and the entrypoint refuses an implicit
+    initialization. A replacement host whose repository already exists on the
+    share is therefore never re-initialized.
+
     Stack tags are the `fact_category` names declared in the
     `ferrarimarco_home_lab_node` role's `include-variables.yaml`. See the
     [Ansible development guide](./ansible.md) for how the role's tagging and

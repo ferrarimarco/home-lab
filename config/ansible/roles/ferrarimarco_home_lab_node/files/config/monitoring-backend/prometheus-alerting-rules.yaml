@@ -27,7 +27,9 @@ groups:
             hour. If this reboot was not planned, investigate: it may be a
             hardware watchdog recovery.
       - alert: NodeTextfileStale
-        expr: time() - node_textfile_mtime_seconds > 26 * 3600
+        # Files named *.static.prom are rendered by Ansible and have no producer
+        # timer, so their age carries no signal.
+        expr: time() - node_textfile_mtime_seconds{file!~".*\\.static\\.prom"} > 26 * 3600
         labels:
           severity: warning
         annotations:
@@ -79,6 +81,19 @@ groups:
             {{ $labels.instance }} has had less than 10 percent of its
             inodes available for 30 minutes. Writes start failing when
             inodes run out, even with free space left.
+      - alert: ExpectedMountMissing
+        expr: node_mount_expected == 1 unless on (instance, mountpoint) node_filesystem_size_bytes
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Expected mount {{ $labels.mountpoint }} missing on {{ $labels.instance }}"
+          description: >-
+            {{ $labels.instance }} declares {{ $labels.mountpoint }}
+            ({{ $labels.fstype }}) in its inventory, but no filesystem is
+            mounted there. Mounts carry nofail, so the host booted without it
+            and every consumer now writes into a bare directory on the root
+            disk (a media share, a backup share).
       - alert: SystemdUnitFailed
         expr: node_systemd_unit_state{state="failed"} == 1
         for: 15m
@@ -174,6 +189,16 @@ groups:
             exposes no snapshot series: its collection failed (an unreachable
             or uninitialized repository) and it retries only every 12 hours,
             so the stale and missing backup rules cannot fire.
+      - alert: ResticRepositoryChanged
+        expr: count by (instance, backup_job) (count_over_time(restic_repository_id[3d])) > 1
+        labels:
+          severity: critical
+        annotations:
+          summary: "Restic job {{ $labels.backup_job }} on {{ $labels.instance }} changed repository"
+          description: >-
+            The restic job wrote more than one repository identity in three
+            days: it was pointed at a different repository, or a new one was
+            initialized under its path. Neither is ever expected.
       - alert: ResticBackupStale
         expr: time() - restic_backup_timestamp > 2 * 86400
         labels:

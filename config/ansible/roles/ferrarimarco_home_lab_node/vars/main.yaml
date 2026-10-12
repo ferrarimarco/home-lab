@@ -291,6 +291,10 @@ monitoring_templates_to_render:
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     state: "{{ configure_monitoring | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_docker_compose_up_items }}"
+  # The node exporter reads the textfile directory at every scrape: no restart
+  - src: "monitoring/expected-mounts.static.prom.jinja"
+    dest: "{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/expected-mounts.static.prom"
+    state: "{{ configure_monitoring | ternary('file', 'absent') }}"
   - src: "monitoring/{{ monitoring_smartmon_prometheus_exporter_service_file_name }}.jinja"
     dest: "{{ systemd_system_services_configuration_directory }}/{{ monitoring_smartmon_prometheus_exporter_service_file_name }}"
     state: "{{ configure_monitoring_sata | ternary('file', 'absent') }}"
