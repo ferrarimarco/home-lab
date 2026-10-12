@@ -219,12 +219,6 @@ reliability risks first, then security exposure, then automation):
       the job stays as preparation for the CoreDNS deployment, and the
       zero-target state is accepted until then; the blackbox DNS probes cover
       the resolution path meanwhile.
-    - The node role's `Download files` task fails in check mode on hosts that
-      were never converged since a download's destination directory was
-      introduced (observed 2026-10-04:
-      `/etc/ferrarimarco-home-lab/ monitoring-apt` on pve1), because the
-      directory-creation task only predicts the directory. Make the task
-      check-mode friendly per the repository's check-mode conventions.
 - raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):

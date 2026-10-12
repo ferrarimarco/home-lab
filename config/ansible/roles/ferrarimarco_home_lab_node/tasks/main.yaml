@@ -62,7 +62,17 @@
   register: system_wide_downloaded_files
   delay: 5
   retries: 10
-  until: system_wide_downloaded_files is not failed
+  # In check mode the destination directory of a download that a real run
+  # would create first does not exist yet: the directory task above only
+  # predicts it. Accept that one failure as the prediction of the download,
+  # and keep every other failure (an unreachable URL, a checksum mismatch).
+  until: >-
+    system_wide_downloaded_files is not failed
+    or (ansible_check_mode
+    and 'does not exist' in system_wide_downloaded_files.msg | default(''))
+  failed_when:
+    - system_wide_downloaded_files is failed
+    - not (ansible_check_mode and 'does not exist' in system_wide_downloaded_files.msg | default(''))
   when:
     - item.state == 'file'
   with_items: "{{ files_to_download }}"
