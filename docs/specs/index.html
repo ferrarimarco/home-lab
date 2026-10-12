@@ -2721,6 +2721,17 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="monitoring-and-alerting">Monitoring and alerting</h3>
 <ul>
+<li><strong>Alert on obsolete packages (2026-10-12)</strong>: a package that no configured APT
+  source provides anymore (the Coral runtime after Google retired its
+  repository, leftovers after a release upgrade) gets no updates and raises
+  nothing when the source was removed cleanly. The apt collector's
+  <code>apt_packages_obsolete</code> metric (upstream <code>apt_info.py</code> from the 2026-04-20
+  merge) counts them, but that version reads <code>Package.phasing_applied</code>, which
+  python3-apt 2.6 (Debian 12) and the Debian-packaged collector on the Proxmox
+  nodes lack, so the role pins the 2026-02-25 version. Once the upstream script
+  runs on the hosts again (or Debian ships a newer collectors package), bump the
+  pin, add a warning rule on <code>apt_packages_obsolete &gt; 0</code>, and a dashboard panel;
+  skip <code>apt_packages_per_origin</code>, an inventory figure with no threshold.</li>
 <li><strong>Kernel log error exporter (2026-10-10)</strong>: the kernel-level signs of the
   raspberrypi2 data disk failure and of the root SSD stalls (medium errors, a
   USB reset loop, UAS command aborts; see the

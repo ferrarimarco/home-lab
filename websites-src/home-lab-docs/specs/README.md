@@ -675,6 +675,17 @@ reliability risks first, then security exposure, then automation):
 
 ### Monitoring and alerting
 
+- **Alert on obsolete packages (2026-10-12)**: a package that no configured APT
+  source provides anymore (the Coral runtime after Google retired its
+  repository, leftovers after a release upgrade) gets no updates and raises
+  nothing when the source was removed cleanly. The apt collector's
+  `apt_packages_obsolete` metric (upstream `apt_info.py` from the 2026-04-20
+  merge) counts them, but that version reads `Package.phasing_applied`, which
+  python3-apt 2.6 (Debian 12) and the Debian-packaged collector on the Proxmox
+  nodes lack, so the role pins the 2026-02-25 version. Once the upstream script
+  runs on the hosts again (or Debian ships a newer collectors package), bump the
+  pin, add a warning rule on `apt_packages_obsolete > 0`, and a dashboard panel;
+  skip `apt_packages_per_origin`, an inventory figure with no threshold.
 - **Kernel log error exporter (2026-10-10)**: the kernel-level signs of the
   raspberrypi2 data disk failure and of the root SSD stalls (medium errors, a
   USB reset loop, UAS command aborts; see the
