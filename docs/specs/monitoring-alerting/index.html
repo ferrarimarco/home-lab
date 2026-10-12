@@ -2587,9 +2587,9 @@ with operational experience.</p>
 <tr>
 <td style="text-align: left;"><code>UnexpectedReboot</code></td>
 <td style="text-align: left;">warning</td>
-<td style="text-align: left;"><code>changes(node_boot_time_seconds[1h]) &gt; 0</code></td>
+<td style="text-align: left;"><code>max_over_time(node_boot_time_seconds[1h]) - min_over_time(node_boot_time_seconds[1h]) &gt; 10</code></td>
 <td style="text-align: left;">—</td>
-<td style="text-align: left;">Reboots (including hardware-watchdog recoveries) are noticed instead of silently absorbed.</td>
+<td style="text-align: left;">Reboots (including hardware-watchdog recoveries) are noticed instead of silently absorbed. The boot time derives from the wall clock, so an NTP correction moves it by a second (raspberrypi2 paged for an hour on 2026-10-12 without rebooting); a reboot moves it by the previous uptime, so only a spread over ten seconds counts, and a crash loop shorter than that is <code>InstanceDown</code> territory.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>AptUpdateStale</code></td>

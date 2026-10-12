@@ -17,7 +17,9 @@ groups:
   - name: node-health
     rules:
       - alert: UnexpectedReboot
-        expr: changes(node_boot_time_seconds[1h]) > 0
+        # The boot time derives from the wall clock, so an NTP correction
+        # moves it by a second; a reboot moves it by the previous uptime.
+        expr: max_over_time(node_boot_time_seconds[1h]) - min_over_time(node_boot_time_seconds[1h]) > 10
         labels:
           severity: warning
         annotations:
