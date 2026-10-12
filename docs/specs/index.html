@@ -2438,6 +2438,15 @@ reliability risks first, then security exposure, then automation):</p>
   so the seven standalone jobs only add per-playbook attribution and a
   standalone-run check, while <code>home-lab-node</code>, the most-changed playbook, is
   tested only through <code>main</code>; the idempotence phase stays.</li>
+<li>Make the <code>home-lab-node</code> playbook pass a standalone Molecule run
+  (2026-10-12): the Docker prune unit the node role renders requires
+  <code>docker.service</code>, which only the container-engine playbook installs, so
+  restarting the unit on the Debian 12 image fails with "Unit docker.service
+  not found" and the run stops at "Restart OS services" before the restic
+  and systemd tasks. Either declare the Docker role as a dependency of the
+  node role, or skip the Docker-bound units when Docker is not installed
+  (and still render them). Blocks: testing <code>home-lab-node</code> on its own in the
+  Molecule matrix, in the workflow cost item above.</li>
 </ul>
 </li>
 <li>Dependency updates: fully migrate from Dependabot to Renovate, so a single
