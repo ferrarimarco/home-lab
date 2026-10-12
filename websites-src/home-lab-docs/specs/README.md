@@ -229,10 +229,12 @@ reliability risks first, then security exposure, then automation):
   `coral-edgetpu-stable`) returns 403 Forbidden (verified 2026-10-03 with a
   direct request; Google is sunsetting Coral). Every `apt update` against it
   fails: the Molecule converge of the main playbook fails on the apt cache
-  refresh, and hosts with the repository configured (hl01) fail their apt
-  metadata updates. Decide between removing the repository while pinning the
-  already-installed packages, vendoring the packages, or another delivery path —
-  hl01's Frigate depends on the EdgeTPU runtime, so this needs its own session.
+  refresh (so the `main` and `coral` CI jobs fail on every push since at least
+  2026-10-11, each after spending its full runtime), and hosts with the
+  repository configured (hl01) fail their apt metadata updates. Decide between
+  removing the repository while pinning the already-installed packages,
+  vendoring the packages, or another delivery path — hl01's Frigate depends on
+  the EdgeTPU runtime, so this needs its own session.
 - raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):
@@ -299,7 +301,10 @@ reliability risks first, then security exposure, then automation):
   failed (its dongle sat on an unplugged hub) and removed the container and its
   image. Disable the service unit through the role (hl01 has it disabled), and
   reconsider the flags: `--all` and `--volumes` turn any stopped stack into a
-  loss of images and anonymous volumes.
+  loss of images and anonymous volumes. The unit's template entry also lists the
+  service, not the timer, under `os_services_to_restart`, so re-rendering the
+  unit file runs a prune on the spot (seen in the Molecule run of 2026-10-12);
+  point the restart at the timer.
 
 ### Security
 
@@ -397,6 +402,16 @@ reliability risks first, then security exposure, then automation):
     - Cleanup users after switching from appending groups to creating dedicated
       users: set the "state" of users dynamically.
     - Tailscale: don't run tailscale up if the flags didn't change between runs.
+    - Cut the Molecule workflow cost (measured 2026-10-12 on the last green run,
+      2026-09-29): each of the eight matrix jobs rebuilds the same Ansible
+      container image (220 to 230 s each, about 30 of the 55 job-minutes),
+      because they all build at once before any of them has written the shared
+      cache. Build the image once in a job the matrix depends on (push it to the
+      GitHub container registry, or warm the `gha` cache and let the matrix jobs
+      read it). Then reconsider the matrix: `main` imports every other playbook,
+      so the seven standalone jobs only add per-playbook attribution and a
+      standalone-run check, while `home-lab-node`, the most-changed playbook, is
+      tested only through `main`; the idempotence phase stays.
 - Dependency updates: fully migrate from Dependabot to Renovate, so a single
   tool manages all dependency updates. Renovate is already configured
   (`.github/renovate.json`) behind Dependency Dashboard approval, and covers
