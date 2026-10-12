@@ -698,11 +698,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#import-grafana-dashsboards" class="md-nav__link">
+  <a href="#import-grafana-dashboards" class="md-nav__link">
     <span class="md-ellipsis">
-      Import Grafana dashsboards
+      Import Grafana dashboards
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioned-dashboards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Provisioned dashboards
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Provisioned dashboards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-provisioner-refuses-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      The provisioner refuses a file
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1667,11 +1691,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#import-grafana-dashsboards" class="md-nav__link">
+  <a href="#import-grafana-dashboards" class="md-nav__link">
     <span class="md-ellipsis">
-      Import Grafana dashsboards
+      Import Grafana dashboards
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provisioned-dashboards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Provisioned dashboards
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Provisioned dashboards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-provisioner-refuses-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      The provisioner refuses a file
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1698,7 +1746,7 @@
 <p>To monitor the status of the home lab, the automated provisioning and
 configuration process deploy a monitoring agent on each home lab node, and a
 backend to collect data coming from the monitoring agents.</p>
-<h2 id="import-grafana-dashsboards">Import Grafana dashsboards</h2>
+<h2 id="import-grafana-dashboards">Import Grafana dashboards</h2>
 <p>In its current state, Grafana doesn't support automatic import of dashboards
 that a datasource ships, so you need to import those dashboards manually. To
 import Grafana dashboards that ship with a datasource, do the following:</p>
@@ -1709,6 +1757,70 @@ import Grafana dashboards that ship with a datasource, do the following:</p>
 <li>Open the <code>Dashboards</code> panel.</li>
 <li>Import the dashboards.</li>
 </ol>
+<h2 id="provisioned-dashboards">Provisioned dashboards</h2>
+<p>The monitoring backend provisions the dashboards under
+<code>config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/grafana/dashboards/dashboard-definitions/</code>
+from files (<code>allowUiUpdates: false</code>, <code>disableDeletion: true</code>), so a dashboard is
+edited by exporting it from the Grafana UI and committing the export. Grafana 13
+accepts both the classic JSON model and the v2 resource
+(<code>apiVersion: dashboard.grafana.app/v2</code>); for a v2 export keep <code>metadata</code> down
+to <code>name</code> (the dashboard uid) and drop the instance fields the UI adds
+(<code>resourceVersion</code>, <code>generation</code>, timestamps, creator and updater annotations).</p>
+<h3 id="the-provisioner-refuses-a-file">The provisioner refuses a file</h3>
+<p>Grafana polls the files every 100 seconds, so a refused file shows up as a
+repeating error in the container log:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>logs<span class="w"> </span>grafana<span class="w"> </span>--since<span class="w"> </span>1h<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;failed to save dashboard&quot;</span>
+</code></pre></div>
+<p><code>A dashboard with the same uid already exists</code> means the uid in the file is not
+the uid of the dashboard the provisioner's record owns, but one of another
+dashboard (typically a copy imported through the UI, whose export then replaced
+the file). The provisioner never updates the dashboard in that state, so the UI
+keeps showing stale content, and the clashing copy becomes undeletable from the
+UI because the failed saves mark it as file-managed too. Confirm it from a copy
+of the database (read-only; the host has no <code>sqlite3</code> binary, Python does):</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>cp<span class="w"> </span>grafana:/var/lib/grafana/grafana.db<span class="w"> </span>/tmp/grafana-inspect.db
+python3<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+<span class="s">import sqlite3</span>
+<span class="s">c = sqlite3.connect(&quot;/tmp/grafana-inspect.db&quot;)</span>
+<span class="s">print(c.execute(&quot;select dashboard_id, external_id from dashboard_provisioning&quot;).fetchall())</span>
+<span class="s">print(c.execute(&quot;select id, uid, title from dashboard where is_folder = 0&quot;).fetchall())</span>
+<span class="s">EOF</span>
+rm<span class="w"> </span>/tmp/grafana-inspect.db
+</code></pre></div>
+<p>Fix the file, not the database: set the file's uid (<code>uid</code> in the classic model,
+<code>metadata.name</code> in the v2 resource) to the uid of the dashboard the provisioning
+record points at, and apply the monitoring-backend stack. The APT dashboard sat
+in that state from 2025-05-31 to 2026-10-12 on both backends.</p>
+<p>The orphaned copy cannot be removed through Grafana: the UI, the legacy
+dashboard API (<code>DELETE /api/dashboards/uid/&lt;uid&gt;</code>), and the resource API (a
+patch removing the <code>grafana.app/managedBy</code> annotation) all answer that a
+provisioned dashboard cannot be deleted or modified, since the failed saves
+marked the copy as file-managed. It also blocks provisioning in a second way:
+the failed saves stored it under the provisioned dashboard's internal ID, so the
+provisioner's lookup finds two dashboards for that ID. Remove it from the
+database, with Grafana stopped and the database backed up first:</p>
+<ol>
+<li>Stop Grafana alone
+   (<code>docker compose -f /etc/ferrarimarco-home-lab/monitoring-backend/compose.yaml stop grafana</code>)
+   and copy <code>grafana.db</code> aside in its data directory
+   (<code>/var/lib/ferrarimarco-home-lab/monitoring-backend/grafana</code>).</li>
+<li>Delete the copy's rows with Python's <code>sqlite3</code>: the <code>dashboard</code> row and its
+   <code>dashboard_version</code> rows (by dashboard ID), and the <code>resource</code> and
+   <code>resource_history</code> rows (by <code>name</code>, the uid, with <code>resource = 'dashboards'</code>).
+   Nothing else references a plain dashboard; check <code>dashboard_tag</code>, <code>star</code>, and
+   <code>dashboard_acl</code> for the ID anyway.</li>
+<li>Move the persisted search index aside (<code>unified-search</code> in the data
+   directory): at start Grafana otherwise logs "Skipping index build, using
+   existing index" and keeps serving the deleted dashboard from it, so the
+   provisioner still finds two. With the directory gone it logs "Building index
+   using filesystem" and rebuilds from the database.</li>
+<li>Start Grafana and confirm, from the log, "finished to provision dashboards"
+   with no "failed to save dashboard" after it, and, from a fresh database copy,
+   that the stored resource carries the file's content.</li>
+</ol>
+<p>The 2026-10-12 cleanup of the APT dashboard on both backends followed exactly
+these steps; the backups stay in the data directory with a <code>.bak-2026-10-12</code>
+suffix.</p>
 
 
 
