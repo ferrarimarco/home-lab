@@ -2039,28 +2039,24 @@ items here.</p>
 <p>The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):</p>
 <ul>
-<li>Evacuate the data off the raspberrypi2 data disk: one aging disk held the only
-  copy of the media library, a personal data directory, and the restic
-  repositories. The disk failed on 2026-10-09 (unreadable from sector 0): the
-  Syncthing folders were already on nas-pve1 (migration complete 2026-10-06),
-  the media library copy is lost (the drive is unreadable from sector 0), and
-  the restic repository is gone (<a href="#backup">Backup</a>). The media stack state moved
-  to hl01 and the library is being rebuilt on the <code>rpool-usb-2</code> pool
-  (<a href="#nas">NAS</a>) from the arr databases (2026-10-10).</li>
 <li>Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue (<a href="network-boot/">Network Boot Service</a>), then bump the <code>requests</code>
   pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the hl02 address
   reservation (<a href="#networking">Networking</a>), the boot server and rescue payload
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>), and the
-  restic restore recipe (<a href="#backup">Backup</a>). Does not depend on the data
-  evacuation or the container migration: the re-image rewrites the boot disk
-  only, and a restic repository restores the services in place (decided
-  2026-10-08). The repository on the data disk was lost on 2026-10-09, so the
-  restore source is the interim repository (<a href="#backup">Backup</a>).</li>
+  restic restore recipe (<a href="#backup">Backup</a>). Does not depend on the container
+  migration: the re-image rewrites the boot disk only, and a restic repository
+  restores the services in place (decided 2026-10-08). The repository on the
+  data disk was lost on 2026-10-09, so the restore source is the per-host
+  repository on the nas-pve1 <code>backups</code> share (<a href="#backup">Backup</a>).</li>
 <li>Finish moving the containers from raspberrypi2 to hl01
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>): the media
-  stack moved on 2026-10-09 and its cutover is nearly complete; Zigbee2MQTT and
-  Mosquitto can move at any time.</li>
+  stack moved on 2026-10-09, its library was rebuilt on <code>rpool-usb-2</code> by
+  2026-10-11, and the data evacuation off the failed raspberrypi2 disk is
+  complete (Syncthing on nas-pve1, media on pve1, restic repositories on the
+  nas-pve1 <code>backups</code> share). Left on raspberrypi2: the media stack cleanup run
+  after the Zigbee2MQTT 2.x upgrade plan, which also retires the dead disk's
+  inventory entry; Zigbee2MQTT and Mosquitto can move at any time.</li>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
@@ -2129,8 +2125,8 @@ reliability risks first, then security exposure, then automation):</p>
   backend stays: it runs as a highly available pair on hl01 and raspberrypi2
   (monitoring-alerting spec §3.3). Afterwards: move the ONT exporter and the
   router WAN check to hl01, and delete the source data with separate
-  approvals; the raspberrypi2 restic job is the interim repository item
-  (<a href="#backup">Backup</a>).</li>
+  approvals; the raspberrypi2 restic job retires with the host, per the
+  repository wind-down item (<a href="#backup">Backup</a>).</li>
 <li>Network boot service and Raspberry Pi re-provisioning, per the
   <a href="network-boot/">Network Boot Service</a> spec:<ul>
 <li><code>netboot-server</code> Nix role on hl02 (TFTP tree, NFS export, and
