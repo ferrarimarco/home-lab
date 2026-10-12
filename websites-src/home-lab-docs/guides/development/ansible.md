@@ -106,6 +106,14 @@ the keys on one line.
 A future cluster needs the peer nodes' keys in the set as well (read them with
 `delegate_to`, tolerating a powered-off node); there is no cluster today.
 
+The exclusive set applies to every host, not only Proxmox nodes: keys added by
+hand on a host (hardware security keys, for example) disappear at the next
+bootstrap run unless the repository declares them. The user and key tasks carry
+the `authorized-keys` tag, so a host whose OS tasks cannot run yet (raspberrypi2
+on Debian 11, whose release has no `non-free-firmware` component) still gets its
+keys converged with `--tags authorized-keys`; on a Proxmox node pair it with
+`proxmox`, which registers the node's own key.
+
 ## Check mode conventions
 
 - Always run `--check --diff` (capturing the full output to a log file) and

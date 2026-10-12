@@ -56,17 +56,6 @@ reliability risks first, then security exposure, then automation):
 
 ### Bootstrapping and provisioning
 
-- **Bootstrap drift on the non-Proxmox hosts (2026-10-12)**: the bootstrap role
-  failed on every non-Proxmox host from 2026-03-23 (undefined `is_proxmox_node`,
-  fixed on 2026-10-12), so hl01 has not converged with the bootstrap play since.
-  A check run against hl01 predicts moving the Debian sources to deb822 files,
-  enabling the non-free-firmware component, installing `tmux`, and, through the
-  exclusive authorized-keys task, replacing the `debian` user's three authorized
-  keys (one of them the key the control machine uses) with the single configured
-  key. Before running the bootstrap or main playbook against hl01 or
-  raspberrypi2, confirm which key the role configures, add the control machine's
-  key to it, and review the predicted changes; until then, scope runs to the
-  stack tags (the Coral role carries the `coral` tag for this reason).
 - Add `ipmitool` to the `operations` Nix shell and document in the
   [Nix development shells guide](../guides/development/nix-dev-shells.md) how to
   run BMC commands from it

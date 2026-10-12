@@ -58,6 +58,11 @@
 
 - name: Setup ansible_user
   ansible.builtin.import_tasks: setup-ansible-user.yaml
+  # The tag converges the user and its authorized keys without the OS tasks
+  # (`--tags authorized-keys`); on Proxmox nodes add the `proxmox` tag too,
+  # since those tasks register the node's own key in the exclusive set.
+  tags:
+    - authorized-keys
 
 - name: Setup systemd
   ansible.builtin.import_tasks: setup-systemd.yaml

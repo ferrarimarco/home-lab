@@ -1885,6 +1885,13 @@ folded scalar the escape reaches Jinja literally, and the module then writes all
 the keys on one line.</p>
 <p>A future cluster needs the peer nodes' keys in the set as well (read them with
 <code>delegate_to</code>, tolerating a powered-off node); there is no cluster today.</p>
+<p>The exclusive set applies to every host, not only Proxmox nodes: keys added by
+hand on a host (hardware security keys, for example) disappear at the next
+bootstrap run unless the repository declares them. The user and key tasks carry
+the <code>authorized-keys</code> tag, so a host whose OS tasks cannot run yet (raspberrypi2
+on Debian 11, whose release has no <code>non-free-firmware</code> component) still gets its
+keys converged with <code>--tags authorized-keys</code>; on a Proxmox node pair it with
+<code>proxmox</code>, which registers the node's own key.</p>
 <h2 id="check-mode-conventions">Check mode conventions</h2>
 <ul>
 <li>Always run <code>--check --diff</code> (capturing the full output to a log file) and
