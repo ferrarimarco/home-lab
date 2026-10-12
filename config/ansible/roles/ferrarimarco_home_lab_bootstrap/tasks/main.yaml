@@ -24,7 +24,7 @@
   with_first_found:
     - "default-proxmox.yaml"
   when:
-    - is_proxmox_node
+    - is_proxmox_node | default(false)
   tags:
     - always
 
@@ -32,7 +32,7 @@
   ansible.builtin.include_tasks:
     file: setup-Proxmox.yaml
   when:
-    - is_proxmox_node
+    - is_proxmox_node | default(false)
   tags:
     - proxmox
 
