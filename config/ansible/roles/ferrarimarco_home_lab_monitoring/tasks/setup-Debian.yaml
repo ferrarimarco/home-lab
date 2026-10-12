@@ -6,3 +6,12 @@
     state: present
     update_cache: true
   become: true
+
+- name: Record successful APT updates for the apt collector
+  ansible.builtin.copy:
+    src: 99-monitoring-apt-update-success-stamp
+    dest: /etc/apt/apt.conf.d/99-monitoring-apt-update-success-stamp
+    owner: root
+    group: root
+    mode: "0644"
+  become: true

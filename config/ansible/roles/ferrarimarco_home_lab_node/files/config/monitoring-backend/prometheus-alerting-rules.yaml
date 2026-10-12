@@ -26,6 +26,31 @@ groups:
             The boot time of {{ $labels.instance }} changed within the last
             hour. If this reboot was not planned, investigate: it may be a
             hardware watchdog recovery.
+      - alert: AptUpdateStale
+        # apt_info.py reports the time of the last successful apt-get update
+        # (the apt hook and the periodic setting the roles deploy); the daily
+        # job runs once a day, so two missed days mean a dead source.
+        expr: time() - apt_package_cache_timestamp_seconds > 2 * 86400
+        labels:
+          severity: warning
+        annotations:
+          summary: "APT updates failing on {{ $labels.instance }}"
+          description: >-
+            {{ $labels.instance }} has had no successful apt-get update for
+            more than two days: a source answers errors (a retired
+            repository, an expired key), or the daily job stopped. Security
+            updates stop flowing until it is fixed.
+      - alert: AptMetricsMissing
+        expr: node_os_info{id="debian"} unless on (instance) apt_package_cache_timestamp_seconds
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "No APT metrics from {{ $labels.instance }}"
+          description: >-
+            {{ $labels.instance }} runs Debian but exports no apt metrics: the
+            apt collector is not deployed or its timer stopped, so failed
+            updates on it go unnoticed.
       - alert: NodeTextfileStale
         # Files named *.static.prom are rendered by Ansible and have no producer
         # timer, so their age carries no signal.

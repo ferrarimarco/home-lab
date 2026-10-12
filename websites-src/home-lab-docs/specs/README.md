@@ -414,7 +414,11 @@ reliability risks first, then security exposure, then automation):
   Dependabot multi-ecosystem groups were abandoned on 2026-09-29 because group
   pull requests stopped updating after their creation.
 - Move monitoring stack from the home_lab_node role to the home_lab_monitoring
-  role.
+  role. Today the node role deploys the containerized exporters and textfile
+  collectors on Docker hosts while the monitoring role installs the Debian
+  packages on the Proxmox nodes, so the apt success-stamp snippet lives in both
+  roles (2026-10-12); the monitoring playbook also targets every host with no
+  gate, so it must be run with a host limit until the roles merge.
 - NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host
   Terraform VM resources into a shared module (or `for_each` over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code
@@ -671,20 +675,6 @@ reliability risks first, then security exposure, then automation):
 
 ### Monitoring and alerting
 
-- **Alert on failed APT updates (2026-10-12)**: the Coral repository outage
-  broke `apt-get update` on hl01 for two weeks without any alert. Nothing could
-  fire: the `monitoring-apt` stack is deployed on raspberrypi2 and pve1 only
-  (hl01, pve2, and hl02 export no apt series), and even there the exporter's
-  `apt_package_cache_timestamp_seconds` falls back to the lists directory's
-  modification time on Debian (the `update-success-stamp` it prefers is an
-  Ubuntu file), which moves on every attempt, failed or not. Debian's daily
-  script (apt 2.6.1, verified in its source on hl01) touches
-  `/var/lib/apt/periodic/update-stamp` only when the update succeeds, and hl01's
-  stamp froze on 2026-09-29, the day the repository died. Deploy the stack on
-  every Debian host, export that stamp's age from the `monitoring-apt` service
-  (for example `apt_update_last_success_timestamp_seconds`), add an
-  `AptUpdateStale` rule at two days plus an apt-metrics-missing rule for Debian
-  hosts, and verify both by pointing a host at a dead source before fixing it.
 - **Kernel log error exporter (2026-10-10)**: the kernel-level signs of the
   raspberrypi2 data disk failure and of the root SSD stalls (medium errors, a
   USB reset loop, UAS command aborts; see the

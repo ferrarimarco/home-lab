@@ -2,7 +2,12 @@
 monitoring_apt_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/{{ monitoring_apt_tag }}"
 monitoring_apt_executable_path: "{{ monitoring_apt_metrics_collection_script_destination_path }}"
 monitoring_apt_metrics_collection_script_destination_path: "{{ monitoring_apt_configuration_directory_path }}/apt_info.py"
-monitoring_apt_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/b36a2eadfc88f711588085b83f0ecbdbc5f288c3/apt_info.py"
+# Pin the 2026-02-25 "fix apt cache timestamp logic" commit: earlier versions
+# report the time of the last update attempt on Debian hosts, not of the last
+# successful one, and later versions (the 2026-04-20 merge) read the
+# Package.phasing_applied attribute that python3-apt 2.6 (Debian 12) and
+# older lack.
+monitoring_apt_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/1d4dedb0914d29b1da423397eca69d0c09c2c5a2/apt_info.py"
 monitoring_apt_os_service_name: "{{ monitoring_apt_tag }}"
 monitoring_apt_requirements_file_path: "{{ monitoring_apt_configuration_directory_path }}/requirements.txt"
 monitoring_apt_service_file_name: "{{ monitoring_apt_os_service_name }}.service"
@@ -22,6 +27,9 @@ monitoring_apt_files_to_configure:
     state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ monitoring_apt_os_service_name }}"
+  - src: "config/{{ monitoring_apt_tag }}/99-monitoring-apt-update-success-stamp"
+    dest: "/etc/apt/apt.conf.d/99-monitoring-apt-update-success-stamp"
+    state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
 
 monitoring_apt_files_to_download:
   - url: "{{ monitoring_apt_metrics_collection_script_url }}"

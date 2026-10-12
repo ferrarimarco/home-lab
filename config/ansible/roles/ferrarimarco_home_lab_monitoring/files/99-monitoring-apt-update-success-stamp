@@ -1,0 +1,8 @@
+// Deployed by Ansible. Record the time of the last successful apt-get update,
+// whoever ran it: apt_info.py (node exporter textfile collector) prefers this
+// stamp, so the apt_package_cache_timestamp_seconds metric tracks successful
+// updates only, not attempts. The periodic setting makes the daily apt job
+// refresh the lists, and lets older apt_info.py versions (the Debian package)
+// read the stamp at all.
+APT::Update::Post-Invoke-Success {"touch /var/lib/apt/periodic/update-success-stamp";};
+APT::Periodic::Update-Package-Lists "1";

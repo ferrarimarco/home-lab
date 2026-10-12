@@ -2,3 +2,6 @@
 apt_cache_valid_time: 3600
 monitoring_os_packages:
   - prometheus-node-exporter
+  # Textfile collectors (apt, smartmon, ...): a Recommends of the exporter
+  # package, declared so hosts converge on it explicitly
+  - prometheus-node-exporter-collectors
