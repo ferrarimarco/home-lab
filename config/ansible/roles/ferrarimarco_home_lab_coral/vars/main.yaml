@@ -1,1 +1,14 @@
 ---
+# Google retired the Coral APT repository (packages.cloud.google.com answers
+# 403 since 2026-10) and archived the driver source at version 1.0-18, so the
+# gasket DKMS package comes from the community builder that Frigate's
+# documentation points to: https://github.com/jnicolson/gasket-builder builds
+# the archived source plus kernel-compatibility patches and publishes the
+# package as a release asset. To bump: pick the release, update the tag and
+# the checksum (sha256sum of the downloaded asset).
+coral_gasket_dkms_release_tag: v1.0-18-3
+coral_gasket_dkms_package_version: "1.0-18"
+coral_gasket_dkms_package_file_name: "gasket-dkms_{{ coral_gasket_dkms_package_version }}_all.deb"
+coral_gasket_dkms_package_url: "https://github.com/jnicolson/gasket-builder/releases/download/{{ coral_gasket_dkms_release_tag }}/{{ coral_gasket_dkms_package_file_name }}"
+coral_gasket_dkms_package_checksum: "sha256:bb47e7e7d43b2416d8f586075315926321ef24b348b2b30c648b37c5b3833ddb"
+coral_gasket_dkms_package_destination_path: "/usr/local/src/{{ coral_gasket_dkms_package_file_name }}"

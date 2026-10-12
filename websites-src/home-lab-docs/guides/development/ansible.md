@@ -117,3 +117,19 @@ A future cluster needs the peer nodes' keys in the set as well (read them with
 - Design tasks so check mode runs cleanly and truthfully on first runs:
   state-query tasks carry `changed_when: false` and `check_mode: false`, and
   later tasks tolerate resources that an earlier task would have created.
+
+## Coral driver delivery
+
+Google retired the Coral APT repository (`packages.cloud.google.com/apt` answers
+403 Forbidden) and archived the gasket driver source at version 1.0-18, and
+Debian packages neither the driver nor the EdgeTPU runtime. The
+`ferrarimarco_home_lab_coral` role therefore installs the `gasket-dkms` package
+from a pinned release asset of the
+[gasket-builder](https://github.com/jnicolson/gasket-builder) project, the path
+Frigate's documentation points to: it builds the archived source plus
+kernel-compatibility patches. The pin (release tag and sha256) lives in the
+role's `vars/main.yaml`; to bump it, download the new asset, verify it, and
+update both values. The host needs only the kernel driver: Frigate's container
+ships its own EdgeTPU runtime and the Coral exporter reads the device
+temperature from sysfs, so the role removes the `libedgetpu1-std` runtime
+package that the old repository installed.

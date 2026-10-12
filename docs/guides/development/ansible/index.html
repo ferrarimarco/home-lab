@@ -966,6 +966,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#coral-driver-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Coral driver delivery
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1749,6 +1758,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#coral-driver-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Coral driver delivery
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1879,6 +1897,20 @@ the keys on one line.</p>
   state-query tasks carry <code>changed_when: false</code> and <code>check_mode: false</code>, and
   later tasks tolerate resources that an earlier task would have created.</li>
 </ul>
+<h2 id="coral-driver-delivery">Coral driver delivery</h2>
+<p>Google retired the Coral APT repository (<code>packages.cloud.google.com/apt</code> answers
+403 Forbidden) and archived the gasket driver source at version 1.0-18, and
+Debian packages neither the driver nor the EdgeTPU runtime. The
+<code>ferrarimarco_home_lab_coral</code> role therefore installs the <code>gasket-dkms</code> package
+from a pinned release asset of the
+<a href="https://github.com/jnicolson/gasket-builder">gasket-builder</a> project, the path
+Frigate's documentation points to: it builds the archived source plus
+kernel-compatibility patches. The pin (release tag and sha256) lives in the
+role's <code>vars/main.yaml</code>; to bump it, download the new asset, verify it, and
+update both values. The host needs only the kernel driver: Frigate's container
+ships its own EdgeTPU runtime and the Coral exporter reads the device
+temperature from sysfs, so the role removes the <code>libedgetpu1-std</code> runtime
+package that the old repository installed.</p>
 
 
 

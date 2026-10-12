@@ -1,29 +1,49 @@
 ---
-- name: Enable the Coral APT repository
+- name: Remove the retired Coral APT repository
   ansible.builtin.deb822_repository:
-    name: "{{ item.name }}"
-    uris: "{{ item.uris }}"
-    suites: "{{ item.suites }}"
-    components: "{{ item.components }}"
-    signed_by: "{{ item.key }}"
-    types: deb
+    name: coral-edgetpu-stable
+    state: absent
   become: true
-  with_items:
-    - name: coral-edgetpu-stable
-      components: main
-      key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-      suites: coral-edgetpu-stable
-      uris: https://packages.cloud.google.com/apt
 
-- name: Install Coral packages
-  # Don't set cache_valid_time because we want to force a cache update after we
-  # added the Coral APT repository
-  ansible.builtin.apt:
-    name:
-      - gasket-dkms
-      - libedgetpu1-std
-    state: present
-    update_cache: true
+- name: Download the gasket DKMS package
+  ansible.builtin.get_url:
+    url: "{{ coral_gasket_dkms_package_url }}"
+    dest: "{{ coral_gasket_dkms_package_destination_path }}"
+    checksum: "{{ coral_gasket_dkms_package_checksum }}"
+    owner: root
+    group: root
+    mode: "0644"
   become: true
+
+- name: Read the installed gasket DKMS package version
+  ansible.builtin.command: dpkg-query --show --showformat '${Version}' gasket-dkms
+  register: coral_gasket_dkms_installed_version
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Install the gasket DKMS package
+  # The host only needs the kernel driver: Frigate's container ships its own
+  # EdgeTPU runtime and the Coral exporter reads sysfs.
+  ansible.builtin.apt:
+    deb: "{{ coral_gasket_dkms_package_destination_path }}"
+  become: true
+  register: coral_gasket_dkms_install
+  # In check mode the package file is not downloaded, so the module cannot
+  # open it: the version read above is the prediction, and only a real run
+  # may fail here.
+  failed_when:
+    - coral_gasket_dkms_install is failed
+    - not ansible_check_mode
+  changed_when: >-
+    coral_gasket_dkms_install is changed
+    or (ansible_check_mode
+    and coral_gasket_dkms_installed_version.stdout != coral_gasket_dkms_package_version)
   notify:
     - Reboot the host
+
+- name: Remove the unused EdgeTPU runtime package
+  ansible.builtin.apt:
+    name: libedgetpu1-std
+    state: absent
+  become: true

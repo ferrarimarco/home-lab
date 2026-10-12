@@ -225,16 +225,6 @@ reliability risks first, then security exposure, then automation):
       `/etc/ferrarimarco-home-lab/ monitoring-apt` on pve1), because the
       directory-creation task only predicts the directory. Make the task
       check-mode friendly per the repository's check-mode conventions.
-- The Coral EdgeTPU apt repository (`packages.cloud.google.com/apt`,
-  `coral-edgetpu-stable`) returns 403 Forbidden (verified 2026-10-03 with a
-  direct request; Google is sunsetting Coral). Every `apt update` against it
-  fails: the Molecule converge of the main playbook fails on the apt cache
-  refresh (so the `main` and `coral` CI jobs fail on every push since at least
-  2026-10-11, each after spending its full runtime), and hosts with the
-  repository configured (hl01) fail their apt metadata updates. Decide between
-  removing the repository while pinning the already-installed packages,
-  vendoring the packages, or another delivery path — hl01's Frigate depends on
-  the EdgeTPU runtime, so this needs its own session.
 - raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):
