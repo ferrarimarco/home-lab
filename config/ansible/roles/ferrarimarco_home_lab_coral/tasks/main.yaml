@@ -1,5 +1,5 @@
 ---
-- name: Setup Proxmox OS packages and repositories
+- name: Setup Coral OS packages
   ansible.builtin.include_tasks:
     file: setup-coral-os-packages.yaml
     # A dynamic include does not pass its tags to the included tasks

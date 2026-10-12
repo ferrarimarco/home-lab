@@ -15,30 +15,42 @@
     mode: "0644"
   become: true
 
-- name: Read the installed gasket DKMS package version
-  ansible.builtin.command: dpkg-query --show --showformat '${Version}' gasket-dkms
-  register: coral_gasket_dkms_installed_version
+- name: Check whether the gasket DKMS package file is on the host
+  ansible.builtin.stat:
+    path: "{{ coral_gasket_dkms_package_destination_path }}"
+  register: coral_gasket_dkms_package_file
+  check_mode: false
+
+- name: Read the installed gasket DKMS package state
+  # Prints "installed <version>" for an installed package; a removed package
+  # that kept its configuration files prints "config-files <version>".
+  ansible.builtin.command: dpkg-query --show --showformat '${db:Status-Status} ${Version}' gasket-dkms
+  register: coral_gasket_dkms_installed_state
   changed_when: false
   failed_when: false
   check_mode: false
 
 - name: Install the gasket DKMS package
   # The host only needs the kernel driver: Frigate's container ships its own
-  # EdgeTPU runtime and the Coral exporter reads sysfs.
+  # EdgeTPU runtime and the Coral exporter reads sysfs. The cache update lets
+  # the dependencies (dkms, kernel headers) resolve after the dead source was
+  # removed.
   ansible.builtin.apt:
     deb: "{{ coral_gasket_dkms_package_destination_path }}"
+    update_cache: true
   become: true
-  register: coral_gasket_dkms_install
-  # In check mode the package file is not downloaded, so the module cannot
-  # open it: the version read above is the prediction, and only a real run
-  # may fail here.
-  failed_when:
-    - coral_gasket_dkms_install is failed
-    - not ansible_check_mode
-  changed_when: >-
-    coral_gasket_dkms_install is changed
-    or (ansible_check_mode
-    and coral_gasket_dkms_installed_version.stdout != coral_gasket_dkms_package_version)
+  # In check mode the package file is only downloaded by a real run, so the
+  # module cannot open it before the first run: the prediction task below
+  # covers that case, and every other failure still fails the check.
+  when: not ansible_check_mode or coral_gasket_dkms_package_file.stat.exists
+  notify:
+    - Reboot the host
+
+- name: Predict the gasket DKMS package installation
+  ansible.builtin.debug:
+    msg: "A real run installs gasket-dkms {{ coral_gasket_dkms_package_version }} (current state: {{ coral_gasket_dkms_installed_state.stdout | default('not installed', true) }})"
+  changed_when: coral_gasket_dkms_installed_state.stdout != 'installed ' ~ coral_gasket_dkms_package_version
+  when: ansible_check_mode and not coral_gasket_dkms_package_file.stat.exists
   notify:
     - Reboot the host
 
