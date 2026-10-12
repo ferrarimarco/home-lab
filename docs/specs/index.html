@@ -2195,14 +2195,6 @@ reliability risks first, then security exposure, then automation):</p>
   <code>media_stack_owner_group_id</code> (1000), which matches the mount options and the
   containers' <code>PGID</code>, then roll out with the media stack scoped check on hl01,
   expecting no change.</li>
-<li><strong>Molecule: the node role's APT key task needs <code>gpg</code> (2026-10-10)</strong>: the
-  <code>home-lab-node</code> Molecule run on the Debian 12 image fails in "Setup APT
-  repository keys" with <code>Failed to find required executable "gpg"</code>, while an
-  earlier run on the same image got past it, so the outcome depends on what the
-  image or the preceding package tasks happen to provide. The task uses the
-  deprecated <code>apt_key</code> module, which needs <code>gnupg</code> installed. Replace it with
-  keyrings fetched by <code>get_url</code> into <code>/etc/apt/keyrings</code> (and <code>signed-by</code>
-  entries in the repository lines), or install <code>gnupg</code> before the task.</li>
 <li>Workload issues to solve:<ul>
 <li>Investigate the recurring cam-3 ffmpeg VAAPI decode crashes on hl01 (about
   11 per hour: <code>Failed to sync surface</code> then <code>hwdownload</code> failures; they

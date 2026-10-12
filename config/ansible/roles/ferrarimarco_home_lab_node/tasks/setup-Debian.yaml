@@ -13,20 +13,39 @@
   become: true
   when: ("uninstall-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
 
-- name: Setup APT repository keys
-  ansible.builtin.apt_key:
-    keyring: "{{ item.repository_key_keyring_file_path }}"
-    state: "{{ item.state | default(omit) }}"
-    url: "{{ item.repository_key_url }}"
+- name: Remove legacy APT repository files
+  ansible.builtin.file:
+    path: "{{ item.1 }}"
+    state: absent
   become: true
-  with_items: "{{ apt_repositories | unique }}"
+  loop: "{{ apt_repositories | unique | subelements('legacy_file_paths', skip_missing=True) }}"
+  loop_control:
+    label: "{{ item.1 }}"
+  register: apt_legacy_repository_files
 
 - name: Setup APT repositories
-  ansible.builtin.apt_repository:
-    repo: "{{ item.repository_url }}"
+  ansible.builtin.deb822_repository:
+    # The module needs python3-debian on the host, which minimal images and
+    # fresh installations lack; the option installs it only when it is missing.
+    install_python_debian: true
+    name: "{{ item.name }}"
+    uris: "{{ item.uris }}"
+    suites: "{{ item.suites }}"
+    components: "{{ item.components }}"
+    signed_by: "{{ item.signed_by }}"
+    types: deb
     state: "{{ item.state | default(omit) }}"
   become: true
-  with_items: "{{ apt_repositories | unique }}"
+  loop: "{{ apt_repositories | unique }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: apt_deb822_repositories
+
+- name: Update the APT cache after changing repositories
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: apt_legacy_repository_files is changed or apt_deb822_repositories is changed
 
 - name: Debug debian_packages_to_install
   ansible.builtin.debug:

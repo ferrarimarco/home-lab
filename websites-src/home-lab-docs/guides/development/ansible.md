@@ -15,6 +15,11 @@ set of generic tasks applies that data:
    (`roles/ferrarimarco_home_lab_node/vars/<stack>-stack.yaml`), with every
    resource's `state` derived from the stack's enablement flag via `ternary`
    (for example `{{ configure_monitoring_apt | ternary('file', 'absent') }}`).
+   APT repositories (`<stack>_os_package_repositories`) are deb822 sources
+   applied by `ansible.builtin.deb822_repository` (`name`, `uris`, `suites`,
+   `components`, `signed_by`, `state`); an entry lists under `legacy_file_paths`
+   the files that earlier `apt_key` and `apt_repository` tasks created, and the
+   role removes them before applying the source.
 2. `tasks/include-variables.yaml` aggregates the per-stack lists into global
    custom facts. Each stack appears as one entry with an `enable_custom_fact`
    switch and a `fact_category` name.
