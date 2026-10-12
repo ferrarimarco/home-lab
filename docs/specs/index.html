@@ -2064,6 +2064,17 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
+<li><strong>Bootstrap drift on the non-Proxmox hosts (2026-10-12)</strong>: the bootstrap role
+  failed on every non-Proxmox host from 2026-03-23 (undefined <code>is_proxmox_node</code>,
+  fixed on 2026-10-12), so hl01 has not converged with the bootstrap play since.
+  A check run against hl01 predicts moving the Debian sources to deb822 files,
+  enabling the non-free-firmware component, installing <code>tmux</code>, and, through the
+  exclusive authorized-keys task, replacing the <code>debian</code> user's three authorized
+  keys (one of them the key the control machine uses) with the single configured
+  key. Before running the bootstrap or main playbook against hl01 or
+  raspberrypi2, confirm which key the role configures, add the control machine's
+  key to it, and review the predicted changes; until then, scope runs to the
+  stack tags (the Coral role carries the <code>coral</code> tag for this reason).</li>
 <li>Add <code>ipmitool</code> to the <code>operations</code> Nix shell and document in the
   <a href="../guides/development/nix-dev-shells/">Nix development shells guide</a> how to
   run BMC commands from it
@@ -2723,6 +2734,20 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="monitoring-and-alerting">Monitoring and alerting</h3>
 <ul>
+<li><strong>Alert on failed APT updates (2026-10-12)</strong>: the Coral repository outage
+  broke <code>apt-get update</code> on hl01 for two weeks without any alert. Nothing could
+  fire: the <code>monitoring-apt</code> stack is deployed on raspberrypi2 and pve1 only
+  (hl01, pve2, and hl02 export no apt series), and even there the exporter's
+  <code>apt_package_cache_timestamp_seconds</code> falls back to the lists directory's
+  modification time on Debian (the <code>update-success-stamp</code> it prefers is an
+  Ubuntu file), which moves on every attempt, failed or not. Debian's daily
+  script (apt 2.6.1, verified in its source on hl01) touches
+  <code>/var/lib/apt/periodic/update-stamp</code> only when the update succeeds, and hl01's
+  stamp froze on 2026-09-29, the day the repository died. Deploy the stack on
+  every Debian host, export that stamp's age from the <code>monitoring-apt</code> service
+  (for example <code>apt_update_last_success_timestamp_seconds</code>), add an
+  <code>AptUpdateStale</code> rule at two days plus an apt-metrics-missing rule for Debian
+  hosts, and verify both by pointing a host at a dead source before fixing it.</li>
 <li><strong>Kernel log error exporter (2026-10-10)</strong>: the kernel-level signs of the
   raspberrypi2 data disk failure and of the root SSD stalls (medium errors, a
   USB reset loop, UAS command aborts; see the
