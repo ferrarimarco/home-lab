@@ -158,10 +158,11 @@ hl01 shrinks this host's role.
   crash is still pending, tracked in the
   [specs todo list](../specs/README.md#specifications-to-write-and-todos). It
   does not cover a root I/O stall (see the 2026-10-06 and 2026-10-07 episodes
-  above): the planned complement is a systemd timer that writes and syncs a file
-  on the root filesystem under a timeout and forces a reboot through
-  `/proc/sysrq-trigger` after two consecutive failures, tracked in the same
-  list.
+  above): a complementary stall watchdog was designed and reviewed on 2026-10-12
+  (a resident probe service with a systemd failure action, plus kernel hung-task
+  sysctls) and postponed until the OS re-image and a way to trigger the stall
+  deliberately exist, since nothing today can show that the probe sees the real
+  failure; the design is kept in the same list.
 
 ## Other open follow-ups
 

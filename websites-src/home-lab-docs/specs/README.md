@@ -261,19 +261,35 @@ reliability risks first, then security exposure, then automation):
     - Terraform provider registry
 - Automated troubleshooting playbook: test the DNS server, test the DNS
   resolver.
-- raspberrypi2: a watchdog that covers a root filesystem stall. The armed
-  hardware watchdog (`RuntimeWatchdogSec=15`) only resets a hung kernel: PID 1
-  keeps petting it during a root I/O stall, which is the failure the host
-  actually has (2026-10-06 and 2026-10-07, see the
-  [stability notes](../archive/raspberrypi2-stability-issues.md)). Design: a
-  systemd timer, every minute, running a script that writes and syncs a file on
-  the root filesystem under `timeout`; after two consecutive failures it forces
-  a reboot through `/proc/sysrq-trigger`, which needs no disk I/O. A stack of
-  the node role, enabled on raspberrypi2 only; the hardware watchdog stays armed
-  for the hung-kernel case. Depends on nothing; do it after the UAS quirk
-  ([Host configuration](#host-configuration)). The OS re-image
-  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)) remains
-  the long-term fix.
+- raspberrypi2: a watchdog that covers a root filesystem stall (postponed
+  2026-10-13). The armed hardware watchdog (`RuntimeWatchdogSec=15`) only resets
+  a hung kernel: PID 1 keeps petting it during a root I/O stall, which is the
+  failure the host actually has (2026-10-06 and 2026-10-07, see the
+  [stability notes](../archive/raspberrypi2-stability-issues.md)). A design was
+  reviewed against the systemd 247 sources on 2026-10-12 and is kept here so the
+  next attempt starts from it: a resident Python probe service (`Type=notify`)
+  that writes and syncs a file on the root filesystem every 30 s and pings
+  systemd only after a successful sync, sending `READY=1` with the first ping; a
+  loop that never exits (a probe error withholds the ping, since an exit reaches
+  the start rate limit, which is a failed state); `WatchdogSec=180`,
+  `TimeoutStopSec=5` (the kill sequence has four legs), `Restart=no`,
+  `ConditionPathIsReadWrite=/var/lib`, a kill switch file on the boot partition;
+  and `FailureAction=reboot-immediate`, never `reboot-force`, which hands PID 1
+  to a binary on the stalled disk and disarms the hardware watchdog. Kernel
+  backstop behind the same flag: `kernel.hung_task_panic=1` and
+  `kernel.panic=10` (the detector exists on the host's kernel, 120 s), with the
+  caveat that any 120 s uninterruptible wait panics the host (the CIFS backup
+  mount is the candidate, unverified). Rehearsal: `SIGSTOP` on the unit
+  exercises the exact expiry and kill sequence. Postponed because the only thing
+  a rehearsal proves is that the unit reboots the host when its own probe hangs;
+  whether the probe sees the real failure, and whether the fix for the cause
+  works, needs a way to trigger the stall deliberately (a controlled reset or
+  power cut of the USB bridge), and a watchdog that can reboot the alerting
+  backend's host for the wrong reason is worse than none. Depends on: the OS
+  re-image ([Bootstrapping and provisioning](#bootstrapping-and-provisioning))
+  and a reproducible trigger for the stall, to be designed with the UAS quirk
+  ([Host configuration](#host-configuration)). Until then a stall means a power
+  cycle.
 
 ### Security
 
