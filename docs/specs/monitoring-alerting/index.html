@@ -2750,7 +2750,14 @@ with operational experience.</p>
 <td style="text-align: left;">critical</td>
 <td style="text-align: left;"><code>restic_check_success == 0</code></td>
 <td style="text-align: left;">—</td>
-<td style="text-align: left;">The repository integrity check failed; backups may not be restorable.</td>
+<td style="text-align: left;">The exporter's own structural <code>restic check</code> (every 12 hours) failed: indices, trees, or snapshot references are damaged, and the repository must be repaired before any restore. It does not read the pack files; the job's nightly read cycle does.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ResticReadDataCheckStale</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>time() - restic_job_step_last_success_timestamp_seconds{step="check-read-data"} &gt; 3 * 86400</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The backup job reads one group of pack files every night (<code>restic check --read-data-subset=n/t</code>, groups fixed by pack identifier, so each pack is read once per cycle of <code>t</code> nights, 7 by default per job); no completed read for three days means the job is failing or the read was disabled, and corrupt packs go unnoticed until a restore.</td>
 </tr>
 </tbody>
 </table>

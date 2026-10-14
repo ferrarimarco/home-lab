@@ -21,6 +21,7 @@ restic_default_backup_jobs:
         container_mount_destination_directory: "{{ home_lab_runtime_directory_path }}"
     job_name: "{{ restic_backup_workloads_job_name }}"
     job_schedule: "01:00:00"
+    restic_check_read_data_cycle_days: "{{ restic_check_read_data_cycle_days }}"
     restic_forget_policy: "{{ restic_forget_policies.daily_7_days }}"
     # In seconds
     restic_monitoring_refresh_interval: 43200

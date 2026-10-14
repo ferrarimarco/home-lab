@@ -8,6 +8,7 @@
     mode: "0644"
   vars:
     restic_backup_job_name: "{{ item.job_name }}"
+    restic_backup_job_check_read_data_cycle_days: "{{ item.restic_check_read_data_cycle_days | default(restic_check_read_data_cycle_days) }}"
     restic_backup_job_repository_host_path: "{{ item.restic_repository_host_path }}"
     restic_backup_job_timer_definition: "{{ item.job_schedule }}"
   when:

@@ -115,6 +115,10 @@ restic_backup_jobs: []
 # One repository directory per host on the backup share, so that restoring
 # from another host's repository is a path change and a host retires by
 # deleting its directory.
+# Nights over which a job's nightly check reads every pack file of its
+# repository once (1 reads the whole repository every night, 0 disables the
+# read); a job entry overrides it with restic_check_read_data_cycle_days.
+restic_check_read_data_cycle_days: 7
 restic_backup_repositories_default_path: "{{ workloads_backup_disk_mount_path }}/{{ inventory_hostname_short }}"
 rsync_daemon_modules: []
 root_dns_zone_fqdn: "lab.ferrari.how"

@@ -245,6 +245,19 @@ groups:
             The latest restic snapshot for {{ $labels.instance }}
             ({{ $labels.client_hostname }}) is older than 4 days: this is a
             standing data-loss exposure.
+      - alert: ResticReadDataCheckStale
+        # The job's nightly check reads one group of pack files; a run that
+        # fails leaves the step timestamp behind, and SystemdUnitFailed reports
+        # the failure itself within minutes.
+        expr: time() - restic_job_step_last_success_timestamp_seconds{step="check-read-data"} > 3 * 86400
+        labels:
+          severity: warning
+        annotations:
+          summary: "Restic data reads stopped for {{ $labels.backup_job }} on {{ $labels.instance }}"
+          description: >-
+            The restic job has not completed a pack data read for three days:
+            the job is failing, or the read cycle was disabled. Corrupt pack
+            files go unnoticed until a restore needs them.
       - alert: ResticCheckFailed
         expr: restic_check_success == 0
         labels:
