@@ -5,8 +5,13 @@ restic_backup_workloads_job_name: "restic-backup-workloads"
 restic_configuration_directories:
   - path: "{{ restic_configuration_directory_path }}"
     state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
+  # The repository directories live on the backup share, a CIFS mount that
+  # presents every file as the mounting user (uid=1000 in its options): declare
+  # that owner, or the task tries to chown them to root on every run.
   - path: "{{ restic_backup_repositories_default_path }}"
     state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
 restic_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/restic"
 restic_default_backup_jobs:
   - directories_to_backup:
@@ -25,6 +30,8 @@ restic_default_backup_jobs:
 restic_default_backup_target_directories:
   - path: "{{ restic_backup_default_backup_job_target_directory }}"
     state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
 restic_docker_compose_up_items:
   - compose_file_path: "{{ restic_docker_compose_destination_file_path }}"
     enable_containerized_services: "{{ configure_backup_restic }}"

@@ -39,10 +39,6 @@ mount_os_packages:
   - cifs-utils
 has_argonone_case: true
 has_coral_usb_accelerator: true
-# Interim restic repository (decided 2026-10-11): the nas-pve1 backups share
-# hl01 already uses, in a per-host directory because each host keeps its own
-# repository password. Retires with the container migration to hl01.
-restic_backup_repositories_default_path: "{{ workloads_backup_disk_mount_path }}/raspberrypi2"
 # The BCM2711 hardware watchdog supports timeouts up to about 15 seconds
 systemd_runtime_watchdog_seconds: 15
 restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"
