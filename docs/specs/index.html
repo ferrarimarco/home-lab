@@ -2764,8 +2764,8 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   Declare in the inventory which hosts hold state that must be backed up, render
   that as a static expected-backup series as the expected-mounts textfile does
   for mounts, and alert when no restic snapshot series matches a declared host.
-  Add it before the NixOS state backup jobs (<a href="#backup">Backup</a>), so it fires on
-  the current gap and clears once the jobs exist.</li>
+  Add it before the NixOS state backup jobs (<a href="#nas">NAS</a>), so it fires on the
+  current gap and clears once the jobs exist.</li>
 <li>Configure the Grafana admin credentials declaratively: vault-backed
   <code>GF_SECURITY_ADMIN_USER</code> and <code>GF_SECURITY_ADMIN_PASSWORD</code> environment
   variables in the monitoring backend compose template, so a fresh replica
@@ -3119,13 +3119,28 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   state directory automatically). The repository was lost with the data disk on
   2026-10-09; since 2026-10-11 the job writes to a per-host directory on the
   nas-pve1 <code>backups</code> share, which retires with the job.</li>
-<li><strong>Back up the NAS guest state directories on pve1</strong>: nothing backs up the
-  Samba, Syncthing, and Tailscale state directories that the guest bind-mounts
-  from the host: losing pve1's root filesystem means re-running <code>smbpasswd</code>,
+<li><strong>Back up the NixOS hosts' state with the same guarantees as the Debian hosts
+  (extended 2026-10-14)</strong>: nothing backs up the Samba, Syncthing, and Tailscale
+  state directories that the NAS guests bind-mount from pve1, nor hl02's own
+  state: losing pve1's root filesystem means re-running <code>smbpasswd</code>,
   re-accepting a new Syncthing device at the remote peer, and re-joining the
   tailnet. All three hold secret material (password hashes, device and node
-  private keys), so any mechanism must keep it out of the repository and
-  restrict access, consistent with the secrets policy.</li>
+  private keys), so the mechanism must keep it out of the repository and
+  restrict access, consistent with the secrets policy. Build it on
+  <code>services.restic.backups</code> (verified on nixos-25.11): a per-host repository on
+  the nas-pve1 <code>backups</code> share under the per-host layout the Debian hosts use,
+  <code>initialize = false</code> (repositories are created deliberately, never
+  implicitly), <code>passwordFile</code> from a secret outside the repository, a nightly
+  timer with <code>runCheck</code> and <code>checkOpts</code> carrying the weekly
+  <code>--read-data-subset=&lt;n&gt;/7</code> cycle, the restic exporter so the backup rules and
+  the backup coverage alert
+  (<a href="#monitoring-and-alerting">Monitoring and alerting</a>) apply, the monthly
+  selective restore drill writing the same
+  <code>restic_restore_drill_last_success_timestamp_seconds</code> textfile metric as the
+  Debian jobs, and restores through the module's <code>createWrapper</code> command
+  (<code>restic-&lt;name&gt;</code>), documented in the backup operations guide next to the
+  Debian restore mode. Depends on: the Debian restore and drill work
+  (<a href="#backup">Backup</a>), which defines the drill metric contract and the guide.</li>
 <li><strong>NFS support</strong>: Re-introduce NFS sharing alongside SMB. Evaluate
   <code>nfs-kernel-server</code> in a privileged container versus the user-space
   NFS-Ganesha server, which can run in an unprivileged container.</li>
