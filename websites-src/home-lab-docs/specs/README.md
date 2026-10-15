@@ -1146,6 +1146,28 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
 
 ### Documentation
 
+- **Overlap between the architecture and the specs sections (2026-10-16)**: the
+  placement rule says the [architecture section](../architecture/README.md)
+  describes the lab as it is and the specs hold forward-looking material, but a
+  living spec never leaves this section: once every row of its status table
+  reads "Fully Implemented" (five of the seven specs today), the spec is the
+  as-built description of its subsystem, which is the architecture section's job
+  by the same rule. The duplicated text is small so far (the backups page and
+  the monitoring alerting spec both describe the backup alert rules, from
+  different angles), but every new page forces a "spec or architecture" choice
+  with no criterion beyond implementation status, which changes over time.
+  Options evaluated: keep both sections and draw the line by the question a page
+  answers (a spec says what should exist, how, and how far along it is, and
+  keeps its status table because the agent workflow and the integration tests
+  hang off it; an architecture page says how the pieces fit and why, stays
+  short, and links to the specs for component detail), which is a one-paragraph
+  change to the placement rule and the two section indices; graduate finished
+  specs into architecture pages and keep specs only for designs with pending
+  work, which moves about 12,000 words, drops the status tables, and reopens the
+  question whenever a finished subsystem gets a new item; or fold the
+  architecture section into the specs as their overview and references, which
+  removes the duplication and the design-versus-reality distinction with it. The
+  first option is the preferred one.
 - Documentation automation: generate the endpoints list, the monitoring checks,
   the inventory, the list of Home Assistant automations, and the list of cron
   jobs from the configuration instead of maintaining them by hand.
