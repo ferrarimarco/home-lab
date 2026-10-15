@@ -1,2 +1,2 @@
 molecule==26.9.0
-molecule-plugins[docker]==26.7.15
+molecule-plugins[docker]==26.9.28
