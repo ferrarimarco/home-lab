@@ -130,6 +130,20 @@ also the first step after deploying the stack on a host:
 `ResticRestoreDrillStale` after 40 days without success. The job's restic
 commands wait up to 30 minutes for a repository lock held by another run.
 
+## Re-seed qBittorrent's settings
+
+qBittorrent's settings file (`qBittorrent/qBittorrent.conf` in its configuration
+directory) is rendered by the node role as a seed and then owned by the client,
+which rewrites it with its own keys. To bring a changed template onto a host
+that already has the file: save a copy, stop the client with
+`docker compose --file /etc/ferrarimarco-home-lab/media-stack/compose.yaml stop qbittorrent-nox`
+(the grace period lets it flush its resume data), move the live file aside, run
+the node role for the media stack on the host, start the client the same way,
+and compare the file it rewrote against the copy. The torrents and the
+categories live in other files and survive; what the re-seed drops is any
+setting changed in the web interface that the template does not carry, so read
+the copy before deciding.
+
 ## Repair
 
 A repository that `restic check` reports as damaged (`ResticCheckFailed`, or a

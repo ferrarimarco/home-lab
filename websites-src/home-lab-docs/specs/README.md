@@ -153,22 +153,6 @@ reliability risks first, then security exposure, then automation):
 
 ### Issues to solve
 
-- **qBittorrent configuration template rendered to a dead path (2026-10-10)**:
-  the node role renders `qBittorrent.conf.jinja` to the qBittorrent
-  configuration directory root, while the linuxserver image reads
-  `qBittorrent/qBittorrent.conf` one level down and seeds it from its own
-  defaults when missing; the rendered file has been unread since January 2025
-  (the live files on hl01 and raspberrypi2 carry the template's values from an
-  earlier seed, so nothing is broken yet, but template changes never reach the
-  client). Fix: render to the `qBittorrent/` subdirectory, create it in the
-  media stack directory list owned by the media user, mark the entry
-  `force: false` so it seeds a fresh host and never fights the running client
-  (qBittorrent rewrites the live file with runtime keys, which a forced template
-  would overwrite and restart on every run), remove the old top-level file with
-  a `state: absent` entry without a restart hook, and note in the Ansible
-  development guide that qBittorrent settings beyond the seed are owned by the
-  Web UI. Roll out with the media stack scoped check on hl01, expecting only the
-  old file's removal; raspberrypi2's stopped stack waits for its cleanup run.
 - **Media library group declared as `users` but forced to the media group on
   hl01 (2026-10-11)**: the node role declares the media library directories
   (`media_library_owner_group_id`) with group 100, a leftover from the

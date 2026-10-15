@@ -1198,6 +1198,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#re-seed-qbittorrents-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Re-seed qBittorrent's settings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#repair" class="md-nav__link">
     <span class="md-ellipsis">
       Repair
@@ -1853,6 +1862,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#re-seed-qbittorrents-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Re-seed qBittorrent's settings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#repair" class="md-nav__link">
     <span class="md-ellipsis">
       Repair
@@ -1986,6 +2004,18 @@ also the first step after deploying the stack on a host:
 <code>ResticRestoreDrillMissing</code> fires for a job that never drilled,
 <code>ResticRestoreDrillStale</code> after 40 days without success. The job's restic
 commands wait up to 30 minutes for a repository lock held by another run.</p>
+<h2 id="re-seed-qbittorrents-settings">Re-seed qBittorrent's settings</h2>
+<p>qBittorrent's settings file (<code>qBittorrent/qBittorrent.conf</code> in its configuration
+directory) is rendered by the node role as a seed and then owned by the client,
+which rewrites it with its own keys. To bring a changed template onto a host
+that already has the file: save a copy, stop the client with
+<code>docker compose --file /etc/ferrarimarco-home-lab/media-stack/compose.yaml stop qbittorrent-nox</code>
+(the grace period lets it flush its resume data), move the live file aside, run
+the node role for the media stack on the host, start the client the same way,
+and compare the file it rewrote against the copy. The torrents and the
+categories live in other files and survive; what the re-seed drops is any
+setting changed in the web interface that the template does not carry, so read
+the copy before deciding.</p>
 <h2 id="repair">Repair</h2>
 <p>A repository that <code>restic check</code> reports as damaged (<code>ResticCheckFailed</code>, or a
 failed nightly job) must be repaired before any restore: follow the command's

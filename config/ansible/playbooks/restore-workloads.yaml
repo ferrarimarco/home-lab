@@ -55,7 +55,9 @@
         restore_state_trees:
           - "{{ home_lab_configuration_directory_path }}/{{ restore_stack }}"
           - "{{ home_lab_runtime_directory_path }}/{{ restore_stack }}"
-        restore_source_repository_host_path: "{{ hostvars[restore_source_host].restic_backup_repositories_default_path | default(hostvars[restore_source_host].workloads_backup_disk_mount_path ~ '/' ~ restore_source_host.split('.')[0]) }}/{{ restore_job_name }}"
+        restore_source_repository_host_path: >-
+          {{ hostvars[restore_source_host].restic_backup_repositories_default_path
+          | default(hostvars[restore_source_host].workloads_backup_disk_mount_path ~ '/' ~ restore_source_host.split('.')[0]) }}/{{ restore_job_name }}
         restore_cross_host: "{{ restore_source_host != inventory_hostname }}"
 
     - name: Print the restore plan

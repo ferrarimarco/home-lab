@@ -54,6 +54,11 @@ media_stack_configuration_directories:
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_torrent_configuration_directory_path }}"
     state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
+  # The linuxserver image reads its settings from this subdirectory of /config
+  - group: "{{ media_stack_owner_group_id }}"
+    owner: "{{ media_stack_owner_user_id }}"
+    path: "{{ media_stack_torrent_configuration_directory_path }}/qBittorrent"
+    state: "{{ configure_media_stack | ternary('directory', 'absent') }}"
   - group: "{{ media_stack_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
     path: "{{ media_stack_torrent_download_path }}"
@@ -99,11 +104,21 @@ media_stack_templates_to_render:
     state: "{{ configure_media_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ media_stack_docker_compose_up_items }}"
   - src: "media-stack/qbittorrent/qBittorrent.conf.jinja"
-    dest: "{{ media_stack_torrent_configuration_directory_path }}/qBittorrent.conf"
+    dest: "{{ media_stack_torrent_configuration_directory_path }}/qBittorrent/qBittorrent.conf"
     state: "{{ configure_media_stack | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ media_stack_docker_compose_up_items }}"
     group: "{{ media_stack_owner_group_id }}"
     owner: "{{ media_stack_owner_user_id }}"
+    # Seed only: qBittorrent rewrites this file at runtime with the settings
+    # changed in the web interface and its own keys, which a forced render
+    # would overwrite (and restart the client) on every run
+    force: false
+
+media_stack_files_to_configure:
+  # Until October 2026 the seed was rendered here, one level above the
+  # directory the image reads, so the client never saw it
+  - path: "{{ media_stack_torrent_configuration_directory_path }}/qBittorrent.conf"
+    state: absent
 
 # Set the group owner of the library to users (100)
 media_library_owner_group_id: 100

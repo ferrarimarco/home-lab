@@ -2,30 +2,38 @@
 enabled=false
 program=
 
+[BitTorrent]
+Session\AddExtensionToIncompleteFiles=true
+Session\DefaultSavePath={{ media_stack_torrent_map_destination_download_path }}/
+Session\GlobalUPSpeedLimit=200
+Session\IgnoreSlowTorrentsForQueueing=true
+Session\MaxActiveDownloads=6
+Session\MaxActiveTorrents=15
+Session\Port=6881
+Session\QueueingSystemEnabled=true
+Session\ShareLimitAction=Stop
+Session\TempPath={{ media_stack_torrent_map_destination_download_path }}/incomplete/
+Session\TempPathEnabled=true
+
 [LegalNotice]
 Accepted=true
 
+[Meta]
+MigrationVersion=8
+
+[Network]
+PortForwardingEnabled=false
+
 [Preferences]
+Advanced\DisableRecursiveDownload=false
 Advanced\confirmTorrentDeletion=true
 Advanced\confirmTorrentRecheck=true
-Advanced\DisableRecursiveDownload=false
 Advanced\updateCheck=true
-Connection\GlobalUPLimit=200
-Connection\PortRangeMin=6881
 Connection\ResolvePeerCountries=true
 Connection\ResolvePeerHostNames=false
-Connection\UPnP=false
-Downloads\SavePath={{ media_stack_torrent_map_destination_download_path }}/
 Downloads\ScanDirsV2=@Variant(\0\0\0\x1c\0\0\0\0)
-Downloads\TempPath={{ media_stack_torrent_map_destination_download_path }}/incomplete/
-Downloads\TempPathEnabled=true
-Downloads\UseIncompleteExtension=true
 General\AlternatingRowColors=true
 General\Locale=en
-Queueing\IgnoreSlowTorrents=true
-Queueing\MaxActiveDownloads=6
-Queueing\MaxActiveTorrents=15
-Queueing\QueueingEnabled=true
 WebUI\Address=*
 WebUI\Password_PBKDF2="{{ media_stack_qbittorrent_webui_password }}"
 WebUI\ServerDomains=*
