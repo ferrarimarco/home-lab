@@ -2302,7 +2302,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Backups</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Restic backup staleness and repository check failures (§6.4).</td>
+<td style="text-align: left;">Restic backup staleness, repository identity, structural and data-read checks, and the monthly restore drill (§6.4).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
@@ -2744,6 +2744,20 @@ with operational experience.</p>
 <td style="text-align: left;"><code>time() - restic_backup_timestamp &gt; 4 * 86400</code></td>
 <td style="text-align: left;">—</td>
 <td style="text-align: left;">No successful backup for four days: standing data-loss exposure.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ResticRestoreDrillStale</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>time() - restic_job_step_last_success_timestamp_seconds{step="restore-drill"} &gt; 40 * 86400</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The monthly drill restores one bounded subtree of the latest snapshot into a scratch directory on the backup share with <code>--verify</code>, compares the file count with the snapshot listing, and removes it: it proves the restore path (container, password, share mount, space guard, file verification), while the nightly pack reads prove the data. 40 days covers one missed month.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ResticRestoreDrillMissing</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>restic_repository_id unless on (instance, backup_job) restic_job_step_last_success_timestamp_seconds{step="restore-drill"}</code></td>
+<td style="text-align: left;">1 h</td>
+<td style="text-align: left;">A job that reports its repository but has never completed a drill: the correct state for a new job until its first drill, and the signal that a drill unit is missing.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>ResticCheckFailed</code></td>

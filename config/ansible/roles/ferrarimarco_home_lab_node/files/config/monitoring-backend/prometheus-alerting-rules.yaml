@@ -258,6 +258,28 @@ groups:
             The restic job has not completed a pack data read for three days:
             the job is failing, or the read cycle was disabled. Corrupt pack
             files go unnoticed until a restore needs them.
+      - alert: ResticRestoreDrillStale
+        # The monthly drill restores one subtree of the latest snapshot and
+        # verifies it; 40 days covers one missed month.
+        expr: time() - restic_job_step_last_success_timestamp_seconds{step="restore-drill"} > 40 * 86400
+        labels:
+          severity: warning
+        annotations:
+          summary: "Restic restore drill stale for {{ $labels.backup_job }} on {{ $labels.instance }}"
+          description: >-
+            The restore drill of the restic job has not succeeded for 40 days:
+            the restore path (container, password, share mount, target space,
+            file verification) is unproven for this job.
+      - alert: ResticRestoreDrillMissing
+        expr: restic_repository_id unless on (instance, backup_job) restic_job_step_last_success_timestamp_seconds{step="restore-drill"}
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Restic restore drill never ran for {{ $labels.backup_job }} on {{ $labels.instance }}"
+          description: >-
+            The restic job reports its repository but no restore drill has
+            ever succeeded for it: its restore path is unproven.
       - alert: ResticCheckFailed
         expr: restic_check_success == 0
         labels:

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the {{ restic_backup_job_name }} Restic restore drill as scheduled
+
+[Timer]
+OnCalendar={{ restic_backup_job_restore_drill_schedule }}
+# A drill missed because the host was off runs at the next boot
+Persistent=true
+
+[Install]
+WantedBy=timers.target

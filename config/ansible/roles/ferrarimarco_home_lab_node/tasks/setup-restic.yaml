@@ -29,6 +29,35 @@
     - configure_backup_restic
   with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
 
+- name: Setup Restic restore drill services
+  ansible.builtin.template:
+    src: "{{ restic_templates_source_directory_path }}/restic-restore-drill-timer/restic-restore-drill.service.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}-restore-drill.service"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    restic_backup_job_name: "{{ item.job_name }}"
+    restic_backup_job_check_read_data_cycle_days: "{{ item.restic_check_read_data_cycle_days | default(restic_check_read_data_cycle_days) }}"
+    restic_backup_job_repository_host_path: "{{ item.restic_repository_host_path }}"
+  when:
+    - configure_backup_restic
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
+
+- name: Setup Restic restore drill timers
+  ansible.builtin.template:
+    src: "{{ restic_templates_source_directory_path }}/restic-restore-drill-timer/restic-restore-drill.timer.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}-restore-drill.timer"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    restic_backup_job_name: "{{ item.job_name }}"
+    restic_backup_job_restore_drill_schedule: "{{ item.restic_restore_drill_schedule | default(restic_restore_drill_schedule) }}"
+  when:
+    - configure_backup_restic
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
+
 - name: Reload the systemd daemon
   ansible.builtin.systemd:
     daemon_reload: true
@@ -45,6 +74,17 @@
     - stop_os_service.failed == true
     - '"Could not find the requested service" not in stop_os_service.msg'
 
+- name: Configure Restic restore drill timers
+  ansible.builtin.systemd:
+    name: "{{ item.job_name }}-restore-drill.timer"
+    state: "{{ configure_backup_restic | ternary('started', 'stopped') }}"
+    enabled: "{{ configure_backup_restic | ternary(true, false) }}"
+  with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
+  register: stop_restore_drill_timer
+  failed_when:
+    - stop_restore_drill_timer.failed == true
+    - '"Could not find the requested service" not in stop_restore_drill_timer.msg'
+
 - name: Delete Restic services
   ansible.builtin.file:
     path: "{{ systemd_system_services_configuration_directory }}/{{ item.job_name }}.service"
@@ -58,6 +98,15 @@
     state: absent
   when: not configure_backup_restic
   with_items: "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
+
+- name: Delete Restic restore drill units
+  ansible.builtin.file:
+    path: "{{ systemd_system_services_configuration_directory }}/{{ item.0.job_name }}-restore-drill.{{ item.1 }}"
+    state: absent
+  when: not configure_backup_restic
+  with_nested:
+    - "{{ restic_default_backup_jobs + restic_backup_jobs | default([]) }}"
+    - ["service", "timer"]
 
 - name: Delete unneeded Restic files and directories
   ansible.builtin.file:

@@ -1,0 +1,15 @@
+[Unit]
+Description=Run the {{ restic_backup_job_name }} Restic restore drill
+# The timer is persistent, so a missed drill runs right after boot: wait for
+# Docker and for the backup share, which carries the repository and the target.
+Requires=docker.service
+After=docker.service
+RequiresMountsFor={{ restic_backup_job_repository_host_path }}
+
+[Service]
+Type=oneshot
+# Same guard as the backup unit: the repository and the drill target live on
+# the backup share; with the mount gone, both paths are bare directories on
+# the root disk.
+ExecStartPre=/bin/sh -c 'test "$(findmnt --target {{ restic_backup_job_repository_host_path }} -no TARGET)" != /'
+ExecStart= docker compose --file {{ restic_docker_compose_destination_file_path }} --profile "{{ restic_backup_default_backup_job_docker_compose_profile }}" run --build --env RESTIC_RESTORE_DRILL="true" --env RESTIC_REPOSITORY_CHECK_READ_DATA_CYCLE_DAYS="{{ restic_backup_job_check_read_data_cycle_days }}" --rm {{ restic_backup_job_name }}

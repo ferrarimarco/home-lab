@@ -1,5 +1,15 @@
 ---
 restic_backup_default_backup_job_target_directory: "{{ restic_backup_repositories_default_path }}/{{ restic_backup_workloads_job_name }}"
+# The monthly drill restores one bounded subtree of the latest snapshot into
+# a scratch directory on the backup share (never the root disk), verifies it,
+# and removes it: it proves the restore path, not the data, which the nightly
+# pack reads cover.
+restic_backup_default_backup_job_restore_drill_directory: "{{ restic_backup_repositories_default_path }}/restore-drill-{{ restic_backup_workloads_job_name }}"
+restic_restore_drill_container_destination_path: /var/lib/restic/restore-drill
+# A file without secret material: the drill restores it onto the share, where
+# the CIFS mount presents files as world-readable
+restic_restore_drill_default_include: "{{ restic_configuration_directory_path }}/entrypoint.sh"
+restic_restore_drill_schedule: "Sun *-*-1..7 03:00:00"
 restic_backup_default_backup_job_docker_compose_profile: restic-backup-job
 restic_backup_workloads_job_name: "restic-backup-workloads"
 restic_configuration_directories:
@@ -22,6 +32,9 @@ restic_default_backup_jobs:
     job_name: "{{ restic_backup_workloads_job_name }}"
     job_schedule: "01:00:00"
     restic_check_read_data_cycle_days: "{{ restic_check_read_data_cycle_days }}"
+    restic_restore_drill_host_path: "{{ restic_backup_default_backup_job_restore_drill_directory }}"
+    restic_restore_drill_include: "{{ restic_restore_drill_default_include }}"
+    restic_restore_drill_schedule: "{{ restic_restore_drill_schedule }}"
     restic_forget_policy: "{{ restic_forget_policies.daily_7_days }}"
     # In seconds
     restic_monitoring_refresh_interval: 43200
@@ -30,6 +43,10 @@ restic_default_backup_jobs:
     restic_repository_password: "{{ restic_backup_default_backup_job_repository_password }}"
 restic_default_backup_target_directories:
   - path: "{{ restic_backup_default_backup_job_target_directory }}"
+    state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  - path: "{{ restic_backup_default_backup_job_restore_drill_directory }}"
     state: "{{ configure_backup_restic | ternary('directory', 'absent') }}"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"

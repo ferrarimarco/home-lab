@@ -8,7 +8,10 @@ restic version
 echo "Restic repository: ${RESTIC_REPOSITORY}"
 
 echo "Checking if the ${RESTIC_REPOSITORY} Restic repository is initialized."
-if restic snapshots --verbose; then
+# Lock-taking commands wait for a concurrent job (the nightly prune, the
+# exporter's check) instead of failing on the lock.
+restic_retry_lock="${RESTIC_RETRY_LOCK:-30m}"
+if restic snapshots --retry-lock "${restic_retry_lock}" --verbose; then
   echo "The ${RESTIC_REPOSITORY} repository is already initialized."
 elif [ "${RESTIC_ALLOW_INIT:-"false"}" = "true" ]; then
   echo "Initializing the ${RESTIC_REPOSITORY} repository"
@@ -60,7 +63,14 @@ write_textfile() {
       echo "restic_job_last_run_timestamp_seconds{backup_job=\"${restic_backup_job}\"} $(date +%s)"
       echo "# HELP restic_check_read_data_cycle_days Nights over which the job reads every pack file of the repository once."
       echo "# TYPE restic_check_read_data_cycle_days gauge"
-      echo "restic_check_read_data_cycle_days{backup_job=\"${restic_backup_job}\"} ${RESTIC_REPOSITORY_CHECK_READ_DATA_CYCLE_DAYS:-0}"
+      if [ -n "${RESTIC_REPOSITORY_CHECK_READ_DATA_CYCLE_DAYS:-""}" ]; then
+        echo "restic_check_read_data_cycle_days{backup_job=\"${restic_backup_job}\"} ${RESTIC_REPOSITORY_CHECK_READ_DATA_CYCLE_DAYS}"
+      fi
+      if [ -n "${restic_restore_drill_files:-""}" ]; then
+        echo "# HELP restic_restore_drill_files Files the latest restore drill restored and verified."
+        echo "# TYPE restic_restore_drill_files gauge"
+        echo "restic_restore_drill_files{backup_job=\"${restic_backup_job}\"} ${restic_restore_drill_files}"
+      fi
       if [ -f "${restic_steps_file}" ]; then
         echo "# HELP restic_job_step_last_success_timestamp_seconds Unix time of the latest successful run of each step of the restic job."
         echo "# TYPE restic_job_step_last_success_timestamp_seconds gauge"
@@ -82,17 +92,113 @@ restic unlock --verbose
 echo "Getting the list of Restic locks that are currently active again."
 restic list locks --no-lock --verbose
 
+# Restore mode: RESTIC_RESTORE_SNAPSHOT (an id or "latest") selects the
+# snapshot, RESTIC_RESTORE_INCLUDE the path within it, RESTIC_RESTORE_TARGET
+# the directory to restore under, and RESTIC_RESTORE_DRY_RUN (default true)
+# only lists what would be restored. The space guard compares the listed file
+# sizes with the free space of the target, with a 20 percent margin, so a
+# restore never fills a filesystem. The monthly drill (RESTIC_RESTORE_DRILL)
+# is this mode with the job's drill subtree and target, no dry run, a cleanup
+# of the target in every case, and a step timestamp for the alerts.
+if [ "${RESTIC_RESTORE_DRILL:-"false"}" = "true" ]; then
+  RESTIC_RESTORE_SNAPSHOT="${RESTIC_RESTORE_SNAPSHOT:-latest}"
+  RESTIC_RESTORE_INCLUDE="${RESTIC_RESTORE_INCLUDE:-${RESTIC_RESTORE_DRILL_INCLUDE}}"
+  # The drill target is the scratch directory and nothing else: the cleanup
+  # below empties it, so an externally supplied target is refused rather than
+  # honoured.
+  RESTIC_RESTORE_TARGET="${RESTIC_RESTORE_DRILL_TARGET}"
+  RESTIC_RESTORE_DRY_RUN="false"
+  case "${RESTIC_RESTORE_TARGET}" in
+  "" | / | /etc* | /var/lib/restic/repository*)
+    echo "Refusing to drill into ${RESTIC_RESTORE_TARGET}" >&2
+    exit 1
+    ;;
+  esac
+  clean_drill_target() {
+    echo "Cleaning the drill target ${RESTIC_RESTORE_TARGET}"
+    find "${RESTIC_RESTORE_TARGET}" -mindepth 1 -delete
+  }
+  # Clean on exit and on a stop signal (docker stop sends TERM); the trap keeps
+  # the exit status of a failed restore, so the unit still fails.
+  trap clean_drill_target EXIT
+  trap 'clean_drill_target; exit 143' TERM INT
+  # Start from an empty target, so the strict count check applies even after
+  # a drill that was killed before its cleanup
+  mkdir -p "${RESTIC_RESTORE_TARGET}"
+  clean_drill_target
+fi
+
+if [ -n "${RESTIC_RESTORE_SNAPSHOT:-""}" ]; then
+  restore_dry_run="${RESTIC_RESTORE_DRY_RUN:-true}"
+  echo "Restoring ${RESTIC_RESTORE_INCLUDE} from snapshot ${RESTIC_RESTORE_SNAPSHOT} under ${RESTIC_RESTORE_TARGET} (dry run: ${restore_dry_run})"
+  restore_listing="$(restic ls --recursive --json --no-lock "${RESTIC_RESTORE_SNAPSHOT}" "${RESTIC_RESTORE_INCLUDE}")"
+  restore_expected_files="$(printf '%s\n' "${restore_listing}" | grep -c '"type":"file"' || true)"
+  restore_expected_bytes="$(printf '%s\n' "${restore_listing}" | grep '"type":"file"' | sed -n 's/.*"size":\([0-9]*\).*/\1/p' | awk '{ s += $1 } END { print s + 0 }')"
+  echo "The snapshot holds ${restore_expected_files} files (${restore_expected_bytes} bytes) under ${RESTIC_RESTORE_INCLUDE}"
+  if [ "${restore_expected_files}" -eq 0 ]; then
+    # A stack may have only one of the two state trees; the restore playbook
+    # allows the empty case, a manual restore of a wrong path must not pass.
+    if [ "${RESTIC_RESTORE_ALLOW_EMPTY:-"false"}" = "true" ]; then
+      echo "Nothing to restore: ${RESTIC_RESTORE_INCLUDE} holds no files in snapshot ${RESTIC_RESTORE_SNAPSHOT}; skipping"
+      restore_skip="true"
+    else
+      echo "Nothing to restore: ${RESTIC_RESTORE_INCLUDE} holds no files in snapshot ${RESTIC_RESTORE_SNAPSHOT}" >&2
+      exit 1
+    fi
+  fi
+fi
+
+if [ -n "${RESTIC_RESTORE_SNAPSHOT:-""}" ] && [ "${restore_skip:-"false"}" != "true" ]; then
+  mkdir -p "${RESTIC_RESTORE_TARGET}"
+  # Into an empty target (the drill, an inspection restore) the restored file
+  # count must equal the listing; in place, files written since the snapshot
+  # legitimately remain, so the count must only reach the listing and
+  # restic's own verification covers the restored files.
+  restore_in_place="false"
+  if [ -e "${RESTIC_RESTORE_TARGET}${RESTIC_RESTORE_INCLUDE}" ]; then restore_in_place="true"; fi
+  # Measure the free space where the files land: the deepest existing path
+  # under target plus include, since an in-place restore (target /) writes
+  # into a bind-mounted tree, not into the container's root filesystem.
+  restore_space_path="${RESTIC_RESTORE_TARGET}${RESTIC_RESTORE_INCLUDE}"
+  while [ ! -e "${restore_space_path}" ]; do restore_space_path="$(dirname "${restore_space_path}")"; done
+  restore_available_bytes="$(df -Pk "${restore_space_path}" | awk 'NR == 2 { print $4 * 1024 }')"
+  restore_needed_bytes="$((restore_expected_bytes + restore_expected_bytes / 5))"
+  if [ "${restore_available_bytes}" -lt "${restore_needed_bytes}" ]; then
+    echo "Refusing to restore: ${RESTIC_RESTORE_TARGET} has ${restore_available_bytes} bytes free, ${restore_needed_bytes} needed (restore size plus a 20 percent margin)" >&2
+    exit 1
+  fi
+  if [ "${restore_dry_run}" = "true" ]; then
+    restic restore "${RESTIC_RESTORE_SNAPSHOT}" --target "${RESTIC_RESTORE_TARGET}" --include "${RESTIC_RESTORE_INCLUDE}" --retry-lock "${restic_retry_lock}" --dry-run --verbose=2
+  else
+    restic restore "${RESTIC_RESTORE_SNAPSHOT}" --target "${RESTIC_RESTORE_TARGET}" --include "${RESTIC_RESTORE_INCLUDE}" --retry-lock "${restic_retry_lock}" --verify --verbose
+    restore_restored_files="$(find "${RESTIC_RESTORE_TARGET}${RESTIC_RESTORE_INCLUDE}" -type f | wc -l)"
+    echo "Restored ${restore_restored_files} files under ${RESTIC_RESTORE_TARGET}${RESTIC_RESTORE_INCLUDE}"
+    if [ "${restore_in_place}" = "true" ] && [ "${restore_restored_files}" -lt "${restore_expected_files}" ]; then
+      echo "Restore mismatch: ${restore_restored_files} files present in place, ${restore_expected_files} listed in the snapshot" >&2
+      exit 1
+    fi
+    if [ "${restore_in_place}" != "true" ] && [ "${restore_restored_files}" -ne "${restore_expected_files}" ]; then
+      echo "Restore mismatch: ${restore_restored_files} files restored, ${restore_expected_files} listed in the snapshot" >&2
+      exit 1
+    fi
+    if [ "${RESTIC_RESTORE_DRILL:-"false"}" = "true" ]; then
+      record_step restore-drill
+      restic_restore_drill_files="${restore_restored_files}"
+    fi
+  fi
+fi
+
 if [ "${RESTIC_ENABLE_BACKUP:-"false"}" = "true" ]; then
   echo "Backing up ${RESTIC_DIRECTORIES_TO_BACKUP}. Tags: ${RESTIC_BACKUP_TAGS}"
   # Use eval here because restic interprets quotes literally
-  eval "restic backup --group-by host,tags --tag ${RESTIC_BACKUP_TAGS} --verbose ${RESTIC_DIRECTORIES_TO_BACKUP}"
+  eval "restic backup --group-by host,tags --tag ${RESTIC_BACKUP_TAGS} --retry-lock ${restic_retry_lock} --verbose ${RESTIC_DIRECTORIES_TO_BACKUP}"
   record_step backup
 fi
 
 if [ "${RESTIC_ENABLE_PRUNE:-"false"}" = "true" ]; then
   echo "Pruning ${RESTIC_REPOSITORY}"
   # Use eval here because restic interprets quotes literally
-  eval "restic forget --group-by host,tags --no-cache --prune --verbose ${RESTIC_FORGET_POLICY}"
+  eval "restic forget --group-by host,tags --no-cache --prune --retry-lock ${restic_retry_lock} --verbose ${RESTIC_FORGET_POLICY}"
   record_step prune
 fi
 
@@ -113,7 +219,7 @@ fi
 
 if [ "${RESTIC_ENABLE_REPOSITORY_CHECK:-"false"}" = "true" ]; then
   echo "Checking the structure of ${RESTIC_REPOSITORY}"
-  restic check --no-cache --verbose
+  restic check --no-cache --retry-lock "${restic_retry_lock}" --verbose
   record_step check
 fi
 
@@ -125,7 +231,7 @@ if [ "${RESTIC_REPOSITORY_CHECK_READ_DATA_CYCLE_DAYS:-0}" -gt 0 ]; then
   read_data_cycle="${RESTIC_REPOSITORY_CHECK_READ_DATA_CYCLE_DAYS}"
   read_data_group="$((($(date +%s) / 86400) % read_data_cycle + 1))"
   echo "Reading pack group ${read_data_group}/${read_data_cycle} of ${RESTIC_REPOSITORY}"
-  restic check --no-cache --read-data-subset="${read_data_group}/${read_data_cycle}" --verbose
+  restic check --no-cache --read-data-subset="${read_data_group}/${read_data_cycle}" --retry-lock "${restic_retry_lock}" --verbose
   record_step check-read-data "group=\"${read_data_group}/${read_data_cycle}\""
 fi
 

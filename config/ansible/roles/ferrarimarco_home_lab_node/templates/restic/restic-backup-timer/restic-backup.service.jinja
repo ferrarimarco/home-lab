@@ -1,6 +1,8 @@
 [Unit]
 Description=Run {{ restic_backup_job_name }} Restic backup job
 Requires=docker.service
+After=docker.service
+RequiresMountsFor={{ restic_backup_job_repository_host_path }}
 
 [Service]
 # Fail the run when the repository path is backed by the root filesystem: with
