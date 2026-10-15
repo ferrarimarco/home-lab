@@ -1,0 +1,175 @@
+---
+# Restore a stack's state trees on a Debian host from a restic repository,
+# through the restore mode of the restic job container (see the backup
+# operations guide). Dry run by default: the run lists what a restore would
+# write and changes nothing; pass restore_apply=true to restore for real,
+# which stops the stack, restores both state trees in place, and starts the
+# stack again.
+#
+# Variables (pass them with -e):
+#   restore_hosts          the target host (required: the play refuses to run
+#                          without it, so a restore never fans out to all hosts)
+#   restore_stack          the state directory name, as in
+#                          /etc/ferrarimarco-home-lab/<stack>
+#   restore_compose_stack  the Compose project that runs it, when it differs
+#                          (qbittorrent's state is run by media-stack)
+#   restore_compose_service  the Compose service to stop and start (default:
+#                          restore_stack); the rest of the project keeps running
+#   restore_snapshot     a snapshot id or "latest" (default)
+#   restore_source_host  the inventory host whose repository to restore from
+#                        (default: the target host itself)
+#   restore_apply        true to restore for real (default: false)
+#
+# Example, a dry run of restoring qBittorrent on hl01 from its own repository:
+#   ADDITIONAL_ANSIBLE_FLAGS="-e restore_hosts=hl01.edge.lab.ferrari.how -e restore_stack=qbittorrent -e restore_compose_stack=media-stack -e restore_compose_service=qbittorrent-nox" \
+#     ANSIBLE_PLAYBOOK_FILE_NAME="restore-workloads.yaml" scripts/run-ansible.sh
+- name: Restore a stack's state from a restic repository
+  hosts: "{{ restore_hosts }}"
+  gather_facts: false
+  vars:
+    restore_snapshot: latest
+    restore_apply: false
+    restore_source_host: "{{ inventory_hostname }}"
+    restore_job_name: restic-backup-workloads
+    restore_compose_stack: "{{ restore_stack }}"
+    restore_compose_service: "{{ restore_stack }}"
+    restore_compose_file_path: "{{ home_lab_configuration_directory_path }}/restic/compose.yaml"
+    restore_log_file_path: "/tmp/restic-restore-{{ restore_stack | default('unset') }}.log"
+  tasks:
+    - name: Check the restore variables
+      ansible.builtin.assert:
+        that:
+          - restore_stack is defined
+          - restore_stack | length > 0
+          - restore_source_host in hostvars
+          - configure_backup_restic | default(false)
+        fail_msg: >-
+          Pass restore_hosts (a host that runs the restic stack), restore_stack
+          (the state directory name) and, optionally, restore_snapshot,
+          restore_source_host (an inventory host), restore_compose_stack,
+          restore_compose_service, and restore_apply=true.
+
+    - name: Compute the restore paths
+      ansible.builtin.set_fact:
+        restore_stack_compose_file_path: "{{ home_lab_configuration_directory_path }}/{{ restore_compose_stack }}/compose.yaml"
+        restore_state_trees:
+          - "{{ home_lab_configuration_directory_path }}/{{ restore_stack }}"
+          - "{{ home_lab_runtime_directory_path }}/{{ restore_stack }}"
+        restore_source_repository_host_path: "{{ hostvars[restore_source_host].restic_backup_repositories_default_path | default(hostvars[restore_source_host].workloads_backup_disk_mount_path ~ '/' ~ restore_source_host.split('.')[0]) }}/{{ restore_job_name }}"
+        restore_cross_host: "{{ restore_source_host != inventory_hostname }}"
+
+    - name: Print the restore plan
+      ansible.builtin.debug:
+        msg: >-
+          {{ (restore_apply | bool) | ternary('RESTORING', 'Dry run of restoring') }}
+          {{ restore_state_trees | join(' and ') }} from snapshot {{ restore_snapshot }}
+          of {{ restore_source_host }}'s repository ({{ restore_source_repository_host_path }}),
+          through {{ restore_compose_file_path }} on {{ inventory_hostname }}.
+
+    # Another host's repository is reached by overriding the repository volume
+    # of the job container and passing that host's repository password, which
+    # the shared vault provides to Ansible. The compose template writes the
+    # password as a quoted literal (RESTIC_PASSWORD="..."), and Compose passes
+    # list-form values verbatim, so the repositories were keyed with the quotes
+    # included: pass the same literal. The command carries the password, so it
+    # logs to a file on the host instead of the Ansible output.
+    - name: Build the restore command
+      ansible.builtin.set_fact:
+        restore_command: >-
+          docker compose --file {{ restore_compose_file_path }}
+          --profile restic-backup-job run --build --rm
+          {% if restore_cross_host %}
+          --volume {{ restore_source_repository_host_path }}:/var/lib/restic/repository
+          --env {{ ('RESTIC_PASSWORD="' ~ hostvars[restore_source_host].restic_backup_default_backup_job_repository_password ~ '"') | quote }}
+          {% endif %}
+          --env RESTIC_RESTORE_SNAPSHOT="{{ restore_snapshot }}"
+          --env RESTIC_RESTORE_TARGET=/
+          --env RESTIC_RESTORE_ALLOW_EMPTY=true
+          --env RESTIC_RESTORE_DRY_RUN="{{ (not (restore_apply | bool)) | string | lower }}"
+      no_log: true
+
+    - name: Check that the Compose project exists
+      ansible.builtin.stat:
+        path: "{{ restore_stack_compose_file_path }}"
+      become: true
+      register: restore_compose_file
+      failed_when: not restore_compose_file.stat.exists
+      when: restore_apply | bool
+
+    - name: Start a fresh restore log
+      ansible.builtin.copy:
+        content: ""
+        dest: "{{ restore_log_file_path }}"
+        owner: root
+        group: root
+        mode: "0600"
+      become: true
+      changed_when: false
+      tags:
+        - molecule-notest
+
+    - name: Restore with the service stopped
+      block:
+        - name: Stop the service before restoring its state
+          ansible.builtin.command: docker compose --file {{ restore_stack_compose_file_path }} stop {{ restore_compose_service }}
+          become: true
+          changed_when: true
+          when: restore_apply | bool
+          tags:
+            - molecule-notest
+
+        - name: Restore the state trees
+          ansible.builtin.shell: >-
+            {{ restore_command }} --env RESTIC_RESTORE_INCLUDE="{{ item }}" {{ restore_job_name }}
+            >> "{{ restore_log_file_path }}" 2>&1
+          become: true
+          changed_when: restore_apply | bool
+          loop: "{{ restore_state_trees }}"
+          loop_control:
+            label: "{{ item }}"
+          no_log: true
+          register: restore_runs
+          tags:
+            - molecule-notest
+
+      rescue:
+        - name: Remember that the restore failed
+          ansible.builtin.set_fact:
+            restore_failed: true
+      # Whatever the restore did, its log is shown and the service it stopped
+      # comes back; the failure is raised again afterwards
+      always:
+        - name: Read the restore log
+          ansible.builtin.command: cat {{ restore_log_file_path }}
+          become: true
+          changed_when: false
+          register: restore_log
+          tags:
+            - molecule-notest
+
+        - name: Print the restore log
+          ansible.builtin.debug:
+            var: restore_log.stdout_lines
+
+        - name: Start the service again
+          ansible.builtin.command: docker compose --file {{ restore_stack_compose_file_path }} up --detach {{ restore_compose_service }}
+          become: true
+          changed_when: true
+          when: restore_apply | bool
+          tags:
+            - molecule-notest
+
+        - name: Fail the play when the restore failed
+          ansible.builtin.fail:
+            msg: The restore failed; see the restore log above. The service was started again.
+          when: restore_failed | default(false)
+
+    - name: Print the verification steps
+      ansible.builtin.debug:
+        msg: >-
+          Verify {{ restore_stack }} through its own interface, then compare the
+          restored trees with the snapshot listing
+          (docker compose --file {{ restore_compose_file_path }} --profile
+          restic-backup-job run --rm --entrypoint restic {{ restore_job_name }}
+          ls {{ restore_snapshot }} {{ restore_state_trees[0] }}).
+      when: restore_apply | bool
