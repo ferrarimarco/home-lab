@@ -36,11 +36,12 @@ reliability risks first, then security exposure, then automation):
   pin ([Issues to solve](#issues-to-solve)). Depends on: the hl02 address
   reservation ([Networking](#networking)), the boot server and rescue payload
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)), and the
-  restic restore recipe ([Backup](#backup)). Does not depend on the container
-  migration: the re-image rewrites the boot disk only, and a restic repository
-  restores the services in place (decided 2026-10-08). The repository on the
-  data disk was lost on 2026-10-09, so the restore source is the per-host
-  repository on the nas-pve1 `backups` share ([Backup](#backup)).
+  restore procedure ([backup operations guide](../guides/operations/backup.md)).
+  Does not depend on the container migration: the re-image rewrites the boot
+  disk only, and a restic repository restores the services in place (decided
+  2026-10-08). The repository on the data disk was lost on 2026-10-09, so the
+  restore source is the per-host repository on the nas-pve1 `backups` share
+  ([Backup](#backup)).
 - Finish moving the containers from raspberrypi2 to hl01
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)): the media
   stack moved on 2026-10-09, its library was rebuilt on `rpool-usb-2` by
@@ -937,8 +938,17 @@ reliability risks first, then security exposure, then automation):
   whenever a workload is added. NixOS hosts back up state directories only,
   never the machine: enumerate them per host (for the NAS containers, the Samba,
   Syncthing, and Tailscale state directories bind-mounted from the Proxmox node)
-  and give them a backup job on the node that holds them. Depends on: the restic
-  restore recipe and drill, which is what proves the rebuild path.
+  and give them a backup job on the node that holds them. The restore procedure
+  that proves the rebuild path is in the
+  [backup operations guide](../guides/operations/backup.md).
+- **One restic repository per host (confirmed 2026-10-14)**: a repository is
+  restic's deduplication, locking, and key domain; a shared one would
+  deduplicate little across state trees, let any host forget or prune every
+  other host's snapshots with no append-only protection on a CIFS backend, and
+  serialize the nightly jobs on its lock. Revisit when a backend with per-client
+  isolation and append-only mode exists (restic's REST server on the NAS would
+  qualify); the [backups page](../architecture/backups.md) records the
+  rationale.
 - **Second copy of the media library (2026-10-10)**: the library on
   `rpool-usb-2/media` is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
@@ -968,24 +978,11 @@ reliability risks first, then security exposure, then automation):
   sometimes" over two-way replication, which is harder to implement. Filesystem
   level: ZFS replication.
 - Immich to copy data from phones to the NAS.
-- Restic restore recipe and drill: document restoring a host's state trees from
-  its repository (full and selective, and from another host's repository) in a
-  backup operations guide, then run a restore drill on a schedule. Both the
-  raspberrypi2 re-image and the container migration rely on restore, and so does
-  the weekly Docker prune, whose aggressive flags are acceptable only because
-  the bind-mounted state trees are restorable (decided 2026-10-12). Blocks: the
-  raspberrypi2 re-image
-  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
 - Back up the Tailscale node state and automate the Samba passwords on the
   Debian hosts, so a re-provisioned host needs neither a manual tailnet re-join
   with route re-approval nor `smbpasswd` runs. Both hold secret material; the
   Samba password automation item ([NAS](#nas)) describes a mechanism that keeps
   it out of the repository.
-- Restic: enable the full-read check on a schedule. A plain restic check already
-  runs with the backup unit; the
-  [--read-data variant](https://restic.readthedocs.io/en/latest/045_working_with_repos.html#checking-integrity-and-consistency)
-  exists behind RESTIC_ENABLE_REPOSITORY_CHECK_ALL_DATA in the restic
-  entrypoint, but no unit enables it.
 - To backup:
     - Proxmox hosts
       ([Proxmox Cluster File System (pmxcfs)](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#chapter_pmxcfs)).

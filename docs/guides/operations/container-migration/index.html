@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/container-migration/">
       
       
-        <link rel="prev" href="../../development/website-development/">
+        <link rel="prev" href="../backup/">
       
       
         <link rel="next" href="../dependency-updates/">
@@ -286,6 +286,29 @@
   
   <span class="md-ellipsis">
     Home lab architecture overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backups
     
   </span>
   
@@ -1053,6 +1076,29 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backup operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1745,9 +1791,10 @@ cutover, hardware dependencies) need case-by-case review.</p>
    growth headroom. A migration plan can be invalidated entirely by a target
    share smaller than the data set, and an rsync run that discovers this
    mid-copy leaves a half-filled target to clean up.</li>
-<li><strong>Verify recent restic workload backups exist</strong> for the stack being migrated:
-   the backed-up configuration and state directories are the rollback safety net
-   if the cutover goes wrong.</li>
+<li><strong>Verify recent restic workload backups exist</strong> for the stack being migrated
+   (<code>restic_run snapshots</code> and <code>ls latest</code>, per the
+   <a href="../backup/">backup operations guide</a>): the backed-up configuration and
+   state directories are the rollback safety net if the cutover goes wrong.</li>
 <li><strong>Identify hardware dependencies</strong> (USB devices such as Zigbee adapters or
    Coral accelerators): these need a physical move and, when the target is a
    virtual machine, a hypervisor passthrough change before the workload can

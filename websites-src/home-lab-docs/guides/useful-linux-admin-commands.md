@@ -17,6 +17,9 @@
 
 ## Restic
 
+The [backup operations guide](./operations/backup.md) has the inspection,
+restore, drill, and repair procedures.
+
 - Open a shell in the Restic container:
 
     ```sh

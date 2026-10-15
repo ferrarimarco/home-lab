@@ -12,3 +12,6 @@ For containers: bind mount ZFS datasets to LXC containers that need them.
 
 For VMs: bind mount ZFS datasets to a LXC container running NFS and Samba
 servers, then mount shares in VMs that need them.
+
+The [backups page](./backups.md) describes how the workload state on these
+filesystems is backed up and verified.

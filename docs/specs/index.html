@@ -303,6 +303,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../architecture/backups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backups
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../architecture/network-configuration/" class="md-nav__link">
         
   
@@ -1044,6 +1067,29 @@
             Operations
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/operations/backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backup operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2044,11 +2090,12 @@ reliability risks first, then security exposure, then automation):</p>
   pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the hl02 address
   reservation (<a href="#networking">Networking</a>), the boot server and rescue payload
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>), and the
-  restic restore recipe (<a href="#backup">Backup</a>). Does not depend on the container
-  migration: the re-image rewrites the boot disk only, and a restic repository
-  restores the services in place (decided 2026-10-08). The repository on the
-  data disk was lost on 2026-10-09, so the restore source is the per-host
-  repository on the nas-pve1 <code>backups</code> share (<a href="#backup">Backup</a>).</li>
+  restore procedure (<a href="../guides/operations/backup/">backup operations guide</a>).
+  Does not depend on the container migration: the re-image rewrites the boot
+  disk only, and a restic repository restores the services in place (decided
+  2026-10-08). The repository on the data disk was lost on 2026-10-09, so the
+  restore source is the per-host repository on the nas-pve1 <code>backups</code> share
+  (<a href="#backup">Backup</a>).</li>
 <li>Finish moving the containers from raspberrypi2 to hl01
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>): the media
   stack moved on 2026-10-09, its library was rebuilt on <code>rpool-usb-2</code> by
@@ -2993,8 +3040,17 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   whenever a workload is added. NixOS hosts back up state directories only,
   never the machine: enumerate them per host (for the NAS containers, the Samba,
   Syncthing, and Tailscale state directories bind-mounted from the Proxmox node)
-  and give them a backup job on the node that holds them. Depends on: the restic
-  restore recipe and drill, which is what proves the rebuild path.</li>
+  and give them a backup job on the node that holds them. The restore procedure
+  that proves the rebuild path is in the
+  <a href="../guides/operations/backup/">backup operations guide</a>.</li>
+<li><strong>One restic repository per host (confirmed 2026-10-14)</strong>: a repository is
+  restic's deduplication, locking, and key domain; a shared one would
+  deduplicate little across state trees, let any host forget or prune every
+  other host's snapshots with no append-only protection on a CIFS backend, and
+  serialize the nightly jobs on its lock. Revisit when a backend with per-client
+  isolation and append-only mode exists (restic's REST server on the NAS would
+  qualify); the <a href="../architecture/backups/">backups page</a> records the
+  rationale.</li>
 <li><strong>Second copy of the media library (2026-10-10)</strong>: the library on
   <code>rpool-usb-2/media</code> is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
@@ -3024,24 +3080,11 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   sometimes" over two-way replication, which is harder to implement. Filesystem
   level: ZFS replication.</li>
 <li>Immich to copy data from phones to the NAS.</li>
-<li>Restic restore recipe and drill: document restoring a host's state trees from
-  its repository (full and selective, and from another host's repository) in a
-  backup operations guide, then run a restore drill on a schedule. Both the
-  raspberrypi2 re-image and the container migration rely on restore, and so does
-  the weekly Docker prune, whose aggressive flags are acceptable only because
-  the bind-mounted state trees are restorable (decided 2026-10-12). Blocks: the
-  raspberrypi2 re-image
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>).</li>
 <li>Back up the Tailscale node state and automate the Samba passwords on the
   Debian hosts, so a re-provisioned host needs neither a manual tailnet re-join
   with route re-approval nor <code>smbpasswd</code> runs. Both hold secret material; the
   Samba password automation item (<a href="#nas">NAS</a>) describes a mechanism that keeps
   it out of the repository.</li>
-<li>Restic: enable the full-read check on a schedule. A plain restic check already
-  runs with the backup unit; the
-  <a href="https://restic.readthedocs.io/en/latest/045_working_with_repos.html#checking-integrity-and-consistency">--read-data variant</a>
-  exists behind RESTIC_ENABLE_REPOSITORY_CHECK_ALL_DATA in the restic
-  entrypoint, but no unit enables it.</li>
 <li>To backup:<ul>
 <li>Proxmox hosts
   (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#chapter_pmxcfs">Proxmox Cluster File System (pmxcfs)</a>).</li>

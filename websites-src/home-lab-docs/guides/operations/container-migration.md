@@ -13,9 +13,10 @@ cutover, hardware dependencies) need case-by-case review.
    growth headroom. A migration plan can be invalidated entirely by a target
    share smaller than the data set, and an rsync run that discovers this
    mid-copy leaves a half-filled target to clean up.
-2. **Verify recent restic workload backups exist** for the stack being migrated:
-   the backed-up configuration and state directories are the rollback safety net
-   if the cutover goes wrong.
+2. **Verify recent restic workload backups exist** for the stack being migrated
+   (`restic_run snapshots` and `ls latest`, per the
+   [backup operations guide](./backup.md)): the backed-up configuration and
+   state directories are the rollback safety net if the cutover goes wrong.
 3. **Identify hardware dependencies** (USB devices such as Zigbee adapters or
    Coral accelerators): these need a physical move and, when the target is a
    virtual machine, a hypervisor passthrough change before the workload can
