@@ -47,9 +47,10 @@ reliability risks first, then security exposure, then automation):
   stack moved on 2026-10-09, its library was rebuilt on `rpool-usb-2` by
   2026-10-11, and the data evacuation off the failed raspberrypi2 disk is
   complete (Syncthing on nas-pve1, media on pve1, restic repositories on the
-  nas-pve1 `backups` share). Left on raspberrypi2: the media stack cleanup run
-  after the Zigbee2MQTT 2.x upgrade plan, which also retires the dead disk's
-  inventory entry; Zigbee2MQTT and Mosquitto can move at any time.
+  nas-pve1 `backups` share), and the raspberrypi2 cleanup ran on 2026-10-17 (the
+  copied media state, the dead disk's inventory entry, and the Samba share that
+  exported its empty mount point are gone). Left: Zigbee2MQTT and Mosquitto,
+  which can move at any time.
 
 ### Bootstrapping and provisioning
 
@@ -100,16 +101,16 @@ reliability risks first, then security exposure, then automation):
       Sonarr, Radarr, Prowlarr, and Lidarr databases, Jellyseerr) went over
       hl01's empty instances with `scripts/copy-data.sh`, since the restic
       repository died with the disk; Readarr was dropped (retired upstream);
-      Flaresolverr and qBittorrent carried nothing. Remaining for the media
-      stack: the raspberrypi2 cleanup, that is removing `configure_media_stack`
-      from its inventory and running the playbook there, which deletes the
-      copied state and is safe only after the Zigbee2MQTT 2.x upgrade plan
-      ([Smart home](#smart-home)); and verifying the hl01 stack against the
-      library rebuilt on `rpool-usb-2` ([NAS](#nas)). The endpoint variables
-      live in the node role's `vars/main.yaml`, not in `group_vars`; the media
-      ones point at hl01 since 2026-10-10. Still to move: Zigbee2MQTT carries
-      its device database, network key, and state, and needs the dongle moved to
-      pve1 with a USB passthrough on the hl01 VM (declared in the
+      Flaresolverr and qBittorrent carried nothing. The raspberrypi2 cleanup ran
+      on 2026-10-17, after the Zigbee2MQTT 2.x upgrade: the media stack, the
+      dead disk's inventory entry, and the Samba server (its only share exported
+      the dead disk's empty mount point) are retired there. Remaining for the
+      media stack: verifying the hl01 stack against the library rebuilt on
+      `rpool-usb-2` ([NAS](#nas)). The endpoint variables live in the node
+      role's `vars/main.yaml`, not in `group_vars`; the media ones point at hl01
+      since 2026-10-10. Still to move: Zigbee2MQTT carries its device database,
+      network key, and state, and needs the dongle moved to pve1 with a USB
+      passthrough on the hl01 VM (declared in the
       [NixOS VMs on Proxmox](./proxmox-vm.md) spec) plus the udev rule for a
       stable device path on both hosts
       ([Host configuration](#host-configuration)); Mosquitto is redeployed

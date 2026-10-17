@@ -46,7 +46,7 @@
 # eventually get deleted
 - name: Register cleanup facts if stack is disabled for {{ fact_category }}
   ansible.builtin.set_fact:
-    files_to_configure: "{{ files_to_configure + fact_files_to_download + fact_templates_to_render }}"
+    files_to_configure: "{{ files_to_configure + fact_files_to_download + fact_templates_to_render + fact_templates_to_render_after_installing_os_packages }}"
   when:
     - not fact_enable_custom_fact
     - fact_category in ansible_run_tags or "all" in ansible_run_tags
