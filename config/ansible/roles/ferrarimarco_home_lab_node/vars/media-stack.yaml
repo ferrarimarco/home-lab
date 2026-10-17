@@ -120,8 +120,11 @@ media_stack_files_to_configure:
   - path: "{{ media_stack_torrent_configuration_directory_path }}/qBittorrent.conf"
     state: absent
 
-# Set the group owner of the library to users (100)
-media_library_owner_group_id: 100
+# The library lives on a CIFS mount that forces the stack's group on every
+# file (gid=1000 in the mount options), and the containers run with the same
+# PGID, so the library directories take the stack's group: a different value
+# would never stick and would report a change on every run
+media_library_owner_group_id: "{{ media_stack_owner_group_id }}"
 
 # The qbittorrent container image creates a user with the specified uid and gid that takes owenership of the configuration directory.
 # Ansible may emit a warning because a user with such ids doesn't exist on the system, but it does in the container.

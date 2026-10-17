@@ -4,8 +4,8 @@ services:
     image: {{ container_images_ids["flaresolverr"] }}
     container_name: flaresolverr
     environment:
-      - PUID={{ media_stack_owner_group_id }}
-      - PGID={{ media_stack_owner_user_id }}
+      - PUID={{ media_stack_owner_user_id }}
+      - PGID={{ media_stack_owner_group_id }}
       - TZ={{ timezone }}
     ports:
       - {{ media_stack_flaresolverr_port }}:8191
@@ -38,8 +38,8 @@ services:
     # The Seerr image ships no init process
     init: true
     environment:
-      - PUID={{ media_stack_owner_group_id }}
-      - PGID={{ media_stack_owner_user_id }}
+      - PUID={{ media_stack_owner_user_id }}
+      - PGID={{ media_stack_owner_group_id }}
       - TZ={{ timezone }}
     ports:
       - {{ media_stack_jellyseerr_port }}:5055
@@ -50,8 +50,8 @@ services:
     image: {{ container_images_ids["lidarr"] }}
     container_name: lidarr
     environment:
-      - PUID={{ media_stack_owner_group_id }}
-      - PGID={{ media_stack_owner_user_id }}
+      - PUID={{ media_stack_owner_user_id }}
+      - PGID={{ media_stack_owner_group_id }}
       - TZ={{ timezone }}
     ports:
       - {{ media_stack_lidarr_port }}:8686
@@ -63,8 +63,8 @@ services:
     image: {{ container_images_ids["prowlarr"] }}
     container_name: prowlarr
     environment:
-      - PUID={{ media_stack_owner_group_id }}
-      - PGID={{ media_stack_owner_user_id }}
+      - PUID={{ media_stack_owner_user_id }}
+      - PGID={{ media_stack_owner_group_id }}
       - TZ={{ timezone }}
     ports:
       - {{ media_stack_prowlarr_port }}:9696
@@ -75,8 +75,8 @@ services:
     image: {{ container_images_ids["qbittorrent"] }}
     container_name: qbittorrent-nox
     environment:
-      - PUID={{ media_stack_owner_group_id }}
-      - PGID={{ media_stack_owner_user_id }}
+      - PUID={{ media_stack_owner_user_id }}
+      - PGID={{ media_stack_owner_group_id }}
       - TZ={{ timezone }}
       - WEBUI_PORT={{ qbittorrent_user_interface_port }}
     ports:
@@ -91,8 +91,8 @@ services:
   radarr:
     image: {{ container_images_ids["radarr"] }}
     environment:
-      - PUID={{ media_stack_owner_group_id }}
-      - PGID={{ media_stack_owner_user_id }}
+      - PUID={{ media_stack_owner_user_id }}
+      - PGID={{ media_stack_owner_group_id }}
       - UMASK={{ media_stack_umask }}
       - TZ={{ timezone }}
     ports:
@@ -104,8 +104,8 @@ services:
   sonarr:
     image: {{ container_images_ids["sonarr"] }}
     environment:
-      - PUID={{ media_stack_owner_group_id }}
-      - PGID={{ media_stack_owner_user_id }}
+      - PUID={{ media_stack_owner_user_id }}
+      - PGID={{ media_stack_owner_group_id }}
       - UMASK={{ media_stack_umask }}
       - TZ={{ timezone }}
     ports:

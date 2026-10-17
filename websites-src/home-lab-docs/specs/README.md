@@ -154,17 +154,6 @@ reliability risks first, then security exposure, then automation):
 
 ### Issues to solve
 
-- **Media library group declared as `users` but forced to the media group on
-  hl01 (2026-10-11)**: the node role declares the media library directories
-  (`media_library_owner_group_id`) with group 100, a leftover from the
-  raspberrypi2 local disk, while hl01 mounts the library over CIFS with
-  `gid=1000,forcegid`, so the chgrp silently never sticks and the "Configure
-  directories" task reports eight spurious changes on every media stack run
-  (confirmed on the 2026-10-11 apply and the following check). A host override
-  cannot fix it because role vars beat host vars. Fix: derive the variable from
-  `media_stack_owner_group_id` (1000), which matches the mount options and the
-  containers' `PGID`, then roll out with the media stack scoped check on hl01,
-  expecting no change.
 - Workload issues to solve:
     - Investigate the recurring cam-3 ffmpeg VAAPI decode crashes on hl01 (about
       11 per hour: `Failed to sync surface` then `hwdownload` failures; they
