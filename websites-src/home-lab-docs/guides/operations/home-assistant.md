@@ -2,8 +2,11 @@
 
 Home Assistant runs on hl01 as the `homeassistant` service of the
 `home-assistant` Compose stack, with its configuration under
-`/etc/ferrarimarco-home-lab/home-assistant/config`. Its state can be read from
-that directory without an API token, which is how the checks below work.
+`/etc/ferrarimarco-home-lab/home-assistant/config`. The node role renders
+`configuration.yaml` and `automations.yaml` there from its templates on every
+run, so an automation is fixed in the template (and reloaded with a restart),
+not in the live file alone. Its state can be read from that directory without an
+API token, which is how the checks below work.
 
 ## Read entity, device, and integration state
 
@@ -76,4 +79,9 @@ sudo docker compose --file /etc/ferrarimarco-home-lab/home-assistant/compose.yam
 
 Entities whose discovery config the publisher cleared are removed by Home
 Assistant on its own; compare the registry with the retained `homeassistant/#`
-topics on the broker to confirm nothing is orphaned.
+topics on the broker to confirm nothing is orphaned. The same release dropped
+the legacy entity attributes (the device's whole payload on every entity), so an
+automation or template that reads an attribute of a Zigbee2MQTT entity stops
+silently: check the automations template for `attribute:` on MQTT entities (the
+studio gaming rig automation triggered on the power sensor's `power` attribute
+and went quiet after the 2026-10-17 upgrade).

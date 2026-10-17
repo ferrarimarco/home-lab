@@ -1763,8 +1763,11 @@
 <h1 id="home-assistant-operations">Home Assistant operations</h1>
 <p>Home Assistant runs on hl01 as the <code>homeassistant</code> service of the
 <code>home-assistant</code> Compose stack, with its configuration under
-<code>/etc/ferrarimarco-home-lab/home-assistant/config</code>. Its state can be read from
-that directory without an API token, which is how the checks below work.</p>
+<code>/etc/ferrarimarco-home-lab/home-assistant/config</code>. The node role renders
+<code>configuration.yaml</code> and <code>automations.yaml</code> there from its templates on every
+run, so an automation is fixed in the template (and reloaded with a restart),
+not in the live file alone. Its state can be read from that directory without an
+API token, which is how the checks below work.</p>
 <h2 id="read-entity-device-and-integration-state">Read entity, device, and integration state</h2>
 <p>The <code>.storage</code> directory holds JSON registries, readable as root:</p>
 <ul>
@@ -1823,7 +1826,12 @@ YAML-configured entities.</p>
 </code></pre></div>
 <p>Entities whose discovery config the publisher cleared are removed by Home
 Assistant on its own; compare the registry with the retained <code>homeassistant/#</code>
-topics on the broker to confirm nothing is orphaned.</p>
+topics on the broker to confirm nothing is orphaned. The same release dropped
+the legacy entity attributes (the device's whole payload on every entity), so an
+automation or template that reads an attribute of a Zigbee2MQTT entity stops
+silently: check the automations template for <code>attribute:</code> on MQTT entities (the
+studio gaming rig automation triggered on the power sensor's <code>power</code> attribute
+and went quiet after the 2026-10-17 upgrade).</p>
 
 
 
