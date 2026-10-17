@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/home-assistant-configuration/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/home-assistant/">
       
       
-        <link rel="prev" href="../copy-jinja-templates/">
+        <link rel="prev" href="../hardware/">
       
       
-        <link rel="next" href="../proxmox-admin-notes/">
+        <link rel="next" href="../host-power/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Home Assistant configuration - Home Lab docs</title>
+        <title>Home Assistant operations - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#home-assistant-configuration" class="md-skip">
+        <a href="#home-assistant-operations" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home Assistant configuration
+              Home Assistant operations
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/backups/" class="md-nav__link">
+      <a href="../../../architecture/backups/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../../../architecture/network-configuration/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nix/" class="md-nav__link">
+      <a href="../../../architecture/nix/" class="md-nav__link">
         
   
   
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -395,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../../../architecture/storage-configuration/" class="md-nav__link">
         
   
   
@@ -463,7 +463,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
@@ -486,7 +486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
+      <a href="../../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
         
   
   
@@ -509,7 +509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -532,7 +532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/ont-connection-instability/" class="md-nav__link">
+      <a href="../../../archive/ont-connection-instability/" class="md-nav__link">
         
   
   
@@ -555,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
+      <a href="../../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
         
   
   
@@ -578,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
+      <a href="../../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
         
   
   
@@ -601,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/zte-ont-access/" class="md-nav__link">
+      <a href="../../../archive/zte-ont-access/" class="md-nav__link">
         
   
   
@@ -671,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
+      <a href="../../configure-monitoring/" class="md-nav__link">
         
   
   
@@ -694,7 +694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../configure-network-shares/" class="md-nav__link">
         
   
   
@@ -717,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../../configure-tailscale/" class="md-nav__link">
         
   
   
@@ -740,12 +740,397 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../copy-jinja-templates/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Copy Jinja templates as they are
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../proxmox-admin-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Proxmox administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshoot-unresponsive-host/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshoot an unresponsive host
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../useful-linux-admin-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Linux administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/ansible/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ansible development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/nix-dev-shells/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development shells
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/nix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/todo-list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manage the centralized todo list
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/website-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Develop and build the Home Lab site
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_9">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backup operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../container-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Container migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependency-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dependency updates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hardware operations
     
   </span>
   
@@ -777,7 +1162,7 @@
   
   
   <span class="md-ellipsis">
-    Home Assistant configuration
+    Home Assistant operations
     
   </span>
   
@@ -790,7 +1175,7 @@
   
   
   <span class="md-ellipsis">
-    Home Assistant configuration
+    Home Assistant operations
     
   </span>
   
@@ -813,9 +1198,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#change-network-ups-tools-server-ip-address" class="md-nav__link">
+  <a href="#read-entity-device-and-integration-state" class="md-nav__link">
     <span class="md-ellipsis">
-      Change Network UPS Tools server IP address
+      Read entity, device, and integration state
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mqtt-discovery-updates-and-availability" class="md-nav__link">
+    <span class="md-ellipsis">
+      MQTT discovery updates and availability
     </span>
   </a>
   
@@ -837,390 +1231,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxmox-admin-notes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Proxmox administration notes
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../troubleshoot-unresponsive-host/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Troubleshoot an unresponsive host
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Linux administration notes
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Development
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_9">
-            <span class="md-nav__icon md-icon"></span>
-            Development
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/ansible/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Ansible development
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/nix-dev-shells/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Nix development shells
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Nix development
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/operational-scripts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Operational scripts
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/todo-list/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Manage the centralized todo list
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Develop and build the Home Lab site
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Operations
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_10">
-            <span class="md-nav__icon md-icon"></span>
-            Operations
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/backup/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Backup operations
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/container-migration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Container migration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/dependency-updates/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Dependency updates
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/hardware/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Hardware operations
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/host-power/" class="md-nav__link">
+      <a href="../host-power/" class="md-nav__link">
         
   
   
@@ -1243,7 +1254,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/monitoring/" class="md-nav__link">
+      <a href="../monitoring/" class="md-nav__link">
         
   
   
@@ -1357,7 +1368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -1380,7 +1391,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -1403,7 +1414,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -1479,7 +1490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/" class="md-nav__link">
+      <a href="../../../specs/" class="md-nav__link">
         
   
   
@@ -1502,7 +1513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/declarative-integration-testing/" class="md-nav__link">
+      <a href="../../../specs/declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -1525,7 +1536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../../../specs/home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -1548,7 +1559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/monitoring-alerting/" class="md-nav__link">
+      <a href="../../../specs/monitoring-alerting/" class="md-nav__link">
         
   
   
@@ -1571,7 +1582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/nas-lxc-container/" class="md-nav__link">
+      <a href="../../../specs/nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -1594,7 +1605,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/network-boot/" class="md-nav__link">
+      <a href="../../../specs/network-boot/" class="md-nav__link">
         
   
   
@@ -1617,7 +1628,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-lxc/" class="md-nav__link">
+      <a href="../../../specs/proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -1640,7 +1651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/proxmox-vm/" class="md-nav__link">
+      <a href="../../../specs/proxmox-vm/" class="md-nav__link">
         
   
   
@@ -1663,7 +1674,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../specs/software-candidates/" class="md-nav__link">
+      <a href="../../../specs/software-candidates/" class="md-nav__link">
         
   
   
@@ -1713,9 +1724,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#change-network-ups-tools-server-ip-address" class="md-nav__link">
+  <a href="#read-entity-device-and-integration-state" class="md-nav__link">
     <span class="md-ellipsis">
-      Change Network UPS Tools server IP address
+      Read entity, device, and integration state
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mqtt-discovery-updates-and-availability" class="md-nav__link">
+    <span class="md-ellipsis">
+      MQTT discovery updates and availability
     </span>
   </a>
   
@@ -1740,15 +1760,70 @@
   
 
 
-<h1 id="home-assistant-configuration">Home Assistant configuration</h1>
-<h2 id="change-network-ups-tools-server-ip-address">Change Network UPS Tools server IP address</h2>
-<p>To change the NUT server IP address without reconfiguring the Network UPS Tools
-(NUT) integration, do the following:</p>
-<ol>
-<li>Edit the IP address of the NUT server in
-   <code>$HOME_ASSISTANT_CONFIG_DIR/config/.storage/core.config_entries</code>.</li>
-<li>Restart Home Assistant.</li>
-</ol>
+<h1 id="home-assistant-operations">Home Assistant operations</h1>
+<p>Home Assistant runs on hl01 as the <code>homeassistant</code> service of the
+<code>home-assistant</code> Compose stack, with its configuration under
+<code>/etc/ferrarimarco-home-lab/home-assistant/config</code>. Its state can be read from
+that directory without an API token, which is how the checks below work.</p>
+<h2 id="read-entity-device-and-integration-state">Read entity, device, and integration state</h2>
+<p>The <code>.storage</code> directory holds JSON registries, readable as root:</p>
+<ul>
+<li><code>core.entity_registry</code>: every entity with its <code>platform</code>, <code>unique_id</code>, and
+  <code>device_id</code>; MQTT-discovered entities have <code>platform: mqtt</code>.</li>
+<li><code>core.device_registry</code>: devices with their <code>identifiers</code>; Zigbee2MQTT devices
+  carry <code>["mqtt", "zigbee2mqtt_&lt;ieee&gt;"]</code>.</li>
+<li><code>core.config_entries</code>: integrations with their settings, including the URL or
+  address an integration polls. The repository does not manage them, and a stale
+  one logs a connection error at every poll.</li>
+<li><code>core.restore_state</code>: the last state of every entity, written periodically and
+  at shutdown; enough for a quick look without touching the database.</li>
+</ul>
+<p>After a workload moves hosts, list the integrations that still name the old host
+(the Compose project directory holds the configuration):</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">import json, sys</span>
+<span class="s1">old = sys.argv[1]</span>
+<span class="s1">for e in json.load(open(&quot;/etc/ferrarimarco-home-lab/home-assistant/config/.storage/core.config_entries&quot;))[&quot;data&quot;][&quot;entries&quot;]:</span>
+<span class="s1">    if old in json.dumps(e[&quot;data&quot;]): print(e[&quot;domain&quot;], e[&quot;title&quot;], e[&quot;data&quot;])</span>
+<span class="s1">&#39;</span><span class="w"> </span>&lt;old<span class="w"> </span>host<span class="w"> </span>name&gt;
+</code></pre></div>
+<p>Re-point each one in the interface (Settings, Devices and services, the
+integration, Reconfigure, where the integration offers it; otherwise remove and
+re-add it). An integration with neither flow, such as the Network UPS Tools
+server address, can be edited in <code>core.config_entries</code> directly with Home
+Assistant stopped, then started again.</p>
+<p>Current entity states are in the recorder database, which SQLite keeps in
+write-ahead mode: copy <code>home-assistant_v2.db</code> together with its <code>-wal</code> and
+<code>-shm</code> files to a temporary directory, query the copy, and delete it. A copy
+taken while the recorder writes can be inconsistent; retry if the query fails.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Latest recorded state of every entity</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">entity_id</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="k">state</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">last_updated_ts</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">states</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">states_meta</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">metadata_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="n">metadata_id</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">state_id</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">MAX</span><span class="p">(</span><span class="n">state_id</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">states</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">metadata_id</span><span class="p">);</span>
+</code></pre></div>
+<p>Counting the MQTT entities whose latest state is <code>unavailable</code> is the check that
+tells whether an MQTT-side change reached Home Assistant; <code>unknown</code> is the
+normal state of entities that have no value until used (effect settings, the
+network map).</p>
+<h2 id="mqtt-discovery-updates-and-availability">MQTT discovery updates and availability</h2>
+<p>On a discovery update Home Assistant re-subscribes only the topics that changed
+and keeps the availability it already holds per topic (verified in the MQTT
+integration of 2026.8.3). When a publisher changes the availability payload
+format, as Zigbee2MQTT 2.x did by switching from <code>online</code> to
+<code>{"state":"online"}</code>, entities discovered under the old format stay
+<code>unavailable</code> until a new availability message arrives, while entities
+discovered after the change work. Make every entity subscribe afresh, so the
+broker redelivers the retained messages: restart Home Assistant (the verified
+path on 2026-10-17), or reload the MQTT config entry from the menu of its entry
+row under Settings, Devices and services, which the interface offers for
+integrations that support unloading (expected to have the same effect, not
+tried). The <code>mqtt.reload</code> action is not an alternative: it reloads only
+YAML-configured entities.</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--file<span class="w"> </span>/etc/ferrarimarco-home-lab/home-assistant/compose.yaml<span class="w"> </span>restart<span class="w"> </span>homeassistant
+</code></pre></div>
+<p>Entities whose discovery config the publisher cleared are removed by Home
+Assistant on its own; compare the registry with the retained <code>homeassistant/#</code>
+topics on the broker to confirm nothing is orphaned.</p>
 
 
 
@@ -1803,10 +1878,10 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>

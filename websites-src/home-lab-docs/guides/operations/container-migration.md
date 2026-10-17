@@ -50,7 +50,11 @@ cutover, hardware dependencies) need case-by-case review.
 1. Update the endpoint definitions (the `*_endpoint_fqdn` variables in the
    `ferrarimarco_home_lab_node` role's `vars/main.yaml`) so monitoring probes
    and cross-host references point at the target host, then re-render the
-   monitoring backend on both members of its pair.
+   monitoring backend on both members of its pair. Consumers configured outside
+   the repository, such as the Home Assistant integrations that hold a service
+   URL, are re-pointed in their own interface: the
+   [Home Assistant operations guide](./home-assistant.md) shows how to list the
+   ones that name the old host.
 1. Run Ansible.
 1. Verify that the containers work in the target environment as expected:
    service health, application state present (libraries, histories, settings),

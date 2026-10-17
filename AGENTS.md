@@ -52,7 +52,11 @@ troubleshooting workflows, verification recipes) belongs in the guides under
 [`websites-src/home-lab-docs/guides/`](./websites-src/home-lab-docs/guides/),
 not in this file. When a task produces such knowledge, record the substance in
 the relevant guide (creating one if needed) and add at most a brief pointer
-here: this file carries rules and pointers, not the knowledge itself.
+here: this file carries rules and pointers, not the knowledge itself. Each fact
+has one home: a new page links to where a fact already lives (the backups
+architecture page holds the verification matrix, the operations guide the
+recipes) instead of restating it, and overlap between pages is removed rather
+than reworded.
 
 ## 2. Agent Workflow Rules (Crucial)
 
@@ -280,6 +284,13 @@ architectural patterns:
   control machine. Connect as `root` to the Proxmox nodes, as `debian` to the
   hl01 VM, and as `pi` to the raspberrypi2 host. Use read-only commands freely
   for discovery; get approval for state-changing commands.
+- **Home Assistant state is read from its storage files on hl01** (entity and
+  device registries, a copy of the recorder database), without an API token, as
+  the
+  [Home Assistant operations guide](./websites-src/home-lab-docs/guides/operations/home-assistant.md)
+  describes; after a change that alters MQTT discovery payloads (a Zigbee2MQTT
+  major upgrade), entities discovered before it stay unavailable until Home
+  Assistant re-subscribes, which a restart does.
 - **The Prometheus backend runs on raspberrypi2** (port 9090, host-local). Query
   it over SSH for historical metrics evidence during incident investigations;
   the

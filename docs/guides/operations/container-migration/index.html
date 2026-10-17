@@ -763,29 +763,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../home-assistant-configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Home Assistant configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../proxmox-admin-notes/" class="md-nav__link">
         
   
@@ -863,10 +840,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" >
         
           
-          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
             
   
   
@@ -879,8 +856,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_9">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
             <span class="md-nav__icon md-icon"></span>
             Development
           </label>
@@ -1049,10 +1026,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_10" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" checked>
         
           
-          <label class="md-nav__link" for="__nav_4_10" id="__nav_4_10_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
             
   
   
@@ -1065,8 +1042,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_10_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_10">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_9">
             <span class="md-nav__icon md-icon"></span>
             Operations
           </label>
@@ -1223,6 +1200,29 @@
   
   <span class="md-ellipsis">
     Hardware operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home-assistant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Assistant operations
     
   </span>
   
@@ -1828,7 +1828,11 @@ cutover, hardware dependencies) need case-by-case review.</p>
 <li>Update the endpoint definitions (the <code>*_endpoint_fqdn</code> variables in the
    <code>ferrarimarco_home_lab_node</code> role's <code>vars/main.yaml</code>) so monitoring probes
    and cross-host references point at the target host, then re-render the
-   monitoring backend on both members of its pair.</li>
+   monitoring backend on both members of its pair. Consumers configured outside
+   the repository, such as the Home Assistant integrations that hold a service
+   URL, are re-pointed in their own interface: the
+   <a href="../home-assistant/">Home Assistant operations guide</a> shows how to list the
+   ones that name the old host.</li>
 <li>Run Ansible.</li>
 <li>Verify that the containers work in the target environment as expected:
    service health, application state present (libraries, histories, settings),
