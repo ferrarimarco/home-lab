@@ -1,15 +1,22 @@
+# Settings version 5 (Zigbee2MQTT 2.x): the sections below are the shape the
+# settings migration produces, so a rendered file needs no migration
+version: 5
 advanced:
   network_key: '!secret network_key'
   log_level: info
-availability: true
+availability:
+  enabled: true
 devices: devices.yaml
-frontend: true
+frontend:
+  enabled: true
 groups: groups.yaml
-homeassistant: true
+homeassistant:
+  enabled: true
 mqtt:
   base_topic: zigbee2mqtt
   server: mqtt://{{ mosquitto_server_fqdn }}:1883
-permit_join: false
 serial:
+  # The ezsp driver is deprecated but required by the adapter's EmberZNet 6.10
+  # firmware; the ember driver needs 7.4 or later (see the specs todo list)
   adapter: ezsp
   port: /dev/ttyACM0

@@ -789,16 +789,19 @@ reliability risks first, then security exposure, then automation):
 - Weather station:
   [Adafruit Wi-Fi weather station](https://learn.adafruit.com/wifi-weather-station-with-tft-display),
   [esp32-weather-epd](https://github.com/lmarzen/esp32-weather-epd).
-- **Zigbee2MQTT 2.x upgrade on raspberrypi2**: the host still runs the 1.41.0
-  image rendered before the repository pin moved to the 2.x line (2.14.2 as of
-  2026-10-09), so the next playbook run on raspberrypi2 upgrades it across the
-  2.0.0 breaking release (legacy settings and payloads removed, automatic
-  settings migration, Home Assistant 2024.9 or later required). Read the
-  [2.0.0 migration discussion](https://github.com/Koenkk/zigbee2mqtt/discussions/24198)
-  first, archive the data directory, and run the upgrade on purpose rather than
-  as a side effect of another change; the rendered configuration template must
-  drop the settings 2.x rejects. The 1.x data directory is backed up on update,
-  so a rollback restores it together with the 1.41.0 image.
+- **Sonoff Zigbee dongle firmware and the `ember` driver**: the Sonoff Zigbee
+  3.0 USB Dongle Plus V2 on raspberrypi2 runs EmberZNet 6.10.3 (EZSP v8, read
+  from the retained bridge info on the broker on 2026-10-16), so Zigbee2MQTT 2.x
+  drives it through the deprecated `ezsp` driver, kept only for firmware older
+  than 7.4. Flash EmberZNet 7.4 or later (the firmware builders listed on the
+  [Zigbee2MQTT EmberZNet adapter page](https://www.zigbee2mqtt.io/guide/adapters/emberznet.html),
+  from a machine with USB access, which the Crostini workstation is not, or from
+  raspberrypi2 itself with a flasher container), then switch `serial.adapter` to
+  `ember` in the rendered configuration template. The coordinator backup and the
+  restic snapshot carry the network, so a reflash that loses it is recoverable.
+  On the 2.14.2 upgrade (2026-10-17) the `ezsp` driver timed out on the adapter
+  on the first two starts and connected on the third, under the Compose restart
+  policy: another reason to move to `ember`.
 - Lock-state sensing for the existing door locks: a Zigbee water-leak sensor
   with an external two-wire probe, hidden in the door frame, with each probe
   wire ending in a foil pad inside the strike box; the thrown deadbolt bridges
