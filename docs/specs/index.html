@@ -2414,6 +2414,11 @@ reliability risks first, then security exposure, then automation):</p>
   declared by an image stay out of reach without a pull and hold no state by
   the same convention.</li>
 <li>SSH configuration validation: <code>"{{ sshd_path }} -T -f %s"</code>.</li>
+<li>Declare one rsync module in the Molecule inventory (2026-10-18): the test
+  host enables the rsync daemon without <code>rsync_daemon_modules</code>, so the loop
+  that builds the daemon's templates list never runs in CI, and the quoted
+  folded scalar that turned the list into a string under ansible-core 2.19
+  (fixed the same day) only failed on hl01.</li>
 </ul>
 </li>
 <li>Ansible:<ul>
@@ -2449,6 +2454,18 @@ reliability risks first, then security exposure, then automation):</p>
   node role, or skip the Docker-bound units when Docker is not installed
   (and still render them). Blocks: testing <code>home-lab-node</code> on its own in the
   Molecule matrix, in the workflow cost item above.</li>
+<li>Reconcile the node role with the Proxmox nodes (2026-10-18): a full
+  <code>--check --diff</code> of <code>home-lab-node.yaml</code> on pve1 predicts fourteen changed
+  tasks that tag-scoped runs never delivered, among them the inventory's SSH
+  hardening (<code>PermitRootLogin no</code> and <code>AllowUsers root</code> with a sshd restart,
+  which would lock out the root access the lab uses on the Proxmox nodes),
+  the removal of the Debian sample <code>/etc/samba/smb.conf</code> with a smbd
+  restart, fail2ban and unattended-upgrades installs, and the containerized
+  node exporter next to the packaged one. Either opt the Proxmox nodes out
+  of the SSH and samba stacks by inventory data, or align the sshd settings
+  with how the nodes are accessed, so a full run becomes safe there; until
+  then runs on the nodes stay scoped to the stack tags plus <code>untagged</code>.
+  Related: the monitoring role consolidation item above.</li>
 </ul>
 </li>
 <li>Dependency updates: fully migrate from Dependabot to Renovate, so a single
@@ -2465,6 +2482,20 @@ reliability risks first, then security exposure, then automation):</p>
   packages on the Proxmox nodes, so the apt success-stamp snippet lives in both
   roles (2026-10-12); the monitoring playbook also targets every host with no
   gate, so it must be run with a host limit until the roles merge.</li>
+<li><strong>The Proxmox nodes have only ever had tag-scoped node runs (2026-10-18)</strong>: a
+  full <code>--check --diff</code> of <code>home-lab-node.yaml</code> on pve1 predicts fourteen
+  changes none of the recent work asked for, among them the SSH hardening
+  (<code>PermitRootLogin no</code>, <code>PasswordAuthentication no</code>, <code>AllowUsers root</code> and an
+  sshd restart, which would lock out the root login the lab uses on the nodes),
+  the removal of the Debian sample <code>smb.conf</code> with an smbd restart, fail2ban and
+  unattended-upgrades with their configurations, and the containerized node
+  exporter next to the packaged one. Until the stacks the nodes should not run
+  are opted out by inventory data (the SSH, Samba, and containerized monitoring
+  stacks at least) or the <code>sshd</code> settings are reconciled with how the nodes are
+  reached, run the node playbook on pve1 and pve2 only with tags; the untagged
+  tasks alone are safe (timezone, the systemd configuration directory, the venv
+  build script, applied on pve1 on 2026-10-18). Related: the monitoring role
+  consolidation item above, which decides which role owns the nodes.</li>
 <li>NixOS VMs (<a href="proxmox-vm/">NixOS VMs on Proxmox</a>): factor the per-host
   Terraform VM resources into a shared module (or <code>for_each</code> over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code

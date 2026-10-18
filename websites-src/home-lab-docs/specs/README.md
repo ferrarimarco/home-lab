@@ -344,6 +344,11 @@ reliability risks first, then security exposure, then automation):
       declared by an image stay out of reach without a pull and hold no state by
       the same convention.
     - SSH configuration validation: `"{{ sshd_path }} -T -f %s"`.
+    - Declare one rsync module in the Molecule inventory (2026-10-18): the test
+      host enables the rsync daemon without `rsync_daemon_modules`, so the loop
+      that builds the daemon's templates list never runs in CI, and the quoted
+      folded scalar that turned the list into a string under ansible-core 2.19
+      (fixed the same day) only failed on hl01.
 - Ansible:
     - Get the Proxmox VMs data from the inventory instead of using the
       proxmox_vms list.
@@ -391,6 +396,20 @@ reliability risks first, then security exposure, then automation):
   packages on the Proxmox nodes, so the apt success-stamp snippet lives in both
   roles (2026-10-12); the monitoring playbook also targets every host with no
   gate, so it must be run with a host limit until the roles merge.
+- **The Proxmox nodes have only ever had tag-scoped node runs (2026-10-18)**: a
+  full `--check --diff` of `home-lab-node.yaml` on pve1 predicts fourteen
+  changes none of the recent work asked for, among them the SSH hardening
+  (`PermitRootLogin no`, `PasswordAuthentication no`, `AllowUsers root` and an
+  sshd restart, which would lock out the root login the lab uses on the nodes),
+  the removal of the Debian sample `smb.conf` with an smbd restart, fail2ban and
+  unattended-upgrades with their configurations, and the containerized node
+  exporter next to the packaged one. Until the stacks the nodes should not run
+  are opted out by inventory data (the SSH, Samba, and containerized monitoring
+  stacks at least) or the `sshd` settings are reconciled with how the nodes are
+  reached, run the node playbook on pve1 and pve2 only with tags; the untagged
+  tasks alone are safe (timezone, the systemd configuration directory, the venv
+  build script, applied on pve1 on 2026-10-18). Related: the monitoring role
+  consolidation item above, which decides which role owns the nodes.
 - NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host
   Terraform VM resources into a shared module (or `for_each` over a host map)
   once a second NixOS VM exists, so the reference pattern is enforced by code
