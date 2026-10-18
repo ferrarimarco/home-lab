@@ -37,6 +37,10 @@ services:
       - RESTIC_REPOSITORY={{ restic_repository_container_destination_path }}
       - RESTIC_PASSWORD="{{ backup_job.restic_repository_password }}"
       - REFRESH_INTERVAL={{ backup_job.restic_monitoring_refresh_interval }}
+      # Exit on a restic error instead of serving no series until the next
+      # refresh: at boot the exporter can start before the backups share is
+      # mounted, and the restart policy then retries until it is
+      - EXIT_ON_ERROR=true
     volumes:
       - {{ backup_job.restic_repository_host_path }}:{{ restic_repository_container_destination_path }}
     ports:
