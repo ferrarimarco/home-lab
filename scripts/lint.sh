@@ -93,4 +93,29 @@ SUPER_LINTER_COMMAND+=(
 )
 
 echo "Super-linter command: ${SUPER_LINTER_COMMAND[*]}"
-"${SUPER_LINTER_COMMAND[@]}"
+SUPER_LINTER_EXIT_CODE=0
+"${SUPER_LINTER_COMMAND[@]}" || SUPER_LINTER_EXIT_CODE="${?}"
+
+# The linter container runs as root, and super-linter doesn't support running
+# as another user, so the files it writes into the checkout are root-owned and
+# a disposable checkout (a Git worktree) can't be removed by the host user.
+# Reset their ownership through a second container run, whatever the lint
+# verdict was.
+LINTER_OUTPUT_PATHS=()
+for LINTER_OUTPUT_PATH in super-linter.log super-linter-output; do
+  if [ -e "${LINTER_OUTPUT_PATH}" ]; then
+    LINTER_OUTPUT_PATHS+=("/tmp/lint/${LINTER_OUTPUT_PATH}")
+  fi
+done
+
+if [ "${#LINTER_OUTPUT_PATHS[@]}" -gt 0 ]; then
+  echo "Resetting the ownership of the linter output to $(id -u):$(id -g): ${LINTER_OUTPUT_PATHS[*]}"
+  docker run \
+    --entrypoint chown \
+    --rm \
+    --volume "$(pwd)":/tmp/lint \
+    "${LINTER_CONTAINER_IMAGE}" \
+    --recursive "$(id -u):$(id -g)" "${LINTER_OUTPUT_PATHS[@]}"
+fi
+
+exit "${SUPER_LINTER_EXIT_CODE}"

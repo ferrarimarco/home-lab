@@ -412,16 +412,6 @@ reliability risks first, then security exposure, then automation):
     - Check that configured users have their SSH keys authorized (reuse the
       existing bootstrap key check because it already does most of the stuff we
       need for this check).
-- Lint script output ownership: the linter container runs as root, and
-  super-linter does not support running as another user, so the files it writes
-  into the checkout (`super-linter.log` and `super-linter-output/`) are
-  root-owned. In the main checkout they are ignored and never deleted, so this
-  only shows up when the checkout is disposable: a Git worktree with linter
-  output cannot be removed without root (observed 2026-10-05). Fix: add a
-  cleanup step to `scripts/lint.sh` that resets the ownership of the output
-  paths to the host user through a second container run after the lint, in check
-  mode and fix mode alike. Verify by linting in a throwaway worktree and
-  removing it with `git worktree remove` as the host user.
 
 ### Host configuration
 
