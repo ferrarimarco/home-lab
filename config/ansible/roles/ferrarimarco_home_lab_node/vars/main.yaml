@@ -40,7 +40,6 @@ configuration_directories:
     state: directory
   - path: "{{ systemd_manager_configuration_directory_path }}"
     state: directory
-cron_jobs: []
 directories_to_ensure_ownership:
   - "/etc"
 default_docker_compose_file_name: "compose.yaml"

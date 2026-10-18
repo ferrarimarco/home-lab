@@ -10,7 +10,6 @@
     apt_packages: "{{ apt_packages + fact_os_packages }}"
     apt_repositories: "{{ apt_repositories + fact_os_package_repositories }}"
     configuration_directories: "{{ configuration_directories + fact_configuration_directories }}"
-    cron_jobs: "{{ cron_jobs + fact_cron_jobs }}"
     files_to_configure: "{{ files_to_configure + fact_files_to_configure }}"
     files_to_download: "{{ files_to_download + fact_files_to_download }}"
     os_groups: "{{ os_groups + fact_os_groups }}"

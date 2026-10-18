@@ -52,7 +52,6 @@
         fact_category: "{{ item.fact_category }}"
         fact_configuration_directories: "{{ item.fact_configuration_directories | default([]) }}"
         fact_configure_dns_records: "{{ item.fact_configure_dns_records | default(true) }}"
-        fact_cron_jobs: "{{ item.fact_cron_jobs | default([]) }}"
         fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
         fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
         fact_enable_custom_fact: "{{ item.enable_custom_fact }}"
@@ -82,12 +81,6 @@
       fact_templates_to_render: "{{ systemd_watchdog_templates_to_render }}"
     - enable_custom_fact: "{{ configure_docker }}"
       fact_category: "docker"
-      fact_cron_jobs:
-        - become: true
-          name: docker system prune
-          cron_file: ansible_docker-system-prune
-          # Remove because we refactored this job as a systemd timer
-          state: absent
       fact_files_to_configure:
         # Remove because we use the Docker Compose plugin
         - path: /usr/local/bin/docker-compose

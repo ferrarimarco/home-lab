@@ -369,8 +369,6 @@ reliability risks first, then security exposure, then automation):
       redefining variables in the molecule file
       ([reference](https://ansible.readthedocs.io/projects/molecule/configuration/#molecule.provisioner.ansible.Ansible)).
     - Set the hostname (`/etc/hostname`: simple hostname).
-    - Delete the leftover cron-removal task (setup-cron.yaml) now that all jobs
-      are systemd timers.
     - Use the `zigbee2mqtt_data_directory_path` variable in the zigbee2mqtt
       compose file.
     - Use the `home_assistant_configuration_config_directory_path` variable in

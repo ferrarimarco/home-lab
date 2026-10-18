@@ -180,9 +180,6 @@
   become: true
   when: has_argonone_case
 
-- name: Import Cron Job tasks
-  ansible.builtin.import_tasks: setup-cron.yaml
-
 - name: Import Tailscale tasks
   ansible.builtin.import_tasks: setup-tailscale.yaml
   when: configure_tailscale and ("tailscale" in ansible_run_tags or "all" in ansible_run_tags)
