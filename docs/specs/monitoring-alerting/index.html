@@ -2652,6 +2652,13 @@ with operational experience.</p>
 <td style="text-align: left;">A Debian host without apt metrics: the collector is not deployed (hl01 was never converged with the stack until 2026-10-12) or its timer stopped.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>AptUpgradesPending</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>apt_upgrades_pending &gt; 0</code></td>
+<td style="text-align: left;">14 d</td>
+<td style="text-align: left;">Upgrades pending for two weeks from one origin: a third-party repository unattended-upgrades does not cover (Docker, Tailscale) on the Debian hosts, or any origin on the Proxmox nodes, which upgrade by hand. A nudge to read the release notes and upgrade on purpose, not an automatic upgrade.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>NodeTextfileStale</code></td>
 <td style="text-align: left;">warning</td>
 <td style="text-align: left;"><code>time() - node_textfile_mtime_seconds{file!~".*\\.static\\.prom"} &gt; 26 * 3600</code></td>

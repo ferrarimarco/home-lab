@@ -1,3 +1,6 @@
 APT::Periodic::AutocleanInterval "7";
 APT::Periodic::Unattended-Upgrade "1";
 APT::Periodic::Update-Package-Lists "1";
+// Remove what apt autoremove would at the end of each run; unused kernels are
+// already removed by the tool's default
+Unattended-Upgrade::Remove-Unused-Dependencies "true";

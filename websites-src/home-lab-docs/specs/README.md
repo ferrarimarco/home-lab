@@ -309,6 +309,11 @@ reliability risks first, then security exposure, then automation):
   (Gitea or Forgejo) once one exists: the Proxmox images and the NixOS host
   configurations, so consumers fetch pinned artifacts instead of depending on a
   local build. Related: the automated template upload item ([NAS](#nas)).
+- Prometheus rule unit tests: run `promtool test rules` over the alerting rules
+  in CI, from the pinned Prometheus image, with a case per rule (the rules were
+  checked by hand against live series so far). Record the gotcha the ad hoc
+  tests of 2026-10 hit: a `for:` clause only fires in a test whose input
+  interval equals the rule group's evaluation interval.
 - Validate the Dependabot configuration in CI: check `.github/dependabot.yaml`
   against its schema, as the
   [dependency updates guide](../guides/operations/dependency-updates.md)

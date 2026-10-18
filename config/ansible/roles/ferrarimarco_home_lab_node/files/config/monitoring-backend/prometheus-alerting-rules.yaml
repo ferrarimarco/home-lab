@@ -53,6 +53,23 @@ groups:
             {{ $labels.instance }} runs Debian but exports no apt metrics: the
             apt collector is not deployed or its timer stopped, so failed
             updates on it go unnoticed.
+      - alert: AptUpgradesPending
+        # On hosts with unattended-upgrades the Debian origins clear within a
+        # day, so only third-party origins (Docker, Tailscale) survive two
+        # weeks; on the Proxmox nodes, which upgrade by hand, every origin
+        # counts. Prometheus restores the for-state across restarts shorter
+        # than its outage tolerance (1h), so the two weeks survive a reload.
+        expr: apt_upgrades_pending > 0
+        for: 14d
+        labels:
+          severity: warning
+        annotations:
+          summary: "Upgrades pending for two weeks on {{ $labels.instance }}"
+          description: >-
+            {{ $labels.instance }} has had {{ $value }} upgrades pending from
+            {{ $labels.origin }} for two weeks: unattended-upgrades does not
+            cover that origin, or the host has none. Read the release notes
+            and run the upgrade on purpose.
       - alert: NodeTextfileStale
         # Files named *.static.prom are rendered by Ansible and have no producer
         # timer, so their age carries no signal.
