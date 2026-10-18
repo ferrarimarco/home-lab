@@ -24,7 +24,6 @@ mount_credential_files:
 mount_os_packages:
   - cifs-utils
 has_argonone_case: true
-has_coral_usb_accelerator: true
 # The BCM2711 hardware watchdog supports timeouts up to about 15 seconds
 systemd_runtime_watchdog_seconds: 15
 restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"

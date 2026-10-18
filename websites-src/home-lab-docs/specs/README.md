@@ -142,9 +142,7 @@ reliability risks first, then security exposure, then automation):
           firmware configuration path moved under `/boot/firmware`; dhcpcd was
           replaced by NetworkManager, so the dhcpcd task and its restart handler
           have no target; fail2ban needs the systemd backend without rsyslog;
-          the swap file package may be gone. Also drop the unused Coral flag
-          from raspberrypi2: nothing there uses the USB accelerator since
-          Frigate left, and the Coral apt repository is stale.
+          the swap file package may be gone.
         - Documentation: the provisioning guide (EEPROM editing from the OS, the
           rescue procedure, the manual follow-ups), the restore recipe
           ([Backup](#backup)), and the unresponsive host runbook.
