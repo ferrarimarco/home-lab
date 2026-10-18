@@ -54,11 +54,12 @@ services:
       - alertmanager
     restart: unless-stopped
     volumes:
-      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
-      - ./prometheus-alerting-rules.yaml:/etc/prometheus/alerting-rules.yaml
+      # A directory, not single files: a file Ansible replaces is then visible
+      # to the running process, so a SIGHUP reload picks it up
+      - ./prometheus:/etc/prometheus/config:ro
       - {{ monitoring_backend_prometheus_data_directory }}:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--config.file=/etc/prometheus/config/prometheus.yaml'
       - '--storage.tsdb.path=/prometheus'
 {% if monitoring_backend_prometheus_metrics_retention_time is defined %}
       - '--storage.tsdb.retention.time={{ monitoring_backend_prometheus_metrics_retention_time }}'

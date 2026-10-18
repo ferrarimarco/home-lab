@@ -103,6 +103,20 @@
       + system_wide_rendered_templates_after_installing_os_packages.results | default([])
     }}
 
+- name: Initialize the list of Docker Compose services to reload
+  ansible.builtin.set_fact:
+    docker_compose_services_to_reload: "{{ docker_compose_services_to_reload | default([]) + item.item.docker_compose_services_to_reload }}"
+  when:
+    - item.changed
+    - item.item.docker_compose_services_to_reload is defined
+  with_items: >
+    {{
+      copied_configuration_files.results | default([])
+      + configured_files_and_directories_result.results | default([])
+      + system_wide_rendered_templates.results
+      + system_wide_rendered_templates_after_installing_os_packages.results | default([])
+    }}
+
 - name: Debug docker_compose_services_to_restart
   ansible.builtin.debug:
     var: docker_compose_services_to_restart
@@ -123,6 +137,28 @@
   with_items: "{{ docker_compose_services_to_restart | unique }}"
   # Molecule skips the tasks with the molecule-notest tag. There are no
   # containerized services to restart in tests because tests don't start
+  # them. See the pull task above for why always is needed.
+  tags:
+    - molecule-notest
+    - always
+
+# A reload keeps the service's runtime state (Prometheus keeps its alert
+# state across a SIGHUP, a restart loses it); the service must handle the
+# signal and read its files from a directory mount.
+- name: Reload Docker Compose services
+  changed_when: true
+  ansible.builtin.command: >
+    docker compose \
+    --file {{ item.compose_file_path }} \
+    kill --signal SIGHUP {{ item.service_name }}
+  when:
+    - configure_docker
+    - item.start_containerized_services
+    # The service was just (re)created, so it read the current files
+    - item.compose_file_path not in started_docker_compose_services | default([])
+  with_items: "{{ docker_compose_services_to_reload | default([]) | unique }}"
+  # Molecule skips the tasks with the molecule-notest tag. There are no
+  # containerized services to reload in tests because tests don't start
   # them. See the pull task above for why always is needed.
   tags:
     - molecule-notest

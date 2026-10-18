@@ -137,12 +137,25 @@ home_assistant_files_to_configure:
 home_lab_configuration_directory_path: "/etc/ferrarimarco-home-lab"
 monitoring_backend_grafana_user_user_id: "472"
 monitoring_backend_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring-backend"
+monitoring_backend_prometheus_configuration_directory_path: "{{ monitoring_backend_configuration_directory_path }}/prometheus"
+# Prometheus re-reads its configuration and rule files on SIGHUP and keeps the
+# alert state, which a container restart loses (every rule with a for clause
+# goes back to pending, and Alertmanager resolves and re-notifies)
+monitoring_backend_prometheus_reload_items:
+  - compose_file_path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
+    service_name: prometheus
+    start_containerized_services: "{{ start_monitoring_backend | default(configure_monitoring_backend) }}"
 monitoring_backend_grafana_configuration_directory_path: "{{ monitoring_backend_configuration_directory_path }}/grafana"
 monitoring_backend_grafana_dashboards_directory_path: "{{ monitoring_backend_grafana_configuration_directory_path }}/dashboards"
 monitoring_backend_grafana_dashboard_definitions_directory_path: "{{ monitoring_backend_grafana_dashboards_directory_path }}/dashboard-definitions"
 monitoring_backend_grafana_datasources_directory_path: "{{ monitoring_backend_grafana_configuration_directory_path }}/datasources"
 monitoring_backend_configuration_directories:
   - path: "{{ monitoring_backend_configuration_directory_path }}"
+    state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
+  # Mounted as a directory into the Prometheus container, so a file the role
+  # replaces (a new inode) is visible to the running process and a reload
+  # picks it up; a single-file bind mount keeps the old inode
+  - path: "{{ monitoring_backend_prometheus_configuration_directory_path }}"
     state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
   - path: "{{ monitoring_backend_runtime_data_directory }}"
     state: "{{ configure_monitoring_backend | ternary('directory', 'absent') }}"
@@ -211,9 +224,14 @@ monitoring_backend_files_to_configure:
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
   - src: "{{ monitoring_backend_configuration_source_directory_path }}/prometheus-alerting-rules.yaml"
-    dest: "{{ monitoring_backend_configuration_directory_path }}/prometheus-alerting-rules.yaml"
+    dest: "{{ monitoring_backend_prometheus_configuration_directory_path }}/prometheus-alerting-rules.yaml"
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+    docker_compose_services_to_reload: "{{ monitoring_backend_prometheus_reload_items }}"
+  # The Prometheus files lived at the stack directory root until 2026-10
+  - path: "{{ monitoring_backend_configuration_directory_path }}/prometheus-alerting-rules.yaml"
+    state: absent
+  - path: "{{ monitoring_backend_configuration_directory_path }}/{{ default_prometheus_configuration_file_name }}"
+    state: absent
 monitoring_backend_configuration_source_directory_path: "config/monitoring-backend"
 monitoring_backend_grafana_configuration_source_directory_path: "{{ monitoring_backend_configuration_source_directory_path }}/grafana"
 monitoring_backend_dashboards_source_directory_path: "{{ monitoring_backend_grafana_configuration_source_directory_path }}/dashboards"
@@ -259,9 +277,9 @@ monitoring_backend_templates_to_render:
     mode: "0600"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
   - src: "prometheus/{{ default_prometheus_configuration_file_name }}.jinja"
-    dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_prometheus_configuration_file_name }}"
+    dest: "{{ monitoring_backend_prometheus_configuration_directory_path }}/{{ default_prometheus_configuration_file_name }}"
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+    docker_compose_services_to_reload: "{{ monitoring_backend_prometheus_reload_items }}"
   - src: "prometheus-blackbox-exporter/config.yaml.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/prometheus-blackbox-exporter-config.yaml"
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"

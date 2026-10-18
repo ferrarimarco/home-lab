@@ -6,7 +6,7 @@ global:
     replica: "{{ inventory_hostname }}"
 
 rule_files:
-  - /etc/prometheus/alerting-rules.yaml
+  - /etc/prometheus/config/prometheus-alerting-rules.yaml
 
 alerting:
   # Drop the replica-identifying label from outgoing alerts so the

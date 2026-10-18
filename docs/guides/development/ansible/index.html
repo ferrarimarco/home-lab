@@ -1879,6 +1879,17 @@ set of generic tasks applies that data:</p>
   <code>docker system prune --all --force --volumes</code> can remove them without losing
   anything; the backups are the recovery path, and a volume that ever held state
   would be unbacked.</li>
+<li><strong>A changed file restarts, or reloads, the services that read it.</strong> An entry
+  in a stack's file or template list carries <code>os_services_to_restart</code>,
+  <code>docker_compose_services_to_restart</code> (the whole Compose project, after the
+  file changed), or <code>docker_compose_services_to_reload</code> (a <code>SIGHUP</code> to one
+  service of the project, for a service that re-reads its files on the signal
+  and keeps its runtime state, as Prometheus keeps its alert state). A reload
+  only works when the container sees the new file: a single-file bind mount
+  keeps the inode the container opened, so the Prometheus configuration and
+  rules live in a directory mounted as a directory. Grafana's dashboard
+  definitions carry no hook at all: its provisioner re-reads them on its
+  interval.</li>
 <li><strong>Templates for files the workload rewrites are seeds.</strong> A file the
   application edits at runtime (qBittorrent's settings, the Zigbee2MQTT secret,
   the Wi-Fi credentials) is rendered with <code>force: false</code>: it seeds a fresh host

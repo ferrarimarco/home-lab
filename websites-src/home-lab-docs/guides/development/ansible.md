@@ -48,6 +48,17 @@ Conventions the stacks rely on:
   `docker system prune --all --force --volumes` can remove them without losing
   anything; the backups are the recovery path, and a volume that ever held state
   would be unbacked.
+- **A changed file restarts, or reloads, the services that read it.** An entry
+  in a stack's file or template list carries `os_services_to_restart`,
+  `docker_compose_services_to_restart` (the whole Compose project, after the
+  file changed), or `docker_compose_services_to_reload` (a `SIGHUP` to one
+  service of the project, for a service that re-reads its files on the signal
+  and keeps its runtime state, as Prometheus keeps its alert state). A reload
+  only works when the container sees the new file: a single-file bind mount
+  keeps the inode the container opened, so the Prometheus configuration and
+  rules live in a directory mounted as a directory. Grafana's dashboard
+  definitions carry no hook at all: its provisioner re-reads them on its
+  interval.
 - **Templates for files the workload rewrites are seeds.** A file the
   application edits at runtime (qBittorrent's settings, the Zigbee2MQTT secret,
   the Wi-Fi credentials) is rendered with `force: false`: it seeds a fresh host
