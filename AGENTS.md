@@ -170,11 +170,13 @@ describes them all. Key rules:
   as the
   [site development guide](./websites-src/home-lab-docs/guides/development/website-development.md)
   describes) by changing into it. The vault password file and the `vault.yaml`
-  files are gitignored, so copy them from the checkout into the same paths under
-  the worktree's `config/ansible` first, and remove them with the worktree. The
-  script needs the SSH agent socket, which agent shells do not inherit: discover
-  it and prefix the invocation with `SSH_AUTH_SOCK=<socket>`, as documented in
-  the
+  files are gitignored, so hard-link them (`ln`) into the same paths under the
+  worktree's `config/ansible` first, which keeps a single copy of the secret
+  material; a hard link needs the worktree on the checkout's filesystem (a
+  session scratchpad on the same mount qualifies), so copy them when `ln` fails
+  with a cross-device error, and remove them with the worktree. The script needs
+  the SSH agent socket, which agent shells do not inherit: discover it and
+  prefix the invocation with `SSH_AUTH_SOCK=<socket>`, as documented in the
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
   The tag-scoped invocation pattern (stack tag plus `--tags untagged` plus host
   limit) is documented in the
