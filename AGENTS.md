@@ -163,9 +163,18 @@ describes them all. Key rules:
   `--limit`, `--check`, `--diff`) via `ADDITIONAL_ANSIBLE_FLAGS`, edit vault
   files with `ANSIBLE_EDIT_VAULT_FILE=true`, and view them read-only with
   `ANSIBLE_VIEW_VAULT_FILE=true` (both take `ANSIBLE_VAULT_FILE_PATH` to select
-  a non-default vault file). The script needs the SSH agent socket, which agent
-  shells do not inherit: discover it and prefix the invocation with
-  `SSH_AUTH_SOCK=<socket>`, as documented in the
+  a non-default vault file). The script mounts `config/ansible` of the current
+  directory, so a run reads the working tree like the docs build: before an
+  apply, check the status for other sessions' changes under that path and, when
+  there are any, run from a temporary worktree at the reviewed commit (created
+  as the
+  [site development guide](./websites-src/home-lab-docs/guides/development/website-development.md)
+  describes) by changing into it. The vault password file and the `vault.yaml`
+  files are gitignored, so copy them from the checkout into the same paths under
+  the worktree's `config/ansible` first, and remove them with the worktree. The
+  script needs the SSH agent socket, which agent shells do not inherit: discover
+  it and prefix the invocation with `SSH_AUTH_SOCK=<socket>`, as documented in
+  the
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
   The tag-scoped invocation pattern (stack tag plus `--tags untagged` plus host
   limit) is documented in the
