@@ -34,15 +34,13 @@ dependency updates to Renovate.
   [12903](https://github.com/dependabot/dependabot-core/issues/12903) and
   [12957](https://github.com/dependabot/dependabot-core/issues/12957).
 
-To validate the syntax of the configuration file, check it against its schema in
-a container:
+The `check-dependabot` pre-commit hook validates the configuration file against
+its schema on every push and pull request, through the pre-commit job of the
+lint workflow. Run it locally with the pre-commit script, which creates the
+virtual environment it needs:
 
 ```shell
-docker run --rm --volume "$(pwd)/.github:/work:ro" python:3-slim sh -c \
-  'pip install --quiet check-jsonschema \
-    && check-jsonschema \
-      --schemafile https://json.schemastore.org/dependabot-2.0.json \
-      /work/dependabot.yaml'
+scripts/run-pre-commit.sh "pre-commit run --all-files --config config/pre-commit/.pre-commit-config.yaml check-dependabot"
 ```
 
 The schema check only validates the syntax. Dependabot reads the configuration

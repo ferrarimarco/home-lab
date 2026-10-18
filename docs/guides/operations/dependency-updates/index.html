@@ -1811,13 +1811,11 @@ dependency updates to Renovate.</p>
   <a href="https://github.com/dependabot/dependabot-core/issues/12903">12903</a> and
   <a href="https://github.com/dependabot/dependabot-core/issues/12957">12957</a>.</li>
 </ul>
-<p>To validate the syntax of the configuration file, check it against its schema in
-a container:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--volume<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/.github:/work:ro&quot;</span><span class="w"> </span>python:3-slim<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s1">&#39;pip install --quiet check-jsonschema \</span>
-<span class="s1">    &amp;&amp; check-jsonschema \</span>
-<span class="s1">      --schemafile https://json.schemastore.org/dependabot-2.0.json \</span>
-<span class="s1">      /work/dependabot.yaml&#39;</span>
+<p>The <code>check-dependabot</code> pre-commit hook validates the configuration file against
+its schema on every push and pull request, through the pre-commit job of the
+lint workflow. Run it locally with the pre-commit script, which creates the
+virtual environment it needs:</p>
+<div class="highlight"><pre><span></span><code>scripts/run-pre-commit.sh<span class="w"> </span><span class="s2">&quot;pre-commit run --all-files --config config/pre-commit/.pre-commit-config.yaml check-dependabot&quot;</span>
 </code></pre></div>
 <p>The schema check only validates the syntax. Dependabot reads the configuration
 file when you push it to the default branch, and starts a job for each entry.</p>
