@@ -407,6 +407,25 @@ reliability risks first, then security exposure, then automation):
   approval flow, port the grouping, then remove `.github/dependabot.yaml`.
   Dependabot multi-ecosystem groups were abandoned on 2026-09-29 because group
   pull requests stopped updating after their creation.
+- **Reload Prometheus instead of restarting it on a rules or configuration
+  change (2026-10-18)**: the node role's generic handler restarts the whole
+  monitoring backend Compose project whenever one of its rendered files changes,
+  and a Prometheus restart puts every rule with a `for:` clause back to pending
+  long enough for Alertmanager to resolve and re-notify the active alerts (the
+  pve2 downtime set re-fired on the 2026-10-18 rules deploy). A reload (`SIGHUP`
+  or the lifecycle endpoint, already enabled) re-reads the configuration and the
+  rule files and keeps alert state, but the two files are bind-mounted
+  individually, so the inode the template writes is invisible to the running
+  container. Plan: move `prometheus.yaml` and the rules into a `prometheus/`
+  subdirectory of the stack directory mounted read-only as a directory, add a
+  per-entry `docker_compose_services_to_reload` hook to the role (a
+  `docker compose kill --signal SIGHUP <service>` task, skipped when the stack
+  was just recreated) and use it for the two Prometheus entries, document the
+  hook and the mount reason in the Ansible development guide, then exercise the
+  path with a comment-only rules change (uptime unchanged, "completed loading of
+  configuration file" logged, alert start times kept). The Compose change
+  recreates Prometheus one last time. Alertmanager's own configuration can
+  follow the same pattern.
 - Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role. Today the node role deploys the containerized exporters and textfile
   collectors on Docker hosts while the monitoring role installs the Debian
