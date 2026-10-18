@@ -1207,6 +1207,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#change-an-integrations-settings-without-a-reconfigure-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Change an integration's settings without a reconfigure flow
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mqtt-discovery-updates-and-availability" class="md-nav__link">
     <span class="md-ellipsis">
       MQTT discovery updates and availability
@@ -1733,6 +1742,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#change-an-integrations-settings-without-a-reconfigure-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Change an integration's settings without a reconfigure flow
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mqtt-discovery-updates-and-availability" class="md-nav__link">
     <span class="md-ellipsis">
       MQTT discovery updates and availability
@@ -1791,10 +1809,30 @@ API token, which is how the checks below work.</p>
 <span class="s1">&#39;</span><span class="w"> </span>&lt;old<span class="w"> </span>host<span class="w"> </span>name&gt;
 </code></pre></div>
 <p>Re-point each one in the interface (Settings, Devices and services, the
-integration, Reconfigure, where the integration offers it; otherwise remove and
-re-add it). An integration with neither flow, such as the Network UPS Tools
-server address, can be edited in <code>core.config_entries</code> directly with Home
-Assistant stopped, then started again.</p>
+integration, Reconfigure, where the integration offers it). Without that flow,
+edit the stored entry as described next: removing and re-adding the integration
+also works but gives its entities new identities and drops their history.</p>
+<h2 id="change-an-integrations-settings-without-a-reconfigure-flow">Change an integration's settings without a reconfigure flow</h2>
+<p>Home Assistant reads <code>core.config_entries</code> only at startup, so the entry of any
+integration can be edited with Home Assistant stopped; the entry keeps its ID,
+so its entities keep their identities and history. Done for the qBittorrent URL
+on 2026-10-18 (its config flow has only the setup step) and, earlier, for the
+Network UPS Tools server address (a host and a port in the entry's <code>data</code> block;
+qBittorrent stores a single <code>url</code>).</p>
+<ol>
+<li>Stop the container:
+   <code>sudo docker compose --file /etc/ferrarimarco-home-lab/home-assistant/compose.yaml stop homeassistant</code>.</li>
+<li>Keep a root-only copy of the file under <code>/root</code> (it holds every integration's
+   secrets, so the copy stays on the host): <code>sudo cp -p</code> then <code>sudo chmod 0600</code>.</li>
+<li>Rewrite the field in the entry's <code>data</code> block with a script that loads the
+   JSON, changes exactly one entry (assert on the count), and writes it back
+   with two-space indentation, which is how Home Assistant formats it; then
+   check that the file still parses.</li>
+<li>Start the container the same way, wait for the interface to answer, and
+   verify: the integration's errors stop in the container log, and its entities
+   report values in the recorder (the query above) within its first poll
+   interval.</li>
+</ol>
 <p>Current entity states are in the recorder database, which SQLite keeps in
 write-ahead mode: copy <code>home-assistant_v2.db</code> together with its <code>-wal</code> and
 <code>-shm</code> files to a temporary directory, query the copy, and delete it. A copy

@@ -35,10 +35,31 @@ for e in json.load(open("/etc/ferrarimarco-home-lab/home-assistant/config/.stora
 ```
 
 Re-point each one in the interface (Settings, Devices and services, the
-integration, Reconfigure, where the integration offers it; otherwise remove and
-re-add it). An integration with neither flow, such as the Network UPS Tools
-server address, can be edited in `core.config_entries` directly with Home
-Assistant stopped, then started again.
+integration, Reconfigure, where the integration offers it). Without that flow,
+edit the stored entry as described next: removing and re-adding the integration
+also works but gives its entities new identities and drops their history.
+
+## Change an integration's settings without a reconfigure flow
+
+Home Assistant reads `core.config_entries` only at startup, so the entry of any
+integration can be edited with Home Assistant stopped; the entry keeps its ID,
+so its entities keep their identities and history. Done for the qBittorrent URL
+on 2026-10-18 (its config flow has only the setup step) and, earlier, for the
+Network UPS Tools server address (a host and a port in the entry's `data` block;
+qBittorrent stores a single `url`).
+
+1. Stop the container:
+   `sudo docker compose --file /etc/ferrarimarco-home-lab/home-assistant/compose.yaml stop homeassistant`.
+1. Keep a root-only copy of the file under `/root` (it holds every integration's
+   secrets, so the copy stays on the host): `sudo cp -p` then `sudo chmod 0600`.
+1. Rewrite the field in the entry's `data` block with a script that loads the
+   JSON, changes exactly one entry (assert on the count), and writes it back
+   with two-space indentation, which is how Home Assistant formats it; then
+   check that the file still parses.
+1. Start the container the same way, wait for the interface to answer, and
+   verify: the integration's errors stop in the container log, and its entities
+   report values in the recorder (the query above) within its first poll
+   interval.
 
 Current entity states are in the recorder database, which SQLite keeps in
 write-ahead mode: copy `home-assistant_v2.db` together with its `-wal` and
