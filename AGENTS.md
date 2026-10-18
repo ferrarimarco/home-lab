@@ -20,9 +20,16 @@ scope and overall **Current Implementation Status** of each specification.
 ### 1.2 Individual Spec Status Tables
 
 Every specification file (e.g., `proxmox-vm.md`, `home-lab-bootstrapping.md`)
-contains an **Implementation Status** table right beneath the main title. This
-table tracks the status (`Fully Implemented`, `Partially Implemented`, or
-`Missing`) of each component defined inside the specification.
+contains an **Implementation Status** table right beneath the main title; create
+it when a specification lacks one. This table tracks the status
+(`Fully Implemented`, `Partially Implemented`, or `Missing`) of each component
+defined inside the specification. A component is `Fully Implemented` only when
+it passes its tests or builds cleanly in CI. The **Status** column tracks
+implementation only: when code is implemented but not yet applied to the real
+environment, record the pending deployment as a caveat in the **Details** column
+(e.g., "not yet applied", "applied on node A; node B not yet run") and remove it
+once the deployment is verified, instead of adding deployment values to the
+Status column.
 
 ### 1.3 Centralized Future Work and TODOs
 
@@ -82,16 +89,13 @@ documentation to prevent configuration drift:
 
 1.  **Update the Individual Spec Table:** Open the relevant specification file
     in `websites-src/home-lab-docs/specs/` and update the `Status` and `Details`
-    fields for the modified features. For example, transition a component from
-    `Missing` to `Fully Implemented`.
+    fields for the modified features, with precise, objective details (e.g.,
+    "MAC declared in Terraform; awaiting test verification"). For example,
+    transition a component from `Missing` to `Fully Implemented`.
 2.  **Update the Global Index:** Open the specs root
     [`README.md`](./websites-src/home-lab-docs/specs/README.md) and update the
     **Current Implementation Status** column for the target specification to
     reflect the latest state.
-
-To do this, **use the `maintain-living-specs` skill** if available to
-programmatically analyze repository changes and systematically synchronize the
-individual specification status tables and the root `specs/README.md` index.
 
 ## 3. Markdown & Documentation Style Rules
 

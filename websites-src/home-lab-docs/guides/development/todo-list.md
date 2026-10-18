@@ -36,3 +36,13 @@ explicitly discarded:
   priority if needed.
 - Update or remove the `Depends on:` and `Blocks:` annotations of other items
   that referenced it.
+- A verified change sometimes completes items as a side effect (for example, a
+  rollout that also deploys an integration an item was waiting on): close those
+  items in the same pass and mention them in the commit message, so the list
+  does not drift.
+
+## Deferring work
+
+When part of an approved plan is put on hold, add the deferred work as an item
+in the same pass, with the date and why it is on hold, and close it when the
+work later lands.
