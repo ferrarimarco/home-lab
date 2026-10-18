@@ -18,11 +18,11 @@ RUN npm ci \
 ENV NODE_PATH="${APP_DIR}/node_modules"
 ENV PATH="${NODE_PATH}/.bin:${PATH}"
 
-ARG USERNAME=home-lab-dev
+ARG DEV_USER=home-lab-dev
 ARG UID=1000
 ARG GID=1000
-RUN groupadd -g ${GID} -o "${USERNAME}" \
-  && useradd -m -u ${UID} -g ${GID} -o -s /bin/bash -l "${USERNAME}"
-USER $USERNAME
+RUN groupadd -g ${GID} -o "${DEV_USER}" \
+  && useradd -m -u ${UID} -g ${GID} -o -s /bin/bash -l "${DEV_USER}"
+USER $DEV_USER
 
 RUN git config --global --add safe.directory /source-repository
