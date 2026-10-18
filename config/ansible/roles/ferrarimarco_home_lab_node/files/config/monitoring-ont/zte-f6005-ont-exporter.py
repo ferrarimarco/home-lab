@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import argparse
 import logging
 import re
@@ -326,18 +324,10 @@ class AdminInterfaceHTMLParser(HTMLParser):
         super().__init__(convert_charrefs=convert_charrefs)
 
     def handle_data(self, data):
-        page_name_instruction = 'var pagename="{page_name}"'.format(
-            page_name=self.page_name
-        )
-        logger.debug(
-            "Check if {page_name} is in data: {page_name_instruction}".format(
-                page_name=self.page_name, page_name_instruction=page_name_instruction
-            )
-        )
+        page_name_instruction = f'var pagename="{self.page_name}"'
+        logger.debug(f"Check if {self.page_name} is in data: {page_name_instruction}")
         if page_name_instruction in data:
-            logger.debug(
-                "Found script data for {page_name}".format(page_name=self.page_name)
-            )
+            logger.debug(f"Found script data for {self.page_name}")
             self.script_tag_content = data
 
 
@@ -352,38 +342,22 @@ def _get_script_tag_content(response, page_name, field_names):
     matched_data = {}
 
     for field_name, field_name_js in field_names.items():
-        javascript_data_re = re.compile(
-            r"^{field_name}=\"(?P<data>\S*)\";$".format(field_name=field_name_js)
-        )
+        javascript_data_re = re.compile(rf"^{field_name_js}=\"(?P<data>\S*)\";$")
         logger.debug(
-            "Matching content to regex: {regex}. Content:\n{content}".format(
-                regex=javascript_data_re, content=script_tag_content
-            )
+            f"Matching content to regex: {javascript_data_re}. Content:\n{script_tag_content}"
         )
         for line in script_tag_content.splitlines():
-            logger.debug(
-                "Check if {line} matches {regex}".format(
-                    line=line, regex=javascript_data_re
-                )
-            )
+            logger.debug(f"Check if {line} matches {javascript_data_re}")
             matches = javascript_data_re.match(line)
             if matches is not None:
                 matches_groups = matches.groupdict()
                 match = matches_groups["data"]
-                logger.debug(
-                    "Found match ({field_name},{field_name_js}): {match}".format(
-                        field_name=field_name, field_name_js=field_name_js, match=match
-                    )
-                )
+                logger.debug(f"Found match ({field_name},{field_name_js}): {match}")
                 if match.isnumeric():
                     match = int(match)
                 matched_data[field_name] = match
 
-    logger.info(
-        "Matched data for {page_name}: {matched_data}".format(
-            page_name=page_name, matched_data=matched_data
-        )
-    )
+    logger.info(f"Matched data for {page_name}: {matched_data}")
 
     return matched_data
 
@@ -395,9 +369,9 @@ HTTP_TIMEOUT = (5, 30)
 
 
 def login(session, username, password, ip_address):
-    login_url = "https://{ip_address}/goform/LoginForm".format(ip_address=ip_address)
+    login_url = f"https://{ip_address}/goform/LoginForm"
 
-    logger.info("Logging in: {ip_address}".format(ip_address=ip_address))
+    logger.info(f"Logging in: {ip_address}")
 
     # TODO: sha256_digest(admin + "97s" + password)
     cmt = "5f326e96ccb8a54b15e74c366d3eba3be7d38ed3ae32bdbb46005daa88503b78"
@@ -407,7 +381,7 @@ def login(session, username, password, ip_address):
 
     login_headers = {
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Referer": "https://{ip_address}/login.html".format(ip_address=ip_address),
+        "Referer": f"https://{ip_address}/login.html",
     }
 
     login_payload = {
@@ -428,9 +402,9 @@ def login(session, username, password, ip_address):
 
 
 def collect_device_info(session, ip_address):
-    device_info_url = "https://{ip_address}/devinfo.html".format(ip_address=ip_address)
+    device_info_url = f"https://{ip_address}/devinfo.html"
 
-    logger.info("Collecting device info from {url}".format(url=device_info_url))
+    logger.info(f"Collecting device info from {device_info_url}")
 
     device_info_response = session.get(
         device_info_url,
@@ -456,7 +430,7 @@ def collect_device_info(session, ip_address):
 
 
 def collect_network_interface_metrics(session, pon_serial_number, ip_address):
-    gpon_info_url = "https://{ip_address}/gponinfo.html".format(ip_address=ip_address)
+    gpon_info_url = f"https://{ip_address}/gponinfo.html"
     gpon_info_response = session.get(
         gpon_info_url,
         timeout=HTTP_TIMEOUT,
@@ -510,7 +484,7 @@ def collect_network_interface_metrics(session, pon_serial_number, ip_address):
 
 
 def collect_user_network_interface_metrics(session, pon_serial_number, ip_address):
-    user_info_url = "https://{ip_address}/userinfo.html".format(ip_address=ip_address)
+    user_info_url = f"https://{ip_address}/userinfo.html"
     user_info_response = session.get(
         user_info_url,
         timeout=HTTP_TIMEOUT,

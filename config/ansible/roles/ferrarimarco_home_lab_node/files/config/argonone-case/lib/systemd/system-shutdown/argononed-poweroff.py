@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 # Original source: https://download.argon40.com/argon1.sh
 
 import sys
 
-import RPi.GPIO as GPIO
 import smbus
+from RPi import GPIO
 
 rev = GPIO.RPI_REVISION
 if rev == 2 or rev == 3:
@@ -19,5 +18,7 @@ if len(sys.argv) > 1:
     if sys.argv[1] == "poweroff" or sys.argv[1] == "halt":
         try:
             bus.write_byte(0x1A, 0xFF)
-        except Exception:
+        # The power-cut signal is best effort: nothing can retry it during
+        # shutdown, so any I2C failure is swallowed.
+        except Exception:  # noqa: BLE001
             rev = 0

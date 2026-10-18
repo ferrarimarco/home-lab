@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 # Original source: https://download.argon40.com/argon1.sh
 
 import os
 import time
 from threading import Thread
 
-import RPi.GPIO as GPIO
 import smbus
+from RPi import GPIO
 
 rev = GPIO.RPI_REVISION
 if rev == 2 or rev == 3:
@@ -65,18 +64,21 @@ def load_config(fname):
                     tempval = float(tmppair[0])
                     if tempval < 0 or tempval > 100:
                         continue
-                except Exception:
+                # A malformed line is skipped, not fatal: the fan curve falls
+                # back to the remaining valid lines or to the defaults.
+                except Exception:  # noqa: BLE001, S112
                     continue
                 try:
                     fanval = int(float(tmppair[1]))
                     if fanval < 0 or fanval > 100:
                         continue
-                except Exception:
+                except Exception:  # noqa: BLE001, S112
                     continue
-                newconfig.append("{:5.1f}={}".format(tempval, fanval))
+                newconfig.append(f"{tempval:5.1f}={fanval}")
         if len(newconfig) > 0:
             newconfig.sort(reverse=True)
-    except Exception:
+    # An unreadable configuration file means the default fan curve.
+    except Exception:  # noqa: BLE001
         return []
     return newconfig
 
@@ -91,11 +93,10 @@ def temp_check():
     prevblock = 0
     while True:
         try:
-            tempfp = open("/sys/class/thermal/thermal_zone0/temp", "r")
-            temp = tempfp.readline()
-            tempfp.close()
+            with open("/sys/class/thermal/thermal_zone0/temp") as tempfp:
+                temp = tempfp.readline()
             val = float(int(temp) / 1000)
-        except IOError:
+        except OSError:
             val = 0
 
         block = get_fanspeed(val, fanconfig)
@@ -104,7 +105,7 @@ def temp_check():
         prevblock = block
         try:
             bus.write_byte(address, block)
-        except IOError:
+        except OSError:
             temp = ""
         time.sleep(30)
 
@@ -114,5 +115,7 @@ try:
     t2 = Thread(target=temp_check)
     t1.start()
     t2.start()
-except Exception:
+# Release the GPIO pins whatever stopped the threads, so the next start
+# can claim them again.
+except Exception:  # noqa: BLE001
     GPIO.cleanup()
