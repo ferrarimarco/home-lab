@@ -81,12 +81,12 @@ reliability risks first, then security exposure, then automation):
       (NAS spec §13.4 records the deferral and the candidates: a
       Terraform-minted pre-authentication key with out-of-band delivery, or the
       Samba password automation mechanism).
-    - Configure unattended updates for all hosts:
+    - Configure unattended updates for the remaining hosts: the
       [Proxmox hosts](https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/)
-      ([auto updates](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#system_software_updates)),
-      Debian hosts
-      ([UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)), Nix
-      hosts.
+      ([auto updates](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#system_software_updates))
+      and the Nix hosts. The Debian hosts are covered: the node role enables its
+      unattended-upgrades stack by default
+      ([UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)).
     - Migrate containers from raspberrypi2 to hl01 (decisions of 2026-10-08):
       hl01 is the sole target, since hl02 has no container workload role yet.
       The media stack moved on 2026-10-09, ahead of the re-image, when the
@@ -103,17 +103,17 @@ reliability risks first, then security exposure, then automation):
       role's `vars/main.yaml`, not in `group_vars`; the media ones point at hl01
       since 2026-10-10. Still to move: Zigbee2MQTT carries its device database,
       network key, and state, and needs the dongle moved to pve1 with a USB
-      passthrough on the hl01 VM (declared in the
-      [NixOS VMs on Proxmox](./proxmox-vm.md) spec) plus the udev rule for a
-      stable device path on both hosts
-      ([Host configuration](#host-configuration)); Mosquitto is redeployed
-      fresh, and the Home Assistant MQTT integration's broker host changes in
-      its UI. Syncthing already moved to nas-pve1 ([NAS](#nas)). The monitoring
-      backend stays: it runs as a highly available pair on hl01 and raspberrypi2
-      (monitoring-alerting spec §3.3). Afterwards: move the ONT exporter and the
-      router WAN check to hl01, and delete the source data with separate
-      approvals; the raspberrypi2 restic job retires with the host, per the
-      repository wind-down item ([Backup](#backup)).
+      passthrough on the hl01 VM (to declare in the Terraform VM resource and in
+      the [NixOS VMs on Proxmox](./proxmox-vm.md) spec, which today only pass
+      through the Coral and the iGPU) plus the udev rule for a stable device
+      path on both hosts ([Host configuration](#host-configuration)); Mosquitto
+      is redeployed fresh, and the Home Assistant MQTT integration's broker host
+      changes in its UI. Syncthing already moved to nas-pve1 ([NAS](#nas)). The
+      monitoring backend stays: it runs as a highly available pair on hl01 and
+      raspberrypi2 (monitoring-alerting spec §3.3). Afterwards: move the ONT
+      exporter and the router WAN check to hl01, and delete the source data with
+      separate approvals; the raspberrypi2 restic job retires with the host, per
+      the repository wind-down item ([Backup](#backup)).
     - Network boot service and Raspberry Pi re-provisioning, per the
       [Network Boot Service](./network-boot.md) spec:
         - `netboot-server` Nix role on hl02 (TFTP tree, NFS export, and
@@ -140,8 +140,8 @@ reliability risks first, then security exposure, then automation):
           rescue procedure, the manual follow-ups), the restore recipe
           ([Backup](#backup)), and the unresponsive host runbook.
     - Run Ansible.
-    - Run Terraform to set up the Proxmox hosts (networking; storage: pve1 done,
-      pve2 pending).
+    - Run Terraform to set up the Proxmox hosts (networking; the storage stack
+      is applied on both nodes).
 
 ### Issues to solve
 
@@ -296,10 +296,11 @@ reliability risks first, then security exposure, then automation):
 
 ### CI/CD, infrastructure-as-code, and GitOps
 
-- Move artifact builds to GitHub Actions, and later to a self-hosted pipeline
-  (Gitea or Forgejo) once one exists: the Proxmox images and the NixOS host
-  configurations, so consumers fetch pinned artifacts instead of depending on a
-  local build. Related: the automated template upload item ([NAS](#nas)).
+- Publish the artifacts that GitHub Actions already builds (the Proxmox images
+  and the NixOS host configurations, in the Nix workflow), and later build them
+  in a self-hosted pipeline (Gitea or Forgejo) once one exists, so consumers
+  fetch pinned artifacts instead of depending on a local build. Related: the
+  automated template upload item ([NAS](#nas)).
 - Prometheus rule unit tests: run `promtool test rules` over the alerting rules
   in CI, from the pinned Prometheus image, with a case per rule (the rules were
   checked by hand against live series so far). Record the gotcha the ad hoc
@@ -411,9 +412,10 @@ reliability risks first, then security exposure, then automation):
   build script, applied on pve1 on 2026-10-18). Related: the monitoring role
   consolidation item above, which decides which role owns the nodes.
 - NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host
-  Terraform VM resources into a shared module (or `for_each` over a host map)
-  once a second NixOS VM exists, so the reference pattern is enforced by code
-  rather than by convention.
+  Terraform VM resources into a shared module (or `for_each` over a host map),
+  so the reference pattern is enforced by code rather than by convention. The
+  trigger is met: hl02 is the second NixOS VM, declared next to hl01 in the
+  workloads stack.
 - Nix tests
     - Modularize the integration-test generator: move the per-service test
       fragments (SSH, QEMU guest agent, comin, Samba, ...) out of
@@ -553,7 +555,6 @@ reliability risks first, then security exposure, then automation):
     - Subnet routes: don't advertise routes if there are already unapproved
       routes for the same node (needs
       [tailscale#5724](https://github.com/tailscale/tailscale/issues/5724)).
-    - Uninstall Tailscale from raspberrypi and from raspberrypi3.
     - References:
       [invite any user](https://tailscale.com/blog/invite-any-user/),
       [exit nodes](https://tailscale.com/kb/1103/exit-nodes/),
@@ -687,8 +688,6 @@ reliability risks first, then security exposure, then automation):
 - To monitor:
     - EdgeTPU: custom exporter, or
       [edgetpu-exporter](https://github.com/adaptant-labs/edgetpu-exporter).
-    - [Frigate metrics](https://docs.frigate.video/configuration/metrics/).
-    - Syncthing (supports Prometheus).
     - CPU C states.
     - CPU vulnerabilities.
     - [Docker engine metrics](https://docs.docker.com/engine/daemon/prometheus/).
@@ -712,9 +711,6 @@ reliability risks first, then security exposure, then automation):
 - Setup Loki.
 - Uptime Kuma.
 - WoL watchdog.
-- Restic exporter: move the monitoring jobs to the monitoring compose file
-  because they are not started when the restic compose file is updated, or set
-  them to start on changes as the other compose files do?
 - Grafana: set a datasource uid to reuse across dashboards; set the unit of
   measurement in the average DNS probe panel; automate updates of the
   provisioned dashboard JSONs (PRs with updates?).
@@ -981,10 +977,6 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   library remains a single copy on an aging drive (the ST2000DM001 has a poor
   reliability record); the second copy on pve2's `tank-hdd` is a
   [Backup](#backup) item.
-- **Syncthing migration cleanup**: the migration completed on 2026-10-06 (the
-  [migration section](./nas-lxc-container.md#125-migration-from-raspberrypi2) of
-  the NAS spec records the execution). Remaining: delete the old folder data on
-  the raspberrypi2 data disk (destructive, needs its own approval).
 - **Tailscale on nas-pve1: declarative device management**: manage the joined
   device via the Tailscale Terraform provider, per the
   [Tailscale connectivity section](./nas-lxc-container.md#13-tailscale-connectivity)
