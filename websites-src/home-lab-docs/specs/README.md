@@ -405,6 +405,13 @@ reliability risks first, then security exposure, then automation):
     - Check that configured users have their SSH keys authorized (reuse the
       existing bootstrap key check because it already does most of the stuff we
       need for this check).
+- Reusable workflow calls with the self-repository syntax: GitHub recommends
+  `uses: $/.github/workflows/<file>` over the workspace-relative `./` form, and
+  zizmor's `self-repository` audit flags the `./` call in
+  `website-ferrarimarco.github.io.yaml`, but actionlint 1.7.12 (the newest
+  release, bundled in super-linter v9.0.0) rejects the `$/` form, so the audit
+  is ignored in `config/lint/zizmor.yaml` (2026-10-18). Switch the call and drop
+  the ignore once actionlint accepts the syntax.
 
 ### Host configuration
 

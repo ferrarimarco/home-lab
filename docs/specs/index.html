@@ -2481,6 +2481,13 @@ reliability risks first, then security exposure, then automation):</p>
   need for this check).</li>
 </ul>
 </li>
+<li>Reusable workflow calls with the self-repository syntax: GitHub recommends
+  <code>uses: $/.github/workflows/&lt;file&gt;</code> over the workspace-relative <code>./</code> form, and
+  zizmor's <code>self-repository</code> audit flags the <code>./</code> call in
+  <code>website-ferrarimarco.github.io.yaml</code>, but actionlint 1.7.12 (the newest
+  release, bundled in super-linter v9.0.0) rejects the <code>$/</code> form, so the audit
+  is ignored in <code>config/lint/zizmor.yaml</code> (2026-10-18). Switch the call and drop
+  the ignore once actionlint accepts the syntax.</li>
 </ul>
 <h3 id="host-configuration">Host configuration</h3>
 <ul>

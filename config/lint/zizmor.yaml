@@ -5,6 +5,13 @@ rules:
   # TODO: enable cooldown after the bug is fixed
   dependabot-cooldown:
     disable: true
+  # actionlint 1.7.12 (the newest release, bundled in super-linter v9.0.0)
+  # rejects the self-repository `$/` syntax this audit asks for. Keep the
+  # workspace-relative call until actionlint accepts the new syntax (tracked
+  # in the specs todo list).
+  self-repository:
+    ignore:
+      - website-ferrarimarco.github.io.yaml
   # TODO: disable these ignores after we pin versions
   unpinned-uses:
     ignore:
