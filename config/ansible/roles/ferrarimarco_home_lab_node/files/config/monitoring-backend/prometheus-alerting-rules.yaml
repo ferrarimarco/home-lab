@@ -70,6 +70,22 @@ groups:
             {{ $labels.origin }} for two weeks: unattended-upgrades does not
             cover that origin, or the host has none. Read the release notes
             and run the upgrade on purpose.
+      - alert: RebootRequired
+        # unattended-upgrades installs kernels but never reboots; a week is
+        # how long an unrebooted kernel is acceptable here, and shorter than
+        # the monthly cadence of kernel updates on Debian stable. The flag
+        # clears within the apt collector's ten-minute interval after a reboot.
+        expr: node_reboot_required == 1
+        for: 7d
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} has needed a reboot for a week"
+          description: >-
+            {{ $labels.instance }} has had packages installed that need a
+            reboot (a kernel, libc, systemd) for seven days; the running
+            kernel is not the installed one until it reboots. Schedule the
+            reboot.
       - alert: NodeTextfileStale
         # Files named *.static.prom are rendered by Ansible and have no producer
         # timer, so their age carries no signal.

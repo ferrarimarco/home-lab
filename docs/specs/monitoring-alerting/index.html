@@ -2659,6 +2659,13 @@ with operational experience.</p>
 <td style="text-align: left;">Upgrades pending for two weeks from one origin: a third-party repository unattended-upgrades does not cover (Docker, Tailscale) on the Debian hosts, or any origin on the Proxmox nodes, which upgrade by hand. A nudge to read the release notes and upgrade on purpose, not an automatic upgrade.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>RebootRequired</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>node_reboot_required == 1</code></td>
+<td style="text-align: left;">7 d</td>
+<td style="text-align: left;">A host has carried packages that need a reboot (a kernel, libc, systemd) for a week; unattended-upgrades installs them and never reboots. A nudge to schedule the reboot; the flag clears within the apt collector's ten-minute interval afterwards.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>NodeTextfileStale</code></td>
 <td style="text-align: left;">warning</td>
 <td style="text-align: left;"><code>time() - node_textfile_mtime_seconds{file!~".*\\.static\\.prom"} &gt; 26 * 3600</code></td>
