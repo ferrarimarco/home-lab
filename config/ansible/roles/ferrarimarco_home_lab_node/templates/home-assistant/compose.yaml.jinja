@@ -5,9 +5,9 @@ services:
     image: "{{ container_images_ids["home-assistant"] }}"
     network_mode: host
     privileged: true
-    restart: always
+    restart: unless-stopped
     volumes:
-      - ./config:/config
+      - {{ home_assistant_configuration_config_directory_path }}:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
 ...

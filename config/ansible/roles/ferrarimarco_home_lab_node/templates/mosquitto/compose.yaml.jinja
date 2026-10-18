@@ -5,7 +5,7 @@ services:
     image: {{ container_images_ids["mosquitto"] }}
     # Enable host networking to listen on the host's localhost interface
     network_mode: host
-    restart: always
+    restart: unless-stopped
     volumes:
       - ./config:/mosquitto/config
       - {{ mosquitto_data_directory_path }}:/mosquitto/data

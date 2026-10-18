@@ -322,8 +322,6 @@ reliability risks first, then security exposure, then automation):
 - Compose:
     - Move secrets to
       [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).
-    - Change restart always to restart unless-stopped (useful for migrations).
-      Remaining: mosquitto, home-assistant, zigbee2mqtt compose templates.
     - Move environment variables to env files.
 - Terraform:
     - [Configure Cloudflare](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone).
@@ -369,10 +367,6 @@ reliability risks first, then security exposure, then automation):
       redefining variables in the molecule file
       ([reference](https://ansible.readthedocs.io/projects/molecule/configuration/#molecule.provisioner.ansible.Ansible)).
     - Set the hostname (`/etc/hostname`: simple hostname).
-    - Use the `zigbee2mqtt_data_directory_path` variable in the zigbee2mqtt
-      compose file.
-    - Use the `home_assistant_configuration_config_directory_path` variable in
-      the home-assistant compose file.
     - Validation: check that `start_xxxx` and `stop_xxxx` don't contradict each
       other.
     - Cleanup users after switching from appending groups to creating dedicated

@@ -3,9 +3,9 @@ services:
   zigbee2mqtt:
     container_name: zigbee2mqtt
     image: {{ container_images_ids["zigbee2mqtt"] }}
-    restart: always
+    restart: unless-stopped
     volumes:
-      - ./data:/app/data
+      - {{ zigbee2mqtt_data_directory_path }}:/app/data
       - /run/udev:/run/udev:ro
     ports:
       - {{ zigbee2mqtt_user_interface_host_port }}:8080
