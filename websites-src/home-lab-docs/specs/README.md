@@ -485,10 +485,6 @@ reliability risks first, then security exposure, then automation):
   add the router to the `node` scrape job, and verify the netdev collector
   reports the interface counters, since some exporter releases failed on this
   firmware.
-- Set UTC as the system timezone on the Ansible-managed Debian hosts with the
-  [timezone module](https://docs.ansible.com/ansible/latest/collections/community/general/timezone_module.html#ansible-collections-community-general-timezone-module)
-  (NixOS hosts and cloud-init VMs are UTC already; the node role only sets the
-  container TZ variable, currently Europe/London).
 - raspberrypi2:
     - Enable TRIM on the external SSD
       ([reference](https://www.jeffgeerling.com/blog/2020/enabling-trim-on-external-ssd-on-raspberry-pi)).

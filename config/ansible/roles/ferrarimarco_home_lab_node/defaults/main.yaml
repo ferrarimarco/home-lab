@@ -156,5 +156,8 @@ systemd_journald_system_max_memory_use: "500M"
 systemd_runtime_watchdog_seconds: 0
 tailscale_release_channel: "stable"
 tailscale_up_advertise_edge_environment_routes: false
+# The system timezone. Containers get their own TZ value from the timezone
+# variable, so the host clock stays UTC regardless of the local time of the lab.
+system_timezone: "Etc/UTC"
 timezone: "Europe/London"
 zigbee2mqtt_user_interface_host_port: 8081

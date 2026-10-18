@@ -1,4 +1,9 @@
 ---
+- name: Set the system timezone
+  community.general.timezone:
+    name: "{{ system_timezone }}"
+  become: true
+
 - name: Debug debian_packages_to_uninstall
   ansible.builtin.debug:
     var: debian_packages_to_uninstall
