@@ -417,11 +417,6 @@ reliability risks first, then security exposure, then automation):
     - Check that configured users have their SSH keys authorized (reuse the
       existing bootstrap key check because it already does most of the stuff we
       need for this check).
-    - Build the development shell flake checks (`shell-devShell` and
-      `shell-opsShell`) in the CI workflow (`.github/workflows/nix.yaml`), which
-      only builds the `lint-treefmt-nix` and `host-<host>-test` checks, so a
-      shell that no longer builds fails CI instead of surfacing on a control
-      machine.
 - Lint script output ownership: the linter container runs as root, and
   super-linter does not support running as another user, so the files it writes
   into the checkout (`super-linter.log` and `super-linter-output/`) are
