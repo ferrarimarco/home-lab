@@ -63,6 +63,7 @@ configuration (`config/nix/treefmt.nix`). See the
 | Tool             | Purpose                                                     | How to invoke                                              |
 | :--------------- | :---------------------------------------------------------- | :--------------------------------------------------------- |
 | `gh`             | Interact with GitHub: CI workflow runs, pull requests.      | Directly. See [GitHub CLI](#github-cli).                   |
+| `ipmitool`       | Control a host through its BMC: power state, sensors.       | Directly. See [IPMI](#ipmi).                               |
 | `jq`             | Parse and filter JSON, such as Terraform outputs.           | Directly.                                                  |
 | `nixos-anywhere` | Install NixOS on hosts that have a `disko.nix` disk layout. | Through `scripts/bootstrap-host.sh`, inside the shell.     |
 | `nixos-rebuild`  | Push a NixOS configuration to a running host over SSH.      | Through `scripts/bootstrap-host.sh`, inside the shell.     |
@@ -112,6 +113,28 @@ Filter JSON output with the built-in `--jq` flag:
 nix develop ./config/nix#operations --command \
   gh pr list --json number,title --jq '.[] | "\(.number) \(.title)"'
 ```
+
+### IPMI
+
+The `ipmitool` installed on the hosts that declare a BMC (`has_bmc`) only works
+while the host runs. The one in the operations shell reaches the BMC over the
+network, so it covers the powered-off case: remote power control and sensor
+reads during the power tuning experiments of the
+[host power guide](../operations/host-power.md).
+
+Supply the credentials interactively (`-a` prompts for the password) or from the
+environment (`-E` reads the `IPMI_PASSWORD` variable), never from tracked files:
+
+```shell
+nix develop ./config/nix#operations --command \
+  ipmitool -I lanplus -H <bmc address> -U <user> -a chassis power status
+nix develop ./config/nix#operations --command \
+  ipmitool -I lanplus -H <bmc address> -U <user> -a chassis power on
+nix develop ./config/nix#operations --command \
+  ipmitool -I lanplus -H <bmc address> -U <user> -a sensor
+```
+
+Power commands change the host state: get approval before running them.
 
 ## Tools outside the shells
 

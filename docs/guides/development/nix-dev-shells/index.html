@@ -981,6 +981,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#ipmi" class="md-nav__link">
+    <span class="md-ellipsis">
+      IPMI
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1802,6 +1811,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#ipmi" class="md-nav__link">
+    <span class="md-ellipsis">
+      IPMI
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1946,6 +1964,11 @@ configuration (<code>config/nix/treefmt.nix</code>). See the
 <td style="text-align: left;">Directly. See <a href="#github-cli">GitHub CLI</a>.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>ipmitool</code></td>
+<td style="text-align: left;">Control a host through its BMC: power state, sensors.</td>
+<td style="text-align: left;">Directly. See <a href="#ipmi">IPMI</a>.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>jq</code></td>
 <td style="text-align: left;">Parse and filter JSON, such as Terraform outputs.</td>
 <td style="text-align: left;">Directly.</td>
@@ -2005,6 +2028,22 @@ than GET.</p>
 <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>gh<span class="w"> </span>pr<span class="w"> </span>list<span class="w"> </span>--json<span class="w"> </span>number,title<span class="w"> </span>--jq<span class="w"> </span><span class="s1">&#39;.[] | &quot;\(.number) \(.title)&quot;&#39;</span>
 </code></pre></div>
+<h3 id="ipmi">IPMI</h3>
+<p>The <code>ipmitool</code> installed on the hosts that declare a BMC (<code>has_bmc</code>) only works
+while the host runs. The one in the operations shell reaches the BMC over the
+network, so it covers the powered-off case: remote power control and sensor
+reads during the power tuning experiments of the
+<a href="../../operations/host-power/">host power guide</a>.</p>
+<p>Supply the credentials interactively (<code>-a</code> prompts for the password) or from the
+environment (<code>-E</code> reads the <code>IPMI_PASSWORD</code> variable), never from tracked files:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span>&lt;bmc<span class="w"> </span>address&gt;<span class="w"> </span>-U<span class="w"> </span>&lt;user&gt;<span class="w"> </span>-a<span class="w"> </span>chassis<span class="w"> </span>power<span class="w"> </span>status
+nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span>&lt;bmc<span class="w"> </span>address&gt;<span class="w"> </span>-U<span class="w"> </span>&lt;user&gt;<span class="w"> </span>-a<span class="w"> </span>chassis<span class="w"> </span>power<span class="w"> </span>on
+nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span>&lt;bmc<span class="w"> </span>address&gt;<span class="w"> </span>-U<span class="w"> </span>&lt;user&gt;<span class="w"> </span>-a<span class="w"> </span>sensor
+</code></pre></div>
+<p>Power commands change the host state: get approval before running them.</p>
 <h2 id="tools-outside-the-shells">Tools outside the shells</h2>
 <p>Some tools run in containers instead, through the scripts that the
 <a href="../operational-scripts/">operational scripts guide</a> describes. Neither the

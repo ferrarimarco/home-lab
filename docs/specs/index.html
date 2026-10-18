@@ -2108,13 +2108,6 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
-<li>Add <code>ipmitool</code> to the <code>operations</code> Nix shell and document in the
-  <a href="../guides/development/nix-dev-shells/">Nix development shells guide</a> how to
-  run BMC commands from it
-  (<code>ipmitool -I lanplus -H &lt;bmc&gt; -U &lt;user&gt; chassis power status|on|off</code>, sensor
-  reads), with the credentials supplied interactively or from the environment,
-  never from tracked files. The in-band <code>ipmitool</code> installed on <code>has_bmc</code> hosts
-  only works while the host runs; the shell covers the powered-off case.</li>
 <li>Extend <code>ferrarimarco_home_lab_boot_bare_metal</code> to power on hosts through their
   BMC: today the role only sends Wake-on-LAN packets to every MAC in
   <code>network_interfaces</code> and waits for SSH. Verify the existing Wake-on-LAN path
