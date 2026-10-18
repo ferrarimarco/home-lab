@@ -2801,16 +2801,6 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   journal cursor file, alerting with <code>increase(...[1h]) &gt; 0</code> as
   <code>EdacUncorrectableErrors</code> does, so a failing disk or bridge is flagged before
   the application symptoms.</li>
-<li><strong>Backup coverage alert (2026-10-12)</strong>: the backup alerts are expressions over
-  the restic exporter's series, and the restic scrape targets are generated only
-  for hosts with <code>configure_backup_restic</code> enabled, so a host that holds state
-  but has no backup job (today the NixOS hosts, and the Proxmox nodes holding
-  the NAS containers' state directories) produces no series and raises nothing.
-  Declare in the inventory which hosts hold state that must be backed up, render
-  that as a static expected-backup series as the expected-mounts textfile does
-  for mounts, and alert when no restic snapshot series matches a declared host.
-  Add it before the NixOS state backup jobs (<a href="#nas">NAS</a>), so it fires on the
-  current gap and clears once the jobs exist.</li>
 <li>Configure the Grafana admin credentials declaratively: vault-backed
   <code>GF_SECURITY_ADMIN_USER</code> and <code>GF_SECURITY_ADMIN_PASSWORD</code> environment
   variables in the monitoring backend compose template, so a fresh replica
@@ -3041,9 +3031,11 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   whenever a workload is added. NixOS hosts back up state directories only,
   never the machine: enumerate them per host (for the NAS containers, the Samba,
   Syncthing, and Tailscale state directories bind-mounted from the Proxmox node)
-  and give them a backup job on the node that holds them. The restore procedure
-  that proves the rebuild path is in the
-  <a href="../guides/operations/backup/">backup operations guide</a>.</li>
+  and give them a backup job on the node that holds them, named
+  <code>restic-backup-nas-state</code> as pve1 and pve2 already declare in
+  <code>expected_backup_jobs</code> (the <code>ExpectedBackupMissing</code> alert fires for it until
+  the job reports a run). The restore procedure that proves the rebuild path is
+  in the <a href="../guides/operations/backup/">backup operations guide</a>.</li>
 <li><strong>One restic repository per host (confirmed 2026-10-14)</strong>: a repository is
   restic's deduplication, locking, and key domain; a shared one would
   deduplicate little across state trees, let any host forget or prune every

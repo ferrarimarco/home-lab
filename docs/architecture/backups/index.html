@@ -1808,6 +1808,13 @@ vaulted variable rendered into the job's Compose file, readable by root on the
 host only. Retention keeps seven daily snapshots. The repositories have no
 second copy: losing the share loses them (tracked in the
 <a href="../../specs/#backup">specs todo list</a>).</p>
+<p>Which jobs a host must run is declared, not inferred from what runs: a host's
+<code>expected_backup_jobs</code> inventory list, or, by default, the restic jobs it
+configures. The monitoring backends render that list as a static series and
+alert when a declared job has never reported a run from its host, so a host that
+holds state but has no job yet (the Proxmox nodes holding the NAS containers'
+state directories, declared under <code>restic-backup-nas-state</code>) is a standing
+warning until the job exists.</p>
 <p>Decisions:</p>
 <ul>
 <li><strong>One repository per host, not one for the lab</strong> (confirmed 2026-10-14). A
@@ -1838,6 +1845,13 @@ second copy: losing the share loses them (tracked in the
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>Coverage (declared jobs versus jobs that reported a run)</td>
+<td>every evaluation</td>
+<td>every host that holds state has its restic job configured and run at least once</td>
+<td>that the job keeps running (the staleness rules do)</td>
+<td><code>ExpectedBackupMissing</code></td>
+</tr>
 <tr>
 <td>Backup job</td>
 <td>nightly</td>

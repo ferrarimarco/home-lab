@@ -1,4 +1,9 @@
 ---
+# The NAS container's state directories live on this node; their restic job
+# does not exist yet (specs todo list, NixOS state backup), so the expectation
+# keeps ExpectedBackupMissing firing until it does, under this job name.
+expected_backup_jobs:
+  - restic-backup-nas-state
 configure_monitoring_nut: true
 # Persistent service state for the nas-pve1 LXC container (bind-mounted onto
 # /var/lib/samba and /var/lib/syncthing); must exist before the container

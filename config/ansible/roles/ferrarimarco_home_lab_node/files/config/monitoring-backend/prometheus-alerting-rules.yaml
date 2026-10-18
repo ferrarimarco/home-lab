@@ -249,6 +249,25 @@ groups:
             exposes no snapshot series: its collection failed (an unreachable
             or uninitialized repository) and it retries only every 12 hours,
             so the stale and missing backup rules cannot fire.
+      - alert: ExpectedBackupMissing
+        # backup_expected is rendered on the backends from the inventory (a
+        # host's declared expected_backup_jobs, or the jobs it runs);
+        # restic_repository_id is written by each job's entrypoint, so a
+        # declared job that is not configured, or never completed a run,
+        # has no series to match.
+        # Both backends render the expectation file, so each Prometheus scrapes
+        # it twice: the max drops the scraping instance, one alert per job.
+        expr: max by (host, backup_job) (backup_expected == 1) unless on (host, backup_job) label_replace(restic_repository_id, "host", "$1", "instance", "(.*):[0-9]+")
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "No restic job {{ $labels.backup_job }} on {{ $labels.host }}"
+          description: >-
+            The inventory expects {{ $labels.host }} to run the restic job
+            {{ $labels.backup_job }}, but no job by that name has reported a
+            run from that host: the job is not configured there, or it never
+            completed. The state the job should cover has no backup.
       - alert: ResticRepositoryChanged
         expr: count by (instance, backup_job) (count_over_time(restic_repository_id[3d])) > 1
         labels:

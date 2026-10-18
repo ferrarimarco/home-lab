@@ -709,16 +709,6 @@ reliability risks first, then security exposure, then automation):
   journal cursor file, alerting with `increase(...[1h]) > 0` as
   `EdacUncorrectableErrors` does, so a failing disk or bridge is flagged before
   the application symptoms.
-- **Backup coverage alert (2026-10-12)**: the backup alerts are expressions over
-  the restic exporter's series, and the restic scrape targets are generated only
-  for hosts with `configure_backup_restic` enabled, so a host that holds state
-  but has no backup job (today the NixOS hosts, and the Proxmox nodes holding
-  the NAS containers' state directories) produces no series and raises nothing.
-  Declare in the inventory which hosts hold state that must be backed up, render
-  that as a static expected-backup series as the expected-mounts textfile does
-  for mounts, and alert when no restic snapshot series matches a declared host.
-  Add it before the NixOS state backup jobs ([NAS](#nas)), so it fires on the
-  current gap and clears once the jobs exist.
 - Configure the Grafana admin credentials declaratively: vault-backed
   `GF_SECURITY_ADMIN_USER` and `GF_SECURITY_ADMIN_PASSWORD` environment
   variables in the monitoring backend compose template, so a fresh replica
@@ -939,9 +929,11 @@ reliability risks first, then security exposure, then automation):
   whenever a workload is added. NixOS hosts back up state directories only,
   never the machine: enumerate them per host (for the NAS containers, the Samba,
   Syncthing, and Tailscale state directories bind-mounted from the Proxmox node)
-  and give them a backup job on the node that holds them. The restore procedure
-  that proves the rebuild path is in the
-  [backup operations guide](../guides/operations/backup.md).
+  and give them a backup job on the node that holds them, named
+  `restic-backup-nas-state` as pve1 and pve2 already declare in
+  `expected_backup_jobs` (the `ExpectedBackupMissing` alert fires for it until
+  the job reports a run). The restore procedure that proves the rebuild path is
+  in the [backup operations guide](../guides/operations/backup.md).
 - **One restic repository per host (confirmed 2026-10-14)**: a repository is
   restic's deduplication, locking, and key domain; a shared one would
   deduplicate little across state trees, let any host forget or prune every

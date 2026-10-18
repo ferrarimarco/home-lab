@@ -247,6 +247,10 @@ monitoring_backend_templates_to_render:
     dest: "{{ monitoring_backend_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
+  # The node exporter reads the textfile directory at every scrape: no restart
+  - src: "monitoring-backend/expected-backups.static.prom.jinja"
+    dest: "{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/expected-backups.static.prom"
+    state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"
   - src: "alertmanager/alertmanager.yaml.jinja"
     dest: "{{ monitoring_backend_configuration_directory_path }}/alertmanager.yaml"
     state: "{{ configure_monitoring_backend | ternary('file', 'absent') }}"

@@ -2785,6 +2785,13 @@ with operational experience.</p>
 <td style="text-align: left;">The exporter answers scrapes but exposes no snapshot series: its collection failed and it retries only every 12 hours (raspberrypi2's exporter started before its repository existed, 2026-10-11), so the rules below cannot fire.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>ExpectedBackupMissing</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>max by (host, backup_job) (backup_expected == 1) unless on (host, backup_job) label_replace(restic_repository_id, "host", "$1", "instance", "(.*):[0-9]+")</code></td>
+<td style="text-align: left;">1 h</td>
+<td style="text-align: left;">A host the inventory expects to run a restic job (<code>expected_backup_jobs</code>, or the jobs it configures) has no job by that name reporting a run: not configured, or never completed. Fires today for the Proxmox nodes' <code>restic-backup-nas-state</code> until that job exists.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>ResticRepositoryChanged</code></td>
 <td style="text-align: left;">critical</td>
 <td style="text-align: left;"><code>count by (instance, backup_job) (count_over_time(restic_repository_id[3d])) &gt; 1</code></td>

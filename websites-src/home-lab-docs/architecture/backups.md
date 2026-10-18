@@ -35,6 +35,14 @@ host only. Retention keeps seven daily snapshots. The repositories have no
 second copy: losing the share loses them (tracked in the
 [specs todo list](../specs/README.md#backup)).
 
+Which jobs a host must run is declared, not inferred from what runs: a host's
+`expected_backup_jobs` inventory list, or, by default, the restic jobs it
+configures. The monitoring backends render that list as a static series and
+alert when a declared job has never reported a run from its host, so a host that
+holds state but has no job yet (the Proxmox nodes holding the NAS containers'
+state directories, declared under `restic-backup-nas-state`) is a standing
+warning until the job exists.
+
 Decisions:
 
 - **One repository per host, not one for the lab** (confirmed 2026-10-14). A
@@ -57,6 +65,7 @@ Decisions:
 
 | Mechanism                                                                                                               | Cadence                                                                     | Proves                                                                                                          | Does not prove                                                           | Reported by                                                     |
 | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Coverage (declared jobs versus jobs that reported a run)                                                                | every evaluation                                                            | every host that holds state has its restic job configured and run at least once                                 | that the job keeps running (the staleness rules do)                      | `ExpectedBackupMissing`                                         |
 | Backup job                                                                                                              | nightly                                                                     | a new snapshot exists for both trees                                                                            | that the data is readable later                                          | `ResticBackupStale`, `ResticBackupMissing`, `SystemdUnitFailed` |
 | Repository identity                                                                                                     | every run                                                                   | the job opened the repository it is meant to use                                                                | anything about the content                                               | `ResticRepositoryChanged`                                       |
 | Structural check (`restic check`, by the job and by the exporter)                                                       | nightly, every 12 h                                                         | indices, trees, and snapshot references are consistent                                                          | that the pack files hold intact data                                     | `ResticCheckFailed` (exporter), `SystemdUnitFailed` (job)       |
