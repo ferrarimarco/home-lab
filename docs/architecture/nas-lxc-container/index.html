@@ -1821,6 +1821,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/operations/network-shares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network share clients
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2584,6 +2607,16 @@ Syncthing offsite transport depends on (§13).</p>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Deployed and joined (2026-10-03); declarative key expiry is a readme todo.</td>
 </tr>
+<tr>
+<td style="text-align: left;"><strong>SMB Client Boot Ordering and Mount Guard</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>x-systemd.before</code> and <code>protect_mount_point</code> on the hl01 and raspberrypi2 entries (§10.3); applied on both hosts on 2026-10-19 (mount units ordered before Docker, mount points immutable, check run idempotent); reboot verification pending; Molecule renders the ordering option only, since chattr is refused on the test container's overlay filesystem.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NAS Guest Startup Order (Terraform)</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>startup</code> block on both NAS container resources (§10.3); not yet applied.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="1-goal">1. Goal</h2>
@@ -3104,6 +3137,58 @@ it):</p>
   router DHCP reservation for the container's pinned MAC, see
   <a href="#114-mac-address-pinning">§11.4</a>) keeps the source stable across leases.</li>
 </ul>
+<p>Three more pieces keep the containers that bind the shares honest about them,
+after hl01 rebooted on 2026-10-18 with Docker starting its containers sixteen
+seconds before the shares mounted: every container bound the bare mount-point
+directory on the root disk and served "file not found" for the whole library
+until the stack was restarted.</p>
+<ul>
+<li><strong>Boot ordering (<code>x-systemd.before=docker.service</code> in the mount options).</strong>
+  The fstab generator orders each mount unit before Docker, so Docker waits for
+  every mount attempt to finish, success or failure, and then starts. <code>nofail</code>
+  drops a mount's ordering before <code>remote-fs.target</code>, so ordering Docker after
+  that target would not wait, and the mount units have to be named; the option
+  lives with the entry that owns the mount, so no Docker drop-in is rendered. A
+  <code>RequiresMountsFor=</code> on Docker was rejected: it would keep Docker, and with it
+  every workload, down while the NAS is unreachable. The cost is a delay bounded
+  by the mount unit's start timeout (90 s) when the NAS is down.</li>
+<li><strong>Mount-point guard (<code>protect_mount_point: true</code> on the entry).</strong> The
+  <code>setup_disks</code> role marks the bare mount-point directory immutable
+  (<code>chattr +i</code>) with tasks that read and write it through a private mount
+  namespace binding the parent directory without recursion, so they reach the
+  directory under the share whether or not the share is mounted and leave
+  nothing mounted behind. The <code>file</code> module's <code>attributes</code> parameter was tried
+  and dropped: on a mounted path it acts on the share's root, and its additive
+  form (<code>+i</code>) reports a change on every run because it compares the full flag
+  string with the requested flag
+  (<a href="https://github.com/ansible/ansible/issues/41737">ansible/ansible#41737</a>).
+  Mounting over an immutable directory works, and the mounted share hides the
+  attribute. The role also reloads systemd after an fstab change, since the
+  mount module does not, and the ordering option only takes effect once the
+  mount unit is regenerated. While the share is absent, Docker cannot create a
+  bind source under the directory and refuses to start the container (verified
+  on hl01 on 2026-10-19: container creation, container start, and <code>compose up</code>
+  all fail with "operation not permitted", while the services of the project
+  that do not bind the share still start), and a playbook run fails at its first
+  directory task under the path instead of populating the root disk. The role
+  refuses to set the attribute while the directory holds entries, and never
+  removes them: the
+  <a href="../../guides/operations/network-shares/">network share clients guide</a> has the
+  inspection and recovery recipes. A failed start is not retried by Docker's
+  restart policy, so a boot with the NAS unreachable leaves those containers
+  stopped until the share is mounted and the project brought up; automatic
+  recovery is a todo item of the <a href="../">index</a>.</li>
+<li><strong>Guest startup order (Terraform).</strong> Each NAS container resource declares
+  <code>startup { order = 1, up_delay = 15 }</code>: Proxmox starts the guests of a node
+  without an order after the ordered ones, so the clients need no setting, and
+  Samba listens about three seconds after the container starts. The ordering is
+  node-local, which matches the shares (each NAS serves its own node's guests),
+  and the shutdown order is the reverse.</li>
+</ul>
+<p>A NAS restart while the clients are up needs none of this: the kernel's CIFS
+client keeps the mount and reconnects when the server returns (verified across
+the container reboots of 2026-10-03 and 2026-10-09 with hl01 up: both mounts
+stayed present in Prometheus, no device error, no alert).</p>
 <h2 id="11-assumptions-and-constraints">11. Assumptions and Constraints</h2>
 <h3 id="111-zfs-dataset-mount-points-on-the-host">11.1 ZFS Dataset Mount Points on the Host</h3>
 <p>The Proxmox host must have the ZFS datasets mounted at known, stable paths

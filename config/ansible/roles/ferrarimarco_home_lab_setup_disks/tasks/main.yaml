@@ -30,6 +30,15 @@
   become: true
   with_items: "{{ directories_to_create | default([]) }}"
 
+# An entry with protect_mount_point: true gets an immutable mount point
+# (chattr +i), so that while its mount is absent nothing can create entries in
+# the bare directory. This task does not set it through the module's
+# `attributes` parameter: on a mounted path the module would act on the mounted
+# filesystem's root instead of the directory under it, and with the additive
+# form (`+i`) it compares the existing flag string (`ie` on ext4, the extents
+# flag included) with `i` and reports a change on every run
+# (ansible/ansible#41737, observed on raspberrypi2, 2026-10-19). The tasks in
+# protect-mount-points.yaml converge the attribute instead.
 - name: Create mountpoints
   ansible.builtin.file:
     group: "{{ item.group | default('root') }}"
@@ -74,7 +83,26 @@
     path: "{{ item.path }}"
     src: "{{ item.src }}"
     state: "{{ item.state }}"
+  register: setup_disks_mount_devices
   with_items: "{{ disks_to_mount | default([]) }}"
+
+# The mount module edits fstab and remounts, but systemd keeps the mount units
+# it generated at boot until a reload, so an ordering option such as
+# x-systemd.before only takes effect after it (raspberrypi2, 2026-10-19).
+- name: Reload the systemd daemon after fstab changes
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  # The module reports no change for a reload; record it in the run log.
+  changed_when: true
+  when: setup_disks_mount_devices.changed
+
+- name: Converge the immutable attribute of the protected mount points
+  ansible.builtin.include_tasks:
+    file: protect-mount-points.yaml
+  # Only entries that declare protect_mount_point opt in, so hosts without the
+  # key never run the namespace reads.
+  when: disks_to_mount | default([]) | selectattr('protect_mount_point', 'defined') | list | length > 0
 
 - name: Configure ZFS pools and datasets
   ansible.builtin.include_tasks:

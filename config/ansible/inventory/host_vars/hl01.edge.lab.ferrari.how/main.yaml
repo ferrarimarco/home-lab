@@ -23,19 +23,26 @@ restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup
 # Storage
 # Backups and media live on the NAS LXC container's shares; the former local
 # backup and data (media) virtual disks were deleted.
+# x-systemd.before orders each mount attempt before Docker starts the
+# containers that bind the share (nofail drops the ordering before
+# remote-fs.target, so the unit must be named), and protect_mount_point keeps a
+# container or a playbook run from writing into the bare mount point while the
+# share is absent (hl01 reboot, 2026-10-18).
 disks_to_mount:
   - fstype: cifs
     group: "{{ ansible_user }}"
     owner: "{{ ansible_user }}"
-    opts: "credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail"
+    opts: "credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail,x-systemd.before=docker.service"
     path: "{{ workloads_backup_disk_mount_path }}"
+    protect_mount_point: true
     src: //nas-pve1.edge.lab.ferrari.how/backups
     state: mounted
   - fstype: cifs
     group: "{{ ansible_user }}"
     owner: "{{ ansible_user }}"
-    opts: "credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail"
+    opts: "credentials=/etc/smb-credentials-nas-pve1,uid=1000,gid=1000,vers=3.1.1,_netdev,nofail,x-systemd.before=docker.service"
     path: "{{ data_disk_mount_path }}"
+    protect_mount_point: true
     src: //nas-pve1.edge.lab.ferrari.how/media-usb
     state: mounted
 mount_credential_files:

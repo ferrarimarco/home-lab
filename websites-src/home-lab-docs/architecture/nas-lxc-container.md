@@ -9,22 +9,24 @@ Syncthing offsite transport depends on (§13).
 
 ## Implementation Status
 
-| Component / Feature                          | Status                | Details                                                                                                   |
-| :------------------------------------------- | :-------------------- | :-------------------------------------------------------------------------------------------------------- |
-| **`nas` Role (SMB)**                         | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                                             |
-| **`common` Role UID Pin**                    | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.                                  |
-| **Host Config (`nas-pve1`)**                 | **Fully Implemented** | NixOS host config for the pve1 instance.                                                                  |
-| **Host Config (`nas-pve2`)**                 | **Fully Implemented** | NixOS host config for the pve2 instance.                                                                  |
-| **Terraform LXC (`pve1`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                                          |
-| **Terraform LXC (`pve2`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                                          |
-| **Terraform Template Upload**                | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).                          |
-| **Host Storage Prep (Ansible)**              | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11).                         |
-| **Host Integration Tests**                   | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.                                     |
-| **Flake Registration**                       | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                                        |
-| **Syncthing Service (`nas-pve1`)**           | **Fully Implemented** | Migrated: remote peer in sync over the tailnet, raspberrypi2 instance decommissioned (2026-10-06, §12.5). |
-| **Syncthing Storage (dataset, bind mounts)** | **Fully Implemented** | Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).                            |
-| **Tailscale Storage (state bind mount)**     | **Fully Implemented** | State dir and bind mount live on pve1; Terraform plans no changes (2026-10-03).                           |
-| **Tailscale Service (`nas-pve1`)**           | **Fully Implemented** | Deployed and joined (2026-10-03); declarative key expiry is a readme todo.                                |
+| Component / Feature                          | Status                | Details                                                                                                                                                                                                                                                                                                                                                       |
+| :------------------------------------------- | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`nas` Role (SMB)**                         | **Fully Implemented** | NixOS role enabling Samba with declarative share definitions.                                                                                                                                                                                                                                                                                                 |
+| **`common` Role UID Pin**                    | **Fully Implemented** | `ferrarimarco` UID pinned to `1000`; verified a no-op on deployed hosts.                                                                                                                                                                                                                                                                                      |
+| **Host Config (`nas-pve1`)**                 | **Fully Implemented** | NixOS host config for the pve1 instance.                                                                                                                                                                                                                                                                                                                      |
+| **Host Config (`nas-pve2`)**                 | **Fully Implemented** | NixOS host config for the pve2 instance.                                                                                                                                                                                                                                                                                                                      |
+| **Terraform LXC (`pve1`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve1.tf`.                                                                                                                                                                                                                                                                                              |
+| **Terraform LXC (`pve2`)**                   | **Fully Implemented** | `proxmox_virtual_environment_container` in `containers-pve2.tf`.                                                                                                                                                                                                                                                                                              |
+| **Terraform Template Upload**                | **Fully Implemented** | Provided by the framework (`images-templates.tf`; see the framework spec, §6.1).                                                                                                                                                                                                                                                                              |
+| **Host Storage Prep (Ansible)**              | **Fully Implemented** | `setup_disks` role: pools asserted, datasets and Samba state dir converged (§11).                                                                                                                                                                                                                                                                             |
+| **Host Integration Tests**                   | **Fully Implemented** | Auto-discovered tests for `nas-pve1` and `nas-pve2`; passing locally.                                                                                                                                                                                                                                                                                         |
+| **Flake Registration**                       | **Fully Implemented** | Both NAS hosts discovered by the flake (tests and machine matrix).                                                                                                                                                                                                                                                                                            |
+| **Syncthing Service (`nas-pve1`)**           | **Fully Implemented** | Migrated: remote peer in sync over the tailnet, raspberrypi2 instance decommissioned (2026-10-06, §12.5).                                                                                                                                                                                                                                                     |
+| **Syncthing Storage (dataset, bind mounts)** | **Fully Implemented** | Dataset and bind mounts live on pve1; Terraform plans no changes (2026-09-29).                                                                                                                                                                                                                                                                                |
+| **Tailscale Storage (state bind mount)**     | **Fully Implemented** | State dir and bind mount live on pve1; Terraform plans no changes (2026-10-03).                                                                                                                                                                                                                                                                               |
+| **Tailscale Service (`nas-pve1`)**           | **Fully Implemented** | Deployed and joined (2026-10-03); declarative key expiry is a readme todo.                                                                                                                                                                                                                                                                                    |
+| **SMB Client Boot Ordering and Mount Guard** | **Fully Implemented** | `x-systemd.before` and `protect_mount_point` on the hl01 and raspberrypi2 entries (§10.3); applied on both hosts on 2026-10-19 (mount units ordered before Docker, mount points immutable, check run idempotent); reboot verification pending; Molecule renders the ordering option only, since chattr is refused on the test container's overlay filesystem. |
+| **NAS Guest Startup Order (Terraform)**      | **Fully Implemented** | `startup` block on both NAS container resources (§10.3); not yet applied.                                                                                                                                                                                                                                                                                     |
 
 ## 1. Goal
 
@@ -610,6 +612,59 @@ it):
   client booting when the NAS container is down. The DNS name (backed by a
   router DHCP reservation for the container's pinned MAC, see
   [§11.4](#114-mac-address-pinning)) keeps the source stable across leases.
+
+Three more pieces keep the containers that bind the shares honest about them,
+after hl01 rebooted on 2026-10-18 with Docker starting its containers sixteen
+seconds before the shares mounted: every container bound the bare mount-point
+directory on the root disk and served "file not found" for the whole library
+until the stack was restarted.
+
+- **Boot ordering (`x-systemd.before=docker.service` in the mount options).**
+  The fstab generator orders each mount unit before Docker, so Docker waits for
+  every mount attempt to finish, success or failure, and then starts. `nofail`
+  drops a mount's ordering before `remote-fs.target`, so ordering Docker after
+  that target would not wait, and the mount units have to be named; the option
+  lives with the entry that owns the mount, so no Docker drop-in is rendered. A
+  `RequiresMountsFor=` on Docker was rejected: it would keep Docker, and with it
+  every workload, down while the NAS is unreachable. The cost is a delay bounded
+  by the mount unit's start timeout (90 s) when the NAS is down.
+- **Mount-point guard (`protect_mount_point: true` on the entry).** The
+  `setup_disks` role marks the bare mount-point directory immutable
+  (`chattr +i`) with tasks that read and write it through a private mount
+  namespace binding the parent directory without recursion, so they reach the
+  directory under the share whether or not the share is mounted and leave
+  nothing mounted behind. The `file` module's `attributes` parameter was tried
+  and dropped: on a mounted path it acts on the share's root, and its additive
+  form (`+i`) reports a change on every run because it compares the full flag
+  string with the requested flag
+  ([ansible/ansible#41737](https://github.com/ansible/ansible/issues/41737)).
+  Mounting over an immutable directory works, and the mounted share hides the
+  attribute. The role also reloads systemd after an fstab change, since the
+  mount module does not, and the ordering option only takes effect once the
+  mount unit is regenerated. While the share is absent, Docker cannot create a
+  bind source under the directory and refuses to start the container (verified
+  on hl01 on 2026-10-19: container creation, container start, and `compose up`
+  all fail with "operation not permitted", while the services of the project
+  that do not bind the share still start), and a playbook run fails at its first
+  directory task under the path instead of populating the root disk. The role
+  refuses to set the attribute while the directory holds entries, and never
+  removes them: the
+  [network share clients guide](../guides/operations/network-shares.md) has the
+  inspection and recovery recipes. A failed start is not retried by Docker's
+  restart policy, so a boot with the NAS unreachable leaves those containers
+  stopped until the share is mounted and the project brought up; automatic
+  recovery is a todo item of the [index](./README.md).
+- **Guest startup order (Terraform).** Each NAS container resource declares
+  `startup { order = 1, up_delay = 15 }`: Proxmox starts the guests of a node
+  without an order after the ordered ones, so the clients need no setting, and
+  Samba listens about three seconds after the container starts. The ordering is
+  node-local, which matches the shares (each NAS serves its own node's guests),
+  and the shutdown order is the reverse.
+
+A NAS restart while the clients are up needs none of this: the kernel's CIFS
+client keeps the mount and reconnects when the server returns (verified across
+the container reboots of 2026-10-03 and 2026-10-09 with hl01 up: both mounts
+stayed present in Prometheus, no device error, no alert).
 
 ## 11. Assumptions and Constraints
 

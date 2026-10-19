@@ -54,6 +54,17 @@ provisioner:
         # TODO: Enable configure_wifi after we install packages before rendering templates
         # configure_wifi: true
         configure_zigbee2mqtt: true
+        # A network mount entry with state present (fstab line only, no mount
+        # attempt), so the setup_disks role exercises the Docker ordering
+        # option on a path nothing else uses. The mount-point guard
+        # (protect_mount_point) stays out: chattr is refused on the test
+        # container's overlay filesystem.
+        disks_to_mount:
+          - fstype: cifs
+            opts: "guest,_netdev,nofail,x-systemd.before=docker.service"
+            path: /media/test-share
+            src: //nas.example/share
+            state: present
         frigate_http_endpoint_fqdn: "frigate"
         has_coral_pci_accelerator: true
         home_assistant_http_endpoint_fqdn: "home-assistant"

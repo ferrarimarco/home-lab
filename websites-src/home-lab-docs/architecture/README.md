@@ -267,6 +267,29 @@ reliability risks first, then security exposure, then automation):
   and a reproducible trigger for the stall, to be designed with the UAS quirk
   ([Host configuration](#host-configuration)). Until then a stall means a power
   cycle.
+- **Automatic recovery of share-bound containers after a boot with the NAS
+  unreachable (next step once the ordering and the guard pass their reboot
+  verification, 2026-10-19)**: the mount ordering and the mount-point guard
+  ([NAS LXC Container](./nas-lxc-container.md), §10.3) make such a boot fail
+  loudly, but systemd does not retry a failed fstab mount and Docker does not
+  retry a container whose start failed on a missing bind source, so the share
+  stays unmounted and the containers stopped until the
+  [network share clients guide](../guides/operations/network-shares.md) recipe
+  is run by hand. The NAS guest startup order makes the case rare (it needs the
+  NAS container itself to fail at boot). Design reviewed, to implement next:
+  each Compose item declares the mount paths it needs (`required_mount_paths`),
+  a generic task renders a per-project oneshot service with `RequiresMountsFor=`
+  on them and `docker compose up -d` as its command (the restic backup service
+  pattern), and one host-wide timer starts those services every few minutes;
+  `up -d` is idempotent, so the timer is safe to leave running. Rejected:
+  `x-systemd.automount`, which retries the mount on access but leaves the
+  stopped containers stopped (nothing accesses the path anymore), needs explicit
+  mount-unit tasks in the disks role, a filesystem-type check in the restic
+  guard, and changes what `ExpectedMountMissing` means. Also unmeasured: how
+  long a CIFS mount attempt takes to fail while the NAS is down, which bounds
+  the Docker start delay. Depends on: the reboot verification of the mount
+  ordering and the mount-point guard on hl01
+  ([NAS LXC Container](./nas-lxc-container.md), §10.3).
 
 ### Security
 

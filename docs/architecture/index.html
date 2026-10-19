@@ -1524,6 +1524,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/operations/network-shares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network share clients
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2217,6 +2240,29 @@ reliability risks first, then security exposure, then automation):</p>
   and a reproducible trigger for the stall, to be designed with the UAS quirk
   (<a href="#host-configuration">Host configuration</a>). Until then a stall means a power
   cycle.</li>
+<li><strong>Automatic recovery of share-bound containers after a boot with the NAS
+  unreachable (next step once the ordering and the guard pass their reboot
+  verification, 2026-10-19)</strong>: the mount ordering and the mount-point guard
+  (<a href="nas-lxc-container/">NAS LXC Container</a>, §10.3) make such a boot fail
+  loudly, but systemd does not retry a failed fstab mount and Docker does not
+  retry a container whose start failed on a missing bind source, so the share
+  stays unmounted and the containers stopped until the
+  <a href="../guides/operations/network-shares/">network share clients guide</a> recipe
+  is run by hand. The NAS guest startup order makes the case rare (it needs the
+  NAS container itself to fail at boot). Design reviewed, to implement next:
+  each Compose item declares the mount paths it needs (<code>required_mount_paths</code>),
+  a generic task renders a per-project oneshot service with <code>RequiresMountsFor=</code>
+  on them and <code>docker compose up -d</code> as its command (the restic backup service
+  pattern), and one host-wide timer starts those services every few minutes;
+  <code>up -d</code> is idempotent, so the timer is safe to leave running. Rejected:
+  <code>x-systemd.automount</code>, which retries the mount on access but leaves the
+  stopped containers stopped (nothing accesses the path anymore), needs explicit
+  mount-unit tasks in the disks role, a filesystem-type check in the restic
+  guard, and changes what <code>ExpectedMountMissing</code> means. Also unmeasured: how
+  long a CIFS mount attempt takes to fail while the NAS is down, which bounds
+  the Docker start delay. Depends on: the reboot verification of the mount
+  ordering and the mount-point guard on hl01
+  (<a href="nas-lxc-container/">NAS LXC Container</a>, §10.3).</li>
 </ul>
 <h3 id="security">Security</h3>
 <ul>

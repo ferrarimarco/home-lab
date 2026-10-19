@@ -1,0 +1,100 @@
+---
+# Make the directory under a mount point immutable (chattr +i), so that while
+# the mount is absent (a network share whose server was down at boot) nothing
+# can create entries in the bare directory: a container that binds a subpath of
+# the share fails to start instead of running against the root filesystem, and
+# a playbook run fails at its first directory task under the path instead of
+# populating it (hl01, 2026-10-18). Mounting over an immutable directory still
+# works, and the mounted filesystem hides the attribute.
+#
+# These tasks are the only writer of the attribute: the file module's
+# `attributes` parameter cannot reach the directory under a mounted share and
+# its additive form reports a change on every run (see "Create mountpoints").
+# The directory is reached through a private mount namespace that binds the
+# mount point's parent without recursion, which hides the mounted share, so the
+# read works whether or not the share is mounted and nothing is visible outside
+# the process. Entries opt in with protect_mount_point: true; false clears the
+# attribute again. Where the attribute is already set, nothing changes.
+
+- name: Read the attributes and contents of the directories under the mount points
+  ansible.builtin.command:
+    argv:
+      - unshare
+      - --mount
+      - --propagation
+      - private
+      - sh
+      - -c
+      - mount --bind "$1" /mnt && lsattr -d "/mnt/$2" && find "/mnt/$2" -mindepth 1
+      - sh
+      - "{{ item.path | dirname }}"
+      - "{{ item.path | basename }}"
+  become: true
+  changed_when: false
+  check_mode: false
+  # On a fresh host in check mode the mount point does not exist yet (its
+  # creation task is only predicted), so the read fails; tolerate that case
+  # and let the tasks below skip the entry.
+  failed_when: setup_disks_mount_point_underlying_state.rc != 0 and not ansible_check_mode
+  register: setup_disks_mount_point_underlying_state
+  with_items: "{{ disks_to_mount | selectattr('protect_mount_point', 'defined') | list }}"
+
+# The role never deletes host state: the operator inspects the entries with the
+# command in the message and removes them by hand.
+- name: Refuse to protect a mount point whose underlying directory is not empty
+  ansible.builtin.assert:
+    that: item.stdout_lines | length == 1
+    fail_msg: >-
+      The directory under {{ item.item.path }} holds entries on the host's own
+      filesystem: {{ item.stdout_lines[1:] | join(', ') }}. Inspect them with
+      sudo unshare --mount --propagation private sh -c
+      'mount --bind {{ item.item.path | dirname }} /mnt
+      && ls -la /mnt/{{ item.item.path | basename }}'
+      and remove them by hand, then run the playbook again.
+    quiet: true
+  when:
+    - item.rc == 0
+    - item.item.protect_mount_point
+  with_items: "{{ setup_disks_mount_point_underlying_state.results }}"
+
+- name: Set the immutable attribute on the directories under the mount points
+  ansible.builtin.command:
+    argv:
+      - unshare
+      - --mount
+      - --propagation
+      - private
+      - sh
+      - -c
+      - mount --bind "$1" /mnt && chattr +i "/mnt/$2"
+      - sh
+      - "{{ item.item.path | dirname }}"
+      - "{{ item.item.path | basename }}"
+  become: true
+  changed_when: true
+  when:
+    - item.rc == 0
+    - item.item.protect_mount_point
+    - "'i' not in (item.stdout_lines[0] | split(' ') | first)"
+  with_items: "{{ setup_disks_mount_point_underlying_state.results }}"
+
+- name: Clear the immutable attribute on the directories under the mount points
+  ansible.builtin.command:
+    argv:
+      - unshare
+      - --mount
+      - --propagation
+      - private
+      - sh
+      - -c
+      - mount --bind "$1" /mnt && chattr -i "/mnt/$2"
+      - sh
+      - "{{ item.item.path | dirname }}"
+      - "{{ item.item.path | basename }}"
+  become: true
+  changed_when: true
+  when:
+    - item.rc == 0
+    - not item.item.protect_mount_point
+    - "'i' in (item.stdout_lines[0] | split(' ') | first)"
+  with_items: "{{ setup_disks_mount_point_underlying_state.results }}"

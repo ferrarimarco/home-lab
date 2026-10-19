@@ -304,6 +304,14 @@ architectural patterns:
   the inventory: after a move, point them at the new host and re-render the
   monitoring backend on both members of its pair, or the probes keep alerting on
   the old host while the running stack goes unprobed.
+- **A container that lists an empty library may hold the bare mount point, not
+  the share:** Docker resolves bind sources at container start and a share
+  mounted later does not propagate into them. Compare the container's listing
+  with the host's and restart the Compose project after the share is mounted, as
+  the
+  [network share clients guide](./websites-src/home-lab-docs/guides/operations/network-shares.md)
+  describes; a boot with the NAS unreachable leaves those containers stopped by
+  design, and the same guide has the recovery steps.
 - SSH conventions: connect using each host's fully qualified domain name, as
   listed in the Ansible inventory — short hostnames do not resolve from the
   control machine. Connect as `root` to the Proxmox nodes, as `debian` to the
