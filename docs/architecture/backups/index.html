@@ -638,29 +638,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../storage-configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Storage configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1765,7 +1742,7 @@
 <tr>
 <td style="text-align: left;"><strong>Second copy of the repositories</strong></td>
 <td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">The repositories exist only on the nas-pve1 share; the destinations are tracked in the <a href="../#backup">specs todo list</a>.</td>
+<td style="text-align: left;">The repositories exist only on the nas-pve1 share, a single-disk pool; the second copy is a <a href="../#backup">Backup</a> todo item.</td>
 </tr>
 </tbody>
 </table>
@@ -1798,8 +1775,8 @@ are the backup set, nightly, through the <code>restic-backup-workloads</code> jo
 <code>/media/backup-0</code> as <code>&lt;share&gt;/&lt;host&gt;/restic-backup-workloads</code>. The password is a
 vaulted variable rendered into the job's Compose file, readable by root on the
 host only. Retention keeps seven daily snapshots. The repositories have no
-second copy: losing the share loses them (tracked in the
-<a href="../#backup">specs todo list</a>).</p>
+second copy: losing the share loses them (the
+<a href="../#backup">second copy of the restic repositories</a> is a todo item).</p>
 <p>Which jobs a host must run is declared, not inferred from what runs: a host's
 <code>expected_backup_jobs</code> inventory list, or, by default, the restic jobs it
 configures. The monitoring backends render that list as a static series and

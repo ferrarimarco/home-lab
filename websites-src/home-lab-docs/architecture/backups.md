@@ -10,7 +10,7 @@
 | **Structural and pack-data checks** | **Fully Implemented** | Exporter `restic check` every 12 hours; the job reads one group of pack files per night, every pack once per cycle.                             |
 | **Restore drill**                   | **Fully Implemented** | Monthly drill of one bounded subtree with `--verify` into a scratch directory on the share.                                                     |
 | **NixOS state backup**              | **Missing**           | pve1 and pve2 declare `restic-backup-nas-state` in `expected_backup_jobs`; no job exists yet, so `ExpectedBackupMissing` fires for both.        |
-| **Second copy of the repositories** | **Missing**           | The repositories exist only on the nas-pve1 share; the destinations are tracked in the [specs todo list](./README.md#backup).                   |
+| **Second copy of the repositories** | **Missing**           | The repositories exist only on the nas-pve1 share, a single-disk pool; the second copy is a [Backup](./README.md#backup) todo item.             |
 
 ## Scope
 
@@ -45,8 +45,8 @@ Each host owns one restic repository on the nas-pve1 `backups` share (the
 `/media/backup-0` as `<share>/<host>/restic-backup-workloads`. The password is a
 vaulted variable rendered into the job's Compose file, readable by root on the
 host only. Retention keeps seven daily snapshots. The repositories have no
-second copy: losing the share loses them (tracked in the
-[specs todo list](./README.md#backup)).
+second copy: losing the share loses them (the
+[second copy of the restic repositories](./README.md#backup) is a todo item).
 
 Which jobs a host must run is declared, not inferred from what runs: a host's
 `expected_backup_jobs` inventory list, or, by default, the restic jobs it

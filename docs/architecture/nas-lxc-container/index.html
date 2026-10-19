@@ -1049,29 +1049,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../storage-configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Storage configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -3168,7 +3145,11 @@ this lives in the Ansible layer that already manages the Proxmox nodes:</p>
   device-specific, so pool creation stays a deliberate manual act. Each entry
   records the pool's actual topology (<code>by-id</code> device paths) and creation options
   (e.g. <code>ashift</code>) as executable documentation; the role fails with the
-  documented <code>zpool create</code> command when the pool is missing.</li>
+  documented <code>zpool create</code> command when the pool is missing. Every declared
+  pool on <code>pve1</code> and <code>pve2</code> is a single-disk vdev today, so a disk failure loses
+  the pool's contents; the intended layout is mirrored vdevs, and the second
+  copies of what the pools hold are tracked with it in the
+  <a href="../#nas">specs todo list</a>.</li>
 <li><strong><code>zfs_datasets</code> — created if missing</strong> (<code>zfs create -p</code>). The declared
   <code>mount_point</code> is not an input to ZFS (datasets mount at the ZFS-computed path,
   by default <code>/&lt;pool&gt;/&lt;dataset&gt;</code>), so the role then asserts that each dataset's

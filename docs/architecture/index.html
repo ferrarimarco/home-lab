@@ -752,29 +752,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="storage-configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Storage configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -2939,6 +2916,15 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <code>expected_backup_jobs</code> (the <code>ExpectedBackupMissing</code> alert fires for it until
   the job reports a run). The restore procedure that proves the rebuild path is
   in the <a href="../guides/operations/backup/">backup operations guide</a>.</li>
+<li><strong>Second copy of the restic repositories (2026-10-19)</strong>: the per-host
+  repositories on the nas-pve1 <code>backups</code> share are the only copy of the Debian
+  hosts' state backups, and the share's <code>rpool-sata</code> pool is a single-disk vdev
+  (<a href="#nas">NAS</a>), so a disk failure on pve1 loses every backup along with the
+  share. Give the offsite or cloud destination of the Destinations item below a
+  copy of the repositories as well, either <code>restic copy</code> into a second
+  repository (which keeps restic's integrity checks on both copies) or a
+  replicated dataset, and extend the verification ladder of the
+  <a href="backups/">Backups specification</a> to the copy.</li>
 <li><strong>One restic repository per host (confirmed 2026-10-14)</strong>: a repository is
   restic's deduplication, locking, and key domain; a shared one would
   deduplicate little across state trees, let any host forget or prune every
@@ -3008,6 +2994,18 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <h3 id="nas">NAS</h3>
 <p>Related specification: <a href="nas-lxc-container/">NAS LXC Container</a>.</p>
 <ul>
+<li><strong>Mirrored vdevs for the ZFS pools (intent recorded 2026-10-18)</strong>: every pool
+  declared in <code>zfs_pools</code> on pve1 and pve2 is a single-disk vdev, so a disk
+  failure loses the pool's contents. The second copies are <a href="#backup">Backup</a>
+  items (the restic repositories on <code>rpool-sata</code>, the media library on
+  <code>rpool-usb-2</code>), while the Syncthing folder on <code>rpool-usb-1</code> is itself the copy
+  of the remote peer's data. The intended layout is one mirror per pool, which
+  needs a second device of at least the same size per pool to protect;
+  <code>zpool attach</code> turns a single-disk vdev into a mirror in place, with no
+  recreation and no data move, after which the pool's <code>zfs_pools</code> entry records
+  the new topology. The ZFS section of the
+  <a href="references/#zfs">references page</a> holds the rationale for mirrors over
+  RAIDZ.</li>
 <li><strong>Media storage on <code>rpool-usb-2</code> (pool layout decided 2026-09-26, pool created
   2026-10-10)</strong>: the 2 TB USB disk is pve1's independent single-disk ZFS pool
   <code>rpool-usb-2</code> for replaceable media only, and the <code>media-usb</code> share is backed

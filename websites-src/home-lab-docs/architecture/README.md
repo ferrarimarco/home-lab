@@ -907,6 +907,15 @@ reliability risks first, then security exposure, then automation):
   `expected_backup_jobs` (the `ExpectedBackupMissing` alert fires for it until
   the job reports a run). The restore procedure that proves the rebuild path is
   in the [backup operations guide](../guides/operations/backup.md).
+- **Second copy of the restic repositories (2026-10-19)**: the per-host
+  repositories on the nas-pve1 `backups` share are the only copy of the Debian
+  hosts' state backups, and the share's `rpool-sata` pool is a single-disk vdev
+  ([NAS](#nas)), so a disk failure on pve1 loses every backup along with the
+  share. Give the offsite or cloud destination of the Destinations item below a
+  copy of the repositories as well, either `restic copy` into a second
+  repository (which keeps restic's integrity checks on both copies) or a
+  replicated dataset, and extend the verification ladder of the
+  [Backups specification](./backups.md) to the copy.
 - **One restic repository per host (confirmed 2026-10-14)**: a repository is
   restic's deduplication, locking, and key domain; a shared one would
   deduplicate little across state trees, let any host forget or prune every
@@ -973,6 +982,18 @@ reliability risks first, then security exposure, then automation):
 
 Related specification: [NAS LXC Container](./nas-lxc-container.md).
 
+- **Mirrored vdevs for the ZFS pools (intent recorded 2026-10-18)**: every pool
+  declared in `zfs_pools` on pve1 and pve2 is a single-disk vdev, so a disk
+  failure loses the pool's contents. The second copies are [Backup](#backup)
+  items (the restic repositories on `rpool-sata`, the media library on
+  `rpool-usb-2`), while the Syncthing folder on `rpool-usb-1` is itself the copy
+  of the remote peer's data. The intended layout is one mirror per pool, which
+  needs a second device of at least the same size per pool to protect;
+  `zpool attach` turns a single-disk vdev into a mirror in place, with no
+  recreation and no data move, after which the pool's `zfs_pools` entry records
+  the new topology. The ZFS section of the
+  [references page](./references.md#zfs) holds the rationale for mirrors over
+  RAIDZ.
 - **Media storage on `rpool-usb-2` (pool layout decided 2026-09-26, pool created
   2026-10-10)**: the 2 TB USB disk is pve1's independent single-disk ZFS pool
   `rpool-usb-2` for replaceable media only, and the `media-usb` share is backed
