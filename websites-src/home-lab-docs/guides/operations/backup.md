@@ -2,8 +2,8 @@
 
 Procedures for the restic backups of the Debian hosts: inspecting a repository,
 restoring, running the drill, repairing. The
-[backups architecture page](../../architecture/backups.md) describes what is
-backed up, where, and what each check proves.
+[Backups specification](../../architecture/backups.md) describes what is backed
+up, where, and what each check proves.
 
 ## Where things are
 

@@ -64,9 +64,9 @@ not in this file. When a task produces such knowledge, record the substance in
 the relevant guide (creating one if needed) and add at most a brief pointer
 here: this file carries rules and pointers, not the knowledge itself. Each fact
 has one home: a new page links to where a fact already lives (the backups
-architecture page holds the verification matrix, the operations guide the
-recipes) instead of restating it, and overlap between pages is removed rather
-than reworded.
+specification holds the verification matrix, the operations guide the recipes)
+instead of restating it, and overlap between pages is removed rather than
+reworded.
 
 ## 2. Agent Workflow Rules (Crucial)
 

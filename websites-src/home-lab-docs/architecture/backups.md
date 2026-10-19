@@ -1,4 +1,18 @@
-# Backups
+# Design Spec: Backups
+
+## Implementation Status
+
+| Component / Feature                 | Status                | Details                                                                                                                                         |
+| :---------------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Workloads backup job**            | **Fully Implemented** | Nightly `restic-backup-workloads` job of the node role over the two state trees of each Debian host, seven daily snapshots.                     |
+| **Per-host repositories**           | **Fully Implemented** | One repository per host on the nas-pve1 `backups` share; initialized only by a dedicated role task, implicit initialization refused by the job. |
+| **Coverage declaration**            | **Fully Implemented** | `expected_backup_jobs` rendered as a static series; `ExpectedBackupMissing` fires for a declared job that never reported a run.                 |
+| **Structural and pack-data checks** | **Fully Implemented** | Exporter `restic check` every 12 hours; the job reads one group of pack files per night, every pack once per cycle.                             |
+| **Restore drill**                   | **Fully Implemented** | Monthly drill of one bounded subtree with `--verify` into a scratch directory on the share.                                                     |
+| **NixOS state backup**              | **Missing**           | pve1 and pve2 declare `restic-backup-nas-state` in `expected_backup_jobs`; no job exists yet, so `ExpectedBackupMissing` fires for both.        |
+| **Second copy of the repositories** | **Missing**           | The repositories exist only on the nas-pve1 share; the destinations are tracked in the [specs todo list](./README.md#backup).                   |
+
+## Scope
 
 What the backups protect, where the data goes, the decisions behind the layout,
 and what each verification mechanism proves and does not prove. The

@@ -308,7 +308,7 @@
   
   
   <span class="md-ellipsis">
-    Backups
+    Design Spec: Backups
     
   </span>
   
@@ -447,29 +447,6 @@
   
   <span class="md-ellipsis">
     Network configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../architecture/nix/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Nix and NixOS
     
   </span>
   
@@ -1833,8 +1810,8 @@
 <h1 id="backup-operations">Backup operations</h1>
 <p>Procedures for the restic backups of the Debian hosts: inspecting a repository,
 restoring, running the drill, repairing. The
-<a href="../../../architecture/backups/">backups architecture page</a> describes what is
-backed up, where, and what each check proves.</p>
+<a href="../../../architecture/backups/">Backups specification</a> describes what is backed
+up, where, and what each check proves.</p>
 <h2 id="where-things-are">Where things are</h2>
 <p>One repository per host at <code>/media/backup-0/&lt;host&gt;/restic-backup-workloads</code> on
 the nas-pve1 <code>backups</code> share, with the drill's scratch directory next to it. The

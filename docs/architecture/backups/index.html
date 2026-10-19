@@ -22,7 +22,7 @@
     
     
       
-        <title>Backups - Home Lab docs</title>
+        <title>Design Spec: Backups - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#backups" class="md-skip">
+        <a href="#design-spec-backups" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Backups
+              Design Spec: Backups
             
           </span>
         </div>
@@ -319,7 +319,7 @@
   
   
   <span class="md-ellipsis">
-    Backups
+    Design Spec: Backups
     
   </span>
   
@@ -332,7 +332,7 @@
   
   
   <span class="md-ellipsis">
-    Backups
+    Design Spec: Backups
     
   </span>
   
@@ -353,6 +353,24 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scope
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#what-is-backed-up" class="md-nav__link">
@@ -518,29 +536,6 @@
   
   <span class="md-ellipsis">
     Network configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../nix/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Nix and NixOS
     
   </span>
   
@@ -1663,6 +1658,24 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scope
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-is-backed-up" class="md-nav__link">
     <span class="md-ellipsis">
       What is backed up
@@ -1708,7 +1721,55 @@
   
 
 
-<h1 id="backups">Backups</h1>
+<h1 id="design-spec-backups">Design Spec: Backups</h1>
+<h2 id="implementation-status">Implementation Status</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Component / Feature</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Workloads backup job</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Nightly <code>restic-backup-workloads</code> job of the node role over the two state trees of each Debian host, seven daily snapshots.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Per-host repositories</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">One repository per host on the nas-pve1 <code>backups</code> share; initialized only by a dedicated role task, implicit initialization refused by the job.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Coverage declaration</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>expected_backup_jobs</code> rendered as a static series; <code>ExpectedBackupMissing</code> fires for a declared job that never reported a run.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Structural and pack-data checks</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Exporter <code>restic check</code> every 12 hours; the job reads one group of pack files per night, every pack once per cycle.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Restore drill</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Monthly drill of one bounded subtree with <code>--verify</code> into a scratch directory on the share.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NixOS state backup</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">pve1 and pve2 declare <code>restic-backup-nas-state</code> in <code>expected_backup_jobs</code>; no job exists yet, so <code>ExpectedBackupMissing</code> fires for both.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Second copy of the repositories</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">The repositories exist only on the nas-pve1 share; the destinations are tracked in the <a href="../#backup">specs todo list</a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="scope">Scope</h2>
 <p>What the backups protect, where the data goes, the decisions behind the layout,
 and what each verification mechanism proves and does not prove. The
 <a href="../../guides/operations/backup/">backup operations guide</a> holds the procedures;

@@ -15,6 +15,7 @@ reference pages beside them, and the todo list for the whole lab.
 | [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.                                                                             | **Partially Implemented**     |
 | [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.                                                                      | **Fully Implemented**         |
 | [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi TFTP path now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer. | **Missing**                   |
+| [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill.                                  | **Partially Implemented**     |
 
 ## Reference pages
 
@@ -912,7 +913,7 @@ reliability risks first, then security exposure, then automation):
   other host's snapshots with no append-only protection on a CIFS backend, and
   serialize the nightly jobs on its lock. Revisit when a backend with per-client
   isolation and append-only mode exists (restic's REST server on the NAS would
-  qualify); the [backups page](./backups.md) records the rationale.
+  qualify); the [Backups specification](./backups.md) records the rationale.
 - **Second copy of the media library (2026-10-10)**: the library on
   `rpool-usb-2/media` is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
