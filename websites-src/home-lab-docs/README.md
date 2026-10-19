@@ -15,10 +15,22 @@ For more information about how to set up the lab, see:
 
 ## Architecture
 
-For more information about the architecture of the lab, see
-[Architecture](./architecture/README.md).
+For the architecture of the lab, its design specifications, and the todo list,
+see [Architecture](./architecture/README.md).
 
-## Specifications
+## Repository layout
 
-For more information about the design specifications (specs) of the lab, see
-[Specifications](./specs/README.md).
+The repository includes the following content to support provisioning,
+configuration, and deployment processes:
+
+- Development environment container configuration in the `.devcontainer`
+  directory.
+- GitHub-specific configuration in the `.github` directory.
+- Configuration and support tooling in the `config` directory, split by tool.
+- Container image descriptors in the `docker` directory.
+- Documentation site in the `docs` directory.
+- Source of the documentation site in the `websites-src` directory.
+- Operational scripts in the `scripts` directory. The
+  [operational scripts guide](./guides/development/operational-scripts.md)
+  describes them.
+- Tests in the `test` directory.

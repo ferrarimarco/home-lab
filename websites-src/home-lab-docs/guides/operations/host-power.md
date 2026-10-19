@@ -5,7 +5,7 @@ and the numbers we measured, so that a new evaluation starts from them instead
 of re-measuring. The generic method (instrument choice, attribution, levers,
 experiment discipline) is not repeated here; the specs todo list tracks the open
 work per host under
-[Host configuration](../../specs/README.md#host-configuration).
+[Host configuration](../../architecture/README.md#host-configuration).
 
 ## Instrument
 
@@ -60,7 +60,7 @@ Seagate ST4000VN006 data disk, Samsung HD103SJ and OCZ Vertex 3 scratch drives,
 two on-board i210 NICs, OCZ ModXStream Pro 600 W PSU (2008-era 80 Plus, no
 PMBus). The goal is to run the host 24/7 once its idle draw comes down; the
 remaining steps are tracked in the
-[specs todo list](../../specs/README.md#host-configuration).
+[specs todo list](../../architecture/README.md#host-configuration).
 
 ### Baseline and attribution
 

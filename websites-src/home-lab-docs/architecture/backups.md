@@ -3,8 +3,8 @@
 What the backups protect, where the data goes, the decisions behind the layout,
 and what each verification mechanism proves and does not prove. The
 [backup operations guide](../guides/operations/backup.md) holds the procedures;
-the [Monitoring Alerting specification](../specs/monitoring-alerting.md) holds
-the alert rules.
+the [Monitoring Alerting specification](./monitoring-alerting.md) holds the
+alert rules.
 
 ## What is backed up
 
@@ -20,10 +20,9 @@ are the backup set, nightly, through the `restic-backup-workloads` job of the
 - Docker volumes: no stack keeps state in them, so there is nothing to back up,
   and anything that landed there would be pruned weekly.
 - Media: replaceable; a second copy and a nightly manifest are tracked in the
-  [specs todo list](../specs/README.md#backup).
-- The NixOS hosts' state: tracked in the
-  [specs todo list](../specs/README.md#nas), to be built on the same guarantees
-  described here.
+  [specs todo list](./README.md#backup).
+- The NixOS hosts' state: tracked in the [specs todo list](./README.md#nas), to
+  be built on the same guarantees described here.
 
 ## Where the data goes
 
@@ -33,7 +32,7 @@ Each host owns one restic repository on the nas-pve1 `backups` share (the
 vaulted variable rendered into the job's Compose file, readable by root on the
 host only. Retention keeps seven daily snapshots. The repositories have no
 second copy: losing the share loses them (tracked in the
-[specs todo list](../specs/README.md#backup)).
+[specs todo list](./README.md#backup)).
 
 Which jobs a host must run is declared, not inferred from what runs: a host's
 `expected_backup_jobs` inventory list, or, by default, the restic jobs it

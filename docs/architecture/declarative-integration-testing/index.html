@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/proxmox-vm/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/architecture/declarative-integration-testing/">
       
       
-        <link rel="prev" href="../proxmox-lxc/">
+        <link rel="prev" href="../backups/">
       
       
-        <link rel="next" href="../software-candidates/">
+        <link rel="next" href="../home-lab-bootstrapping/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Design Spec: NixOS VMs on Proxmox - Home Lab docs</title>
+        <title>Design Spec: Declarative Integration Testing Framework & CI Pipeline - Home Lab docs</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#design-spec-nixos-vms-on-proxmox" class="md-skip">
+        <a href="#design-spec-declarative-integration-testing-framework-ci-pipeline" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Design Spec: NixOS VMs on Proxmox
+              Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
             
           </span>
         </div>
@@ -239,18 +239,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -266,7 +268,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -280,12 +282,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Home lab architecture overview
+    Home lab architecture
     
   </span>
   
@@ -303,7 +305,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/backups/" class="md-nav__link">
+      <a href="../backups/" class="md-nav__link">
         
   
   
@@ -323,10 +325,278 @@
                 
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-testing-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Testing Architecture
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Testing Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-logical-vs-physical-configuration-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 Logical vs. Physical Configuration Split
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-centralized-test-generator-confignixtestsmake-testnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 Centralized Test Generator (config/nix/tests/make-test.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-flake-integration-and-dynamic-test-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Flake Integration and Dynamic Test Discovery
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-github-actions-workflow-update-githubworkflowsnixyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. GitHub Actions Workflow Update (.github/workflows/nix.yaml)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Verification Plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Verification Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-automated-tests-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Automated Tests (CI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-manual-verification-localdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Manual Verification (Local/Dev)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring-alerting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Monitoring Alerting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nas-lxc-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network-boot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Network Boot Service
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network-configuration/" class="md-nav__link">
         
   
   
@@ -349,7 +619,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nix/" class="md-nav__link">
+      <a href="../nix/" class="md-nav__link">
         
   
   
@@ -372,7 +642,53 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../proxmox-lxc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox-vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS VMs on Proxmox
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../references/" class="md-nav__link">
         
   
   
@@ -395,7 +711,30 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../software-candidates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Software candidates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage-configuration/" class="md-nav__link">
         
   
   
@@ -1381,425 +1720,6 @@
   
 
     
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Specs
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6">
-            <span class="md-nav__icon md-icon"></span>
-            Specs
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Home Lab Design Specifications
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../declarative-integration-testing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../home-lab-bootstrapping/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../monitoring-alerting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Monitoring Alerting
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../nas-lxc-container/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for SMB File Sharing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../network-boot/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Network Boot Service
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../proxmox-lxc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NixOS LXC Containers on Proxmox
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NixOS VMs on Proxmox
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NixOS VMs on Proxmox
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation Status
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Goal
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Rationale
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-proxmox-vm-role-confignixrolesproxmox-vmdefaultnix" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. proxmox-vm Role (config/nix/roles/proxmox-vm/default.nix)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-host-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Host Structure
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-baseline-disk-layout-disko" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Baseline Disk Layout (Disko)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-iso-artifact-delivery" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. ISO Artifact Delivery
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-infrastructure-provisioning-terraform" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. Infrastructure Provisioning (Terraform)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-integration-testing" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. Integration Testing
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9-deployed-vm-hosts" class="md-nav__link">
-    <span class="md-ellipsis">
-      9. Deployed VM Hosts
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10-assumptions-and-constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      10. Assumptions and Constraints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="10. Assumptions and Constraints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#101-disk-device-configuration-devsda" class="md-nav__link">
-    <span class="md-ellipsis">
-      10.1 Disk Device Configuration (/dev/sda)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#102-networking-dhcp" class="md-nav__link">
-    <span class="md-ellipsis">
-      10.2 Networking (DHCP)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../software-candidates/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Software candidates
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -1854,91 +1774,79 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-proxmox-vm-role-confignixrolesproxmox-vmdefaultnix" class="md-nav__link">
+  <a href="#3-testing-architecture" class="md-nav__link">
     <span class="md-ellipsis">
-      3. proxmox-vm Role (config/nix/roles/proxmox-vm/default.nix)
+      3. Testing Architecture
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-host-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Host Structure
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-baseline-disk-layout-disko" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Baseline Disk Layout (Disko)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-iso-artifact-delivery" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. ISO Artifact Delivery
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-infrastructure-provisioning-terraform" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. Infrastructure Provisioning (Terraform)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-integration-testing" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. Integration Testing
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9-deployed-vm-hosts" class="md-nav__link">
-    <span class="md-ellipsis">
-      9. Deployed VM Hosts
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10-assumptions-and-constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      10. Assumptions and Constraints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="10. Assumptions and Constraints">
+    <nav class="md-nav" aria-label="3. Testing Architecture">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#101-disk-device-configuration-devsda" class="md-nav__link">
+  <a href="#31-logical-vs-physical-configuration-split" class="md-nav__link">
     <span class="md-ellipsis">
-      10.1 Disk Device Configuration (/dev/sda)
+      3.1 Logical vs. Physical Configuration Split
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#102-networking-dhcp" class="md-nav__link">
+  <a href="#32-centralized-test-generator-confignixtestsmake-testnix" class="md-nav__link">
     <span class="md-ellipsis">
-      10.2 Networking (DHCP)
+      3.2 Centralized Test Generator (config/nix/tests/make-test.nix)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-flake-integration-and-dynamic-test-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.3 Flake Integration and Dynamic Test Discovery
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-github-actions-workflow-update-githubworkflowsnixyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. GitHub Actions Workflow Update (.github/workflows/nix.yaml)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Verification Plan
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Verification Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-automated-tests-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Automated Tests (CI)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-manual-verification-localdev" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Manual Verification (Local/Dev)
     </span>
   </a>
   
@@ -1968,7 +1876,7 @@
   
 
 
-<h1 id="design-spec-nixos-vms-on-proxmox">Design Spec: NixOS VMs on Proxmox</h1>
+<h1 id="design-spec-declarative-integration-testing-framework-ci-pipeline">Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline</h1>
 <h2 id="implementation-status">Implementation Status</h2>
 <table>
 <thead>
@@ -1980,257 +1888,202 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong><code>proxmox-vm</code> Role</strong></td>
+<td style="text-align: left;"><strong>Centralized Test Generator</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">QEMU guest profile, VirtIO drivers, guest agent, systemd-boot.</td>
+<td style="text-align: left;">Core QEMU framework exists; <code>specialArgs</code> mocking implemented.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Host Structure Pattern</strong></td>
+<td style="text-align: left;"><strong>Dynamic Flake Discovery</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Logical/physical split with per-host Disko layout.</td>
+<td style="text-align: left;"><code>hostTests</code> scanning and registration into <code>checks</code> exists.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Baseline Disk Layout</strong></td>
+<td style="text-align: left;"><strong>Optional Host Overrides</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">GPT, 512M ESP, 100% ext4 root partition on <code>/dev/sda</code>.</td>
+<td style="text-align: left;">Supports an optional <code>test-override.nix</code> file for unique asserts.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>ISO Artifact Delivery</strong></td>
+<td style="text-align: left;"><strong>CI Pipeline Workflow</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Installer ISO staged on the node via Terraform.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Terraform VM Pattern</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Reference VM resource shape in <code>vms-pve1.tf</code>.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Host Integration Tests</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Automatically generated by the flake for host configs.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Deployed VM Hosts (<code>hl02</code>)</strong></td>
-<td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>hl02</code> on <code>pve1</code> follows this framework end-to-end.</td>
+<td style="text-align: left;">Multi-job dynamic matrices; machines: <code>disko.nix</code> or comin hosts.</td>
 </tr>
 </tbody>
 </table>
 <h2 id="1-goal">1. Goal</h2>
-<p>Provide a reusable framework for fully declarative NixOS virtual machines on the
-Proxmox nodes: a shared <code>proxmox-vm</code> role for guest hardware settings, a
-standard host directory structure with Disko partitioning, automatic
-provisioning via Terraform and <code>nixos-anywhere</code>, and auto-generated integration
-tests.</p>
-<p>The framework covers NixOS VMs only. Non-NixOS VMs (such as the Debian <code>hl01</code>
-VM, which is provisioned via cloud-init) are out of scope.</p>
+<p>Implement a Nix-native integration test framework to verify NixOS host
+configurations (system boot, SSH, and QEMU Guest Agent) in isolation, and run
+them dynamically and in parallel using a GitHub Actions matrix.</p>
 <h2 id="2-rationale">2. Rationale</h2>
-<p>This spec is the VM counterpart of the
-<a href="../proxmox-lxc/">NixOS LXC Containers on Proxmox</a> framework. VMs carry a full
-kernel and bootloader, so — unlike LXC hosts — they need hardware guest
-settings, a partition layout (Disko), and an installer path. Those concerns are
-the same for every NixOS VM in the lab, so they are defined once here; each host
-only declares its logical parameters and its virtual hardware sizing.</p>
-<p>It builds upon the global
-<a href="../home-lab-bootstrapping/">Home Lab Bootstrapping Spec</a> for installation and
-the <a href="../declarative-integration-testing/">Declarative Integration Testing Spec</a>
-for CI/CD validation.</p>
-<h2 id="3-proxmox-vm-role-confignixrolesproxmox-vmdefaultnix">3. <code>proxmox-vm</code> Role (<code>config/nix/roles/proxmox-vm/default.nix</code>)</h2>
-<p>The role generalizes everything a NixOS guest needs to run well under
-Proxmox/QEMU, so host directories do not carry a hardware configuration file:</p>
+<p>Verifying VM configurations manually or via ad-hoc shell scripts in CI is
+brittle and hard to maintain. Transitioning to a declarative testing model using
+NixOS's native testing framework (<code>nixosTest</code>) ensures that configuration
+correctness is verified inside the Nix sandbox, providing reliable and
+reproducible feedback. Running these tests in a parallel matrix in CI minimizes
+execution time and isolates failures to specific hosts.</p>
+<h2 id="3-testing-architecture">3. Testing Architecture</h2>
+<h3 id="31-logical-vs-physical-configuration-split">3.1 Logical vs. Physical Configuration Split</h3>
+<p>To allow the integration tests to run without triggering physical disk
+partitioning (which is handled by Disko and is not suitable for standard
+sandboxed NixOS tests), host configurations are split:</p>
 <ul>
-<li>Imports the built-in NixOS <code>qemu-guest</code> profile.</li>
-<li>Loads the standard VirtIO initrd modules (<code>virtio_pci</code>, <code>virtio_scsi</code>,
-  <code>sd_mod</code>, ...) so the installer and the installed system can see the virtual
-  disks.</li>
-<li>Enables the QEMU Guest Agent (<code>services.qemuGuest</code>), which Proxmox and
-  Terraform rely on for IP reporting and clean shutdowns.</li>
-<li>Enables <code>boot.growPartition</code> so the root partition expands when the virtual
-  disk is enlarged.</li>
-<li>Optimizes the console for the Proxmox serial console (<code>console=ttyS0</code>).</li>
-<li>Configures <code>systemd-boot</code> for UEFI (OVMF) VMs, capping retained generations
-  (<code>configurationLimit</code>) so the small ESP cannot fill up.</li>
+<li><strong>Logical Configuration (<code>configuration.nix</code>):</strong> Contains services (SSH, QEMU
+  Guest Agent), hostname, and other logical settings. This is what the
+  integration test evaluates.</li>
+<li><strong>Physical Configuration (<code>default.nix</code>):</strong> Imports the logical configuration
+  <em>plus</em> hardware definitions (<code>hardware.nix</code>) and filesystem layouts
+  (<code>disko.nix</code>). This is used for actual deployment and full physical builds.</li>
 </ul>
-<p>All settings use <code>lib.mkDefault</code> where a host may plausibly need to override
-them (e.g. a legacy-BIOS VM switching to GRUB).</p>
-<h2 id="4-host-structure">4. Host Structure</h2>
-<p>Following the standard logical/physical split (see
-<a href="../declarative-integration-testing/#31-logical-vs-physical-configuration-split">Testing Spec - Split Design</a>),
-each VM host is described by a small set of files under its host directory:</p>
-<div class="highlight"><pre><span></span><code>config/nix/hosts/&lt;host&gt;/
-├── default.nix          # Physical entrypoint: configuration.nix + disko.nix
-├── configuration.nix    # Logical config (roles + host parameters)
-├── disko.nix            # Filesystem and partition layout
-└── test-override.nix    # Optional test-only overrides
-</code></pre></div>
+<h3 id="32-centralized-test-generator-confignixtestsmake-testnix">3.2 Centralized Test Generator (<code>config/nix/tests/make-test.nix</code>)</h3>
+<p>We utilize a centralized, service-aware NixOS integration test generator.
+Individual host subdirectories do not contain individual test wrappers. Instead,
+the top-level flake directly invokes this generator, passing the path to the
+host's logical <code>configuration.nix</code>.</p>
+<p>The generator dynamically:</p>
 <ul>
-<li><strong><code>default.nix</code></strong> is what the flake discovers and builds as
-  <code>nixosConfigurations.&lt;host&gt;</code>; its presence also registers the host for
-  auto-generated integration tests. For a VM host it imports <code>configuration.nix</code>
-  and <code>disko.nix</code>.</li>
-<li><strong><code>configuration.nix</code></strong> is the logical configuration: it imports
-  <code>roles/common</code>, <code>roles/proxmox-vm</code>, and <code>roles/comin</code> (pull-based GitOps), and
-  defines the per-host logical parameters:<ul>
-<li><code>networking.hostName = "&lt;host&gt;"</code></li>
-<li><code>networking.hostId = "&lt;hostid&gt;"</code></li>
-<li><code>networking.useDHCP = true</code></li>
-<li><code>system.stateVersion = "&lt;release&gt;"</code></li>
+<li>Sets the test name to <code>${hostName}-test</code> by reading the logical configuration.</li>
+<li>Configures the required QEMU <code>virtio-serial</code> hardware inside the sandbox if
+  <code>services.qemuGuest</code> is enabled.</li>
+<li>Constructs the Python test script dynamically based on active services:<ul>
+<li>If <code>services.openssh</code> is enabled, it asserts that the SSH daemon
+  initializes.</li>
+<li>If <code>services.qemuGuest</code> is enabled, it asserts that
+  <code>/dev/virtio-ports/org.qemu.guest_agent.0</code> is created and
+  <code>qemu-guest-agent.service</code> activates.</li>
+<li>If <code>services.samba</code> is enabled, it creates a mock directory for every
+  declared share path (derived from the evaluated <code>services.samba.settings</code>,
+  since production bind mounts do not exist in the sandbox), waits for
+  <code>samba-smbd.service</code>, and asserts that every share appears in an anonymous
+  <code>smbclient</code> enumeration.</li>
+<li>If <code>services.prometheus.exporters.node</code> is enabled, it waits for
+  <code>prometheus-node-exporter.service</code> and its configured port, and asserts
+  that the metrics endpoint serves <code>node_</code>-prefixed metrics.</li>
+<li>Always asserts that <code>multi-user.target</code> is reached (successful boot).</li>
 </ul>
 </li>
-<li><strong><code>disko.nix</code></strong> accepts <code>{ inputs, ... }</code> (provided globally via
-  <code>specialArgs</code>), imports the core Disko module
-  (<code>inputs.disko.nixosModules.disko</code>), and declares the host's physical disk
-  layout (see the <a href="#5-baseline-disk-layout-disko">baseline layout</a>).</li>
-<li><strong><code>test-override.nix</code></strong> (optional) supplies host-specific test assertions or
-  configuration overrides; it is automatically merged by the flake, so a
-  dedicated <code>test.nix</code> entrypoint is not required.</li>
+<li><strong>Live Attribute Extraction:</strong> Programmatically extracts production-grade
+  configuration data (such as <code>bootstrapPublicKeys</code>) directly from the evaluated
+  package derivation attributes, eliminating the need for loose mock variables.</li>
+<li><strong>Declarative Cryptographic Auditing:</strong> Leverages <code>test-override.nix</code> to
+  perform exact filesystem text matching inside the VM, verifying that target
+  keys exist perfectly inside the specialized NixOS declarative directory path
+  (<code>/etc/ssh/authorized_keys.d/root</code>).</li>
 </ul>
-<p>No <code>hardware.nix</code> file is needed: standard VM hardware configuration (VirtIO
-drivers, systemd-boot) is generalized in the
-<a href="#3-proxmox-vm-role-confignixrolesproxmox-vmdefaultnix"><code>proxmox-vm</code> role</a>.</p>
-<h2 id="5-baseline-disk-layout-disko">5. Baseline Disk Layout (Disko)</h2>
-<p>The baseline <code>disko.nix</code> declares a GPT partition table on the primary SCSI
-virtual disk (<code>/dev/sda</code>):</p>
-<ul>
-<li><strong>EFI Partition (ESP):</strong> 512MB, formatted as <code>vfat</code>, mounted at <code>/boot</code> with
-  standard secure mount options (<code>umask=0077</code>).</li>
-<li><strong>Root Partition:</strong> 100% of the remaining space, formatted as <code>ext4</code>, mounted
-  at <code>/</code>.</li>
-</ul>
-<p>This layout is the default for new VM hosts. A host with different storage needs
-overrides it in its own <code>disko.nix</code>; the layout is per-host by design.</p>
-<h2 id="6-iso-artifact-delivery">6. ISO Artifact Delivery</h2>
-<p>The compiled installer ISO must be staged on the Proxmox target node before VM
-orchestration.</p>
-<ul>
-<li>Mechanism: Handled declaratively via the <code>proxmox_virtual_environment_file</code>
-  resource within the Terraform workspace.</li>
-<li>Source Target: The local Nix flake build output directory
-  (<code>./result/iso/\*.iso</code>).</li>
-<li>Destination Target: Stored in the cluster's default structural storage
-  (<code>local:iso/</code>).</li>
-<li>Staging: Build the
-  <a href="../proxmox-lxc/#54-artifact-staging-for-terraform-proxmox-images"><code>proxmox-images</code> aggregate package</a>
-  before running Terraform, so the ISO coexists behind <code>result</code> with the other
-  image artifacts Terraform reads.</li>
-<li>Node Coverage: The ISO is uploaded to every node (<code>pve1</code> and <code>pve2</code>) on each
-  apply, mirroring the LXC template upload pattern. Any node is therefore ready
-  to receive its first NixOS VM without additional staging work.</li>
-</ul>
-<h2 id="7-infrastructure-provisioning-terraform">7. Infrastructure Provisioning (Terraform)</h2>
-<p>VM hardware is declared per host in
-<code>config/terraform/220-proxmox-workloads/vms-pve&lt;N&gt;.tf</code> using the <code>bpg/proxmox</code>
-provider. Each node's file is created when the node receives its first VM
-(currently only <code>vms-pve1.tf</code> exists); a resource uses that node's provider
-alias (e.g. <code>proxmox.pve2</code>) and references that node's installer ISO resource.
-Every NixOS VM resource follows the same reference shape; only the sizing values
-and identifiers change per host (see the
-<a href="#9-deployed-vm-hosts">deployed hosts table</a>).</p>
-<ul>
-<li><strong>Hardware:</strong> Host-type CPU cores and dedicated RAM per the host's sizing,
-  with a <code>virtio-scsi-pci</code> SCSI controller.</li>
-<li><strong>EFI Disk &amp; Storage:</strong> OVMF BIOS with an EFI disk of type <code>4m</code>, stored on the
-  <code>local-zfs</code> pool.</li>
-<li><strong>Disk Interface (<code>scsi0</code>):</strong> Presents the virtual disk as <code>/dev/sda</code> inside
-  the VM, matching the <code>disko.nix</code> expectations.</li>
-<li><strong>Storage Optimization:</strong> Enables <code>discard = "on"</code> (TRIM) to reclaim unused
-  blocks dynamically on the underlying ZFS pool.</li>
-<li><strong>Installer CDROM (<code>ide2</code>):</strong> Mounts the custom installer ISO (uploaded
-  automatically as described in
-  <a href="../home-lab-bootstrapping/#31-nix-native-custom-iso-confignixpackagesnixos-installernix">Bootstrapping Spec - Custom ISO</a>).</li>
-<li><strong>MAC Pinning:</strong> Pins a static MAC address to the virtio network interface,
-  enabling stable DHCP reservations.</li>
-<li><strong>Automated Boot Order:</strong> Configures <code>boot_order = ["scsi0", "ide2"]</code>.<ul>
-<li><em>First Boot:</em> The VM disk <code>/dev/sda</code> is empty, so EFI falls back to
-  booting from the installer ISO on <code>ide2</code>.</li>
-<li><em>Subsequent Boots:</em> Boots directly from the production system on
-  <code>/dev/sda</code> (<code>scsi0</code>), bypassing the installer.</li>
-</ul>
-</li>
-</ul>
-<h2 id="8-integration-testing">8. Integration Testing</h2>
-<p>Integration tests are automatically generated and registered for all hosts
-containing a <code>configuration.nix</code> file. The flake dynamically discovers each
-<code>config/nix/hosts/&lt;host&gt;/configuration.nix</code> and creates the <code>host-&lt;host&gt;-test</code>
-check using the global test generator <code>config/nix/tests/make-test.nix</code>.</p>
-<p>Because VM host configurations import <code>roles/common</code> (enabling SSH) and
-<code>roles/proxmox-vm</code> (enabling the QEMU Guest Agent), the auto-generated test
-automatically verifies:</p>
+<h3 id="33-flake-integration-and-dynamic-test-discovery">3.3 Flake Integration and Dynamic Test Discovery</h3>
+<p>The flake dynamically discovers and registers integration tests for all hosts:</p>
 <ol>
-<li>Successful boot (<code>multi-user.target</code> reached).</li>
-<li>SSH port 22 availability.</li>
-<li>QEMU Guest Agent service status.</li>
+<li>Scans the <code>./hosts</code> directory for subdirectories (each representing a host).</li>
+<li>Filters out directories that do not contain a <code>default.nix</code> file (the same
+    marker that registers the host in <code>nixosConfigurations</code>).</li>
+<li>Checks for an optional <code>test-override.nix</code> file within the host directory to
+    handle host-specific custom test script assertions or extra configuration
+    arguments.</li>
+<li>For each valid host, maps the host's logical <code>configuration.nix</code> directly
+    into <code>make-test.nix</code> and formats it as a check attribute:
+    <code>{ name = "host-&lt;host&gt;-test"; value = &lt;test-derivation&gt;; }</code>.</li>
+<li>Exposes these tests in the flake's <code>checks.${system}</code> output.</li>
 </ol>
-<p>Host-specific assertions go in the optional <code>test-override.nix</code> (see
-<a href="#4-host-structure">Host Structure</a>). Tests run in CI (see
-<a href="../declarative-integration-testing/#33-flake-integration-and-dynamic-test-discovery">Testing Spec - Dynamic Discovery</a>).</p>
-<h2 id="9-deployed-vm-hosts">9. Deployed VM Hosts</h2>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Host</th>
-<th style="text-align: left;">Node</th>
-<th style="text-align: left;">VM ID</th>
-<th style="text-align: left;">Cores</th>
-<th style="text-align: left;">RAM</th>
-<th style="text-align: left;">Disk</th>
-<th style="text-align: left;">MAC Address</th>
-<th style="text-align: left;"><code>hostId</code></th>
-<th style="text-align: left;">State Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>hl02</code></td>
-<td style="text-align: left;"><code>pve1</code></td>
-<td style="text-align: left;"><code>101</code></td>
-<td style="text-align: left;">2</td>
-<td style="text-align: left;">4 GB</td>
-<td style="text-align: left;">20 GB</td>
-<td style="text-align: left;"><code>BC:24:11:D4:F6:65</code></td>
-<td style="text-align: left;"><code>92bbb1e6</code></td>
-<td style="text-align: left;"><code>25.11</code></td>
-</tr>
-</tbody>
-</table>
-<p>Bringing up a new NixOS VM host consists of:</p>
+<p>This allows <code>nix flake check</code> to automatically run all integration tests
+locally. This also achieves a low-maintenance architecture: adding a new host
+directory with a <code>default.nix</code> automatically flags it for integration testing
+locally and in CI.</p>
+<h2 id="4-github-actions-workflow-update-githubworkflowsnixyaml">4. GitHub Actions Workflow Update (<code>.github/workflows/nix.yaml</code>)</h2>
+<p>To support scaling the home lab, the CI workflow is split into separate,
+optimized jobs:</p>
 <ol>
-<li>Create <code>config/nix/hosts/&lt;host&gt;/</code> per the
-   <a href="#4-host-structure">host structure</a>, with fresh <code>hostName</code>, <code>hostId</code>, and the
-   current <code>stateVersion</code>.</li>
-<li>Add the VM resource to the node's <code>vms-pve&lt;N&gt;.tf</code> following the
-   <a href="#7-infrastructure-provisioning-terraform">Terraform reference pattern</a>, with
-   a fresh VM ID and pinned MAC address.</li>
-<li>Add the host to the <code>home_lab_nix_vms</code> group in the Ansible inventory
-   (<code>config/ansible/inventory/hosts.yml</code>), which is the operational record of
-   which hosts run NixOS.</li>
-<li>Map the pinned MAC address to the designated IP for the host in the router's
-   DHCP reservations.</li>
-<li>Stage the image artifacts and apply Terraform (see
-   <a href="#6-iso-artifact-delivery">ISO Artifact Delivery</a>).</li>
 <li>
-<p>Install the system:</p>
-<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>.#operations<span class="w"> </span>-c<span class="w"> </span>nixos-anywhere<span class="w"> </span>--flake<span class="w"> </span>.#&lt;host&gt;<span class="w"> </span>root@&lt;host&gt;.&lt;fqdn&gt;
-</code></pre></div>
+<p><strong><code>detect-tests</code> (Discovery):</strong></p>
+<ul>
+<li>Queries the flake directly via <code>nix eval .#checks.x86_64-linux --json</code> and
+  filters keys matching the <code>host-&lt;host&gt;-test</code> pattern.</li>
+<li>Also discovers the machine matrix (deployable hosts; see job 4) and the
+  image-package matrix (all entries of <code>packages.x86_64-linux</code>).</li>
+<li><em>Benefit:</em> Zero-maintenance CI; adding a new host or package automatically
+  registers it in CI.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>static-checks</code> (Validation):</strong></p>
+<ul>
+<li>Runs standard non-test checks, such as code formatting verification
+  (<code>treefmt</code>).</li>
+</ul>
+</li>
+<li>
+<p><strong><code>functional-vm-tests</code> (Parallel Test Execution):</strong></p>
+<ul>
+<li>Runs as a matrix job using the output from <code>detect-tests</code>.</li>
+<li>Enables KVM virtualization inside the GitHub Actions runner
+  (<code>enable_kvm: true</code> in <code>install-nix-action</code>).</li>
+<li>Executes the specific integration test for the matrix target:
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span><span class="s2">&quot;.#checks.x86_64-linux.host-</span><span class="si">${</span><span class="nv">MATRIX_HOST</span><span class="si">}</span><span class="s2">-test&quot;</span><span class="w"> </span>--verbose
+</code></pre></div></li>
+<li><em>Benefit:</em> Isolates test failures to specific hosts and allows parallel
+  execution, reducing total CI time.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>machine-build-tests</code> (Production Closure Verification):</strong></p>
+<ul>
+<li>Builds the production closure
+  (<code>nixosConfigurations.&lt;host&gt;.config.system.build.toplevel</code>) of every
+  <strong>deployable</strong> host. A host qualifies through either marker:<ul>
+<li>it carries a <code>disko.nix</code> (deployed via <code>nixos-anywhere</code>), or</li>
+<li>it enables comin (GitOps-managed; LXC containers carry no <code>disko.nix</code>,
+  so this is what includes them).</li>
+</ul>
+</li>
+<li>Fixture hosts (e.g. <code>minimal-iso</code>, <code>minimal-lxc</code>) match neither marker:
+  their <code>nixosConfigurations</code> entries have no bootloader or disk
+  configuration, so <code>system.build.toplevel</code> is not their deployable form.
+  What runs on real machines is the image package built from the same module
+  set — the installer ISO boots on pristine VMs to install NixOS, and the
+  LXC bootstrap tarball is the container template's first boot.
+  <code>package-build-tests</code> keeps those artifacts buildable, and the VM tests
+  exercise their module sets (each fixture's <code>test-override.nix</code> imports the
+  corresponding package's <code>modules</code> passthrough).
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span><span class="s2">&quot;.#nixosConfigurations.</span><span class="si">${</span><span class="nv">MATRIX_HOST</span><span class="si">}</span><span class="s2">.config.system.build.toplevel&quot;</span><span class="w"> </span>--verbose
+</code></pre></div></li>
+<li>This job is what surfaces evaluation-time failures in the production
+  configuration. The sandboxed VM tests cannot catch them all, because the
+  test harness overrides parts of the configuration (for example
+  <code>proxmoxLXC.manageHostName</code> and the comin remotes), so a module assertion
+  such as comin's non-empty-hostname check only fires when the production
+  closure itself is evaluated.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>package-build-tests</code> (Image Package Verification):</strong></p>
+<ul>
+<li>Builds each discovered flake package (the installer ISO and the LXC
+  bootstrap template) so deployable images stay buildable.</li>
+</ul>
 </li>
 </ol>
-<p>After installation, the <code>comin</code> role keeps the host converged with this
-repository through the pull-based
-<a href="../home-lab-bootstrapping/#35-continuous-deployment-gitops">GitOps model</a>.</p>
-<h2 id="10-assumptions-and-constraints">10. Assumptions and Constraints</h2>
-<h3 id="101-disk-device-configuration-devsda">10.1 Disk Device Configuration (<code>/dev/sda</code>)</h3>
-<p>The physical Disko configuration explicitly targets <code>/dev/sda</code>. This assumes the
-Proxmox VM is provisioned using a <strong>VirtIO SCSI (<code>virtio-scsi-pci</code>)</strong>
-controller. If the VM is provisioned using a <strong>VirtIO Block</strong> controller, the
-disk will present as <code>/dev/vda</code> and partitioning will fail.</p>
+<h2 id="5-verification-plan">5. Verification Plan</h2>
+<h3 id="51-automated-tests-ci">5.1 Automated Tests (CI)</h3>
 <ul>
-<li><em>Constraint:</em> The VM must use a VirtIO SCSI disk interface (<code>scsi0</code>) in
-  Terraform to maintain support for TRIM/Discard on thin-provisioned ZFS pools.</li>
+<li>Push a branch to GitHub and verify the multi-job CI pipeline:<ul>
+<li>Verify that <code>detect-tests</code> successfully detects all hosts with a
+  <code>default.nix</code>, plus the image packages.</li>
+<li>Verify that the <code>functional-vm-tests</code> matrix job successfully executes and
+  passes the tests in parallel.</li>
+<li>Verify that the <code>machine-build-tests</code> matrix job builds the production
+  closure of every deployable host (<code>disko.nix</code> or comin-enabled), including
+  hosts without a <code>disko.nix</code>.</li>
+<li>Verify that the <code>package-build-tests</code> matrix job builds all image
+  packages.</li>
 </ul>
-<h3 id="102-networking-dhcp">10.2 Networking (DHCP)</h3>
-<p>VM hosts use DHCP for simplicity in this phase, with stable addressing provided
-by MAC-pinned router DHCP reservations. Transitioning to static IPs can be done
-in a future specification.</p>
+</li>
+</ul>
+<h3 id="52-manual-verification-localdev">5.2 Manual Verification (Local/Dev)</h3>
+<ul>
+<li>If Nix is available on the development machine and supports KVM, run
+  <code>nix flake check</code> from <code>config/nix</code> to run all discovered integration tests
+  locally.</li>
+<li>To run a specific host's test locally:
+    <div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>.#checks.x86_64-linux.host-&lt;host&gt;-test
+</code></pre></div></li>
+</ul>
 
 
 

@@ -4,7 +4,7 @@
 
 Every host directory under `config/nix/hosts/` with a `default.nix` is
 automatically registered as a flake check named `host-<host>-test` (see the
-[Declarative Integration Testing specification](../../specs/declarative-integration-testing.md)).
+[Declarative Integration Testing specification](../../architecture/declarative-integration-testing.md)).
 Run one host's test locally from the repository root with:
 
 ```shell

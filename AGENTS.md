@@ -8,12 +8,13 @@ repository.
 
 This repository relies on **living design specifications** to guide all
 architectural, testing, and deployment choices before code is modified. These
-specs are located in `websites-src/home-lab-docs/specs/`.
+specs are located in `websites-src/home-lab-docs/architecture/`, the
+architecture section of the docs site.
 
 ### 1.1 Specifications Index & Status Tracking
 
-The specs folder entrypoint
-[`websites-src/home-lab-docs/specs/README.md`](./websites-src/home-lab-docs/specs/README.md)
+The architecture section entrypoint
+[`websites-src/home-lab-docs/architecture/README.md`](./websites-src/home-lab-docs/architecture/README.md)
 acts as a global index. It features an index table outlining the architectural
 scope and overall **Current Implementation Status** of each specification.
 
@@ -35,9 +36,9 @@ Status column.
 
 Future work and todo items are tracked centrally in the "Specifications to write
 and TODOs" section of the specs index
-[`README.md`](./websites-src/home-lab-docs/specs/README.md), so they are never
-scattered across specifications: a spec carries no "Future Work" section and no
-todo items of its own. The list is organized in themed subsections with a
+[`README.md`](./websites-src/home-lab-docs/architecture/README.md), so they are
+never scattered across specifications: a spec carries no "Future Work" section
+and no todo items of its own. The list is organized in themed subsections with a
 "Current focus" priority list and `Depends on:`/`Blocks:` dependency
 annotations: follow the
 [Todo list management guide](./websites-src/home-lab-docs/guides/development/todo-list.md)
@@ -46,11 +47,13 @@ when adding, completing, or discarding items.
 ### 1.4 Documentation Placement
 
 [`websites-src/home-lab-docs/architecture/`](./websites-src/home-lab-docs/architecture/)
-describes the lab as it is, including the references behind existing decisions.
-Forward-looking material, such as candidate software and plans, belongs under
-[`websites-src/home-lab-docs/specs/`](./websites-src/home-lab-docs/specs/) next
-to the todo list; a page there that is not a specification carries no status
-table and gets no row in the specifications index table.
+holds the design and the as-built description of each subsystem: a page with a
+status table is a specification, and its status table, not a separate section,
+tells design from reality. Reference pages (software candidates, references) sit
+beside the specifications with no status table and no row in the specifications
+index table, and the index lists them. Forward-looking material, intentions
+included, goes in the todo list of the index, not in a page that reads as a
+description of the lab; procedures go in the guides.
 
 ### 1.5 Guides Are the Knowledge Base
 
@@ -88,14 +91,14 @@ sub-task is finished), you **MUST** immediately update the status tables in the
 documentation to prevent configuration drift:
 
 1.  **Update the Individual Spec Table:** Open the relevant specification file
-    in `websites-src/home-lab-docs/specs/` and update the `Status` and `Details`
-    fields for the modified features, with precise, objective details (e.g.,
-    "MAC declared in Terraform; awaiting test verification"). For example,
-    transition a component from `Missing` to `Fully Implemented`.
+    in `websites-src/home-lab-docs/architecture/` and update the `Status` and
+    `Details` fields for the modified features, with precise, objective details
+    (e.g., "MAC declared in Terraform; awaiting test verification"). For
+    example, transition a component from `Missing` to `Fully Implemented`.
 2.  **Update the Global Index:** Open the specs root
-    [`README.md`](./websites-src/home-lab-docs/specs/README.md) and update the
-    **Current Implementation Status** column for the target specification to
-    reflect the latest state.
+    [`README.md`](./websites-src/home-lab-docs/architecture/README.md) and
+    update the **Current Implementation Status** column for the target
+    specification to reflect the latest state.
 
 ## 3. Markdown & Documentation Style Rules
 
@@ -246,9 +249,9 @@ architectural patterns:
 - **Decouple Architecture vs. Deployment:** Never combine global infrastructure
   logic (e.g., how integration testing or bootstrapping works in general) with
   host-specific configuration details. Design modular, reusable specs for the
-  framework (under `websites-src/home-lab-docs/specs/`) and keep individual host
-  specs focused exclusively on physical/logical declarations for that machine
-  (e.g., specific VM core count, dedicated RAM, and MAC address).
+  framework (under `websites-src/home-lab-docs/architecture/`) and keep
+  individual host specs focused exclusively on physical/logical declarations for
+  that machine (e.g., specific VM core count, dedicated RAM, and MAC address).
 
 ## 6. Secrets Policy
 

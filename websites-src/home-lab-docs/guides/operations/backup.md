@@ -116,7 +116,7 @@ mount (the disks playbook), the restic stack of the node role (it never
 re-initializes an existing repository), the in-place restore of each stack with
 the playbook, then the node role for the stacks. A host that lost its repository
 as well restores from nothing: the second-copy and NixOS state items in the
-[specs todo list](../../specs/README.md#backup) exist for that case.
+[specs todo list](../../architecture/README.md#backup) exist for that case.
 
 ## The drill
 

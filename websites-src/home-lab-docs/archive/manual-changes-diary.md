@@ -55,8 +55,8 @@ to eventually get to a state where we don't need this file anymore.
 
 - `pve2`: powered on for the power reduction investigation (goal: run the host
   24/7 once its idle draw comes down; see the
-  [specs todo list](../specs/README.md#host-configuration)). Findings that
-  extend or correct the 2026-08-25 entry:
+  [specs todo list](../architecture/README.md#host-configuration)). Findings
+  that extend or correct the 2026-08-25 entry:
     - The smart plug series in Home Assistant (scraped by Prometheus) confirms
       the baseline across three power-on windows: ~24 W with pve2 off, 67-71 W
       with pve2 on and idle with the nas-pve2 guest running, ~110 W at boot.
@@ -98,7 +98,7 @@ to eventually get to a state where we don't need this file anymore.
   [unresponsive host runbook](../guides/troubleshoot-unresponsive-host.md);
   follow-ups (hardware watchdog, data-disk SMART test, OS upgrade) are tracked
   in the
-  [specs todo list](../specs/README.md#specifications-to-write-and-todos).
+  [specs todo list](../architecture/README.md#specifications-to-write-and-todos).
 
 ## 2026-08-25
 

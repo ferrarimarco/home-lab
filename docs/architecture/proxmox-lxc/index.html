@@ -8,10 +8,10 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/proxmox-lxc/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/architecture/proxmox-lxc/">
       
       
-        <link rel="prev" href="../network-boot/">
+        <link rel="prev" href="../nix/">
       
       
         <link rel="next" href="../proxmox-vm/">
@@ -239,18 +239,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -266,7 +268,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -280,12 +282,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Home lab architecture overview
+    Home lab architecture
     
   </span>
   
@@ -303,7 +305,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/backups/" class="md-nav__link">
+      <a href="../backups/" class="md-nav__link">
         
   
   
@@ -326,7 +328,122 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../declarative-integration-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring-alerting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Monitoring Alerting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nas-lxc-container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network-boot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Network Boot Service
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network-configuration/" class="md-nav__link">
         
   
   
@@ -349,7 +466,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nix/" class="md-nav__link">
+      <a href="../nix/" class="md-nav__link">
         
   
   
@@ -369,10 +486,284 @@
                 
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-why-lxc-instead-of-a-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Why LXC Instead of a VM
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-why-nixos-inside-the-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Why NixOS Inside the Container
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. proxmox-lxc Role (config/nix/roles/proxmox-lxc/default.nix)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-host-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Host Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-lxc-template-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. LXC Template Generation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. LXC Template Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-template-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Template Package
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-flake-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 Flake Registration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-build-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3 Build Command
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-artifact-staging-for-terraform-proxmox-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4 Artifact Staging for Terraform (proxmox-images)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-infrastructure-provisioning-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Infrastructure Provisioning (Terraform)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Infrastructure Provisioning (Terraform)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-template-upload-images-templatestf" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Template Upload (images-templates.tf)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-container-reference-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Container Reference Pattern
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 Container Reference Pattern">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key design decisions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-lxc-specific-test-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. LXC-Specific Test Limitations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-terraform-provider-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Terraform Provider Authentication
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../proxmox-vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS VMs on Proxmox
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../references/" class="md-nav__link">
         
   
   
@@ -395,7 +786,30 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../software-candidates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Software candidates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage-configuration/" class="md-nav__link">
         
   
   
@@ -1369,488 +1783,6 @@
           </ul>
         </nav>
       
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Specs
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6">
-            <span class="md-nav__icon md-icon"></span>
-            Specs
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Home Lab Design Specifications
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../declarative-integration-testing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../home-lab-bootstrapping/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../monitoring-alerting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Monitoring Alerting
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../nas-lxc-container/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for SMB File Sharing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../network-boot/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Network Boot Service
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NixOS LXC Containers on Proxmox
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NixOS LXC Containers on Proxmox
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation Status
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Goal
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Rationale
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Rationale">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#21-why-lxc-instead-of-a-vm" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.1 Why LXC Instead of a VM
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22-why-nixos-inside-the-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2 Why NixOS Inside the Container
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-proxmox-lxc-role-confignixrolesproxmox-lxcdefaultnix" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. proxmox-lxc Role (config/nix/roles/proxmox-lxc/default.nix)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-host-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Host Structure
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-lxc-template-generation" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. LXC Template Generation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. LXC Template Generation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51-template-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.1 Template Package
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52-flake-registration" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.2 Flake Registration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#53-build-command" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.3 Build Command
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#54-artifact-staging-for-terraform-proxmox-images" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.4 Artifact Staging for Terraform (proxmox-images)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-infrastructure-provisioning-terraform" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. Infrastructure Provisioning (Terraform)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6. Infrastructure Provisioning (Terraform)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#61-template-upload-images-templatestf" class="md-nav__link">
-    <span class="md-ellipsis">
-      6.1 Template Upload (images-templates.tf)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#62-container-reference-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      6.2 Container Reference Pattern
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6.2 Container Reference Pattern">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#key-design-decisions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Key design decisions
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-lxc-specific-test-limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. LXC-Specific Test Limitations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-terraform-provider-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. Terraform Provider Authentication
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../proxmox-vm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NixOS VMs on Proxmox
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../software-candidates/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Software candidates
-    
-  </span>
-  
-
-      </a>
     </li>
   
 

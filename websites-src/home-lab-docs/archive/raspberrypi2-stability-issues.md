@@ -91,7 +91,7 @@ The armed hardware watchdog did not fire and could not have: systemd keeps
 petting it as long as PID 1 runs, and PID 1 needs no disk I/O to do so. A root
 I/O stall is a different failure mode from the hung kernel the watchdog guards
 against; the mitigation that matches it is tracked in the
-[specs todo list](../specs/README.md#reliability-and-resilience).
+[specs todo list](../architecture/README.md#reliability-and-resilience).
 
 ## The 2026-10-07 root storage stall
 
@@ -142,12 +142,12 @@ For this bridge the line is `usb-storage.quirks=174c:1156:u`.
 The outdated kernel remains the other plausible culprit, and the fix for it is
 the same either way: the host runs Debian 11 (bullseye), past LTS end of life,
 with an April 2023 kernel. The operating system upgrade is tracked in the
-[specs todo list](../specs/README.md#specifications-to-write-and-todos): a
-re-image with current Raspberry Pi OS, which is the most supported path for the
-Raspberry Pi 4 hardware (the Raspberry Pi OS documentation strongly discourages
-in-place upgrades, recommending a re-image instead). A NixOS migration was
-considered and deferred: reconsider it after the planned container migration to
-hl01 shrinks this host's role.
+[specs todo list](../architecture/README.md#specifications-to-write-and-todos):
+a re-image with current Raspberry Pi OS, which is the most supported path for
+the Raspberry Pi 4 hardware (the Raspberry Pi OS documentation strongly
+discourages in-place upgrades, recommending a re-image instead). A NixOS
+migration was considered and deferred: reconsider it after the planned container
+migration to hl01 shrinks this host's role.
 
 ## Current mitigations
 
@@ -156,8 +156,8 @@ hl01 shrinks this host's role.
   `ferrarimarco_home_lab_node` role, so a hard lockup should now self-reboot the
   host within 15 seconds. The end-to-end validation with a deliberate kernel
   crash is still pending, tracked in the
-  [specs todo list](../specs/README.md#specifications-to-write-and-todos). It
-  does not cover a root I/O stall (see the 2026-10-06 and 2026-10-07 episodes
+  [specs todo list](../architecture/README.md#specifications-to-write-and-todos).
+  It does not cover a root I/O stall (see the 2026-10-06 and 2026-10-07 episodes
   above): a complementary stall watchdog was designed and reviewed on 2026-10-12
   (a resident probe service with a systemd failure action, plus kernel hung-task
   sysctls) and postponed until the OS re-image and a way to trigger the stall
@@ -167,8 +167,8 @@ hl01 shrinks this host's role.
 ## Other open follow-ups
 
 Tracked in the
-[specs todo list](../specs/README.md#specifications-to-write-and-todos): the
-SMART long self-test on the WD30EZRX 3TB data disk, and the operating system
+[specs todo list](../architecture/README.md#specifications-to-write-and-todos):
+the SMART long self-test on the WD30EZRX 3TB data disk, and the operating system
 upgrade. Additional ideas from the original investigation:
 
 - Monitor the USB power consumption

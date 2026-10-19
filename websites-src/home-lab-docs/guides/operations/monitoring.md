@@ -21,7 +21,7 @@ The monitoring stack works as follows:
   object detector, which stay invisible to the container healthcheck and the
   HTTP probe of the Frigate user interface.
 - Prometheus Alertmanager routes firing alerts to Telegram. The
-  [Monitoring Alerting specification](../../specs/monitoring-alerting.md)
+  [Monitoring Alerting specification](../../architecture/monitoring-alerting.md)
   describes the design, the severity model, and the alert rules catalogue.
 
 For setup-side tasks, such as importing Grafana dashboards, see

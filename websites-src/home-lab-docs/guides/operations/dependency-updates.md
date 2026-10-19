@@ -11,8 +11,8 @@ Two tools manage dependency updates:
   after an approval in the Dependency Dashboard issue. Its configuration is in
   `.github/renovate.json`.
 
-The [specifications index](../../specs/README.md) tracks the migration of all
-dependency updates to Renovate.
+The [specifications index](../../architecture/README.md) tracks the migration of
+all dependency updates to Renovate.
 
 ## Dependabot configuration conventions
 

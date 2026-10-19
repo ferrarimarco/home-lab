@@ -95,7 +95,7 @@ job and lands back at the prompt while the device is still missing (observed
 2026-10-09), so the console is no way out.
 
 Recovery needs another boot medium: the network-boot rescue once the
-[Network Boot Service](../specs/network-boot.md) exists, otherwise a
+[Network Boot Service](../architecture/network-boot.md) exists, otherwise a
 hand-written rescue SD card. Boot it, mount the host's root filesystem, and edit
 its `etc/fstab` so the entry carries `nofail,x-systemd.device-timeout=10` or is
 removed, then boot from the host's own disk again. The inventory entry in

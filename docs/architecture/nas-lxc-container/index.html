@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/specs/nas-lxc-container/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/architecture/nas-lxc-container/">
       
       
         <link rel="prev" href="../monitoring-alerting/">
@@ -239,18 +239,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -266,7 +268,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -280,12 +282,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Home lab architecture overview
+    Home lab architecture
     
   </span>
   
@@ -303,7 +305,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/backups/" class="md-nav__link">
+      <a href="../backups/" class="md-nav__link">
         
   
   
@@ -326,7 +328,620 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-configuration/" class="md-nav__link">
+      <a href="../declarative-integration-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home-lab-bootstrapping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring-alerting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Monitoring Alerting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NAS LXC Container for SMB File Sharing
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Goal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Rationale
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-why-one-container-per-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 Why One Container Per Node
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-why-bind-mounts-instead-of-zfs-in-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 Why Bind Mounts Instead of ZFS-in-Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-why-lxc-instead-of-a-vm" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 Why LXC Instead of a VM
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Architecture Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-nas-role-confignixrolesnasdefaultnix" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. nas Role (config/nix/roles/nas/default.nix)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-host-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Host Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Host Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-adding-per-host-shares" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 Adding Per-Host Shares
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-infrastructure-provisioning-terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Infrastructure Provisioning (Terraform)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Infrastructure Provisioning (Terraform)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-privileged-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Privileged Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-zfs-dataset-bind-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 ZFS Dataset Bind Mounts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-smb-user-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. SMB User Management
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. SMB User Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-declarative-part" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 Declarative Part
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-imperative-part-one-time-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 Imperative Part (One-Time Setup)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Security Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-privileged-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 Privileged Container
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-smb-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 SMB Security
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Integration Testing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Integration Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-test-auto-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 Test Auto-Discovery
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-samba-coverage-in-the-test-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 Samba Coverage in the Test Generator
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-deployment-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Deployment Workflow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Deployment Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-initial-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.1 Initial Deployment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-configuration-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2 Configuration Updates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-smb-clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.3 SMB Clients
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-assumptions-and-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Assumptions and Constraints
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Assumptions and Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-zfs-dataset-mount-points-on-the-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.1 ZFS Dataset Mount Points on the Host
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-samba-state-directory-on-the-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.2 Samba State Directory on the Host
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-networking-dhcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.3 Networking (DHCP)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#114-mac-address-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.4 MAC Address Pinning
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-syncthing-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      12. Syncthing Service
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Syncthing Service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-placement-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.1 Placement Rationale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-folders-and-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.2 Folders and Data Flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-storage-declarations" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.3 Storage Declarations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#124-device-identity-and-state-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.4 Device Identity and State Persistence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#125-migration-from-raspberrypi2" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.5 Migration from raspberrypi2
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#126-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      12.6 Monitoring
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-tailscale-connectivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      13. Tailscale Connectivity
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Tailscale Connectivity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-purpose-and-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.1 Purpose and Scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-placement-rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.2 Placement Rationale
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#133-infrastructure-provisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.3 Infrastructure Provisioning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#134-node-identity-and-joining" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.4 Node Identity and Joining
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#135-operational-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      13.5 Operational Requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network-boot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Network Boot Service
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network-configuration/" class="md-nav__link">
         
   
   
@@ -349,7 +964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nix/" class="md-nav__link">
+      <a href="../nix/" class="md-nav__link">
         
   
   
@@ -372,7 +987,53 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../proxmox-lxc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS LXC Containers on Proxmox
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox-vm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: NixOS VMs on Proxmox
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../references/" class="md-nav__link">
         
   
   
@@ -395,7 +1056,30 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/storage-configuration/" class="md-nav__link">
+      <a href="../software-candidates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Software candidates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../storage-configuration/" class="md-nav__link">
         
   
   
@@ -1369,758 +2053,6 @@
           </ul>
         </nav>
       
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Specs
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6">
-            <span class="md-nav__icon md-icon"></span>
-            Specs
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Home Lab Design Specifications
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../declarative-integration-testing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Declarative Integration Testing Framework &amp; CI Pipeline
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../home-lab-bootstrapping/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Home Lab Bootstrapping and Installation Infrastructure
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../monitoring-alerting/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Monitoring Alerting
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for SMB File Sharing
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NAS LXC Container for SMB File Sharing
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#implementation-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      Implementation Status
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-goal" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Goal
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Rationale
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2. Rationale">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#21-why-one-container-per-node" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.1 Why One Container Per Node
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#22-why-bind-mounts-instead-of-zfs-in-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.2 Why Bind Mounts Instead of ZFS-in-Container
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#23-why-lxc-instead-of-a-vm" class="md-nav__link">
-    <span class="md-ellipsis">
-      2.3 Why LXC Instead of a VM
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-architecture-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Architecture Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-nas-role-confignixrolesnasdefaultnix" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. nas Role (config/nix/roles/nas/default.nix)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-host-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      5. Host Configuration
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. Host Configuration">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51-adding-per-host-shares" class="md-nav__link">
-    <span class="md-ellipsis">
-      5.1 Adding Per-Host Shares
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-infrastructure-provisioning-terraform" class="md-nav__link">
-    <span class="md-ellipsis">
-      6. Infrastructure Provisioning (Terraform)
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6. Infrastructure Provisioning (Terraform)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#61-privileged-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      6.1 Privileged Container
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#62-zfs-dataset-bind-mounts" class="md-nav__link">
-    <span class="md-ellipsis">
-      6.2 ZFS Dataset Bind Mounts
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-smb-user-management" class="md-nav__link">
-    <span class="md-ellipsis">
-      7. SMB User Management
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="7. SMB User Management">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#71-declarative-part" class="md-nav__link">
-    <span class="md-ellipsis">
-      7.1 Declarative Part
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#72-imperative-part-one-time-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      7.2 Imperative Part (One-Time Setup)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-security-considerations" class="md-nav__link">
-    <span class="md-ellipsis">
-      8. Security Considerations
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="8. Security Considerations">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#81-privileged-container" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.1 Privileged Container
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#82-smb-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      8.2 SMB Security
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#9-integration-testing" class="md-nav__link">
-    <span class="md-ellipsis">
-      9. Integration Testing
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="9. Integration Testing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#91-test-auto-discovery" class="md-nav__link">
-    <span class="md-ellipsis">
-      9.1 Test Auto-Discovery
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#92-samba-coverage-in-the-test-generator" class="md-nav__link">
-    <span class="md-ellipsis">
-      9.2 Samba Coverage in the Test Generator
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#10-deployment-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      10. Deployment Workflow
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="10. Deployment Workflow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#101-initial-deployment" class="md-nav__link">
-    <span class="md-ellipsis">
-      10.1 Initial Deployment
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#102-configuration-updates" class="md-nav__link">
-    <span class="md-ellipsis">
-      10.2 Configuration Updates
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#103-smb-clients" class="md-nav__link">
-    <span class="md-ellipsis">
-      10.3 SMB Clients
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#11-assumptions-and-constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      11. Assumptions and Constraints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="11. Assumptions and Constraints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#111-zfs-dataset-mount-points-on-the-host" class="md-nav__link">
-    <span class="md-ellipsis">
-      11.1 ZFS Dataset Mount Points on the Host
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#112-samba-state-directory-on-the-host" class="md-nav__link">
-    <span class="md-ellipsis">
-      11.2 Samba State Directory on the Host
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#113-networking-dhcp" class="md-nav__link">
-    <span class="md-ellipsis">
-      11.3 Networking (DHCP)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#114-mac-address-pinning" class="md-nav__link">
-    <span class="md-ellipsis">
-      11.4 MAC Address Pinning
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#12-syncthing-service" class="md-nav__link">
-    <span class="md-ellipsis">
-      12. Syncthing Service
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="12. Syncthing Service">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#121-placement-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.1 Placement Rationale
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#122-folders-and-data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.2 Folders and Data Flow
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#123-storage-declarations" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.3 Storage Declarations
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#124-device-identity-and-state-persistence" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.4 Device Identity and State Persistence
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#125-migration-from-raspberrypi2" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.5 Migration from raspberrypi2
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#126-monitoring" class="md-nav__link">
-    <span class="md-ellipsis">
-      12.6 Monitoring
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#13-tailscale-connectivity" class="md-nav__link">
-    <span class="md-ellipsis">
-      13. Tailscale Connectivity
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="13. Tailscale Connectivity">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#131-purpose-and-scope" class="md-nav__link">
-    <span class="md-ellipsis">
-      13.1 Purpose and Scope
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#132-placement-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      13.2 Placement Rationale
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#133-infrastructure-provisioning" class="md-nav__link">
-    <span class="md-ellipsis">
-      13.3 Infrastructure Provisioning
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#134-node-identity-and-joining" class="md-nav__link">
-    <span class="md-ellipsis">
-      13.4 Node Identity and Joining
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#135-operational-requirements" class="md-nav__link">
-    <span class="md-ellipsis">
-      13.5 Operational Requirements
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../network-boot/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: Network Boot Service
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../proxmox-lxc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NixOS LXC Containers on Proxmox
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../proxmox-vm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Design Spec: NixOS VMs on Proxmox
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../software-candidates/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Software candidates
-    
-  </span>
-  
-
-      </a>
     </li>
   
 
