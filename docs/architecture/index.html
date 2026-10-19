@@ -644,29 +644,6 @@
   
   
     <li class="md-nav__item">
-      <a href="network-configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Network configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="proxmox-lxc/" class="md-nav__link">
         
   
@@ -2297,7 +2274,15 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 </li>
 <li>Terraform:<ul>
-<li><a href="https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone">Configure Cloudflare</a>.</li>
+<li><strong>Bring the Cloudflare configuration under Terraform (2026-10-19)</strong>:
+  Cloudflare is the authoritative name server for the root zone
+  (<code>ferrari.how</code>), configured by hand in its dashboard today. Manage the
+  zone and its records with the
+  <a href="https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone">Cloudflare provider</a>
+  in a numbered stack under <code>config/terraform/</code>, with the API token in an
+  untracked tfvars file per the secrets policy, and start with a
+  <code>terraform import</code> of the existing zone and records so the first apply
+  changes nothing.</li>
 <li>Configure
   <a href="https://registry.terraform.io/providers/integrations/github/latest/docs">GitHub repositories</a>.</li>
 <li><a href="https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module">Ansible terraform module</a>.</li>
@@ -2602,7 +2587,20 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 </li>
 <li>Network stack
-  (<a href="https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/">reference</a>):<ul>
+  (<a href="https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/">reference</a>).
+  Today: Cloudflare is the authoritative name server for the root zone
+  (<code>ferrari.how</code>), configured by hand (its Terraform management is an item under
+  <a href="#cicd-infrastructure-as-code-and-gitops">CI/CD, infrastructure-as-code, and GitOps</a>);
+  the dnsmasq instance on the gateway is the DHCP server for the <code>10.0.0.0/8</code>
+  subnet, answers the <code>edge.lab.ferrari.how</code> zone from its DHCP leases
+  (<a href="https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html">source</a>)
+  without being authoritative for it, and forwards everything else to
+  <a href="https://developers.google.com/speed/public-dns">Google Public DNS</a>. The node
+  role carries a network stack (Unbound as the private recursive resolver,
+  CoreDNS as the authoritative server for the <code>lab.ferrari.how</code> zone) behind
+  <code>configure_network_stack</code>, which defaults to false and no host enables, so the
+  CoreDNS scrape job renders zero targets. The items below deploy and harden
+  that stack:<ul>
 <li>DNS server: configure the lab DNS zone.</li>
 <li>DNS over TLS: dnsmasq instance on the Asus (done, but check); Unbound.</li>
 <li>DHCP server:<ul>
@@ -3194,8 +3192,15 @@ or discard it.</p>
 </li>
 <li>
 <p>Documentation automation: generate the endpoints list, the monitoring checks,
-  the inventory, the list of Home Assistant automations, and the list of cron
-  jobs from the configuration instead of maintaining them by hand.</p>
+  the inventory, the list of Home Assistant automations, the list of cron jobs,
+  and the network plan (the subnet, the lab DNS zone, and the gateway's address
+  and name, declared by the node role variables <code>edge_environment_subnet</code>,
+  <code>root_dns_zone_fqdn</code>, and <code>edge_environment_gateway</code>; the router-side facts,
+  Cloudflare for the root zone and dnsmasq as the DHCP server, stay hand-written
+  in the network stack item under <a href="#networking">Networking</a>) from the
+  configuration instead of maintaining them by hand; the hand-written network
+  configuration page was dropped on 2026-10-19 because it could only drift from
+  those variables.</p>
 </li>
 </ul>
 

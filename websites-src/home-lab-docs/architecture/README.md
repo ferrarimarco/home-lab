@@ -322,7 +322,15 @@ reliability risks first, then security exposure, then automation):
       [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).
     - Move environment variables to env files.
 - Terraform:
-    - [Configure Cloudflare](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone).
+    - **Bring the Cloudflare configuration under Terraform (2026-10-19)**:
+      Cloudflare is the authoritative name server for the root zone
+      (`ferrari.how`), configured by hand in its dashboard today. Manage the
+      zone and its records with the
+      [Cloudflare provider](https://registry.terraform.io/providers/cloudflare/cloudflare/latest/docs/resources/zone)
+      in a numbered stack under `config/terraform/`, with the API token in an
+      untracked tfvars file per the secrets policy, and start with a
+      `terraform import` of the existing zone and records so the first apply
+      changes nothing.
     - Configure
       [GitHub repositories](https://registry.terraform.io/providers/integrations/github/latest/docs).
     - [Ansible terraform module](https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module).
@@ -607,7 +615,20 @@ reliability risks first, then security exposure, then automation):
       consider exporting the reset counter and the noise floor once the node
       exporter runs on the router ([Host configuration](#host-configuration)).
 - Network stack
-  ([reference](https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/)):
+  ([reference](https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/)).
+  Today: Cloudflare is the authoritative name server for the root zone
+  (`ferrari.how`), configured by hand (its Terraform management is an item under
+  [CI/CD, infrastructure-as-code, and GitOps](#cicd-infrastructure-as-code-and-gitops));
+  the dnsmasq instance on the gateway is the DHCP server for the `10.0.0.0/8`
+  subnet, answers the `edge.lab.ferrari.how` zone from its DHCP leases
+  ([source](https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html))
+  without being authoritative for it, and forwards everything else to
+  [Google Public DNS](https://developers.google.com/speed/public-dns). The node
+  role carries a network stack (Unbound as the private recursive resolver,
+  CoreDNS as the authoritative server for the `lab.ferrari.how` zone) behind
+  `configure_network_stack`, which defaults to false and no host enables, so the
+  CoreDNS scrape job renders zero targets. The items below deploy and harden
+  that stack:
     - DNS server: configure the lab DNS zone.
     - DNS over TLS: dnsmasq instance on the Asus (done, but check); Unbound.
     - DHCP server:
@@ -1182,5 +1203,12 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
     or discard it.
 
 - Documentation automation: generate the endpoints list, the monitoring checks,
-  the inventory, the list of Home Assistant automations, and the list of cron
-  jobs from the configuration instead of maintaining them by hand.
+  the inventory, the list of Home Assistant automations, the list of cron jobs,
+  and the network plan (the subnet, the lab DNS zone, and the gateway's address
+  and name, declared by the node role variables `edge_environment_subnet`,
+  `root_dns_zone_fqdn`, and `edge_environment_gateway`; the router-side facts,
+  Cloudflare for the root zone and dnsmasq as the DHCP server, stay hand-written
+  in the network stack item under [Networking](#networking)) from the
+  configuration instead of maintaining them by hand; the hand-written network
+  configuration page was dropped on 2026-10-19 because it could only drift from
+  those variables.
