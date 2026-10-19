@@ -7,6 +7,15 @@ resource "proxmox_virtual_environment_container" "nas_pve2" {
   unprivileged = false # Privileged: bind mounts keep host UID/GID (no idmap)
   started      = true
 
+  # Start before the guests that mount this container's shares: Proxmox starts
+  # the guests without an order after the ordered ones, so the clients need no
+  # order of their own (node-local, like the shares). Samba listens about three
+  # seconds after the container starts; the delay covers it with margin.
+  startup {
+    order    = 1
+    up_delay = 15
+  }
+
   features {
     nesting = true
   }
