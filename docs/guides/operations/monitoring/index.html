@@ -1797,7 +1797,10 @@ groups: <code>count by (job) (up)</code> lists every job with at least one scrap
 (up or down), a configured job missing from the result rendered zero targets,
 and each job without a corresponding rule group is a candidate gap. Verify every
 candidate rule expression against the metric names actually present in the TSDB
-before writing it: exporters rename and re-label metrics between versions.</p>
+before writing it: exporters rename and re-label metrics between versions. Give
+every new rule a unit test, as the
+<a href="../../development/operational-scripts/#testing">operational scripts guide</a>
+describes.</p>
 <h2 id="prometheus-blackbox-exporter-example-queries">Prometheus Blackbox Exporter example queries</h2>
 <p>The Blackbox Exporter exposes a probe endpoint at
 <code>http://&lt;blackbox-exporter-host&gt;:9115/probe</code>. You can query it directly to run a

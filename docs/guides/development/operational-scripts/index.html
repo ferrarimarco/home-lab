@@ -1115,6 +1115,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#provisioning-and-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       Provisioning and configuration
@@ -1623,6 +1632,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#provisioning-and-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       Provisioning and configuration
@@ -1785,6 +1803,52 @@ in <code>scripts/format.sh</code>, or explicitly delegate it.</p>
 (<code>config/pre-commit/.pre-commit-config.yaml</code>) against all files, creating a
 dedicated Python virtual environment on first run. Pass an argument to run a
 different command inside that environment instead.</p>
+<h2 id="testing">Testing</h2>
+<ul>
+<li><code>test/scripts/prometheus-rules-test.sh</code>: validates the Prometheus alerting
+  rule file with <code>promtool check rules</code> and runs the rule unit tests under
+  <code>test/prometheus-rules/</code> with <code>promtool test rules</code>, from the Prometheus
+  container image the monitoring backend runs: the <code>prometheus</code> stage of the
+  dependency updates helper Dockerfile, the single pin that Dependabot bumps and
+  the node role renders into the compose files. The <code>Test Prometheus rules</code> CI
+  workflow runs it on every change to the rules, the tests, the script, or the
+  pin. The tests hold one file per rule group, and every rule has a firing case
+  asserting its labels and annotations, and a non-firing case (below the
+  threshold, or before the <code>for</code> duration elapses). The script enforces both
+  before running promtool: it fails, naming the rules, when a rule has no test
+  case, when a test names a rule the file does not define, or when a rule has no
+  case with <code>exp_alerts: []</code>. Conventions, verified against promtool 3.15.0:<ul>
+<li><code>rule_files</code> paths resolve relative to the test file, not to the working
+  directory.</li>
+<li>Keep <code>evaluation_interval: 1m</code>, the deployed Prometheus value: a <code>for</code>
+  duration is counted in rule evaluations at that interval, while the
+  per-group <code>interval</code> only spaces the input samples (groups with 30 s, 2 m,
+  and 5 m intervals all fired a <code>for: 10m</code> rule at 10 minutes). Keep the
+  sample interval within the 5 minute lookback for rules with a <code>for</code>
+  clause, or the series goes stale between samples and the pending alert
+  resets (6 m and 10 m intervals never fired it); rules without one may use
+  coarser samples evaluated at sample timestamps.</li>
+<li><code>AxN</code> in <code>values</code> emits N+1 samples (the value, then N repeats), so a
+  transition written as <code>0x2 1x2</code> happens at the third sample, not the
+  second.</li>
+<li>The test clock starts at the Unix epoch, so staleness rules built on
+  <code>time()</code> take a sample value of <code>0</code> and an <code>eval_time</code> equal to the age to
+  test.</li>
+<li><code>exp_annotations</code> must match the rendered annotations exactly, with the
+  <code>&gt;-</code> folded descriptions on one line, and <code>{{ $value }}</code> renders the
+  evaluated number. <code>increase()</code> and <code>delta()</code> extrapolate to the range
+  boundaries, so a counter that steps from 0 renders an integer (the start
+  extrapolation is capped at zero) while one that steps from a non-zero
+  baseline renders a long float: start such counters at 0, or keep <code>$value</code>
+  out of the assertion.</li>
+</ul>
+</li>
+<li><code>test/scripts/build-python-venv-test.sh [requirements file]</code>: runs the node
+  role's <code>build-python-venv.sh</code> script twice against a temporary directory to
+  check that it builds a virtual environment from a requirements file and skips
+  an up-to-date one; the <code>Test shell scripts</code> and
+  <code>Test Python requirements files</code> CI workflows run it.</li>
+</ul>
 <h2 id="provisioning-and-configuration">Provisioning and configuration</h2>
 <p><code>scripts/bootstrap-host.sh</code> and <code>scripts/run-terraform.sh</code> depend on tools that
 only the <code>operations</code> Nix development shell provides, so run them inside that

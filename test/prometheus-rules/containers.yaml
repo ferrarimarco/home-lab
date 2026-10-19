@@ -1,0 +1,61 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: ContainerRestartLooping fires above 3 restarts in 30 minutes, ignoring unnamed containers
+    interval: 1m
+    input_series:
+      # Each start time change is one restart: four changes in 25 minutes.
+      - series: 'container_start_time_seconds{instance="hl01:8080", name="zigbee2mqtt"}'
+        values: "100x5 200x5 300x5 400x5 500x5"
+      - series: 'container_start_time_seconds{instance="hl01:8080", name="mosquitto"}'
+        values: "100x5 200x5 300x5 400x10"
+      - series: 'container_start_time_seconds{instance="hl01:8080", name=""}'
+        values: "100x5 200x5 300x5 400x5 500x5"
+    alert_rule_test:
+      - eval_time: 19m
+        alertname: ContainerRestartLooping
+        exp_alerts: []
+      - eval_time: 24m
+        alertname: ContainerRestartLooping
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:8080
+              name: zigbee2mqtt
+            exp_annotations:
+              summary: "Container zigbee2mqtt on hl01:8080 is restart looping"
+              description: >-
+                The container zigbee2mqtt on hl01:8080 restarted more than 3
+                times in the last 30 minutes. It is probably crash looping;
+                check its logs.
+
+  - name: ContainerOomKilled fires when the OOM counter grows within 30 minutes, ignoring unnamed containers
+    interval: 1m
+    input_series:
+      - series: 'container_oom_events_total{instance="hl01:8080", name="frigate"}'
+        values: "0x10 1x30"
+      - series: 'container_oom_events_total{instance="hl01:8080", name="jellyfin"}'
+        values: "0x40"
+      - series: 'container_oom_events_total{instance="hl01:8080", name=""}'
+        values: "0x10 1x30"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: ContainerOomKilled
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: ContainerOomKilled
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:8080
+              name: frigate
+            exp_annotations:
+              summary: "Container frigate on hl01:8080 was OOM killed"
+              description: >-
+                The kernel killed a process in the container frigate on
+                hl01:8080 for exceeding its memory limit within the last 30
+                minutes. Raise the limit or investigate the memory growth.

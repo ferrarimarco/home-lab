@@ -1,0 +1,266 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: ResticExporterDown fires after 30 minutes of failed scrapes of the restic job
+    interval: 1m
+    input_series:
+      - series: 'up{job="restic", instance="hl01:9150"}'
+        values: "0x31"
+      - series: 'up{job="node", instance="hl01:9100"}'
+        values: "0x31"
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: ResticExporterDown
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ResticExporterDown
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: restic
+              instance: hl01:9150
+            exp_annotations:
+              summary: "Restic exporter on hl01:9150 is down"
+              description: >-
+                The restic exporter for hl01:9150 stopped answering scrapes.
+                The backup rules are expressions over its series, so while it
+                is down a stale or misplaced backup raises nothing else.
+
+  - name: ResticMetricsMissing fires when the exporter is up but reports no snapshot for 30 minutes
+    interval: 1m
+    input_series:
+      - series: 'up{job="restic", instance="hl01:9150"}'
+        values: "1x31"
+      - series: 'up{job="restic", instance="raspberrypi2:9150"}'
+        values: "1x31"
+      - series: 'restic_backup_timestamp{instance="raspberrypi2:9150", client_hostname="raspberrypi2", backup_job="workloads"}'
+        values: "0x31"
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: ResticMetricsMissing
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: ResticMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: restic
+              instance: hl01:9150
+            exp_annotations:
+              summary: "Restic exporter on hl01:9150 reports no backup"
+              description: >-
+                The restic exporter for hl01:9150 answers scrapes but exposes
+                no snapshot series: its collection failed (an unreachable or
+                uninitialized repository) and it retries only every 12 hours,
+                so the stale and missing backup rules cannot fire.
+
+  - name: ExpectedBackupMissing fires for a declared job with no repository identity for 1 hour
+    interval: 1m
+    input_series:
+      # Both backends render the expectation file, so each Prometheus scrapes
+      # every expectation twice; the max collapses them into one alert.
+      - series: 'backup_expected{instance="hl01:9100", host="pve1", backup_job="nas-state"}'
+        values: "1x61"
+      - series: 'backup_expected{instance="raspberrypi2:9100", host="pve1", backup_job="nas-state"}'
+        values: "1x61"
+      - series: 'backup_expected{instance="hl01:9100", host="hl01", backup_job="workloads"}'
+        values: "1x61"
+      - series: 'backup_expected{instance="raspberrypi2:9100", host="hl01", backup_job="workloads"}'
+        values: "1x61"
+      - series: 'restic_repository_id{instance="hl01:9150", backup_job="workloads", repository_id="abc"}'
+        values: "1x61"
+    alert_rule_test:
+      - eval_time: 59m
+        alertname: ExpectedBackupMissing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: ExpectedBackupMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: pve1
+              backup_job: nas-state
+            exp_annotations:
+              summary: "No restic job nas-state on pve1"
+              description: >-
+                The inventory expects pve1 to run the restic job nas-state,
+                but no job by that name has reported a run from that host:
+                the job is not configured there, or it never completed. The
+                state the job should cover has no backup.
+
+  - name: ResticRepositoryChanged fires when a job reports two repository identities within 3 days
+    interval: 1h
+    input_series:
+      - series: 'restic_repository_id{instance="hl01:9150", backup_job="workloads", repository_id="old"}'
+        values: "1x24 _x50"
+      - series: 'restic_repository_id{instance="hl01:9150", backup_job="workloads", repository_id="new"}'
+        values: "_x24 1x50"
+      - series: 'restic_repository_id{instance="raspberrypi2:9150", backup_job="workloads", repository_id="same"}'
+        values: "1x74"
+    alert_rule_test:
+      - eval_time: 12h
+        alertname: ResticRepositoryChanged
+        exp_alerts: []
+      - eval_time: 48h
+        alertname: ResticRepositoryChanged
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: hl01:9150
+              backup_job: workloads
+            exp_annotations:
+              summary: "Restic job workloads on hl01:9150 changed repository"
+              description: >-
+                The restic job wrote more than one repository identity in
+                three days: it was pointed at a different repository, or a
+                new one was initialized under its path. Neither is ever
+                expected.
+
+  - name: ResticBackupStale and ResticBackupMissing fire at 2 and 4 days
+    interval: 1h
+    input_series:
+      # The sample value is the snapshot time; the test clock starts at the
+      # Unix epoch, so a 0 value is as old as the evaluation time.
+      - series: 'restic_backup_timestamp{instance="hl01:9150", client_hostname="hl01", backup_job="workloads"}'
+        values: "0x120"
+    alert_rule_test:
+      - eval_time: 2d
+        alertname: ResticBackupStale
+        exp_alerts: []
+      - eval_time: 3d
+        alertname: ResticBackupStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9150
+              client_hostname: hl01
+              backup_job: workloads
+            exp_annotations:
+              summary: "Restic backup on hl01:9150 is getting stale"
+              description: >-
+                The latest restic snapshot for hl01:9150 (hl01) is older than
+                2 days.
+      - eval_time: 3d
+        alertname: ResticBackupMissing
+        exp_alerts: []
+      - eval_time: 5d
+        alertname: ResticBackupMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: hl01:9150
+              client_hostname: hl01
+              backup_job: workloads
+            exp_annotations:
+              summary: "Restic backup on hl01:9150 is missing"
+              description: >-
+                The latest restic snapshot for hl01:9150 (hl01) is older than
+                4 days: this is a standing data-loss exposure.
+
+  - name: ResticReadDataCheckStale fires when no pack data read succeeded for 3 days
+    interval: 1h
+    input_series:
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="hl01:9150", backup_job="workloads", step="check-read-data"}'
+        values: "0x100"
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="hl01:9150", backup_job="workloads", step="restore-drill"}'
+        values: "0x100"
+    alert_rule_test:
+      - eval_time: 3d
+        alertname: ResticReadDataCheckStale
+        exp_alerts: []
+      - eval_time: 4d
+        alertname: ResticReadDataCheckStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9150
+              backup_job: workloads
+              step: check-read-data
+            exp_annotations:
+              summary: "Restic data reads stopped for workloads on hl01:9150"
+              description: >-
+                The restic job has not completed a pack data read for three
+                days: the job is failing, or the read cycle was disabled.
+                Corrupt pack files go unnoticed until a restore needs them.
+
+  - name: ResticRestoreDrillStale fires when no restore drill succeeded for 40 days
+    interval: 1d
+    input_series:
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="hl01:9150", backup_job="workloads", step="restore-drill"}'
+        values: "0x50"
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="hl01:9150", backup_job="workloads", step="check-read-data"}'
+        values: "0x50"
+    alert_rule_test:
+      - eval_time: 40d
+        alertname: ResticRestoreDrillStale
+        exp_alerts: []
+      - eval_time: 41d
+        alertname: ResticRestoreDrillStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9150
+              backup_job: workloads
+              step: restore-drill
+            exp_annotations:
+              summary: "Restic restore drill stale for workloads on hl01:9150"
+              description: >-
+                The restore drill of the restic job has not succeeded for 40
+                days: the restore path (container, password, share mount,
+                target space, file verification) is unproven for this job.
+
+  - name: ResticRestoreDrillMissing fires for a job that never completed a drill, for 1 hour
+    interval: 1m
+    input_series:
+      - series: 'restic_repository_id{instance="hl01:9150", backup_job="workloads", repository_id="abc"}'
+        values: "1x61"
+      - series: 'restic_repository_id{instance="raspberrypi2:9150", backup_job="workloads", repository_id="def"}'
+        values: "1x61"
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="raspberrypi2:9150", backup_job="workloads", step="restore-drill"}'
+        values: "0x61"
+      # A completed data read does not stand in for the drill.
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="hl01:9150", backup_job="workloads", step="check-read-data"}'
+        values: "0x61"
+    alert_rule_test:
+      - eval_time: 59m
+        alertname: ResticRestoreDrillMissing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: ResticRestoreDrillMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9150
+              backup_job: workloads
+              repository_id: abc
+            exp_annotations:
+              summary: "Restic restore drill never ran for workloads on hl01:9150"
+              description: >-
+                The restic job reports its repository but no restore drill
+                has ever succeeded for it: its restore path is unproven.
+
+  - name: ResticCheckFailed fires on a failed repository check
+    interval: 1m
+    input_series:
+      - series: 'restic_check_success{instance="hl01:9150", backup_job="workloads"}'
+        values: "1x5 0x5"
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: ResticCheckFailed
+        exp_alerts: []
+      - eval_time: 6m
+        alertname: ResticCheckFailed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: hl01:9150
+              backup_job: workloads
+            exp_annotations:
+              summary: "Restic repository check failed on hl01:9150"
+              description: >-
+                The restic repository integrity check reported failure for
+                hl01:9150. Backups in this repository may not be restorable.

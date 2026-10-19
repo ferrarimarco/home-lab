@@ -1,0 +1,41 @@
+---
+name: Test Prometheus rules
+
+on: # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - ".github/workflows/test-prometheus-rules.yaml"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/Dockerfile"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml"
+      - "test/prometheus-rules/**"
+      - "test/scripts/prometheus-rules-test.sh"
+  pull_request:
+    paths:
+      - ".github/workflows/test-prometheus-rules.yaml"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/Dockerfile"
+      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml"
+      - "test/prometheus-rules/**"
+      - "test/scripts/prometheus-rules-test.sh"
+
+permissions:
+  contents: read
+
+jobs:
+  test-prometheus-rules:
+    concurrency:
+      # Ref: https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      # github.head_ref: head_ref or source branch of the pull request
+      # github.ref: ref of the branch that triggered the workflow
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}-${{ github.event_name }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check and unit test the Prometheus alerting rules
+        run: |
+          set -o errexit
+          set -o nounset
+
+          test/scripts/prometheus-rules-test.sh

@@ -1,0 +1,145 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: AlertmanagerNotificationsFailing fires when the failed notification counter grows within 15 minutes
+    interval: 1m
+    input_series:
+      - series: 'alertmanager_notifications_failed_total{instance="raspberrypi2:9093", integration="telegram", reason="clientError"}'
+        values: "0x10 1x20"
+      - series: 'alertmanager_notifications_failed_total{instance="hl01:9093", integration="telegram", reason="clientError"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: AlertmanagerNotificationsFailing
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: AlertmanagerNotificationsFailing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: raspberrypi2:9093
+              integration: telegram
+              reason: clientError
+            exp_annotations:
+              summary: "Alertmanager raspberrypi2:9093 fails to deliver notifications"
+              description: >-
+                The Alertmanager instance raspberrypi2:9093 failed to deliver
+                telegram notifications within the last 15 minutes. Alerts are
+                not reaching the notification channel: the pipeline is failing
+                silently.
+
+  - name: PrometheusNotificationsErroring fires when the notification error counter grows within 15 minutes
+    interval: 1m
+    input_series:
+      - series: 'prometheus_notifications_errors_total{instance="hl01:9090", alertmanager="http://raspberrypi2:9093/api/v2/alerts"}'
+        values: "0x10 1x20"
+      - series: 'prometheus_notifications_errors_total{instance="raspberrypi2:9090", alertmanager="http://hl01:9093/api/v2/alerts"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: PrometheusNotificationsErroring
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: PrometheusNotificationsErroring
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9090
+              alertmanager: http://raspberrypi2:9093/api/v2/alerts
+            exp_annotations:
+              summary: "Prometheus hl01:9090 cannot reach Alertmanager"
+              description: >-
+                The Prometheus replica hl01:9090 saw errors sending alerts to
+                http://raspberrypi2:9093/api/v2/alerts within the last 15
+                minutes. If both replicas are affected, alerting is down.
+
+  - name: ConfigReloadFailed fires for Prometheus or Alertmanager after 10 minutes of a failed reload
+    interval: 1m
+    input_series:
+      - series: 'prometheus_config_last_reload_successful{instance="hl01:9090", job="prometheus"}'
+        values: "0x11"
+      - series: 'alertmanager_config_last_reload_successful{instance="hl01:9093", job="alertmanager"}'
+        values: "0x11"
+      - series: 'prometheus_config_last_reload_successful{instance="raspberrypi2:9090", job="prometheus"}'
+        values: "1x11"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: ConfigReloadFailed
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: ConfigReloadFailed
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9090
+              job: prometheus
+            exp_annotations:
+              summary: "Configuration reload failed on hl01:9090"
+              description: >-
+                The prometheus instance hl01:9090 failed to reload its
+                configuration and keeps running the previous one. The
+                deployed configuration on disk is broken.
+          - exp_labels:
+              severity: warning
+              instance: hl01:9093
+              job: alertmanager
+            exp_annotations:
+              summary: "Configuration reload failed on hl01:9093"
+              description: >-
+                The alertmanager instance hl01:9093 failed to reload its
+                configuration and keeps running the previous one. The
+                deployed configuration on disk is broken.
+
+  - name: PrometheusRuleEvaluationFailures fires when the evaluation failure counter grows within 15 minutes
+    interval: 1m
+    input_series:
+      - series: 'prometheus_rule_evaluation_failures_total{instance="hl01:9090", rule_group="/etc/prometheus/config/prometheus-alerting-rules.yaml;backups"}'
+        values: "0x10 1x20"
+      - series: 'prometheus_rule_evaluation_failures_total{instance="raspberrypi2:9090", rule_group="/etc/prometheus/config/prometheus-alerting-rules.yaml;backups"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: PrometheusRuleEvaluationFailures
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: PrometheusRuleEvaluationFailures
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9090
+              rule_group: "/etc/prometheus/config/prometheus-alerting-rules.yaml;backups"
+            exp_annotations:
+              summary: "Rule evaluation failures on hl01:9090"
+              description: >-
+                The Prometheus replica hl01:9090 failed rule evaluations
+                within the last 15 minutes. A broken rule silently stops the
+                alerts it defines.
+
+  - name: AlertmanagerClusterDegraded fires after 15 minutes with fewer than 2 cluster members
+    interval: 1m
+    input_series:
+      - series: 'alertmanager_cluster_members{instance="hl01:9093"}'
+        values: "1x16"
+      - series: 'alertmanager_cluster_members{instance="raspberrypi2:9093"}'
+        values: "2x16"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: AlertmanagerClusterDegraded
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: AlertmanagerClusterDegraded
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9093
+            exp_annotations:
+              summary: "Alertmanager cluster is degraded on hl01:9093"
+              description: >-
+                The Alertmanager instance hl01:9093 has seen fewer than 2
+                cluster members for 15 minutes. The instances are not
+                gossiping, so notification deduplication between the replicas
+                is broken.

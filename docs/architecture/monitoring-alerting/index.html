@@ -2273,6 +2273,11 @@
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Grafana and the Blackbox exporter run on both replica hosts from identical templates; all backend targets up (§3.3).</td>
 </tr>
+<tr>
+<td style="text-align: left;"><strong>Alert Rules: Unit Tests</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>promtool test rules</code> cases for all 48 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally, first CI run pending.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="1-goal">1. Goal</h2>
@@ -3046,6 +3051,13 @@ migration tracked in the specs index.</p>
 <h2 id="9-verification">9. Verification</h2>
 <p>A deployment of this spec is verified with read-only checks:</p>
 <ul>
+<li>Every rule has a <code>promtool test rules</code> unit test under
+  <code>test/prometheus-rules/</code> (a firing case asserting its labels and annotations,
+  and a non-firing case), run in CI from the pinned Prometheus image by the
+  <code>Test Prometheus rules</code> workflow on every change to the rules, the tests, or
+  the pin, as the
+  <a href="../../guides/development/operational-scripts/">operational scripts guide</a>
+  describes.</li>
 <li>The rendered rule file and Alertmanager configuration validate with the
   <code>promtool</code> and <code>amtool</code> checkers from the same pinned container images the
   stack runs.</li>

@@ -1,0 +1,386 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: UnexpectedReboot fires when the boot time moves by more than 10 seconds
+    interval: 1m
+    input_series:
+      # The boot time moves by the previous uptime on a reboot.
+      - series: 'node_boot_time_seconds{instance="rebooted:9100"}'
+        values: "1000x30 2000x30"
+      # An NTP correction moves it by a second.
+      - series: 'node_boot_time_seconds{instance="ntp-corrected:9100"}'
+        values: "1000x30 1001x30"
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: UnexpectedReboot
+        exp_alerts: []
+      - eval_time: 45m
+        alertname: UnexpectedReboot
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: rebooted:9100
+            exp_annotations:
+              summary: "Host rebooted:9100 rebooted"
+              description: >-
+                The boot time of rebooted:9100 changed within the last hour.
+                If this reboot was not planned, investigate: it may be a
+                hardware watchdog recovery.
+
+  - name: AptUpdateStale fires when the last apt-get update is older than 2 days
+    interval: 1h
+    input_series:
+      # The sample value is the time of the last update; the test clock
+      # starts at the Unix epoch, so a 0 value is 3 days old at 3d.
+      - series: 'apt_package_cache_timestamp_seconds{instance="hl01:9100"}'
+        values: "0x72"
+    alert_rule_test:
+      - eval_time: 1d
+        alertname: AptUpdateStale
+        exp_alerts: []
+      - eval_time: 3d
+        alertname: AptUpdateStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+            exp_annotations:
+              summary: "APT updates failing on hl01:9100"
+              description: >-
+                hl01:9100 has had no successful apt-get update for more than
+                two days: a source answers errors (a retired repository, an
+                expired key), or the daily job stopped. Security updates stop
+                flowing until it is fixed.
+
+  - name: AptMetricsMissing fires for a Debian host without apt metrics for 1 hour
+    interval: 1m
+    input_series:
+      - series: 'node_os_info{instance="no-collector:9100", id="debian"}'
+        values: "1x61"
+      - series: 'node_os_info{instance="with-collector:9100", id="debian"}'
+        values: "1x61"
+      - series: 'apt_package_cache_timestamp_seconds{instance="with-collector:9100"}'
+        values: "0x61"
+      - series: 'node_os_info{instance="nixos-host:9100", id="nixos"}'
+        values: "1x61"
+    alert_rule_test:
+      - eval_time: 59m
+        alertname: AptMetricsMissing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: AptMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: no-collector:9100
+              id: debian
+            exp_annotations:
+              summary: "No APT metrics from no-collector:9100"
+              description: >-
+                no-collector:9100 runs Debian but exports no apt metrics: the
+                apt collector is not deployed or its timer stopped, so failed
+                updates on it go unnoticed.
+
+  - name: AptUpgradesPending fires after 14 days of pending upgrades from one origin
+    interval: 5m
+    input_series:
+      - series: 'apt_upgrades_pending{instance="pve1:9100", origin="Docker CE:bookworm", arch="amd64"}'
+        values: "3x4032"
+      - series: 'apt_upgrades_pending{instance="hl01:9100", origin="Debian:bookworm", arch="amd64"}'
+        values: "0x4032"
+    alert_rule_test:
+      - eval_time: 13d
+        alertname: AptUpgradesPending
+        exp_alerts: []
+      - eval_time: 14d
+        alertname: AptUpgradesPending
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: pve1:9100
+              origin: "Docker CE:bookworm"
+              arch: amd64
+            exp_annotations:
+              summary: "Upgrades pending for two weeks on pve1:9100"
+              description: >-
+                pve1:9100 has had 3 upgrades pending from Docker CE:bookworm
+                for two weeks: unattended-upgrades does not cover that origin,
+                or the host has none. Read the release notes and run the
+                upgrade on purpose.
+
+  - name: RebootRequired fires after 7 days with the reboot-required flag set
+    interval: 5m
+    input_series:
+      - series: 'node_reboot_required{instance="hl01:9100"}'
+        values: "1x2016"
+      - series: 'node_reboot_required{instance="pve1:9100"}'
+        values: "0x2016"
+    alert_rule_test:
+      - eval_time: 6d
+        alertname: RebootRequired
+        exp_alerts: []
+      - eval_time: 7d
+        alertname: RebootRequired
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+            exp_annotations:
+              summary: "hl01:9100 has needed a reboot for a week"
+              description: >-
+                hl01:9100 has had packages installed that need a reboot (a
+                kernel, libc, systemd) for seven days; the running kernel is
+                not the installed one until it reboots. Schedule the reboot.
+
+  - name: NodeTextfileStale fires for a textfile older than 26 hours, not for static files
+    interval: 1h
+    input_series:
+      - series: 'node_textfile_mtime_seconds{instance="hl01:9100", file="smartmon.prom"}'
+        values: "0x30"
+      - series: 'node_textfile_mtime_seconds{instance="hl01:9100", file="backup-expected.static.prom"}'
+        values: "0x30"
+    alert_rule_test:
+      - eval_time: 26h
+        alertname: NodeTextfileStale
+        exp_alerts: []
+      - eval_time: 27h
+        alertname: NodeTextfileStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              file: smartmon.prom
+            exp_annotations:
+              summary: "Stale textfile smartmon.prom on hl01:9100"
+              description: >-
+                The node exporter textfile smartmon.prom on hl01:9100 has not
+                been updated for more than 26 hours. The producing timer or
+                service has probably stopped working.
+
+  - name: NodeFilesystemSpaceLow fires below 15 percent for 30 minutes, tmpfs excluded
+    interval: 1m
+    input_series:
+      - series: 'node_filesystem_avail_bytes{instance="hl01:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "10x31"
+      - series: 'node_filesystem_size_bytes{instance="hl01:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "100x31"
+      - series: 'node_filesystem_avail_bytes{instance="hl01:9100", mountpoint="/run", fstype="tmpfs", device="tmpfs"}'
+        values: "1x31"
+      - series: 'node_filesystem_size_bytes{instance="hl01:9100", mountpoint="/run", fstype="tmpfs", device="tmpfs"}'
+        values: "100x31"
+      - series: 'node_filesystem_avail_bytes{instance="pve1:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "15x31"
+      - series: 'node_filesystem_size_bytes{instance="pve1:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "100x31"
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: NodeFilesystemSpaceLow
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: NodeFilesystemSpaceLow
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              mountpoint: /
+              fstype: ext4
+              device: /dev/sda1
+            exp_annotations:
+              summary: "Filesystem / on hl01:9100 is low on space"
+              description: >-
+                The filesystem mounted at / on hl01:9100 has had less than 15
+                percent of its space available for 30 minutes. Investigate
+                what is consuming the disk before services start failing.
+      # 10 percent available is low but not critical.
+      - eval_time: 30m
+        alertname: NodeFilesystemSpaceCritical
+        exp_alerts: []
+
+  - name: NodeFilesystemSpaceCritical fires below 5 percent for 10 minutes, tmpfs excluded
+    interval: 1m
+    input_series:
+      - series: 'node_filesystem_avail_bytes{instance="hl01:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "3x11"
+      - series: 'node_filesystem_size_bytes{instance="hl01:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "100x11"
+      - series: 'node_filesystem_avail_bytes{instance="hl01:9100", mountpoint="/run", fstype="tmpfs", device="tmpfs"}'
+        values: "1x11"
+      - series: 'node_filesystem_size_bytes{instance="hl01:9100", mountpoint="/run", fstype="tmpfs", device="tmpfs"}'
+        values: "100x11"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: NodeFilesystemSpaceCritical
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: NodeFilesystemSpaceCritical
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: hl01:9100
+              mountpoint: /
+              fstype: ext4
+              device: /dev/sda1
+            exp_annotations:
+              summary: "Filesystem / on hl01:9100 is almost full"
+              description: >-
+                The filesystem mounted at / on hl01:9100 has had less than 5
+                percent of its space available for 10 minutes. Services
+                writing to it are about to fail.
+
+  - name: NodeFilesystemInodesLow fires below 10 percent free inodes for 30 minutes, tmpfs excluded
+    interval: 1m
+    input_series:
+      - series: 'node_filesystem_files_free{instance="hl01:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "9x31"
+      - series: 'node_filesystem_files{instance="hl01:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "100x31"
+      - series: 'node_filesystem_files_free{instance="hl01:9100", mountpoint="/run", fstype="tmpfs", device="tmpfs"}'
+        values: "1x31"
+      - series: 'node_filesystem_files{instance="hl01:9100", mountpoint="/run", fstype="tmpfs", device="tmpfs"}'
+        values: "100x31"
+      - series: 'node_filesystem_files_free{instance="pve1:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "10x31"
+      - series: 'node_filesystem_files{instance="pve1:9100", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: "100x31"
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: NodeFilesystemInodesLow
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: NodeFilesystemInodesLow
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              mountpoint: /
+              fstype: ext4
+              device: /dev/sda1
+            exp_annotations:
+              summary: "Filesystem / on hl01:9100 is low on inodes"
+              description: >-
+                The filesystem mounted at / on hl01:9100 has had less than 10
+                percent of its inodes available for 30 minutes. Writes start
+                failing when inodes run out, even with free space left.
+
+  - name: ExpectedMountMissing fires when a declared mount has no filesystem for 10 minutes
+    interval: 1m
+    input_series:
+      - series: 'node_mount_expected{instance="hl01:9100", mountpoint="/media/backups", fstype="cifs"}'
+        values: "1x11"
+      - series: 'node_mount_expected{instance="hl01:9100", mountpoint="/media/media", fstype="cifs"}'
+        values: "1x11"
+      - series: 'node_filesystem_size_bytes{instance="hl01:9100", mountpoint="/media/media", fstype="cifs", device="//nas-pve1/media"}'
+        values: "100x11"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: ExpectedMountMissing
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: ExpectedMountMissing
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: hl01:9100
+              mountpoint: /media/backups
+              fstype: cifs
+            exp_annotations:
+              summary: "Expected mount /media/backups missing on hl01:9100"
+              description: >-
+                hl01:9100 declares /media/backups (cifs) in its inventory, but
+                no filesystem is mounted there. Mounts carry nofail, so the
+                host booted without it and every consumer now writes into a
+                bare directory on the root disk (a media share, a backup
+                share).
+
+  - name: SystemdUnitFailed fires for a unit failed for 15 minutes
+    interval: 1m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="hl01:9100", name="restic-backup-workloads.service", state="failed", type="oneshot"}'
+        values: "1x16"
+      - series: 'node_systemd_unit_state{instance="hl01:9100", name="restic-backup-workloads.service", state="active", type="oneshot"}'
+        values: "0x16"
+      - series: 'node_systemd_unit_state{instance="hl01:9100", name="docker.service", state="failed", type="notify"}'
+        values: "0x16"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: SystemdUnitFailed
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: SystemdUnitFailed
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: restic-backup-workloads.service
+              state: failed
+              type: oneshot
+            exp_annotations:
+              summary: "Unit restic-backup-workloads.service failed on hl01:9100"
+              description: >-
+                The systemd unit restic-backup-workloads.service on hl01:9100
+                has been in the failed state for 15 minutes. Check its journal
+                on the host.
+
+  - name: NodeClockSkewed fires when the offset exceeds 50 milliseconds either way for 15 minutes
+    interval: 1m
+    input_series:
+      - series: 'node_timex_offset_seconds{instance="ahead:9100"}'
+        values: "0.2x16"
+      - series: 'node_timex_offset_seconds{instance="behind:9100"}'
+        values: "-0.2x16"
+      - series: 'node_timex_offset_seconds{instance="in-sync:9100"}'
+        values: "0.01x16"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: NodeClockSkewed
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: NodeClockSkewed
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: ahead:9100
+            exp_annotations:
+              summary: "Clock on ahead:9100 is skewed"
+              description: >-
+                The clock on ahead:9100 has been more than 50 milliseconds
+                away from its time source for 15 minutes. Time synchronization
+                has probably stopped working, which breaks TLS validation and
+                metric ordering.
+          - exp_labels:
+              severity: warning
+              instance: behind:9100
+            exp_annotations:
+              summary: "Clock on behind:9100 is skewed"
+              description: >-
+                The clock on behind:9100 has been more than 50 milliseconds
+                away from its time source for 15 minutes. Time synchronization
+                has probably stopped working, which breaks TLS validation and
+                metric ordering.
+
+  - name: EdacUncorrectableErrors fires when the counter grows within an hour
+    interval: 1m
+    input_series:
+      - series: 'node_edac_uncorrectable_errors_total{instance="pve1:9100", controller="0"}'
+        values: "0x60 2x60"
+    alert_rule_test:
+      - eval_time: 59m
+        alertname: EdacUncorrectableErrors
+        exp_alerts: []
+      - eval_time: 90m
+        alertname: EdacUncorrectableErrors
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: pve1:9100
+              controller: "0"
+            exp_annotations:
+              summary: "Uncorrectable memory errors on pve1:9100"
+              description: >-
+                The memory controller on pve1:9100 reported 2 uncorrectable
+                errors in the last hour. A memory module is failing; data
+                corruption is possible.

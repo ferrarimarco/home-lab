@@ -187,6 +187,13 @@ describes them all. Key rules:
   Always run `--check --diff` first, capture the full output to a log file, and
   review the predictions for unexpected `state: absent` teardowns before
   applying.
+- **Prometheus alerting rules need a promtool unit test:** every rule in
+  `prometheus-alerting-rules.yaml` gets a firing and a non-firing case in
+  `test/prometheus-rules/` (one file per rule group); run
+  `test/scripts/prometheus-rules-test.sh` before committing, which also fails on
+  a rule without a test or without a non-firing case. The
+  [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md)
+  has the test conventions.
 - **NixOS integration tests:** every host directory is auto-registered as a
   flake check; run one locally with
   `nix build ./config/nix#checks.x86_64-linux.host-<host>-test --no-link -L`.

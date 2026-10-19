@@ -1,0 +1,77 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: SmartDeviceUnhealthy fires when a disk fails its SMART self-assessment
+    interval: 1m
+    input_series:
+      - series: 'smartmon_device_smart_healthy{instance="pve1:9100", disk="/dev/sda", type="sat"}'
+        values: "1x2 0x3"
+      - series: 'smartmon_device_smart_healthy{instance="pve1:9100", disk="/dev/sdb", type="sat"}'
+        values: "1x5"
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: SmartDeviceUnhealthy
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: SmartDeviceUnhealthy
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: pve1:9100
+              disk: /dev/sda
+              type: sat
+            exp_annotations:
+              summary: "Disk /dev/sda on pve1:9100 fails its SMART health check"
+              description: >-
+                The disk /dev/sda on pve1:9100 fails the SMART overall health
+                self-assessment. The drive considers itself failing: replace
+                it, and verify the backups of the data it holds.
+
+  - name: SmartSectorsDegrading fires when pending or reallocated sectors grow within a day
+    interval: 1h
+    input_series:
+      - series: 'smartmon_current_pending_sector_raw_value{instance="pve1:9100", disk="/dev/sda", type="sat"}'
+        values: "0x12 8x13"
+      - series: 'smartmon_reallocated_sector_ct_raw_value{instance="pve1:9100", disk="/dev/sda", type="sat"}'
+        values: "0x25"
+      - series: 'smartmon_current_pending_sector_raw_value{instance="pve1:9100", disk="/dev/sdb", type="sat"}'
+        values: "0x25"
+      - series: 'smartmon_reallocated_sector_ct_raw_value{instance="pve1:9100", disk="/dev/sdb", type="sat"}'
+        values: "3x12 5x13"
+      - series: 'smartmon_current_pending_sector_raw_value{instance="pve1:9100", disk="/dev/sdc", type="sat"}'
+        values: "0x25"
+      - series: 'smartmon_reallocated_sector_ct_raw_value{instance="pve1:9100", disk="/dev/sdc", type="sat"}'
+        values: "3x25"
+    alert_rule_test:
+      - eval_time: 11h
+        alertname: SmartSectorsDegrading
+        exp_alerts: []
+      - eval_time: 24h
+        alertname: SmartSectorsDegrading
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: pve1:9100
+              disk: /dev/sda
+              type: sat
+            exp_annotations:
+              summary: "Disk /dev/sda on pve1:9100 is accumulating bad sectors"
+              description: >-
+                The pending or reallocated sector count of the disk /dev/sda
+                on pve1:9100 grew within the last day. The drive surface is
+                degrading: plan a replacement before it fails.
+          - exp_labels:
+              severity: warning
+              instance: pve1:9100
+              disk: /dev/sdb
+              type: sat
+            exp_annotations:
+              summary: "Disk /dev/sdb on pve1:9100 is accumulating bad sectors"
+              description: >-
+                The pending or reallocated sector count of the disk /dev/sdb
+                on pve1:9100 grew within the last day. The drive surface is
+                degrading: plan a replacement before it fails.

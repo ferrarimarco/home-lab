@@ -90,7 +90,10 @@ groups: `count by (job) (up)` lists every job with at least one scraped target
 (up or down), a configured job missing from the result rendered zero targets,
 and each job without a corresponding rule group is a candidate gap. Verify every
 candidate rule expression against the metric names actually present in the TSDB
-before writing it: exporters rename and re-label metrics between versions.
+before writing it: exporters rename and re-label metrics between versions. Give
+every new rule a unit test, as the
+[operational scripts guide](../development/operational-scripts.md#testing)
+describes.
 
 ## Prometheus Blackbox Exporter example queries
 

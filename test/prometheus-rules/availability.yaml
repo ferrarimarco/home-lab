@@ -1,0 +1,32 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+# The deployed Prometheus evaluates rules every minute (prometheus.yaml.jinja).
+evaluation_interval: 1m
+
+tests:
+  - name: InstanceDown fires after 10 minutes of failed scrapes
+    interval: 1m
+    input_series:
+      - series: 'up{job="node", instance="host-a:9100"}'
+        values: "0x12"
+      - series: 'up{job="node", instance="host-b:9100"}'
+        values: "1x12"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: InstanceDown
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: InstanceDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: node
+              instance: host-a:9100
+            exp_annotations:
+              summary: "Scrape target host-a:9100 is down"
+              description: >-
+                The node target host-a:9100 has not answered scrapes for 10
+                minutes. The host may be down, or the exporter may have
+                stopped.

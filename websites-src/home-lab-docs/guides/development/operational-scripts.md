@@ -122,6 +122,50 @@ in `scripts/format.sh`, or explicitly delegate it.
 dedicated Python virtual environment on first run. Pass an argument to run a
 different command inside that environment instead.
 
+## Testing
+
+- `test/scripts/prometheus-rules-test.sh`: validates the Prometheus alerting
+  rule file with `promtool check rules` and runs the rule unit tests under
+  `test/prometheus-rules/` with `promtool test rules`, from the Prometheus
+  container image the monitoring backend runs: the `prometheus` stage of the
+  dependency updates helper Dockerfile, the single pin that Dependabot bumps and
+  the node role renders into the compose files. The `Test Prometheus rules` CI
+  workflow runs it on every change to the rules, the tests, the script, or the
+  pin. The tests hold one file per rule group, and every rule has a firing case
+  asserting its labels and annotations, and a non-firing case (below the
+  threshold, or before the `for` duration elapses). The script enforces both
+  before running promtool: it fails, naming the rules, when a rule has no test
+  case, when a test names a rule the file does not define, or when a rule has no
+  case with `exp_alerts: []`. Conventions, verified against promtool 3.15.0:
+    - `rule_files` paths resolve relative to the test file, not to the working
+      directory.
+    - Keep `evaluation_interval: 1m`, the deployed Prometheus value: a `for`
+      duration is counted in rule evaluations at that interval, while the
+      per-group `interval` only spaces the input samples (groups with 30 s, 2 m,
+      and 5 m intervals all fired a `for: 10m` rule at 10 minutes). Keep the
+      sample interval within the 5 minute lookback for rules with a `for`
+      clause, or the series goes stale between samples and the pending alert
+      resets (6 m and 10 m intervals never fired it); rules without one may use
+      coarser samples evaluated at sample timestamps.
+    - `AxN` in `values` emits N+1 samples (the value, then N repeats), so a
+      transition written as `0x2 1x2` happens at the third sample, not the
+      second.
+    - The test clock starts at the Unix epoch, so staleness rules built on
+      `time()` take a sample value of `0` and an `eval_time` equal to the age to
+      test.
+    - `exp_annotations` must match the rendered annotations exactly, with the
+      `>-` folded descriptions on one line, and `{{ $value }}` renders the
+      evaluated number. `increase()` and `delta()` extrapolate to the range
+      boundaries, so a counter that steps from 0 renders an integer (the start
+      extrapolation is capped at zero) while one that steps from a non-zero
+      baseline renders a long float: start such counters at 0, or keep `$value`
+      out of the assertion.
+- `test/scripts/build-python-venv-test.sh [requirements file]`: runs the node
+  role's `build-python-venv.sh` script twice against a temporary directory to
+  check that it builds a virtual environment from a requirements file and skips
+  an up-to-date one; the `Test shell scripts` and
+  `Test Python requirements files` CI workflows run it.
+
 ## Provisioning and configuration
 
 `scripts/bootstrap-host.sh` and `scripts/run-terraform.sh` depend on tools that

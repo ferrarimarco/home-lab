@@ -1,0 +1,96 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: CominDeploymentFailed fires after 30 minutes of a failed evaluation, build, or deployment
+    interval: 1m
+    input_series:
+      - series: 'comin_last_eval_failed{instance="nas-pve1:4243"}'
+        values: "0x31"
+      - series: 'comin_last_build_failed{instance="nas-pve1:4243"}'
+        values: "1x31"
+      - series: 'comin_last_deployment_failed{instance="nas-pve1:4243"}'
+        values: "0x31"
+      - series: 'comin_last_eval_failed{instance="nas-pve2:4243"}'
+        values: "1x31"
+      - series: 'comin_last_build_failed{instance="nas-pve2:4243"}'
+        values: "0x31"
+      - series: 'comin_last_deployment_failed{instance="nas-pve2:4243"}'
+        values: "0x31"
+      - series: 'comin_last_eval_failed{instance="hl01:4243"}'
+        values: "0x31"
+      - series: 'comin_last_build_failed{instance="hl01:4243"}'
+        values: "0x31"
+      - series: 'comin_last_deployment_failed{instance="hl01:4243"}'
+        values: "1x31"
+      - series: 'comin_last_eval_failed{instance="hl02:4243"}'
+        values: "0x31"
+      - series: 'comin_last_build_failed{instance="hl02:4243"}'
+        values: "0x31"
+      - series: 'comin_last_deployment_failed{instance="hl02:4243"}'
+        values: "0x31"
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: CominDeploymentFailed
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: CominDeploymentFailed
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:4243
+            exp_annotations:
+              summary: "comin cannot deploy on hl01:4243"
+              description: >-
+                The comin GitOps service on hl01:4243 has been failing to
+                evaluate, build, or activate the latest commit for 30 minutes.
+                The host keeps running its previous configuration: check the
+                comin journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: nas-pve1:4243
+            exp_annotations:
+              summary: "comin cannot deploy on nas-pve1:4243"
+              description: >-
+                The comin GitOps service on nas-pve1:4243 has been failing to
+                evaluate, build, or activate the latest commit for 30 minutes.
+                The host keeps running its previous configuration: check the
+                comin journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: nas-pve2:4243
+            exp_annotations:
+              summary: "comin cannot deploy on nas-pve2:4243"
+              description: >-
+                The comin GitOps service on nas-pve2:4243 has been failing to
+                evaluate, build, or activate the latest commit for 30 minutes.
+                The host keeps running its previous configuration: check the
+                comin journal on the host.
+
+  - name: CominFetchFailed fires after 2 hours of failed fetches
+    interval: 5m
+    input_series:
+      - series: 'comin_last_fetch_failed{instance="nas-pve1:4243", remote_name="origin"}'
+        values: "1x25"
+      - series: 'comin_last_fetch_failed{instance="hl02:4243", remote_name="origin"}'
+        values: "0x25"
+    alert_rule_test:
+      - eval_time: 119m
+        alertname: CominFetchFailed
+        exp_alerts: []
+      - eval_time: 120m
+        alertname: CominFetchFailed
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: nas-pve1:4243
+              remote_name: origin
+            exp_annotations:
+              summary: "comin cannot fetch on nas-pve1:4243"
+              description: >-
+                The comin GitOps service on nas-pve1:4243 has been failing to
+                fetch from origin for 2 hours. The host silently stopped
+                following the configuration repository.

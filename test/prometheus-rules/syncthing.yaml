@@ -1,0 +1,97 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: SyncthingFolderError fires after 30 minutes in the error state
+    interval: 1m
+    input_series:
+      # State 8 is the error state in the exporter's folder state encoding.
+      - series: 'syncthing_model_folder_state{instance="nas-pve1:8384", folder="documents"}'
+        values: "8x31"
+      - series: 'syncthing_model_folder_state{instance="nas-pve1:8384", folder="photos"}'
+        values: "1x31"
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: SyncthingFolderError
+        exp_alerts: []
+      - eval_time: 30m
+        alertname: SyncthingFolderError
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: nas-pve1:8384
+              folder: documents
+            exp_annotations:
+              summary: "Syncthing folder documents on nas-pve1:8384 is in error"
+              description: >-
+                The Syncthing folder documents on nas-pve1:8384 has been in
+                the error state for 30 minutes: the backup transport for that
+                folder stopped operating. Check the folder's error message in
+                the Syncthing GUI.
+
+  - name: SyncthingFolderOutOfSync fires after 24 hours of unmet sync needs
+    interval: 5m
+    input_series:
+      - series: 'syncthing_model_folder_summary{instance="nas-pve1:8384", folder="documents", scope="need", type="files"}'
+        values: "3x289"
+      - series: 'syncthing_model_folder_summary{instance="nas-pve1:8384", folder="documents", scope="need", type="bytes"}'
+        values: "1024x289"
+      - series: 'syncthing_model_folder_summary{instance="nas-pve1:8384", folder="photos", scope="need", type="files"}'
+        values: "0x289"
+      - series: 'syncthing_model_folder_summary{instance="nas-pve1:8384", folder="photos", scope="global", type="files"}'
+        values: "500x289"
+    alert_rule_test:
+      - eval_time: 23h
+        alertname: SyncthingFolderOutOfSync
+        exp_alerts: []
+      - eval_time: 24h
+        alertname: SyncthingFolderOutOfSync
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: nas-pve1:8384
+              folder: documents
+            exp_annotations:
+              summary: "Syncthing folder documents on nas-pve1:8384 is out of sync"
+              description: >-
+                The Syncthing folder documents on nas-pve1:8384 has had unmet
+                sync needs for 24 hours. Steady-state transfers clear within
+                hours, so the sync is probably stuck.
+
+  - name: SyncthingDeviceDisconnected fires after 72 hours without a connection to an unpaused peer
+    interval: 5m
+    input_series:
+      - series: 'syncthing_connections_active{instance="nas-pve1:8384", device="PEER-DEVICE"}'
+        values: "0x865"
+      - series: 'syncthing_config_device_info{instance="nas-pve1:8384", device="PEER-DEVICE", name="offsite-peer", paused="false"}'
+        values: "1x865"
+      # A paused peer is expected to stay disconnected.
+      - series: 'syncthing_connections_active{instance="nas-pve1:8384", device="PAUSED-DEVICE"}'
+        values: "0x865"
+      - series: 'syncthing_config_device_info{instance="nas-pve1:8384", device="PAUSED-DEVICE", name="paused-peer", paused="true"}'
+        values: "1x865"
+      # A device always reports zero connections to itself.
+      - series: 'syncthing_connections_active{instance="nas-pve1:8384", device="SELF-DEVICE"}'
+        values: "0x865"
+      - series: 'syncthing_config_device_info{instance="nas-pve1:8384", device="SELF-DEVICE", name="nas-pve1", paused="false"}'
+        values: "1x865"
+    alert_rule_test:
+      - eval_time: 71h
+        alertname: SyncthingDeviceDisconnected
+        exp_alerts: []
+      - eval_time: 72h
+        alertname: SyncthingDeviceDisconnected
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: nas-pve1:8384
+              device: PEER-DEVICE
+            exp_annotations:
+              summary: "Syncthing peer PEER-DEVICE unseen by nas-pve1:8384"
+              description: >-
+                The Syncthing device PEER-DEVICE has not been connected to
+                nas-pve1:8384 for 3 days: offsite backups stopped flowing.
+                Check the peer device and the tailnet connectivity.

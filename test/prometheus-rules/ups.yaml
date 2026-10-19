@@ -1,0 +1,61 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: UpsOnBattery fires after 2 minutes on battery
+    interval: 1m
+    input_series:
+      - series: 'network_ups_tools_ups_status{instance="pve1:9199", ups="ups", flag="OB"}'
+        values: "1x3"
+      - series: 'network_ups_tools_ups_status{instance="pve1:9199", ups="ups", flag="OL"}'
+        values: "0x3"
+      - series: 'network_ups_tools_ups_status{instance="pve2:9199", ups="ups", flag="OB"}'
+        values: "0x3"
+      - series: 'network_ups_tools_ups_status{instance="pve2:9199", ups="ups", flag="OL"}'
+        values: "1x3"
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: UpsOnBattery
+        exp_alerts: []
+      - eval_time: 2m
+        alertname: UpsOnBattery
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: pve1:9199
+              ups: ups
+              flag: OB
+            exp_annotations:
+              summary: "UPS monitored by pve1:9199 is on battery"
+              description: >-
+                The UPS monitored by pve1:9199 has been running on battery for
+                2 minutes: mains power is out or browning out. Hosts shut down
+                when the battery runs low.
+
+  - name: UpsLowBattery fires as soon as the low battery flag is set
+    interval: 1m
+    input_series:
+      - series: 'network_ups_tools_ups_status{instance="pve1:9199", ups="ups", flag="LB"}'
+        values: "0x1 1x2"
+      - series: 'network_ups_tools_ups_status{instance="pve1:9199", ups="ups", flag="OB"}'
+        values: "1x4"
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: UpsLowBattery
+        exp_alerts: []
+      - eval_time: 2m
+        alertname: UpsLowBattery
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: pve1:9199
+              ups: ups
+              flag: LB
+            exp_annotations:
+              summary: "UPS monitored by pve1:9199 battery is low"
+              description: >-
+                The UPS monitored by pve1:9199 reports a low battery while on
+                mains loss: connected hosts are about to shut down.

@@ -1,0 +1,87 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: FrigateCameraStreamDown fires after 10 minutes without frames
+    interval: 1m
+    input_series:
+      - series: 'frigate_camera_fps{instance="hl01:5000", camera_name="cam-3"}'
+        values: "0x11"
+      - series: 'frigate_camera_fps{instance="hl01:5000", camera_name="cam-1"}'
+        values: "5x11"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: FrigateCameraStreamDown
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: FrigateCameraStreamDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: hl01:5000
+              camera_name: cam-3
+            exp_annotations:
+              summary: "Frigate camera cam-3 produces no frames"
+              description: >-
+                The capture pipeline for camera cam-3 on hl01:5000 has
+                produced no frames for 10 minutes. The camera may be offline,
+                or the ffmpeg capture process is failing in a way the Frigate
+                watchdog cannot recover.
+
+  - name: FrigateCameraCaptureRateAbnormal fires above 10 skipped frames per second for 15 minutes
+    interval: 1m
+    input_series:
+      - series: 'frigate_skipped_fps{instance="hl01:5000", camera_name="cam-3"}'
+        values: "25x16"
+      - series: 'frigate_skipped_fps{instance="hl01:5000", camera_name="cam-1"}'
+        values: "10x16"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: FrigateCameraCaptureRateAbnormal
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: FrigateCameraCaptureRateAbnormal
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:5000
+              camera_name: cam-3
+            exp_annotations:
+              summary: "Frigate skips frames for camera cam-3"
+              description: >-
+                Frigate on hl01:5000 has been skipping more than 10 frames per
+                second from camera cam-3 for 15 minutes. A healthy stream
+                delivers at the configured detect rate with no skips:
+                sustained skipping means the camera stream is delivering far
+                more frames than configured, a known symptom of a corrupted
+                stream that also crashes the hardware decoder.
+
+  - name: FrigateDetectorSlow fires above 100 milliseconds per inference for 10 minutes
+    interval: 1m
+    input_series:
+      - series: 'frigate_detector_inference_speed_seconds{instance="hl01:5000", name="coral"}'
+        values: "0.15x11"
+      - series: 'frigate_detector_inference_speed_seconds{instance="hl01:5000", name="cpu"}'
+        values: "0.02x11"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: FrigateDetectorSlow
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: FrigateDetectorSlow
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:5000
+              name: coral
+            exp_annotations:
+              summary: "Frigate detector coral is slow"
+              description: >-
+                The coral object detector on hl01:5000 has averaged more than
+                100 milliseconds per inference for 10 minutes. The Coral
+                normally infers in well under 25 milliseconds: sustained
+                slowness means the detector is degraded or detection fell back
+                to the CPU.

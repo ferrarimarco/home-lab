@@ -1,0 +1,78 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: HostHighCpuTemperature fires above 85 degrees for 5 minutes
+    interval: 1m
+    input_series:
+      - series: 'node_hwmon_temp_celsius{instance="pve1:9100", chip="coretemp", sensor="temp1"}'
+        values: "90x6"
+      - series: 'node_hwmon_temp_celsius{instance="hl01:9100", chip="coretemp", sensor="temp1"}'
+        values: "85x6"
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: HostHighCpuTemperature
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: HostHighCpuTemperature
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: pve1:9100
+              chip: coretemp
+              sensor: temp1
+            exp_annotations:
+              summary: "High temperature on pve1:9100"
+              description: >-
+                Sensor coretemp/temp1 on pve1:9100 reports 90 degrees Celsius,
+                above the 85 degrees Celsius threshold, for 5 minutes.
+
+  - name: CoralTpuHighTemperature fires above 90 degrees for 5 minutes
+    interval: 1m
+    input_series:
+      - series: 'coral_pci_temperature_celsius{instance="hl01:9101"}'
+        values: "95x6"
+      - series: 'coral_pci_temperature_celsius{instance="hl02:9101"}'
+        values: "90x6"
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: CoralTpuHighTemperature
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: CoralTpuHighTemperature
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: hl01:9101
+            exp_annotations:
+              summary: "Coral TPU is overheating on hl01:9101"
+              description: >-
+                The Coral PCI module on hl01:9101 reports 95 degrees Celsius,
+                above the 90 degrees Celsius threshold, for 5 minutes.
+
+  - name: CoralTpuSensorFailure fires on a negative reading for 15 minutes
+    interval: 1m
+    input_series:
+      - series: 'coral_pci_temperature_celsius{instance="hl01:9101"}'
+        values: "-1x16"
+      - series: 'coral_pci_temperature_celsius{instance="hl02:9101"}'
+        values: "0x16"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: CoralTpuSensorFailure
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: CoralTpuSensorFailure
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9101
+            exp_annotations:
+              summary: "Coral TPU temperature sensor failure on hl01:9101"
+              description: >-
+                The Coral PCI module temperature on hl01:9101 reads -1: the
+                exporter reports -1 when the sysfs read fails, and a hung
+                device reports implausible negative values.

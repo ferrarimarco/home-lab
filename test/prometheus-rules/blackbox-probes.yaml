@@ -1,0 +1,70 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: BlackboxProbeFailed fires for ICMP and DNS probes failing for 10 minutes, not for HTTP
+    interval: 1m
+    input_series:
+      - series: 'probe_success{job="blackbox-ping", instance="pve1.example.test"}'
+        values: "0x11"
+      - series: 'probe_success{job="blackbox-dns-a", instance="hl01.example.test"}'
+        values: "0x11"
+      - series: 'probe_success{job="blackbox-ping", instance="hl01.example.test"}'
+        values: "1x11"
+      - series: 'probe_success{job="blackbox-http-2xx", instance="https://nas.example.test/health"}'
+        values: "0x11"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: BlackboxProbeFailed
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: BlackboxProbeFailed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: blackbox-dns-a
+              instance: hl01.example.test
+            exp_annotations:
+              summary: "Probe blackbox-dns-a fails for hl01.example.test"
+              description: >-
+                The blackbox-dns-a probe against hl01.example.test has been
+                failing for 10 minutes: the host does not answer pings, or a
+                DNS record does not resolve as declared.
+          - exp_labels:
+              severity: critical
+              job: blackbox-ping
+              instance: pve1.example.test
+            exp_annotations:
+              summary: "Probe blackbox-ping fails for pve1.example.test"
+              description: >-
+                The blackbox-ping probe against pve1.example.test has been
+                failing for 10 minutes: the host does not answer pings, or a
+                DNS record does not resolve as declared.
+
+  - name: BlackboxHttpProbeFailed fires for an HTTP probe failing for 10 minutes, not for ICMP
+    interval: 1m
+    input_series:
+      - series: 'probe_success{job="blackbox-http-2xx", instance="https://nas.example.test/health"}'
+        values: "0x11"
+      - series: 'probe_success{job="blackbox-ping", instance="pve1.example.test"}'
+        values: "0x11"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: BlackboxHttpProbeFailed
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: BlackboxHttpProbeFailed
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: blackbox-http-2xx
+              instance: https://nas.example.test/health
+            exp_annotations:
+              summary: "HTTP probe fails for https://nas.example.test/health"
+              description: >-
+                The HTTP probe against https://nas.example.test/health has
+                been failing for 10 minutes: the endpoint is unreachable or
+                does not answer with the expected status.

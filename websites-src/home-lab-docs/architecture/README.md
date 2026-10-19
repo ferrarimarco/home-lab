@@ -312,11 +312,6 @@ reliability risks first, then security exposure, then automation):
   in a self-hosted pipeline (Gitea or Forgejo) once one exists, so consumers
   fetch pinned artifacts instead of depending on a local build. Related: the
   automated template upload item ([NAS](#nas)).
-- Prometheus rule unit tests: run `promtool test rules` over the alerting rules
-  in CI, from the pinned Prometheus image, with a case per rule (the rules were
-  checked by hand against live series so far). Record the gotcha the ad hoc
-  tests of 2026-10 hit: a `for:` clause only fires in a test whose input
-  interval equals the rule group's evaluation interval.
 - Compose:
     - Move secrets to
       [Docker Compose secrets](https://docs.docker.com/compose/use-secrets/).
