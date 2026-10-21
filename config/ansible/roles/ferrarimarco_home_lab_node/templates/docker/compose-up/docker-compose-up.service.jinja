@@ -1,0 +1,24 @@
+[Unit]
+Description=Bring up the {{ docker_compose_up_unit_project_name }} Docker Compose project
+Requires=docker.service
+After=docker.service
+{% if docker_compose_up_unit_required_mount_paths | length > 0 %}
+# The project binds directories on these mounts: the unit runs after them and
+# never while one is absent, and every start of a mount unit (at boot, by the
+# mount retry timer, or by hand) runs it again, so a container whose start
+# failed on the missing bind source comes up once the share is back. Docker's
+# restart policy does not retry such a container: it only covers one that
+# started successfully and later stopped.
+RequiresMountsFor={{ docker_compose_up_unit_required_mount_paths | join(' ') }}
+{% endif %}
+
+[Service]
+Type=oneshot
+# The playbook's start task runs this unit, so a deploy exercises what the next
+# boot depends on. A oneshot has no start timeout by default; the bound covers
+# an image build.
+ExecStart=docker compose --file {{ docker_compose_up_unit_compose_file_path }} up --build --detach --remove-orphans
+TimeoutStartSec=30min
+
+[Install]
+WantedBy=multi-user.target{% for mount_unit in docker_compose_up_unit_required_mount_units %} {{ mount_unit }}{% endfor %}

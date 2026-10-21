@@ -1,6 +1,11 @@
 ---
 docker_compose_up_items: []
+# The Compose items of the stacks a run disables (register-custom-facts.yaml)
+docker_compose_disabled_items: []
 docker_compose_services_to_restart: []
+# One unit per Compose project (tasks/setup-docker-compose-units.yaml),
+# named <prefix>-<project>.service after the project's directory
+docker_compose_up_unit_name_prefix: docker-compose-up
 docker_system_prune_service_name: docker-system-prune
 docker_system_prune_timer_file_name: "{{ docker_system_prune_service_name }}.timer"
 docker_os_services:

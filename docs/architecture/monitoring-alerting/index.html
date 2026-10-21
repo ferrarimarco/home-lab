@@ -2299,7 +2299,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Unit Tests</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>promtool test rules</code> cases for all 48 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally, first CI run pending.</td>
+<td style="text-align: left;"><code>promtool test rules</code> cases for all 50 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally, first CI run pending.</td>
 </tr>
 </tbody>
 </table>
@@ -2590,6 +2590,20 @@ with operational experience.</p>
 <td style="text-align: left;"><code>node_mount_expected == 1 unless on (instance, mountpoint) node_filesystem_size_bytes</code></td>
 <td style="text-align: left;">10 min</td>
 <td style="text-align: left;">A mount the host's inventory declares (<code>disks_to_mount</code>, rendered into <code>expected-mounts.static.prom</code>) is not mounted. Mounts carry <code>nofail</code>, so a dead disk or a dropped share leaves a bare directory that every consumer keeps writing into on the root disk: the media share on hl01, a backup share.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MountRetryTimerMissing</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>count by (instance) (node_mount_expected) unless on (instance) node_systemd_timer_last_trigger_seconds{name="mount-retry.timer"}</code></td>
+<td style="text-align: left;">1 h</td>
+<td style="text-align: left;">A host that declares mounts exports no last trigger time for <code>mount-retry.timer</code>, the <code>setup_disks</code> role's timer that mounts a share again after a boot with its server down (<a href="../nas-lxc-container/">NAS LXC Container</a>, §10.3): the timer is not deployed or the systemd collector dropped it.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MountRetryTimerStale</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>time() - node_systemd_timer_last_trigger_seconds{name="mount-retry.timer"} &gt; 15 * 60</code></td>
+<td style="text-align: left;">5 min</td>
+<td style="text-align: left;">The timer runs every five minutes and has not run for 15; the last trigger reads zero between a boot and the first run, which the hold absorbs.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>SystemdUnitFailed</code></td>

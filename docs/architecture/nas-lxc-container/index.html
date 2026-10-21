@@ -2617,6 +2617,11 @@ Syncthing offsite transport depends on (§13).</p>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;"><code>startup</code> block on both NAS container resources (§10.3); not yet applied.</td>
 </tr>
+<tr>
+<td style="text-align: left;"><strong>Compose Project Units and Mount Retry</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">One <code>docker-compose-up-&lt;project&gt;.service</code> per Compose project, wanted by the mount units of its <code>required_mount_paths</code>, plus the host-wide <code>mount-retry.timer</code> of the <code>setup_disks</code> role (§10.3); applied on both hosts on 2026-10-21 (every project unit ran successfully through the playbook, the timer fires every five minutes, the rules are loaded on both backends); Molecule renders and enables the units and starts the timer; the hl01 reboot verification of the mount units' <code>failed</code> state and of the boot-time <code>up</code> is pending.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="1-goal">1. Goal</h2>
@@ -3137,7 +3142,7 @@ it):</p>
   router DHCP reservation for the container's pinned MAC, see
   <a href="#114-mac-address-pinning">§11.4</a>) keeps the source stable across leases.</li>
 </ul>
-<p>Three more pieces keep the containers that bind the shares honest about them,
+<p>Four more pieces keep the containers that bind the shares honest about them,
 after hl01 rebooted on 2026-10-18 with Docker starting its containers sixteen
 seconds before the shares mounted: every container bound the bare mount-point
 directory on the root disk and served "file not found" for the whole library
@@ -3175,9 +3180,38 @@ until the stack was restarted.</p>
   removes them: the
   <a href="../../guides/operations/network-shares/">network share clients guide</a> has the
   inspection and recovery recipes. A failed start is not retried by Docker's
-  restart policy, so a boot with the NAS unreachable leaves those containers
-  stopped until the share is mounted and the project brought up; automatic
-  recovery is a todo item of the <a href="../">index</a>.</li>
+  restart policy, which only covers a container that started successfully and
+  later stopped, so a boot with the NAS unreachable leaves those containers
+  stopped until the next piece runs.</li>
+<li><strong>Automatic recovery (project units and the mount retry timer).</strong> Docker
+  supervises the running containers through the Compose restart policies and
+  cannot see the mount; systemd owns the mount but does not retry a failed one,
+  and nothing accesses an absent share to trigger an automount. Two units bridge
+  the two supervisors without a second one supervising the containers. The node
+  role renders a oneshot <code>docker-compose-up-&lt;project&gt;.service</code> for every Compose
+  project, which runs the playbook's own
+  <code>docker compose up --build --detach --remove-orphans</code> and is wanted by
+  <code>multi-user.target</code>, so the host brings every project up at boot on its own
+  instead of depending on the control machine (dockerd's restart policies make
+  that a no-op for the containers it restored); the playbook's start task runs
+  the same unit, so every deploy exercises what the next boot depends on. A
+  project that binds a share declares its mount point in <code>required_mount_paths</code>
+  on its Compose item, which adds <code>RequiresMountsFor=</code> and makes the unit wanted
+  by the mount unit too: every start of the mount, at boot, by the retry, or by
+  hand, runs the project again, and the unit never runs while the mount is
+  absent. The retry is the <code>setup_disks</code> role's host-wide <code>mount-retry.timer</code>,
+  which every five minutes starts the mount units in the <code>failed</code> state without
+  waiting for them; a mount that fails again keeps <code>ExpectedMountMissing</code>
+  firing, a mount that succeeds pulls in the project units. A project unit that
+  fails on its own (<code>up</code> exiting non-zero with the mount present) raises
+  <code>SystemdUnitFailed</code>, and a missing or stopped timer raises
+  <code>MountRetryTimerMissing</code> or <code>MountRetryTimerStale</code>
+  (<a href="../monitoring-alerting/">Monitoring and alerting</a>). The retry cannot live
+  in the mount itself: <code>mount.cifs</code> has no initial-mount retry (the kernel's
+  reconnect only applies to a mounted share), NFS's background retry would mount
+  without a start job and so would not run the project units, and
+  <code>x-systemd.automount</code> retries on access only. A project stopped by hand comes
+  back at the next boot or mount start unless its unit is disabled first.</li>
 <li><strong>Guest startup order (Terraform).</strong> Each NAS container resource declares
   <code>startup { order = 1, up_delay = 15 }</code>: Proxmox starts the guests of a node
   without an order after the ordered ones, so the clients need no setting, and

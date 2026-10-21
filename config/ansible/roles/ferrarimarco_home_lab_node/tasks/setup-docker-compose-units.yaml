@@ -1,0 +1,128 @@
+---
+# One oneshot unit per Docker Compose project, named after the project's
+# directory (Compose's default project name), so the host brings its projects
+# up at boot on its own: dockerd's restart policies only restore the
+# containers that had started successfully, and nothing else on the host ran
+# `docker compose up` (the playbook, from the control machine, was the only
+# caller). The playbook's start task runs the same unit. An item that binds
+# network shares declares their mount points in required_mount_paths, and its
+# unit is also wanted by those mount units.
+- name: Escape the required mount points into mount unit names
+  ansible.builtin.command:
+    argv: "{{ ['systemd-escape', '--path', '--suffix=mount'] + item.required_mount_paths }}"
+  changed_when: false
+  check_mode: false
+  register: docker_compose_up_required_mount_units
+  when: item.required_mount_paths | default([]) | length > 0
+  loop: "{{ docker_compose_up_items | unique }}"
+  loop_control:
+    label: "{{ item.compose_file_path }}"
+
+- name: Render the Docker Compose project units
+  register: docker_compose_up_unit_render
+  ansible.builtin.template:
+    src: "docker/compose-up/{{ docker_compose_up_unit_name_prefix }}.service.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ docker_compose_up_unit_name_prefix }}-{{ item.compose_file_path | dirname | basename }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    docker_compose_up_unit_compose_file_path: "{{ item.compose_file_path }}"
+    docker_compose_up_unit_project_name: "{{ item.compose_file_path | dirname | basename }}"
+    docker_compose_up_unit_required_mount_paths: "{{ item.required_mount_paths | default([]) }}"
+    # The escape task registers a result per item; a skipped item has no output
+    docker_compose_up_unit_required_mount_units: "{{ docker_compose_up_required_mount_units.results[docker_compose_up_item_index].stdout_lines | default([]) }}"
+  loop: "{{ docker_compose_up_items | unique }}"
+  loop_control:
+    index_var: docker_compose_up_item_index
+    label: "{{ item.compose_file_path }}"
+
+- name: Disable the units of the Docker Compose projects of the disabled stacks
+  ansible.builtin.systemd:
+    name: "{{ docker_compose_up_unit_name_prefix }}-{{ item.compose_file_path | dirname | basename }}.service"
+    enabled: false
+  register: docker_compose_up_unit_disable_disabled
+  # The unit never existed on a host where the stack was never enabled
+  failed_when:
+    - docker_compose_up_unit_disable_disabled.failed == true
+    - '"Could not find the requested service" not in docker_compose_up_unit_disable_disabled.msg'
+  loop: "{{ docker_compose_disabled_items | unique }}"
+  loop_control:
+    label: "{{ item.compose_file_path }}"
+
+- name: Remove the units of the Docker Compose projects of the disabled stacks
+  ansible.builtin.file:
+    path: "{{ systemd_system_services_configuration_directory }}/{{ docker_compose_up_unit_name_prefix }}-{{ item.compose_file_path | dirname | basename }}.service"
+    state: absent
+  loop: "{{ docker_compose_disabled_items | unique }}"
+  loop_control:
+    label: "{{ item.compose_file_path }}"
+
+- name: Find the Docker Compose project units
+  ansible.builtin.find:
+    paths: "{{ systemd_system_services_configuration_directory }}"
+    patterns: "{{ docker_compose_up_unit_name_prefix }}-*.service"
+  register: docker_compose_up_unit_files
+
+- name: List the unit files of the configured Docker Compose projects
+  ansible.builtin.set_fact:
+    docker_compose_up_unit_expected_files: >-
+      {{ docker_compose_up_items | unique | map(attribute='compose_file_path')
+      | map('dirname') | map('basename')
+      | map('regex_replace', '^', docker_compose_up_unit_file_prefix)
+      | map('regex_replace', '$', '.service') }}
+  vars:
+    docker_compose_up_unit_file_prefix: "{{ systemd_system_services_configuration_directory }}/{{ docker_compose_up_unit_name_prefix }}-"
+
+# Only a full run knows every configured project: a tag-scoped run registers
+# the items of the selected stacks only, and would remove the other units.
+- name: Disable the units of the Docker Compose projects no longer configured
+  ansible.builtin.systemd:
+    name: "{{ item | basename }}"
+    enabled: false
+  when: '"all" in ansible_run_tags'
+  loop: "{{ docker_compose_up_unit_files.files | map(attribute='path') | difference(docker_compose_up_unit_expected_files) }}"
+
+- name: Remove the units of the Docker Compose projects no longer configured
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  when: '"all" in ansible_run_tags'
+  loop: "{{ docker_compose_up_unit_files.files | map(attribute='path') | difference(docker_compose_up_unit_expected_files) }}"
+
+- name: Reload the systemd daemon after rendering the Docker Compose project units
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+# The systemd module leaves an enabled unit alone, so a changed [Install]
+# section (a mount path added to required_mount_paths) would not get its
+# symlink: re-link the units whose file changed.
+- name: Re-link the changed Docker Compose project units
+  ansible.builtin.command:
+    argv:
+      - systemctl
+      - reenable
+      - "{{ docker_compose_up_unit_name_prefix }}-{{ item.compose_file_path | dirname | basename }}.service"
+  changed_when: true
+  when:
+    - docker_compose_up_unit_render.results[docker_compose_up_item_index].changed
+    - item.start_containerized_services
+  loop: "{{ docker_compose_up_items | unique }}"
+  loop_control:
+    index_var: docker_compose_up_item_index
+    label: "{{ item.compose_file_path }}"
+
+# A project whose services are not to be started (start_<stack>: false) keeps
+# its unit for the playbook's own use but is not brought up at boot.
+- name: Enable the Docker Compose project units
+  ansible.builtin.systemd:
+    name: "{{ docker_compose_up_unit_name_prefix }}-{{ item.compose_file_path | dirname | basename }}.service"
+    enabled: "{{ item.start_containerized_services }}"
+  register: docker_compose_up_unit_enable
+  # In check mode the unit of a first deployment is only predicted
+  failed_when:
+    - docker_compose_up_unit_enable.failed == true
+    - not (ansible_check_mode and "Could not find the requested service" in docker_compose_up_unit_enable.msg)
+  loop: "{{ docker_compose_up_items | unique }}"
+  loop_control:
+    label: "{{ item.compose_file_path }}"

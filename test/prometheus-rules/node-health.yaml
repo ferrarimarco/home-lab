@@ -296,6 +296,69 @@ tests:
                 bare directory on the root disk (a media share, a backup
                 share).
 
+  - name: MountRetryTimerMissing fires when a host with declared mounts exports no mount retry timer for an hour
+    interval: 1m
+    input_series:
+      - series: 'node_mount_expected{instance="hl01:9100", mountpoint="/media/backups", fstype="cifs"}'
+        values: "1x61"
+      - series: 'node_mount_expected{instance="hl01:9100", mountpoint="/media/media", fstype="cifs"}'
+        values: "1x61"
+      - series: 'node_mount_expected{instance="raspberrypi2:9100", mountpoint="/media/backups", fstype="cifs"}'
+        values: "1x61"
+      - series: 'node_systemd_timer_last_trigger_seconds{instance="raspberrypi2:9100", name="mount-retry.timer"}'
+        values: "0+60x61"
+      # A host without declared mounts needs no timer.
+      - series: 'node_systemd_timer_last_trigger_seconds{instance="hl02:9100", name="apt-daily.timer"}'
+        values: "0+60x61"
+    alert_rule_test:
+      - eval_time: 59m
+        alertname: MountRetryTimerMissing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: MountRetryTimerMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+            exp_annotations:
+              summary: "No mount retry timer on hl01:9100"
+              description: >-
+                hl01:9100 declares mounts in its inventory but exports no
+                last trigger time for mount-retry.timer: the setup-disks
+                playbook has not deployed the timer, or the systemd collector
+                dropped it. A share that fails to mount at boot stays
+                unmounted, and the containers that bind it stay stopped,
+                until someone starts it by hand.
+
+  - name: MountRetryTimerStale fires when the mount retry timer has not run for 15 minutes
+    interval: 1m
+    input_series:
+      # Last trigger stuck at the test's origin: stale from 15m on.
+      - series: 'node_systemd_timer_last_trigger_seconds{instance="hl01:9100", name="mount-retry.timer"}'
+        values: "0x30"
+      # Last trigger following the clock: never stale.
+      - series: 'node_systemd_timer_last_trigger_seconds{instance="raspberrypi2:9100", name="mount-retry.timer"}'
+        values: "0+60x30"
+    alert_rule_test:
+      # Over 15 minutes from 16m, held for 5 minutes.
+      - eval_time: 20m
+        alertname: MountRetryTimerStale
+        exp_alerts: []
+      - eval_time: 21m
+        alertname: MountRetryTimerStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: mount-retry.timer
+            exp_annotations:
+              summary: "Mount retry timer stale on hl01:9100"
+              description: >-
+                mount-retry.timer on hl01:9100 has not run for more than 15
+                minutes: the timer is stopped, or systemd is not running its
+                jobs. A share that fails to mount at boot is not retried until
+                it runs again.
+
   - name: SystemdUnitFailed fires for a unit failed for 15 minutes
     interval: 1m
     input_series:

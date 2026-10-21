@@ -97,6 +97,44 @@
   changed_when: true
   when: setup_disks_mount_devices.changed
 
+# systemd does not retry a mount that failed (a network share whose server
+# was down at boot stays unmounted, and the containers that bind it stay
+# stopped), so a host-wide timer starts the failed mount units again every
+# five minutes. Installed wherever the inventory declares mounts.
+- name: Install the mount retry units
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ setup_disks_systemd_units_directory_path }}/{{ item }}"
+    group: root
+    mode: "0644"
+    owner: root
+  become: true
+  register: setup_disks_mount_retry_units
+  loop:
+    - mount-retry.service
+    - mount-retry.timer
+  when: disks_to_mount | default([]) | length > 0
+
+- name: Reload the systemd daemon after installing the mount retry units
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  changed_when: true
+  when: setup_disks_mount_retry_units.changed
+
+- name: Enable and start the mount retry timer
+  ansible.builtin.systemd:
+    name: mount-retry.timer
+    enabled: true
+    state: started
+  become: true
+  register: setup_disks_mount_retry_timer
+  # In check mode the units of a first deployment are only predicted
+  failed_when:
+    - setup_disks_mount_retry_timer.failed == true
+    - not (ansible_check_mode and "Could not find the requested service" in setup_disks_mount_retry_timer.msg)
+  when: disks_to_mount | default([]) | length > 0
+
 - name: Converge the immutable attribute of the protected mount points
   ansible.builtin.include_tasks:
     file: protect-mount-points.yaml

@@ -193,6 +193,11 @@
   ansible.builtin.import_tasks: register-home-assistant-facts.yaml
   when: configure_home_assistant and ("home-assistant" in ansible_run_tags or "all" in ansible_run_tags)
 
+- name: Import Docker Compose project unit tasks
+  ansible.builtin.import_tasks: setup-docker-compose-units.yaml
+  become: true
+  when: configure_docker
+
 - name: Run system-wide configuration handlers
   ansible.builtin.import_tasks: invoke-system-wide-configuration-handlers.yaml
   become: true

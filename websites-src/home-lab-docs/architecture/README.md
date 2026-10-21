@@ -267,29 +267,11 @@ reliability risks first, then security exposure, then automation):
   and a reproducible trigger for the stall, to be designed with the UAS quirk
   ([Host configuration](#host-configuration)). Until then a stall means a power
   cycle.
-- **Automatic recovery of share-bound containers after a boot with the NAS
-  unreachable (next step once the ordering and the guard pass their reboot
-  verification, 2026-10-19)**: the mount ordering and the mount-point guard
-  ([NAS LXC Container](./nas-lxc-container.md), §10.3) make such a boot fail
-  loudly, but systemd does not retry a failed fstab mount and Docker does not
-  retry a container whose start failed on a missing bind source, so the share
-  stays unmounted and the containers stopped until the
-  [network share clients guide](../guides/operations/network-shares.md) recipe
-  is run by hand. The NAS guest startup order makes the case rare (it needs the
-  NAS container itself to fail at boot). Design reviewed, to implement next:
-  each Compose item declares the mount paths it needs (`required_mount_paths`),
-  a generic task renders a per-project oneshot service with `RequiresMountsFor=`
-  on them and `docker compose up -d` as its command (the restic backup service
-  pattern), and one host-wide timer starts those services every few minutes;
-  `up -d` is idempotent, so the timer is safe to leave running. Rejected:
-  `x-systemd.automount`, which retries the mount on access but leaves the
-  stopped containers stopped (nothing accesses the path anymore), needs explicit
-  mount-unit tasks in the disks role, a filesystem-type check in the restic
-  guard, and changes what `ExpectedMountMissing` means. Also unmeasured: how
-  long a CIFS mount attempt takes to fail while the NAS is down, which bounds
-  the Docker start delay. Depends on: the reboot verification of the mount
-  ordering and the mount-point guard on hl01
-  ([NAS LXC Container](./nas-lxc-container.md), §10.3).
+- Measure how long a CIFS mount attempt takes to fail while the NAS is down (a
+  server that drops packets rather than refusing): it bounds the Docker start
+  delay behind the mount ordering and the cost of each run of the mount retry
+  timer ([NAS LXC Container](./nas-lxc-container.md), §10.3), and decides
+  whether the entries need `x-systemd.mount-timeout`.
 
 ### Security
 
@@ -788,6 +770,22 @@ reliability risks first, then security exposure, then automation):
 
 ### Smart home
 
+- **Frigate 0.18 follow-ups (the image bump from 0.17.2 to 0.18.0 reached hl01
+  on 2026-10-21)**: align the configuration template and the Compose template
+  with the release. The config template says `version: 0.17-0`, and Frigate
+  rewrote the file to `0.18-0` on first start, so every node playbook run
+  re-renders the file and restarts Frigate until the template is bumped (the
+  0.17.1 upgrade was handled the same way): read the migrated file on hl01, bump
+  the version, and carry over whatever else the migrator changed (the
+  `snapshots.quality` default moved from 70 to 60). In the Compose template,
+  drop `CAP_PERFMON`, and in the node role the `perf_event_paranoid` sysctl,
+  which 0.18 no longer needs for Intel GPU statistics; those statistics read
+  per-client DRM counters and need kernel 6.5 or newer, so they stay empty on
+  hl01's Debian 12 kernel 6.1 (Frigate logs the warning at every start) until
+  the VM runs a newer kernel (a backports kernel or the NixOS re-image). Review
+  the new defaults worth adopting: the Settings UI and profiles, the Media Sync
+  pane that replaced `sync_recordings`, and HTTP/2 on port 8971 for the UI. The
+  version bump comes first, since it stops the restart on every run.
 - Frigate: configure the
   [live view to use the high resolution stream](https://docs.frigate.video/configuration/live#setting-stream-for-live-ui);
   use

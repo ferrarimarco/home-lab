@@ -2240,29 +2240,11 @@ reliability risks first, then security exposure, then automation):</p>
   and a reproducible trigger for the stall, to be designed with the UAS quirk
   (<a href="#host-configuration">Host configuration</a>). Until then a stall means a power
   cycle.</li>
-<li><strong>Automatic recovery of share-bound containers after a boot with the NAS
-  unreachable (next step once the ordering and the guard pass their reboot
-  verification, 2026-10-19)</strong>: the mount ordering and the mount-point guard
-  (<a href="nas-lxc-container/">NAS LXC Container</a>, §10.3) make such a boot fail
-  loudly, but systemd does not retry a failed fstab mount and Docker does not
-  retry a container whose start failed on a missing bind source, so the share
-  stays unmounted and the containers stopped until the
-  <a href="../guides/operations/network-shares/">network share clients guide</a> recipe
-  is run by hand. The NAS guest startup order makes the case rare (it needs the
-  NAS container itself to fail at boot). Design reviewed, to implement next:
-  each Compose item declares the mount paths it needs (<code>required_mount_paths</code>),
-  a generic task renders a per-project oneshot service with <code>RequiresMountsFor=</code>
-  on them and <code>docker compose up -d</code> as its command (the restic backup service
-  pattern), and one host-wide timer starts those services every few minutes;
-  <code>up -d</code> is idempotent, so the timer is safe to leave running. Rejected:
-  <code>x-systemd.automount</code>, which retries the mount on access but leaves the
-  stopped containers stopped (nothing accesses the path anymore), needs explicit
-  mount-unit tasks in the disks role, a filesystem-type check in the restic
-  guard, and changes what <code>ExpectedMountMissing</code> means. Also unmeasured: how
-  long a CIFS mount attempt takes to fail while the NAS is down, which bounds
-  the Docker start delay. Depends on: the reboot verification of the mount
-  ordering and the mount-point guard on hl01
-  (<a href="nas-lxc-container/">NAS LXC Container</a>, §10.3).</li>
+<li>Measure how long a CIFS mount attempt takes to fail while the NAS is down (a
+  server that drops packets rather than refusing): it bounds the Docker start
+  delay behind the mount ordering and the cost of each run of the mount retry
+  timer (<a href="nas-lxc-container/">NAS LXC Container</a>, §10.3), and decides
+  whether the entries need <code>x-systemd.mount-timeout</code>.</li>
 </ul>
 <h3 id="security">Security</h3>
 <ul>
@@ -2791,6 +2773,22 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="smart-home">Smart home</h3>
 <ul>
+<li><strong>Frigate 0.18 follow-ups (the image bump from 0.17.2 to 0.18.0 reached hl01
+  on 2026-10-21)</strong>: align the configuration template and the Compose template
+  with the release. The config template says <code>version: 0.17-0</code>, and Frigate
+  rewrote the file to <code>0.18-0</code> on first start, so every node playbook run
+  re-renders the file and restarts Frigate until the template is bumped (the
+  0.17.1 upgrade was handled the same way): read the migrated file on hl01, bump
+  the version, and carry over whatever else the migrator changed (the
+  <code>snapshots.quality</code> default moved from 70 to 60). In the Compose template,
+  drop <code>CAP_PERFMON</code>, and in the node role the <code>perf_event_paranoid</code> sysctl,
+  which 0.18 no longer needs for Intel GPU statistics; those statistics read
+  per-client DRM counters and need kernel 6.5 or newer, so they stay empty on
+  hl01's Debian 12 kernel 6.1 (Frigate logs the warning at every start) until
+  the VM runs a newer kernel (a backports kernel or the NixOS re-image). Review
+  the new defaults worth adopting: the Settings UI and profiles, the Media Sync
+  pane that replaced <code>sync_recordings</code>, and HTTP/2 on port 8971 for the UI. The
+  version bump comes first, since it stops the restart on every run.</li>
 <li>Frigate: configure the
   <a href="https://docs.frigate.video/configuration/live#setting-stream-for-live-ui">live view to use the high resolution stream</a>;
   use

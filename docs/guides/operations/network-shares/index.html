@@ -1418,6 +1418,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#park-a-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Park a project
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inspect-the-bare-mount-point" class="md-nav__link">
     <span class="md-ellipsis">
       Inspect the bare mount point
@@ -1673,6 +1682,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#park-a-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Park a project
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inspect-the-bare-mount-point" class="md-nav__link">
     <span class="md-ellipsis">
       Inspect the bare mount point
@@ -1746,35 +1764,43 @@ the share stay stopped: Docker refuses to create a bind source under the
 immutable mount point, and a restart policy only retries a container that
 exited, not one that failed to start. Docker's <code>compose up</code> brings up the
 services of the project that do not bind the share and leaves the others in the
-<code>Created</code> state. Nothing retries on its own (automatic recovery is a todo item
-of the <a href="../../../architecture/">architecture index</a>).</p>
-<p>Once the NAS is back:</p>
-<ol>
-<li>
-<p>Mount the share (the unit name is the escaped mount path; <code>systemctl</code> also
-   accepts the path itself):</p>
+<code>Created</code> state.</p>
+<p>The recovery is automatic: <code>mount-retry.timer</code> starts the failed mount units
+every five minutes, and a mount that succeeds starts the project units wanted by
+it (<code>docker-compose-up-media-stack.service</code> and
+<code>docker-compose-up-restic.service</code> on hl01), which run <code>docker compose up</code> for
+their project. Expect the containers back within five minutes of the NAS
+returning, and the alert to resolve. To check the retry and the recovery:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>list-timers<span class="w"> </span>mount-retry.timer
+systemctl<span class="w"> </span>list-units<span class="w"> </span>--type<span class="o">=</span>mount<span class="w"> </span>--state<span class="o">=</span>failed
+journalctl<span class="w"> </span>-u<span class="w"> </span>docker-compose-up-media-stack.service<span class="w"> </span>-b
+</code></pre></div>
+<p>To recover at once, start the mount units by hand (the unit name is the escaped
+mount path; <code>systemctl</code> also accepts the path itself), which also runs the
+project units:</p>
 <div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>/media/data0<span class="w"> </span>/media/backup-0
 findmnt<span class="w"> </span>-t<span class="w"> </span>cifs<span class="w"> </span>-o<span class="w"> </span>TARGET,SOURCE,FSTYPE
 </code></pre></div>
-</li>
-<li>
-<p>Bring the projects up. <code>up -d</code> starts the stopped services and leaves the
-   running ones alone:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>/etc/ferrarimarco-home-lab/media-stack/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
-docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>/etc/ferrarimarco-home-lab/restic/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
-</code></pre></div>
-<p>The restic backup job needs no action: its timer unit requires the mount and
-runs at its next schedule.</p>
-</li>
-<li>
-<p>Repeat the container check above and confirm the alert resolved.</p>
-</li>
-</ol>
+<p>Then repeat the container check above. The restic backup job needs no action:
+its timer unit requires the mount and runs at its next schedule.</p>
 <p>A NAS restart while the clients are up needs none of this: the kernel's CIFS
 client keeps the mount and reconnects when the server returns (both shares
 stayed mounted on hl01 through the NAS container reboots of 2026-10-03 and
 2026-10-09, with no alert). I/O in flight gets an error and the applications
 retry on their own.</p>
+<h2 id="park-a-project">Park a project</h2>
+<p>Every Compose project has a <code>docker-compose-up-&lt;project&gt;.service</code> unit, wanted
+by <code>multi-user.target</code> and, for a project that binds a share, by the share's
+mount unit, so a project stopped by hand (<code>docker compose stop</code>) comes back at
+the next boot or mount start. To keep it down, disable its unit first, and
+enable it again afterwards (the node playbook enables it on every run):</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span>disable<span class="w"> </span>docker-compose-up-media-stack.service
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>/etc/ferrarimarco-home-lab/media-stack/compose.yaml<span class="w"> </span>stop
+</code></pre></div>
+<p>Starting the unit by hand brings the project up the way the playbook does:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>docker-compose-up-media-stack.service
+journalctl<span class="w"> </span>-u<span class="w"> </span>docker-compose-up-media-stack.service<span class="w"> </span>--output<span class="w"> </span>cat<span class="w"> </span>--no-pager
+</code></pre></div>
 <h2 id="inspect-the-bare-mount-point">Inspect the bare mount point</h2>
 <p>The guard refuses to run while the bare directory holds entries, and names them.
 To look at the directory while the share is mounted, bind its parent in a

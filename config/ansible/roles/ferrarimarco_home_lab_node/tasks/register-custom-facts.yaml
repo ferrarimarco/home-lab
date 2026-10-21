@@ -41,6 +41,16 @@
     - fact_configure_dns_records
     - fact_enable_custom_fact
 
+# The project units (setup-docker-compose-units.yaml) of a disabled stack are
+# disabled and removed in any run that selects the stack, since a unit left
+# enabled would run docker compose against a removed file at every boot.
+- name: Register the Compose projects to tear down if stack is disabled for {{ fact_category }}
+  ansible.builtin.set_fact:
+    docker_compose_disabled_items: "{{ docker_compose_disabled_items + fact_docker_compose_up_items }}"
+  when:
+    - not fact_enable_custom_fact
+    - fact_category in ansible_run_tags or "all" in ansible_run_tags
+
 # We added a 'state' attribute set to 'absent' if the stack is disabled so those files will
 # eventually get deleted
 - name: Register cleanup facts if stack is disabled for {{ fact_category }}

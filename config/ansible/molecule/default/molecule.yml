@@ -56,9 +56,11 @@ provisioner:
         configure_zigbee2mqtt: true
         # A network mount entry with state present (fstab line only, no mount
         # attempt), so the setup_disks role exercises the Docker ordering
-        # option on a path nothing else uses. The mount-point guard
-        # (protect_mount_point) stays out: chattr is refused on the test
-        # container's overlay filesystem.
+        # option on a path nothing else uses, and the node role the mount
+        # requirement of the media stack's project unit (data_disk_mount_path
+        # below). The mount-point guard (protect_mount_point) stays out: chattr
+        # is refused on the test container's overlay filesystem.
+        data_disk_mount_path: /media/test-share
         disks_to_mount:
           - fstype: cifs
             opts: "guest,_netdev,nofail,x-systemd.before=docker.service"

@@ -1776,6 +1776,25 @@ set of generic tasks applies that data:</p>
   rules live in a directory mounted as a directory. Grafana's dashboard
   definitions carry no hook at all: its provisioner re-reads them on its
   interval.</li>
+<li><strong>Every Compose project has a oneshot unit, and the playbook starts it through
+  that unit.</strong> <code>tasks/setup-docker-compose-units.yaml</code> renders
+  <code>docker-compose-up-&lt;project&gt;.service</code> for each item of
+  <code>docker_compose_up_items</code> (the project name is the compose file's directory,
+  Compose's default), wanted by <code>multi-user.target</code> so the host brings its
+  projects up at boot without the control machine, and enables it when the
+  item's <code>start_containerized_services</code> is true. The start task runs
+  <code>systemctl start</code> on the unit and reads the Compose output from the journal of
+  that invocation, so a deploy exercises the unit the next boot depends on; the
+  restart, reload, stop, and removal tasks keep calling Compose directly, since
+  they are not "bring the project up". An item whose containers bind a network
+  share lists its mount points in <code>required_mount_paths</code>: the unit then carries
+  <code>RequiresMountsFor=</code> and is wanted by the mount units too, so every start of
+  the mount runs the project again (the
+  <a href="../../../architecture/nas-lxc-container/">NAS LXC container page</a>, SMB clients
+  section, has the design). The units of a stack a run disables are disabled and
+  removed in that run, whatever its tag scope; units of projects that no longer
+  exist in the role are swept by full runs only, since a tag-scoped run
+  registers the selected stacks' items alone and would remove the rest.</li>
 <li><strong>Templates for files the workload rewrites are seeds.</strong> A file the
   application edits at runtime (qBittorrent's settings, the Zigbee2MQTT secret,
   the Wi-Fi credentials) is rendered with <code>force: false</code>: it seeds a fresh host

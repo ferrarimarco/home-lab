@@ -310,8 +310,15 @@ architectural patterns:
   with the host's and restart the Compose project after the share is mounted, as
   the
   [network share clients guide](./websites-src/home-lab-docs/guides/operations/network-shares.md)
-  describes; a boot with the NAS unreachable leaves those containers stopped by
-  design, and the same guide has the recovery steps.
+  describes; after a boot with the NAS unreachable the mount retry timer and the
+  project units bring them back within minutes of the share returning, and the
+  same guide has the checks and the manual steps.
+- **Every Compose project has a `docker-compose-up-<project>.service` unit**
+  that runs `docker compose up` for it at boot and, for a share-bound project,
+  whenever its mount starts; the playbook starts projects through it. A project
+  stopped by hand comes back unless its unit is disabled first, as the
+  [network share clients guide](./websites-src/home-lab-docs/guides/operations/network-shares.md)
+  describes.
 - SSH conventions: connect using each host's fully qualified domain name, as
   listed in the Ansible inventory — short hostnames do not resolve from the
   control machine. Connect as `root` to the Proxmox nodes, as `debian` to the

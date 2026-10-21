@@ -48,15 +48,20 @@
     - molecule-notest
     - always
 
+# The project unit (setup-docker-compose-units.yaml) runs the up command, so a
+# deploy exercises the unit the next boot depends on. A finished oneshot keeps
+# its invocation ID, and the journal holds the Compose output under it, which
+# the change detection reads; the sync makes journald write it out first.
 - name: Start Docker Compose services
   changed_when: '"Started" in docker_compose_up_result.stdout or "Started" in docker_compose_up_result.stderr'
-  ansible.builtin.command: >
-    docker compose \
-    --file {{ item.compose_file_path }} \
-    up \
-    --build \
-    --detach \
-    --remove-orphans
+  ansible.builtin.shell: >-
+    systemctl start {{ docker_compose_up_unit_name }};
+    rc=$?;
+    journalctl --sync;
+    journalctl _SYSTEMD_INVOCATION_ID="$(systemctl show --property InvocationID --value {{ docker_compose_up_unit_name }})" --output cat --no-pager;
+    exit $rc
+  vars:
+    docker_compose_up_unit_name: "{{ docker_compose_up_unit_name_prefix }}-{{ item.compose_file_path | dirname | basename }}.service"
   register: docker_compose_up_result
   when:
     - configure_docker

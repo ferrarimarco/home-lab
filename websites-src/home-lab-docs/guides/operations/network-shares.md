@@ -65,37 +65,58 @@ the share stay stopped: Docker refuses to create a bind source under the
 immutable mount point, and a restart policy only retries a container that
 exited, not one that failed to start. Docker's `compose up` brings up the
 services of the project that do not bind the share and leaves the others in the
-`Created` state. Nothing retries on its own (automatic recovery is a todo item
-of the [architecture index](../../architecture/README.md)).
+`Created` state.
 
-Once the NAS is back:
+The recovery is automatic: `mount-retry.timer` starts the failed mount units
+every five minutes, and a mount that succeeds starts the project units wanted by
+it (`docker-compose-up-media-stack.service` and
+`docker-compose-up-restic.service` on hl01), which run `docker compose up` for
+their project. Expect the containers back within five minutes of the NAS
+returning, and the alert to resolve. To check the retry and the recovery:
 
-1. Mount the share (the unit name is the escaped mount path; `systemctl` also
-   accepts the path itself):
+```shell
+systemctl list-timers mount-retry.timer
+systemctl list-units --type=mount --state=failed
+journalctl -u docker-compose-up-media-stack.service -b
+```
 
-    ```shell
-    sudo systemctl start /media/data0 /media/backup-0
-    findmnt -t cifs -o TARGET,SOURCE,FSTYPE
-    ```
+To recover at once, start the mount units by hand (the unit name is the escaped
+mount path; `systemctl` also accepts the path itself), which also runs the
+project units:
 
-2. Bring the projects up. `up -d` starts the stopped services and leaves the
-   running ones alone:
+```shell
+sudo systemctl start /media/data0 /media/backup-0
+findmnt -t cifs -o TARGET,SOURCE,FSTYPE
+```
 
-    ```shell
-    docker compose -f /etc/ferrarimarco-home-lab/media-stack/compose.yaml up -d
-    docker compose -f /etc/ferrarimarco-home-lab/restic/compose.yaml up -d
-    ```
-
-    The restic backup job needs no action: its timer unit requires the mount and
-    runs at its next schedule.
-
-3. Repeat the container check above and confirm the alert resolved.
+Then repeat the container check above. The restic backup job needs no action:
+its timer unit requires the mount and runs at its next schedule.
 
 A NAS restart while the clients are up needs none of this: the kernel's CIFS
 client keeps the mount and reconnects when the server returns (both shares
 stayed mounted on hl01 through the NAS container reboots of 2026-10-03 and
 2026-10-09, with no alert). I/O in flight gets an error and the applications
 retry on their own.
+
+## Park a project
+
+Every Compose project has a `docker-compose-up-<project>.service` unit, wanted
+by `multi-user.target` and, for a project that binds a share, by the share's
+mount unit, so a project stopped by hand (`docker compose stop`) comes back at
+the next boot or mount start. To keep it down, disable its unit first, and
+enable it again afterwards (the node playbook enables it on every run):
+
+```shell
+sudo systemctl disable docker-compose-up-media-stack.service
+docker compose -f /etc/ferrarimarco-home-lab/media-stack/compose.yaml stop
+```
+
+Starting the unit by hand brings the project up the way the playbook does:
+
+```shell
+sudo systemctl start docker-compose-up-media-stack.service
+journalctl -u docker-compose-up-media-stack.service --output cat --no-pager
+```
 
 ## Inspect the bare mount point
 

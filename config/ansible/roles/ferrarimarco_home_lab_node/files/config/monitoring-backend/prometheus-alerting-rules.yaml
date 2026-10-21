@@ -154,6 +154,38 @@ groups:
             mounted there. Mounts carry nofail, so the host booted without it
             and every consumer now writes into a bare directory on the root
             disk (a media share, a backup share).
+      # The setup-disks role installs mount-retry.timer on every host that
+      # declares mounts; the timer is what mounts a share again after a boot
+      # with its server down, and the systemd collector exports its last
+      # trigger time.
+      - alert: MountRetryTimerMissing
+        expr: count by (instance) (node_mount_expected) unless on (instance) node_systemd_timer_last_trigger_seconds{name="mount-retry.timer"}
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "No mount retry timer on {{ $labels.instance }}"
+          description: >-
+            {{ $labels.instance }} declares mounts in its inventory but
+            exports no last trigger time for mount-retry.timer: the
+            setup-disks playbook has not deployed the timer, or the systemd
+            collector dropped it. A share that fails to mount at boot stays
+            unmounted, and the containers that bind it stay stopped, until
+            someone starts it by hand.
+      - alert: MountRetryTimerStale
+        # The timer runs every five minutes; the last trigger time reads zero
+        # between a boot and the first run.
+        expr: time() - node_systemd_timer_last_trigger_seconds{name="mount-retry.timer"} > 15 * 60
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Mount retry timer stale on {{ $labels.instance }}"
+          description: >-
+            mount-retry.timer on {{ $labels.instance }} has not run for more
+            than 15 minutes: the timer is stopped, or systemd is not running
+            its jobs. A share that fails to mount at boot is not retried
+            until it runs again.
       - alert: SystemdUnitFailed
         expr: node_systemd_unit_state{state="failed"} == 1
         for: 15m

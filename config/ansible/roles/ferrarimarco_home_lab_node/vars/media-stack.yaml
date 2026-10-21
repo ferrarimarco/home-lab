@@ -96,6 +96,10 @@ media_stack_docker_compose_up_items:
   - compose_file_path: "{{ media_stack_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
     enable_containerized_services: "{{ configure_media_stack }}"
     pull_container_images: "{{ configure_media_stack }}"
+    # The library and the download directory live on the data share: the
+    # project unit requires its mount and runs again whenever it is mounted
+    required_mount_paths:
+      - "{{ data_disk_mount_path }}"
     start_containerized_services: "{{ start_media_stack | default(configure_media_stack) }}"
 
 media_stack_templates_to_render:

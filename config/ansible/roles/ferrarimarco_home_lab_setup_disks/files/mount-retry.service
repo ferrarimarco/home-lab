@@ -1,0 +1,13 @@
+[Unit]
+Description=Retry the failed mount units
+# systemd does not retry a mount that failed at boot (a network share whose
+# server was down), and nothing accesses an absent share to trigger one, so the
+# timer runs this unit every few minutes. A start is asynchronous: a mount that
+# fails again fails its own unit, which the ExpectedMountMissing alert covers,
+# not this one; a mount that succeeds also starts the units wanted by it (the
+# Docker Compose project units that bind the share). The dollar signs are
+# doubled because systemd substitutes variables in the command line itself.
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'for unit in $$(systemctl list-units --type=mount --state=failed --plain --no-legend | cut -d " " -f 1); do systemctl start --no-block "$$unit"; done'
