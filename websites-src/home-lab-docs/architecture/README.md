@@ -514,10 +514,11 @@ reliability risks first, then security exposure, then automation):
       `tank-hdd` ([NAS](#nas)); the Proxmox node downtime alerts stay enabled by
       choice until pve2 runs 24/7
       ([Monitoring and alerting](#monitoring-and-alerting)).
-- Reconcile pve2's network cabling with the inventory: the cable is on `nic0`
-  (link up), while the inventory assigns the reserved address to `nic1` (link
-  down). Decide which is intended and align the cable or the inventory and the
-  DHCP reservation.
+- Point the router's DHCP reservation for pve2's address at the cabled port: the
+  cable is on `nic0` (link up), which `vmbr0` bridges with the address static in
+  `/etc/network/interfaces`; the inventory placed the address on `nic1` (link
+  down) until 2026-10-22, when it was moved to `nic0`, so the reservation that
+  keeps the address out of the pool must name `nic0`'s MAC.
 - Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
   certificates
   ([certificate management](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management),
