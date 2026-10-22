@@ -30,10 +30,14 @@ into the container at the same absolute path, as the
 [super-linter local run documentation](https://github.com/super-linter/super-linter/blob/main/docs/run-linter-locally.md)
 describes.
 
-The run covers the files Git knows about: a new file passed two lint runs while
-it was untracked and failed its first run once committed (2026-10-21). Track new
-files before linting them, without staging their content, with
-`git add --intent-to-add <file>`.
+The run covers the committed tree only, by configuration:
+`config/lint/super-linter.env` sets `VALIDATE_ALL_CODEBASE=true` and leaves
+`USE_FIND_ALGORITHM` at its default, so super-linter lists the files with
+`git ls-tree -r HEAD`, and staging or `git add --intent-to-add` changes nothing
+(a new file passed two lint runs untracked and failed its first run once
+committed, 2026-10-21). Commit a new file first, lint, and amend; the
+alternative is the find-based listing (`USE_FIND_ALGORITHM=true`), which walks
+the working tree.
 
 The script supports the following environment variables:
 

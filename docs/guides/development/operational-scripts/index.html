@@ -1742,10 +1742,14 @@ working files, so the script mounts the main repository's metadata directory
 into the container at the same absolute path, as the
 <a href="https://github.com/super-linter/super-linter/blob/main/docs/run-linter-locally.md">super-linter local run documentation</a>
 describes.</p>
-<p>The run covers the files Git knows about: a new file passed two lint runs while
-it was untracked and failed its first run once committed (2026-10-21). Track new
-files before linting them, without staging their content, with
-<code>git add --intent-to-add &lt;file&gt;</code>.</p>
+<p>The run covers the committed tree only, by configuration:
+<code>config/lint/super-linter.env</code> sets <code>VALIDATE_ALL_CODEBASE=true</code> and leaves
+<code>USE_FIND_ALGORITHM</code> at its default, so super-linter lists the files with
+<code>git ls-tree -r HEAD</code>, and staging or <code>git add --intent-to-add</code> changes nothing
+(a new file passed two lint runs untracked and failed its first run once
+committed, 2026-10-21). Commit a new file first, lint, and amend; the
+alternative is the find-based listing (<code>USE_FIND_ALGORITHM=true</code>), which walks
+the working tree.</p>
 <p>The script supports the following environment variables:</p>
 <ul>
 <li>

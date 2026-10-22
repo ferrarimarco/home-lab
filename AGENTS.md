@@ -148,17 +148,12 @@ describes them all. Key rules:
   closed, stacks with no changes complete and the first stack with pending
   changes prints its plan and aborts at the approval prompt: use that as the
   review pass, and supply the approval on a second run only after reviewing the
-  plan it printed.
-- **Terraform state inspection:** each stack's local state lives at
-  `config/terraform/environments/backend/local/<service>/terraform.tfstate`;
-  reading it (read-only) is the sanctioned way to verify what an apply recorded,
-  alongside checks against the real infrastructure. A no-change apply does not
-  rewrite the state file, so an old modification time is not evidence that an
-  apply failed or was skipped.
-- **Image artifact staging:** the `220-proxmox-workloads` Terraform stack reads
-  `config/nix/result/iso` and `config/nix/result/tarball`, staged by
-  `nix build .#proxmox-images`. Any other `nix build` clobbers the single
-  `result` symlink, so re-run that build before applying.
+  plan it printed. The VM resources set `reboot_after_update = false`: an apply
+  that needs the guest powered off (a disk resize or move, a TPM device) fails,
+  and a change Proxmox holds for the next start (the agent options) succeeds
+  with a provider warning and stays pending until a deliberate reboot behind an
+  Alertmanager silence, so read the apply output and `qm pending <vmid>` after
+  every VM change.
 - **Ansible via `scripts/run-ansible.sh`:** runs containerized. Select the
   narrowest playbook under `config/ansible/playbooks/` that covers the change
   (`main.yaml` chains most of the other playbooks, several of whose plays target
@@ -236,8 +231,9 @@ describes them all. Key rules:
   documents these output files and the format script. Run only one
   `scripts/lint.sh` at a time: concurrent runs clobber the shared
   `super-linter-output/` directory. A lint run can unstage staged changes, so
-  stage files after linting, right before committing; an untracked file is not
-  linted, so track new files first with `git add --intent-to-add`.
+  stage files after linting, right before committing; a new file is linted only
+  once committed (the lint configuration lists `git ls-tree HEAD`), so commit,
+  lint, and amend.
 - **Validate commit messages before proposing commits:** pipe each proposed
   message to `LINTER_CONTAINER_LINT_COMMIT_MESSAGE=true scripts/lint.sh`, as
   described in the
@@ -349,7 +345,16 @@ architectural patterns:
   routing alerts to Telegram. Planned host downtime fires availability alerts by
   design: silence it via `amtool` instead of touching the alert rules, as
   documented in the
-  [monitoring operations guide](./websites-src/home-lab-docs/guides/operations/monitoring.md).
+  [monitoring operations guide](./websites-src/home-lab-docs/guides/operations/monitoring.md),
+  which also sizes the silence past the alert's own duration and covers the
+  probe alerts with a second silence.
+- **The Proxmox nodes take tag-scoped node playbook runs only:** a full
+  `home-lab-node.yaml` run on pve1 or pve2 applies the SSH hardening that locks
+  out the root login the lab uses, among other stacks the nodes should not run
+  (the todo item "The Proxmox nodes have only ever had tag-scoped node runs"
+  lists them); `--tags untagged` is the safe subset. The `proxmox-node.yaml`
+  playbook does not converge pve2 either: its kernel task assumes the
+  `proxmox-boot-tool` layout and pve2 boots through GRUB (same todo item).
 - **A down Prometheus target is not necessarily an outage:** scrape and probe
   target lists are generated from inventory-wide defaults, so verify the service
   is actually deployed on the target host before treating a down target as a
