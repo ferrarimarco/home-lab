@@ -144,7 +144,17 @@ and identifiers change per host (see the
 - **Disk Interface (`scsi0`):** Presents the virtual disk as `/dev/sda` inside
   the VM, matching the `disko.nix` expectations.
 - **Storage Optimization:** Enables `discard = "on"` (TRIM) to reclaim unused
-  blocks dynamically on the underlying ZFS pool.
+  blocks dynamically on the underlying ZFS pool, and `agent { trim = true }`
+  (Proxmox's `fstrim_cloned_disks`), so a clone or a disk move is trimmed by the
+  guest agent right away instead of holding the freed blocks of the source until
+  the guest's own fstrim timer runs (applied on 2026-10-22; the guest agent
+  comes from the VM role).
+- **Updates restart the guest:** the provider's `reboot_after_update` defaults
+  to true, so a change that Proxmox applies at the next start (the agent
+  options, for one) shuts the VM down and starts it again during the apply. The
+  trim change restarted both VMs on 2026-10-22 without a silence in place. Plan
+  a silence before such an apply, or set `reboot_after_update = false` and
+  restart the guest deliberately.
 - **Installer CDROM (`ide2`):** Mounts the custom installer ISO (uploaded
   automatically as described in
   [Bootstrapping Spec - Custom ISO](./home-lab-bootstrapping.md#31-nix-native-custom-iso-confignixpackagesnixos-installernix)).

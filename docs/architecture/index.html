@@ -2504,8 +2504,7 @@ reliability risks first, then security exposure, then automation):</p>
   <code>/etc/network/interfaces</code>; the inventory placed the address on <code>nic1</code> (link
   down) until 2026-10-22, when it was moved to <code>nic0</code>, so the reservation that
   keeps the address out of the pool must name <code>nic0</code>'s MAC.</li>
-<li>Proxmox cluster (pve1, pve2): enable trim on the QEMU agent; configure
-  certificates
+<li>Proxmox cluster (pve1, pve2): configure certificates
   (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management">certificate management</a>,
   <a href="https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html">Let's Encrypt</a>).</li>
 <li>Asus RT-AX86U: copy the node public key to the Asus to allow SSH access,

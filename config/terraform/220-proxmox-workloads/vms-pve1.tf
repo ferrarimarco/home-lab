@@ -9,6 +9,9 @@ resource "proxmox_virtual_environment_vm" "vm_100" {
 
   agent {
     enabled = true
+    # Trim the disks right after a clone or a disk move, so the copy does not
+    # hold the blocks the guest had already freed until its own fstrim timer
+    trim = true
   }
 
   bios            = "ovmf"
@@ -95,6 +98,9 @@ resource "proxmox_virtual_environment_vm" "vm_101" {
 
   agent {
     enabled = true
+    # Trim the disks right after a clone or a disk move, so the copy does not
+    # hold the blocks the guest had already freed until its own fstrim timer
+    trim = true
   }
 
   bios            = "ovmf"
