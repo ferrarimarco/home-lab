@@ -1,4 +1,10 @@
 ---
+# The facts machinery registers docker_compose_up_items for the enabled stacks
+# only, so a disabled stack reaches these tasks through
+# docker_compose_disabled_items: without it, disabling a stack removed its files
+# and left its containers running until the weekly prune (read from the code,
+# 2026-10-21). The removes guard keeps both tasks to hosts where the compose
+# file still exists, which the file cleanup later in the run removes.
 - name: Stop Docker Compose services
   changed_when: '"Stopped" in docker_compose_stop_result.stdout or "Stopped" in docker_compose_stop_result.stderr'
   ansible.builtin.command: >
@@ -10,7 +16,7 @@
     removes: "{{ item.compose_file_path }}"
   register: docker_compose_stop_result
   when: not item.enable_containerized_services or not item.start_containerized_services
-  with_items: "{{ docker_compose_up_items | unique }}"
+  with_items: "{{ (docker_compose_up_items + docker_compose_disabled_items) | unique }}"
 
 - name: Debug docker_compose_stop_result
   ansible.builtin.debug:
@@ -32,7 +38,7 @@
     removes: "{{ item.compose_file_path }}"
   register: docker_compose_rm_result
   when: not item.enable_containerized_services or not item.start_containerized_services
-  with_items: "{{ docker_compose_up_items | unique }}"
+  with_items: "{{ (docker_compose_up_items + docker_compose_disabled_items) | unique }}"
 
 - name: Debug docker_compose_rm_result
   ansible.builtin.debug:

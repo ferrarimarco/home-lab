@@ -1807,9 +1807,11 @@ set of generic tasks applies that data:</p>
 </ul>
 <p>Because a disabled stack still contributes its resources with <code>state: absent</code>,
 running a stack's tag with its enablement flag unset <strong>tears the stack down</strong>
-rather than skipping it. This is intentional (declarative removal), but it means
-an unexpected <code>absent</code> prediction in check mode must be treated as a signal that
-an enablement flag resolved differently than intended.</p>
+rather than skipping it: its containers are stopped and removed first, through
+the <code>docker_compose_disabled_items</code> fact, then its files, then its project unit.
+This is intentional (declarative removal), but it means an unexpected <code>absent</code>
+prediction in check mode must be treated as a signal that an enablement flag
+resolved differently than intended.</p>
 <h2 id="enablement-flags">Enablement flags</h2>
 <ul>
 <li>Stacks are enabled per host through <code>configure_&lt;stack&gt;</code> variables in

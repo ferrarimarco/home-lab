@@ -90,9 +90,11 @@ Conventions the stacks rely on:
 
 Because a disabled stack still contributes its resources with `state: absent`,
 running a stack's tag with its enablement flag unset **tears the stack down**
-rather than skipping it. This is intentional (declarative removal), but it means
-an unexpected `absent` prediction in check mode must be treated as a signal that
-an enablement flag resolved differently than intended.
+rather than skipping it: its containers are stopped and removed first, through
+the `docker_compose_disabled_items` fact, then its files, then its project unit.
+This is intentional (declarative removal), but it means an unexpected `absent`
+prediction in check mode must be treated as a signal that an enablement flag
+resolved differently than intended.
 
 ## Enablement flags
 
