@@ -1953,7 +1953,11 @@ existing container image instead, set <code>ANSIBLE_CONTAINER_IMAGE_ID</code> to
 container image to run, and <code>ANSIBLE_CONTAINER_IMAGE_SKIP_BUILD=true</code> to
 skip the build. The <code>Test Ansible collections, roles, playbooks</code> CI workflow
 uses these variables to build the container image once per job with the
-build cache that all the test jobs share.</p>
+build cache that all the test jobs share. A Molecule run builds the
+<code>molecule</code> target under a tag with a <code>-molecule</code> suffix, so a test run and a
+playbook run never rebuild each other's image; before that suffix existed, a
+playbook run replaced the test image under a concurrent Molecule run
+(2026-10-22).</p>
 <p>To test a playbook with Molecule, set <code>ANSIBLE_TEST_DISTRO</code> to the container
 image of the test instance, <code>ANSIBLE_TEST_PLAYBOOK_NAME</code> to the name of the
 playbook to test, and pass the Molecule command to run:</p>

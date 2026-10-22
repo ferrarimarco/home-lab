@@ -39,8 +39,6 @@ echo "ANSIBLE_VAULT_PASSWORD_FILE_PATH: ${ANSIBLE_VAULT_PASSWORD_FILE_PATH}"
 echo "Loading Ansible version from ${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}"
 ANSIBLE_CONTAINER_IMAGE_TAG="$(grep <"${ANSIBLE_PIP_REQUIREMENTS_FILE_PATH}" "ansible" | awk -F '==' '{print $2}')"
 echo "Ansible container image tag to run: ${ANSIBLE_CONTAINER_IMAGE_TAG}"
-ANSIBLE_CONTAINER_IMAGE_ID="${ANSIBLE_CONTAINER_IMAGE_ID:-"ferrarimarco/ansible:${ANSIBLE_CONTAINER_IMAGE_TAG}"}"
-echo "Ansible container image id: ${ANSIBLE_CONTAINER_IMAGE_ID}"
 ANSIBLE_CONTAINER_IMAGE_SKIP_BUILD="${ANSIBLE_CONTAINER_IMAGE_SKIP_BUILD:-"false"}"
 echo "Skip building the Ansible container image: ${ANSIBLE_CONTAINER_IMAGE_SKIP_BUILD}"
 ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET:-"ansible"}"
@@ -50,6 +48,17 @@ if [ -n "${ANSIBLE_TEST_DISTRO:-}" ] && [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGE
   ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET="molecule"
   echo "Set Ansible container image build target to ${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
 fi
+
+# A build target other than the default carries its name as a tag suffix, so a
+# test run and a playbook run never rebuild each other's image: a playbook run
+# replaced the test image under a concurrent Molecule run, which then found no
+# molecule binary (2026-10-22).
+ANSIBLE_CONTAINER_IMAGE_DEFAULT_ID="ferrarimarco/ansible:${ANSIBLE_CONTAINER_IMAGE_TAG}"
+if [ "${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}" != "ansible" ]; then
+  ANSIBLE_CONTAINER_IMAGE_DEFAULT_ID="${ANSIBLE_CONTAINER_IMAGE_DEFAULT_ID}-${ANSIBLE_CONTAINER_IMAGE_BUILD_TARGET}"
+fi
+ANSIBLE_CONTAINER_IMAGE_ID="${ANSIBLE_CONTAINER_IMAGE_ID:-"${ANSIBLE_CONTAINER_IMAGE_DEFAULT_ID}"}"
+echo "Ansible container image id: ${ANSIBLE_CONTAINER_IMAGE_ID}"
 
 if [ "${ANSIBLE_CONTAINER_IMAGE_SKIP_BUILD}" = "true" ]; then
   echo "Skip building the Ansible container image. Using the existing ${ANSIBLE_CONTAINER_IMAGE_ID} container image"
