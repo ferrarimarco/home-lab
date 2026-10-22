@@ -53,9 +53,12 @@ commit, such as the changes of another session, the generated output includes
 them. Before committing, review the differences in `docs/` to confirm that they
 only reflect the sources in the same commit.
 
-To build the site from the sources of a commit only, build it in a temporary
-worktree. A copy of the files is not enough because the build script needs a Git
-repository.
+Build in the main checkout whenever the working tree holds only the changes of
+the commit: the output then matches the sources, and nothing is left behind.
+Only when the tree also holds changes that must stay out of the commit (another
+session's, or those of a later commit) build the site from the sources of the
+commit alone, in a temporary worktree. A copy of the files is not enough because
+the build script needs a Git repository.
 
 1. Create the worktree outside the repository:
 
@@ -90,9 +93,18 @@ repository.
     git reset "$(git -C <worktree directory> rev-parse HEAD)"
     ```
 
-    Until its next build, the main working tree then shows the pages the commit
-    added as deleted and the existing pages as modified, because its generated
-    files predate the commit.
+    The main working tree's generated files now predate the commit. When
+    `git status docs` showed nothing before the build, nothing in them needs
+    protecting: restore them from the commit right away, or the checkout keeps
+    showing the commit's new pages as deleted and the changed ones as modified
+    until its next build:
+
+    ```shell
+    git restore docs
+    ```
+
+    When `docs/` held another session's output, leave it, and say so: the next
+    build reconciles it.
 
 5. Remove the worktree. A lint run from the worktree leaves root-owned
    `super-linter-output/` and `super-linter.log` behind, which make the removal
