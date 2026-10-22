@@ -66,17 +66,24 @@ remaining steps are tracked in the
 
 Measured between 2026-08-25 and 2026-10-05 with only the nas-pve2 guest running:
 
-| State                             | Plug reading | pve2 share   |
-| --------------------------------- | ------------ | ------------ |
-| pve2 unplugged (20-hour window)   | 20-21 W      | 0 W          |
-| pve2 off, plugged in              | 25 W         | 4-5 W        |
-| pve2 on, idle                     | 67-71 W      | ~45 W        |
-| pve2 booting (peak)               | 110-119 W    |              |
-| pve2 shutting down (peak)         | ~77 W        |              |
-| RAPL package, idle                |              | 7.6 W        |
-| RAPL DRAM, idle                   |              | 3.5 W        |
-| Package C6 residency, cores in C6 |              | 88%, 99.8%   |
-| BMC fans (mode Optimal)           |              | 300-1100 RPM |
+| State                                                       | Plug reading | pve2 share   |
+| ----------------------------------------------------------- | ------------ | ------------ |
+| pve2 unplugged (20-hour window)                             | 20-21 W      | 0 W          |
+| pve2 off, plugged in                                        | 25 W         | 4-5 W        |
+| pve2 off, plugged in, USB disk on the plug since 2026-10-10 | 30-31 W      | 4-5 W        |
+| pve2 on, idle                                               | 67-71 W      | ~45 W        |
+| pve2 booting (peak)                                         | 110-119 W    |              |
+| pve2 shutting down (peak)                                   | ~77 W        |              |
+| RAPL package, idle                                          |              | 7.6 W        |
+| RAPL DRAM, idle                                             |              | 3.5 W        |
+| Package C6 residency, cores in C6                           |              | 88%, 99.8%   |
+| BMC fans (mode Optimal)                                     |              | 300-1100 RPM |
+
+A self-powered USB disk connected on 2026-10-10 shares the plug and draws the 6
+W difference (daily medians: 24 W through 2026-10-09, 35 W on the day of the
+change, 31 W until 2026-10-18, 30 W from 2026-10-19 to 2026-10-22, with pve2 off
+the whole time since 2026-10-06), so every pve2 figure measured after that date
+is a difference against 30-31 W, not 25 W.
 
 The standby figure is the PSU standby rail plus the BMC. At 0.099 EUR/kWh, the
 idle host costs about 39 EUR per year around the clock and about 4 EUR per year
@@ -114,14 +121,16 @@ EUR per year.
 
 ### Runtime experiments
 
-| Date       | Change                                                                                                                    | Before (median)      | After (median)             | Result                                              |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------- | --------------------------------------------------- |
-| 2026-10-04 | PCIe ASPM policy `default` to `powersave`                                                                                 | 68 W, 1.6 h          | 68 W, 3.3 h                | Within noise, no errors                             |
-| 2026-10-05 | PCIe ASPM `powersave` again after a boot                                                                                  | 69 W                 | 68-73 W (shared plug)      | Within noise, no errors                             |
-| 2026-10-05 | PCI runtime PM `auto` on 99 devices                                                                                       | 69 W                 | 68 W                       | 80 devices suspended, no errors                     |
-| 2026-10-05 | SATA `med_power_with_dipm` on host0                                                                                       | 69 W                 | not applied                | Kernel refused: `Operation not supported`           |
-| 2026-10-06 | BIOS: sSATA ALPM on, hot-plug off, six-port SATA controller, audio, serial port 1 off; links now `min_power_with_partial` | 68-70 W (1 h before) | 69 W, 1 h (p25 67, p75 71) | Within noise, at most 1-2 W; no errors              |
-| 2026-10-06 | Sequential read pass, 4 GiB per drive, under link PM                                                                      | n/a                  | n/a                        | 140/210/539 MB/s, no link events, no new CRC errors |
+| Date       | Change                                                                                                                    | Before (median)                                    | After (median)                 | Result                                                      |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------ | ----------------------------------------------------------- |
+| 2026-10-04 | PCIe ASPM policy `default` to `powersave`                                                                                 | 68 W, 1.6 h                                        | 68 W, 3.3 h                    | Within noise, no errors                                     |
+| 2026-10-05 | PCIe ASPM `powersave` again after a boot                                                                                  | 69 W                                               | 68-73 W (shared plug)          | Within noise, no errors                                     |
+| 2026-10-05 | PCI runtime PM `auto` on 99 devices                                                                                       | 69 W                                               | 68 W                           | 80 devices suspended, no errors                             |
+| 2026-10-05 | SATA `med_power_with_dipm` on host0                                                                                       | 69 W                                               | not applied                    | Kernel refused: `Operation not supported`                   |
+| 2026-10-06 | BIOS: sSATA ALPM on, hot-plug off, six-port SATA controller, audio, serial port 1 off; links now `min_power_with_partial` | 68-70 W (1 h before)                               | 69 W, 1 h (p25 67, p75 71)     | Within noise, at most 1-2 W; no errors                      |
+| 2026-10-06 | Sequential read pass, 4 GiB per drive, under link PM                                                                      | n/a                                                | n/a                            | 140/210/539 MB/s, no link events, no new CRC errors         |
+| 2026-10-10 | A self-powered USB disk connected to the shared plug (pve2 off since 2026-10-06)                                          | 24 W (daily median)                                | 30-31 W (p25-p75 over 12 days) | The plug baseline for an off pve2 is 30-31 W from this date |
+| 2026-10-22 | pve2 powered on after 16 days off (reference read at 12:54 UTC, before the power-on)                                      | 30 W (median 24 h, p25 30, p75 31, min 27, max 45) | pending                        | pending                                                     |
 
 The ASPM change enabled L0s and L1 on both i210 links and L1 on their root ports
 (the NVMe already ran L1). Runtime PM suspended the uncore stubs, idle bridges,

@@ -1841,6 +1841,11 @@ remaining steps are tracked in the
 <td>4-5 W</td>
 </tr>
 <tr>
+<td>pve2 off, plugged in, USB disk on the plug since 2026-10-10</td>
+<td>30-31 W</td>
+<td>4-5 W</td>
+</tr>
+<tr>
 <td>pve2 on, idle</td>
 <td>67-71 W</td>
 <td>~45 W</td>
@@ -1877,6 +1882,11 @@ remaining steps are tracked in the
 </tr>
 </tbody>
 </table>
+<p>A self-powered USB disk connected on 2026-10-10 shares the plug and draws the 6
+W difference (daily medians: 24 W through 2026-10-09, 35 W on the day of the
+change, 31 W until 2026-10-18, 30 W from 2026-10-19 to 2026-10-22, with pve2 off
+the whole time since 2026-10-06), so every pve2 figure measured after that date
+is a difference against 30-31 W, not 25 W.</p>
 <p>The standby figure is the PSU standby rail plus the BMC. At 0.099 EUR/kWh, the
 idle host costs about 39 EUR per year around the clock and about 4 EUR per year
 while off but plugged in.</p>
@@ -2003,6 +2013,20 @@ EUR per year.</p>
 <td>n/a</td>
 <td>n/a</td>
 <td>140/210/539 MB/s, no link events, no new CRC errors</td>
+</tr>
+<tr>
+<td>2026-10-10</td>
+<td>A self-powered USB disk connected to the shared plug (pve2 off since 2026-10-06)</td>
+<td>24 W (daily median)</td>
+<td>30-31 W (p25-p75 over 12 days)</td>
+<td>The plug baseline for an off pve2 is 30-31 W from this date</td>
+</tr>
+<tr>
+<td>2026-10-22</td>
+<td>pve2 powered on after 16 days off (reference read at 12:54 UTC, before the power-on)</td>
+<td>30 W (median 24 h, p25 30, p75 31, min 27, max 45)</td>
+<td>pending</td>
+<td>pending</td>
 </tr>
 </tbody>
 </table>

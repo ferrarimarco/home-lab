@@ -687,6 +687,12 @@ reliability risks first, then security exposure, then automation):
 
 ### Monitoring and alerting
 
+- Deploy a smart plug with power metering for each node and one for the network
+  stack: the studio plugs feed several devices each, so every host figure in the
+  [host power guide](../guides/operations/host-power.md) is a difference against
+  a shared baseline that moves whenever something else is plugged in (a USB disk
+  added on 2026-10-10 shifted pve2's off baseline from 25 W to 30-31 W). One
+  metered plug per host gives direct readings.
 - **Alert on obsolete packages (2026-10-12)**: a package that no configured APT
   source provides anymore (the Coral runtime after Google retired its
   repository, leftovers after a release upgrade) gets no updates and raises
