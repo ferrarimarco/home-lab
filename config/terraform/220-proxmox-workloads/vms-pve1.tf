@@ -14,6 +14,12 @@ resource "proxmox_virtual_environment_vm" "vm_100" {
     trim = true
   }
 
+  # A change Proxmox applies at the next start (the agent options, a disk
+  # resize without hotplug) otherwise restarts the guest during the apply, with
+  # no silence in place (both VMs on 2026-10-22). The apply fails instead;
+  # silence, restart the guest deliberately, then apply again.
+  reboot_after_update = false
+
   bios            = "ovmf"
   keyboard_layout = "en-us"
   machine         = "q35"
@@ -102,6 +108,12 @@ resource "proxmox_virtual_environment_vm" "vm_101" {
     # hold the blocks the guest had already freed until its own fstrim timer
     trim = true
   }
+
+  # A change Proxmox applies at the next start (the agent options, a disk
+  # resize without hotplug) otherwise restarts the guest during the apply, with
+  # no silence in place (both VMs on 2026-10-22). The apply fails instead;
+  # silence, restart the guest deliberately, then apply again.
+  reboot_after_update = false
 
   bios            = "ovmf"
   keyboard_layout = "en-us"

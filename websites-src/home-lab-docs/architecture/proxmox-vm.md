@@ -149,12 +149,13 @@ and identifiers change per host (see the
   guest agent right away instead of holding the freed blocks of the source until
   the guest's own fstrim timer runs (applied on 2026-10-22; the guest agent
   comes from the VM role).
-- **Updates restart the guest:** the provider's `reboot_after_update` defaults
-  to true, so a change that Proxmox applies at the next start (the agent
-  options, for one) shuts the VM down and starts it again during the apply. The
-  trim change restarted both VMs on 2026-10-22 without a silence in place. Plan
-  a silence before such an apply, or set `reboot_after_update = false` and
-  restart the guest deliberately.
+- **Updates never restart the guest:** the provider's `reboot_after_update`
+  defaults to true, so a change that Proxmox applies at the next start (the
+  agent options, a disk resize without hotplug) shuts the VM down and starts it
+  again during the apply; the trim change restarted both VMs on 2026-10-22
+  without a silence in place. The resources set it to false since that day: an
+  apply that needs the guest offline fails instead, and the operator silences
+  the alerts, restarts the guest, and applies again.
 - **Installer CDROM (`ide2`):** Mounts the custom installer ISO (uploaded
   automatically as described in
   [Bootstrapping Spec - Custom ISO](./home-lab-bootstrapping.md#31-nix-native-custom-iso-confignixpackagesnixos-installernix)).
