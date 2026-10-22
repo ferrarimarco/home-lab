@@ -2620,7 +2620,7 @@ Syncthing offsite transport depends on (§13).</p>
 <tr>
 <td style="text-align: left;"><strong>Compose Project Units and Mount Retry</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">One <code>docker-compose-up-&lt;project&gt;.service</code> per Compose project, wanted by the mount units of its <code>required_mount_paths</code>, plus the host-wide <code>mount-retry.timer</code> of the <code>setup_disks</code> role (§10.3); applied on both hosts on 2026-10-21 (every project unit ran successfully through the playbook, the timer fires every five minutes, the rules are loaded on both backends); Molecule renders and enables the units and starts the timer; on the hl01 reboot of 2026-10-22 every project unit ran after Docker and found its containers already started by dockerd, and the timer resumed at the next five-minute mark; the NAS-down path (a mount unit in the <code>failed</code> state retried and recovered by the timer) has not been drilled yet.</td>
+<td style="text-align: left;">One <code>docker-compose-up-&lt;project&gt;.service</code> per Compose project, wanted by the mount units of its <code>required_mount_paths</code>, plus the host-wide <code>mount-retry.timer</code> of the <code>setup_disks</code> role (§10.3); applied on both hosts on 2026-10-21 (every project unit ran successfully through the playbook, the timer fires every five minutes, the rules are loaded on both backends); Molecule renders and enables the units and starts the timer; on the hl01 reboot of 2026-10-22 every project unit ran after Docker and found its containers already started by dockerd, and the timer resumed at the next five-minute mark; the NAS-down path was drilled on hl01 on 2026-10-22 with the NAS blocked by a firewall rule (the mount unit failed by timeout, the retry runs failed by dependency without failing the project unit, and the run after the block was lifted mounted the share and started the eight stopped containers within 25 s).</td>
 </tr>
 </tbody>
 </table>
@@ -3156,7 +3156,11 @@ until the stack was restarted.</p>
   lives with the entry that owns the mount, so no Docker drop-in is rendered. A
   <code>RequiresMountsFor=</code> on Docker was rejected: it would keep Docker, and with it
   every workload, down while the NAS is unreachable. The cost is a delay bounded
-  by the mount unit's start timeout (90 s) when the NAS is down.</li>
+  by the mount unit's start timeout (90 s) when the NAS is down: with the NAS
+  dropping packets, <code>mount.cifs</code> does not give up on its own and the unit's
+  timeout ends the attempt (measured on hl01 on 2026-10-22, with later attempts
+  failing at once while the kernel's CIFS client still holds the server as
+  down), while a NAS that refuses the connection fails the attempt immediately.</li>
 <li><strong>Mount-point guard (<code>protect_mount_point: true</code> on the entry).</strong> The
   <code>setup_disks</code> role marks the bare mount-point directory immutable
   (<code>chattr +i</code>) with tasks that read and write it through a private mount

@@ -65,6 +65,16 @@ ssh pi@raspberrypi2.edge.lab.ferrari.how \
 List and expire silences with `amtool silence query` and
 `amtool silence expire <id>` through the same invocation pattern.
 
+Size a silence past the alert's own duration, not just past the maintenance:
+`UnexpectedReboot` fires for an hour after the boot, so a one-hour silence added
+right before a reboot expires in the same minute the alert resolves (hl01,
+2026-10-22, the first planned reboot with a silence). Probe alerts carry the
+probed target as their instance, so a host silence needs a second matcher on
+their alert names (`alertname=~"Blackbox.*|Frigate.*"`). The suppressed alerts
+and the notifications sent are visible in Prometheus as
+`alertmanager_alerts{state="suppressed"}` and
+`alertmanager_notifications_total{integration="telegram"}`.
+
 ## Interpreting query results
 
 - **A gap in `query_range` samples is a state change.** `ALERTS` series exist

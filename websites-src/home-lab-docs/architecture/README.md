@@ -267,11 +267,6 @@ reliability risks first, then security exposure, then automation):
   and a reproducible trigger for the stall, to be designed with the UAS quirk
   ([Host configuration](#host-configuration)). Until then a stall means a power
   cycle.
-- Measure how long a CIFS mount attempt takes to fail while the NAS is down (a
-  server that drops packets rather than refusing): it bounds the Docker start
-  delay behind the mount ordering and the cost of each run of the mount retry
-  timer ([NAS LXC Container](./nas-lxc-container.md), §10.3), and decides
-  whether the entries need `x-systemd.mount-timeout`.
 
 ### Security
 
