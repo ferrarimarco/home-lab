@@ -423,8 +423,22 @@ reliability risks first, then security exposure, then automation):
   stacks at least) or the `sshd` settings are reconciled with how the nodes are
   reached, run the node playbook on pve1 and pve2 only with tags; the untagged
   tasks alone are safe (timezone, the systemd configuration directory, the venv
-  build script, applied on pve1 on 2026-10-18). Related: the monitoring role
-  consolidation item above, which decides which role owns the nodes.
+  build script, applied on pve1 on 2026-10-18 and on pve2 on 2026-10-22).
+  Related: the monitoring role consolidation item above, which decides which
+  role owns the nodes. The Proxmox role has the same kind of gap on pve2
+  (2026-10-22): its first task appends the IOMMU options to
+  `/etc/kernel/cmdline`, the kernel command line of a node that boots through
+  `proxmox-boot-tool` (pve1: ZFS root, systemd-boot), and fails on pve2, which
+  was installed on LVM with an ext4 root and boots through GRUB, where the
+  command line is `GRUB_CMDLINE_LINUX_DEFAULT` in `/etc/default/grub` applied by
+  `update-grub` (Proxmox host bootloader documentation). The role has never
+  evaluated pve2 beyond that task (directories, cloud-init snippets, images).
+  The fix reads the layout first (`/etc/kernel/proxmox-boot-uuids` exists only
+  where `proxmox-boot-tool` manages the boot), keeps the current task for that
+  layout, adds the GRUB variant with an `update-grub` handler, and lets the
+  Molecule container, which has neither file, skip both; a reboot follows on
+  pve2. Nothing is passed through on pve2 today, so an inventory flag that opts
+  it out of the kernel task is the alternative.
 - NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host
   Terraform VM resources into a shared module (or `for_each` over a host map),
   so the reference pattern is enforced by code rather than by convention. The
