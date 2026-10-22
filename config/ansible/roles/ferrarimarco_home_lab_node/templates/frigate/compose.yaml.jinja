@@ -1,8 +1,6 @@
 ---
 services:
   frigate:
-    cap_add:
-      - CAP_PERFMON
     container_name: frigate
     restart: unless-stopped
     image: {{ container_images_ids["frigate"] }}

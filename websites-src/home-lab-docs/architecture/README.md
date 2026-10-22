@@ -450,6 +450,11 @@ reliability risks first, then security exposure, then automation):
 
 ### Host configuration
 
+- Frigate's Intel GPU statistics need kernel 6.5 or newer (0.18 reads the
+  per-client DRM counters), so they stay empty on hl01's Debian 12 kernel 6.1,
+  with a warning at every Frigate start, until the VM runs a newer kernel (a
+  backports kernel, or the NixOS re-image). Frigate's authenticated port (8971,
+  HTTP/2 since 0.18) is not exposed; the Compose file publishes 5000 only.
 - **pve2 power reduction before running it 24/7**: the goal is to run pve2
   around the clock, but it stays powered off until its idle draw (~45 W at the
   wall) comes down. The measurements, the attribution, the levers with their
@@ -765,22 +770,6 @@ reliability risks first, then security exposure, then automation):
 
 ### Smart home
 
-- **Frigate 0.18 follow-ups (the image bump from 0.17.2 to 0.18.0 reached hl01
-  on 2026-10-21)**: align the configuration template and the Compose template
-  with the release. The config template says `version: 0.17-0`, and Frigate
-  rewrote the file to `0.18-0` on first start, so every node playbook run
-  re-renders the file and restarts Frigate until the template is bumped (the
-  0.17.1 upgrade was handled the same way): read the migrated file on hl01, bump
-  the version, and carry over whatever else the migrator changed (the
-  `snapshots.quality` default moved from 70 to 60). In the Compose template,
-  drop `CAP_PERFMON`, and in the node role the `perf_event_paranoid` sysctl,
-  which 0.18 no longer needs for Intel GPU statistics; those statistics read
-  per-client DRM counters and need kernel 6.5 or newer, so they stay empty on
-  hl01's Debian 12 kernel 6.1 (Frigate logs the warning at every start) until
-  the VM runs a newer kernel (a backports kernel or the NixOS re-image). Review
-  the new defaults worth adopting: the Settings UI and profiles, the Media Sync
-  pane that replaced `sync_recordings`, and HTTP/2 on port 8971 for the UI. The
-  version bump comes first, since it stops the restart on every run.
 - Frigate: configure the
   [live view to use the high resolution stream](https://docs.frigate.video/configuration/live#setting-stream-for-live-ui);
   use

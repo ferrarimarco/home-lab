@@ -2433,6 +2433,11 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="host-configuration">Host configuration</h3>
 <ul>
+<li>Frigate's Intel GPU statistics need kernel 6.5 or newer (0.18 reads the
+  per-client DRM counters), so they stay empty on hl01's Debian 12 kernel 6.1,
+  with a warning at every Frigate start, until the VM runs a newer kernel (a
+  backports kernel, or the NixOS re-image). Frigate's authenticated port (8971,
+  HTTP/2 since 0.18) is not exposed; the Compose file publishes 5000 only.</li>
 <li><strong>pve2 power reduction before running it 24/7</strong>: the goal is to run pve2
   around the clock, but it stays powered off until its idle draw (~45 W at the
   wall) comes down. The measurements, the attribution, the levers with their
@@ -2768,22 +2773,6 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="smart-home">Smart home</h3>
 <ul>
-<li><strong>Frigate 0.18 follow-ups (the image bump from 0.17.2 to 0.18.0 reached hl01
-  on 2026-10-21)</strong>: align the configuration template and the Compose template
-  with the release. The config template says <code>version: 0.17-0</code>, and Frigate
-  rewrote the file to <code>0.18-0</code> on first start, so every node playbook run
-  re-renders the file and restarts Frigate until the template is bumped (the
-  0.17.1 upgrade was handled the same way): read the migrated file on hl01, bump
-  the version, and carry over whatever else the migrator changed (the
-  <code>snapshots.quality</code> default moved from 70 to 60). In the Compose template,
-  drop <code>CAP_PERFMON</code>, and in the node role the <code>perf_event_paranoid</code> sysctl,
-  which 0.18 no longer needs for Intel GPU statistics; those statistics read
-  per-client DRM counters and need kernel 6.5 or newer, so they stay empty on
-  hl01's Debian 12 kernel 6.1 (Frigate logs the warning at every start) until
-  the VM runs a newer kernel (a backports kernel or the NixOS re-image). Review
-  the new defaults worth adopting: the Settings UI and profiles, the Media Sync
-  pane that replaced <code>sync_recordings</code>, and HTTP/2 on port 8971 for the UI. The
-  version bump comes first, since it stops the restart on every run.</li>
 <li>Frigate: configure the
   <a href="https://docs.frigate.video/configuration/live#setting-stream-for-live-ui">live view to use the high resolution stream</a>;
   use
