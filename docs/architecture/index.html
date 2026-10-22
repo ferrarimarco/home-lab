@@ -2452,6 +2452,19 @@ reliability risks first, then security exposure, then automation):</p>
   with a warning at every Frigate start, until the VM runs a newer kernel (a
   backports kernel, or the NixOS re-image). Frigate's authenticated port (8971,
   HTTP/2 since 0.18) is not exposed; the Compose file publishes 5000 only.</li>
+<li><strong>Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)</strong>:
+  pve1 was installed with a ZFS root on UEFI, so it boots through
+  <code>proxmox-boot-tool</code> with systemd-boot, keeps every ESP in sync, and takes the
+  kernel command line from <code>/etc/kernel/cmdline</code>; pve2 was installed on LVM with
+  an ext4 root and boots through GRUB, so its root has no checksums,
+  compression, or snapshots to roll back an upgrade, and the Proxmox role's
+  kernel task fails on it (<a href="#cicd-infrastructure-as-code-and-gitops">CI/CD</a>).
+  Align at pve2's next reinstall by choosing a ZFS root in the installer with
+  Secure Boot off (Proxmox falls back to GRUB with it on), which gives pve1's
+  layout for free; a reinstall only for this is not worth its cost (guests
+  re-created by Terraform, the data pools exported and imported, the NAS
+  container's state directories on the root disk carried across). Until then the
+  role fix in the CI/CD item keeps both layouts converging.</li>
 <li><strong>pve2 power reduction before running it 24/7</strong>: the goal is to run pve2
   around the clock, but it stays powered off until its idle draw (~45 W at the
   wall) comes down. The measurements, the attribution, the levers with their
