@@ -2615,7 +2615,7 @@ Syncthing offsite transport depends on (§13).</p>
 <tr>
 <td style="text-align: left;"><strong>NAS Guest Startup Order (Terraform)</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>startup</code> block on both NAS container resources (§10.3); not yet applied.</td>
+<td style="text-align: left;"><code>startup</code> block on both NAS container resources (§10.3); applied on both nodes on 2026-10-22 as an in-place update that left the containers running (<code>pct config</code> shows <code>startup: order=1,up=15</code> on both).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Compose Project Units and Mount Retry</strong></td>
