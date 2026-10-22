@@ -2610,7 +2610,7 @@ Syncthing offsite transport depends on (§13).</p>
 <tr>
 <td style="text-align: left;"><strong>SMB Client Boot Ordering and Mount Guard</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>x-systemd.before</code> and <code>protect_mount_point</code> on the hl01 and raspberrypi2 entries (§10.3); applied on both hosts on 2026-10-19 (mount units ordered before Docker, mount points immutable, check run idempotent); reboot verification pending; Molecule renders the ordering option only, since chattr is refused on the test container's overlay filesystem.</td>
+<td style="text-align: left;"><code>x-systemd.before</code> and <code>protect_mount_point</code> on the hl01 and raspberrypi2 entries (§10.3); applied on both hosts on 2026-10-19 (mount units ordered before Docker, mount points immutable, check run idempotent); reboot verified on 2026-10-22 (both shares mounted 24 s after <code>remote-fs.target</code> and 20 ms before Docker started); Molecule renders the ordering option only, since chattr is refused on the test container's overlay filesystem.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>NAS Guest Startup Order (Terraform)</strong></td>
@@ -2620,7 +2620,7 @@ Syncthing offsite transport depends on (§13).</p>
 <tr>
 <td style="text-align: left;"><strong>Compose Project Units and Mount Retry</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">One <code>docker-compose-up-&lt;project&gt;.service</code> per Compose project, wanted by the mount units of its <code>required_mount_paths</code>, plus the host-wide <code>mount-retry.timer</code> of the <code>setup_disks</code> role (§10.3); applied on both hosts on 2026-10-21 (every project unit ran successfully through the playbook, the timer fires every five minutes, the rules are loaded on both backends); Molecule renders and enables the units and starts the timer; the hl01 reboot verification of the mount units' <code>failed</code> state and of the boot-time <code>up</code> is pending.</td>
+<td style="text-align: left;">One <code>docker-compose-up-&lt;project&gt;.service</code> per Compose project, wanted by the mount units of its <code>required_mount_paths</code>, plus the host-wide <code>mount-retry.timer</code> of the <code>setup_disks</code> role (§10.3); applied on both hosts on 2026-10-21 (every project unit ran successfully through the playbook, the timer fires every five minutes, the rules are loaded on both backends); Molecule renders and enables the units and starts the timer; on the hl01 reboot of 2026-10-22 every project unit ran after Docker and found its containers already started by dockerd, and the timer resumed at the next five-minute mark; the NAS-down path (a mount unit in the <code>failed</code> state retried and recovered by the timer) has not been drilled yet.</td>
 </tr>
 </tbody>
 </table>
