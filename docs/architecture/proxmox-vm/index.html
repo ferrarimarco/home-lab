@@ -2026,6 +2026,13 @@ and identifiers change per host (see the
   <a href="../home-lab-bootstrapping/#31-nix-native-custom-iso-confignixpackagesnixos-installernix">Bootstrapping Spec - Custom ISO</a>).</li>
 <li><strong>MAC Pinning:</strong> Pins a static MAC address to the virtio network interface,
   enabling stable DHCP reservations.</li>
+<li><strong>Startup Order:</strong> None. A VM that consumes a NAS share stays unordered,
+  because Proxmox starts a node's unordered guests after its ordered ones and
+  the share's container declares the order (the
+  <a href="../proxmox-lxc/#62-container-reference-pattern">LXC reference pattern</a> has
+  the convention). What the VM needs is on its own side: its mount units ordered
+  before Docker and retried while the share is absent
+  (<a href="../nas-lxc-container/">NAS spec</a>, §10.3).</li>
 <li><strong>Automated Boot Order:</strong> Configures <code>boot_order = ["scsi0", "ide2"]</code>.<ul>
 <li><em>First Boot:</em> The VM disk <code>/dev/sda</code> is empty, so EFI falls back to
   booting from the installer ISO on <code>ide2</code>.</li>

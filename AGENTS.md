@@ -261,6 +261,14 @@ architectural patterns:
   individual host specs focused exclusively on physical/logical declarations for
   that machine (e.g., specific VM core count, dedicated RAM, and MAC address).
 
+- **Only guests that serve other guests declare a Proxmox startup order** (a NAS
+  container: `startup { order = 1 }`); consumers of their shares, VMs or
+  containers, stay unordered, since Proxmox starts unordered guests after the
+  ordered ones. The reference patterns in the
+  [LXC](./websites-src/home-lab-docs/architecture/proxmox-lxc.md) and
+  [VM](./websites-src/home-lab-docs/architecture/proxmox-vm.md) framework specs
+  carry the convention.
+
 ## 6. Secrets Policy
 
 - **Nothing secret is ever committed, even encrypted.** Ansible vault files

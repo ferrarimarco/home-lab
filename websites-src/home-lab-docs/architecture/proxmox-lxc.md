@@ -400,6 +400,14 @@ resource "proxmox_virtual_environment_container" "example_pve1" {
   `proxmox_virtual_environment_file` resource, creating a direct dependency via
   `template_file_id` that guarantees the template is uploaded before container
   creation.
+- **Startup order**: a container that other guests depend on (a NAS serving
+  shares) declares `startup { order = 1, up_delay = 15 }`, as the
+  [NAS spec](./nas-lxc-container.md) does for its containers (§10.3). Consumers
+  declare nothing: Proxmox starts a node's unordered guests after its ordered
+  ones, so an order on a consumer would have to outrank every provider it uses
+  and buys nothing. The ordering is node-local, which matches shares served to
+  the same node's guests; a consumer of another node's share relies on its own
+  mount retry instead.
 
 ## 7. LXC-Specific Test Limitations
 

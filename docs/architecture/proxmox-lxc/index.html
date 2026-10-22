@@ -2355,6 +2355,14 @@ shape:</p>
   <code>proxmox_virtual_environment_file</code> resource, creating a direct dependency via
   <code>template_file_id</code> that guarantees the template is uploaded before container
   creation.</li>
+<li><strong>Startup order</strong>: a container that other guests depend on (a NAS serving
+  shares) declares <code>startup { order = 1, up_delay = 15 }</code>, as the
+  <a href="../nas-lxc-container/">NAS spec</a> does for its containers (§10.3). Consumers
+  declare nothing: Proxmox starts a node's unordered guests after its ordered
+  ones, so an order on a consumer would have to outrank every provider it uses
+  and buys nothing. The ordering is node-local, which matches shares served to
+  the same node's guests; a consumer of another node's share relies on its own
+  mount retry instead.</li>
 </ul>
 <h2 id="7-lxc-specific-test-limitations">7. LXC-Specific Test Limitations</h2>
 <p>The standard NixOS test framework runs tests inside QEMU VMs, not LXC
