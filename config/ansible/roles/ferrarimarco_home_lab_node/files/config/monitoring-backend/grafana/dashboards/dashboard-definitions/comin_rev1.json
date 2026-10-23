@@ -15,12 +15,13 @@
       }
     ]
   },
+  "description": "Status of the comin GitOps service on the NixOS hosts: fleet counters, one row per host, and the history of each pipeline stage.",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
-  "id": 35,
+  "graphTooltip": 1,
+  "id": null,
   "links": [],
-  "liveNow": true,
+  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
@@ -30,9 +31,9 @@
         "x": 0,
         "y": 0
       },
-      "id": 6,
+      "id": 1,
       "panels": [],
-      "title": "Global stats",
+      "title": "Fleet",
       "type": "row"
     },
     {
@@ -40,6 +41,70 @@
         "type": "prometheus",
         "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "NixOS hosts whose comin exporter answers the scrape.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "count(comin_build_info{instance=~\"^$host$\"})",
+          "legendFormat": "__auto",
+          "refId": "A",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "title": "Hosts polled",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "Hosts whose deployed generation needs a reboot to take effect (comin_need_to_reboot).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -51,52 +116,54 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": 1
               }
             ]
-          }
+          },
+          "unit": "none"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 0,
+        "h": 4,
+        "w": 6,
+        "x": 6,
         "y": 1
       },
       "id": 3,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
+        "graphMode": "none",
+        "justifyMode": "center",
         "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
-      "repeat": "host",
-      "repeatDirection": "h",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
           "editorMode": "code",
-          "expr": "comin_need_to_reboot{instance=~\"^$host$\"}",
+          "expr": "sum(comin_need_to_reboot{instance=~\"^$host$\"})",
           "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false
         }
       ],
-      "title": "Reboot needed - $host",
+      "title": "Hosts needing a reboot",
       "type": "stat"
     },
     {
@@ -104,6 +171,7 @@
         "type": "prometheus",
         "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Hosts whose last fetch, eval, build, or deployment failed.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -115,116 +183,54 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 1
               }
             ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 0,
-        "y": 9
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.1.1",
-      "repeat": "host",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "comin_last_deployment_failed{instance=~\"^$host$\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Eval status - $host",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P1809F7CD0C75ACF3"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
+          "unit": "none"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 0,
-        "y": 17
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
       },
       "id": 4,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
+        "graphMode": "none",
+        "justifyMode": "center",
         "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
-      "repeat": "host",
-      "repeatDirection": "h",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
           "editorMode": "code",
-          "expr": "comin_is_suspended{instance=~\"^$host$\"}",
+          "expr": "count(max by (instance) (comin_last_fetch_failed{instance=~\"^$host$\"} or comin_last_eval_failed{instance=~\"^$host$\"} or comin_last_build_failed{instance=~\"^$host$\"} or comin_last_deployment_failed{instance=~\"^$host$\"}) == 1) or vector(0)",
           "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false
         }
       ],
-      "title": "Poller suspended - $host",
+      "title": "Hosts with a failed stage",
       "type": "stat"
     },
     {
@@ -232,6 +238,7 @@
         "type": "prometheus",
         "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Hosts whose comin poller is suspended (comin_is_suspended).",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -243,69 +250,67 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": 1
               }
             ]
-          }
+          },
+          "unit": "none"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 0,
-        "y": 25
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
       },
-      "id": 1,
+      "id": 5,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
+        "graphMode": "none",
+        "justifyMode": "center",
         "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "12.1.1",
-      "repeat": "host",
-      "repeatDirection": "h",
       "targets": [
         {
-          "disableTextWrap": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
           "editorMode": "code",
-          "expr": "comin_last_deployment_failed{instance=~\"^$host$\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
+          "expr": "sum(comin_is_suspended{instance=~\"^$host$\"})",
           "legendFormat": "__auto",
-          "range": true,
           "refId": "A",
-          "useBackend": false
+          "instant": true,
+          "range": false
         }
       ],
-      "title": "Deployment status - $host",
+      "title": "Hosts suspended",
       "type": "stat"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 5
       },
-      "id": 7,
+      "id": 6,
       "panels": [],
-      "title": "Live deployment",
+      "title": "Hosts",
       "type": "row"
     },
     {
@@ -313,6 +318,7 @@
         "type": "prometheus",
         "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "One row per NixOS host polled by comin. The pipeline stage cells show the result of the last run of each stage; the deployment columns come from the comin_deployment_info gauge.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -323,6 +329,7 @@
             "cellOptions": {
               "type": "auto"
             },
+            "filterable": false,
             "inspect": false
           },
           "mappings": [],
@@ -331,24 +338,350 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
+                "value": null
               }
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reboot needed"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "No",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Yes",
+                        "color": "orange",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fetch"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OK",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Failed",
+                        "color": "red",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Eval"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OK",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Failed",
+                        "color": "red",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Build"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OK",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Failed",
+                        "color": "red",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deployment"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OK",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Failed",
+                        "color": "red",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Suspended"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "No",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Yes",
+                        "color": "orange",
+                        "index": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deployment status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "done": {
+                        "text": "done",
+                        "color": "green",
+                        "index": 0
+                      },
+                      "running": {
+                        "text": "running",
+                        "color": "blue",
+                        "index": 1
+                      },
+                      "init": {
+                        "text": "init",
+                        "color": "blue",
+                        "index": 2
+                      },
+                      "failed": {
+                        "text": "failed",
+                        "color": "red",
+                        "index": 3
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.align",
+                "value": "center"
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deployed commit"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "auto"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 360
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
-        "y": 34
+        "y": 6
       },
-      "id": 5,
+      "id": 7,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -357,50 +690,179 @@
           "reducer": ["sum"],
           "show": false
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Host"
+          }
+        ]
       },
-      "pluginVersion": "12.1.1",
       "targets": [
         {
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "comin_deployment_info",
-          "format": "table",
-          "instant": true,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (comin_need_to_reboot{instance=~\"^$host$\"})",
           "legendFormat": "__auto",
+          "refId": "A",
+          "instant": true,
           "range": false,
-          "refId": "A"
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (comin_last_fetch_failed{instance=~\"^$host$\"})",
+          "legendFormat": "__auto",
+          "refId": "B",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (comin_last_eval_failed{instance=~\"^$host$\"})",
+          "legendFormat": "__auto",
+          "refId": "C",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (comin_last_build_failed{instance=~\"^$host$\"})",
+          "legendFormat": "__auto",
+          "refId": "D",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (comin_last_deployment_failed{instance=~\"^$host$\"})",
+          "legendFormat": "__auto",
+          "refId": "E",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (comin_is_suspended{instance=~\"^$host$\"})",
+          "legendFormat": "__auto",
+          "refId": "F",
+          "instant": true,
+          "range": false,
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance, commit_id, status) (comin_deployment_info{instance=~\"^$host$\"})",
+          "legendFormat": "__auto",
+          "refId": "G",
+          "instant": true,
+          "range": false,
+          "format": "table"
         }
       ],
-      "title": "Live deployment status",
       "transformations": [
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Value": true,
-              "__name__": true,
-              "job": true
+              "Time": true
             },
             "includeByName": {},
             "indexByName": {},
             "renameByName": {}
           }
+        },
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #G": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "instance": "Host",
+              "commit_id": "Deployed commit",
+              "status": "Deployment status",
+              "Value #A": "Reboot needed",
+              "Value #B": "Fetch",
+              "Value #C": "Eval",
+              "Value #D": "Build",
+              "Value #E": "Deployment",
+              "Value #F": "Suspended"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {
+              "Host": 0,
+              "Reboot needed": 1,
+              "Fetch": 2,
+              "Eval": 3,
+              "Build": 4,
+              "Deployment": 5,
+              "Suspended": 6,
+              "Deployment status": 7,
+              "Deployed commit": 8
+            },
+            "renameByName": {}
+          }
         }
       ],
+      "title": "Host status",
       "type": "table"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 14
       },
       "id": 8,
       "panels": [],
-      "title": "Pipeline health and activity",
+      "title": "History",
       "type": "row"
     },
     {
@@ -408,6 +870,250 @@
         "type": "prometheus",
         "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Result of the last run of each comin stage per host over time. A red band marks the interval during which the stage was failing.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0,
+            "spanNulls": false,
+            "insertNulls": false,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "OK",
+                  "color": "green",
+                  "index": 0
+                },
+                "1": {
+                  "text": "Failed",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 15
+      },
+      "id": 9,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "comin_last_fetch_failed{instance=~\"^$host$\"}",
+          "legendFormat": "{{instance}} fetch ({{remote_name}})",
+          "refId": "A",
+          "instant": false,
+          "range": true
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "comin_last_eval_failed{instance=~\"^$host$\"}",
+          "legendFormat": "{{instance}} eval",
+          "refId": "B",
+          "instant": false,
+          "range": true
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "comin_last_build_failed{instance=~\"^$host$\"}",
+          "legendFormat": "{{instance}} build",
+          "refId": "C",
+          "instant": false,
+          "range": true
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "comin_last_deployment_failed{instance=~\"^$host$\"}",
+          "legendFormat": "{{instance}} deployment",
+          "refId": "D",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "title": "Pipeline stage results",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "Whether each host needed a reboot or had its poller suspended over time.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 70,
+            "lineWidth": 0,
+            "spanNulls": false,
+            "insertNulls": false,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "No",
+                  "color": "green",
+                  "index": 0
+                },
+                "1": {
+                  "text": "Yes",
+                  "color": "orange",
+                  "index": 1
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "id": 10,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none",
+          "hideZeros": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "comin_need_to_reboot{instance=~\"^$host$\"}",
+          "legendFormat": "{{instance}} reboot needed",
+          "refId": "A",
+          "instant": false,
+          "range": true
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
+          "editorMode": "code",
+          "expr": "comin_is_suspended{instance=~\"^$host$\"}",
+          "legendFormat": "{{instance}} suspended",
+          "refId": "B",
+          "instant": false,
+          "range": true
+        }
+      ],
+      "title": "Host state",
+      "type": "state-timeline"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 11,
+      "panels": [],
+      "title": "Fetch activity",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P1809F7CD0C75ACF3"
+      },
+      "description": "Repository fetches per minute, per host, remote, and result.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -422,7 +1128,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -431,12 +1137,12 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
+            "lineWidth": 2,
+            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -447,19 +1153,17 @@
             }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
+                "value": null
               }
             ]
-          }
+          },
+          "unit": "fetches/min"
         },
         "overrides": []
       },
@@ -467,9 +1171,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 43
+        "y": 26
       },
-      "id": 9,
+      "id": 12,
       "options": {
         "legend": {
           "calcs": [],
@@ -478,19 +1182,23 @@
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
+          "mode": "multi",
+          "sort": "desc",
+          "hideZeros": false
         }
       },
-      "pluginVersion": "12.1.1",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P1809F7CD0C75ACF3"
+          },
           "editorMode": "code",
-          "expr": "rate(comin_fetch_count{instance=~\"^$host$\"}[5m]) * 60",
-          "legendFormat": "{{instance}} ({{remote_name}} - {{status}})",
-          "range": true,
-          "refId": "A"
+          "expr": "rate(comin_fetch_count{instance=~\"^$host$\"}[$__rate_interval]) * 60",
+          "legendFormat": "{{instance}} ({{remote_name}}, {{status}})",
+          "refId": "A",
+          "instant": false,
+          "range": true
         }
       ],
       "title": "Fetch rate",
@@ -501,6 +1209,7 @@
         "type": "prometheus",
         "uid": "P1809F7CD0C75ACF3"
       },
+      "description": "Fetches that failed in each interval, per host and remote. A flat zero is the expected state.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -514,8 +1223,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 60,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -524,12 +1233,12 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
+            "lineWidth": 2,
+            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -540,19 +1249,17 @@
             }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
+                "value": null
               }
             ]
-          }
+          },
+          "unit": "none"
         },
         "overrides": []
       },
@@ -560,9 +1267,9 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 43
+        "y": 26
       },
-      "id": 10,
+      "id": 13,
       "options": {
         "legend": {
           "calcs": [],
@@ -571,54 +1278,32 @@
           "showLegend": true
         },
         "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
+          "mode": "multi",
+          "sort": "desc",
+          "hideZeros": false
         }
       },
-      "pluginVersion": "12.1.1",
       "targets": [
         {
-          "editorMode": "code",
-          "expr": "comin_last_fetch_failed{instance=~\"^$host$\"}",
-          "legendFormat": "{{instance}} - {{__name__}}",
-          "range": true,
-          "refId": "A"
-        },
-        {
           "datasource": {
             "type": "prometheus",
             "uid": "P1809F7CD0C75ACF3"
           },
           "editorMode": "code",
-          "expr": "comin_last_eval_failed{instance=~\"^$host$\"}",
-          "hide": false,
+          "expr": "sum by (instance, remote_name) (increase(comin_fetch_count{instance=~\"^$host$\", status=\"failed\"}[$__rate_interval])) or (0 * sum by (instance, remote_name) (comin_fetch_count{instance=~\"^$host$\"}))",
+          "legendFormat": "{{instance}} ({{remote_name}})",
+          "refId": "A",
           "instant": false,
-          "legendFormat": "{{instance}} - {{__name__}}",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P1809F7CD0C75ACF3"
-          },
-          "editorMode": "code",
-          "expr": "comin_last_build_failed{instance=~\"^$host$\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "{{instance}} - {{__name__}}",
-          "range": true,
-          "refId": "C"
+          "range": true
         }
       ],
-      "title": "Pipeline Failure Timeline",
+      "title": "Failed fetches",
       "type": "timeseries"
     }
   ],
   "preload": false,
   "schemaVersion": 41,
-  "tags": [],
+  "tags": ["nix", "comin"],
   "templating": {
     "list": [
       {
@@ -627,9 +1312,14 @@
           "text": "All",
           "value": "$__all"
         },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P1809F7CD0C75ACF3"
+        },
         "definition": "label_values(comin_build_info, instance)",
         "includeAll": true,
         "label": "Host",
+        "multi": true,
         "name": "host",
         "options": [],
         "query": {
@@ -645,12 +1335,12 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Nix: comin",
   "uid": "b283eefc-b86e-45f3-b38d-627cd665e3f3",
-  "version": 9
+  "version": 10
 }
