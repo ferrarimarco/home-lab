@@ -187,6 +187,19 @@ keys converged with `--tags authorized-keys`; on a Proxmox node pair it with
   state-query tasks carry `changed_when: false` and `check_mode: false`, and
   later tasks tolerate resources that an earlier task would have created.
 
+## Secrets and vault files
+
+Secret values reach the role only through `vault_*` variables defined in the
+gitignored Ansible vault files, host or group scoped, as the secrets policy in
+the repository's
+[AGENTS.md](https://github.com/ferrarimarco/home-lab/blob/master/AGENTS.md) sets
+out: nothing secret is committed, encrypted or not. A new secret therefore means
+a new `vault_*` variable that the user adds with the vault edit mode of
+`run-ansible.sh`, which the
+[operational scripts guide](./operational-scripts.md) documents together with
+the read-only view mode and the key-name listing that checks a variable exists
+without printing its value. Both modes run without an SSH agent.
+
 ## Coral driver delivery
 
 Google retired the Coral APT repository (`packages.cloud.google.com/apt` answers

@@ -1082,6 +1082,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#secrets-and-vault-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secrets and vault files
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#coral-driver-delivery" class="md-nav__link">
     <span class="md-ellipsis">
       Coral driver delivery
@@ -1691,6 +1700,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#secrets-and-vault-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secrets and vault files
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#coral-driver-delivery" class="md-nav__link">
     <span class="md-ellipsis">
       Coral driver delivery
@@ -1897,6 +1915,17 @@ keys converged with <code>--tags authorized-keys</code>; on a Proxmox node pair 
   state-query tasks carry <code>changed_when: false</code> and <code>check_mode: false</code>, and
   later tasks tolerate resources that an earlier task would have created.</li>
 </ul>
+<h2 id="secrets-and-vault-files">Secrets and vault files</h2>
+<p>Secret values reach the role only through <code>vault_*</code> variables defined in the
+gitignored Ansible vault files, host or group scoped, as the secrets policy in
+the repository's
+<a href="https://github.com/ferrarimarco/home-lab/blob/master/AGENTS.md">AGENTS.md</a> sets
+out: nothing secret is committed, encrypted or not. A new secret therefore means
+a new <code>vault_*</code> variable that the user adds with the vault edit mode of
+<code>run-ansible.sh</code>, which the
+<a href="../operational-scripts/">operational scripts guide</a> documents together with
+the read-only view mode and the key-name listing that checks a variable exists
+without printing its value. Both modes run without an SSH agent.</p>
 <h2 id="coral-driver-delivery">Coral driver delivery</h2>
 <p>Google retired the Coral APT repository (<code>packages.cloud.google.com/apt</code> answers
 403 Forbidden) and archived the gasket driver source at version 1.0-18, and

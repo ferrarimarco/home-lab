@@ -231,11 +231,13 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     (watching for unexpected `state: absent` teardowns) before repeating the
     same command without those flags to apply.
 
-    The script requires a running SSH agent (`SSH_AUTH_SOCK`) holding the keys
-    to connect to the nodes; it forwards the agent socket into the Ansible
-    container. Shells that do not inherit the session environment (for example
-    AI agent shells) must discover the socket and pass it explicitly: find it
-    with `ls /tmp/ssh-*/agent.*`, verify the loaded keys with
+    Playbook runs and custom commands require a running SSH agent
+    (`SSH_AUTH_SOCK`) holding the keys to connect to the nodes; the script
+    forwards the agent socket into the Ansible container. The vault edit and
+    view modes described below run `ansible-vault` only and do not need the
+    agent. Shells that do not inherit the session environment (for example AI
+    agent shells) must discover the socket and pass it explicitly: find it with
+    `ls /tmp/ssh-*/agent.*`, verify the loaded keys with
     `SSH_AUTH_SOCK=<socket> ssh-add -l`, and prefix the invocation with
     `SSH_AUTH_SOCK=<socket>`. The socket path changes across reboots.
 
