@@ -60,8 +60,9 @@ reliability risks first, then security exposure, then automation):
   complete (Syncthing on nas-pve1, media on pve1, restic repositories on the
   nas-pve1 `backups` share), and the raspberrypi2 cleanup ran on 2026-10-17 (the
   copied media state, the dead disk's inventory entry, and the Samba share that
-  exported its empty mount point are gone). Left: Zigbee2MQTT and Mosquitto,
-  which can move at any time.
+  exported its empty mount point are gone). Left: Mosquitto, which moves to hl02
+  as a NixOS module; Zigbee2MQTT stays on raspberrypi2 (both decided
+  2026-10-23).
 
 ### Bootstrapping and provisioning
 
@@ -112,19 +113,32 @@ reliability risks first, then security exposure, then automation):
       media stack: verifying the hl01 stack against the library rebuilt on
       `rpool-usb-2` ([NAS](#nas)). The endpoint variables live in the node
       role's `vars/main.yaml`, not in `group_vars`; the media ones point at hl01
-      since 2026-10-10. Still to move: Zigbee2MQTT carries its device database
-      and state, and needs the dongle moved to pve1 with a USB passthrough on
-      the hl01 VM (to declare in the Terraform VM resource and in the
-      [NixOS VMs on Proxmox](./proxmox-vm.md) spec, which today only pass
-      through the Coral and the iGPU) plus the udev rule for a stable device
-      path on both hosts ([Host configuration](#host-configuration)); Mosquitto
-      is redeployed fresh, and the Home Assistant MQTT integration's broker host
-      changes in its UI. Syncthing already moved to nas-pve1 ([NAS](#nas)). The
-      monitoring backend stays: it runs as a highly available pair on hl01 and
-      raspberrypi2 (monitoring-alerting spec §3.3). Afterwards: move the ONT
-      exporter and the router WAN check to hl01, and delete the source data with
-      separate approvals; the raspberrypi2 restic job retires with the host, per
-      the repository wind-down item ([Backup](#backup)).
+      since 2026-10-10. Zigbee2MQTT stays on raspberrypi2 (decided 2026-10-23):
+      the dongle sits where the Zigbee mesh needs it, not where the compute is;
+      a USB passthrough on the hl01 VM adds a hypervisor layer under a serial
+      link the `ezsp` driver already connects to unreliably, and ties the radio
+      to pve1. The decoupling step is a network coordinator
+      ([Smart home](#smart-home)); the udev rule for a stable device path stays
+      a raspberrypi2 item ([Host configuration](#host-configuration)). Mosquitto
+      moves to hl02 as a `services.mosquitto` NixOS module (decided 2026-10-23;
+      the hl01-only decision covered containers, and a native module is not
+      one): a `mosquitto` Nix role imported by hl02 with its integration-test
+      fragment, a blackbox TCP probe on port 1883 in the generated target list,
+      `mosquitto_server_fqdn` re-pointed in the node role's `vars/main.yaml`
+      (Frigate and Zigbee2MQTT read it), the Home Assistant MQTT integration's
+      broker host changed in its UI, then `configure_mqtt_broker` dropped from
+      raspberrypi2. Both brokers run during the cutover, since comin deploys the
+      hl02 side on merge; the deployment is fresh, with no state copied, and the
+      consumers republish their retained topics when they restart against the
+      new broker. The hl02 address reservation ([Networking](#networking)) is an
+      ordering preference, not a dependency: the consumers connect by name,
+      which the gateway resolves from the lease. Syncthing already moved to
+      nas-pve1 ([NAS](#nas)). The monitoring backend stays: it runs as a highly
+      available pair on hl01 and raspberrypi2 (monitoring-alerting spec §3.3).
+      Afterwards: move the ONT exporter and the router WAN check to hl01, and
+      delete the source data with separate approvals; the raspberrypi2 restic
+      job retires with the host, per the repository wind-down item
+      ([Backup](#backup)).
     - Network boot service and Raspberry Pi re-provisioning, per the
       [Network Boot Service](./network-boot.md) spec:
         - `netboot-server` Nix role on hl02 (TFTP tree, NFS export, and
@@ -281,7 +295,12 @@ reliability risks first, then security exposure, then automation):
 - Secure Debian:
   [Securing Debian manual](https://www.debian.org/doc/manuals/securing-debian-manual/index.en.html).
 - Secrets: restrict access to the Frigate configuration file to root only.
-- Mosquitto: configure encryption, authentication, and mTLS.
+- Mosquitto: configure encryption, authentication, and mTLS. The broker moves to
+  hl02 as a NixOS module
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)), whose
+  module takes password files and certificates from paths on the host, so this
+  item needs a secret delivery path for the NixOS hosts, which none has yet (the
+  anonymous listener needs none).
 - Docker: remove users from the Docker group?; Docker socket hardening
   ([Traefik Docker API access](https://doc.traefik.io/traefik/providers/docker/#docker-api-access),
   [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy));
@@ -527,29 +546,35 @@ reliability risks first, then security exposure, then automation):
       the host configuration.
     - The power instrument depends on raspberrypi2: the Zigbee plugs reach Home
       Assistant through Zigbee2MQTT on that host, so measurements pause when it
-      stalls (2026-10-06). Depends on: the container migration
-      ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
+      stalls (2026-10-06), and Zigbee2MQTT stays there (2026-10-23). Depends on:
+      the raspberrypi2 re-image ([Current focus](#current-focus)); the network
+      coordinator ([Smart home](#smart-home)) removes the host dependency
+      altogether.
     - Depends on: a stable BMC address for remote recovery during runtime
       experiments ([Networking](#networking)). Blocks: the media second copy on
       `tank-hdd` ([NAS](#nas)); the Proxmox node downtime alerts stay enabled by
       choice until pve2 runs 24/7
       ([Monitoring and alerting](#monitoring-and-alerting)).
-- Point the router's DHCP reservation for pve2's address at the cabled port: the
-  cable is on `nic0` (link up), which `vmbr0` bridges with the address static in
-  `/etc/network/interfaces`; the inventory placed the address on `nic1` (link
-  down) until 2026-10-22, when it was moved to `nic0`, so the reservation that
-  keeps the address out of the pool must name `nic0`'s MAC.
 - Proxmox cluster (pve1, pve2): configure certificates
   ([certificate management](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management),
   [Let's Encrypt](https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html)).
 - Asus RT-AX86U: copy the node public key to the Asus to allow SSH access,
   configure the Asus host key as trusted in the node that connects via SSH,
   deploy the Prometheus Node Exporter: run the arm64 release binary from the USB
-  storage, relaunch it when not running from a `cru` cron entry registered by a
-  persistent `/jffs/scripts/init-start` hook (the root filesystem is volatile),
-  add the router to the `node` scrape job, and verify the netdev collector
-  reports the interface counters, since some exporter releases failed on this
-  firmware.
+  storage, relaunch it when not running from a `cru` cron entry, add the router
+  to the `node` scrape job, and verify the netdev collector reports the
+  interface counters, since some exporter releases failed on this firmware. The
+  stock firmware has no `init-start` hook (checked 2026-10-23: the `rc` binary
+  carries no `jffs2_exec` or `script_usbmount` string, only `.asusrouter`,
+  untested), and its `script_usbmount` variable is blocked and scrubbed on
+  recent builds, so the known launcher is the one
+  [jacklul/asuswrt-scripts](https://github.com/jacklul/asuswrt-scripts) uses: a
+  USB stick carrying a fake Download Master package whose init script starts the
+  scripts after the mount. No USB storage is attached to the router today, so
+  this item starts with that stick; the same launcher would carry the
+  `uptime-reboot` and `update-notify` style scripts, none of which the lab needs
+  (the firmware check is covered from the lab side,
+  [Monitoring and alerting](#monitoring-and-alerting)).
 - raspberrypi2:
     - Enable TRIM on the external SSD
       ([reference](https://www.jeffgeerling.com/blog/2020/enabling-trim-on-external-ssd-on-raspberry-pi)).
@@ -580,14 +605,54 @@ reliability risks first, then security exposure, then automation):
 
 - Configure static IP addresses for servers (raspberrypi2, hl01): when the
   router reboots, dnsmasq on the gateway doesn't know the hosts until they renew
-  their DHCP leases, so their names don't resolve in the meantime. Depends on:
-  the DHCP server items below (deploy a managed DHCP server, or take control of
-  the dnsmasq instance on the Asus). Blocks: the NAS static IP migration
-  ([NAS](#nas)).
+  their DHCP leases, so their names don't resolve in the meantime. A reservation
+  with a hostname serves that motivation without a static address: the stock
+  firmware writes each one to the router's `/etc/hosts` when dnsmasq starts
+  (verified 2026-10-23: the five current reservations are there as
+  `<address> <hostname>.edge.lab.ferrari.how`), so the name resolves before any
+  lease. Depends on: the gateway dnsmasq settings play below, which manages the
+  reservations. Blocks: the NAS static IP migration ([NAS](#nas)).
 - Reserve a DHCP address for hl02 on the router and record it in the inventory:
   the Raspberry Pi network-boot rescue names the boot server by address
-  (`TFTP_IP`). Blocks: the Raspberry Pi network-boot rescue
+  (`TFTP_IP`). hl01, hl02, and nas-pve1 hold dynamic leases today (2026-10-23).
+  Blocks: the Raspberry Pi network-boot rescue
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
+- **Manage the gateway's dnsmasq settings on the stock firmware (decided
+  2026-10-23)**: the Asus RT-AX86U stays on the stock Asuswrt firmware while it
+  is supported (asuswrt-merlin was declined), which keeps no dnsmasq
+  configuration file to own: it renders `/etc/dnsmasq.conf` from NVRAM every
+  time the service starts, and the web UI is a frontend to those variables.
+  Everything the UI exposes is therefore settable over the SSH access the ChkWAN
+  unit already has, with `nvram set`, `nvram commit`, and
+  `service restart_dnsmasq`: the DHCP reservations (`dhcp_staticlist`, one
+  `<MAC>IP>DNS>hostname` entry per host separated by `<`, rendered only while
+  `dhcp_static_x` is 1; format read from the router on 2026-10-23, size limit
+  unknown), the pool and lease time, the DNS server handed to clients
+  (`dhcp_dns1_x`, empty today, so clients get the router), and the upstream
+  servers. Directives with no NVRAM variable (a `cname`, a `server=/zone/`
+  forward, `dhcp-boot`, `address`) are out of reach: Merlin's `dnsmasq.conf.add`
+  is the only supported path, the
+  [stock-firmware workaround thread](https://www.snbforums.com/threads/dnsmasq-conf-add-without-custom-firmware.43244/)
+  records no persistent method, and
+  [jacklul/asuswrt-scripts](https://github.com/jacklul/asuswrt-scripts)
+  implements the `.add` files by polling the syslog for restart events,
+  rewriting the regenerated file, and restarting the process behind the
+  firmware's back, launched from a USB stick with a fake Download Master package
+  because the firmware blocked its script hook: a polling bridge in an arms race
+  with firmware updates, declined. Those records belong to the lab resolver
+  (network stack item below). Design: an Ansible play against the gateway with
+  the `raw` module (BusyBox, no Python), rendering the reservation list from the
+  inventory's `network_interfaces` addresses, reading the current value first
+  and writing, committing to flash, and restarting dnsmasq only on a difference,
+  check-mode friendly; not a timer on raspberrypi2 like the ChkWAN watchdog,
+  since NVRAM is the router's own persistence across reboots and a one-shot
+  converge needs no bridge. First consumers: the hl02 and BMC reservations above
+  (settable in the UI meanwhile). Verified on 2026-10-23 from the firmware
+  source (the asuswrt-merlin.ng tree, which tracks the stock 388 code; the NVRAM
+  rendering is stock, the `.add` and `postconf` hooks are Merlin's) and on the
+  router (3.0.0.4.388_24436): the pve2 reservation already names the cabled
+  port's MAC, the lease time is 86400 s, and the pool spans the whole
+  `10.0.0.0/8` from `.2`.
 - Set a static DHCP assignment for the pve2 BMC on the router, so the BMC stays
   reachable at a stable address for remote power control — pve2 stays powered
   off until its power reduction work completes
@@ -676,11 +741,36 @@ reliability risks first, then security exposure, then automation):
   `configure_network_stack`, which defaults to false and no host enables, so the
   CoreDNS scrape job renders zero targets. The items below deploy and harden
   that stack:
-    - DNS server: configure the lab DNS zone.
-    - DNS over TLS: dnsmasq instance on the Asus (done, but check); Unbound.
+    - DNS server: configure the lab DNS zone. CNAME aliases for services are the
+      first concrete need (2026-10-23): the gateway cannot carry them (its
+      dnsmasq settings item above), and a dnsmasq CNAME target must be a name it
+      knows locally in any case, so the aliases live in the lab zone, the
+      router's DHCP hands the lab resolver to clients (a UI-exposed setting),
+      and the resolver forwards `edge.lab.ferrari.how` back to the router so
+      lease names keep resolving. Deployment candidates: the Ansible network
+      stack as designed, or NixOS modules on hl02, in line with the Mosquitto
+      move ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)).
+    - DNS over TLS: the dnsmasq instance on the Asus forwards only to the local
+      stubby listener (`dnspriv_enable=1`, verified 2026-10-23); Unbound.
     - DHCP server:
         - Deploy a managed DHCP server, or take control of the dnsmasq instance
-          on the Asus.
+          on the Asus. Decided 2026-10-23: the router keeps DHCP and lease DNS,
+          managed through the dnsmasq settings item above, and the lab resolver
+          adds what the router cannot carry. The alternative, a lab dnsmasq that
+          owns DHCP, DNS, and PXE (the design of the former
+          `provisioning/docker/dnsmasq` templates, last in the parent of commit
+          0b10e5da: `dhcp-authoritative`, `bogus-priv`, `domain-needed`,
+          `expand-hosts`, `no-hosts`, `no-resolv`, TFTP with a `pxe-service`
+          entry, and four files re-read on SIGHUP for static hosts, DHCP
+          reservations, upstream servers, and DHCP options), gives one
+          declarative configuration, CNAMEs included, and lets the DHCP server
+          hand out the boot server itself, which drops the proxy-DHCP and the
+          EEPROM-pinned address of the [Network Boot Service](./network-boot.md)
+          spec; its cost is that DHCP and DNS for every device in the house then
+          depend on pve1, hl02, and a comin-driven VM: new clients cannot join
+          while it is down, and the router's client list loses names. Revisit
+          once pve2 runs 24/7 and can host a second instance, which the
+          keepalived item below would front.
         - Configure the DHCP address pool as documented.
         - Understand what the dhcp-script does.
         - Deprecate the DNS resolver on the Asus, or take control of its
@@ -698,8 +788,10 @@ reliability risks first, then security exposure, then automation):
           [Network Boot Service](./network-boot.md) spec, whose server on hl02
           leaves room for the x86 nodes.
         - Configure dnsmasq on the Asus router to use the recursive DNS
-          resolver: find a way to edit the dnsmasq configuration in the stock
-          Asuswrt firmware.
+          resolver: the upstream servers are a UI-exposed setting, so the
+          dnsmasq settings item above covers it (today the upstream is the
+          router's own DNS over TLS listener, which the lab resolver can keep as
+          its forwarder instead).
         - Forward queries to the authoritative DNS server for the main zone. If
           dnsmasq: `server=/{{ root_fqdn }}/{{ root_dns_servers[0].ipv4_address`
         - Remove the manual address assignments for servers.
@@ -761,6 +853,33 @@ reliability risks first, then security exposure, then automation):
   journal cursor file, alerting with `increase(...[1h]) > 0` as
   `EdacUncorrectableErrors` does, so a failing disk or bridge is flagged before
   the application symptoms.
+- **Asus firmware update alert (2026-10-24)**: two sources disagree on what "new
+  firmware" means, so the collector exports both. The router's daily firmware
+  check (`firmware_check=1`, auto-upgrade off, log in `/jffs/webs_upgrade.log`)
+  posts to an Asus feedback server and receives a per-device control file naming
+  the build Asus offers to that device under a staged rollout (region code, ISP,
+  force level), left in NVRAM as `webs_state_info`, `webs_state_flag`, and
+  `webs_update_ts`: on 2026-10-23 it still offered 24436 while the
+  [support page](https://www.asus.com/it/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-ax86u/helpdesk_bios?model2Name=RT-AX86U)
+  had published 24437 on 2026-10-22 (a DNSSEC resolution fix), so the router's
+  signal means "installable from the UI now" and the page means "published". The
+  legacy live-update manifests do not list this model, and the JSON API behind
+  the page refused direct calls on two variants, while the page itself is
+  server-rendered. Design: a `monitoring-asuswrt` textfile stack on the host
+  that holds the router SSH key (raspberrypi2 today, next to the ChkWAN and ONT
+  units; it moves with them), modeled on the `monitoring-apt` stack: a daily
+  timer runs a script that reads the running version and the `webs_*` values
+  over SSH, fetches the support page and takes the highest version string of the
+  form `3.0.0.4.<build>_<number>` on it (the stable part of the markup) with its
+  release date, and writes an update-available gauge labelled by running,
+  offered, and published version plus a check-timestamp gauge per source. Rules
+  with promtool tests: `AsusFirmwareUpdateAvailable` when the published version
+  is newer than the running one, its description saying whether the router
+  already offers it; a stale-check rule when the page is unreachable or
+  unparsable for two days or the router's own check is older than two days. Not
+  in scope: triggering the router's check from the lab, and scripts on the
+  router (the node exporter item, [Host configuration](#host-configuration), has
+  the launcher constraints).
 - Configure the Grafana admin credentials declaratively: vault-backed
   `GF_SECURITY_ADMIN_USER` and `GF_SECURITY_ADMIN_PASSWORD` environment
   variables in the monitoring backend compose template, so a fresh replica
@@ -852,7 +971,19 @@ reliability risks first, then security exposure, then automation):
   restic snapshot carry the network, so a reflash that loses it is recoverable.
   On the 2.14.2 upgrade (2026-10-17) the `ezsp` driver timed out on the adapter
   on the first two starts and connected on the third, under the Compose restart
-  policy: another reason to move to `ember`.
+  policy: another reason to move to `ember`. The network coordinator (next item)
+  removes the flash-station constraint, since those devices update their own
+  firmware.
+- **Zigbee coordinator over the network (decided 2026-10-23)**: replace the USB
+  dongle with an Ethernet or PoE coordinator, so that Zigbee2MQTT connects to
+  the radio over TCP (`serial.port: tcp://<host>:<port>`), runs on any host with
+  no USB passthrough, and the radio sits where the mesh needs it; this is the
+  decoupling step chosen instead of moving the dongle to pve1
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). First
+  candidate: the SMLIGHT SLZB-06 family (EmberZNet, firmware updated from the
+  device's web interface); verify the firmware line, the `ember` driver support,
+  and the update path before buying. The coordinator backup carries the network
+  across the adapter change, as it does across a reflash.
 - Lock-state sensing for the existing door locks: a Zigbee water-leak sensor
   with an external two-wire probe, hidden in the door frame, with each probe
   wire ending in a foil pad inside the strike box; the thrown deadbolt bridges
