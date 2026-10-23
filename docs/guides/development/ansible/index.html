@@ -1759,8 +1759,8 @@ set of generic tasks applies that data:</p>
    stack is one entry with an <code>enable_custom_fact</code> switch, a <code>fact_category</code>
    name, and its resource lists. One <code>set_fact</code> task filters the entries by the
    run's tags and by enablement, and appends their lists to the global custom
-   facts; the entries of selected but disabled stacks feed the teardown lists
-   instead.</li>
+   facts; the entries of selected but disabled stacks also feed the teardown
+   lists.</li>
 <li>The <code>fact_category</code> name doubles as the stack's <strong>tag</strong>: running the playbook
    with <code>--tags '&lt;fact_category&gt;' --tags untagged</code> selects that stack plus the
    global untagged initialization tasks.</li>

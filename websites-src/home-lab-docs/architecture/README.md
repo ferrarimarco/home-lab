@@ -112,10 +112,10 @@ reliability risks first, then security exposure, then automation):
       media stack: verifying the hl01 stack against the library rebuilt on
       `rpool-usb-2` ([NAS](#nas)). The endpoint variables live in the node
       role's `vars/main.yaml`, not in `group_vars`; the media ones point at hl01
-      since 2026-10-10. Still to move: Zigbee2MQTT carries its device database,
-      network key, and state, and needs the dongle moved to pve1 with a USB
-      passthrough on the hl01 VM (to declare in the Terraform VM resource and in
-      the [NixOS VMs on Proxmox](./proxmox-vm.md) spec, which today only pass
+      since 2026-10-10. Still to move: Zigbee2MQTT carries its device database
+      and state, and needs the dongle moved to pve1 with a USB passthrough on
+      the hl01 VM (to declare in the Terraform VM resource and in the
+      [NixOS VMs on Proxmox](./proxmox-vm.md) spec, which today only pass
       through the Coral and the iGPU) plus the udev rule for a stable device
       path on both hosts ([Host configuration](#host-configuration)); Mosquitto
       is redeployed fresh, and the Home Assistant MQTT integration's broker host

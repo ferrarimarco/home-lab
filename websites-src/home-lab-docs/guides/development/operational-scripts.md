@@ -299,6 +299,11 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
       scripts/run-ansible.sh "molecule test"
     ```
 
+    A stack that starts a service also needs `install-debian-packages` in the
+    scope: the package install task runs only when the run names that tag, and
+    without it the service's dependencies (`python3-venv` for `monitoring-apt`)
+    are missing when the unit starts.
+
     Unset, the variable selects every task, which is what CI runs. Run the full
     unscoped test once before pushing: a scoped run does not exercise the other
     stacks' tasks, nor the tasks that consume the registered results of tasks
