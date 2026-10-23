@@ -1975,6 +1975,20 @@ playbook to test, and pass the Molecule command to run:</p>
 when the test completes. Molecule skips the tasks that have the
 <code>molecule-notest</code> tag: tests don't pull container images, and don't start
 containerized services.</p>
+<p>A full <code>main</code> run converges every stack twice (converge and idempotence) and
+takes about eight minutes. While iterating on one stack, scope both passes
+with <code>ANSIBLE_TEST_TAGS</code>, which takes the same value as the <code>--tags</code> flag of
+a production run (the stack tag plus <code>untagged</code>, as the
+<a href="../ansible/">Ansible development guide</a> describes):</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ANSIBLE_TEST_DISTRO</span><span class="o">=</span><span class="s2">&quot;geerlingguy/docker-debian12-ansible:latest&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_TEST_PLAYBOOK_NAME</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_TEST_TAGS</span><span class="o">=</span><span class="s2">&quot;zigbee2mqtt,untagged&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>scripts/run-ansible.sh<span class="w"> </span><span class="s2">&quot;molecule test&quot;</span>
+</code></pre></div>
+<p>Unset, the variable selects every task, which is what CI runs. Run the full
+unscoped test once before pushing: a scoped run does not exercise the other
+stacks' tasks, nor the tasks that consume the registered results of tasks
+the scope skipped.</p>
 <p>Both variables are required: <code>ANSIBLE_TEST_DISTRO</code> also switches the
 container image build to the target that contains Molecule, so a bare
 <code>scripts/run-ansible.sh "molecule test"</code> fails with

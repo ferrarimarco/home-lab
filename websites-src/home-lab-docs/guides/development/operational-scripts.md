@@ -286,6 +286,24 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     `molecule-notest` tag: tests don't pull container images, and don't start
     containerized services.
 
+    A full `main` run converges every stack twice (converge and idempotence) and
+    takes about eight minutes. While iterating on one stack, scope both passes
+    with `ANSIBLE_TEST_TAGS`, which takes the same value as the `--tags` flag of
+    a production run (the stack tag plus `untagged`, as the
+    [Ansible development guide](./ansible.md) describes):
+
+    ```shell
+    ANSIBLE_TEST_DISTRO="geerlingguy/docker-debian12-ansible:latest" \
+      ANSIBLE_TEST_PLAYBOOK_NAME="main" \
+      ANSIBLE_TEST_TAGS="zigbee2mqtt,untagged" \
+      scripts/run-ansible.sh "molecule test"
+    ```
+
+    Unset, the variable selects every task, which is what CI runs. Run the full
+    unscoped test once before pushing: a scoped run does not exercise the other
+    stacks' tasks, nor the tasks that consume the registered results of tasks
+    the scope skipped.
+
     Both variables are required: `ANSIBLE_TEST_DISTRO` also switches the
     container image build to the target that contains Molecule, so a bare
     `scripts/run-ansible.sh "molecule test"` fails with

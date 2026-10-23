@@ -134,5 +134,9 @@ provisioner:
   options:
     # Enable Ansible diff mode
     D: true
+    # Scope the converge and idempotence runs to a stack, with the same tag
+    # mechanism the production runs use (a stack tag plus untagged). The
+    # default is the implicit tag that selects every task.
+    tags: ${ANSIBLE_TEST_TAGS:-all}
   playbooks:
     converge: "${ANSIBLE_TEST_PLAYBOOK_PATH}"
