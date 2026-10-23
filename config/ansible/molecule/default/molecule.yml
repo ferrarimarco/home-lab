@@ -124,6 +124,8 @@ provisioner:
         vault_media_stack_qbittorrent_webui_password: "vault_media_stack_qbittorrent_webui_password"
         vault_monitoring_backend_alertmanager_telegram_bot_token: "vault_monitoring_backend_alertmanager_telegram_bot_token"
         vault_monitoring_backend_alertmanager_telegram_chat_id: "1234"
+        vault_zigbee2mqtt_network_key:
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
         workloads_backup_disk_mount_path: "/media/backup-0"
   options:
     # Enable Ansible diff mode
