@@ -399,7 +399,9 @@ architectural patterns:
   `ANSIBLE_TEST_DISTRO=<image> ANSIBLE_TEST_PLAYBOOK_NAME=<playbook> scripts/run-ansible.sh "molecule test"`
   (both variables and the SSH agent socket are required), as described in the
   [operational scripts guide](./websites-src/home-lab-docs/guides/development/operational-scripts.md).
-  The tests start privileged containers on the control machine, so get approval
-  first, and state in the commit proposal whether the run happened or why it was
-  skipped. Tag new tasks that pull container images or start containerized
-  services with `molecule-notest`.
+  While iterating on one stack, scope the run with `ANSIBLE_TEST_TAGS` as the
+  guide describes, and run the full unscoped test once before pushing. The tests
+  start privileged containers on the control machine, so get approval first, and
+  state in the commit proposal whether the run happened or why it was skipped.
+  Tag new tasks that pull container images or start containerized services with
+  `molecule-notest`.

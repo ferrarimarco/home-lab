@@ -2367,6 +2367,26 @@ reliability risks first, then security exposure, then automation):</p>
   so the seven standalone jobs only add per-playbook attribution and a
   standalone-run check, while <code>home-lab-node</code>, the most-changed playbook, is
   tested only through <code>main</code>; the idempotence phase stays.</li>
+<li>Cut the Molecule converge time (measured 2026-10-23 on <code>main</code> against the
+  Debian 12 image): the baseline took 6:34 to converge and 4:11 for the
+  idempotence pass; enabling connection pipelining for the Docker connection
+  cut them to 4:53 and 2:34, and a run scoped to one stack with
+  <code>ANSIBLE_TEST_TAGS</code> takes 1:47 and 0:57. What remains is about 0.2 s of
+  fixed cost per task across some 370 tasks, the four file loops of the node
+  role (about 50 s per pass, one module execution per item), and three
+  levers not taken yet. First, the package installs (bootstrap apt, Docker,
+  Debian packages, Coral DKMS) cost about 110 s per converge on the bare
+  image: a test instance image layered on the geerlingguy image with the
+  role's packages pre-installed, built by the container image workflow,
+  removes them, but its package list drifts from the role's unless it is
+  derived from the role's variables. Second, the bootstrap role's untagged
+  apt cache refreshes and repository loops cost 48 s in the converge and 23
+  s in the idempotence pass of a scoped run, paid by every scope. Third,
+  Molecule keeps its state in the Ansible container's cache directory, which
+  the script removes with the container, so a <code>converge</code> cannot be followed
+  by <code>idempotence</code> or <code>login</code> from a second invocation; mounting a
+  persistent cache directory from the script would allow that iteration
+  workflow instead of running <code>converge</code> twice.</li>
 <li>Make the <code>home-lab-node</code> playbook pass a standalone Molecule run
   (2026-10-12): the Docker prune unit the node role renders requires
   <code>docker.service</code>, which only the container-engine playbook installs, so
