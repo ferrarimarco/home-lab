@@ -8,6 +8,10 @@ monitoring_apt_metrics_collection_script_destination_path: "{{ monitoring_apt_co
 # Package.phasing_applied attribute that python3-apt 2.6 (Debian 12) and
 # older lack.
 monitoring_apt_metrics_collection_script_url: "https://raw.githubusercontent.com/prometheus-community/node-exporter-textfile-collector-scripts/1d4dedb0914d29b1da423397eca69d0c09c2c5a2/apt_info.py"
+# The hash of the pinned script: a moved pin without a new hash fails the
+# download instead of deploying unverified content, and check mode stays
+# truthful because the module compares the hash without a request.
+monitoring_apt_metrics_collection_script_checksum: "sha256:32ee8d9533e99f671b61414ec1289a3e130f11ceb079b1a3994cead6be214779"
 monitoring_apt_os_service_name: "{{ monitoring_apt_tag }}"
 monitoring_apt_requirements_file_path: "{{ monitoring_apt_configuration_directory_path }}/requirements.txt"
 monitoring_apt_service_file_name: "{{ monitoring_apt_os_service_name }}.service"
@@ -33,6 +37,7 @@ monitoring_apt_files_to_configure:
 
 monitoring_apt_files_to_download:
   - url: "{{ monitoring_apt_metrics_collection_script_url }}"
+    checksum: "{{ monitoring_apt_metrics_collection_script_checksum }}"
     dest: "{{ monitoring_apt_metrics_collection_script_destination_path }}"
     state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
     mode: "0755"

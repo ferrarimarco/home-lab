@@ -56,6 +56,10 @@
   ansible.builtin.get_url:
     url: "{{ item.url }}"
     dest: "{{ item.dest }}"
+    # A declared checksum lets the module report an unchanged destination
+    # without a request, in check mode too; without one, check mode always
+    # predicts a change because its HEAD request carries no content to compare.
+    checksum: "{{ item.checksum | default(omit) }}"
     mode: "{{ item.mode }}"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"

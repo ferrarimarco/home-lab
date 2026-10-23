@@ -123,6 +123,7 @@
         fact_docker_compose_up_items: "{{ monitoring_docker_compose_up_items }}"
         fact_files_to_download:
           - url: "{{ monitoring_smart_metrics_collection_script_url }}"
+            checksum: "{{ monitoring_smart_metrics_collection_script_checksum }}"
             dest: "{{ monitoring_smartmon_prometheus_exporter_script_destination_path }}"
             state: "{{ configure_monitoring_sata | ternary('file', 'absent') }}"
             mode: "0755"

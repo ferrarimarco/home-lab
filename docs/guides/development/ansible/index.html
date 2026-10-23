@@ -1911,9 +1911,11 @@ keys converged with <code>--tags authorized-keys</code>; on a Proxmox node pair 
 <li>Always run <code>--check --diff</code> (capturing the full output to a log file) and
   review the predicted changes before applying. Watch specifically for
   unexpected <code>state: absent</code> predictions (see enablement flags above).</li>
-<li><code>ansible.builtin.get_url</code> tasks always report <code>changed</code> in check mode: the
-  module cannot verify remote content without downloading. Confirm against the
-  real run before treating such a prediction as drift.</li>
+<li>Every download entry declares a <code>checksum</code> (<code>sha256:&lt;hash&gt;</code>) next to its URL
+  pin. With it, <code>ansible.builtin.get_url</code> reports an unchanged destination
+  without a request, in check mode too; without it, check mode always predicts a
+  change, since its HEAD request carries no content to compare. A pin moved
+  without a new hash fails the download instead of deploying unverified content.</li>
 <li>Design tasks so check mode runs cleanly and truthfully on first runs:
   state-query tasks carry <code>changed_when: false</code> and <code>check_mode: false</code>, and
   later tasks tolerate resources that an earlier task would have created.</li>
