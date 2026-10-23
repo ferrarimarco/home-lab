@@ -27,6 +27,37 @@ accepts both the classic JSON model and the v2 resource
 to `name` (the dashboard uid) and drop the instance fields the UI adds
 (`resourceVersion`, `generation`, timestamps, creator and updater annotations).
 
+A dashboard file reaches the hosts only once it is listed in
+`monitoring_backend_files_to_configure` in the node role's `vars/main.yaml`: a
+file in the directory alone is never copied, and the Nix comin dashboard sat
+unlisted, with a copy imported through the UI on both backends, until
+2026-10-23. The provisioner adopts a dashboard imported through the UI when the
+file carries its uid: the first pass after the file lands rewrites it as
+file-managed, so such a copy needs no cleanup before its file is listed.
+
+Grafana 13 stores the dashboards in the unified storage `resource` table (group
+`dashboard.grafana.app`, `name` is the uid) and records the provisioning state
+in the `grafana.app/managedBy`, `grafana.app/sourcePath`, and
+`grafana.app/sourceChecksum` annotations of each resource. The legacy
+`dashboard` and `dashboard_provisioning` tables are no longer updated, so they
+report stale versions and miss adoptions. Read the state from a copy of the
+database (read-only; the host has no `sqlite3` binary, Python does) and compare
+the checksum with `md5sum` of the file on the host; a dashboard migrated from
+the legacy tables carries the bare filename as its source path:
+
+```shell
+docker cp grafana:/var/lib/grafana/grafana.db /tmp/grafana-inspect.db
+python3 - <<'EOF'
+import json
+import sqlite3
+c = sqlite3.connect("/tmp/grafana-inspect.db")
+for name, value in c.execute("select name, value from resource where resource = 'dashboards'"):
+    a = json.loads(value)["metadata"].get("annotations", {})
+    print(name, a.get("grafana.app/managedBy"), a.get("grafana.app/sourcePath"), a.get("grafana.app/sourceChecksum"))
+EOF
+rm /tmp/grafana-inspect.db
+```
+
 ### The provisioner refuses a file
 
 Grafana polls the files every 100 seconds, so a refused file shows up as a
@@ -41,24 +72,15 @@ the uid of the dashboard the provisioner's record owns, but one of another
 dashboard (typically a copy imported through the UI, whose export then replaced
 the file). The provisioner never updates the dashboard in that state, so the UI
 keeps showing stale content, and the clashing copy becomes undeletable from the
-UI because the failed saves mark it as file-managed too. Confirm it from a copy
-of the database (read-only; the host has no `sqlite3` binary, Python does):
-
-```shell
-docker cp grafana:/var/lib/grafana/grafana.db /tmp/grafana-inspect.db
-python3 - <<'EOF'
-import sqlite3
-c = sqlite3.connect("/tmp/grafana-inspect.db")
-print(c.execute("select dashboard_id, external_id from dashboard_provisioning").fetchall())
-print(c.execute("select id, uid, title from dashboard where is_folder = 0").fetchall())
-EOF
-rm /tmp/grafana-inspect.db
-```
+UI because the failed saves mark it as file-managed too. Confirm it with the
+resource listing above: two resources carry the same `sourcePath`, or the file's
+uid is not the one whose `sourcePath` names the file.
 
 Fix the file, not the database: set the file's uid (`uid` in the classic model,
-`metadata.name` in the v2 resource) to the uid of the dashboard the provisioning
-record points at, and apply the monitoring-backend stack. The APT dashboard sat
-in that state from 2025-05-31 to 2026-10-12 on both backends.
+`metadata.name` in the v2 resource) to the uid of the dashboard whose
+`sourcePath` annotation names the file, and apply the monitoring-backend stack.
+The APT dashboard sat in that state from 2025-05-31 to 2026-10-12 on both
+backends.
 
 The orphaned copy cannot be removed through Grafana: the UI, the legacy
 dashboard API (`DELETE /api/dashboards/uid/<uid>`), and the resource API (a
