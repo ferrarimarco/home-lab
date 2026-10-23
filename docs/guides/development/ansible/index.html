@@ -1755,9 +1755,12 @@ set of generic tasks applies that data:</p>
    <code>components</code>, <code>signed_by</code>, <code>state</code>); an entry lists under <code>legacy_file_paths</code>
    the files that earlier <code>apt_key</code> and <code>apt_repository</code> tasks created, and the
    role removes them before applying the source.</li>
-<li><code>tasks/include-variables.yaml</code> aggregates the per-stack lists into global
-   custom facts. Each stack appears as one entry with an <code>enable_custom_fact</code>
-   switch and a <code>fact_category</code> name.</li>
+<li><code>tasks/include-variables.yaml</code> lists the stacks as data (<code>node_stacks</code>): each
+   stack is one entry with an <code>enable_custom_fact</code> switch, a <code>fact_category</code>
+   name, and its resource lists. One <code>set_fact</code> task filters the entries by the
+   run's tags and by enablement, and appends their lists to the global custom
+   facts; the entries of selected but disabled stacks feed the teardown lists
+   instead.</li>
 <li>The <code>fact_category</code> name doubles as the stack's <strong>tag</strong>: running the playbook
    with <code>--tags '&lt;fact_category&gt;' --tags untagged</code> selects that stack plus the
    global untagged initialization tasks.</li>

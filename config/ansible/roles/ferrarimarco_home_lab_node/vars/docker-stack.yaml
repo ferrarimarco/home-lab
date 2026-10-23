@@ -1,6 +1,6 @@
 ---
 docker_compose_up_items: []
-# The Compose items of the stacks a run disables (register-custom-facts.yaml)
+# The Compose items of the stacks a run disables (tasks/include-variables.yaml)
 docker_compose_disabled_items: []
 docker_compose_services_to_restart: []
 # One unit per Compose project (tasks/setup-docker-compose-units.yaml),

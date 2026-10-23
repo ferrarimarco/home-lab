@@ -45,223 +45,234 @@
     file: register-rsync-daemon-facts.yaml
   when: configure_rsync_daemon
 
-- name: Set custom facts
-  ansible.builtin.include_tasks:
-    apply:
-      vars:
-        fact_category: "{{ item.fact_category }}"
-        fact_configuration_directories: "{{ item.fact_configuration_directories | default([]) }}"
-        fact_configure_dns_records: "{{ item.fact_configure_dns_records | default(true) }}"
-        fact_dns_records_to_configure: "{{ item.fact_dns_records_to_configure | default([]) }}"
-        fact_docker_compose_up_items: "{{ item.fact_docker_compose_up_items | default([]) }}"
-        fact_enable_custom_fact: "{{ item.enable_custom_fact }}"
-        fact_files_to_configure: "{{ item.fact_files_to_configure | default([]) }}"
-        fact_files_to_download: "{{ item.fact_files_to_download | default([]) }}"
-        fact_os_groups: "{{ item.fact_os_groups | default([]) }}"
-        fact_os_users: "{{ item.fact_os_users | default([]) }}"
-        fact_os_package_repositories: "{{ item.fact_os_package_repositories | default([]) }}"
-        fact_os_packages: "{{ item.fact_os_packages | default([]) }}"
-        fact_os_services: "{{ item.fact_os_services | default([]) }}"
-        fact_templates_to_render: "{{ item.fact_templates_to_render | default([]) }}"
-        fact_templates_to_render_after_installing_os_packages: "{{ item.fact_templates_to_render_after_installing_os_packages | default([]) }}"
-    file: register-custom-facts.yaml
-  with_items:
-    - enable_custom_fact: "{{ has_sense_hat }}"
-      fact_category: "raspberry_pi_sense_hat"
-      fact_configuration_directories: "{{ sense_hat_exporter_configuration_directories }}"
-      fact_files_to_configure: "{{ sense_hat_exporter_files_to_configure }}"
-      fact_os_services: "{{ sense_hat_os_services }}"
-      fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_ssh }}"
-      fact_category: "ssh"
-      fact_os_packages: "{{ ssh_os_packages }}"
-      fact_os_services: "{{ ssh_os_services }}"
-    - enable_custom_fact: true
-      fact_category: "{{ systemd_watchdog_tag }}"
-      fact_templates_to_render: "{{ systemd_watchdog_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_docker }}"
-      fact_category: "docker"
-      fact_files_to_configure:
-        # Remove because we use the Docker Compose plugin
-        - path: /usr/local/bin/docker-compose
-          state: absent
-        - path: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
-          state: absent
-        # Remove because the prune service unit was enabled on raspberrypi2 and
-        # ran at every boot; the unit has no [Install] section anymore
-        - path: "{{ systemd_system_services_configuration_directory }}/multi-user.target.wants/{{ docker_system_prune_service_name }}.service"
-          state: absent
-        - path: /etc/apt/sources.list.d/download_docker_com_linux_debian.list
-          state: absent
-      fact_os_services: "{{ docker_os_services }}"
-      fact_templates_to_render: "{{ docker_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_fail2ban }}"
-      fact_category: "fail2ban"
-      fact_configuration_directories: "{{ fail2ban_configuration_directories }}"
-      fact_os_packages: "{{ fail2ban_packages }}"
-      fact_os_services: "{{ fail2ban_os_services }}"
-      fact_templates_to_render: "{{ fail2ban_templates_to_render }}"
-    - enable_custom_fact: "{{ security_unattended_upgrades_enabled }}"
-      fact_category: "unattended-upgrades"
-      fact_os_packages: "{{ unattended_upgrades_packages }}"
-      fact_os_services: "{{ unattended_upgrades_os_services }}"
-      fact_templates_to_render: "{{ unattended_upgrades_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_monitoring }}"
-      fact_category: "monitoring"
-      fact_configuration_directories: "{{ monitoring_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ monitoring_docker_compose_up_items }}"
-      fact_files_to_download:
-        - url: "{{ monitoring_smart_metrics_collection_script_url }}"
-          dest: "{{ monitoring_smartmon_prometheus_exporter_script_destination_path }}"
-          state: "{{ configure_monitoring_sata | ternary('file', 'absent') }}"
-          mode: "0755"
-          owner: "root"
-          group: "root"
-      fact_os_packages: "{{ monitoring_os_packages }}"
-      fact_os_services:
-        - enabled: true
-          service_name: "{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}"
-          service_state: "{{ configure_monitoring_sata | ternary('started', 'stopped') }}"
-        - enabled: true
-          service_name: "{{ monitoring_coral_pci_prometheus_exporter_timer_file_name }}"
-          service_state: "{{ has_coral_pci_accelerator | ternary('started', 'stopped') }}"
-      fact_templates_to_render: "{{ monitoring_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_monitoring_nut }}"
-      fact_category: "monitoring-nut"
-      fact_os_packages: "{{ monitoring_nut_os_packages }}"
-      fact_templates_to_render_after_installing_os_packages: "{{ monitoring_nut_templates_to_render_after_installing_os_packages }}"
-    - enable_custom_fact: "{{ configure_monitoring_backend }}"
-      fact_category: "monitoring-backend"
-      fact_configuration_directories: "{{ monitoring_backend_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
-      fact_files_to_configure: "{{ monitoring_backend_files_to_configure }}"
-      fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_monitoring_apt }}"
-      fact_category: "{{ monitoring_apt_tag }}"
-      fact_configuration_directories: "{{ monitoring_apt_configuration_directories }}"
-      fact_files_to_configure: "{{ monitoring_apt_files_to_configure }}"
-      fact_files_to_download: "{{ monitoring_apt_files_to_download }}"
-      fact_os_services: "{{ monitoring_apt_os_services }}"
-      fact_templates_to_render: "{{ monitoring_apt_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_home_assistant }}"
-      fact_category: "home-assistant"
-      fact_configuration_directories: "{{ home_assistant_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
-      fact_files_to_configure: "{{ home_assistant_files_to_configure }}"
-      fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_mqtt_broker }}"
-      fact_category: "mosquitto"
-      fact_configuration_directories: "{{ mosquitto_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
-      fact_templates_to_render: "{{ mosquitto_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_frigate }}"
-      fact_category: "frigate"
-      fact_configuration_directories: "{{ frigate_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
-      fact_templates_to_render: "{{ frigate_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_dphys_swapfile }}"
-      fact_category: "dphys-swapfile"
-      fact_templates_to_render: "{{ dphys_swapfile_templates_to_render }}"
-    - enable_custom_fact: "{{ has_argonone_case }}"
-      fact_category: "argonone-case"
-      fact_configuration_directories: "{{ argonone_configuration_directories }}"
-      fact_files_to_configure: "{{ argonone_files_to_configure }}"
-      fact_os_services: "{{ argonone_os_services }}"
-    - enable_custom_fact: "{{ configure_tailscale }}"
-      fact_category: "tailscale"
-      fact_os_package_repositories: "{{ tailscale_os_package_repositories }}"
-      fact_os_packages: "{{ tailscale_os_packages }}"
-    - enable_custom_fact: "{{ configure_network_shares }}"
-      fact_category: "network-shares"
-      fact_os_groups:
-        - name: "{{ samba_default_readers_group_name }}"
-          state: "{{ configure_network_shares | ternary('present', 'absent') }}"
-        - name: "{{ samba_default_writers_group_name }}"
-          state: "{{ configure_network_shares | ternary('present', 'absent') }}"
-      fact_os_packages:
-        - name: samba
-          state: "{{ configure_network_shares | ternary('present', 'absent') }}"
-      fact_os_services:
-        - enabled: true
-          service_name: "{{ samba_service_name }}"
-          service_state: "{{ configure_network_shares | ternary('started', 'stopped') }}"
-      fact_os_users: "{{ samba_os_users }}"
-      # The samba package creates /etc/samba, so the configuration renders
-      # after the OS packages are installed.
-      fact_templates_to_render_after_installing_os_packages:
-        - src: "samba/smb.conf.jinja"
-          dest: "/etc/samba/smb.conf"
-          state: "{{ configure_network_shares | ternary('file', 'absent') }}"
-          os_services_to_restart:
-            - "{{ samba_service_name }}"
-    - enable_custom_fact: "{{ has_raspberry_pi_v2_camera }}"
-      fact_category: "raspberry-pi-v2-camera"
-      fact_os_packages:
-        - name: vlc
-          state: "{{ has_raspberry_pi_v2_camera | ternary('present', 'absent') }}"
-      fact_os_services:
-        - enabled: true
-          service_name: "raspberry-pi-v2-camera-rtsp.service"
-          service_state: "{{ has_raspberry_pi_v2_camera | ternary('started', 'stopped') }}"
-      fact_templates_to_render:
-        - src: "raspberry-pi-camera/raspberry-pi-v2-camera-rtsp.service.jinja"
-          dest: "{{ systemd_system_services_configuration_directory }}/raspberry-pi-v2-camera-rtsp.service"
-          state: "{{ has_raspberry_pi_v2_camera | ternary('present', 'absent') }}"
-          os_services_to_restart:
-            - "raspberry-pi-v2-camera-rtsp"
-    - enable_custom_fact: "{{ configure_zigbee2mqtt }}"
-      fact_category: "zigbee2mqtt"
-      fact_configuration_directories: "{{ zigbee2mqtt_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
-      fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_wifi }}"
-      fact_category: "wifi"
-      fact_templates_to_render: "{{ wifi_templates_to_render }}"
-      fact_os_packages: "{{ wifi_os_packages }}"
-      fact_os_services:
-        - enabled: true
-          service_name: "{{ wpa_supplicant_service_name }}"
-          service_state: "{{ configure_wifi | ternary('started', 'stopped') }}"
-    - enable_custom_fact: "{{ configure_network_stack }}"
-      fact_category: "network-stack"
-      fact_dns_records_to_configure: "{{ network_stack_dns_records_to_configure }}"
-      fact_configuration_directories: "{{ network_stack_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ network_stack_docker_compose_up_items }}"
-      fact_files_to_configure: "{{ network_stack_files_to_configure }}"
-      fact_templates_to_render: "{{ network_stack_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_backup_restic }}"
-      fact_category: "restic"
-      fact_configuration_directories: "{{ restic_configuration_directories + restic_default_backup_target_directories | default([]) + restic_backup_target_directories | default([]) }}"
-      fact_docker_compose_up_items: "{{ restic_docker_compose_up_items }}"
-      fact_files_to_configure: "{{ restic_files_to_configure }}"
-      fact_templates_to_render: "{{ restic_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_syncthing }}"
-      fact_category: "syncthing"
-      fact_configuration_directories: "{{ syncthing_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ syncthing_docker_compose_up_items }}"
-      fact_templates_to_render: "{{ syncthing_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_media_stack }}"
-      fact_category: "media-stack"
-      fact_configuration_directories: "{{ media_stack_configuration_directories }}"
-      fact_docker_compose_up_items: "{{ media_stack_docker_compose_up_items }}"
-      fact_files_to_configure: "{{ media_stack_files_to_configure }}"
-      fact_templates_to_render: "{{ media_stack_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_asuswrt_chkwan }}"
-      fact_category: "{{ asuswrt_chkwan_stack_tag }}"
-      fact_files_to_configure: "{{ asuswrt_chkwan_files_to_configure }}"
-      fact_os_services: "{{ asuswrt_chkwan_os_services }}"
-      fact_templates_to_render: "{{ asuswrt_chkwan_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_monitoring_ont }}"
-      fact_category: "{{ monitoring_ont_tag }}"
-      fact_configuration_directories: "{{ monitoring_ont_configuration_directories }}"
-      fact_files_to_configure: "{{ monitoring_ont_files_to_configure }}"
-      fact_os_services: "{{ monitoring_ont_os_services }}"
-      fact_templates_to_render: "{{ monitoring_ont_templates_to_render }}"
-    - enable_custom_fact: "{{ configure_rsync_daemon }}"
-      fact_category: "{{ rsync_daemon_tag }}"
-      fact_os_packages: "{{ rsync_daemon_os_packages }}"
-      fact_os_services: "{{ rsync_daemon_os_services }}"
-      fact_templates_to_render: "{{ rsync_daemon_templates_to_render }}"
+- name: Aggregate the stack resources into the global lists
+  # Each entry of node_stacks is one stack, with its lists of resources and
+  # its enablement flag; fact_category doubles as the stack's tag. A run
+  # selects the stacks whose tag it names (every stack when no tag scopes it),
+  # appends their resources to the global lists, and marks the Compose
+  # projects, downloads, and templates of the selected disabled stacks for
+  # teardown. The DNS records of every enabled stack are aggregated regardless
+  # of the tag scope, as before.
+  ansible.builtin.set_fact:
+    apt_packages: "{{ apt_packages + (selected_stacks | map(attribute='fact_os_packages', default=[]) | flatten(levels=1)) }}"
+    apt_repositories: "{{ apt_repositories + (selected_stacks | map(attribute='fact_os_package_repositories', default=[]) | flatten(levels=1)) }}"
+    configuration_directories: "{{ configuration_directories + (selected_stacks | map(attribute='fact_configuration_directories', default=[]) | flatten(levels=1)) }}"
+    dns_records_to_configure: "{{ dns_records_to_configure + (node_stacks | selectattr('enable_custom_fact') | map(attribute='fact_dns_records_to_configure', default=[]) | flatten(levels=1)) }}"
+    docker_compose_disabled_items: "{{ docker_compose_disabled_items + (disabled_stacks | map(attribute='fact_docker_compose_up_items', default=[]) | flatten(levels=1)) }}"
+    docker_compose_up_items: "{{ docker_compose_up_items + (enabled_stacks | map(attribute='fact_docker_compose_up_items', default=[]) | flatten(levels=1)) }}"
+    files_to_configure: >-
+      {{ files_to_configure
+      + (selected_stacks | map(attribute='fact_files_to_configure', default=[]) | flatten(levels=1))
+      + (disabled_stacks | map(attribute='fact_files_to_download', default=[]) | flatten(levels=1))
+      + (disabled_stacks | map(attribute='fact_templates_to_render', default=[]) | flatten(levels=1))
+      + (disabled_stacks | map(attribute='fact_templates_to_render_after_installing_os_packages', default=[]) | flatten(levels=1)) }}
+    files_to_download: "{{ files_to_download + (selected_stacks | map(attribute='fact_files_to_download', default=[]) | flatten(levels=1)) }}"
+    os_groups: "{{ os_groups + (selected_stacks | map(attribute='fact_os_groups', default=[]) | flatten(levels=1)) }}"
+    os_services: "{{ os_services + (selected_stacks | map(attribute='fact_os_services', default=[]) | flatten(levels=1)) }}"
+    os_users: "{{ os_users + (enabled_stacks | map(attribute='fact_os_users', default=[]) | flatten(levels=1)) }}"
+    templates_to_render: "{{ templates_to_render + (selected_stacks | map(attribute='fact_templates_to_render', default=[]) | flatten(levels=1)) }}"
+    templates_to_render_after_installing_os_packages: "{{ templates_to_render_after_installing_os_packages + (selected_stacks | map(attribute='fact_templates_to_render_after_installing_os_packages', default=[]) | flatten(levels=1)) }}"
+  vars:
+    selected_stacks: "{{ node_stacks if 'all' in ansible_run_tags else (node_stacks | selectattr('fact_category', 'in', ansible_run_tags) | list) }}"
+    enabled_stacks: "{{ selected_stacks | selectattr('enable_custom_fact') | list }}"
+    disabled_stacks: "{{ selected_stacks | rejectattr('enable_custom_fact') | list }}"
+    node_stacks:
+      - enable_custom_fact: "{{ has_sense_hat }}"
+        fact_category: "raspberry_pi_sense_hat"
+        fact_configuration_directories: "{{ sense_hat_exporter_configuration_directories }}"
+        fact_files_to_configure: "{{ sense_hat_exporter_files_to_configure }}"
+        fact_os_services: "{{ sense_hat_os_services }}"
+        fact_templates_to_render: "{{ sense_hat_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_ssh }}"
+        fact_category: "ssh"
+        fact_os_packages: "{{ ssh_os_packages }}"
+        fact_os_services: "{{ ssh_os_services }}"
+      - enable_custom_fact: true
+        fact_category: "{{ systemd_watchdog_tag }}"
+        fact_templates_to_render: "{{ systemd_watchdog_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_docker }}"
+        fact_category: "docker"
+        fact_files_to_configure:
+          # Remove because we use the Docker Compose plugin
+          - path: /usr/local/bin/docker-compose
+            state: absent
+          - path: /etc/apt/trusted.gpg.d/docker-archive-keyring.gpg
+            state: absent
+          # Remove because the prune service unit was enabled on raspberrypi2 and
+          # ran at every boot; the unit has no [Install] section anymore
+          - path: "{{ systemd_system_services_configuration_directory }}/multi-user.target.wants/{{ docker_system_prune_service_name }}.service"
+            state: absent
+          - path: /etc/apt/sources.list.d/download_docker_com_linux_debian.list
+            state: absent
+        fact_os_services: "{{ docker_os_services }}"
+        fact_templates_to_render: "{{ docker_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_fail2ban }}"
+        fact_category: "fail2ban"
+        fact_configuration_directories: "{{ fail2ban_configuration_directories }}"
+        fact_os_packages: "{{ fail2ban_packages }}"
+        fact_os_services: "{{ fail2ban_os_services }}"
+        fact_templates_to_render: "{{ fail2ban_templates_to_render }}"
+      - enable_custom_fact: "{{ security_unattended_upgrades_enabled }}"
+        fact_category: "unattended-upgrades"
+        fact_os_packages: "{{ unattended_upgrades_packages }}"
+        fact_os_services: "{{ unattended_upgrades_os_services }}"
+        fact_templates_to_render: "{{ unattended_upgrades_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_monitoring }}"
+        fact_category: "monitoring"
+        fact_configuration_directories: "{{ monitoring_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ monitoring_docker_compose_up_items }}"
+        fact_files_to_download:
+          - url: "{{ monitoring_smart_metrics_collection_script_url }}"
+            dest: "{{ monitoring_smartmon_prometheus_exporter_script_destination_path }}"
+            state: "{{ configure_monitoring_sata | ternary('file', 'absent') }}"
+            mode: "0755"
+            owner: "root"
+            group: "root"
+        fact_os_packages: "{{ monitoring_os_packages }}"
+        fact_os_services:
+          - enabled: true
+            service_name: "{{ monitoring_smartmon_prometheus_exporter_timer_file_name }}"
+            service_state: "{{ configure_monitoring_sata | ternary('started', 'stopped') }}"
+          - enabled: true
+            service_name: "{{ monitoring_coral_pci_prometheus_exporter_timer_file_name }}"
+            service_state: "{{ has_coral_pci_accelerator | ternary('started', 'stopped') }}"
+        fact_templates_to_render: "{{ monitoring_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_monitoring_nut }}"
+        fact_category: "monitoring-nut"
+        fact_os_packages: "{{ monitoring_nut_os_packages }}"
+        fact_templates_to_render_after_installing_os_packages: "{{ monitoring_nut_templates_to_render_after_installing_os_packages }}"
+      - enable_custom_fact: "{{ configure_monitoring_backend }}"
+        fact_category: "monitoring-backend"
+        fact_configuration_directories: "{{ monitoring_backend_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ monitoring_backend_docker_compose_up_items }}"
+        fact_files_to_configure: "{{ monitoring_backend_files_to_configure }}"
+        fact_templates_to_render: "{{ monitoring_backend_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_monitoring_apt }}"
+        fact_category: "{{ monitoring_apt_tag }}"
+        fact_configuration_directories: "{{ monitoring_apt_configuration_directories }}"
+        fact_files_to_configure: "{{ monitoring_apt_files_to_configure }}"
+        fact_files_to_download: "{{ monitoring_apt_files_to_download }}"
+        fact_os_services: "{{ monitoring_apt_os_services }}"
+        fact_templates_to_render: "{{ monitoring_apt_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_home_assistant }}"
+        fact_category: "home-assistant"
+        fact_configuration_directories: "{{ home_assistant_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ home_assistant_docker_compose_up_items }}"
+        fact_files_to_configure: "{{ home_assistant_files_to_configure }}"
+        fact_templates_to_render: "{{ home_assistant_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_mqtt_broker }}"
+        fact_category: "mosquitto"
+        fact_configuration_directories: "{{ mosquitto_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ mosquitto_docker_compose_up_items }}"
+        fact_templates_to_render: "{{ mosquitto_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_frigate }}"
+        fact_category: "frigate"
+        fact_configuration_directories: "{{ frigate_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
+        fact_templates_to_render: "{{ frigate_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_dphys_swapfile }}"
+        fact_category: "dphys-swapfile"
+        fact_templates_to_render: "{{ dphys_swapfile_templates_to_render }}"
+      - enable_custom_fact: "{{ has_argonone_case }}"
+        fact_category: "argonone-case"
+        fact_configuration_directories: "{{ argonone_configuration_directories }}"
+        fact_files_to_configure: "{{ argonone_files_to_configure }}"
+        fact_os_services: "{{ argonone_os_services }}"
+      - enable_custom_fact: "{{ configure_tailscale }}"
+        fact_category: "tailscale"
+        fact_os_package_repositories: "{{ tailscale_os_package_repositories }}"
+        fact_os_packages: "{{ tailscale_os_packages }}"
+      - enable_custom_fact: "{{ configure_network_shares }}"
+        fact_category: "network-shares"
+        fact_os_groups:
+          - name: "{{ samba_default_readers_group_name }}"
+            state: "{{ configure_network_shares | ternary('present', 'absent') }}"
+          - name: "{{ samba_default_writers_group_name }}"
+            state: "{{ configure_network_shares | ternary('present', 'absent') }}"
+        fact_os_packages:
+          - name: samba
+            state: "{{ configure_network_shares | ternary('present', 'absent') }}"
+        fact_os_services:
+          - enabled: true
+            service_name: "{{ samba_service_name }}"
+            service_state: "{{ configure_network_shares | ternary('started', 'stopped') }}"
+        fact_os_users: "{{ samba_os_users }}"
+        # The samba package creates /etc/samba, so the configuration renders
+        # after the OS packages are installed.
+        fact_templates_to_render_after_installing_os_packages:
+          - src: "samba/smb.conf.jinja"
+            dest: "/etc/samba/smb.conf"
+            state: "{{ configure_network_shares | ternary('file', 'absent') }}"
+            os_services_to_restart:
+              - "{{ samba_service_name }}"
+      - enable_custom_fact: "{{ has_raspberry_pi_v2_camera }}"
+        fact_category: "raspberry-pi-v2-camera"
+        fact_os_packages:
+          - name: vlc
+            state: "{{ has_raspberry_pi_v2_camera | ternary('present', 'absent') }}"
+        fact_os_services:
+          - enabled: true
+            service_name: "raspberry-pi-v2-camera-rtsp.service"
+            service_state: "{{ has_raspberry_pi_v2_camera | ternary('started', 'stopped') }}"
+        fact_templates_to_render:
+          - src: "raspberry-pi-camera/raspberry-pi-v2-camera-rtsp.service.jinja"
+            dest: "{{ systemd_system_services_configuration_directory }}/raspberry-pi-v2-camera-rtsp.service"
+            state: "{{ has_raspberry_pi_v2_camera | ternary('present', 'absent') }}"
+            os_services_to_restart:
+              - "raspberry-pi-v2-camera-rtsp"
+      - enable_custom_fact: "{{ configure_zigbee2mqtt }}"
+        fact_category: "zigbee2mqtt"
+        fact_configuration_directories: "{{ zigbee2mqtt_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ zigbee2mqtt_docker_compose_up_items }}"
+        fact_templates_to_render: "{{ zigbee2mqtt_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_wifi }}"
+        fact_category: "wifi"
+        fact_templates_to_render: "{{ wifi_templates_to_render }}"
+        fact_os_packages: "{{ wifi_os_packages }}"
+        fact_os_services:
+          - enabled: true
+            service_name: "{{ wpa_supplicant_service_name }}"
+            service_state: "{{ configure_wifi | ternary('started', 'stopped') }}"
+      - enable_custom_fact: "{{ configure_network_stack }}"
+        fact_category: "network-stack"
+        fact_dns_records_to_configure: "{{ network_stack_dns_records_to_configure }}"
+        fact_configuration_directories: "{{ network_stack_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ network_stack_docker_compose_up_items }}"
+        fact_files_to_configure: "{{ network_stack_files_to_configure }}"
+        fact_templates_to_render: "{{ network_stack_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_backup_restic }}"
+        fact_category: "restic"
+        fact_configuration_directories: "{{ restic_configuration_directories + restic_default_backup_target_directories | default([]) + restic_backup_target_directories | default([]) }}"
+        fact_docker_compose_up_items: "{{ restic_docker_compose_up_items }}"
+        fact_files_to_configure: "{{ restic_files_to_configure }}"
+        fact_templates_to_render: "{{ restic_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_syncthing }}"
+        fact_category: "syncthing"
+        fact_configuration_directories: "{{ syncthing_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ syncthing_docker_compose_up_items }}"
+        fact_templates_to_render: "{{ syncthing_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_media_stack }}"
+        fact_category: "media-stack"
+        fact_configuration_directories: "{{ media_stack_configuration_directories }}"
+        fact_docker_compose_up_items: "{{ media_stack_docker_compose_up_items }}"
+        fact_files_to_configure: "{{ media_stack_files_to_configure }}"
+        fact_templates_to_render: "{{ media_stack_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_asuswrt_chkwan }}"
+        fact_category: "{{ asuswrt_chkwan_stack_tag }}"
+        fact_files_to_configure: "{{ asuswrt_chkwan_files_to_configure }}"
+        fact_os_services: "{{ asuswrt_chkwan_os_services }}"
+        fact_templates_to_render: "{{ asuswrt_chkwan_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_monitoring_ont }}"
+        fact_category: "{{ monitoring_ont_tag }}"
+        fact_configuration_directories: "{{ monitoring_ont_configuration_directories }}"
+        fact_files_to_configure: "{{ monitoring_ont_files_to_configure }}"
+        fact_os_services: "{{ monitoring_ont_os_services }}"
+        fact_templates_to_render: "{{ monitoring_ont_templates_to_render }}"
+      - enable_custom_fact: "{{ configure_rsync_daemon }}"
+        fact_category: "{{ rsync_daemon_tag }}"
+        fact_os_packages: "{{ rsync_daemon_os_packages }}"
+        fact_os_services: "{{ rsync_daemon_os_services }}"
+        fact_templates_to_render: "{{ rsync_daemon_templates_to_render }}"
 
 - name: Register Raspberry Pi Sense Hat facts
   ansible.builtin.include_tasks:
