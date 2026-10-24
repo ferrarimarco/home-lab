@@ -2005,8 +2005,8 @@ reliability risks first, then security exposure, then automation):</p>
 <ul>
 <li>Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue (<a href="network-boot/">Network Boot Service</a>), then bump the <code>requests</code>
-  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the hl02 address
-  reservation (<a href="#networking">Networking</a>), the boot server and rescue payload
+  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the hl02 static address
+  (<a href="#networking">Networking</a>), the boot server and rescue payload
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>), and the
   restore procedure (<a href="../guides/operations/backup/">backup operations guide</a>).
   Does not depend on the container migration: the re-image rewrites the boot
@@ -2091,7 +2091,7 @@ reliability risks first, then security exposure, then automation):</p>
   raspberrypi2. Both brokers run during the cutover, since comin deploys the
   hl02 side on merge; the deployment is fresh, with no state copied, and the
   consumers republish their retained topics when they restart against the
-  new broker. The hl02 address reservation (<a href="#networking">Networking</a>) is an
+  new broker. The hl02 static address (<a href="#networking">Networking</a>) is an
   ordering preference, not a dependency: the consumers connect by name,
   which the gateway resolves from the lease. Syncthing already moved to
   nas-pve1 (<a href="#nas">NAS</a>). The monitoring backend stays: it runs as a highly
@@ -2105,7 +2105,7 @@ reliability risks first, then security exposure, then automation):</p>
 <li><code>netboot-server</code> Nix role on hl02 (TFTP tree, NFS export, and
   cloud-init seed per host, the pinned OS image over HTTP, and the
   per-host rescue toggle unit) with its integration test. Depends on:
-  the hl02 address reservation (<a href="#networking">Networking</a>).</li>
+  the hl02 static address (<a href="#networking">Networking</a>).</li>
 <li>Rescue system and flash workflow: the pinned Raspberry Pi OS Lite
   image unpacked on hl02 (boot partition over TFTP, root over NFS),
   customized at boot by cloud-init from an HTTP seed, with the
@@ -2592,19 +2592,51 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 </ul>
 <h3 id="networking">Networking</h3>
 <ul>
-<li>Configure static IP addresses for servers (raspberrypi2, hl01): when the
-  router reboots, dnsmasq on the gateway doesn't know the hosts until they renew
-  their DHCP leases, so their names don't resolve in the meantime. A reservation
-  with a hostname serves that motivation without a static address: the stock
-  firmware writes each one to the router's <code>/etc/hosts</code> when dnsmasq starts
-  (verified 2026-10-23: the five current reservations are there as
-  <code>&lt;address&gt; &lt;hostname&gt;.edge.lab.ferrari.how</code>), so the name resolves before any
-  lease. Depends on: the gateway dnsmasq settings play below, which manages the
-  reservations. Blocks: the NAS static IP migration (<a href="#nas">NAS</a>).</li>
-<li>Reserve a DHCP address for hl02 on the router and record it in the inventory:
-  the Raspberry Pi network-boot rescue names the boot server by address
-  (<code>TFTP_IP</code>). hl01, hl02, and nas-pve1 hold dynamic leases today (2026-10-23).
-  Blocks: the Raspberry Pi network-boot rescue
+<li><strong>Static addresses for the servers and the address plan (decided
+  2026-10-24)</strong>: infrastructure addressing is declared where each host is
+  declared, and the DHCP server serves ephemeral clients only. The original
+  motivation (after a router reboot, dnsmasq on the gateway doesn't know the
+  hosts until they renew their leases, so their names don't resolve) is served
+  on the way: a reservation with a hostname already lands in the router's
+  <code>/etc/hosts</code> when dnsmasq starts (verified 2026-10-23: the five current
+  reservations are there as <code>&lt;address&gt; &lt;hostname&gt;.edge.lab.ferrari.how</code>), and
+  the end state takes the server names off the router altogether. The plan:<ul>
+<li>An infrastructure range outside the dynamic pool (for example
+  <code>10.0.0.0/24</code>, with the pool starting after it; today the pool spans the
+  whole <code>10.0.0.0/8</code> from <code>.2</code> and reservations are the only exclusion),
+  recorded in the inventory as the address plan.</li>
+<li>A static address per host in its own toolchain: NixOS interface options
+  for hl02 (and the future pve2 twin), the cloud-init network data file
+  Terraform already stages for hl01, the container network settings for
+  nas-pve1, the interfaces file the Proxmox nodes already have, and the host
+  network configuration the node role renders for raspberrypi2. The resolver
+  hosts point at their local Unbound, so they boot without the router.</li>
+<li>Server records in the CoreDNS edge zone, generated from the inventory, the
+  gateway's own name included: <code>gateway.edge.lab.ferrari.how</code> resolves today
+  only because the router writes <code>gateway.&lt;LAN domain&gt;</code> to its hosts file,
+  and the ChkWAN and ONT units reach the router by that name.</li>
+<li>Reservations reduced to pool guards during the transition and then to the
+  devices whose configuration the lab does not own (the cameras).</li>
+<li>Sequence, gated by the resolver switch rather than by the addresses: every
+  static host points at Unbound in its own configuration and DHCP clients
+  through option 6 before the router's LAN domain changes (network stack
+  item below), because afterwards the router knows servers only under the
+  client zone and any host still resolving through it loses every server
+  name at once (the CIFS mount sources, the broker name Frigate and
+  Zigbee2MQTT read, the probe targets). Considered and rejected: renaming
+  the servers into <code>lab.ferrari.how</code> (every consumer carries the edge
+  names), and CoreDNS owning the edge zone with <code>fallthrough</code> to the router
+  as the end state (two authorities for one zone; kept as the transition
+  device, see the network stack item). Depends on: the gateway dnsmasq
+  settings play below (the pool carve-out and option 6). Blocks: the NAS
+  static IP migration (<a href="#nas">NAS</a>).</li>
+</ul>
+</li>
+<li>hl02 gets a static address under the address plan above, recorded in the
+  inventory, since the Raspberry Pi network-boot rescue names the boot server by
+  address (<code>TFTP_IP</code>); a reservation guards it until the pool is carved. hl01,
+  hl02, and nas-pve1 hold dynamic leases today (2026-10-23). Blocks: the
+  Raspberry Pi network-boot rescue
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>).</li>
 <li><strong>Manage the gateway's dnsmasq settings on the stock firmware (decided
   2026-10-23)</strong>: the Asus RT-AX86U stays on the stock Asuswrt firmware while it
@@ -2617,10 +2649,12 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <code>&lt;MAC&gt;IP&gt;DNS&gt;hostname</code> entry per host separated by <code>&lt;</code>, rendered only while
   <code>dhcp_static_x</code> is 1; format read from the router on 2026-10-23, size limit
   unknown), the pool and lease time, the DNS server handed to clients
-  (<code>dhcp_dns1_x</code>, empty today, so clients get the router), and the upstream
-  servers. Directives with no NVRAM variable (a <code>cname</code>, a <code>server=/zone/</code>
-  forward, <code>dhcp-boot</code>, <code>address</code>) are out of reach: Merlin's <code>dnsmasq.conf.add</code>
-  is the only supported path, the
+  (<code>dhcp_dns1_x</code>, empty today, so clients get the router), the LAN domain
+  (<code>lan_domain</code>, which drives <code>domain=</code>, <code>local=</code>, the DHCP domain option, and
+  the names the router writes to its hosts file), and the upstream servers.
+  Directives with no NVRAM variable (a <code>cname</code>, a <code>server=/zone/</code> forward,
+  <code>dhcp-boot</code>, <code>address</code>) are out of reach: Merlin's <code>dnsmasq.conf.add</code> is the
+  only supported path, the
   <a href="https://www.snbforums.com/threads/dnsmasq-conf-add-without-custom-firmware.43244/">stock-firmware workaround thread</a>
   records no persistent method, and
   <a href="https://github.com/jacklul/asuswrt-scripts">jacklul/asuswrt-scripts</a>
@@ -2636,12 +2670,16 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   check-mode friendly; not a timer on raspberrypi2 like the ChkWAN watchdog,
   since NVRAM is the router's own persistence across reboots and a one-shot
   converge needs no bridge. First consumers: the hl02 and BMC reservations above
-  (settable in the UI meanwhile). Verified on 2026-10-23 from the firmware
-  source (the asuswrt-merlin.ng tree, which tracks the stock 388 code; the NVRAM
-  rendering is stock, the <code>.add</code> and <code>postconf</code> hooks are Merlin's) and on the
-  router (3.0.0.4.388_24436): the pve2 reservation already names the cabled
-  port's MAC, the lease time is 86400 s, and the pool spans the whole
-  <code>10.0.0.0/8</code> from <code>.2</code>.</li>
+  (settable in the UI meanwhile); under the address plan (static addresses item
+  above) the server reservations leave its scope once the pool is carved, and it
+  keeps the pool bounds, the DNS server option, the LAN domain, and the camera
+  reservations. After the LAN domain change the router is no longer a fallback
+  resolver for infrastructure names, only for its clients and the internet.
+  Verified on 2026-10-23 from the firmware source (the asuswrt-merlin.ng tree,
+  which tracks the stock 388 code; the NVRAM rendering is stock, the <code>.add</code> and
+  <code>postconf</code> hooks are Merlin's) and on the router (3.0.0.4.388_24436): the pve2
+  reservation already names the cabled port's MAC, the lease time is 86400 s,
+  and the pool spans the whole <code>10.0.0.0/8</code> from <code>.2</code>.</li>
 <li>Set a static DHCP assignment for the pve2 BMC on the router, so the BMC stays
   reachable at a stable address for remote power control — pve2 stays powered
   off until its power reduction work completes
@@ -2736,15 +2774,43 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <code>configure_network_stack</code>, which defaults to false and no host enables, so the
   CoreDNS scrape job renders zero targets. The items below deploy and harden
   that stack:<ul>
-<li>DNS server: configure the lab DNS zone. CNAME aliases for services are the
-  first concrete need (2026-10-23): the gateway cannot carry them (its
-  dnsmasq settings item above), and a dnsmasq CNAME target must be a name it
-  knows locally in any case, so the aliases live in the lab zone, the
-  router's DHCP hands the lab resolver to clients (a UI-exposed setting),
-  and the resolver forwards <code>edge.lab.ferrari.how</code> back to the router so
-  lease names keep resolving. Deployment candidates: the Ansible network
-  stack as designed, or NixOS modules on hl02, in line with the Mosquitto
-  move (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>).</li>
+<li><strong>DNS server and resolver, placement and staged route (decided
+  2026-10-24)</strong>: the three roles stay separate (Unbound resolves, CoreDNS is
+  authoritative, dnsmasq serves DHCP), and the resolver pair is the
+  availability-critical piece, since the router stops being a fallback for
+  infrastructure names once its LAN domain changes. Placement: hl02 now and
+  a twin NixOS guest on pve2 once it runs 24/7, the same Nix role on both,
+  keepalived between them; hl01 is excluded because its CIFS mounts need
+  name resolution before Docker starts, so it cannot host its own resolver,
+  and raspberrypi2 stays the fallback for a second node if pve2 stays off
+  for long, at the price of a second implementation (the Compose stack) for
+  one service. The Nix role re-expresses the stack's Unbound and CoreDNS
+  configuration as NixOS modules and reads the zone data from a JSON file in
+  the repository, which Ansible reads as well, so the records have one home.
+  Stages:<ol>
+<li>Unbound and CoreDNS on hl02: CoreDNS owns <code>edge.lab.ferrari.how</code> from
+   the inventory (server records, the gateway record, CNAME aliases for
+   services, which the gateway cannot carry and whose targets a dnsmasq
+   CNAME would have to know locally anyway) with the <code>file</code> plugin's
+   <code>fallthrough</code> to the existing forward to the router for client lease
+   names (available since CoreDNS 1.12.2; the stack pins 1.14.7), plus
+   the reverse zone of the infrastructure range with the rest of
+   <code>in-addr.arpa</code> forwarded as today. DHCP option 6 points at hl02 with
+   the router second.</li>
+<li>The twin on pve2 and the keepalived address in the infrastructure
+   range; option 6 moves to it. Depends on: pve2 running 24/7
+   (<a href="#host-configuration">Host configuration</a>).</li>
+<li>The router's LAN domain changes to a client zone (a child such as
+   <code>clients.edge.lab.ferrari.how</code>, which CoreDNS forwards to the router
+   by longest match, or a sibling under <code>lab.ferrari.how</code>), so dynamic
+   clients get a name there within one lease and nothing is renamed; the
+   fallthrough is dropped, the pool is carved, and the reservations
+   shrink to the cameras (static addresses item above).</li>
+<li>Optionally, DHCP taken over by a dnsmasq pair (next item). The
+   <code>lab.ferrari.how</code> zone CoreDNS serves today is then free for names
+   that are not hosts on this network.</li>
+</ol>
+</li>
 <li>DNS over TLS: the dnsmasq instance on the Asus forwards only to the local
   stubby listener (<code>dnspriv_enable=1</code>, verified 2026-10-23); Unbound.</li>
 <li>DHCP server:<ul>
@@ -2764,8 +2830,10 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   spec; its cost is that DHCP and DNS for every device in the house then
   depend on pve1, hl02, and a comin-driven VM: new clients cannot join
   while it is down, and the router's client list loses names. Revisit
-  once pve2 runs 24/7 and can host a second instance, which the
-  keepalived item below would front.</li>
+  once the resolver pair exists (stage 2 of the item above): with the
+  servers static and only the cameras reserved, a dnsmasq pair with
+  split pools has nothing but the camera reservations to agree on, and
+  lease names stay cosmetic.</li>
 <li>Configure the DHCP address pool as documented.</li>
 <li>Understand what the dhcp-script does.</li>
 <li>Deprecate the DNS resolver on the Asus, or take control of its
@@ -2810,7 +2878,12 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <a href="https://github.com/StevenBlack/hosts">StevenBlack/hosts</a>.</li>
 <li>Keepalived to make the DNS server, the DNS resolver, and the DHCP server
   more reliable
-  (<a href="https://github.com/matayto/pihole-keepalived">pihole-keepalived</a>).</li>
+  (<a href="https://github.com/matayto/pihole-keepalived">pihole-keepalived</a>): stage
+  2 of the DNS server item above, a VRRP address in the infrastructure range
+  between hl02 and its pve2 twin, since clients take the first DNS server
+  from DHCP and fall back only after per-query timeouts, so two addresses
+  give degraded service rather than availability. DHCP needs no address of
+  its own: both instances answer broadcasts.</li>
 <li><a href="https://theorangeone.net/posts/expose-docker-internal-dns/">Exposing Docker's internal DNS with CoreDNS</a>.</li>
 <li>Store SSH fingerprints as DNS records?</li>
 <li>DNS rebinding protection: see the dnsmasq "rebind" options.</li>
