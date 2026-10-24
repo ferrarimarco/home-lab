@@ -1,5 +1,12 @@
 # Linux administration notes
 
+## Reach the hosts
+
+Connect over SSH using each host's fully qualified domain name as the Ansible
+inventory lists it (`<host>.edge.lab.ferrari.how`): the short hostnames do not
+resolve from the control machine. Log in as `root` on the Proxmox nodes, as
+`debian` on the hl01 VM, and as `pi` on raspberrypi2.
+
 ## Debian
 
 ### OS package management

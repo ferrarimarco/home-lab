@@ -2942,10 +2942,11 @@ store would be a security risk.</p>
 </ul>
 <h3 id="72-imperative-part-one-time-setup">7.2 Imperative Part (One-Time Setup)</h3>
 <p>After the initial container deployment, the Samba password must be set once
-manually, either from the owning Proxmox node:</p>
+manually, either from the owning Proxmox node (the login shell wrapper is
+required, as the
+<a href="../../guides/proxmox-admin-notes/#run-commands-in-nixos-containers">Proxmox administration notes</a>
+explain):</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># On the Proxmox node that owns the container.</span>
-<span class="c1"># /bin/sh -lc is required: pct exec does not source a login shell, so</span>
-<span class="c1"># /run/current-system/sw/bin (where NixOS puts smbpasswd) is not on PATH.</span>
 pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;vmid&gt;<span class="w"> </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-lc<span class="w"> </span><span class="s1">&#39;smbpasswd -a ferrarimarco&#39;</span>
 </code></pre></div>
 <p>or from a shell inside the container:</p>
@@ -3073,10 +3074,11 @@ terraform<span class="w"> </span>apply
 <blockquote>
 <p><strong>Fallback (no SSH path to the container).</strong> The switch can also run from
 the owning Proxmox node. Two wrinkles in this variant, both consequences
-of running against the bare bootstrap template: <code>pct exec</code> does not source
-a login shell (hence <code>/bin/sh -lc</code>, since <code>/run/current-system/sw/bin</code> is
-not on its default PATH), and flakes are not enabled until the <code>common</code>
-role lands (hence the <code>--option</code> flag):</p>
+of running against the bare bootstrap template: <code>pct exec</code> needs the login
+shell wrapper (hence <code>/bin/sh -lc</code>, as the
+<a href="../../guides/proxmox-admin-notes/#run-commands-in-nixos-containers">Proxmox administration notes</a>
+explain), and flakes are not enabled until the <code>common</code> role lands (hence
+the <code>--option</code> flag):</p>
 <div class="highlight"><pre><span></span><code>pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="m">200</span><span class="w"> </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-lc<span class="w"> </span><span class="s1">&#39;nixos-rebuild switch \</span>
 <span class="s1">  --option extra-experimental-features &quot;nix-command flakes&quot; \</span>
 <span class="s1">  --flake &quot;github:ferrarimarco/home-lab?dir=config/nix#nas-pve1&quot;&#39;</span>

@@ -62,6 +62,12 @@ PMBus). The goal is to run the host 24/7 once its idle draw comes down; the
 remaining steps are tracked in the
 [specs todo list](../../architecture/README.md#host-configuration).
 
+The disks never spin down, by policy: the platters keep spinning to avoid the
+wear of start and stop cycles, so HDD standby timers (`hdparm -y`/`-S`,
+ZFS-triggered standby) are out of scope on this host. Power tuning is limited to
+the levers that do not stop the disks: SATA link power management, PCIe ASPM,
+runtime power management, the CPU governor, and sysctls.
+
 ### Baseline and attribution
 
 Measured between 2026-08-25 and 2026-10-05 with only the nas-pve2 guest running:

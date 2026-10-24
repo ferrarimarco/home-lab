@@ -388,12 +388,13 @@ The NixOS configuration declares:
 ### 7.2 Imperative Part (One-Time Setup)
 
 After the initial container deployment, the Samba password must be set once
-manually, either from the owning Proxmox node:
+manually, either from the owning Proxmox node (the login shell wrapper is
+required, as the
+[Proxmox administration notes](../guides/proxmox-admin-notes.md#run-commands-in-nixos-containers)
+explain):
 
 ```bash
 # On the Proxmox node that owns the container.
-# /bin/sh -lc is required: pct exec does not source a login shell, so
-# /run/current-system/sw/bin (where NixOS puts smbpasswd) is not on PATH.
 pct exec <vmid> -- /bin/sh -lc 'smbpasswd -a ferrarimarco'
 ```
 
@@ -540,10 +541,11 @@ existing VMs use `100` and `101`), so `nas-pve2` gets its own distinct ID (e.g.
 
     > **Fallback (no SSH path to the container).** The switch can also run from
     > the owning Proxmox node. Two wrinkles in this variant, both consequences
-    > of running against the bare bootstrap template: `pct exec` does not source
-    > a login shell (hence `/bin/sh -lc`, since `/run/current-system/sw/bin` is
-    > not on its default PATH), and flakes are not enabled until the `common`
-    > role lands (hence the `--option` flag):
+    > of running against the bare bootstrap template: `pct exec` needs the login
+    > shell wrapper (hence `/bin/sh -lc`, as the
+    > [Proxmox administration notes](../guides/proxmox-admin-notes.md#run-commands-in-nixos-containers)
+    > explain), and flakes are not enabled until the `common` role lands (hence
+    > the `--option` flag):
     >
     > ```bash
     > pct exec 200 -- /bin/sh -lc 'nixos-rebuild switch \

@@ -974,6 +974,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#reach-the-hosts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reach the hosts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#debian" class="md-nav__link">
     <span class="md-ellipsis">
       Debian
@@ -1641,6 +1650,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#reach-the-hosts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reach the hosts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#debian" class="md-nav__link">
     <span class="md-ellipsis">
       Debian
@@ -1711,6 +1729,11 @@
 
 
 <h1 id="linux-administration-notes">Linux administration notes</h1>
+<h2 id="reach-the-hosts">Reach the hosts</h2>
+<p>Connect over SSH using each host's fully qualified domain name as the Ansible
+inventory lists it (<code>&lt;host&gt;.edge.lab.ferrari.how</code>): the short hostnames do not
+resolve from the control machine. Log in as <code>root</code> on the Proxmox nodes, as
+<code>debian</code> on the hl01 VM, and as <code>pi</code> on raspberrypi2.</p>
 <h2 id="debian">Debian</h2>
 <h3 id="os-package-management">OS package management</h3>
 <ul>

@@ -1758,6 +1758,8 @@ the working tree.</p>
   fixes to the working tree instead of only reporting issues:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">LINTER_CONTAINER_FIX_MODE</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>scripts/lint.sh
 </code></pre></div>
+<p>Fix mode can report failures against the pre-fix content, so when it
+modified files, re-run in check mode for the authoritative verdict.</p>
 </li>
 <li>
 <p><code>LINTER_CONTAINER_OPEN_SHELL</code>: set to <code>true</code> to open an interactive Bash shell
@@ -1793,7 +1795,11 @@ directory in the repository root:</p>
   files for the linters the summary marks as failed to get the actual findings.</li>
 </ul>
 <p>Prefer these files over scrolling the console output: they persist after the run
-and separate each linter's findings.</p>
+and separate each linter's findings. The console output is long: when a run must
+be captured, redirect it in full to a log file rather than through <code>tail</code> or
+<code>head</code>, which discard the failing linter's message and mask the exit code. Run
+only one <code>scripts/lint.sh</code> at a time: concurrent runs clobber the shared
+<code>super-linter-output/</code> directory.</p>
 <p>The linter container runs as <code>root</code> and rewrites the Git index (<code>.git/index</code>),
 which then belongs to <code>root</code>. A lint run can also unstage staged changes, so
 stage files after linting, right before committing. Committing still works
@@ -1930,6 +1936,18 @@ skips them via <code>--skip-tags</code>.</p>
 <p>Always run with <code>--check --diff</code> first and review the predicted changes
 (watching for unexpected <code>state: absent</code> teardowns) before repeating the
 same command without those flags to apply.</p>
+<p>The script mounts <code>config/ansible</code> of the current directory, so a run reads
+the working tree, including other sessions' uncommitted changes under that
+path. Before an apply, check <code>git status</code> for such changes and, when there
+are any, run from a temporary worktree checked out at the reviewed commit,
+created as the <a href="../website-development/">site development guide</a> describes,
+by changing into it. The vault password file and the <code>vault.yaml</code> files are
+gitignored, so the worktree lacks them: hard-link them (<code>ln</code>) into the same
+paths under the worktree's <code>config/ansible</code> first, which keeps a single copy
+of the secret material. A hard link needs the worktree on the checkout's
+filesystem (a session scratchpad on the same mount qualifies); copy the
+files when <code>ln</code> fails with a cross-device error. Remove them together with
+the worktree.</p>
 <p>Playbook runs and custom commands require a running SSH agent
 (<code>SSH_AUTH_SOCK</code>) holding the keys to connect to the nodes; the script
 forwards the agent socket into the Ansible container. The vault edit and
@@ -2013,7 +2031,15 @@ checking the command: set <code>SSH_AUTH_SOCK</code> as described above.</p>
   (<code>printf 'yes\n' | nix develop ./config/nix#operations --command scripts/run-terraform.sh</code>)
   applies that stack and still aborts at the next stack with changes, so nothing
   later is applied unreviewed. The approved run plans again, so compare its plan
-  with the reviewed one before trusting the apply.</p>
+  with the reviewed one before trusting the apply. The VM resources set
+  <code>reboot_after_update = false</code> (the <a href="../../../architecture/proxmox-vm/">VM spec</a>
+  explains why): an apply that needs the guest powered off (a disk resize or
+  move, a TPM device) fails, and a change Proxmox holds for the next start (the
+  agent options) succeeds with a provider warning and stays pending until a
+  deliberate reboot behind an Alertmanager silence
+  (<a href="../../operations/monitoring/">monitoring operations guide</a>). After every VM
+  change, read the apply output for that warning and check the node with
+  <code>qm pending &lt;vmid&gt;</code>.</p>
 </li>
 </ul>
 <h2 id="documentation-site">Documentation site</h2>

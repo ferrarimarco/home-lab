@@ -49,6 +49,9 @@ The script supports the following environment variables:
     LINTER_CONTAINER_FIX_MODE=true scripts/lint.sh
     ```
 
+    Fix mode can report failures against the pre-fix content, so when it
+    modified files, re-run in check mode for the authoritative verdict.
+
 - `LINTER_CONTAINER_OPEN_SHELL`: set to `true` to open an interactive Bash shell
   inside the linter container instead of running the linters, useful to debug
   linter configuration.
@@ -81,7 +84,11 @@ directory in the repository root:
   files for the linters the summary marks as failed to get the actual findings.
 
 Prefer these files over scrolling the console output: they persist after the run
-and separate each linter's findings.
+and separate each linter's findings. The console output is long: when a run must
+be captured, redirect it in full to a log file rather than through `tail` or
+`head`, which discard the failing linter's message and mask the exit code. Run
+only one `scripts/lint.sh` at a time: concurrent runs clobber the shared
+`super-linter-output/` directory.
 
 The linter container runs as `root` and rewrites the Git index (`.git/index`),
 which then belongs to `root`. A lint run can also unstage staged changes, so
@@ -231,6 +238,19 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     (watching for unexpected `state: absent` teardowns) before repeating the
     same command without those flags to apply.
 
+    The script mounts `config/ansible` of the current directory, so a run reads
+    the working tree, including other sessions' uncommitted changes under that
+    path. Before an apply, check `git status` for such changes and, when there
+    are any, run from a temporary worktree checked out at the reviewed commit,
+    created as the [site development guide](./website-development.md) describes,
+    by changing into it. The vault password file and the `vault.yaml` files are
+    gitignored, so the worktree lacks them: hard-link them (`ln`) into the same
+    paths under the worktree's `config/ansible` first, which keeps a single copy
+    of the secret material. A hard link needs the worktree on the checkout's
+    filesystem (a session scratchpad on the same mount qualifies); copy the
+    files when `ln` fails with a cross-device error. Remove them together with
+    the worktree.
+
     Playbook runs and custom commands require a running SSH agent
     (`SSH_AUTH_SOCK`) holding the keys to connect to the nodes; the script
     forwards the agent socket into the Ansible container. The vault edit and
@@ -328,7 +348,15 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   (`printf 'yes\n' | nix develop ./config/nix#operations --command scripts/run-terraform.sh`)
   applies that stack and still aborts at the next stack with changes, so nothing
   later is applied unreviewed. The approved run plans again, so compare its plan
-  with the reviewed one before trusting the apply.
+  with the reviewed one before trusting the apply. The VM resources set
+  `reboot_after_update = false` (the [VM spec](../../architecture/proxmox-vm.md)
+  explains why): an apply that needs the guest powered off (a disk resize or
+  move, a TPM device) fails, and a change Proxmox holds for the next start (the
+  agent options) succeeds with a provider warning and stays pending until a
+  deliberate reboot behind an Alertmanager silence
+  ([monitoring operations guide](../operations/monitoring.md)). After every VM
+  change, read the apply output for that warning and check the node with
+  `qm pending <vmid>`.
 
 ## Documentation site
 

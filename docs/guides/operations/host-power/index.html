@@ -1819,6 +1819,11 @@ two on-board i210 NICs, OCZ ModXStream Pro 600 W PSU (2008-era 80 Plus, no
 PMBus). The goal is to run the host 24/7 once its idle draw comes down; the
 remaining steps are tracked in the
 <a href="../../../architecture/#host-configuration">specs todo list</a>.</p>
+<p>The disks never spin down, by policy: the platters keep spinning to avoid the
+wear of start and stop cycles, so HDD standby timers (<code>hdparm -y</code>/<code>-S</code>,
+ZFS-triggered standby) are out of scope on this host. Power tuning is limited to
+the levers that do not stop the disks: SATA link power management, PCIe ASPM,
+runtime power management, the CPU governor, and sysctls.</p>
 <h3 id="baseline-and-attribution">Baseline and attribution</h3>
 <p>Measured between 2026-08-25 and 2026-10-05 with only the nas-pve2 guest running:</p>
 <table>

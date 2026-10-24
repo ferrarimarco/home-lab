@@ -928,6 +928,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#run-commands-in-nixos-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run commands in NixOS containers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#disable-secure-boot" class="md-nav__link">
     <span class="md-ellipsis">
       Disable Secure Boot
@@ -1617,6 +1626,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#run-commands-in-nixos-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run commands in NixOS containers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#disable-secure-boot" class="md-nav__link">
     <span class="md-ellipsis">
       Disable Secure Boot
@@ -1672,6 +1690,15 @@
   <code>pvesh get /nodes/{nodename}/hardware/pci --pci-class-blacklist ""</code></li>
 <li>Delete the EFI disk: <code>qm set &lt;VM_ID&gt; -delete efidisk0</code></li>
 </ul>
+<h2 id="run-commands-in-nixos-containers">Run commands in NixOS containers</h2>
+<p><code>pct exec</code> does not source a login shell, and a NixOS container keeps its
+binaries under <code>/run/current-system/sw/bin</code>, which is not on the default <code>PATH</code>
+of the spawned process: a plain <code>pct exec &lt;vmid&gt; -- &lt;cmd&gt;</code> fails with "No such
+file or directory". Call the binary by its full path, or wrap the command in a
+login shell so the NixOS profile sets <code>PATH</code>:</p>
+<div class="highlight"><pre><span></span><code>pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;vmid&gt;<span class="w"> </span>--<span class="w"> </span>/run/current-system/sw/bin/&lt;cmd&gt;
+pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;vmid&gt;<span class="w"> </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-lc<span class="w"> </span><span class="s1">&#39;&lt;cmd&gt; &lt;args&gt;&#39;</span>
+</code></pre></div>
 <h2 id="disable-secure-boot">Disable Secure Boot</h2>
 <p>Either enter the UEFI console and disable Secure Boot manually, or delete the
 EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</p>

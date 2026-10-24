@@ -8,6 +8,19 @@
   `pvesh get /nodes/{nodename}/hardware/pci --pci-class-blacklist ""`
 - Delete the EFI disk: `qm set <VM_ID> -delete efidisk0`
 
+## Run commands in NixOS containers
+
+`pct exec` does not source a login shell, and a NixOS container keeps its
+binaries under `/run/current-system/sw/bin`, which is not on the default `PATH`
+of the spawned process: a plain `pct exec <vmid> -- <cmd>` fails with "No such
+file or directory". Call the binary by its full path, or wrap the command in a
+login shell so the NixOS profile sets `PATH`:
+
+```shell
+pct exec <vmid> -- /run/current-system/sw/bin/<cmd>
+pct exec <vmid> -- /bin/sh -lc '<cmd> <args>'
+```
+
 ## Disable Secure Boot
 
 Either enter the UEFI console and disable Secure Boot manually, or delete the
