@@ -1828,8 +1828,8 @@
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Broker TCP probe</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Blackbox <code>tcp_connect</code> probe of the broker address on port 1883, with its alert rule.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>blackbox-tcp</code> job on <code>mosquitto_server_fqdn:1883</code> with <code>BlackboxTcpProbeFailed</code>; rules tests pass; rendered on the backend hosts at the cutover run.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Consumers on the hl02 broker</strong></td>

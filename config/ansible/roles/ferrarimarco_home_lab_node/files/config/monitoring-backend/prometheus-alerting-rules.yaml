@@ -441,6 +441,17 @@ groups:
             The HTTP probe against {{ $labels.instance }} has been failing
             for 10 minutes: the endpoint is unreachable or does not answer
             with the expected status.
+      - alert: BlackboxTcpProbeFailed
+        expr: probe_success{job="blackbox-tcp"} == 0
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "TCP probe fails for {{ $labels.instance }}"
+          description: >-
+            The TCP probe against {{ $labels.instance }} has been failing
+            for 10 minutes: the service does not accept connections on its
+            port.
 
   - name: containers
     rules:

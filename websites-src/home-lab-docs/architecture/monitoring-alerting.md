@@ -11,7 +11,7 @@
 | **Alert Rules: Node Health**               | **Fully Implemented** | Unexpected reboots, textfile staleness, filesystem space and inodes, failed systemd units, clock skew, and memory errors (§6.2).                                                                                           |
 | **Alert Rules: Temperature**               | **Fully Implemented** | Generic CPU temperature, Coral TPU temperature, and Coral sensor failure (§6.3).                                                                                                                                           |
 | **Alert Rules: Backups**                   | **Fully Implemented** | Restic backup staleness, repository identity, structural and data-read checks, and the monthly restore drill (§6.4).                                                                                                       |
-| **Alert Rules: Blackbox Probes**           | **Fully Implemented** | ICMP, DNS, and HTTP probe failures (§6.5).                                                                                                                                                                                 |
+| **Alert Rules: Blackbox Probes**           | **Fully Implemented** | ICMP, DNS, HTTP, and TCP probe failures (§6.5).                                                                                                                                                                            |
 | **Alert Rules: Frigate**                   | **Fully Implemented** | Frigate metrics scrape job plus camera stream, capture rate, and detector latency rules (§6.6).                                                                                                                            |
 | **Alert Rules: Containers**                | **Fully Implemented** | Restart-loop and OOM-kill detection on the cadvisor metrics (§6.7).                                                                                                                                                        |
 | **Alert Rules: Syncthing**                 | **Fully Implemented** | Scrape job and rules deployed; target up and rules loaded on both replicas (2026-10-03, §6.8).                                                                                                                             |
@@ -23,7 +23,7 @@
 | **HA Pair: Prometheus Replicas**           | **Fully Implemented** | Deployed on hl01 and raspberrypi2; cross-scrapes verified up from both replicas, hl01 seeded from the raspberrypi2 TSDB with history queryable (§3.3).                                                                     |
 | **HA Pair: Alertmanager Cluster**          | **Fully Implemented** | Gossip cluster healthy over host networking; silence replication both ways and exactly-once Telegram delivery verified (§3.3).                                                                                             |
 | **HA Pair: Per-Host Grafana and Blackbox** | **Fully Implemented** | Grafana and the Blackbox exporter run on both replica hosts from identical templates; all backend targets up (§3.3).                                                                                                       |
-| **Alert Rules: Unit Tests**                | **Fully Implemented** | `promtool test rules` cases for all 50 rules under `test/prometheus-rules/`, run in CI from the pinned Prometheus image by the `Test Prometheus rules` workflow (§9); passing locally and in CI since the 2026-10-21 push. |
+| **Alert Rules: Unit Tests**                | **Fully Implemented** | `promtool test rules` cases for all 51 rules under `test/prometheus-rules/`, run in CI from the pinned Prometheus image by the `Test Prometheus rules` workflow (§9); passing locally and in CI since the 2026-10-21 push. |
 
 ## 1. Goal
 
@@ -282,10 +282,11 @@ with operational experience.
 
 ### 6.5 Blackbox Probes
 
-| Alert                     | Severity | Condition                                       | Duration | Rationale                                                                   |
-| :------------------------ | :------- | :---------------------------------------------- | :------- | :-------------------------------------------------------------------------- |
-| `BlackboxProbeFailed`     | critical | `probe_success == 0` on ICMP and DNS probe jobs | 10 min   | A host does not answer pings, or a DNS record does not resolve as declared. |
-| `BlackboxHttpProbeFailed` | warning  | `probe_success == 0` on HTTP probe jobs         | 10 min   | An HTTP endpoint stopped answering with the expected status.                |
+| Alert                     | Severity | Condition                                       | Duration | Rationale                                                                                                              |
+| :------------------------ | :------- | :---------------------------------------------- | :------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `BlackboxProbeFailed`     | critical | `probe_success == 0` on ICMP and DNS probe jobs | 10 min   | A host does not answer pings, or a DNS record does not resolve as declared.                                            |
+| `BlackboxHttpProbeFailed` | warning  | `probe_success == 0` on HTTP probe jobs         | 10 min   | An HTTP endpoint stopped answering with the expected status.                                                           |
+| `BlackboxTcpProbeFailed`  | critical | `probe_success == 0` on the TCP probe job       | 10 min   | A service port stopped accepting connections (today the MQTT broker, whose consumers lose their bus while it is down). |
 
 > **Syncthing probe:** the Syncthing check targets the instance's dedicated
 > unauthenticated health endpoint (`/rest/noauth/health` on the nas-pve1 GUI
@@ -297,6 +298,13 @@ with operational experience.
 > key in the Blackbox exporter configuration was rejected because the health
 > endpoint exists exactly for this purpose. Verified passing on both replicas
 > (2026-10-05).
+
+> **MQTT broker probe:** the `blackbox-tcp` job probes the broker with the
+> `tcp_connect` module (a plain TCP connection, since the broker has no HTTP
+> endpoint). Its single target derives from `mosquitto_server_fqdn`, the
+> variable the consumers read, so the probe follows the broker wherever that
+> variable points with no second place to update at a move (see the
+> [MQTT Broker specification](./mqtt-broker.md)).
 
 ### 6.6 Frigate
 

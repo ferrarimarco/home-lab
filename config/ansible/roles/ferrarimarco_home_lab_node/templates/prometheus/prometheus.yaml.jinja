@@ -206,6 +206,24 @@ scrape_configs:
       - target_label: __address__ # Set the scrape request address to point to the Blackbox exporter hostname:port
         replacement: blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }} # Blackbox exporter hostname:port
 
+  - job_name: blackbox-tcp
+    metrics_path: /probe
+    params:
+      module:
+        - tcp_connect
+    static_configs:
+      - targets:
+{# The MQTT broker target derives from the address the consumers use, so the #}
+{# probe follows the broker wherever that variable points (MQTT broker spec). #}
+        - "{{ mosquitto_server_fqdn }}:1883"
+    relabel_configs:
+      - source_labels: [__address__] # Add a target parameter of the scrape request URL
+        target_label: __param_target
+      - source_labels: [__param_target] # Set the instance label
+        target_label: instance
+      - target_label: __address__ # Set the scrape request address to point to the Blackbox exporter hostname:port
+        replacement: blackbox-exporter:{{ monitoring_backend_prometheus_node_exporter_container_port }} # Blackbox exporter hostname:port
+
   - job_name: "restic"
     static_configs:
       - targets:

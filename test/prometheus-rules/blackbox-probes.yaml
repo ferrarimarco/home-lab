@@ -5,7 +5,7 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
-  - name: BlackboxProbeFailed fires for ICMP and DNS probes failing for 10 minutes, not for HTTP
+  - name: BlackboxProbeFailed fires for ICMP and DNS probes failing for 10 minutes, not for HTTP or TCP
     interval: 1m
     input_series:
       - series: 'probe_success{job="blackbox-ping", instance="pve1.example.test"}'
@@ -15,6 +15,8 @@ tests:
       - series: 'probe_success{job="blackbox-ping", instance="hl01.example.test"}'
         values: "1x11"
       - series: 'probe_success{job="blackbox-http-2xx", instance="https://nas.example.test/health"}'
+        values: "0x11"
+      - series: 'probe_success{job="blackbox-tcp", instance="hl02.example.test:1883"}'
         values: "0x11"
     alert_rule_test:
       - eval_time: 9m
@@ -68,3 +70,30 @@ tests:
                 The HTTP probe against https://nas.example.test/health has
                 been failing for 10 minutes: the endpoint is unreachable or
                 does not answer with the expected status.
+
+  - name: BlackboxTcpProbeFailed fires for a TCP probe failing for 10 minutes, not for a passing one or for ICMP
+    interval: 1m
+    input_series:
+      - series: 'probe_success{job="blackbox-tcp", instance="hl02.example.test:1883"}'
+        values: "0x11"
+      - series: 'probe_success{job="blackbox-tcp", instance="hl01.example.test:1883"}'
+        values: "1x11"
+      - series: 'probe_success{job="blackbox-ping", instance="pve1.example.test"}'
+        values: "0x11"
+    alert_rule_test:
+      - eval_time: 9m
+        alertname: BlackboxTcpProbeFailed
+        exp_alerts: []
+      - eval_time: 10m
+        alertname: BlackboxTcpProbeFailed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: blackbox-tcp
+              instance: hl02.example.test:1883
+            exp_annotations:
+              summary: "TCP probe fails for hl02.example.test:1883"
+              description: >-
+                The TCP probe against hl02.example.test:1883 has been failing
+                for 10 minutes: the service does not accept connections on its
+                port.

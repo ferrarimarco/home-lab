@@ -6,7 +6,7 @@
 | :------------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`mosquitto` Nix role on hl02** | **Fully Implemented** | Imported by hl02; the host test passed locally on 2026-10-24; not yet deployed (comin deploys on merge).                                                   |
 | **Integration test check**       | **Fully Implemented** | Generator check (unit, listener ports, retained messages from an anonymous and a named client surviving a restart); passed in the hl02 test on 2026-10-24. |
-| **Broker TCP probe**             | **Missing**           | Blackbox `tcp_connect` probe of the broker address on port 1883, with its alert rule.                                                                      |
+| **Broker TCP probe**             | **Fully Implemented** | `blackbox-tcp` job on `mosquitto_server_fqdn:1883` with `BlackboxTcpProbeFailed`; rules tests pass; rendered on the backend hosts at the cutover run.      |
 | **Consumers on the hl02 broker** | **Missing**           | Frigate, Zigbee2MQTT, and Home Assistant still connect to raspberrypi2.                                                                                    |
 | **raspberrypi2 broker retired**  | **Missing**           | The Compose stack still runs on raspberrypi2; it is torn down after the consumers move.                                                                    |
 
