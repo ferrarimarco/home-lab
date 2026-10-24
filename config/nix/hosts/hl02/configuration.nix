@@ -6,6 +6,7 @@
     ../../roles/proxmox-vm
     ../../roles/comin
     ../../roles/monitoring
+    ../../roles/mosquitto
   ];
 
   networking.hostId = "92bbb1e6";

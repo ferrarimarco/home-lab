@@ -113,6 +113,15 @@ pkgs.testers.nixosTest {
           );
         }
 
+        # --- MQTT Broker Test Tooling ---
+        # If the host runs the Mosquitto broker, ship the client tools the
+        # round-trip assertion below uses; the broker package carries them.
+        {
+          environment.systemPackages = lib.mkIf config.services.mosquitto.enable [
+            config.services.mosquitto.package
+          ];
+        }
+
         # --- LXC Compatibility Settings ---
         # If this is an LXC container (indicated by the presence of root-level proxmoxLXC options),
         # apply container-to-VM compatibility overrides so the QEMU VM test runner can boot it.
@@ -235,6 +244,38 @@ pkgs.testers.nixosTest {
         ) sambaShareNames}
       '';
 
+      # Verify the Mosquitto broker if it enables at least one TCP listener
+      # (a port of 0 is a Unix socket listener): every TCP listener port
+      # opens, and retained messages published to the first one, by an
+      # anonymous client and by a client presenting a username, come back to
+      # fresh subscribers after a broker restart. The restart is what makes
+      # this a persistence check: retained messages are served from memory,
+      # and only a clean shutdown writes them to the store the restart reloads.
+      # The named client proves the ACL admits clients with a username, which
+      # a topic rule would not. The publishers and subscribers retry with a
+      # bounded timeout: the unit reporting active does not guarantee the
+      # broker accepts clients.
+      mosquittoListenerPorts = map (listener: toString listener.port) (
+        builtins.filter (listener: listener.port != 0) node_config.services.mosquitto.listeners
+      );
+      mosquittoFirstPort = builtins.head mosquittoListenerPorts;
+      mosquittoCheck =
+        lib.optionalString (node_config.services.mosquitto.enable && mosquittoListenerPorts != [ ])
+          ''
+            print("--- Verifying Mosquitto MQTT Broker ---")
+            machine.wait_for_unit("mosquitto.service")
+            ${lib.concatMapStringsSep "\n" (port: "machine.wait_for_open_port(${port})") mosquittoListenerPorts}
+            machine.wait_until_succeeds("mosquitto_pub -h localhost -p ${mosquittoFirstPort} -t test/roundtrip/anonymous -m ok -r", timeout=60)
+            machine.succeed("mosquitto_pub -h localhost -p ${mosquittoFirstPort} -u probe -t test/roundtrip/named -m ok -r")
+            machine.systemctl("restart mosquitto.service")
+            machine.wait_for_unit("mosquitto.service")
+            machine.wait_for_open_port(${mosquittoFirstPort})
+            for topic, user_flag in (("test/roundtrip/anonymous", ""), ("test/roundtrip/named", "-u probe")):
+                received = machine.wait_until_succeeds(f"mosquitto_sub -h localhost -p ${mosquittoFirstPort} {user_flag} -t {topic} -C 1 -W 30", timeout=60).strip()
+                assert received == "ok", f"Expected the retained message 'ok' on {topic} after the restart, got: {received!r}"
+            print("MQTT retained round trips verified across a broker restart!")
+          '';
+
       cominCheck = lib.optionalString node_config.services.comin.enable ''
         print("--- GitOps Phase 1: Mocking Local Git Repository Layout ---")
         machine.succeed(
@@ -315,6 +356,7 @@ pkgs.testers.nixosTest {
       ${qemuAgentCheck}
       ${nodeExporterCheck}
       ${sambaCheck}
+      ${mosquittoCheck}
       ${cominCheck}
 
       # Host-specific custom assertions (if any)

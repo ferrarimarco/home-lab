@@ -550,6 +550,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../mqtt-broker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: MQTT Broker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../nas-lxc-container/" class="md-nav__link">
         
   
@@ -1911,6 +1934,12 @@ host's logical <code>configuration.nix</code>.</p>
 <li>If <code>services.prometheus.exporters.node</code> is enabled, it waits for
   <code>prometheus-node-exporter.service</code> and its configured port, and asserts
   that the metrics endpoint serves <code>node_</code>-prefixed metrics.</li>
+<li>If <code>services.mosquitto</code> is enabled with a TCP listener, it ships the
+  broker's client tools into the test machine, waits for <code>mosquitto.service</code>
+  and every TCP listener port, and asserts that retained messages published
+  on the first listener by an anonymous and by a named client come back to
+  fresh subscribers after a broker restart (see the
+  <a href="../mqtt-broker/">MQTT Broker specification</a>).</li>
 <li>Always asserts that <code>multi-user.target</code> is reached (successful boot).</li>
 </ul>
 </li>
