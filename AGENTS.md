@@ -143,7 +143,11 @@ Key rules:
 - **Prometheus alerting rules need a promtool unit test:** every rule in
   `prometheus-alerting-rules.yaml` gets a firing and a non-firing case in
   `test/prometheus-rules/`; run `test/scripts/prometheus-rules-test.sh` before
-  committing. The operational scripts guide has the test conventions.
+  committing. The operational scripts guide has the test conventions. The status
+  table of the
+  [monitoring-alerting spec](./websites-src/home-lab-docs/architecture/monitoring-alerting.md)
+  names the probe kinds and the rule count the test script prints: update it in
+  the same change as the rule.
 - **NixOS integration tests:** every host directory is auto-registered as a
   flake check; run the affected host's check locally before pushing, as the
   [Nix development guide](./websites-src/home-lab-docs/guides/development/nix.md)

@@ -116,3 +116,28 @@ the build script needs a Git repository.
       sh -c 'rm -rf /wt/super-linter-output /wt/super-linter.log'
     git worktree remove --force <worktree directory>
     ```
+
+## Amend an earlier unpushed commit that carries generated output
+
+A fix that belongs in an earlier unpushed commit (a review finding on the first
+commit of a batch) follows the fixup and autosquash route of the global
+`git-commit` skill, which the project rules load for every amend. The site adds
+one step to that route: the later commits' generated output conflicts with the
+rebuilt earlier commit, so each commit's `docs/` is rebuilt as the rebase
+replays it, and the skill's tree-equality check does not hold, since the later
+commits' output legitimately changes.
+
+1. Record the old tip (`git rev-parse <branch>`), apply the fix, rebuild the
+   site, stage the sources and `docs/`, and record a fixup commit with
+   `git commit --fixup=<commit>` (a reworded message goes through the skill's
+   `amend!` form).
+2. Run the non-interactive autosquash rebase the skill describes. When it stops
+   on a conflict, resolve the sources by hand if they conflict too, rebuild the
+   site, stage `docs/` and the sources, and continue with
+   `GIT_EDITOR=true git rebase --continue`.
+3. Accept the result when `git range-diff <base>..<old tip> <base>..HEAD` marks
+   the amended commit as changed by the fix alone, and every later commit as
+   changed only under `docs/`.
+
+Run the tests of each amended commit and the commit message check on each
+message, since the amend replaces the commits the earlier runs covered.

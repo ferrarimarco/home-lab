@@ -1201,6 +1201,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#amend-an-earlier-unpushed-commit-that-carries-generated-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      Amend an earlier unpushed commit that carries generated output
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1691,6 +1700,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#amend-an-earlier-unpushed-commit-that-carries-generated-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      Amend an earlier unpushed commit that carries generated output
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1814,6 +1832,29 @@ git<span class="w"> </span>worktree<span class="w"> </span>remove<span class="w"
 </code></pre></div>
 </li>
 </ol>
+<h2 id="amend-an-earlier-unpushed-commit-that-carries-generated-output">Amend an earlier unpushed commit that carries generated output</h2>
+<p>A fix that belongs in an earlier unpushed commit (a review finding on the first
+commit of a batch) follows the fixup and autosquash route of the global
+<code>git-commit</code> skill, which the project rules load for every amend. The site adds
+one step to that route: the later commits' generated output conflicts with the
+rebuilt earlier commit, so each commit's <code>docs/</code> is rebuilt as the rebase
+replays it, and the skill's tree-equality check does not hold, since the later
+commits' output legitimately changes.</p>
+<ol>
+<li>Record the old tip (<code>git rev-parse &lt;branch&gt;</code>), apply the fix, rebuild the
+   site, stage the sources and <code>docs/</code>, and record a fixup commit with
+   <code>git commit --fixup=&lt;commit&gt;</code> (a reworded message goes through the skill's
+   <code>amend!</code> form).</li>
+<li>Run the non-interactive autosquash rebase the skill describes. When it stops
+   on a conflict, resolve the sources by hand if they conflict too, rebuild the
+   site, stage <code>docs/</code> and the sources, and continue with
+   <code>GIT_EDITOR=true git rebase --continue</code>.</li>
+<li>Accept the result when <code>git range-diff &lt;base&gt;..&lt;old tip&gt; &lt;base&gt;..HEAD</code> marks
+   the amended commit as changed by the fix alone, and every later commit as
+   changed only under <code>docs/</code>.</li>
+</ol>
+<p>Run the tests of each amended commit and the commit message check on each
+message, since the amend replaces the commits the earlier runs covered.</p>
 
 
 

@@ -249,8 +249,10 @@ pkgs.testers.nixosTest {
       # opens, and retained messages published to the first one, by an
       # anonymous client and by a client presenting a username, come back to
       # fresh subscribers after a broker restart. The restart is what makes
-      # this a persistence check: retained messages are served from memory,
-      # and only a clean shutdown writes them to the store the restart reloads.
+      # this a persistence check: retained messages are served from the
+      # in-memory database, which reaches the store the restart reloads at
+      # shutdown, every autosave_interval (30 minutes by default), and on
+      # SIGUSR1, so within the test only the shutdown write lands.
       # The named client proves the ACL admits clients with a username, which
       # a topic rule would not. The publishers and subscribers retry with a
       # bounded timeout: the unit reporting active does not guarantee the

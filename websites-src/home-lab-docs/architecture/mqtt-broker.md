@@ -74,10 +74,11 @@ test of every host that enables the broker with a TCP listener: it waits for
 the first listener from an anonymous client and another from a client presenting
 a username, restarts the broker, and asserts that fresh subscribers receive
 both. The restart is what makes this a persistence check: retained messages are
-served from memory, and only a clean shutdown writes them to the store the
-restart reloads. The named client proves the ACL admits clients with a username.
-The generator ships the broker package's client tools into the test machine for
-this check only.
+served from the in-memory database, which reaches the store the restart reloads
+at shutdown, every `autosave_interval` (30 minutes by default), and on SIGUSR1,
+so within the test only the shutdown write lands. The named client proves the
+ACL admits clients with a username. The generator ships the broker package's
+client tools into the test machine for this check only.
 
 ### Monitoring
 

@@ -1779,7 +1779,16 @@
 <p>Connect over SSH using each host's fully qualified domain name as the Ansible
 inventory lists it (<code>&lt;host&gt;.edge.lab.ferrari.how</code>): the short hostnames do not
 resolve from the control machine. Log in as <code>root</code> on the Proxmox nodes, as
-<code>debian</code> on the hl01 VM, and as <code>pi</code> on raspberrypi2.</p>
+<code>debian</code> on the hl01 VM, as <code>pi</code> on raspberrypi2, and as the administrative user
+of the <code>common</code> Nix role on the NixOS hosts.</p>
+<p>A first connection to a host from a machine fails under <code>BatchMode=yes</code> with
+"Host key verification failed", the line a changed key's output also ends with.
+Tell the two apart before accepting anything: <code>ssh-keygen -F &lt;fqdn&gt;</code> (the name
+as SSH stored it; <code>-f</code> selects a known hosts file other than
+<code>~/.ssh/known_hosts</code>) prints nothing for a host that file never saw, and an
+entry for a mismatch. For an unknown host, connect once with
+<code>-o StrictHostKeyChecking=accept-new</code>; for a mismatch, find out why the key
+changed before touching the known hosts file.</p>
 <h2 id="debian">Debian</h2>
 <h3 id="os-package-management">OS package management</h3>
 <ul>
