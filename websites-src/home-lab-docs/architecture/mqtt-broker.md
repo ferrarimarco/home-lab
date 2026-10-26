@@ -2,13 +2,13 @@
 
 ## Implementation Status
 
-| Component / Feature              | Status                    | Details                                                                                                                                                                           |
-| :------------------------------- | :------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`mosquitto` Nix role on hl02** | **Fully Implemented**     | Imported by hl02; comin deployed it on 2026-10-25 and the broker verified from the control machine; the client tools addition awaits its deployment.                              |
-| **Integration test check**       | **Fully Implemented**     | Generator check (unit, listener ports, retained messages from an anonymous and a named client surviving a restart); passed in the hl02 test on 2026-10-24.                        |
-| **Broker TCP probe**             | **Fully Implemented**     | `blackbox-tcp` job on `mosquitto_server_fqdn:1883` with `BlackboxTcpProbeFailed`; rules tests pass; applied on both replicas on 2026-10-24, green against hl02 since the cutover. |
-| **Consumers on the hl02 broker** | **Fully Implemented**     | Frigate and Zigbee2MQTT re-pointed by the playbook run of 2026-10-26, the Home Assistant config entry rewritten the same day; no MQTT entity unavailable afterwards.              |
-| **raspberrypi2 broker retired**  | **Partially Implemented** | Torn down on 2026-10-26 by dropping `configure_mqtt_broker` (container, unit, and directories gone); the stack's code is still in the node role.                                  |
+| Component / Feature              | Status                | Details                                                                                                                                                                           |
+| :------------------------------- | :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`mosquitto` Nix role on hl02** | **Fully Implemented** | Imported by hl02; comin deployed it on 2026-10-25 and the broker verified from the control machine; the client tools addition awaits its deployment.                              |
+| **Integration test check**       | **Fully Implemented** | Generator check (unit, listener ports, retained messages from an anonymous and a named client surviving a restart); passed in the hl02 test on 2026-10-24.                        |
+| **Broker TCP probe**             | **Fully Implemented** | `blackbox-tcp` job on `mosquitto_server_fqdn:1883` with `BlackboxTcpProbeFailed`; rules tests pass; applied on both replicas on 2026-10-24, green against hl02 since the cutover. |
+| **Consumers on the hl02 broker** | **Fully Implemented** | Frigate and Zigbee2MQTT re-pointed by the playbook run of 2026-10-26, the Home Assistant config entry rewritten the same day; no MQTT entity unavailable afterwards.              |
+| **raspberrypi2 broker retired**  | **Fully Implemented** | Torn down on 2026-10-26 by dropping `configure_mqtt_broker` (container, unit, and directories gone); the stack's code removed from the node role the same day.                    |
 
 ## Goal
 

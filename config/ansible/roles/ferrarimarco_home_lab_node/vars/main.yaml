@@ -333,47 +333,6 @@ monitoring_templates_to_render:
     state: "{{ has_coral_pci_accelerator | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ monitoring_coral_pci_prometheus_exporter_service_name }}"
-mosquitto_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/mosquitto"
-mosquitto_data_directory_path: "{{ mosquitto_runtime_data_directory_path }}/data"
-mosquitto_log_directory_path: "{{ mosquitto_runtime_data_directory_path }}/logs"
-mosquitto_runtime_data_directory_path: "{{ home_lab_runtime_directory_path }}/mosquitto"
-# The mosquitto container image creates a user with the specified uid and gid that takes owenership of the configuration directory.
-# Ansible may emit a warning because a user with such ids doesn't exist on the system, but it does in the container.
-mosquitto_user_group_id: "1883"
-mosquitto_user_user_id: "1883"
-mosquitto_configuration_directories:
-  - path: "{{ mosquitto_configuration_directory_path }}"
-    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
-  - group: "{{ mosquitto_user_group_id }}"
-    owner: "{{ mosquitto_user_user_id }}"
-    path: "{{ mosquitto_configuration_directory_path }}/config"
-    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
-  - path: "{{ mosquitto_runtime_data_directory_path }}"
-    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
-  - path: "{{ mosquitto_data_directory_path }}"
-    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
-    group: "{{ mosquitto_user_group_id }}"
-    owner: "{{ mosquitto_user_user_id }}"
-  - path: "{{ mosquitto_log_directory_path }}"
-    state: "{{ configure_mqtt_broker | ternary('directory', 'absent') }}"
-    group: "{{ mosquitto_user_group_id }}"
-    owner: "{{ mosquitto_user_user_id }}"
-mosquitto_docker_compose_up_items:
-  - compose_file_path: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-    enable_containerized_services: "{{ configure_mqtt_broker }}"
-    pull_container_images: "{{ configure_mqtt_broker }}"
-    start_containerized_services: "{{ start_mqtt_broker | default(configure_mqtt_broker) }}"
-mosquitto_templates_to_render:
-  - src: "mosquitto/{{ default_docker_compose_file_name }}.jinja"
-    dest: "{{ mosquitto_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-    state: "{{ configure_mqtt_broker | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
-  - src: "mosquitto/config/mosquitto.conf.jinja"
-    dest: "{{ mosquitto_configuration_directory_path }}/config/mosquitto.conf"
-    state: "{{ configure_mqtt_broker | ternary('file', 'absent') }}"
-    docker_compose_services_to_restart: "{{ mosquitto_docker_compose_up_items }}"
-    group: "{{ mosquitto_user_group_id }}"
-    owner: "{{ mosquitto_user_user_id }}"
 os_groups: []
 os_services: []
 os_services_to_restart: []

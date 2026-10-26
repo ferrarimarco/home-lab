@@ -16,7 +16,7 @@ reference pages beside them, and the todo list for the whole lab.
 | [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.                                                                      | **Fully Implemented**         |
 | [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi TFTP path now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer. | **Missing**                   |
 | [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill.                                  | **Partially Implemented**     |
-| [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                 | **Partially Implemented**     |
+| [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                 | **Fully Implemented**         |
 
 ## Reference pages
 
@@ -61,9 +61,11 @@ reliability risks first, then security exposure, then automation):
   complete (Syncthing on nas-pve1, media on pve1, restic repositories on the
   nas-pve1 `backups` share), and the raspberrypi2 cleanup ran on 2026-10-17 (the
   copied media state, the dead disk's inventory entry, and the Samba share that
-  exported its empty mount point are gone). Left: Mosquitto, which moves to hl02
-  as a NixOS module; Zigbee2MQTT stays on raspberrypi2 (both decided
-  2026-10-23).
+  exported its empty mount point are gone), and Mosquitto moved to hl02 as a
+  NixOS module on 2026-10-26 ([MQTT Broker](./mqtt-broker.md)). Zigbee2MQTT
+  stays on raspberrypi2 (decided 2026-10-23). Left: verifying the hl01 media
+  stack against the rebuilt library, then the ONT exporter and router WAN check
+  moves.
 
 ### Bootstrapping and provisioning
 
@@ -124,14 +126,13 @@ reliability risks first, then security exposure, then automation):
       moved to hl02 as a `services.mosquitto` NixOS module (decided 2026-10-23;
       the hl01-only decision covered containers, and a native module is not
       one), per the [MQTT Broker](./mqtt-broker.md) spec: the consumers run
-      against hl02 since 2026-10-26, and what remains is dropping
-      `configure_mqtt_broker` from raspberrypi2 and removing the retired stack
-      from the node role. Syncthing already moved to nas-pve1 ([NAS](#nas)). The
-      monitoring backend stays: it runs as a highly available pair on hl01 and
-      raspberrypi2 (monitoring-alerting spec §3.3). Afterwards: move the ONT
-      exporter and the router WAN check to hl01, and delete the source data with
-      separate approvals; the raspberrypi2 restic job retires with the host, per
-      the repository wind-down item ([Backup](#backup)).
+      against hl02 since 2026-10-26, when the raspberrypi2 stack was torn down
+      and removed from the node role. Syncthing already moved to nas-pve1
+      ([NAS](#nas)). The monitoring backend stays: it runs as a highly available
+      pair on hl01 and raspberrypi2 (monitoring-alerting spec §3.3). Afterwards:
+      move the ONT exporter and the router WAN check to hl01, and delete the
+      source data with separate approvals; the raspberrypi2 restic job retires
+      with the host, per the repository wind-down item ([Backup](#backup)).
     - Network boot service and Raspberry Pi re-provisioning, per the
       [Network Boot Service](./network-boot.md) spec:
         - `netboot-server` Nix role on hl02 (TFTP tree, NFS export, and
