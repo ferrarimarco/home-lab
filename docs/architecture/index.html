@@ -2132,25 +2132,17 @@ reliability risks first, then security exposure, then automation):</p>
   to pve1. The decoupling step is a network coordinator
   (<a href="#smart-home">Smart home</a>); the udev rule for a stable device path stays
   a raspberrypi2 item (<a href="#host-configuration">Host configuration</a>). Mosquitto
-  moves to hl02 as a <code>services.mosquitto</code> NixOS module (decided 2026-10-23;
+  moved to hl02 as a <code>services.mosquitto</code> NixOS module (decided 2026-10-23;
   the hl01-only decision covered containers, and a native module is not
-  one): a <code>mosquitto</code> Nix role imported by hl02 with its integration-test
-  fragment, a blackbox TCP probe on port 1883 in the generated target list,
-  <code>mosquitto_server_fqdn</code> re-pointed in the node role's <code>vars/main.yaml</code>
-  (Frigate and Zigbee2MQTT read it), the Home Assistant MQTT integration's
-  broker host changed in its UI, then <code>configure_mqtt_broker</code> dropped from
-  raspberrypi2. Both brokers run during the cutover, since comin deploys the
-  hl02 side on merge; the deployment is fresh, with no state copied, and the
-  consumers republish their retained topics when they restart against the
-  new broker. The hl02 static address (<a href="#networking">Networking</a>) is an
-  ordering preference, not a dependency: the consumers connect by name,
-  which the gateway resolves from the lease. Syncthing already moved to
-  nas-pve1 (<a href="#nas">NAS</a>). The monitoring backend stays: it runs as a highly
-  available pair on hl01 and raspberrypi2 (monitoring-alerting spec §3.3).
-  Afterwards: move the ONT exporter and the router WAN check to hl01, and
-  delete the source data with separate approvals; the raspberrypi2 restic
-  job retires with the host, per the repository wind-down item
-  (<a href="#backup">Backup</a>).</li>
+  one), per the <a href="mqtt-broker/">MQTT Broker</a> spec: the consumers run
+  against hl02 since 2026-10-26, and what remains is dropping
+  <code>configure_mqtt_broker</code> from raspberrypi2 and removing the retired stack
+  from the node role. Syncthing already moved to nas-pve1 (<a href="#nas">NAS</a>). The
+  monitoring backend stays: it runs as a highly available pair on hl01 and
+  raspberrypi2 (monitoring-alerting spec §3.3). Afterwards: move the ONT
+  exporter and the router WAN check to hl01, and delete the source data with
+  separate approvals; the raspberrypi2 restic job retires with the host, per
+  the repository wind-down item (<a href="#backup">Backup</a>).</li>
 <li>Network boot service and Raspberry Pi re-provisioning, per the
   <a href="network-boot/">Network Boot Service</a> spec:<ul>
 <li><code>netboot-server</code> Nix role on hl02 (TFTP tree, NFS export, and
@@ -2319,12 +2311,11 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Secure Debian:
   <a href="https://www.debian.org/doc/manuals/securing-debian-manual/index.en.html">Securing Debian manual</a>.</li>
 <li>Secrets: restrict access to the Frigate configuration file to root only.</li>
-<li>Mosquitto: configure encryption, authentication, and mTLS. The broker moves to
-  hl02 as a NixOS module
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>), whose
-  module takes password files and certificates from paths on the host, so this
-  item needs a secret delivery path for the NixOS hosts, which none has yet (the
-  anonymous listener needs none).</li>
+<li>Mosquitto: configure encryption, authentication, and mTLS. The broker runs on
+  hl02 as a NixOS module (<a href="mqtt-broker/">MQTT Broker</a>), whose module takes
+  password files and certificates from paths on the host, so this item needs a
+  secret delivery path for the NixOS hosts, which none has yet (the open
+  listener needs none).</li>
 <li>Docker: remove users from the Docker group?; Docker socket hardening
   (<a href="https://doc.traefik.io/traefik/providers/docker/#docker-api-access">Traefik Docker API access</a>,
   <a href="https://github.com/Tecnativa/docker-socket-proxy">docker-socket-proxy</a>);

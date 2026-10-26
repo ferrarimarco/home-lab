@@ -2,13 +2,13 @@
 
 ## Implementation Status
 
-| Component / Feature              | Status                | Details                                                                                                                                                    |
-| :------------------------------- | :-------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`mosquitto` Nix role on hl02** | **Fully Implemented** | Imported by hl02; the host test passed locally on 2026-10-24; not yet deployed (comin deploys on merge).                                                   |
-| **Integration test check**       | **Fully Implemented** | Generator check (unit, listener ports, retained messages from an anonymous and a named client surviving a restart); passed in the hl02 test on 2026-10-24. |
-| **Broker TCP probe**             | **Fully Implemented** | `blackbox-tcp` job on `mosquitto_server_fqdn:1883` with `BlackboxTcpProbeFailed`; rules tests pass; rendered on the backend hosts at the cutover run.      |
-| **Consumers on the hl02 broker** | **Missing**           | Frigate, Zigbee2MQTT, and Home Assistant still connect to raspberrypi2.                                                                                    |
-| **raspberrypi2 broker retired**  | **Missing**           | The Compose stack still runs on raspberrypi2; it is torn down after the consumers move.                                                                    |
+| Component / Feature              | Status                | Details                                                                                                                                                                           |
+| :------------------------------- | :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`mosquitto` Nix role on hl02** | **Fully Implemented** | Imported by hl02; comin deployed it on 2026-10-25 and the broker verified from the control machine; the client tools addition awaits its deployment.                              |
+| **Integration test check**       | **Fully Implemented** | Generator check (unit, listener ports, retained messages from an anonymous and a named client surviving a restart); passed in the hl02 test on 2026-10-24.                        |
+| **Broker TCP probe**             | **Fully Implemented** | `blackbox-tcp` job on `mosquitto_server_fqdn:1883` with `BlackboxTcpProbeFailed`; rules tests pass; applied on both replicas on 2026-10-24, green against hl02 since the cutover. |
+| **Consumers on the hl02 broker** | **Fully Implemented** | Frigate and Zigbee2MQTT re-pointed by the playbook run of 2026-10-26, the Home Assistant config entry rewritten the same day; no MQTT entity unavailable afterwards.              |
+| **raspberrypi2 broker retired**  | **Missing**           | The Compose stack still runs on raspberrypi2 with no clients; it is torn down by dropping `configure_mqtt_broker`, then removed from the node role.                               |
 
 ## Goal
 
@@ -58,6 +58,14 @@ topics when it reconnects, so it is not part of the backup set.
 
 Logging goes to the journal through the module's default `stderr` destination.
 
+The role also installs the broker package's client tools (`mosquitto_pub`,
+`mosquitto_sub`) on the host, so the operations guides read retained topics and
+call Zigbee2MQTT's MQTT API from the broker host against localhost, the same
+shape the raspberrypi2 recipe had with the container's tools, and independent of
+where the consumers run (the
+[Zigbee2MQTT operations guide](../guides/operations/zigbee2mqtt.md) has the
+recipe).
+
 ### Integration test
 
 The [test generator](./declarative-integration-testing.md) adds a check to the
@@ -87,12 +95,19 @@ the consumers republish their retained topics on reconnection. Both brokers run
 during the cutover, because comin deploys the hl02 side when the role merges
 while the consumers still name raspberrypi2. The consumers then move by
 re-pointing `mosquitto_server_fqdn` in the node role's `vars/main.yaml` (Frigate
-and Zigbee2MQTT read it) and the broker host of the Home Assistant MQTT
-integration in its interface; the raspberrypi2 stack is torn down afterwards by
-dropping `configure_mqtt_broker` from its host variables. The hl02 static
-address of the [Networking](./README.md#networking) todo list is an ordering
-preference, not a dependency: the consumers connect by name, which the gateway
-resolves from the lease.
+and Zigbee2MQTT read it, and the probe target follows it) and the broker host of
+the Home Assistant MQTT integration in its stored config entry, with Home
+Assistant stopped, as the
+[Home Assistant operations guide](../guides/operations/home-assistant.md)
+describes (the entry keeps its ID, so the entities keep their history; the
+interface's reconfigure flow is the alternative); the raspberrypi2 stack is torn
+down afterwards by dropping `configure_mqtt_broker` from its host variables.
+Done on 2026-10-26: both brokers ran side by side for a day, the consumers
+reconnected within seconds of their restart, Home Assistant was stopped for
+about a minute, and no MQTT entity stayed unavailable. The hl02 static address
+of the [Networking](./README.md#networking) todo list is an ordering preference,
+not a dependency: the consumers connect by name, which the gateway resolves from
+the lease.
 
 ## Consumers
 
@@ -100,4 +115,4 @@ resolves from the lease.
 | :------------- | :----------- | :------------------------------------------------------------------------------------- |
 | Frigate        | hl01         | `mqtt.host` in the rendered Frigate configuration, from `mosquitto_server_fqdn`.       |
 | Zigbee2MQTT    | raspberrypi2 | `mqtt.server` in the rendered Zigbee2MQTT configuration, from `mosquitto_server_fqdn`. |
-| Home Assistant | hl01         | The MQTT integration's config entry, managed in the interface, not in the templates.   |
+| Home Assistant | hl01         | The MQTT integration's config entry (`broker` in its `data`), not in the templates.    |

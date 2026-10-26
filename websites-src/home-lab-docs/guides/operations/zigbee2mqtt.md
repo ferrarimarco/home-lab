@@ -29,14 +29,20 @@ change nothing in the repository.
   [Home Assistant operations guide](./home-assistant.md) describes how to query
   its recorder database.
 
-## Write a device setting
+## Write a device setting through the MQTT API
 
-The broker accepts anonymous connections from its own host and the
-`eclipse-mosquitto` image ships the client tools, so a setting is one publish
-from the host that runs the `mosquitto` Compose service:
+Zigbee2MQTT's API is its MQTT topic contract: a device's settings and commands
+go to `zigbee2mqtt/<friendly name>/set`, and the bridge's own operations to
+`zigbee2mqtt/bridge/request/...` (the
+[MQTT topics and messages](https://www.zigbee2mqtt.io/guide/usage/mqtt_topics_and_messages.html)
+page of its documentation; the frontend's WebSocket is internal). The broker
+accepts open connections and its host carries the client tools (the
+[MQTT Broker specification](../../architecture/mqtt-broker.md) names the host
+and the role that installs them), so a setting is one publish from the broker
+host against localhost:
 
 ```shell
-docker exec mosquitto mosquitto_pub -h localhost \
+mosquitto_pub -h localhost \
   -t 'zigbee2mqtt/<friendly name>/set' -m '{"<property>": <value>}'
 ```
 
@@ -45,8 +51,8 @@ that carries the new value: read it back from the log before trusting the write.
 The device page on the Zigbee2MQTT site
 (`https://www.zigbee2mqtt.io/devices/<model>.html`) lists every property with
 its range, and commands (a calibration start, for example) go through the same
-topic. The Home Assistant entities of the device do the same thing from the
-interface.
+topic. For a setting that Home Assistant exposes as an entity, the interface is
+the higher-level route to the same call.
 
 ## Tune a mmWave presence sensor
 

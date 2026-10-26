@@ -53,9 +53,17 @@ qBittorrent stores a single `url`).
 1. Keep a root-only copy of the file under `/root` (it holds every integration's
    secrets, so the copy stays on the host): `sudo cp -p` then `sudo chmod 0600`.
 1. Rewrite the field in the entry's `data` block with a script that loads the
-   JSON, changes exactly one entry (assert on the count), and writes it back
-   with two-space indentation, which is how Home Assistant formats it; then
-   check that the file still parses.
+   JSON, changes exactly one entry (assert on the count), and writes it back in
+   the file's own layout; then check that the file still parses. Home Assistant
+   2026.9.4 writes a two-space-indented wrapper whose entries are each one
+   compact JSON line (no spaces after separators) and no trailing newline, so
+   neither an indented nor a compact dump of the whole document reproduces it.
+   Make the script serialize the unchanged document first and abort unless the
+   result matches the file byte for byte, which is what caught the layout on
+   2026-10-26, when the MQTT broker host was moved this way. Run the stop, edit,
+   and start steps as one `bash -e` script (hl01 has no Zsh) with a trap that
+   starts the container on exit, so an aborted edit never leaves Home Assistant
+   stopped.
 1. Start the container the same way, wait for the interface to answer, and
    verify: the integration's errors stop in the container log, and its entities
    report values in the recorder (the query above) within its first poll

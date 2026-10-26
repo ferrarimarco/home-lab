@@ -37,4 +37,13 @@ in
 
   # The module has no openFirewall option.
   networking.firewall.allowedTCPPorts = lib.mkIf config.services.mosquitto.enable [ mqttPort ];
+
+  # The broker package carries the client tools (mosquitto_pub,
+  # mosquitto_sub), which the operations guides use from the broker host
+  # against localhost: Zigbee2MQTT's API is its MQTT topics, and a publish
+  # from here reads retained topics and writes device settings without
+  # depending on where the consumers run.
+  environment.systemPackages = lib.mkIf config.services.mosquitto.enable [
+    config.services.mosquitto.package
+  ];
 }

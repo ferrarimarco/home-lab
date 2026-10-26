@@ -121,25 +121,17 @@ reliability risks first, then security exposure, then automation):
       to pve1. The decoupling step is a network coordinator
       ([Smart home](#smart-home)); the udev rule for a stable device path stays
       a raspberrypi2 item ([Host configuration](#host-configuration)). Mosquitto
-      moves to hl02 as a `services.mosquitto` NixOS module (decided 2026-10-23;
+      moved to hl02 as a `services.mosquitto` NixOS module (decided 2026-10-23;
       the hl01-only decision covered containers, and a native module is not
-      one): a `mosquitto` Nix role imported by hl02 with its integration-test
-      fragment, a blackbox TCP probe on port 1883 in the generated target list,
-      `mosquitto_server_fqdn` re-pointed in the node role's `vars/main.yaml`
-      (Frigate and Zigbee2MQTT read it), the Home Assistant MQTT integration's
-      broker host changed in its UI, then `configure_mqtt_broker` dropped from
-      raspberrypi2. Both brokers run during the cutover, since comin deploys the
-      hl02 side on merge; the deployment is fresh, with no state copied, and the
-      consumers republish their retained topics when they restart against the
-      new broker. The hl02 static address ([Networking](#networking)) is an
-      ordering preference, not a dependency: the consumers connect by name,
-      which the gateway resolves from the lease. Syncthing already moved to
-      nas-pve1 ([NAS](#nas)). The monitoring backend stays: it runs as a highly
-      available pair on hl01 and raspberrypi2 (monitoring-alerting spec §3.3).
-      Afterwards: move the ONT exporter and the router WAN check to hl01, and
-      delete the source data with separate approvals; the raspberrypi2 restic
-      job retires with the host, per the repository wind-down item
-      ([Backup](#backup)).
+      one), per the [MQTT Broker](./mqtt-broker.md) spec: the consumers run
+      against hl02 since 2026-10-26, and what remains is dropping
+      `configure_mqtt_broker` from raspberrypi2 and removing the retired stack
+      from the node role. Syncthing already moved to nas-pve1 ([NAS](#nas)). The
+      monitoring backend stays: it runs as a highly available pair on hl01 and
+      raspberrypi2 (monitoring-alerting spec §3.3). Afterwards: move the ONT
+      exporter and the router WAN check to hl01, and delete the source data with
+      separate approvals; the raspberrypi2 restic job retires with the host, per
+      the repository wind-down item ([Backup](#backup)).
     - Network boot service and Raspberry Pi re-provisioning, per the
       [Network Boot Service](./network-boot.md) spec:
         - `netboot-server` Nix role on hl02 (TFTP tree, NFS export, and
@@ -296,12 +288,11 @@ reliability risks first, then security exposure, then automation):
 - Secure Debian:
   [Securing Debian manual](https://www.debian.org/doc/manuals/securing-debian-manual/index.en.html).
 - Secrets: restrict access to the Frigate configuration file to root only.
-- Mosquitto: configure encryption, authentication, and mTLS. The broker moves to
-  hl02 as a NixOS module
-  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)), whose
-  module takes password files and certificates from paths on the host, so this
-  item needs a secret delivery path for the NixOS hosts, which none has yet (the
-  anonymous listener needs none).
+- Mosquitto: configure encryption, authentication, and mTLS. The broker runs on
+  hl02 as a NixOS module ([MQTT Broker](./mqtt-broker.md)), whose module takes
+  password files and certificates from paths on the host, so this item needs a
+  secret delivery path for the NixOS hosts, which none has yet (the open
+  listener needs none).
 - Docker: remove users from the Docker group?; Docker socket hardening
   ([Traefik Docker API access](https://doc.traefik.io/traefik/providers/docker/#docker-api-access),
   [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy));
