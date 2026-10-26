@@ -2,7 +2,6 @@
 configure_backup_restic: true
 configure_asuswrt_chkwan: true
 configure_monitoring_backend: true
-configure_mqtt_broker: true
 configure_monitoring_ont: true
 configure_openssh_keypair: true
 configure_zigbee2mqtt: true
