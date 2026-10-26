@@ -106,3 +106,61 @@ automation or template that reads an attribute of a Zigbee2MQTT entity stops
 silently: check the automations template for `attribute:` on MQTT entities (the
 studio gaming rig automation triggered on the power sensor's `power` attribute
 and went quiet after the 2026-10-17 upgrade).
+
+## Read history from the recorder database
+
+The recorder keeps every state change in the SQLite database next to the
+configuration, which is the house-wide history a correlation needs (which
+entities changed around the events of a sensor). Open it read-only from the host
+with Python's `sqlite3` module, which the host has and the container does not
+need:
+
+```shell
+sudo python3 - <<'PY'
+import sqlite3, datetime
+db = sqlite3.connect(
+    "file:/etc/ferrarimarco-home-lab/home-assistant/config/home-assistant_v2.db?mode=ro",
+    uri=True)
+t0 = datetime.datetime(2026, 10, 26, 0, 0, tzinfo=datetime.timezone.utc).timestamp()
+t1 = datetime.datetime(2026, 10, 26, 6, 0, tzinfo=datetime.timezone.utc).timestamp()
+query = """select m.entity_id, s.state, s.last_updated_ts
+    from states s join states_meta m on s.metadata_id = m.metadata_id
+    where s.last_updated_ts between ? and ? order by s.last_updated_ts"""
+for entity_id, state, ts in db.execute(query, (t0, t1)):
+    print(datetime.datetime.fromtimestamp(ts, datetime.timezone.utc), entity_id, state)
+PY
+```
+
+Timestamps are Unix seconds in UTC. A heredoc piped through SSH mangles the `%`
+of a `like` pattern; pass the script as a file (base64 through the SSH command
+works) when the query needs one.
+
+## Automations that respect manual control
+
+Every state change carries a context that tells its origin: a change made by an
+automation has a `parent_id`, one made from the interface has a `user_id`, and
+one a device pushes after a physical switch flip has neither. Template state
+objects expose it (the `context` property of the template state class in
+`homeassistant/helpers/template/states.py`, verified at 2026.9.4), so an
+automation that turns a light off when a room clears can leave alone a light
+that was switched on by hand or from the app with one condition and no helper
+entity:
+
+```yaml
+- condition: template
+  value_template: "{{ states.switch.<light>.context.parent_id is not none }}"
+```
+
+The kitchen light automations in the automations template use it: occupancy from
+the kitchen presence sensor (the
+[Zigbee2MQTT operations guide](./zigbee2mqtt.md) records its settings) turns the
+Shelly relay on when the light is off and the kitchen is dark, and the clear
+state turns it off only when an automation turned it on. Two limits, both of
+which leave a light on rather than switch one off: a wall flip while the
+automation already holds the light on changes no state and goes unnoticed, and a
+restart gives restored states a fresh context, so a light the automation turned
+on before the restart counts as manual afterwards. The Shelly's input mode
+matters too: in `follow` mode the relay copies the wall switch position, so
+after the automation has turned the relay off the next flip does nothing visible
+and a second one is needed, while `flip` mode toggles the relay on every flip;
+the mode is a setting on the device, not in the repository.

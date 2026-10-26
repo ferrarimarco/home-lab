@@ -256,10 +256,12 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     forwards the agent socket into the Ansible container. The vault edit and
     view modes described below run `ansible-vault` only and do not need the
     agent. Shells that do not inherit the session environment (for example AI
-    agent shells) must discover the socket and pass it explicitly: find it with
-    `ls /tmp/ssh-*/agent.*`, verify the loaded keys with
-    `SSH_AUTH_SOCK=<socket> ssh-add -l`, and prefix the invocation with
-    `SSH_AUTH_SOCK=<socket>`. The socket path changes across reboots.
+    agent shells) must discover the socket and pass it explicitly: the user's
+    agent listens at `/run/user/<uid>/openssh_agent` (an agent started by a
+    login shell lands under `/tmp/ssh-*/agent.*` instead), verify the loaded
+    keys with `SSH_AUTH_SOCK=<socket> ssh-add -l`, and prefix the invocation
+    with `SSH_AUTH_SOCK=<socket>`. An agent that reports no identities needs the
+    key added from the user's own shell, because the key has a passphrase.
 
     The script also wraps `ansible-vault` for vault file maintenance: neither
     the host nor the Nix dev shells provide `ansible-vault`. Set

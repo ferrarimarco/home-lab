@@ -1062,6 +1062,16 @@ reliability risks first, then security exposure, then automation):
   the entity as a lock, since a leak reads as on while a lock entity expects off
   for locked. Constraints: room for the wires in the strike box, a conductive
   deadbolt, and a contact that holds across the play of the key.
+- **Kitchen presence sensor far zones**: the Sonoff SNZB-06P24 on the kitchen
+  worktop runs with zones 5 to 7 (2.5 to 4 m) disabled since 2026-10-26, because
+  something in the 2.5 to 3 m band at the oven front triggers a brief false
+  detection every few minutes with the kitchen empty (the
+  [Zigbee2MQTT operations guide](../guides/operations/zigbee2mqtt.md) has the
+  measurements and the tuning procedure). Find the moving object near the oven
+  (a hood flap, a loose item) or re-aim the head, then re-enable the zones one
+  at a time with an empty-kitchen window each. Also exclude the sensor's
+  illuminance entity from the recorder: the device reports it every few seconds
+  by design.
 - Automations:
     - Smart chair: contact sensor
       ([reference](https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar)).

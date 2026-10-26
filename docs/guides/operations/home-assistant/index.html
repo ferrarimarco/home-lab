@@ -1362,6 +1362,24 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#read-history-from-the-recorder-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      Read history from the recorder database
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#automations-that-respect-manual-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automations that respect manual control
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1430,6 +1448,29 @@
   
   <span class="md-ellipsis">
     Network share clients
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zigbee2mqtt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Zigbee2MQTT operations
     
   </span>
   
@@ -1668,6 +1709,24 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#read-history-from-the-recorder-database" class="md-nav__link">
+    <span class="md-ellipsis">
+      Read history from the recorder database
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#automations-that-respect-manual-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automations that respect manual control
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1779,6 +1838,54 @@ automation or template that reads an attribute of a Zigbee2MQTT entity stops
 silently: check the automations template for <code>attribute:</code> on MQTT entities (the
 studio gaming rig automation triggered on the power sensor's <code>power</code> attribute
 and went quiet after the 2026-10-17 upgrade).</p>
+<h2 id="read-history-from-the-recorder-database">Read history from the recorder database</h2>
+<p>The recorder keeps every state change in the SQLite database next to the
+configuration, which is the house-wide history a correlation needs (which
+entities changed around the events of a sensor). Open it read-only from the host
+with Python's <code>sqlite3</code> module, which the host has and the container does not
+need:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>python3<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;&#39;PY&#39;</span>
+<span class="s">import sqlite3, datetime</span>
+<span class="s">db = sqlite3.connect(</span>
+<span class="s">    &quot;file:/etc/ferrarimarco-home-lab/home-assistant/config/home-assistant_v2.db?mode=ro&quot;,</span>
+<span class="s">    uri=True)</span>
+<span class="s">t0 = datetime.datetime(2026, 10, 26, 0, 0, tzinfo=datetime.timezone.utc).timestamp()</span>
+<span class="s">t1 = datetime.datetime(2026, 10, 26, 6, 0, tzinfo=datetime.timezone.utc).timestamp()</span>
+<span class="s">query = &quot;&quot;&quot;select m.entity_id, s.state, s.last_updated_ts</span>
+<span class="s">    from states s join states_meta m on s.metadata_id = m.metadata_id</span>
+<span class="s">    where s.last_updated_ts between ? and ? order by s.last_updated_ts&quot;&quot;&quot;</span>
+<span class="s">for entity_id, state, ts in db.execute(query, (t0, t1)):</span>
+<span class="s">    print(datetime.datetime.fromtimestamp(ts, datetime.timezone.utc), entity_id, state)</span>
+<span class="s">PY</span>
+</code></pre></div>
+<p>Timestamps are Unix seconds in UTC. A heredoc piped through SSH mangles the <code>%</code>
+of a <code>like</code> pattern; pass the script as a file (base64 through the SSH command
+works) when the query needs one.</p>
+<h2 id="automations-that-respect-manual-control">Automations that respect manual control</h2>
+<p>Every state change carries a context that tells its origin: a change made by an
+automation has a <code>parent_id</code>, one made from the interface has a <code>user_id</code>, and
+one a device pushes after a physical switch flip has neither. Template state
+objects expose it (the <code>context</code> property of the template state class in
+<code>homeassistant/helpers/template/states.py</code>, verified at 2026.9.4), so an
+automation that turns a light off when a room clears can leave alone a light
+that was switched on by hand or from the app with one condition and no helper
+entity:</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">template</span>
+<span class="w">  </span><span class="nt">value_template</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">states.switch.&lt;light&gt;.context.parent_id</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">none</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</code></pre></div>
+<p>The kitchen light automations in the automations template use it: occupancy from
+the kitchen presence sensor (the
+<a href="../zigbee2mqtt/">Zigbee2MQTT operations guide</a> records its settings) turns the
+Shelly relay on when the light is off and the kitchen is dark, and the clear
+state turns it off only when an automation turned it on. Two limits, both of
+which leave a light on rather than switch one off: a wall flip while the
+automation already holds the light on changes no state and goes unnoticed, and a
+restart gives restored states a fresh context, so a light the automation turned
+on before the restart counts as manual afterwards. The Shelly's input mode
+matters too: in <code>follow</code> mode the relay copies the wall switch position, so
+after the automation has turned the relay off the next flip does nothing visible
+and a second one is needed, while <code>flip</code> mode toggles the relay on every flip;
+the mode is a setting on the device, not in the repository.</p>
 
 
 

@@ -1467,6 +1467,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/zigbee2mqtt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Zigbee2MQTT operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1976,10 +1999,12 @@ the worktree.</p>
 forwards the agent socket into the Ansible container. The vault edit and
 view modes described below run <code>ansible-vault</code> only and do not need the
 agent. Shells that do not inherit the session environment (for example AI
-agent shells) must discover the socket and pass it explicitly: find it with
-<code>ls /tmp/ssh-*/agent.*</code>, verify the loaded keys with
-<code>SSH_AUTH_SOCK=&lt;socket&gt; ssh-add -l</code>, and prefix the invocation with
-<code>SSH_AUTH_SOCK=&lt;socket&gt;</code>. The socket path changes across reboots.</p>
+agent shells) must discover the socket and pass it explicitly: the user's
+agent listens at <code>/run/user/&lt;uid&gt;/openssh_agent</code> (an agent started by a
+login shell lands under <code>/tmp/ssh-*/agent.*</code> instead), verify the loaded
+keys with <code>SSH_AUTH_SOCK=&lt;socket&gt; ssh-add -l</code>, and prefix the invocation
+with <code>SSH_AUTH_SOCK=&lt;socket&gt;</code>. An agent that reports no identities needs the
+key added from the user's own shell, because the key has a passphrase.</p>
 <p>The script also wraps <code>ansible-vault</code> for vault file maintenance: neither
 the host nor the Nix dev shells provide <code>ansible-vault</code>. Set
 <code>ANSIBLE_EDIT_VAULT_FILE=true</code> to edit a vault file, or
