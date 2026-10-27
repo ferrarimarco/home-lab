@@ -2280,7 +2280,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Backups</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Restic backup staleness, repository identity, structural and data-read checks, and the monthly restore drill (§6.4).</td>
+<td style="text-align: left;">Restic backup staleness on the step timestamp every job writes (both flavours), repository identity, structural and data-read checks, and the monthly restore drill (§6.4).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
@@ -2752,16 +2752,16 @@ with operational experience.</p>
 <tr>
 <td style="text-align: left;"><code>ResticBackupStale</code></td>
 <td style="text-align: left;">warning</td>
-<td style="text-align: left;"><code>time() - restic_backup_timestamp &gt; 2 * 86400</code></td>
+<td style="text-align: left;"><code>time() - restic_job_step_last_success_timestamp_seconds{step="backup"} &gt; 2 * 86400</code></td>
 <td style="text-align: left;">—</td>
-<td style="text-align: left;">No successful backup for two days: early signal before it becomes a real gap.</td>
+<td style="text-align: left;">No completed backup step for two days, from the timestamp every job writes after <code>restic backup</code>, on the Compose hosts and the Proxmox nodes alike: early signal before it becomes a real gap.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>ResticBackupMissing</code></td>
 <td style="text-align: left;">critical</td>
-<td style="text-align: left;"><code>time() - restic_backup_timestamp &gt; 4 * 86400</code></td>
+<td style="text-align: left;"><code>time() - restic_job_step_last_success_timestamp_seconds{step="backup"} &gt; 4 * 86400</code></td>
 <td style="text-align: left;">—</td>
-<td style="text-align: left;">No successful backup for four days: standing data-loss exposure.</td>
+<td style="text-align: left;">No completed backup step for four days: standing data-loss exposure.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>ResticRestoreDrillStale</code></td>

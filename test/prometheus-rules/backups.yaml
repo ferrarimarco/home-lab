@@ -123,9 +123,15 @@ tests:
   - name: ResticBackupStale and ResticBackupMissing fire at 2 and 4 days
     interval: 1h
     input_series:
-      # The sample value is the snapshot time; the test clock starts at the
-      # Unix epoch, so a 0 value is as old as the evaluation time.
-      - series: 'restic_backup_timestamp{instance="hl01:9150", client_hostname="hl01", backup_job="workloads"}'
+      # The sample value is the time the backup step last succeeded; the test
+      # clock starts at the Unix epoch, so a 0 value is as old as the
+      # evaluation time. A fresh job on another host keeps both rules quiet.
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="hl01:9100", backup_job="workloads", step="backup"}'
+        values: "0x120"
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="pve1:9100", backup_job="nas-state", step="backup"}'
+        values: "0+3600x120"
+      # Other steps never trip the freshness rules
+      - series: 'restic_job_step_last_success_timestamp_seconds{instance="hl01:9100", backup_job="workloads", step="prune"}'
         values: "0x120"
     alert_rule_test:
       - eval_time: 2d
@@ -136,14 +142,14 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: warning
-              instance: hl01:9150
-              client_hostname: hl01
+              instance: hl01:9100
               backup_job: workloads
+              step: backup
             exp_annotations:
-              summary: "Restic backup on hl01:9150 is getting stale"
+              summary: "Restic job workloads on hl01:9100 is getting stale"
               description: >-
-                The latest restic snapshot for hl01:9150 (hl01) is older than
-                2 days.
+                The restic job workloads on hl01:9100 has not completed a
+                backup for 2 days.
       - eval_time: 3d
         alertname: ResticBackupMissing
         exp_alerts: []
@@ -152,14 +158,14 @@ tests:
         exp_alerts:
           - exp_labels:
               severity: critical
-              instance: hl01:9150
-              client_hostname: hl01
+              instance: hl01:9100
               backup_job: workloads
+              step: backup
             exp_annotations:
-              summary: "Restic backup on hl01:9150 is missing"
+              summary: "Restic job workloads on hl01:9100 is missing"
               description: >-
-                The latest restic snapshot for hl01:9150 (hl01) is older than
-                4 days: this is a standing data-loss exposure.
+                The restic job workloads on hl01:9100 has not completed a
+                backup for 4 days: this is a standing data-loss exposure.
 
   - name: ResticReadDataCheckStale fires when no pack data read succeeded for 3 days
     interval: 1h

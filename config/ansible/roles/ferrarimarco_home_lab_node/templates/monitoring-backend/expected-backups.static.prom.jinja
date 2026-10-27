@@ -1,15 +1,16 @@
 # Rendered by Ansible from the inventory; the .static.prom suffix exempts it
 # from the textfile staleness alert, since no timer rewrites it. A host's
 # expected jobs are its declared expected_backup_jobs, or, by default, the
-# restic jobs it runs (the workloads job when configure_backup_restic is set,
-# plus any restic_backup_jobs entry).
+# restic jobs it runs: the workloads job when configure_backup_restic is set,
+# any restic_backup_jobs entry, and the packaged jobs of the backup role when
+# configure_backup_restic_native is set.
 # HELP backup_expected A restic backup job the inventory expects a host to run.
 # TYPE backup_expected gauge
 {% for host in groups['all'] | sort %}
 {% if hostvars[host].expected_backup_jobs is defined %}
 {% set expected_jobs = hostvars[host].expected_backup_jobs %}
 {% else %}
-{% set expected_jobs = ([restic_backup_workloads_job_name] if hostvars[host].configure_backup_restic | default(false) else []) + (hostvars[host].restic_backup_jobs | default([]) | map(attribute='job_name') | list) %}
+{% set expected_jobs = ([restic_backup_workloads_job_name] if hostvars[host].configure_backup_restic | default(false) else []) + (hostvars[host].restic_backup_jobs | default([]) | map(attribute='job_name') | list) + (hostvars[host].restic_native_backup_jobs | default([]) | map(attribute='job_name') | list if hostvars[host].configure_backup_restic_native | default(false) else []) %}
 {% endif %}
 {% for job in expected_jobs %}
 backup_expected{host="{{ host }}",backup_job="{{ job }}"} 1

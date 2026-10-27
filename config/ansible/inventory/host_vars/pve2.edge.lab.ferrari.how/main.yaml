@@ -2,11 +2,9 @@
 # Backup: the NAS container's Samba state directory lives on this node, so its
 # restic job runs here, from the packaged restic binary (the node has no
 # container engine), with the repository on the node's own backups dataset.
-# The declared expectation keeps ExpectedBackupMissing firing until the job
-# reports a run.
+# The monitoring backends expect the job's metrics because it is configured
+# here, so ExpectedBackupMissing fires until the job runs on the node.
 configure_backup_restic_native: true
-expected_backup_jobs:
-  - restic-backup-nas-state
 restic_native_backup_jobs:
   - job_name: restic-backup-nas-state
     directories_to_backup:

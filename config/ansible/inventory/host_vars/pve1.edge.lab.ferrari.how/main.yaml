@@ -2,11 +2,9 @@
 # Backup: the NAS container's state directories live on this node, so their
 # restic job runs here, from the packaged restic binary (the node has no
 # container engine), with the repository on the same backups dataset that
-# holds the Debian hosts' repositories. The declared expectation keeps
-# ExpectedBackupMissing firing until the job reports a run.
+# holds the Debian hosts' repositories. The monitoring backends expect the
+# job's metrics because it is configured here.
 configure_backup_restic_native: true
-expected_backup_jobs:
-  - restic-backup-nas-state
 restic_native_backup_jobs:
   - job_name: restic-backup-nas-state
     directories_to_backup:

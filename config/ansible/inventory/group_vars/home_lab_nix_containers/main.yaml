@@ -1,3 +1,8 @@
 ---
 configure_docker: false
 enable_prometheus_node_exporter_scraping: false
+# Backup: a NAS container holds no state of its own; its service state lives
+# in directories bind-mounted from the Proxmox node, which backs them up
+# (restic-backup-nas-state on the node). The empty list is the declaration
+# the coverage alert reads.
+expected_backup_jobs: []

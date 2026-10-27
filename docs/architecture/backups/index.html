@@ -1841,13 +1841,14 @@ second copy: losing the share loses them (the
 <a href="../#backup">second copy of the restic repositories</a> is a todo item).</p>
 <p>Which jobs a host must run is declared, not inferred from what runs: a host's
 <code>expected_backup_jobs</code> inventory list, or, by default, the restic jobs it
-configures. The monitoring backends render that list as a static series and
-alert when a declared job has never reported a run from its host, so a host that
-holds state but whose job has not run yet (the Proxmox nodes before their
-<code>restic-backup-nas-state</code> job is applied) is a standing warning until the job
-reports. Every NixOS host declares its list explicitly, empty where the host
-holds no state (hl02), so an undeclared host is a review finding rather than
-silent coverage.</p>
+configures, of either flavour. The monitoring backends render that list as a
+static series and alert when a declared job has never reported a run from its
+host, so a host that holds state but whose job has not run yet (a Proxmox node
+before its <code>restic-backup-nas-state</code> job is applied) is a standing warning until
+the job reports. Every NixOS host declares its list explicitly, empty where the
+host holds no state of its own (hl02, and the NAS containers, whose state the
+nodes cover), so an undeclared host is a review finding rather than silent
+coverage.</p>
 <p>Decisions:</p>
 <ul>
 <li><strong>One repository per host, not one for the lab</strong> (confirmed 2026-10-14). A
@@ -1931,13 +1932,16 @@ silent coverage.</p>
 </tr>
 </tbody>
 </table>
-<p>The node job has no exporter: the exporter rows (<code>ResticExporterDown</code>,
-<code>ResticMetricsMissing</code>, <code>ResticBackupStale</code>, <code>ResticBackupMissing</code>,
-<code>ResticCheckFailed</code>) do not apply to it. Its freshness is covered by the step
-timestamps the script writes: the script stops at the first failing step, so the
-<code>check-read-data</code> timestamp stops advancing and <code>ResticReadDataCheckStale</code> fires
-within three nights, while <code>SystemdUnitFailed</code>, which the packaged node exporter
-on the nodes feeds, reports the failed run itself within minutes.</p>
+<p>The freshness rules read the backup step timestamp every job writes after
+<code>restic backup</code> succeeded, so a configured job of either flavour is expected,
+alerted on when it never reports, and alerted on when it stops. The node job has
+no exporter, so only the exporter rows (<code>ResticExporterDown</code>,
+<code>ResticMetricsMissing</code>, <code>ResticCheckFailed</code>) do not apply to it: its integrity
+checks are the job's own nightly check and pack reads, reported by
+<code>SystemdUnitFailed</code> within minutes of a failed run and by
+<code>ResticReadDataCheckStale</code> when the step stops advancing; an exporter on the
+nodes, for the independent twelve-hour check, is a <a href="../#backup">Backup</a>
+todo item.</p>
 <p>Restic assigns each pack file to a fixed group by its identifier, so new
 snapshots and repacks never shift the groups, every pack is read once per cycle,
 and a pack is read for the first time at most <code>t</code> nights after it is written:

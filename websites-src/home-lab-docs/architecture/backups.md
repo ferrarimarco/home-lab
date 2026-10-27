@@ -67,13 +67,14 @@ second copy: losing the share loses them (the
 
 Which jobs a host must run is declared, not inferred from what runs: a host's
 `expected_backup_jobs` inventory list, or, by default, the restic jobs it
-configures. The monitoring backends render that list as a static series and
-alert when a declared job has never reported a run from its host, so a host that
-holds state but whose job has not run yet (the Proxmox nodes before their
-`restic-backup-nas-state` job is applied) is a standing warning until the job
-reports. Every NixOS host declares its list explicitly, empty where the host
-holds no state (hl02), so an undeclared host is a review finding rather than
-silent coverage.
+configures, of either flavour. The monitoring backends render that list as a
+static series and alert when a declared job has never reported a run from its
+host, so a host that holds state but whose job has not run yet (a Proxmox node
+before its `restic-backup-nas-state` job is applied) is a standing warning until
+the job reports. Every NixOS host declares its list explicitly, empty where the
+host holds no state of its own (hl02, and the NAS containers, whose state the
+nodes cover), so an undeclared host is a review finding rather than silent
+coverage.
 
 Decisions:
 
@@ -107,13 +108,16 @@ Decisions:
 | Restore drill (one small secret-free file, `--verify`, file count against the listing, target emptied before and after) | monthly, first Sunday                                                       | the restore path works: container, password, share mount, space guard, files restored with content and metadata | that every subtree restores; that the data is intact (the pack reads do) | `ResticRestoreDrillStale`, `ResticRestoreDrillMissing`          |
 | Full restore                                                                                                            | manual, before an event that depends on it                                  | everything the drill proves, for the whole state set                                                            |                                                                          | the operator, through the services                              |
 
-The node job has no exporter: the exporter rows (`ResticExporterDown`,
-`ResticMetricsMissing`, `ResticBackupStale`, `ResticBackupMissing`,
-`ResticCheckFailed`) do not apply to it. Its freshness is covered by the step
-timestamps the script writes: the script stops at the first failing step, so the
-`check-read-data` timestamp stops advancing and `ResticReadDataCheckStale` fires
-within three nights, while `SystemdUnitFailed`, which the packaged node exporter
-on the nodes feeds, reports the failed run itself within minutes.
+The freshness rules read the backup step timestamp every job writes after
+`restic backup` succeeded, so a configured job of either flavour is expected,
+alerted on when it never reports, and alerted on when it stops. The node job has
+no exporter, so only the exporter rows (`ResticExporterDown`,
+`ResticMetricsMissing`, `ResticCheckFailed`) do not apply to it: its integrity
+checks are the job's own nightly check and pack reads, reported by
+`SystemdUnitFailed` within minutes of a failed run and by
+`ResticReadDataCheckStale` when the step stops advancing; an exporter on the
+nodes, for the independent twelve-hour check, is a [Backup](./README.md#backup)
+todo item.
 
 Restic assigns each pack file to a fixed group by its identifier, so new
 snapshots and repacks never shift the groups, every pack is read once per cycle,

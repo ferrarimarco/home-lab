@@ -1152,6 +1152,14 @@ reliability risks first, then security exposure, then automation):
   audit, and declare the job, whenever a stateful workload lands on a NixOS
   host. The restore procedure that proves the rebuild path is in the
   [backup operations guide](../guides/operations/backup.md).
+- **Restic exporter on the Proxmox nodes (2026-10-27)**: the node jobs report
+  through the textfile their script writes, which the coverage and freshness
+  rules read; what they lack against the Compose hosts is the exporter's
+  independent `restic check` every twelve hours (`ResticCheckFailed`) and its
+  snapshot listing. Run the exporter on the nodes as a Python service of the
+  backup role (the venv build script and `StateDirectory=` pattern of the node
+  role), with the password from the job's environment file, a port per job, and
+  the `restic` scrape job of the backends extended to native jobs.
 - **Second copy of the restic repositories (2026-10-19)**: the per-host
   repositories on the nas-pve1 `backups` share are the only copy of the Debian
   hosts' state backups, and the share's `rpool-sata` pool is a single-disk vdev

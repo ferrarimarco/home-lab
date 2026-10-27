@@ -310,25 +310,29 @@ groups:
             The restic job wrote more than one repository identity in three
             days: it was pointed at a different repository, or a new one was
             initialized under its path. Neither is ever expected.
+      # The backup step timestamp is written by every job's script once
+      # restic backup succeeded, on the Compose hosts and on the Proxmox nodes
+      # alike, so the freshness rules cover every configured job; the
+      # exporter's snapshot series exists only where an exporter runs.
       - alert: ResticBackupStale
-        expr: time() - restic_backup_timestamp > 2 * 86400
+        expr: time() - restic_job_step_last_success_timestamp_seconds{step="backup"} > 2 * 86400
         labels:
           severity: warning
         annotations:
-          summary: "Restic backup on {{ $labels.instance }} is getting stale"
+          summary: "Restic job {{ $labels.backup_job }} on {{ $labels.instance }} is getting stale"
           description: >-
-            The latest restic snapshot for {{ $labels.instance }}
-            ({{ $labels.client_hostname }}) is older than 2 days.
+            The restic job {{ $labels.backup_job }} on {{ $labels.instance }}
+            has not completed a backup for 2 days.
       - alert: ResticBackupMissing
-        expr: time() - restic_backup_timestamp > 4 * 86400
+        expr: time() - restic_job_step_last_success_timestamp_seconds{step="backup"} > 4 * 86400
         labels:
           severity: critical
         annotations:
-          summary: "Restic backup on {{ $labels.instance }} is missing"
+          summary: "Restic job {{ $labels.backup_job }} on {{ $labels.instance }} is missing"
           description: >-
-            The latest restic snapshot for {{ $labels.instance }}
-            ({{ $labels.client_hostname }}) is older than 4 days: this is a
-            standing data-loss exposure.
+            The restic job {{ $labels.backup_job }} on {{ $labels.instance }}
+            has not completed a backup for 4 days: this is a standing
+            data-loss exposure.
       - alert: ResticReadDataCheckStale
         # The job's nightly check reads one group of pack files; a run that
         # fails leaves the step timestamp behind, and SystemdUnitFailed reports
