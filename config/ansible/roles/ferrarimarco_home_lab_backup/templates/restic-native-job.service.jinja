@@ -1,0 +1,40 @@
+[Unit]
+Description=Run the {{ restic_native_job.job_name }} restic backup job
+# The repository may live on a filesystem systemd does not manage (a ZFS
+# dataset mounted by zfs-mount.service has no mount unit): order after that
+# service, require the mounts systemd does know, and let ExecStartPre fail the
+# run when the path is still backed by the root filesystem, where a bare
+# directory would receive the backup (raspberrypi2, 2026-10-10). A failed unit
+# reaches the SystemdUnitFailed alert; a skipped one would not.
+After=zfs-mount.service
+RequiresMountsFor={{ restic_native_job.restic_repository_host_path }}
+
+[Service]
+Type=oneshot
+# Covers the backup, the prune, and the pack reads together: a oneshot has no
+# start timeout by default
+TimeoutStartSec=4h
+EnvironmentFile={{ restic_native_configuration_directory_path }}/{{ restic_native_job.job_name }}.env
+Environment=RESTIC_ENABLE_BACKUP=true
+Environment=RESTIC_ENABLE_REPOSITORY_CHECK=true
+Environment=RESTIC_ENABLE_PRUNE=true
+Environment=RESTIC_REPOSITORY_CHECK_READ_DATA_CYCLE_DAYS={{ restic_native_job.restic_check_read_data_cycle_days | default(restic_native_check_read_data_cycle_days) }}
+ExecStartPre=/bin/sh -c 'test "$$(stat -c %%d {{ restic_native_job.restic_repository_host_path }})" != "$$(stat -c %%d /)"'
+ExecStart={{ restic_native_script_path }}
+# Write only the repository, the drill target, the metrics, and the restic
+# cache, which systemd creates before the mount namespace; the backup set is
+# read in place. The two paths on the backup filesystem are optional for the
+# namespace, so a missing mount reaches the guard above instead of a
+# namespace error. The guard compares device numbers rather than asking
+# findmnt: the namespace bind-mounts each writable path onto itself, so inside
+# the unit findmnt reports the path as its own mount point whatever backs it
+# (verified on pve1, 2026-10-27), while a bind mount keeps the device number.
+# %% is a literal percent sign: %d alone is the credentials directory
+# specifier, which turned the format string into a path (pve1, 2026-10-27).
+CacheDirectory={{ restic_native_cache_directory_name }}
+ProtectSystem=strict
+ReadWritePaths=-{{ restic_native_job.restic_repository_host_path }}
+ReadWritePaths=-{{ restic_native_job.restic_restore_drill_host_path | default(restic_native_job.restic_repository_host_path | dirname ~ '/restore-drill-' ~ restic_native_job.job_name) }}
+ReadWritePaths={{ restic_native_textfile_collector_directory }}
+PrivateTmp=true
+ProtectHome=true

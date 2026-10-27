@@ -1,0 +1,29 @@
+---
+# Hosts opt in with the flag and a job list; every other host converges the
+# role's resources to absent, except the repositories, which stay in place.
+configure_backup_restic_native: false
+# One entry per restic job the host runs from the packaged restic binary, with:
+#   job_name: the systemd unit, snapshot tag, and metrics name of the job
+#   directories_to_backup: the host paths the job backs up
+#   restic_repository_host_path: the repository, never on the root filesystem
+#   restic_repository_password: the repository password (a vault variable,
+#     without single quotes or newlines)
+#   restic_restore_drill_include: a secret-free file of the backup set that
+#     the monthly drill restores into the scratch directory
+# and, optionally, restic_restore_drill_host_path (next to the repository by
+# default), job_schedule, restic_restore_drill_schedule, restic_forget_policy,
+# and restic_check_read_data_cycle_days, which fall back to the values below.
+restic_native_backup_jobs: []
+restic_native_backup_schedule: "02:00:00"
+# Nights over which the job reads every pack file of the repository once
+restic_native_check_read_data_cycle_days: 7
+restic_native_configuration_directory_path: "{{ home_lab_configuration_directory_path | default('/etc/ferrarimarco-home-lab') }}/restic-native"
+restic_native_forget_policy:
+  # Keep daily snapshots for the last week
+  - --keep-within-daily 7d
+restic_native_restore_drill_schedule: "Sun *-*-1..7 03:00:00"
+# Where the job writes its metrics: the textfile collector directory of the
+# Debian prometheus-node-exporter package, which the Proxmox nodes run. A host
+# running the node role's containerized exporter reads
+# /var/lib/node_exporter/textfile_collector instead.
+restic_native_textfile_collector_directory: /var/lib/prometheus/node-exporter

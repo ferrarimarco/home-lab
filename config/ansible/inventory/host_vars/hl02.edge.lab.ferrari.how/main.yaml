@@ -1,0 +1,7 @@
+---
+# Backup: the host holds no state to back up. Its configuration is the flake,
+# and the MQTT broker's persistence store is a cache that every consumer
+# republishes on reconnect (MQTT Broker specification). The empty list is the
+# declaration the coverage alert reads: an undeclared host is a review
+# finding, not covered state.
+expected_backup_jobs: []

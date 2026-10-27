@@ -19,3 +19,6 @@
 
 - name: Import the home lab node playbook
   ansible.builtin.import_playbook: home-lab-node.yaml
+
+- name: Import the backup playbook
+  ansible.builtin.import_playbook: backup.yaml

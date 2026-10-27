@@ -766,10 +766,11 @@ Ansible: the directory is declared in each node's `directories_to_create`
 
 As specced, this directory lives on the Proxmox root filesystem, not on the data
 pools, so `passdb.tdb` is **not** covered by ZFS snapshots or replication of the
-shared datasets; losing it means re-running `smbpasswd` (§7.2), not data loss.
-If that trade-off becomes unacceptable, move the directory onto a dedicated ZFS
-dataset — and remember that any backup of it captures NT password hashes (see
-§8.2).
+shared datasets. The node's nightly `restic-backup-nas-state` job covers it
+instead ([Backups](./backups.md)); without a restorable snapshot, losing it
+means re-running `smbpasswd` (§7.2), not data loss. That backup captures NT
+password hashes (see §8.2), which is why the drill restores a policy table,
+never the password database.
 
 ### 11.3 Networking (DHCP)
 
@@ -914,12 +915,13 @@ container recreation. The host directory is declared in pve1's
 index database is rebuildable by a rescan; the key pair is the only unique
 material.
 
-The NixOS guest has no restic coverage (the restic stack manages Debian hosts
-only) — an accepted trade-off: the synced data is re-syncable from the remote
-peer, and a lost identity is regenerable at the cost of one re-acceptance.
-Backing up the state directories on pve1 is tracked in the
-[specifications readme](./README.md#specifications-to-write-and-todos); they
-hold secret material (§8.2, and the device private key here).
+The state directories on pve1 are backed up nightly by the node's
+`restic-backup-nas-state` job ([Backups](./backups.md)). The synced data is
+re-syncable from the remote peer and the index is rebuildable, so what the
+backup preserves is the identity and the topology: a lost identity without a
+snapshot is regenerable at the cost of one re-acceptance. The directories hold
+secret material (§8.2, and the device private key here), so the drill restores
+only the Tailscale DERP map cache.
 
 ### 12.5 Migration from raspberrypi2
 

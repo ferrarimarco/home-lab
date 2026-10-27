@@ -1,0 +1,10 @@
+---
+- name: Configure backups
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: ferrarimarco_home_lab_backup
+      # The role converges the packaged restic jobs of the Debian hosts that
+      # declare them; the NixOS hosts' state is backed up from the Proxmox
+      # node that holds it.
+      when: ansible_facts['os_family'] == 'Debian'

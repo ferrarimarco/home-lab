@@ -1782,8 +1782,8 @@
 </tr>
 <tr>
 <td style="text-align: left;"><strong>NixOS state backup</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">pve1 and pve2 declare <code>restic-backup-nas-state</code> in <code>expected_backup_jobs</code>; no job exists yet, so <code>ExpectedBackupMissing</code> fires for both.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>restic-backup-nas-state</code> job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state), from the packaged restic binary; applied on pve1 on 2026-10-27 (first backup and drill ran clean, the coverage alert cleared); pve2 off.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Second copy of the repositories</strong></td>
@@ -1812,24 +1812,42 @@ are the backup set, nightly, through the <code>restic-backup-workloads</code> jo
   and anything that landed there would be pruned weekly.</li>
 <li>Media: replaceable; a second copy and a nightly manifest are tracked in the
   <a href="../#backup">specs todo list</a>.</li>
-<li>The NixOS hosts' state: tracked in the <a href="../#nas">specs todo list</a>, to
-  be built on the same guarantees described here.</li>
 </ul>
+<p>The NAS containers' service state (the Samba databases, the Syncthing device key
+pair and index, the Tailscale node key) is bind-mounted from directories on the
+Proxmox node that runs the container, so the node backs those directories up,
+nightly, through the <code>restic-backup-nas-state</code> job of the
+<code>ferrarimarco_home_lab_backup</code> role. The nodes run no container engine, so that
+role runs the same job script from the packaged restic binary, with one
+root-only environment file per job carrying the repository and its password; the
+<a href="../../guides/development/ansible/">Ansible development guide</a> describes the
+role. The index database is rebuildable by a rescan and the synced data is
+re-syncable from the remote peer, so the value of that backup is the identities
+and the topology, which hold secret material (the
+<a href="../nas-lxc-container/">NAS LXC container specification</a> lists it). hl02 holds
+no state of its own: its configuration is the flake, and the broker's
+persistence store is a cache that every consumer republishes on reconnect
+(<a href="../mqtt-broker/">MQTT Broker</a>).</p>
 <h2 id="where-the-data-goes">Where the data goes</h2>
 <p>Each host owns one restic repository on the nas-pve1 <code>backups</code> share (the
 <code>rpool-sata/backups</code> ZFS dataset on pve1), mounted over CIFS at
-<code>/media/backup-0</code> as <code>&lt;share&gt;/&lt;host&gt;/restic-backup-workloads</code>. The password is a
-vaulted variable rendered into the job's Compose file, readable by root on the
-host only. Retention keeps seven daily snapshots. The repositories have no
+<code>/media/backup-0</code> as <code>&lt;share&gt;/&lt;host&gt;/restic-backup-workloads</code>. pve1 reaches the
+same dataset locally, where its <code>restic-backup-nas-state</code> repository sits next
+to the Debian hosts' ones under its own host directory; pve2's sits on its own
+<code>tank-hdd/backups</code> dataset. The password is a vaulted variable rendered into the
+job's Compose file, or into the node job's environment file, readable by root on
+the host only. Retention keeps seven daily snapshots. The repositories have no
 second copy: losing the share loses them (the
 <a href="../#backup">second copy of the restic repositories</a> is a todo item).</p>
 <p>Which jobs a host must run is declared, not inferred from what runs: a host's
 <code>expected_backup_jobs</code> inventory list, or, by default, the restic jobs it
 configures. The monitoring backends render that list as a static series and
 alert when a declared job has never reported a run from its host, so a host that
-holds state but has no job yet (the Proxmox nodes holding the NAS containers'
-state directories, declared under <code>restic-backup-nas-state</code>) is a standing
-warning until the job exists.</p>
+holds state but whose job has not run yet (the Proxmox nodes before their
+<code>restic-backup-nas-state</code> job is applied) is a standing warning until the job
+reports. Every NixOS host declares its list explicitly, empty where the host
+holds no state (hl02), so an undeclared host is a review finding rather than
+silent coverage.</p>
 <p>Decisions:</p>
 <ul>
 <li><strong>One repository per host, not one for the lab</strong> (confirmed 2026-10-14). A
@@ -1845,8 +1863,10 @@ warning until the job exists.</p>
   filesystem (the mount gone means a bare directory on the root disk, which is
   how raspberrypi2 backed itself up to itself in October 2026). The backup unit
   fails, rather than skips, on the same condition.</li>
-<li><strong>The restic binary lives in the job container</strong>, so a restore on a Debian
-  host needs Docker and the share mount first.</li>
+<li><strong>The restic binary lives in the job container</strong> on the Debian hosts, so a
+  restore there needs Docker and the share mount first. The Proxmox nodes run
+  the same script from the packaged binary, with the repository on a local
+  dataset, so a restore there needs neither.</li>
 </ul>
 <h2 id="what-is-verified-and-what-is-not">What is verified, and what is not</h2>
 <table>
@@ -1911,6 +1931,13 @@ warning until the job exists.</p>
 </tr>
 </tbody>
 </table>
+<p>The node job has no exporter: the exporter rows (<code>ResticExporterDown</code>,
+<code>ResticMetricsMissing</code>, <code>ResticBackupStale</code>, <code>ResticBackupMissing</code>,
+<code>ResticCheckFailed</code>) do not apply to it. Its freshness is covered by the step
+timestamps the script writes: the script stops at the first failing step, so the
+<code>check-read-data</code> timestamp stops advancing and <code>ResticReadDataCheckStale</code> fires
+within three nights, while <code>SystemdUnitFailed</code>, which the packaged node exporter
+on the nodes feeds, reports the failed run itself within minutes.</p>
 <p>Restic assigns each pack file to a fixed group by its identifier, so new
 snapshots and repacks never shift the groups, every pack is read once per cycle,
 and a pack is read for the first time at most <code>t</code> nights after it is written:

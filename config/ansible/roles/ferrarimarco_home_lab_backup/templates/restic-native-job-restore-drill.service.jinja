@@ -1,0 +1,27 @@
+[Unit]
+Description=Run the {{ restic_native_job.job_name }} restic restore drill
+# The timer is persistent, so a missed drill runs right after boot: order
+# after the ZFS mounts, which carry the repository and the target.
+After=zfs-mount.service
+RequiresMountsFor={{ restic_native_job.restic_repository_host_path }}
+
+[Service]
+Type=oneshot
+TimeoutStartSec=1h
+EnvironmentFile={{ restic_native_configuration_directory_path }}/{{ restic_native_job.job_name }}.env
+Environment=RESTIC_RESTORE_DRILL=true
+# The drill run also reads one pack group, as the backup run does
+Environment=RESTIC_REPOSITORY_CHECK_READ_DATA_CYCLE_DAYS={{ restic_native_job.restic_check_read_data_cycle_days | default(restic_native_check_read_data_cycle_days) }}
+# Same guard as the backup unit (device numbers, since findmnt sees the
+# namespace's own bind mounts): the repository and the drill target live on
+# the backup filesystem; with the mount gone, both paths are bare directories
+# on the root disk.
+ExecStartPre=/bin/sh -c 'test "$$(stat -c %%d {{ restic_native_job.restic_repository_host_path }})" != "$$(stat -c %%d /)"'
+ExecStart={{ restic_native_script_path }}
+CacheDirectory={{ restic_native_cache_directory_name }}
+ProtectSystem=strict
+ReadWritePaths=-{{ restic_native_job.restic_repository_host_path }}
+ReadWritePaths=-{{ restic_native_job.restic_restore_drill_host_path | default(restic_native_job.restic_repository_host_path | dirname ~ '/restore-drill-' ~ restic_native_job.job_name) }}
+ReadWritePaths={{ restic_native_textfile_collector_directory }}
+PrivateTmp=true
+ProtectHome=true

@@ -1253,6 +1253,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-node-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      The node job
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inspect-a-repository" class="md-nav__link">
     <span class="md-ellipsis">
       Inspect a repository
@@ -1734,6 +1743,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-node-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      The node job
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inspect-a-repository" class="md-nav__link">
     <span class="md-ellipsis">
       Inspect a repository
@@ -1831,8 +1849,8 @@
 
 
 <h1 id="backup-operations">Backup operations</h1>
-<p>Procedures for the restic backups of the Debian hosts: inspecting a repository,
-restoring, running the drill, repairing. The
+<p>Procedures for the restic backups of the Debian hosts and of the Proxmox nodes:
+inspecting a repository, restoring, running the drill, repairing. The
 <a href="../../../architecture/backups/">Backups specification</a> describes what is backed
 up, where, and what each check proves.</p>
 <h2 id="where-things-are">Where things are</h2>
@@ -1853,6 +1871,38 @@ success of each step (<code>backup</code>, <code>check</code>, <code>check-read-
 <span class="w">    </span>restic-backup-workloads<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
 <span class="o">}</span>
 </code></pre></div>
+<h2 id="the-node-job">The node job</h2>
+<p>The Proxmox nodes back up the NAS containers' state directories with the
+<code>restic-backup-nas-state</code> job of the backup role, which runs the same script
+from the packaged restic binary, with no container and no share mount: on pve1
+the repository is <code>/rpool-sata/backups/pve1/restic-backup-nas-state</code> on the
+local dataset, with the drill's scratch directory next to it, and the job's
+environment (repository, password, backup set, drill settings) is
+<code>/etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env</code>, root
+only. The metrics land in the packaged node exporter's textfile directory,
+<code>/var/lib/prometheus/node-exporter</code>. Shorthand, run as root on the node:</p>
+<div class="highlight"><pre><span></span><code>restic_nas_run<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;set -a; . /etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env; exec restic &quot;$@&quot;&#39;</span><span class="w"> </span>restic<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>The script's restore mode runs through <code>systemd-run</code>, which reads the same
+environment file the units read, so the space guard and the file count checks
+apply; a restore in place needs the container stopped first (<code>pct stop &lt;id&gt;</code>),
+since Samba, Syncthing, and Tailscale rewrite their state while running:</p>
+<div class="highlight"><pre><span></span><code>systemd-run<span class="w"> </span>--wait<span class="w"> </span>--pipe<span class="w"> </span>--collect<span class="w"> </span>--quiet<span class="w"> </span>--unit<span class="w"> </span>restic-backup-nas-state-restore<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--property<span class="w"> </span><span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--property<span class="w"> </span><span class="nv">CacheDirectory</span><span class="o">=</span>restic-native<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_SNAPSHOT</span><span class="o">=</span>latest<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_INCLUDE</span><span class="o">=</span>/var/lib/syncthing-state/nas-pve1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_TARGET</span><span class="o">=</span>/<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_DRY_RUN</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/etc/ferrarimarco-home-lab/restic-native/entrypoint.sh
+</code></pre></div>
+<p>Leave <code>RESTIC_RESTORE_DRY_RUN</code> at its default to list what the restore would
+write, and point <code>RESTIC_RESTORE_TARGET</code> at the drill's scratch directory for an
+inspection restore. The drill and its timer work as on the Debian hosts
+(<code>restic-backup-nas-state-restore-drill.service</code>), and the first drill after the
+deployment is started by hand the same way.</p>
 <h2 id="inspect-a-repository">Inspect a repository</h2>
 <div class="highlight"><pre><span></span><code>restic_run<span class="w"> </span>snapshots
 restic_run<span class="w"> </span>ls<span class="w"> </span>latest<span class="w"> </span>/etc/ferrarimarco-home-lab/&lt;stack&gt;
@@ -1924,8 +1974,10 @@ on hl01) needs a scratch share, which no host disk has room for.</p>
 mount (the disks playbook), the restic stack of the node role (it never
 re-initializes an existing repository), the in-place restore of each stack with
 the playbook, then the node role for the stacks. A host that lost its repository
-as well restores from nothing: the second-copy and NixOS state items in the
-<a href="../../../architecture/#backup">specs todo list</a> exist for that case.</p>
+as well restores from nothing: the second-copy item in the
+<a href="../../../architecture/#backup">specs todo list</a> exists for that case. A
+Proxmox node restores the NAS container's state directories from its own node
+job before the container first starts, through the restore mode above.</p>
 <h2 id="the-drill">The drill</h2>
 <p>Monthly, on the first Sunday at 03:00 (<code>&lt;job&gt;-restore-drill.timer</code>, persistent),
 the job restores one secret-free file of the latest snapshot (<code>entrypoint.sh</code> by

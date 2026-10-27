@@ -1,0 +1,247 @@
+---
+# The jobs are data: a host opts in with configure_backup_restic_native and a
+# restic_native_backup_jobs list, and the tasks converge every resource both
+# ways, except the repositories, which an opt-out leaves in place. A job entry
+# carries the repository password, and a failed loop item is printed whole, so
+# the loops below iterate over job names, indexes, or paths, never over the
+# entries themselves.
+- name: Validate the restic job declarations
+  ansible.builtin.assert:
+    that:
+      - item.job_name is defined
+      - item.directories_to_backup | default([]) | length > 0
+      - item.restic_repository_host_path is defined
+      - item.restic_repository_password is defined
+      - item.restic_restore_drill_include is defined
+      # The environment file quotes the password with single quotes, which
+      # systemd reads literally: a quote or a newline inside the value would
+      # end the quoted string early.
+      - '"''" not in item.restic_repository_password'
+      - "\"\\n\" not in item.restic_repository_password"
+      # The drill empties its target directory before and after each run, so
+      # the target must hold neither the repository nor the backup set.
+      - restic_native_drill_path != item.restic_repository_host_path
+      - not item.restic_repository_host_path.startswith(restic_native_drill_path ~ '/')
+      - item.directories_to_backup | default([]) | select('equalto', restic_native_drill_path) | list | length == 0
+      - item.directories_to_backup | default([]) | select('match', (restic_native_drill_path ~ '/') | regex_escape) | list | length == 0
+    quiet: true
+  # The item carries the password
+  no_log: true
+  loop: "{{ restic_native_backup_jobs }}"
+  loop_control:
+    label: "{{ item.job_name | default('job without a name') }}"
+  vars:
+    restic_native_drill_path: "{{ item.restic_restore_drill_host_path | default(item.restic_repository_host_path | default('') | dirname ~ '/restore-drill-' ~ item.job_name | default('')) }}"
+  when: configure_backup_restic_native
+
+- name: Converge the restic package
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name: "{{ restic_native_os_packages }}"
+    state: "{{ configure_backup_restic_native | ternary('present', 'absent') }}"
+    update_cache: true
+  become: true
+
+# Stop the timers before removing their units, so an opt-out leaves nothing
+# scheduled; the units may already be gone, which is the converged state.
+- name: Stop the restic timers of a host that opted out
+  ansible.builtin.systemd_service:
+    name: "{{ item.0 }}{{ item.1 }}"
+    enabled: false
+    state: stopped
+  become: true
+  loop: "{{ restic_native_backup_jobs | map(attribute='job_name') | product(restic_native_timer_suffixes) | list }}"
+  loop_control:
+    label: "{{ item.0 }}{{ item.1 }}"
+  register: restic_native_stopped_timers
+  failed_when:
+    - restic_native_stopped_timers.failed
+    - '"Could not find the requested service" not in restic_native_stopped_timers.msg'
+  when: not configure_backup_restic_native
+
+- name: Configure the restic configuration directory
+  ansible.builtin.file:
+    path: "{{ restic_native_configuration_directory_path }}"
+    state: "{{ configure_backup_restic_native | ternary('directory', 'absent') }}"
+    owner: root
+    group: root
+    mode: "0750"
+  become: true
+
+- name: Create the textfile collector directory
+  ansible.builtin.file:
+    path: "{{ restic_native_textfile_collector_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+  when: configure_backup_restic_native
+
+# Repositories are initialized once, by the last task of this file only (the
+# job refuses an implicit init): read whether the repository exists and which
+# filesystem backs its path, then create the directories and initialize only
+# where the path is not on the root filesystem, which is what the path becomes
+# when its mount is gone; a bare directory left there would be the repository
+# the next mount hides and the job writes into when the mount is gone again.
+- name: Check whether the restic repositories are initialized
+  ansible.builtin.stat:
+    path: "{{ item }}/config"
+  become: true
+  check_mode: false
+  register: restic_native_repository_config
+  loop: "{{ restic_native_backup_jobs | map(attribute='restic_repository_host_path') | list }}"
+  when: configure_backup_restic_native
+
+- name: Find the filesystem backing the restic repositories
+  # findmnt needs an existing path: in check mode the repository directory of a
+  # first deployment is only predicted, so walk up to the nearest existing
+  # ancestor, which the mount check cares about anyway.
+  ansible.builtin.shell: >-
+    set -eu; p='{{ item }}';
+    while [ ! -e "$p" ]; do p="$(dirname "$p")"; done;
+    findmnt --target "$p" -no TARGET
+  become: true
+  changed_when: false
+  check_mode: false
+  register: restic_native_repository_mount
+  loop: "{{ restic_native_backup_jobs | map(attribute='restic_repository_host_path') | list }}"
+  when: configure_backup_restic_native
+
+# The repository directory is created, never removed: an opt-out keeps the
+# snapshots. The job refuses to initialize a repository implicitly, so the
+# directory stays empty until the initialization task below runs. A path on
+# the root filesystem is skipped, visibly, rather than created there.
+- name: Create the restic repository directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  become: true
+  loop: "{{ restic_native_backup_jobs | map(attribute='restic_repository_host_path') | list }}"
+  loop_control:
+    index_var: restic_native_job_index
+  when:
+    - configure_backup_restic_native
+    - restic_native_repository_mount.results[restic_native_job_index].stdout != "/"
+
+- name: Create the restic restore drill directories
+  ansible.builtin.file:
+    path: "{{ restic_native_job.restic_restore_drill_host_path | default(restic_native_job.restic_repository_host_path | dirname ~ '/restore-drill-' ~ restic_native_job.job_name) }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  become: true
+  loop: "{{ range(restic_native_backup_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_native_job.job_name }}"
+  vars:
+    restic_native_job: "{{ restic_native_backup_jobs[item] }}"
+  when:
+    - configure_backup_restic_native
+    - restic_native_repository_mount.results[item].stdout != "/"
+
+- name: Copy the restic job script
+  ansible.builtin.copy:
+    src: entrypoint.sh
+    dest: "{{ restic_native_script_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+  when: configure_backup_restic_native
+
+- name: Render the restic job environment files
+  ansible.builtin.template:
+    src: restic-native-job.env.jinja
+    dest: "{{ restic_native_configuration_directory_path }}/{{ restic_native_job.job_name }}.env"
+    owner: root
+    group: root
+    mode: "0600"
+  become: true
+  # The file carries the repository password
+  no_log: true
+  loop: "{{ range(restic_native_backup_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_native_job.job_name }}"
+  vars:
+    restic_native_job: "{{ restic_native_backup_jobs[item] }}"
+  when: configure_backup_restic_native
+
+- name: Render the restic job units
+  ansible.builtin.template:
+    src: "restic-native-job{{ item.1 }}.jinja"
+    dest: "{{ restic_native_systemd_units_directory }}/{{ restic_native_job.job_name }}{{ item.1 }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  loop: "{{ range(restic_native_backup_jobs | length) | product(restic_native_unit_suffixes) | list }}"
+  loop_control:
+    label: "{{ restic_native_job.job_name }}{{ item.1 }}"
+  vars:
+    restic_native_job: "{{ restic_native_backup_jobs[item.0] }}"
+  when: configure_backup_restic_native
+
+- name: Remove the restic job units of a host that opted out
+  ansible.builtin.file:
+    path: "{{ restic_native_systemd_units_directory }}/{{ item.0 }}{{ item.1 }}"
+    state: absent
+  become: true
+  loop: "{{ restic_native_backup_jobs | map(attribute='job_name') | product(restic_native_unit_suffixes) | list }}"
+  loop_control:
+    label: "{{ item.0 }}{{ item.1 }}"
+  when: not configure_backup_restic_native
+
+- name: Reload the systemd daemon
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  become: true
+
+# Only the timers are declared: the services run to completion, and a started
+# state would run them again on every play. On a first run in check mode the
+# units are only predicted, so a missing unit is tolerated there alone.
+- name: Start the restic timers
+  ansible.builtin.systemd_service:
+    name: "{{ item.0 }}{{ item.1 }}"
+    enabled: true
+    state: started
+  become: true
+  loop: "{{ restic_native_backup_jobs | map(attribute='job_name') | product(restic_native_timer_suffixes) | list }}"
+  loop_control:
+    label: "{{ item.0 }}{{ item.1 }}"
+  register: restic_native_started_timers
+  failed_when:
+    - restic_native_started_timers.failed
+    - not (ansible_check_mode and "Could not find the requested service" in restic_native_started_timers.msg)
+  when: configure_backup_restic_native
+
+# The run reads the job's environment file through systemd, as the units do,
+# so one parser interprets the password; --wait --pipe return the script's
+# output and exit status to the task. Unsetting the textfile directory keeps
+# the run from writing the job metrics (a repository identity reported here
+# would clear the coverage alert before any backup ran); an override through
+# --setenv would lose, since systemd applies EnvironmentFile= after
+# Environment= (observed on pve1, 2026-10-27).
+- name: Initialize missing restic repositories
+  ansible.builtin.command: >-
+    systemd-run --wait --pipe --collect --quiet
+    --unit "{{ item }}-init"
+    --property "EnvironmentFile={{ restic_native_configuration_directory_path }}/{{ item }}.env"
+    --property "CacheDirectory={{ restic_native_cache_directory_name }}"
+    --property "UnsetEnvironment=RESTIC_TEXTFILE_COLLECTOR_DIRECTORY"
+    --setenv RESTIC_ALLOW_INIT=true
+    --setenv RESTIC_ENABLE_BACKUP=false
+    {{ restic_native_script_path }}
+  become: true
+  changed_when: true
+  loop: "{{ restic_native_backup_jobs | map(attribute='job_name') | list }}"
+  loop_control:
+    index_var: restic_native_job_index
+  when:
+    - configure_backup_restic_native
+    - not restic_native_repository_config.results[restic_native_job_index].stat.exists
+    - restic_native_repository_mount.results[restic_native_job_index].stdout != "/"

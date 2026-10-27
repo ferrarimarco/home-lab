@@ -339,6 +339,12 @@ reliability risks first, then security exposure, then automation):
       folded scalar that turned the list into a string under ansible-core 2.19
       (fixed the same day) only failed on hl01.
 - Ansible:
+    - Move the Compose restic job of the node role into the backup role
+      (2026-10-26): the backup role runs the packaged job on the Proxmox nodes
+      with the job script it owns, while the Compose flavour, its exporter, and
+      `restore-workloads.yaml` stay in the node role. Moving them makes the node
+      role smaller and gives the backups one owner; the two flavours already
+      share the script and the metrics contract.
     - Get the Proxmox VMs data from the inventory instead of using the
       proxmox_vms list.
     - Move the handlers to a dedicated role and reuse that role across all
@@ -1139,13 +1145,13 @@ reliability risks first, then security exposure, then automation):
   plus rebuildable exporter virtual environments; re-run the audit (named
   volumes, container mounts outside the trees, systemd state directories)
   whenever a workload is added. NixOS hosts back up state directories only,
-  never the machine: enumerate them per host (for the NAS containers, the Samba,
-  Syncthing, and Tailscale state directories bind-mounted from the Proxmox node)
-  and give them a backup job on the node that holds them, named
-  `restic-backup-nas-state` as pve1 and pve2 already declare in
-  `expected_backup_jobs` (the `ExpectedBackupMissing` alert fires for it until
-  the job reports a run). The restore procedure that proves the rebuild path is
-  in the [backup operations guide](../guides/operations/backup.md).
+  never the machine, from the node that holds them: the
+  `restic-backup-nas-state` job of the backup role covers the NAS containers'
+  Samba, Syncthing, and Tailscale state directories on pve1 and pve2 (applied on
+  pve1 on 2026-10-27, pve2 is off), and hl02 declares an empty list. Re-run the
+  audit, and declare the job, whenever a stateful workload lands on a NixOS
+  host. The restore procedure that proves the rebuild path is in the
+  [backup operations guide](../guides/operations/backup.md).
 - **Second copy of the restic repositories (2026-10-19)**: the per-host
   repositories on the nas-pve1 `backups` share are the only copy of the Debian
   hosts' state backups, and the share's `rpool-sata` pool is a single-disk vdev
@@ -1278,28 +1284,6 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   state directory automatically). The repository was lost with the data disk on
   2026-10-09; since 2026-10-11 the job writes to a per-host directory on the
   nas-pve1 `backups` share, which retires with the job.
-- **Back up the NixOS hosts' state with the same guarantees as the Debian hosts
-  (extended 2026-10-14)**: nothing backs up the Samba, Syncthing, and Tailscale
-  state directories that the NAS guests bind-mount from pve1, nor hl02's own
-  state: losing pve1's root filesystem means re-running `smbpasswd`,
-  re-accepting a new Syncthing device at the remote peer, and re-joining the
-  tailnet. All three hold secret material (password hashes, device and node
-  private keys), so the mechanism must keep it out of the repository and
-  restrict access, consistent with the secrets policy. Build it on
-  `services.restic.backups` (verified on nixos-25.11): a per-host repository on
-  the nas-pve1 `backups` share under the per-host layout the Debian hosts use,
-  `initialize = false` (repositories are created deliberately, never
-  implicitly), `passwordFile` from a secret outside the repository, a nightly
-  timer with `runCheck` and `checkOpts` carrying the weekly
-  `--read-data-subset=<n>/7` cycle, the restic exporter so the backup rules and
-  the backup coverage alert
-  ([Monitoring and alerting](#monitoring-and-alerting)) apply, the monthly
-  selective restore drill writing the same
-  `restic_restore_drill_last_success_timestamp_seconds` textfile metric as the
-  Debian jobs, and restores through the module's `createWrapper` command
-  (`restic-<name>`), documented in the backup operations guide next to the
-  Debian restore mode. Depends on: the Debian restore and drill work
-  ([Backup](#backup)), which defines the drill metric contract and the guide.
 - **NFS support**: Re-introduce NFS sharing alongside SMB. Evaluate
   `nfs-kernel-server` in a privileged container versus the user-space
   NFS-Ganesha server, which can run in an unprivileged container.

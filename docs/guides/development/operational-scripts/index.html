@@ -1950,8 +1950,9 @@ shell. See the <a href="../nix-dev-shells/">Nix development shells guide</a>.</p
   per-purpose playbooks under <code>config/ansible/playbooks/</code> exist alongside
   <code>home-lab-node.yaml</code>; <code>restore-workloads.yaml</code> restores a stack's state from a
   restic repository and is documented in the
-  <a href="../../operations/backup/">backup operations guide</a>. The others (for example,
-  <code>setup-disks.yaml</code> converges pools, datasets, mounts, and the
+  <a href="../../operations/backup/">backup operations guide</a>; <code>backup.yaml</code> converges
+  the packaged restic jobs of the backup role (the Proxmox nodes). The others
+  (for example, <code>setup-disks.yaml</code> converges pools, datasets, mounts, and the
   <code>directories_to_create</code> list), and <code>main.yaml</code> chains all the playbooks, so
   tag-scoping it also runs the untagged tasks of every other role — on a host
   outside those roles' normal scope, the check run then predicts unrelated,

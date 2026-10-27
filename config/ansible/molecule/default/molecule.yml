@@ -37,6 +37,10 @@ provisioner:
         cam_3_rtps_username: "cam_3_rtps_username"
         configure_asuswrt_chkwan: true
         configure_backup_restic: true
+        # The packaged restic job of the backup role, with a repository under
+        # the root filesystem: the role's mount guard then skips the
+        # initialization, and the timers are rendered and started.
+        configure_backup_restic_native: true
         configure_docker: true
         # TODO: Enable after we have more space on the GitHub Actions runner
         # configure_frigate: true
@@ -111,6 +115,13 @@ provisioner:
         media_stack_qbittorrent_webui_password: "media_stack_qbittorrent_webui_password"
         restic_backup_default_backup_job_repository_password: restic_backup_default_backup_job_repository_password
         restic_backup_repositories_default_path: /tmp/restic-backup-default-backup-job-target-directory
+        restic_native_backup_jobs:
+          - job_name: restic-backup-native-test
+            directories_to_backup:
+              - /etc/home-lab
+            restic_repository_host_path: /tmp/restic-native-test/restic-backup-native-test
+            restic_repository_password: restic_native_test_repository_password
+            restic_restore_drill_include: /etc/home-lab/restic-native/entrypoint.sh
         qbittorrent_http_endpoint_fqdn: "qbittorrent"
         # Don't start network stack because we cannot bind certain ports (53)
         # on hosts in the CI environment

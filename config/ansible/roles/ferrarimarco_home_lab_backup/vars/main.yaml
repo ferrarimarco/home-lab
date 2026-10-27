@@ -1,0 +1,18 @@
+---
+apt_cache_valid_time: 3600
+# The restic cache, per host, under /var/cache: systemd creates it before the
+# units' mount namespace, and the environment file points restic at it
+restic_native_cache_directory_name: restic-native
+restic_native_os_packages:
+  - restic
+restic_native_script_path: "{{ restic_native_configuration_directory_path }}/entrypoint.sh"
+restic_native_systemd_units_directory: /etc/systemd/system
+# The units of each job, rendered from the templates of the same name
+restic_native_unit_suffixes:
+  - .service
+  - .timer
+  - -restore-drill.service
+  - -restore-drill.timer
+restic_native_timer_suffixes:
+  - .timer
+  - -restore-drill.timer

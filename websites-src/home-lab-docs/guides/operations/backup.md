@@ -1,7 +1,7 @@
 # Backup operations
 
-Procedures for the restic backups of the Debian hosts: inspecting a repository,
-restoring, running the drill, repairing. The
+Procedures for the restic backups of the Debian hosts and of the Proxmox nodes:
+inspecting a repository, restoring, running the drill, repairing. The
 [Backups specification](../../architecture/backups.md) describes what is backed
 up, where, and what each check proves.
 
@@ -27,6 +27,46 @@ restic_run() {
     restic-backup-workloads "$@"
 }
 ```
+
+## The node job
+
+The Proxmox nodes back up the NAS containers' state directories with the
+`restic-backup-nas-state` job of the backup role, which runs the same script
+from the packaged restic binary, with no container and no share mount: on pve1
+the repository is `/rpool-sata/backups/pve1/restic-backup-nas-state` on the
+local dataset, with the drill's scratch directory next to it, and the job's
+environment (repository, password, backup set, drill settings) is
+`/etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env`, root
+only. The metrics land in the packaged node exporter's textfile directory,
+`/var/lib/prometheus/node-exporter`. Shorthand, run as root on the node:
+
+```shell
+restic_nas_run() {
+  sh -c 'set -a; . /etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env; exec restic "$@"' restic "$@"
+}
+```
+
+The script's restore mode runs through `systemd-run`, which reads the same
+environment file the units read, so the space guard and the file count checks
+apply; a restore in place needs the container stopped first (`pct stop <id>`),
+since Samba, Syncthing, and Tailscale rewrite their state while running:
+
+```shell
+systemd-run --wait --pipe --collect --quiet --unit restic-backup-nas-state-restore \
+  --property EnvironmentFile=/etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env \
+  --property CacheDirectory=restic-native \
+  --setenv RESTIC_RESTORE_SNAPSHOT=latest \
+  --setenv RESTIC_RESTORE_INCLUDE=/var/lib/syncthing-state/nas-pve1 \
+  --setenv RESTIC_RESTORE_TARGET=/ \
+  --setenv RESTIC_RESTORE_DRY_RUN=false \
+  /etc/ferrarimarco-home-lab/restic-native/entrypoint.sh
+```
+
+Leave `RESTIC_RESTORE_DRY_RUN` at its default to list what the restore would
+write, and point `RESTIC_RESTORE_TARGET` at the drill's scratch directory for an
+inspection restore. The drill and its timer work as on the Debian hosts
+(`restic-backup-nas-state-restore-drill.service`), and the first drill after the
+deployment is started by hand the same way.
 
 ## Inspect a repository
 
@@ -115,8 +155,10 @@ In this order: bootstrap, Docker (the container engine playbook), the share
 mount (the disks playbook), the restic stack of the node role (it never
 re-initializes an existing repository), the in-place restore of each stack with
 the playbook, then the node role for the stacks. A host that lost its repository
-as well restores from nothing: the second-copy and NixOS state items in the
-[specs todo list](../../architecture/README.md#backup) exist for that case.
+as well restores from nothing: the second-copy item in the
+[specs todo list](../../architecture/README.md#backup) exists for that case. A
+Proxmox node restores the NAS container's state directories from its own node
+job before the container first starts, through the restore mode above.
 
 ## The drill
 

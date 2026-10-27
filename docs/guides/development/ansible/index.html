@@ -1078,6 +1078,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-backup-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      The backup role
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#python-exporter-services" class="md-nav__link">
     <span class="md-ellipsis">
       Python exporter services
@@ -1719,6 +1728,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-backup-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      The backup role
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#python-exporter-services" class="md-nav__link">
     <span class="md-ellipsis">
       Python exporter services
@@ -1898,6 +1916,30 @@ variable always defined, silently pins it, and disables the stack everywhere
 (this regression shipped between 2025-07 and 2026-09 for <code>monitoring-apt</code>).</p>
 </li>
 </ul>
+<h2 id="the-backup-role">The backup role</h2>
+<p><code>ferrarimarco_home_lab_backup</code> runs restic jobs on hosts without a container
+engine (the Proxmox nodes), from the packaged restic binary and the same job
+script the node role's Compose job uses: the role owns <code>files/entrypoint.sh</code>,
+and the node role's copy is a symlink to it, so the two flavours never drift. It
+has its own playbook, <code>backup.yaml</code>, chained into <code>main.yaml</code> after the node
+playbook and gated by data, so it is safe on every host with no limit and no
+tags: a host opts in with <code>configure_backup_restic_native</code> and a
+<code>restic_native_backup_jobs</code> list (the role defaults document the fields), and
+every other host converges the role's resources to absent.</p>
+<p>Per job the role renders a root-only environment file (repository, password,
+backup set, drill settings, single-quoted, which systemd reads literally: the
+role asserts the password holds no quote or newline), the backup and drill
+services and timers, and initializes a missing repository through <code>systemd-run</code>
+with that environment file, after the same root-filesystem check as the Compose
+job. The repositories are created, never removed: an opt-out stops the timers
+and removes the units and files, and keeps the snapshots. The units write only
+the repository, the drill target, the metrics, and the restic cache
+(<code>ProtectSystem=strict</code>, with <code>CacheDirectory=</code> for the cache), and order after
+<code>zfs-mount.service</code>, since a ZFS dataset has no mount unit for
+<code>RequiresMountsFor=</code> to require. The metrics go to the textfile directory of the
+Debian <code>prometheus-node-exporter</code> package by default
+(<code>restic_native_textfile_collector_directory</code>), which the nodes run; a host on
+the node role's containerized exporter overrides it.</p>
 <h2 id="python-exporter-services">Python exporter services</h2>
 <p>systemd services that run Python-based exporters build their virtual environment
 through the shared <code>/usr/local/bin/build-python-venv</code> script (source:

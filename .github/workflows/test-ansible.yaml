@@ -89,6 +89,7 @@ jobs:
         test_container_image_id:
           - "geerlingguy/docker-debian12-ansible:latest"
         test_playbook_name:
+          - backup
           - boot-bare-metal
           - bootstrap
           - container-engine

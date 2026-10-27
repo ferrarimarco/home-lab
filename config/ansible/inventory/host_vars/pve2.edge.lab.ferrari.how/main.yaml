@@ -1,9 +1,22 @@
 ---
-# The NAS container's state directories live on this node; their restic job
-# does not exist yet (specs todo list, NixOS state backup), so the expectation
-# keeps ExpectedBackupMissing firing until it does, under this job name.
+# Backup: the NAS container's Samba state directory lives on this node, so its
+# restic job runs here, from the packaged restic binary (the node has no
+# container engine), with the repository on the node's own backups dataset.
+# The declared expectation keeps ExpectedBackupMissing firing until the job
+# reports a run.
+configure_backup_restic_native: true
 expected_backup_jobs:
   - restic-backup-nas-state
+restic_native_backup_jobs:
+  - job_name: restic-backup-nas-state
+    directories_to_backup:
+      - /var/lib/samba-state/nas-pve2
+    restic_repository_host_path: /tank-hdd/backups/pve2/restic-backup-nas-state
+    restic_repository_password: "{{ vault_restic_backup_nas_state_repository_password }}"
+    # Samba's state holds the password database and the machine secrets: the
+    # drill restores the account policy table, which holds policy settings
+    # and no hashes.
+    restic_restore_drill_include: /var/lib/samba-state/nas-pve2/account_policy.tdb
 # Supermicro X10SRL-F with an on-board ASPEED BMC: install the IPMI tooling
 # to read its sensors (fans, temperatures) and manage its fan mode.
 has_bmc: true

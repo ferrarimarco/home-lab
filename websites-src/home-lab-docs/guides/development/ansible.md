@@ -119,6 +119,33 @@ resolved differently than intended.
     variable always defined, silently pins it, and disables the stack everywhere
     (this regression shipped between 2025-07 and 2026-09 for `monitoring-apt`).
 
+## The backup role
+
+`ferrarimarco_home_lab_backup` runs restic jobs on hosts without a container
+engine (the Proxmox nodes), from the packaged restic binary and the same job
+script the node role's Compose job uses: the role owns `files/entrypoint.sh`,
+and the node role's copy is a symlink to it, so the two flavours never drift. It
+has its own playbook, `backup.yaml`, chained into `main.yaml` after the node
+playbook and gated by data, so it is safe on every host with no limit and no
+tags: a host opts in with `configure_backup_restic_native` and a
+`restic_native_backup_jobs` list (the role defaults document the fields), and
+every other host converges the role's resources to absent.
+
+Per job the role renders a root-only environment file (repository, password,
+backup set, drill settings, single-quoted, which systemd reads literally: the
+role asserts the password holds no quote or newline), the backup and drill
+services and timers, and initializes a missing repository through `systemd-run`
+with that environment file, after the same root-filesystem check as the Compose
+job. The repositories are created, never removed: an opt-out stops the timers
+and removes the units and files, and keeps the snapshots. The units write only
+the repository, the drill target, the metrics, and the restic cache
+(`ProtectSystem=strict`, with `CacheDirectory=` for the cache), and order after
+`zfs-mount.service`, since a ZFS dataset has no mount unit for
+`RequiresMountsFor=` to require. The metrics go to the textfile directory of the
+Debian `prometheus-node-exporter` package by default
+(`restic_native_textfile_collector_directory`), which the nodes run; a host on
+the node role's containerized exporter overrides it.
+
 ## Python exporter services
 
 systemd services that run Python-based exporters build their virtual environment
