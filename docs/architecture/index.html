@@ -2060,23 +2060,14 @@ reliability risks first, then security exposure, then automation):</p>
   (<a href="#networking">Networking</a>), the boot server and rescue payload
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>), and the
   restore procedure (<a href="../guides/operations/backup/">backup operations guide</a>).
-  Does not depend on the container migration: the re-image rewrites the boot
-  disk only, and a restic repository restores the services in place (decided
-  2026-10-08). The repository on the data disk was lost on 2026-10-09, so the
-  restore source is the per-host repository on the nas-pve1 <code>backups</code> share
-  (<a href="#backup">Backup</a>).</li>
-<li>Finish moving the containers from raspberrypi2 to hl01
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>): the media
-  stack moved on 2026-10-09, its library was rebuilt on <code>rpool-usb-2</code> by
-  2026-10-11, and the data evacuation off the failed raspberrypi2 disk is
-  complete (Syncthing on nas-pve1, media on pve1, restic repositories on the
-  nas-pve1 <code>backups</code> share), and the raspberrypi2 cleanup ran on 2026-10-17 (the
-  copied media state, the dead disk's inventory entry, and the Samba share that
-  exported its empty mount point are gone), and Mosquitto moved to hl02 as a
-  NixOS module on 2026-10-26 (<a href="mqtt-broker/">MQTT Broker</a>). Zigbee2MQTT
-  stays on raspberrypi2 (decided 2026-10-23). Left: verifying the hl01 media
-  stack against the rebuilt library, then the ONT exporter and router WAN check
-  moves.</li>
+  The re-image rewrites the boot disk only, and the host's services are restored
+  in place (decided 2026-10-08): Zigbee2MQTT and the host's half of the
+  monitoring backend pair from the restic repository, the ONT exporter and the
+  router WAN check by the playbook, since they are stateless and stay on this
+  host rather than moving to hl01 (decided 2026-10-26, which completed the
+  container migration to hl01). The repository on the data disk was lost on
+  2026-10-09, so the restore source is the per-host repository on the nas-pve1
+  <code>backups</code> share (<a href="#backup">Backup</a>).</li>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
@@ -2113,37 +2104,6 @@ reliability risks first, then security exposure, then automation):</p>
   and the Nix hosts. The Debian hosts are covered: the node role enables its
   unattended-upgrades stack by default
   (<a href="https://wiki.debian.org/UnattendedUpgrades">UnattendedUpgrades</a>).</li>
-<li>Migrate containers from raspberrypi2 to hl01 (decisions of 2026-10-08):
-  hl01 is the sole target, since hl02 has no container workload role yet.
-  The media stack moved on 2026-10-09, ahead of the re-image, when the
-  raspberrypi2 data disk died: its state (Jellyfin users and metadata, the
-  Sonarr, Radarr, Prowlarr, and Lidarr databases, Jellyseerr) went over
-  hl01's empty instances with <code>scripts/copy-data.sh</code>, since the restic
-  repository died with the disk; Readarr was dropped (retired upstream);
-  Flaresolverr and qBittorrent carried nothing. The raspberrypi2 cleanup ran
-  on 2026-10-17, after the Zigbee2MQTT 2.x upgrade: the media stack, the
-  dead disk's inventory entry, and the Samba server (its only share exported
-  the dead disk's empty mount point) are retired there. Remaining for the
-  media stack: verifying the hl01 stack against the library rebuilt on
-  <code>rpool-usb-2</code> (<a href="#nas">NAS</a>). The endpoint variables live in the node
-  role's <code>vars/main.yaml</code>, not in <code>group_vars</code>; the media ones point at hl01
-  since 2026-10-10. Zigbee2MQTT stays on raspberrypi2 (decided 2026-10-23):
-  the dongle sits where the Zigbee mesh needs it, not where the compute is;
-  a USB passthrough on the hl01 VM adds a hypervisor layer under a serial
-  link the <code>ezsp</code> driver already connects to unreliably, and ties the radio
-  to pve1. The decoupling step is a network coordinator
-  (<a href="#smart-home">Smart home</a>); the udev rule for a stable device path stays
-  a raspberrypi2 item (<a href="#host-configuration">Host configuration</a>). Mosquitto
-  moved to hl02 as a <code>services.mosquitto</code> NixOS module (decided 2026-10-23;
-  the hl01-only decision covered containers, and a native module is not
-  one), per the <a href="mqtt-broker/">MQTT Broker</a> spec: the consumers run
-  against hl02 since 2026-10-26, when the raspberrypi2 stack was torn down
-  and removed from the node role. Syncthing already moved to nas-pve1
-  (<a href="#nas">NAS</a>). The monitoring backend stays: it runs as a highly available
-  pair on hl01 and raspberrypi2 (monitoring-alerting spec §3.3). Afterwards:
-  move the ONT exporter and the router WAN check to hl01, and delete the
-  source data with separate approvals; the raspberrypi2 restic job retires
-  with the host, per the repository wind-down item (<a href="#backup">Backup</a>).</li>
 <li>Network boot service and Raspberry Pi re-provisioning, per the
   <a href="network-boot/">Network Boot Service</a> spec:<ul>
 <li><code>netboot-server</code> Nix role on hl02 (TFTP tree, NFS export, and
@@ -2227,11 +2187,13 @@ reliability risks first, then security exposure, then automation):</p>
   re-image with current Raspberry Pi OS, the most supported path for the
   Raspberry Pi 4 hardware (its documentation strongly discourages in-place
   upgrades, recommending a re-image instead); a NixOS migration was
-  deferred, to reconsider after the planned container migration to hl01
-  shrinks this host's role. Path (2026-10-08): the network-boot rescue of
-  the <a href="network-boot/">Network Boot Service</a> spec, with the services
-  restored in place from the host's restic repository. After the upgrade,
-  bump the <code>requests</code> pin and the CI requirements test matrix
+  deferred, to reconsider after the container migration to hl01 shrank this
+  host's role. That migration completed on 2026-10-26, leaving Zigbee2MQTT,
+  the ONT exporter, the router WAN check, and the host's half of the
+  monitoring backend pair. Path (2026-10-08): the network-boot rescue of the
+  <a href="network-boot/">Network Boot Service</a> spec, with the services restored
+  in place from the host's restic repository. After the upgrade, bump the
+  <code>requests</code> pin and the CI requirements test matrix
   (<code>test-python-requirements.yaml</code>).</li>
 <li>Optionally prove the hardware watchdog recovery path end-to-end with a
   deliberate kernel crash (<code>echo c &gt; /proc/sysrq-trigger</code>): the host should
