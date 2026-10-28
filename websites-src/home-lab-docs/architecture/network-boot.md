@@ -2,15 +2,15 @@
 
 ## Implementation Status
 
-| Component / Feature                   | Status      | Details                                                                     |
-| :------------------------------------ | :---------- | :-------------------------------------------------------------------------- |
-| **`netboot-server` Nix role on hl02** | **Missing** | Payload trees, per-host registry, and the rescue toggle.                    |
-| **Server address reservation**        | **Missing** | hl02 has no DHCP reservation; the Raspberry Pi path needs a stable address. |
-| **Raspberry Pi boot path**            | **Missing** | raspberrypi2 still boots SD then USB (`0xf41`) with no TFTP server address. |
-| **x86 PXE boot path**                 | **Missing** | Deferred; design direction recorded, nothing verified.                      |
-| **Raspberry Pi OS Lite payload**      | **Missing** | Pinned image unpacked on hl02, served over TFTP and NFS.                    |
-| **Flash workflow**                    | **Missing** | The `flash-os` script delivered to the rescue system through cloud-init.    |
-| **Raspberry Pi re-provisioning**      | **Missing** | Restore path, Trixie playbook fixes, and guides, tracked in the todo list.  |
+| Component / Feature                   | Status                | Details                                                                                                                                                                         |
+| :------------------------------------ | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`netboot-server` Nix role on hl02** | **Missing**           | Payload trees, per-host registry, and the rescue toggle.                                                                                                                        |
+| **Server address reservation**        | **Fully Implemented** | hl02 is reserved at `10.0.0.5` on the gateway, rendered from the inventory by the `gateway-dnsmasq` playbook (applied and verified 2026-10-28; no CI test covers the playbook). |
+| **Raspberry Pi boot path**            | **Missing**           | raspberrypi2 still boots SD then USB (`0xf41`) with no TFTP server address.                                                                                                     |
+| **x86 PXE boot path**                 | **Missing**           | Deferred; design direction recorded, nothing verified.                                                                                                                          |
+| **Raspberry Pi OS Lite payload**      | **Missing**           | Pinned image unpacked on hl02, served over TFTP and NFS.                                                                                                                        |
+| **Flash workflow**                    | **Missing**           | The `flash-os` script delivered to the rescue system through cloud-init.                                                                                                        |
+| **Raspberry Pi re-provisioning**      | **Missing**           | Restore path, Trixie playbook fixes, and guides, tracked in the todo list.                                                                                                      |
 
 ## Goal
 

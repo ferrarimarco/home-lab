@@ -2019,7 +2019,7 @@ reference pages beside them, and the todo list for the whole lab.</p>
 <tr>
 <td style="text-align: left;"><a href="network-boot/"><strong>Network Boot Service</strong></a></td>
 <td style="text-align: left;">Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi TFTP path now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer.</td>
-<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><strong>Partially Implemented</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="backups/"><strong>Backups</strong></a></td>
@@ -2056,9 +2056,9 @@ reliability risks first, then security exposure, then automation):</p>
 <ul>
 <li>Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue (<a href="network-boot/">Network Boot Service</a>), then bump the <code>requests</code>
-  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the hl02 static address
-  (<a href="#networking">Networking</a>), the boot server and rescue payload
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>), and the
+  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the boot server and
+  rescue payload
+  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>) and the
   restore procedure (<a href="../guides/operations/backup/">backup operations guide</a>).
   The re-image rewrites the boot disk only, and the host's services are restored
   in place (decided 2026-10-08): Zigbee2MQTT and the host's half of the
@@ -2084,8 +2084,8 @@ reliability risks first, then security exposure, then automation):</p>
   <code>community.general.ipmi_power</code> (state <code>on</code>, delegated to the control machine;
   it needs the <code>pyghmi</code> library in the Ansible container image) with the BMC
   address from the inventory and the credentials from the vault, before the SSH
-  wait. Depends on: the BMC DHCP reservation (<a href="#networking">Networking</a>), so the
-  inventory can carry a stable address or name.</li>
+  wait. The inventory carries the BMC address since 2026-10-28, reserved on the
+  gateway as <code>pve2-bmc</code>.</li>
 <li>Generate a Home Lab bootstrapping keypair.</li>
 <li>Fully automate Terraform runs. Reference:
   <a href="https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform">Running Terraform in automation</a>.</li>
@@ -2108,8 +2108,7 @@ reliability risks first, then security exposure, then automation):</p>
   <a href="network-boot/">Network Boot Service</a> spec:<ul>
 <li><code>netboot-server</code> Nix role on hl02 (TFTP tree, NFS export, and
   cloud-init seed per host, the pinned OS image over HTTP, and the
-  per-host rescue toggle unit) with its integration test. Depends on:
-  the hl02 static address (<a href="#networking">Networking</a>).</li>
+  per-host rescue toggle unit) with its integration test.</li>
 <li>Rescue system and flash workflow: the pinned Raspberry Pi OS Lite
   image unpacked on hl02 (boot partition over TFTP, root over NFS),
   customized at boot by cloud-init from an HTTP seed, with the
@@ -2378,6 +2377,12 @@ reliability risks first, then security exposure, then automation):</p>
   proxmox_vms list.</li>
 <li>Move the handlers to a dedicated role and reuse that role across all
   playbooks.</li>
+<li>Cover the <code>gateway-dnsmasq</code> playbook in Molecule (deferred 2026-10-28):
+  the default scenario has no <code>nvram</code>, so the playbook is not in the CI
+  matrix and the check run against the router is its test. A prepare step
+  installing stub <code>nvram</code> and <code>service</code> scripts on the test instance, with
+  the gateway host pointed at that instance, would exercise the role's
+  rendering and read-then-act logic in CI.</li>
 <li>Refactor the molecule tests to use <code>group_vars</code> and <code>host_vars</code> instead of
   redefining variables in the molecule file
   (<a href="https://ansible.readthedocs.io/projects/molecule/configuration/#molecule.provisioner.ansible.Ansible">reference</a>).</li>
@@ -2638,68 +2643,12 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   the servers into <code>lab.ferrari.how</code> (every consumer carries the edge
   names), and CoreDNS owning the edge zone with <code>fallthrough</code> to the router
   as the end state (two authorities for one zone; kept as the transition
-  device, see the network stack item). Depends on: the gateway dnsmasq
-  settings play below (the pool carve-out and option 6). Blocks: the NAS
-  static IP migration (<a href="#nas">NAS</a>).</li>
+  device, see the network stack item). The pool carve-out and option 6 are
+  <code>gateway_dhcp</code> values in the inventory, which the <code>gateway-dnsmasq</code>
+  playbook applies (2026-10-28). Blocks: the NAS static IP migration
+  (<a href="#nas">NAS</a>).</li>
 </ul>
 </li>
-<li>hl02 gets a static address under the address plan above, recorded in the
-  inventory, since the Raspberry Pi network-boot rescue names the boot server by
-  address (<code>TFTP_IP</code>); a reservation guards it until the pool is carved. hl01,
-  hl02, and nas-pve1 hold dynamic leases today (2026-10-23). Blocks: the
-  Raspberry Pi network-boot rescue
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>).</li>
-<li><strong>Manage the gateway's dnsmasq settings on the stock firmware (decided
-  2026-10-23)</strong>: the Asus RT-AX86U stays on the stock Asuswrt firmware while it
-  is supported (asuswrt-merlin was declined), which keeps no dnsmasq
-  configuration file to own: it renders <code>/etc/dnsmasq.conf</code> from NVRAM every
-  time the service starts, and the web UI is a frontend to those variables.
-  Everything the UI exposes is therefore settable over the SSH access the ChkWAN
-  unit already has, with <code>nvram set</code>, <code>nvram commit</code>, and
-  <code>service restart_dnsmasq</code>: the DHCP reservations (<code>dhcp_staticlist</code>, one
-  <code>&lt;MAC&gt;IP&gt;DNS&gt;hostname</code> entry per host separated by <code>&lt;</code>, rendered only while
-  <code>dhcp_static_x</code> is 1; format read from the router on 2026-10-23, size limit
-  unknown), the pool and lease time, the DNS server handed to clients
-  (<code>dhcp_dns1_x</code>, empty today, so clients get the router), the LAN domain
-  (<code>lan_domain</code>, which drives <code>domain=</code>, <code>local=</code>, the DHCP domain option, and
-  the names the router writes to its hosts file), and the upstream servers.
-  Directives with no NVRAM variable (a <code>cname</code>, a <code>server=/zone/</code> forward,
-  <code>dhcp-boot</code>, <code>address</code>) are out of reach: Merlin's <code>dnsmasq.conf.add</code> is the
-  only supported path, the
-  <a href="https://www.snbforums.com/threads/dnsmasq-conf-add-without-custom-firmware.43244/">stock-firmware workaround thread</a>
-  records no persistent method, and
-  <a href="https://github.com/jacklul/asuswrt-scripts">jacklul/asuswrt-scripts</a>
-  implements the <code>.add</code> files by polling the syslog for restart events,
-  rewriting the regenerated file, and restarting the process behind the
-  firmware's back, launched from a USB stick with a fake Download Master package
-  because the firmware blocked its script hook: a polling bridge in an arms race
-  with firmware updates, declined. Those records belong to the lab resolver
-  (network stack item below). Design: an Ansible play against the gateway with
-  the <code>raw</code> module (BusyBox, no Python), rendering the reservation list from the
-  inventory's <code>network_interfaces</code> addresses, reading the current value first
-  and writing, committing to flash, and restarting dnsmasq only on a difference,
-  check-mode friendly; not a timer on raspberrypi2 like the ChkWAN watchdog,
-  since NVRAM is the router's own persistence across reboots and a one-shot
-  converge needs no bridge. First consumers: the hl02 and BMC reservations above
-  (settable in the UI meanwhile); under the address plan (static addresses item
-  above) the server reservations leave its scope once the pool is carved, and it
-  keeps the pool bounds, the DNS server option, the LAN domain, and the camera
-  reservations. After the LAN domain change the router is no longer a fallback
-  resolver for infrastructure names, only for its clients and the internet.
-  Verified on 2026-10-23 from the firmware source (the asuswrt-merlin.ng tree,
-  which tracks the stock 388 code; the NVRAM rendering is stock, the <code>.add</code> and
-  <code>postconf</code> hooks are Merlin's) and on the router (3.0.0.4.388_24436): the pve2
-  reservation already names the cabled port's MAC, the lease time is 86400 s,
-  and the pool spans the whole <code>10.0.0.0/8</code> from <code>.2</code>.</li>
-<li>Set a static DHCP assignment for the pve2 BMC on the router, so the BMC stays
-  reachable at a stable address for remote power control — pve2 stays powered
-  off until its power reduction work completes
-  (<a href="#host-configuration">Host configuration</a>), and powering it on remotely (for
-  example for Terraform runs that need both Proxmox nodes reachable) depends on
-  finding the BMC reliably. Blocks: the BMC availability probe
-  (<a href="#monitoring-and-alerting">Monitoring and alerting</a>); the BMC-based power-on
-  in the boot role
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>).</li>
 <li><strong>Tailscale subnet router on hl02 for general remote access</strong>: one node
   advertising the LAN covers ad-hoc remote access without installing Tailscale
   fleet-wide; service endpoints get direct nodes instead, per the NAS spec's
@@ -2827,24 +2776,24 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>DHCP server:<ul>
 <li>Deploy a managed DHCP server, or take control of the dnsmasq instance
   on the Asus. Decided 2026-10-23: the router keeps DHCP and lease DNS,
-  managed through the dnsmasq settings item above, and the lab resolver
-  adds what the router cannot carry. The alternative, a lab dnsmasq that
-  owns DHCP, DNS, and PXE (the design of the former
-  <code>provisioning/docker/dnsmasq</code> templates, last in the parent of commit
-  0b10e5da: <code>dhcp-authoritative</code>, <code>bogus-priv</code>, <code>domain-needed</code>,
-  <code>expand-hosts</code>, <code>no-hosts</code>, <code>no-resolv</code>, TFTP with a <code>pxe-service</code>
-  entry, and four files re-read on SIGHUP for static hosts, DHCP
-  reservations, upstream servers, and DHCP options), gives one
-  declarative configuration, CNAMEs included, and lets the DHCP server
-  hand out the boot server itself, which drops the proxy-DHCP and the
-  EEPROM-pinned address of the <a href="network-boot/">Network Boot Service</a>
-  spec; its cost is that DHCP and DNS for every device in the house then
-  depend on pve1, hl02, and a comin-driven VM: new clients cannot join
-  while it is down, and the router's client list loses names. Revisit
-  once the resolver pair exists (stage 2 of the item above): with the
-  servers static and only the cameras reserved, a dnsmasq pair with
-  split pools has nothing but the camera reservations to agree on, and
-  lease names stay cosmetic.</li>
+  managed through the <code>gateway_dhcp</code> inventory values that the
+  <code>gateway-dnsmasq</code> playbook applies, and the lab resolver adds what the
+  router cannot carry. The alternative, a lab dnsmasq that owns DHCP,
+  DNS, and PXE (the design of the former <code>provisioning/docker/dnsmasq</code>
+  templates, last in the parent of commit 0b10e5da:
+  <code>dhcp-authoritative</code>, <code>bogus-priv</code>, <code>domain-needed</code>, <code>expand-hosts</code>,
+  <code>no-hosts</code>, <code>no-resolv</code>, TFTP with a <code>pxe-service</code> entry, and four
+  files re-read on SIGHUP for static hosts, DHCP reservations, upstream
+  servers, and DHCP options), gives one declarative configuration,
+  CNAMEs included, and lets the DHCP server hand out the boot server
+  itself, which drops the proxy-DHCP and the EEPROM-pinned address of
+  the <a href="network-boot/">Network Boot Service</a> spec; its cost is that
+  DHCP and DNS for every device in the house then depend on pve1, hl02,
+  and a comin-driven VM: new clients cannot join while it is down, and
+  the router's client list loses names. Revisit once the resolver pair
+  exists (stage 2 of the item above): with the servers static and only
+  the cameras reserved, a dnsmasq pair with split pools has nothing but
+  the camera reservations to agree on, and lease names stay cosmetic.</li>
 <li>Configure the DHCP address pool as documented.</li>
 <li>Understand what the dhcp-script does.</li>
 <li>Deprecate the DNS resolver on the Asus, or take control of its
@@ -2862,8 +2811,9 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <a href="network-boot/">Network Boot Service</a> spec, whose server on hl02
   leaves room for the x86 nodes.</li>
 <li>Configure dnsmasq on the Asus router to use the recursive DNS
-  resolver: the upstream servers are a UI-exposed setting, so the
-  dnsmasq settings item above covers it (today the upstream is the
+  resolver: the upstream servers are a UI-exposed NVRAM setting, which
+  the <code>gateway-dnsmasq</code> playbook does not manage yet; add the variable
+  to the gateway role when this lands (today the upstream is the
   router's own DNS over TLS listener, which the lab resolver can keep as
   its forwarder instead).</li>
 <li>Forward queries to the authoritative DNS server for the main zone. If
@@ -2991,9 +2941,8 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>The pve2 BMC: a blackbox probe (ICMP ping, or HTTPS against its web
   interface) so that a host that is powered off but reachable for remote
   power-on is distinguishable from one that is unplugged or whose BMC lost
-  its network. Depends on: the BMC DHCP reservation
-  (<a href="#networking">Networking</a>), since the probe target must be a stable
-  address or a name that resolves to it.</li>
+  its network. The target is <code>pve2-bmc.edge.lab.ferrari.how</code>, which the
+  gateway resolves from its reservation (2026-10-28).</li>
 </ul>
 </li>
 <li>Verify the authority section of public resource records.</li>
