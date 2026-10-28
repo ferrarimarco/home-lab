@@ -1152,14 +1152,23 @@ reliability risks first, then security exposure, then automation):
   audit, and declare the job, whenever a stateful workload lands on a NixOS
   host. The restore procedure that proves the rebuild path is in the
   [backup operations guide](../guides/operations/backup.md).
-- **Restic exporter on the Proxmox nodes (2026-10-27)**: the node jobs report
-  through the textfile their script writes, which the coverage and freshness
-  rules read; what they lack against the Compose hosts is the exporter's
-  independent `restic check` every twelve hours (`ResticCheckFailed`) and its
-  snapshot listing. Run the exporter on the nodes as a Python service of the
-  backup role (the venv build script and `StateDirectory=` pattern of the node
-  role), with the password from the job's environment file, a port per job, and
-  the `restic` scrape job of the backends extended to native jobs.
+- **A restic job declaration is the single source of its monitoring
+  (2026-10-28)**: a job declared in a host's variables, of either flavour, must
+  produce its units, its exporter, its scrape target, and its expectation with
+  no per-host wiring, so the alert rules, which are global expressions, cover it
+  from the moment it is declared. The acceptance test is a new job entry in any
+  host's variables appearing in the backends' `restic` scrape targets and
+  expectation file with no other edit. The freshness and coverage rules already
+  hold this (2026-10-27: they read the textfile every job writes, and the
+  expectation derives from both flavours); the remaining break is the packaged
+  flavour, whose declaration produces no exporter and no scrape target, so the
+  exporter rules (`ResticExporterDown`, `ResticMetricsMissing`,
+  `ResticCheckFailed`, the independent `restic check` every twelve hours) never
+  see it. Close it by running the exporter as a Python service of the backup
+  role for every packaged job (the venv build script and `StateDirectory=`
+  pattern of the node role), with the password from the job's environment file
+  and a port per job, and by deriving the `restic` scrape job of the backends
+  from the packaged job declarations as it is from the Compose ones.
 - **Second copy of the restic repositories (2026-10-19)**: the per-host
   repositories on the nas-pve1 `backups` share are the only copy of the Debian
   hosts' state backups, and the share's `rpool-sata` pool is a single-disk vdev
