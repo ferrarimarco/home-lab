@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: https://github.com/ferrarimarco
+  description: |
+    Role to converge the DHCP settings of the home lab gateway, an Asus router
+    on the stock Asuswrt firmware, through its NVRAM variables.
+  license: MIT
+  min_ansible_version: "2.17.3"
+  platforms:
+    - name: GenericLinux
+      versions:
+        - all

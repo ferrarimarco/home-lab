@@ -49,16 +49,8 @@ network_stack_unbound_host_port: 53
 
 dns_records_to_configure: []
 
-root_dns_zone:
-  default_record_ttl: 3600
-  fqdn: "{{ root_dns_zone_fqdn }}"
-
-# Edge environment DNS zone configuration
-edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
-
-# IP subnets and address ranges
-edge_environment_subnet: "10.0.0.0/8"
-
+# The root DNS zone, the edge environment zone and subnet, and the gateway are
+# inventory data (group_vars/all/network.yaml).
 network_stack_dns_records_to_configure:
   - source: "{{ root_dns_zone_server.fqdn }}"
     destination: "{{ root_dns_zone_server.ipv4_address }}"
@@ -121,11 +113,6 @@ edge_dns_resolver: "{{ edge_dns_server }}"
 lab_dns_resolver:
   ipv4_address: "{{ network_interfaces[0].ipv4_address | default('0.0.0.0') }}"
   port: "{{ network_stack_unbound_host_port }}"
-
-# Edge environment default gateway
-edge_environment_gateway:
-  fqdn: "gateway.{{ edge_environment_root_fqdn }}"
-  ipv4_address: "{{ edge_environment_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 
 network_stack_edge_dns_resolvers:
   - "{{ lab_dns_resolver }}"

@@ -3,6 +3,10 @@ ansible_python_interpreter: auto_silent
 # Automatically accept new host keys for hosts in the inventory
 ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new"
 ansible_user: root
+# The gateway's SSH administration access, used by the units that reach the
+# router from raspberrypi2 and by the gateway-dnsmasq playbook.
+asuswrt_administration_ssh_port: "{{ vault_asuswrt_administration_ssh_port }}"
+asuswrt_administrator_username: "{{ vault_asuswrt_administrator_username }}"
 cam_3_rtps_password: "{{ vault_cam_3_rtps_password }}"
 cam_3_rtps_username: "{{ vault_cam_3_rtps_username }}"
 home_assistant_secrets:

@@ -1,6 +1,4 @@
 ---
-asuswrt_administrator_username: "{{ vault_asuswrt_administrator_username }}"
-asuswrt_administration_ssh_port: "{{ vault_asuswrt_administration_ssh_port }}"
 asuswrt_chkwan_stack_tag: "asuswrt-chkwan"
 asuswrt_chkwan_os_services:
   - enabled: true

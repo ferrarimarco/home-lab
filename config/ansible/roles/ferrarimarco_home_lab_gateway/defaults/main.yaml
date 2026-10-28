@@ -1,0 +1,22 @@
+---
+# The DHCP settings of the gateway's dnsmasq. The stock Asuswrt firmware
+# renders dnsmasq.conf from NVRAM at every start of the service, so the role
+# converges the NVRAM variables and restarts the service when one changes:
+#   pool_start, pool_end: the dynamic pool bounds (dhcp_start, dhcp_end)
+#   lease_seconds: the lease time (dhcp_lease)
+#   dns_servers: up to two resolvers handed to the clients in option 6
+#     (dhcp_dns1_x, dhcp_dns2_x); an empty list hands out the gateway itself
+#   lan_domain: the domain of the clients' names (lan_domain), which the
+#     router also writes to its hosts file for every reservation
+gateway_dhcp: {}
+# Reservations for the devices the inventory does not declare as hosts, with
+# mac_address, ipv4_address, and hostname. The reservations of the inventory
+# hosts come from their network_interfaces entries that carry both a
+# mac_address and an ipv4_address, named after the host's short name unless
+# the entry sets dhcp_hostname (a BMC reserved under its own name).
+gateway_dhcp_reservations: []
+# The reservations are stored in one NVRAM variable (dhcp_staticlist). Its size
+# limit is unknown; the role refuses a rendered list longer than this so that
+# the limit is found deliberately, by raising this value and reading the
+# variable back, rather than by a silently truncated write.
+gateway_dhcp_staticlist_max_length: 2048

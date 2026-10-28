@@ -1,0 +1,116 @@
+---
+# The router runs BusyBox without Python, so every task that touches it uses
+# the raw module. The reads run in check mode too, and the write runs only
+# when a variable differs from its desired value, so a converged router
+# reports no change on a second run.
+- name: Collect the inventory hosts' network interfaces that declare an address
+  ansible.builtin.set_fact:
+    gateway_dhcp_host_interfaces: >-
+      {{ gateway_dhcp_host_interfaces | default([]) + [{
+        'host': item,
+        'interfaces': hostvars[item].network_interfaces | default([])
+          | selectattr('mac_address', 'defined')
+          | selectattr('ipv4_address', 'defined') | list
+      }] }}
+  loop: "{{ groups['all'] }}"
+
+- name: Render the inventory hosts' DHCP reservations
+  ansible.builtin.set_fact:
+    gateway_dhcp_rendered_reservations: >-
+      {{ gateway_dhcp_rendered_reservations | default([]) + [{
+        'mac_address': item.1.mac_address | upper,
+        'ipv4_address': item.1.ipv4_address,
+        'hostname': item.1.dhcp_hostname | default(item.0.host.split('.')[0])
+      }] }}
+  with_subelements:
+    - "{{ gateway_dhcp_host_interfaces }}"
+    - interfaces
+
+- name: Add the reservations of the devices the inventory does not declare as hosts
+  ansible.builtin.set_fact:
+    gateway_dhcp_rendered_reservations: >-
+      {{ gateway_dhcp_rendered_reservations | default([]) + [{
+        'mac_address': item.mac_address | upper,
+        'ipv4_address': item.ipv4_address,
+        'hostname': item.hostname
+      }] }}
+  loop: "{{ gateway_dhcp_reservations }}"
+
+- name: Check that no address and no MAC is reserved twice
+  ansible.builtin.assert:
+    that:
+      - gateway_dhcp_rendered_reservations | map(attribute='ipv4_address') | unique | length == gateway_dhcp_rendered_reservations | length
+      - gateway_dhcp_rendered_reservations | map(attribute='mac_address') | unique | length == gateway_dhcp_rendered_reservations | length
+    fail_msg: "The rendered reservations repeat an address or a MAC: {{ gateway_dhcp_rendered_reservations }}"
+
+- name: Render the desired NVRAM variables
+  ansible.builtin.set_fact:
+    # One <MAC>address>DNS>hostname entry per reservation, in the format the
+    # firmware stores (read from the router on 2026-10-23), with the per-client
+    # DNS field empty and the entries sorted by address so the rendering is
+    # stable across runs.
+    gateway_dhcp_nvram_desired:
+      dhcp_start: "{{ gateway_dhcp.pool_start }}"
+      dhcp_end: "{{ gateway_dhcp.pool_end }}"
+      dhcp_lease: "{{ gateway_dhcp.lease_seconds | string }}"
+      dhcp_dns1_x: "{{ gateway_dhcp.dns_servers[0] | default('') }}"
+      dhcp_dns2_x: "{{ gateway_dhcp.dns_servers[1] | default('') }}"
+      lan_domain: "{{ gateway_dhcp.lan_domain }}"
+      dhcp_static_x: "1"
+      dhcp_staticlist: "{% for reservation in gateway_dhcp_rendered_reservations | sort(attribute='ipv4_address') %}<{{ reservation.mac_address }}>{{ reservation.ipv4_address }}>>{{ reservation.hostname }}{% endfor %}"
+
+- name: Check that the reservation list fits the configured NVRAM size limit
+  ansible.builtin.assert:
+    that:
+      - gateway_dhcp_nvram_desired.dhcp_staticlist | length <= gateway_dhcp_staticlist_max_length
+    fail_msg: >-
+      The rendered dhcp_staticlist is {{ gateway_dhcp_nvram_desired.dhcp_staticlist | length }}
+      characters long, above gateway_dhcp_staticlist_max_length
+      ({{ gateway_dhcp_staticlist_max_length }}). Raise the limit only after
+      verifying that the router reads a value of that size back intact.
+
+- name: Read the current NVRAM variables
+  ansible.builtin.raw: >-
+    for variable in {{ gateway_dhcp_nvram_desired.keys() | join(' ') }}; do
+    echo "${variable}=$(nvram get "${variable}")"; done
+  register: gateway_dhcp_nvram_read
+  changed_when: false
+  check_mode: false
+
+- name: Parse the current NVRAM variables
+  ansible.builtin.set_fact:
+    gateway_dhcp_nvram_actual: >-
+      {{ dict(gateway_dhcp_nvram_read.stdout_lines
+        | map('trim')
+        | select('match', '^[a-z0-9_]+=')
+        | map('regex_search', '^([a-z0-9_]+)=(.*)$', '\1', '\2')) }}
+
+- name: Check that every managed variable was read
+  ansible.builtin.assert:
+    that:
+      - gateway_dhcp_nvram_desired.keys() | difference(gateway_dhcp_nvram_actual.keys()) | length == 0
+    fail_msg: "The router did not return every managed variable: {{ gateway_dhcp_nvram_read.stdout }}"
+
+- name: Determine the NVRAM variables that differ from their desired value
+  ansible.builtin.set_fact:
+    gateway_dhcp_nvram_changes: >-
+      {{ gateway_dhcp_nvram_changes | default([])
+        + ([item] if gateway_dhcp_nvram_actual[item.key] != item.value else []) }}
+  loop: "{{ gateway_dhcp_nvram_desired | dict2items }}"
+
+- name: Report the NVRAM variables to change
+  ansible.builtin.debug:
+    msg: >-
+      {{ gateway_dhcp_nvram_changes | map(attribute='key')
+        | zip(gateway_dhcp_nvram_changes | map(attribute='key') | map('extract', gateway_dhcp_nvram_actual),
+              gateway_dhcp_nvram_changes | map(attribute='value'))
+        | map('join', ': ') | list }}
+  changed_when: gateway_dhcp_nvram_changes | length > 0
+
+# A write commits the variables to flash, so they survive a reboot, and
+# restarts dnsmasq, which re-renders its configuration from them. The restart
+# interrupts DNS and DHCP for a few seconds and keeps the existing leases.
+- name: Write the NVRAM variables that differ, commit them, and restart dnsmasq
+  ansible.builtin.raw: >-
+    {% for change in gateway_dhcp_nvram_changes %}nvram set {{ change.key }}={{ change.value | quote }} && {% endfor %}nvram commit && service restart_dnsmasq
+  when: gateway_dhcp_nvram_changes | length > 0

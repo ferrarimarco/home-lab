@@ -33,6 +33,8 @@ provisioner:
     host_vars:
       instance:
         ansible_user: root
+        asuswrt_administration_ssh_port: "1234"
+        asuswrt_administrator_username: "asuswrt_administrator_username"
         cam_3_rtps_password: "cam_3_rtps_password"
         cam_3_rtps_username: "cam_3_rtps_username"
         configure_asuswrt_chkwan: true
@@ -68,6 +70,13 @@ provisioner:
         # below). The mount-point guard (protect_mount_point) stays out: chattr
         # is refused on the test container's overlay filesystem.
         data_disk_mount_path: /media/test-share
+        # The edge environment definitions of the production inventory
+        # (group_vars/all/network.yaml)
+        edge_environment_gateway:
+          fqdn: "gateway.{{ edge_environment_root_fqdn }}"
+          ipv4_address: "{{ edge_environment_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+        edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
+        edge_environment_subnet: "10.0.0.0/8"
         disks_to_mount:
           - fstype: cifs
             opts: "guest,_netdev,nofail,x-systemd.before=docker.service"
@@ -114,6 +123,10 @@ provisioner:
         prometheus_http_endpoint_fqdn: "prometheus"
         media_stack_qbittorrent_webui_password: "media_stack_qbittorrent_webui_password"
         restic_backup_default_backup_job_repository_password: restic_backup_default_backup_job_repository_password
+        root_dns_zone:
+          default_record_ttl: 3600
+          fqdn: "{{ root_dns_zone_fqdn }}"
+        root_dns_zone_fqdn: "lab.ferrari.how"
         restic_backup_repositories_default_path: /tmp/restic-backup-default-backup-job-target-directory
         restic_native_backup_jobs:
           - job_name: restic-backup-native-test
@@ -133,8 +146,6 @@ provisioner:
         syncthing_user_interface_http_endpoint_fqdn: "syncthing"
         torrent_download_path: "/torrent-download-path"
         zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
-        vault_asuswrt_administrator_username: "vault_asuswrt_administrator_username"
-        vault_asuswrt_administration_ssh_port: "1234"
         vault_media_stack_qbittorrent_webui_password: "vault_media_stack_qbittorrent_webui_password"
         vault_monitoring_backend_alertmanager_telegram_bot_token: "vault_monitoring_backend_alertmanager_telegram_bot_token"
         vault_monitoring_backend_alertmanager_telegram_chat_id: "1234"

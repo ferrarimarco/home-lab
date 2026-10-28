@@ -23,8 +23,11 @@ has_bmc: true
 directories_to_create:
   - path: /var/lib/samba-state/nas-pve2
 network_interfaces:
-  # BMC
+  # The BMC, reserved on the gateway under its own name so that remote power
+  # control finds it while the host is off.
   - mac_address: "ac:1f:6b:b6:8d:c4"
+    ipv4_address: "10.0.0.6"
+    dhcp_hostname: pve2-bmc
   # The cabled port (link up, 2026-10-22): vmbr0 bridges it and carries the
   # address, static in /etc/network/interfaces, so the router's DHCP
   # reservation for the address must name this MAC to keep it out of the pool.

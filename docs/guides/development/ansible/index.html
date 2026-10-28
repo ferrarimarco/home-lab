@@ -1087,6 +1087,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-gateway-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      The gateway role
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#python-exporter-services" class="md-nav__link">
     <span class="md-ellipsis">
       Python exporter services
@@ -1737,6 +1746,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-gateway-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      The gateway role
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#python-exporter-services" class="md-nav__link">
     <span class="md-ellipsis">
       Python exporter services
@@ -1940,6 +1958,55 @@ the repository, the drill target, the metrics, and the restic cache
 Debian <code>prometheus-node-exporter</code> package by default
 (<code>restic_native_textfile_collector_directory</code>), which the nodes run; a host on
 the node role's containerized exporter overrides it.</p>
+<h2 id="the-gateway-role">The gateway role</h2>
+<p><code>ferrarimarco_home_lab_gateway</code> converges the DHCP settings of the gateway, an
+Asus router on the stock Asuswrt firmware, which keeps no dnsmasq configuration
+file to own: it renders <code>/etc/dnsmasq.conf</code> from NVRAM variables at every start
+of the service, and the web UI is a frontend to those variables. The role
+therefore converges the variables: the pool bounds, the lease time, the DNS
+servers handed to the clients (option 6), the LAN domain, and the reservation
+list (<code>dhcp_staticlist</code>, one <code>&lt;MAC&gt;address&gt;DNS&gt;hostname</code> entry per device,
+rendered only while <code>dhcp_static_x</code> is 1). Directives with no NVRAM variable (a
+CNAME, a per-zone forward, <code>dhcp-boot</code>) are out of reach and belong to the lab
+resolver.</p>
+<p>The playbook, <code>gateway-dnsmasq.yaml</code>, is not chained into <code>main.yaml</code> and the
+router is not in the static inventory: it runs BusyBox without Python, so the
+fact gathering of every other play would fail on it. The first play registers it
+as an in-memory host from the inventory's gateway definition and the vaulted
+administration user and port (<code>group_vars/all/network.yaml</code> and the aliases in
+<code>group_vars/all/main.yaml</code>), and the second play runs the role on it with the
+<code>raw</code> module.</p>
+<p>The role follows the read-then-act pattern: it reads every managed variable in
+one short <code>nvram get</code> loop (long batched commands have crashed the router's
+shell), compares each with its desired value, prints the differences, and writes
+only the differing variables, in one command that also commits them to flash and
+restarts dnsmasq. In check mode the read still runs, the report task reports the
+predicted changes as <code>changed</code>, and the write is skipped (<code>raw</code> does not support
+check mode). A converged router reports no change.</p>
+<p>The desired values come from the inventory: <code>gateway_dhcp</code> carries the service
+settings, and the reservations are the union of every <code>network_interfaces</code> entry
+of every inventory host that declares both <code>mac_address</code> and <code>ipv4_address</code>
+(named after the host's short name, or the entry's <code>dhcp_hostname</code> for a device
+such as a BMC) and the <code>gateway_dhcp_reservations</code> list for devices the
+inventory does not declare as hosts (the cameras). The role replaces the whole
+list: a reservation that exists on the router and not in the inventory is
+removed by the next apply, so read the predicted <code>dhcp_staticlist</code> in the check
+run before applying. Two guards fail the run before any write: a duplicated
+address or MAC, and a rendered list longer than
+<code>gateway_dhcp_staticlist_max_length</code>, since the variable's size limit is unknown
+and a truncated write would silently drop reservations. The comparison is on the
+whole rendered string, sorted by address, so a reservation added or reordered
+through the router's web UI is reported as a difference and rewritten in the
+inventory's order by the next run.</p>
+<p>A new reservation for a host that holds a dynamic lease splits the name from the
+address until the host renews: the router writes the reserved address to its
+hosts file as soon as dnsmasq restarts, so the host's name resolves to an
+address nothing holds yet, while the host keeps its lease until its renewal time
+(half the lease, up to twelve hours here), when dnsmasq refuses the old address
+and the host moves. Consumers that reconnect to the host by name in that window
+fail (hl02's MQTT clients, 2026-10-28). Right after such an apply, renew the
+lease on the host (<code>dhcpcd -n &lt;interface&gt;</code> on a host running dhcpcd), which
+moves it within seconds at the cost of its open connections.</p>
 <h2 id="python-exporter-services">Python exporter services</h2>
 <p>systemd services that run Python-based exporters build their virtual environment
 through the shared <code>/usr/local/bin/build-python-venv</code> script (source:

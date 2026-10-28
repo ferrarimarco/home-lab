@@ -201,14 +201,21 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   `home-lab-node.yaml`; `restore-workloads.yaml` restores a stack's state from a
   restic repository and is documented in the
   [backup operations guide](../operations/backup.md); `backup.yaml` converges
-  the packaged restic jobs of the backup role (the Proxmox nodes). The others
-  (for example, `setup-disks.yaml` converges pools, datasets, mounts, and the
-  `directories_to_create` list), and `main.yaml` chains all the playbooks, so
-  tag-scoping it also runs the untagged tasks of every other role — on a host
-  outside those roles' normal scope, the check run then predicts unrelated,
-  possibly destructive changes. To scope a run to one workload stack on one
-  host, combine the stack's tag with the `untagged` pseudo-tag (global, untagged
-  initialization tasks must always run) and a host limit:
+  the packaged restic jobs of the backup role (the Proxmox nodes);
+  `gateway-dnsmasq.yaml` converges the DHCP settings of the gateway's dnsmasq
+  (pool bounds, lease time, the DNS option, the LAN domain, and the reservations
+  rendered from the inventory) through the router's NVRAM over SSH, as the
+  [Ansible development guide](./ansible.md) describes: it stays out of
+  `main.yaml`, since the router is not a lab host, and needs the control
+  machine's lab key in the router's authorized keys (Administration, System, in
+  the web UI) before its first run. The others (for example, `setup-disks.yaml`
+  converges pools, datasets, mounts, and the `directories_to_create` list), and
+  `main.yaml` chains all the playbooks, so tag-scoping it also runs the untagged
+  tasks of every other role — on a host outside those roles' normal scope, the
+  check run then predicts unrelated, possibly destructive changes. To scope a
+  run to one workload stack on one host, combine the stack's tag with the
+  `untagged` pseudo-tag (global, untagged initialization tasks must always run)
+  and a host limit:
 
     ```shell
     ADDITIONAL_ANSIBLE_FLAGS="--check --diff --tags='monitoring-apt' --tags untagged --limit raspberrypi2.edge.lab.ferrari.how" \

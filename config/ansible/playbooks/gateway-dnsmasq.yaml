@@ -1,0 +1,23 @@
+---
+# The gateway runs BusyBox without Python, so it stays out of the static
+# inventory, which every other playbook targets with fact gathering, and this
+# playbook registers it for its own run, from the inventory's definition of the
+# gateway and the vaulted administration access.
+- name: Register the gateway as a host of this run
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Add the gateway to the in-memory inventory
+      ansible.builtin.add_host:
+        name: "{{ edge_environment_gateway.fqdn }}"
+        groups: gateways
+        ansible_connection: ssh
+        ansible_port: "{{ asuswrt_administration_ssh_port }}"
+        ansible_user: "{{ asuswrt_administrator_username }}"
+      changed_when: false
+
+- name: Configure the gateway's DHCP service
+  hosts: gateways
+  gather_facts: false
+  roles:
+    - role: ferrarimarco_home_lab_gateway

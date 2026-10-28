@@ -5,3 +5,11 @@
 # declaration the coverage alert reads: an undeclared host is a review
 # finding, not covered state.
 expected_backup_jobs: []
+
+network_interfaces:
+  # The VM's network device, declared in Terraform with this MAC. The address
+  # is a DHCP reservation on the gateway: the Raspberry Pi network-boot rescue
+  # names the boot server by address (TFTP_IP), so it must not move.
+  - mac_address: "BC:24:11:D4:F6:65"
+    interface_name: ens18
+    ipv4_address: "10.0.0.5"

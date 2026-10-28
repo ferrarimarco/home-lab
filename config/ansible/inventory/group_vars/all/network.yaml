@@ -1,0 +1,35 @@
+---
+# The edge environment: the LAN behind the gateway, where every lab host sits.
+# These definitions are inventory data, not role variables, so that the
+# playbook targeting the gateway can read them too.
+root_dns_zone_fqdn: "lab.ferrari.how"
+root_dns_zone:
+  default_record_ttl: 3600
+  fqdn: "{{ root_dns_zone_fqdn }}"
+edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
+edge_environment_subnet: "10.0.0.0/8"
+edge_environment_gateway:
+  fqdn: "gateway.{{ edge_environment_root_fqdn }}"
+  ipv4_address: "{{ edge_environment_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+
+# The DHCP service of the gateway's dnsmasq, converged by the gateway-dnsmasq
+# playbook from these values and from the network_interfaces entries of the
+# inventory hosts that declare an ipv4_address (the field reference is in the
+# gateway role's defaults). The values below are the ones read from the router
+# on 2026-10-28: the pool spans the whole subnet from .2, clients get the
+# gateway as their resolver (no option 6), and the LAN domain is the edge zone.
+gateway_dhcp:
+  pool_start: "10.0.0.2"
+  pool_end: "10.255.255.254"
+  lease_seconds: 86400
+  dns_servers: []
+  lan_domain: "{{ edge_environment_root_fqdn }}"
+# Reservations for the devices the inventory does not declare as hosts: the
+# cameras, at the addresses they held when the reservations were created.
+gateway_dhcp_reservations:
+  - mac_address: "48:02:2A:80:F1:52"
+    ipv4_address: "10.107.85.37"
+    hostname: cam-1
+  - mac_address: "EC:71:DB:EF:02:41"
+    ipv4_address: "10.70.165.39"
+    hostname: cam-3
