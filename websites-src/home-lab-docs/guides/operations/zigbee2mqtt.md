@@ -86,11 +86,22 @@ sensitivity, and a learning command.
    lands within a minute of any event). A window of T hours is clean by luck
    with probability e^(-rT) at a background rate of r per hour: 40 minutes at
    5.5 per hour leaves 2.5 percent, enough to decide.
-6. Locate the source with the zones. The zones are radial distance bands, so
+6. Measure the walk-bys. A person crossing the cone reads as a few seconds of
+   detection plus the timeout, while someone using the covered area re-triggers
+   for minutes, so the recorder history of the occupancy entity (the
+   [Home Assistant operations guide](./home-assistant.md) has the query) sorts
+   the episodes by length: subtract the timeout from each and count the ones
+   under about 15 s over a morning or an evening of normal use. A high share
+   means the cone takes in a walkway, and only the sensor can fix it: a consumer
+   sees the same signal for a crossing and a visit until the timeout expires, so
+   any filter on its side costs at least the timeout in latency. Re-aim or move
+   the head so that the cone ends at the covered area, run the learning again,
+   and repeat the count over a comparable window.
+7. Locate the source with the zones. The zones are radial distance bands, so
    disabling one blinds it across the whole cone. Disable the far bands, test an
    empty window, then re-enable them one at a time with a window each; the band
    that brings the detections back holds the source.
-7. Change the sensitivity last, one or two steps at a time, because it
+8. Change the sensitivity last, one or two steps at a time, because it
    invalidates the learned profile and the measurements above.
 
 Two more candidates for random brief triggers, not confirmed on the kitchen
@@ -121,6 +132,14 @@ tracks. With zones 5 to 7 disabled an empty window of 49 minutes showed none;
 with zone 5 alone re-enabled, three came back in 47 minutes. The source is
 therefore in the 2.5 to 3 m band, at the oven, and has not been identified: the
 follow-up is in the todo list of the
-[specs index](../../architecture/README.md). The kitchen light automations in
-the Home Assistant template consume this sensor, as the
-[Home Assistant operations guide](./home-assistant.md) describes.
+[specs index](../../architecture/README.md).
+
+The same placement takes in the part of the room on the left of the cone, so a
+person walking past the kitchen registers as present: on the morning of
+2026-10-27 the recorder showed 14 episodes of 2 to 30 s of detection (47 to 78 s
+with the hold) against three visits of 2 to 4 minutes at the worktop. The
+placement is the next change, following step 6 of the procedure, with a new
+learning run and a count over a comparable window afterwards.
+
+The kitchen light automations in the Home Assistant template consume this
+sensor, as the [Home Assistant operations guide](./home-assistant.md) describes.
