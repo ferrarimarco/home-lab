@@ -1,7 +1,7 @@
 ---
 - name: Load the contents of the dependency helper Dockerfile
   ansible.builtin.set_fact:
-    dependency_updates_helper_dockerfile: "{{ lookup('file', 'config/dependency-updates-helper/Dockerfile').splitlines() }}"
+    dependency_updates_helper_dockerfile: "{{ lookup('file', role_path ~ '/../../files/dependency-updates-helper/Dockerfile').splitlines() }}"
     container_images_ids: {}
 
 - name: Debug dependency_updates_helper_dockerfile

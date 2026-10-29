@@ -5,14 +5,14 @@ on: # yamllint disable-line rule:truthy
   push:
     paths:
       - ".github/workflows/test-prometheus-rules.yaml"
-      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/Dockerfile"
+      - "config/ansible/files/dependency-updates-helper/Dockerfile"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml"
       - "test/prometheus-rules/**"
       - "test/scripts/prometheus-rules-test.sh"
   pull_request:
     paths:
       - ".github/workflows/test-prometheus-rules.yaml"
-      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/Dockerfile"
+      - "config/ansible/files/dependency-updates-helper/Dockerfile"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml"
       - "test/prometheus-rules/**"
       - "test/scripts/prometheus-rules-test.sh"

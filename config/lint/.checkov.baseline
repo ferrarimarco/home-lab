@@ -48,10 +48,10 @@
             ]
         },
         {
-            "file": "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/Dockerfile",
+            "file": "/config/ansible/files/dependency-updates-helper/Dockerfile",
             "findings": [
                 {
-                    "resource": "/config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper/Dockerfile.",
+                    "resource": "/config/ansible/files/dependency-updates-helper/Dockerfile.",
                     "check_ids": [
                         "CKV_DOCKER_2",
                         "CKV_DOCKER_3"

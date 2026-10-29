@@ -60,7 +60,7 @@ updates:
     commit-message:
       prefix: "deps"
     directories:
-      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/dependency-updates-helper
+      - /config/ansible/files/dependency-updates-helper
       - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
     groups:
       home-lab-workloads:

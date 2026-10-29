@@ -17,7 +17,7 @@ REPOSITORY_ROOT_PATH="$(readlink -f "${SCRIPT_FULL_DIRECTORY_PATH}/../..")"
 echo "Repository root path: ${REPOSITORY_ROOT_PATH}"
 
 NODE_ROLE_FILES_PATH="config/ansible/roles/ferrarimarco_home_lab_node/files/config"
-DEPENDENCY_UPDATES_HELPER_DOCKERFILE_PATH="${REPOSITORY_ROOT_PATH}/${NODE_ROLE_FILES_PATH}/dependency-updates-helper/Dockerfile"
+DEPENDENCY_UPDATES_HELPER_DOCKERFILE_PATH="${REPOSITORY_ROOT_PATH}/config/ansible/files/dependency-updates-helper/Dockerfile"
 RULES_FILE_PATH="${NODE_ROLE_FILES_PATH}/monitoring-backend/prometheus-alerting-rules.yaml"
 TESTS_DIRECTORY_PATH="test/prometheus-rules"
 
