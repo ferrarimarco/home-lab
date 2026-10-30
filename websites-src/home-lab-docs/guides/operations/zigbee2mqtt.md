@@ -48,7 +48,9 @@ mosquitto_pub -h localhost \
 
 Zigbee2MQTT writes the attribute and the device answers with a state publish
 that carries the new value: read it back from the log before trusting the write.
-The device page on the Zigbee2MQTT site
+Send one property per publish: a message carrying several properties (three zone
+flags, on the kitchen sensor) applied only the first one and dropped the rest
+without an error in the log. The device page on the Zigbee2MQTT site
 (`https://www.zigbee2mqtt.io/devices/<model>.html`) lists every property with
 its range, and commands (a calibration start, for example) go through the same
 topic. For a setting that Home Assistant exposes as an entity, the interface is
@@ -112,34 +114,36 @@ when it ran with the oven on.
 ## Kitchen presence sensor
 
 The sensor named "Presenza cucina" is a Sonoff SNZB-06P24 on firmware 1.0.4
-(updated on 2026-10-25). It stands on the worktop, about 0.9 m high, facing
-along the worktop: the oven front sits at 3 m on the axis behind a wooden panel,
-a wall closes the right side of the cone, and the rest of the room is on the
-left.
+(updated on 2026-10-25). Since 2026-10-30 it stands at the end of the worktop
+next to the oven, facing away from it along the worktop, so the oven is out of
+the cone. The settings below were read back from the log after the move.
 
-| Setting                   | Value                                  | Reason                                            |
-| ------------------------- | -------------------------------------- | ------------------------------------------------- |
-| Occupancy timeout         | 45 s                                   | lighting hold time; the firmware default is 120 s |
-| Sensitivity               | 0                                      | never changed, so the learned profile stays valid |
-| Zones 1 to 4 (0 to 2.5 m) | enabled                                | the worktop and the near part of the room         |
-| Zones 5 to 7 (2.5 to 4 m) | disabled                               | see below                                         |
-| Spatial learning          | run on 2026-10-25 with the oven fan on | filters the fan: 30 minutes clean with it running |
+| Setting                 | Value                                    | Reason                                                  |
+| ----------------------- | ---------------------------------------- | ------------------------------------------------------- |
+| Occupancy timeout       | 45 s                                     | lighting hold time; the firmware default is 120 s       |
+| Sensitivity             | 0                                        | never changed, so the learned profile stays valid       |
+| Zones 1 to 7 (0 to 4 m) | enabled                                  | clean baseline for the new placement                    |
+| Zone 8                  | disabled, never enabled                  | undocumented on the device page                         |
+| Spatial learning        | run on 2026-10-30 with the kitchen empty | profile for the new placement, no appliance in the cone |
 
-With all zones enabled the sensor reported one brief false detection about every
-seven minutes through the night of 2026-10-25, 31 in the 5.7 sleeping hours,
-unrelated to the fridge's compressor, the oven, or any entity Home Assistant
-tracks. With zones 5 to 7 disabled an empty window of 49 minutes showed none;
-with zone 5 alone re-enabled, three came back in 47 minutes. The source is
-therefore in the 2.5 to 3 m band, at the oven, and has not been identified: the
-follow-up is in the todo list of the
-[specs index](../../architecture/README.md).
+The placement is the outcome of the first two weeks of measurements. At the
+first spot, the other end of the worktop with the oven front at 3 m on the axis,
+all zones enabled gave one brief false detection about every seven minutes
+through the night of 2026-10-25, 31 in the 5.7 sleeping hours, unrelated to the
+fridge's compressor, the oven, or any entity Home Assistant tracks. With zones 5
+to 7 disabled an empty window of 49 minutes showed none; with zone 5 alone
+re-enabled, three came back in 47 minutes: the source was in the 2.5 to 3 m
+band, at the oven, and was never identified. The same spot took in the part of
+the room on the left of the cone, so a person walking past the kitchen
+registered as present: on the morning of 2026-10-27 the recorder showed 14
+episodes of 2 to 30 s of detection (47 to 78 s with the hold) against three
+visits of 2 to 4 minutes at the worktop.
 
-The same placement takes in the part of the room on the left of the cone, so a
-person walking past the kitchen registers as present: on the morning of
-2026-10-27 the recorder showed 14 episodes of 2 to 30 s of detection (47 to 78 s
-with the hold) against three visits of 2 to 4 minutes at the worktop. The
-placement is the next change, following step 6 of the procedure, with a new
-learning run and a count over a comparable window afterwards.
+The baseline at the new placement is the next measurement, following steps 5 and
+6 of the procedure: the night rate against the 5.5 per hour of the first spot,
+and the walk-by count against the 14 episodes of a morning. The zones get
+disabled again only if that baseline shows false detections; the follow-up is in
+the todo list of the [specs index](../../architecture/README.md).
 
 The kitchen light automations in the Home Assistant template consume this
 sensor, as the [Home Assistant operations guide](./home-assistant.md) describes.
