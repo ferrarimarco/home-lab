@@ -338,12 +338,41 @@ reliability risks first, then security exposure, then automation):
       folded scalar that turned the list into a string under ansible-core 2.19
       (fixed the same day) only failed on hl01.
 - Ansible:
-    - Move the Compose restic job of the node role into the backup role
-      (2026-10-26): the backup role runs the packaged job on the Proxmox nodes
-      with the job script it owns, while the Compose flavour, its exporter, and
-      `restore-workloads.yaml` stay in the node role. Moving them makes the node
-      role smaller and gives the backups one owner; the two flavours already
-      share the script and the metrics contract.
+    - Consolidate the restic jobs into the backup role as a single flavour
+      (2026-10-26, assessed 2026-10-30): the backup role runs the packaged job
+      on the Proxmox nodes with the job script it owns, while the node role runs
+      the Compose flavour on the Debian hosts, with its own job schema and
+      enablement flag, four unit templates, the repository initialization guard,
+      the timer tasks, and the defaults all declared a second time, and the node
+      role's copy of the script is a symlink into the backup role, which the CI
+      image build context cannot follow. Nothing in the Compose flavour needs
+      Docker but the image, so the backup role should own every job as systemd
+      units running the packaged or pinned binary, and the Compose flavour
+      retires with its Dockerfile, its CI image build and Dependabot directory,
+      the exporter image pin, the Compose profile, `start_restic`, and the
+      symlink. The migration has to handle: the hl01 and raspberrypi2
+      repositories are keyed with the password including the double quotes the
+      Compose template renders, so the environment file carries the quoted
+      literal or the repositories get a new key; the repository directories on
+      the CIFS share need the mounting user as owner, as the node role declares;
+      the Compose job names its snapshots after the job and host, so the native
+      job passes `--host` with that name, since a forget policy of
+      `--keep-within` ages a group from its newest snapshot and an abandoned
+      group would never expire; the Debian hosts override the textfile directory
+      of the backup role, which defaults to the packaged node exporter's, with
+      the containerized exporter's; the default drill include, the job script
+      under the Compose flavour's configuration directory, is re-chosen under
+      the backup role's; `restore-workloads.yaml` moves from
+      `docker compose run` to `systemd-run` with the job's environment file,
+      which the backup operations guide already documents for the nodes, and the
+      cross-host restore passes the source repository and password without
+      loading the local job's environment file, whose values win over
+      `--setenv`; the restic binary source (Debian package or pinned release
+      binary, undecided) and the exporter's Python version on the Debian hosts
+      both need checking before they serve every host. Done before the
+      monitoring item of [Backup](#backup), the exporter service is written
+      once, and the scrape and expectation templates each become one loop over
+      one job list.
     - Get the Proxmox VMs data from the inventory instead of using the
       proxmox_vms list.
     - Move the handlers to a dedicated role and reuse that role across all
@@ -1116,7 +1145,11 @@ reliability risks first, then security exposure, then automation):
   role for every packaged job (the venv build script and `StateDirectory=`
   pattern of the node role), with the password from the job's environment file
   and a port per job, and by deriving the `restic` scrape job of the backends
-  from the packaged job declarations as it is from the Compose ones.
+  from the packaged job declarations as it is from the Compose ones. The
+  single-flavour consolidation of the restic jobs
+  ([CI/CD, infrastructure-as-code, and GitOps](#cicd-infrastructure-as-code-and-gitops))
+  comes first by preference: it leaves one job list and one exporter mechanism
+  to wire.
 - **Second copy of the restic repositories (2026-10-19)**: the per-host
   repositories on the nas-pve1 `backups` share are the only copy of the Debian
   hosts' state backups, and the share's `rpool-sata` pool is a single-disk vdev
