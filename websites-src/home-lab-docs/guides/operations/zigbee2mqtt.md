@@ -77,8 +77,10 @@ sensitivity, and a learning command.
    empty and the fixed interference sources running, the oven's convection fan
    for example. It takes about 30 s and ends with the state `Clear`, or
    `Failed`. Each run replaces the learned profile: run it again after moving
-   the sensor or a source, and after changing the sensitivity. The device
-   reports raw detections while it learns, so ignore those.
+   the sensor or a source. The device reports raw detections while it learns, so
+   ignore those. On firmware 1.0.4 of the SNZB-06P24 the run also resets the
+   sensitivity to 0 without a message in the log: read the state back after
+   every run.
 5. Measure before tuning anything else. A false detection reads as one trigger
    followed by the timeout, never re-triggered, while a real visit re-triggers
    and lasts longer. Count the brief ones over a window the room is known to be
@@ -103,28 +105,37 @@ sensitivity, and a learning command.
    disabling one blinds it across the whole cone. Disable the far bands, test an
    empty window, then re-enable them one at a time with a window each; the band
    that brings the detections back holds the source.
-8. Change the sensitivity last, one or two steps at a time, because it
-   invalidates the learned profile and the measurements above.
+8. Change the sensitivity last, when the zones have shown that the detections
+   come from every band rather than from one source. Run the learning first and
+   write the sensitivity after it, since the run resets it, then test each value
+   over an empty window of two hours or more, starting from the lowest value
+   that still detects a person at the worktop and stepping up: the measurements
+   above are what each step is compared against.
 
-Two more candidates for random brief triggers, not confirmed on the kitchen
-sensor: a USB power supply with ripple (the sensor ships without one) and the
-cooling fan an oven runs after switch-off, which the learning run does not cover
-when it ran with the oven on.
+The sensor ships without a power supply, and a faulty USB charger is a confirmed
+failure cause rather than a source of brief triggers: on 2026-10-30 the kitchen
+sensor dropped off the network with occupancy held true, so the light it had
+switched on stayed on, because the off automation triggers on the change to
+clear and the entity went unavailable instead. Another candidate for random
+brief triggers, not confirmed: the cooling fan an oven runs after switch-off,
+which the learning run does not cover when it ran with the oven on.
 
 ## Kitchen presence sensor
 
 The sensor named "Presenza cucina" is a Sonoff SNZB-06P24 on firmware 1.0.4
 (updated on 2026-10-25). Since 2026-10-30 it stands at the end of the worktop
 next to the oven, facing away from it along the worktop, so the oven is out of
-the cone. The settings below were read back from the log after the move.
+the cone. A kitchen robot stands about 20 cm to its right, unplugged, with no
+other place to go; whether it amplifies the noise is untested.
 
-| Setting                 | Value                                    | Reason                                                  |
-| ----------------------- | ---------------------------------------- | ------------------------------------------------------- |
-| Occupancy timeout       | 45 s                                     | lighting hold time; the firmware default is 120 s       |
-| Sensitivity             | 0                                        | never changed, so the learned profile stays valid       |
-| Zones 1 to 7 (0 to 4 m) | enabled                                  | clean baseline for the new placement                    |
-| Zone 8                  | disabled, never enabled                  | undocumented on the device page                         |
-| Spatial learning        | run on 2026-10-30 with the kitchen empty | profile for the new placement, no appliance in the cone |
+The settings the measurements validated, final since 2026-10-31: the occupancy
+timeout at 45 s (lighting hold time; the firmware default is 120 s), zones 1 to
+7 enabled, zone 8 disabled and never enabled (undocumented on the device page),
+the spatial learning run with the kitchen empty and no appliance in the cone,
+and the sensitivity at -1, written after the learning run. Read the live state
+with the recipe above rather than trusting this paragraph: a difference is drift
+to investigate, a learning run or a power event having rewritten the device, not
+an error in the guide.
 
 The placement is the outcome of the first two weeks of measurements. At the
 first spot, the other end of the worktop with the oven front at 3 m on the axis,
@@ -139,11 +150,19 @@ registered as present: on the morning of 2026-10-27 the recorder showed 14
 episodes of 2 to 30 s of detection (47 to 78 s with the hold) against three
 visits of 2 to 4 minutes at the worktop.
 
-The baseline at the new placement is the next measurement, following steps 5 and
-6 of the procedure: the night rate against the 5.5 per hour of the first spot,
-and the walk-by count against the 14 episodes of a morning. The zones get
-disabled again only if that baseline shows false detections; the follow-up is in
-the todo list of the [specs index](../../architecture/README.md).
+The baseline at the new placement failed at sensitivity 0: 48 brief false
+detections in the 4.9 empty hours of the evening of 2026-10-30 (9.8 per hour,
+steady, no periodicity, the light switched on by every one), after a second
+learning run, and still two in six minutes with zones 1 to 4 alone, so the
+detections came from every band and the zone bisection had nothing left to find.
+Sensitivity -2 (written after the learning run) gave zero detections in the 6
+empty hours of the following night; -1 gave zero in an empty window of 1.8 h,
+tracked an afternoon of use as 28 visits of up to 40 minutes of continuous
+re-triggering, and gave zero in the 7.5 hours of the night of 2026-10-31,
+against about 73 expected at the rate of sensitivity 0. The episode lengths tell
+the cases apart: a false detection is 47 to 48 s, a walkthrough 55 to 75 s (10
+to 30 s of detection plus the hold; two timed crossings read 56 and 57 s), a
+visit re-triggers for minutes.
 
 The kitchen light automations in the Home Assistant template consume this
 sensor, as the [Home Assistant operations guide](./home-assistant.md) describes.

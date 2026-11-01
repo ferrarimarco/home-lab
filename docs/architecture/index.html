@@ -3057,15 +3057,11 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   the entity as a lock, since a leak reads as on while a lock entity expects off
   for locked. Constraints: room for the wires in the strike box, a conductive
   deadbolt, and a contact that holds across the play of the key.</li>
-<li><strong>Kitchen presence sensor baseline at the new placement</strong>: the Sonoff
-  SNZB-06P24 moved on 2026-10-30 to the end of the worktop next to the oven,
-  facing away from it, with all zones re-enabled and the spatial learning re-run
-  (the <a href="../guides/operations/zigbee2mqtt/">Zigbee2MQTT operations guide</a> has
-  the history and the tuning procedure). Measure the night rate of brief false
-  detections and the walk-by count of a morning against the first spot's values
-  recorded in the guide; disable far zones again only if the baseline shows
-  false detections. Also exclude the sensor's illuminance entity from the
-  recorder: the device reports it every few seconds by design.</li>
+<li>Exclude the kitchen presence sensor's illuminance entity from the Home
+  Assistant recorder: the device reports it every few seconds by design, which
+  fills the database and buries the occupancy history the
+  <a href="../guides/operations/zigbee2mqtt/">Zigbee2MQTT operations guide</a> reads for
+  its measurements.</li>
 <li>Automations:<ul>
 <li>Smart chair: contact sensor
   (<a href="https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar">reference</a>).</li>

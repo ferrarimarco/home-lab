@@ -1000,15 +1000,11 @@ reliability risks first, then security exposure, then automation):
   the entity as a lock, since a leak reads as on while a lock entity expects off
   for locked. Constraints: room for the wires in the strike box, a conductive
   deadbolt, and a contact that holds across the play of the key.
-- **Kitchen presence sensor baseline at the new placement**: the Sonoff
-  SNZB-06P24 moved on 2026-10-30 to the end of the worktop next to the oven,
-  facing away from it, with all zones re-enabled and the spatial learning re-run
-  (the [Zigbee2MQTT operations guide](../guides/operations/zigbee2mqtt.md) has
-  the history and the tuning procedure). Measure the night rate of brief false
-  detections and the walk-by count of a morning against the first spot's values
-  recorded in the guide; disable far zones again only if the baseline shows
-  false detections. Also exclude the sensor's illuminance entity from the
-  recorder: the device reports it every few seconds by design.
+- Exclude the kitchen presence sensor's illuminance entity from the Home
+  Assistant recorder: the device reports it every few seconds by design, which
+  fills the database and buries the occupancy history the
+  [Zigbee2MQTT operations guide](../guides/operations/zigbee2mqtt.md) reads for
+  its measurements.
 - Automations:
     - Smart chair: contact sensor
       ([reference](https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar)).
