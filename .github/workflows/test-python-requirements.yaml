@@ -8,7 +8,7 @@ on: # yamllint disable-line rule:truthy
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt"
-      - "config/ansible/roles/ferrarimarco_home_lab_node/files/scripts/build-python-venv.sh"
+      - "config/ansible/files/scripts/build-python-venv.sh"
       - "test/scripts/build-python-venv-test.sh"
   pull_request:
     paths:
@@ -16,7 +16,7 @@ on: # yamllint disable-line rule:truthy
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt"
-      - "config/ansible/roles/ferrarimarco_home_lab_node/files/scripts/build-python-venv.sh"
+      - "config/ansible/files/scripts/build-python-venv.sh"
       - "test/scripts/build-python-venv-test.sh"
 
 permissions:

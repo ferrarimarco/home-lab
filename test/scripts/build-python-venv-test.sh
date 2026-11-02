@@ -15,7 +15,7 @@ trap "rm -fr '${PYTHON_VENV_PATH}'" EXIT
 
 echo "PYTHON_VENV_PATH: ${PYTHON_VENV_PATH}"
 
-SCRIPT_TO_TEST_PATH="${SCRIPT_FULL_DIRECTORY_PATH}/../../config/ansible/roles/ferrarimarco_home_lab_node/files/scripts/build-python-venv.sh"
+SCRIPT_TO_TEST_PATH="${SCRIPT_FULL_DIRECTORY_PATH}/../../config/ansible/files/scripts/build-python-venv.sh"
 SCRIPT_TO_TEST_PATH="$(readlink -f "${SCRIPT_TO_TEST_PATH}")"
 echo "Script to test: ${SCRIPT_TO_TEST_PATH}"
 
