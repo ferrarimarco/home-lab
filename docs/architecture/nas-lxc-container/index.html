@@ -3159,8 +3159,8 @@ configured paths (<code>raspberrypi2</code> mounts the <code>backups</code> shar
 each host keeps its own repository password):</p>
 <ul>
 <li>the <code>backups</code> share at <code>/media/backup-0</code> (<code>workloads_backup_disk_mount_path</code>),
-  replacing the deleted backup virtual disk; the restic backup stack keeps its
-  target path.</li>
+  replacing the deleted backup virtual disk; the restic workloads job keeps its
+  repository path.</li>
 <li>the <code>media-usb</code> share — the first consumer of a per-host share
   (<a href="#51-adding-per-host-shares">§5.1</a>), backed by <code>pve1</code>'s media-only USB pool
   (<code>rpool-usb-2/media</code> since 2026-10-10; <code>rpool-usb-1/media</code> before) — at

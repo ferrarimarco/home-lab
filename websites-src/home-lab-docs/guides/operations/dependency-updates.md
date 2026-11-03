@@ -46,6 +46,25 @@ scripts/run-pre-commit.sh "pre-commit run --all-files --config config/pre-commit
 The schema check only validates the syntax. Dependabot reads the configuration
 file when you push it to the default branch, and starts a job for each entry.
 
+## The pinned restic exporter release
+
+The backup role installs one artifact outside any package manager: the restic
+exporter's source tarball, which no distribution or index packages. Its version
+is the tag of the `restic-exporter` stage of the dependency updates helper
+Dockerfile, which Dependabot bumps, and its content is pinned by hash in the
+role's `vars/main.yaml` (`restic_exporter_release_sha256`). A tag bump without
+the matching hash fails the Molecule run of the backup playbook and the Python
+requirements test, so a Dependabot pull request for that stage needs one more
+commit: download the tarball
+(`https://github.com/ngosang/restic-exporter/archive/refs/tags/<tag>.tar.gz`),
+read the release notes, and set the variable to its `sha256sum`. The project
+signs nothing, so the pin records what GitHub served at verification time, and
+protects the hosts from a later change of the artifact rather than from a
+compromised release. restic itself comes from the hosts' Debian packages, with
+the apt release override the
+[Ansible development guide](../development/ansible.md) describes for a host
+whose release ships a package too old for the job script.
+
 ## How Dependabot runs
 
 - Jobs run as the `Dependabot Updates` CI workflow, one run for each entry.

@@ -201,7 +201,7 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   `home-lab-node.yaml`; `restore-workloads.yaml` restores a stack's state from a
   restic repository and is documented in the
   [backup operations guide](../operations/backup.md); `backup.yaml` converges
-  the packaged restic jobs of the backup role (the Proxmox nodes);
+  the restic jobs of the backup role on every host that declares them;
   `gateway-dnsmasq.yaml` converges the DHCP settings of the gateway's dnsmasq
   (pool bounds, lease time, the DNS option, the LAN domain, and the reservations
   rendered from the inventory) through the router's NVRAM over SSH, as the
@@ -223,14 +223,14 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
       scripts/run-ansible.sh
     ```
 
-    Restic repositories are initialized by the node role's read-then-act task
-    only, never by the backup job: the task runs `restic init` through the job
-    container with `RESTIC_ALLOW_INIT=true` when the repository's `config` file
-    is absent and `findmnt --target` shows the repository path backed by a
-    filesystem other than the root one; the job's unit refuses to run on the
-    root filesystem for the same reason, and the entrypoint refuses an implicit
-    initialization. A replacement host whose repository already exists on the
-    share is therefore never re-initialized.
+    Restic repositories are initialized by the backup role's read-then-act task
+    only, never by the backup job: the task runs the job script with
+    `RESTIC_ALLOW_INIT=true` through `systemd-run` when the repository's
+    `config` file is absent and `findmnt --target` shows the repository path
+    backed by a filesystem other than the root one; the job's unit refuses to
+    run on the root filesystem for the same reason, and the script refuses an
+    implicit initialization. A replacement host whose repository already exists
+    on the share is therefore never re-initialized.
 
     Stack tags are the `fact_category` names declared in the
     `ferrarimarco_home_lab_node` role's `include-variables.yaml`. See the
@@ -306,7 +306,7 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     playbook to test, and pass the Molecule command to run:
 
     ```shell
-    ANSIBLE_TEST_DISTRO="geerlingguy/docker-debian12-ansible:latest" \
+    ANSIBLE_TEST_DISTRO="geerlingguy/docker-debian13-ansible:latest" \
       ANSIBLE_TEST_PLAYBOOK_NAME="bootstrap" \
       scripts/run-ansible.sh "molecule test"
     ```
@@ -323,7 +323,7 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     [Ansible development guide](./ansible.md) describes):
 
     ```shell
-    ANSIBLE_TEST_DISTRO="geerlingguy/docker-debian12-ansible:latest" \
+    ANSIBLE_TEST_DISTRO="geerlingguy/docker-debian13-ansible:latest" \
       ANSIBLE_TEST_PLAYBOOK_NAME="main" \
       ANSIBLE_TEST_TAGS="zigbee2mqtt,untagged" \
       scripts/run-ansible.sh "molecule test"

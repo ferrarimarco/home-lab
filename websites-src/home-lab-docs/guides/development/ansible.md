@@ -121,30 +121,59 @@ resolved differently than intended.
 
 ## The backup role
 
-`ferrarimarco_home_lab_backup` runs restic jobs on hosts without a container
-engine (the Proxmox nodes), from the packaged restic binary and the same job
-script the node role's Compose job uses: the role owns `files/entrypoint.sh`,
-and the node role's copy is a symlink to it, so the two flavours never drift. It
-has its own playbook, `backup.yaml`, chained into `main.yaml` after the node
-playbook and gated by data, so it is safe on every host with no limit and no
-tags: a host opts in with `configure_backup_restic_native` and a
-`restic_native_backup_jobs` list (the role defaults document the fields), and
-every other host converges the role's resources to absent.
+`ferrarimarco_home_lab_backup` runs every restic job of the lab, on the Debian
+workload hosts and on the Proxmox nodes alike, from the Debian restic package
+and one job script, which the role owns (`files/entrypoint.sh`). It has its own
+playbook, `backup.yaml`, chained into `main.yaml` after the node playbook and
+gated by data, so it is safe on every host with no limit and no tags: a host
+opts in by declaring a `restic_backup_jobs` list (the role defaults document the
+fields), a job entry opts out with `state: absent`, and a host with no job
+converges the role's resources to absent. The repositories are created, never
+removed: an opt-out stops the timers and the exporter and removes the units and
+files, and keeps the snapshots.
 
-Per job the role renders a root-only environment file (repository, password,
-backup set, drill settings, single-quoted, which systemd reads literally: the
-role asserts the password holds no quote or newline), the backup and drill
-services and timers, and initializes a missing repository through `systemd-run`
-with that environment file, after the same root-filesystem check as the Compose
-job. The repositories are created, never removed: an opt-out stops the timers
-and removes the units and files, and keeps the snapshots. The units write only
-the repository, the drill target, the metrics, and the restic cache
-(`ProtectSystem=strict`, with `CacheDirectory=` for the cache), and order after
+restic comes from each host's Debian package, converged present with jobs and
+absent without. No minimum version is recorded anywhere: the job script has a
+preflight mode that runs the cheapest command using the flags it relies on, and
+the role runs it after the repository exists, so a host whose release ships a
+package too old for the script fails the run with restic's own message, as the
+job units do at runtime. Such a host is upgraded to a release that ships a
+recent package rather than given one from elsewhere: a package pinned from
+another release, or a binary installed by the role, was considered and rejected
+as state that drifts from the host's release. The exporter's Python requirement
+is repeated nowhere either: the role builds the venv at apply time with the
+shared script, so a host whose Python the release refuses fails the run with
+pip's own message, and the unit rebuilds the venv at start when the requirements
+change. The exporter is pinned twice, by the tag of the `restic-exporter` stage
+of the dependency updates helper Dockerfile, which Dependabot bumps, and by the
+hash of its tarball in the role's variables, updated by hand as the
+[dependency updates guide](../operations/dependency-updates.md) describes. Per
+job the role renders a root-only environment file (repository, password, backup
+set, drill settings, single-quoted, which systemd reads literally: the role
+asserts the password holds no quote or newline), the backup and drill services
+and timers, and an exporter service, and initializes a missing repository
+through `systemd-run` with that environment file after a root-filesystem check.
+The exporter is ngosang's restic exporter, installed from its release tarball
+into a venv by the shared `build-python-venv` script (the requirements file is
+rendered from the tag, and the venv built at apply time as well, so a host whose
+Python the release refuses fails the run with pip's message), one service per
+job on the job's port, started once the repository exists and, where the job
+names the share's mount point, wanted by its mount unit so that it comes back
+with the share. A host that cannot run the exporter yet declares
+`restic_exporter_enabled: false` on the job, which drops the exporter and its
+scrape target.
+
+The units write only the repository, the drill target, the metrics, and the
+restic cache (`ProtectSystem=strict`, with `CacheDirectory=` for the cache),
+require the mounts systemd knows under the repository, and order after
 `zfs-mount.service`, since a ZFS dataset has no mount unit for
 `RequiresMountsFor=` to require. The metrics go to the textfile directory of the
 Debian `prometheus-node-exporter` package by default
-(`restic_native_textfile_collector_directory`), which the nodes run; a host on
-the node role's containerized exporter overrides it.
+(`restic_textfile_collector_directory`), which the nodes run; the Debian
+workload hosts declare the containerized exporter's directory in their group
+variables, together with the workloads job. The monitoring backends derive the
+`restic` scrape targets and the backup expectations from the same job
+declarations, so a new job entry on any host is monitored with no other edit.
 
 ## The gateway role
 

@@ -1758,17 +1758,22 @@
 <tr>
 <td style="text-align: left;"><strong>Workloads backup job</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Nightly <code>restic-backup-workloads</code> job of the node role over the two state trees of each Debian host, seven daily snapshots.</td>
+<td style="text-align: left;">Nightly <code>restic-backup-workloads</code> job of the backup role over the two state trees of each Debian workload host, seven daily snapshots. The single-flavour role (2026-10-31) is not yet applied: hl01 and raspberrypi2 still run the former Compose job, unmanaged, until their Debian 13 rebuild and re-image (<a href="../#backup">rollout item</a>).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Per-host repositories</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">One repository per host on the nas-pve1 <code>backups</code> share; initialized only by a dedicated role task, implicit initialization refused by the job.</td>
+<td style="text-align: left;">One repository per host on the nas-pve1 <code>backups</code> share; initialized only by a dedicated role task, implicit initialization refused by the job. The hl01 and raspberrypi2 repositories carry a key with the former quoted password until the re-key of the <a href="../#backup">rollout item</a>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Coverage declaration</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;"><code>expected_backup_jobs</code> rendered as a static series; <code>ExpectedBackupMissing</code> fires for a declared job that never reported a run.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Exporter per job</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">One exporter service per declared job, on every host, scraped through targets derived from the same declarations; not yet applied. raspberrypi2 declares its exporter off until its re-image, whose Python the exporter release accepts.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Structural and pack-data checks</strong></td>
@@ -1778,12 +1783,12 @@
 <tr>
 <td style="text-align: left;"><strong>Restore drill</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Monthly drill of one bounded subtree with <code>--verify</code> into a scratch directory on the share.</td>
+<td style="text-align: left;">Monthly drill of one bounded subtree with <code>--verify</code> into a scratch directory next to the repository.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>NixOS state backup</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>restic-backup-nas-state</code> job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state), from the packaged restic binary; applied on pve1 on 2026-10-27 (first backup and drill ran clean, the coverage alert cleared); pve2 off.</td>
+<td style="text-align: left;"><code>restic-backup-nas-state</code> job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour (first backup and drill ran clean, the coverage alert cleared), the single-flavour role not yet applied; pve2 off.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Second copy of the repositories</strong></td>
@@ -1804,7 +1809,7 @@ stacks whose state lives in two bind-mounted trees per host, the configuration
 tree (<code>/etc/ferrarimarco-home-lab</code>) and the runtime tree
 (<code>/var/lib/ferrarimarco-home-lab</code>), one subdirectory per stack. Those two trees
 are the backup set, nightly, through the <code>restic-backup-workloads</code> job of the
-<code>ferrarimarco_home_lab_node</code> role. Not backed up, by decision:</p>
+<code>ferrarimarco_home_lab_backup</code> role. Not backed up, by decision:</p>
 <ul>
 <li>Containers and images: disposable, recreated by Compose and re-pulled from the
   registries, which is why the weekly Docker prune removes them freely.</li>
@@ -1816,10 +1821,10 @@ are the backup set, nightly, through the <code>restic-backup-workloads</code> jo
 <p>The NAS containers' service state (the Samba databases, the Syncthing device key
 pair and index, the Tailscale node key) is bind-mounted from directories on the
 Proxmox node that runs the container, so the node backs those directories up,
-nightly, through the <code>restic-backup-nas-state</code> job of the
-<code>ferrarimarco_home_lab_backup</code> role. The nodes run no container engine, so that
-role runs the same job script from the packaged restic binary, with one
-root-only environment file per job carrying the repository and its password; the
+nightly, through the <code>restic-backup-nas-state</code> job of the same role. Every job
+runs the same way, whatever the host: the Debian restic package, the role's job
+script, one root-only environment file per job carrying the repository and its
+password, systemd units, and an exporter; the
 <a href="../../guides/development/ansible/">Ansible development guide</a> describes the
 role. The index database is rebuildable by a rescan and the synced data is
 re-syncable from the remote peer, so the value of that backup is the identities
@@ -1835,10 +1840,10 @@ persistence store is a cache that every consumer republishes on reconnect
 same dataset locally, where its <code>restic-backup-nas-state</code> repository sits next
 to the Debian hosts' ones under its own host directory; pve2's sits on its own
 <code>tank-hdd/backups</code> dataset. The password is a vaulted variable rendered into the
-job's Compose file, or into the node job's environment file, readable by root on
-the host only. Retention keeps seven daily snapshots. The repositories have no
-second copy: losing the share loses them (the
-<a href="../#backup">second copy of the restic repositories</a> is a todo item).</p>
+job's environment file, readable by root on the host only. Retention keeps seven
+daily snapshots. The repositories have no second copy: losing the share loses
+them (the <a href="../#backup">second copy of the restic repositories</a> is a todo
+item).</p>
 <p>Which jobs a host must run is declared, not inferred from what runs: a host's
 <code>expected_backup_jobs</code> inventory list, or, by default, the restic jobs it
 configures, of either flavour. The monitoring backends render that list as a
@@ -1864,10 +1869,23 @@ coverage.</p>
   filesystem (the mount gone means a bare directory on the root disk, which is
   how raspberrypi2 backed itself up to itself in October 2026). The backup unit
   fails, rather than skips, on the same condition.</li>
-<li><strong>The restic binary lives in the job container</strong> on the Debian hosts, so a
-  restore there needs Docker and the share mount first. The Proxmox nodes run
-  the same script from the packaged binary, with the repository on a local
-  dataset, so a restore there needs neither.</li>
+<li><strong>One job flavour on every host, restic from the Debian package</strong>
+  (2026-10-31). The former Compose job of the Debian hosts, which ran restic
+  from a container image, retired: every host runs the role's units with its
+  release's restic package, so a restore on a Debian host needs the share mount,
+  not Docker, and a node's restore needs neither. The job script's preflight,
+  run by the role after the repository exists, tells with restic's own error
+  whether the installed package can run it, so a host whose Debian release ships
+  an older package is upgraded (hl01, a
+  <a href="../#host-configuration">Host configuration</a> todo item; the non-Nix
+  hosts are meant to share one Debian release) rather than given restic from
+  elsewhere: a pinned GitHub release and a package pinned from a newer release
+  were both implemented and rejected, the first as a second package manager with
+  hashes to verify by hand on every bump, the second as state that drifts from
+  the host's release. The job's snapshots carry the machine hostname; the
+  Compose job's carried a container hostname, so the repositories of hl01 and
+  raspberrypi2 keep a second snapshot group until the
+  <a href="../#backup">rollout item</a> forgets it.</li>
 </ul>
 <h2 id="what-is-verified-and-what-is-not">What is verified, and what is not</h2>
 <table>
@@ -1919,7 +1937,7 @@ coverage.</p>
 <tr>
 <td>Restore drill (one small secret-free file, <code>--verify</code>, file count against the listing, target emptied before and after)</td>
 <td>monthly, first Sunday</td>
-<td>the restore path works: container, password, share mount, space guard, files restored with content and metadata</td>
+<td>the restore path works: binary, password, mount, space guard, files restored with content and metadata</td>
 <td>that every subtree restores; that the data is intact (the pack reads do)</td>
 <td><code>ResticRestoreDrillStale</code>, <code>ResticRestoreDrillMissing</code></td>
 </tr>
@@ -1933,15 +1951,14 @@ coverage.</p>
 </tbody>
 </table>
 <p>The freshness rules read the backup step timestamp every job writes after
-<code>restic backup</code> succeeded, so a configured job of either flavour is expected,
-alerted on when it never reports, and alerted on when it stops. The node job has
-no exporter, so only the exporter rows (<code>ResticExporterDown</code>,
-<code>ResticMetricsMissing</code>, <code>ResticCheckFailed</code>) do not apply to it: its integrity
-checks are the job's own nightly check and pack reads, reported by
-<code>SystemdUnitFailed</code> within minutes of a failed run and by
-<code>ResticReadDataCheckStale</code> when the step stops advancing; an exporter on the
-nodes, for the independent twelve-hour check, is a <a href="../#backup">Backup</a>
-todo item.</p>
+<code>restic backup</code> succeeded, so a declared job is expected, alerted on when it
+never reports, and alerted on when it stops. Every declared job also gets an
+exporter and a scrape target from the same declaration, so the exporter rows
+(<code>ResticExporterDown</code>, <code>ResticMetricsMissing</code>, <code>ResticCheckFailed</code>) cover it
+too, except on a host that declares the exporter off (raspberrypi2 until its
+re-image): there the integrity checks are the job's own nightly check and pack
+reads, reported by <code>SystemdUnitFailed</code> within minutes of a failed run and by
+<code>ResticReadDataCheckStale</code> when the step stops advancing.</p>
 <p>Restic assigns each pack file to a fixed group by its identifier, so new
 snapshots and repacks never shift the groups, every pack is read once per cycle,
 and a pack is read for the first time at most <code>t</code> nights after it is written:

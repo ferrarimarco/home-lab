@@ -1253,15 +1253,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-node-job" class="md-nav__link">
-    <span class="md-ellipsis">
-      The node job
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#inspect-a-repository" class="md-nav__link">
     <span class="md-ellipsis">
       Inspect a repository
@@ -1290,9 +1281,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#for-inspection-through-the-container" class="md-nav__link">
+  <a href="#for-inspection-through-the-script" class="md-nav__link">
     <span class="md-ellipsis">
-      For inspection, through the container
+      For inspection, through the script
     </span>
   </a>
   
@@ -1316,6 +1307,15 @@
   <a href="#the-drill" class="md-nav__link">
     <span class="md-ellipsis">
       The drill
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-exporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      The exporter
     </span>
   </a>
   
@@ -1743,15 +1743,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-node-job" class="md-nav__link">
-    <span class="md-ellipsis">
-      The node job
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#inspect-a-repository" class="md-nav__link">
     <span class="md-ellipsis">
       Inspect a repository
@@ -1780,9 +1771,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#for-inspection-through-the-container" class="md-nav__link">
+  <a href="#for-inspection-through-the-script" class="md-nav__link">
     <span class="md-ellipsis">
-      For inspection, through the container
+      For inspection, through the script
     </span>
   </a>
   
@@ -1806,6 +1797,15 @@
   <a href="#the-drill" class="md-nav__link">
     <span class="md-ellipsis">
       The drill
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-exporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      The exporter
     </span>
   </a>
   
@@ -1849,60 +1849,36 @@
 
 
 <h1 id="backup-operations">Backup operations</h1>
-<p>Procedures for the restic backups of the Debian hosts and of the Proxmox nodes:
-inspecting a repository, restoring, running the drill, repairing. The
-<a href="../../../architecture/backups/">Backups specification</a> describes what is backed
-up, where, and what each check proves.</p>
+<p>Procedures for the restic backups of the Debian workload hosts and of the
+Proxmox nodes: inspecting a repository, restoring, running the drill, repairing.
+The <a href="../../../architecture/backups/">Backups specification</a> describes what is
+backed up, where, and what each check proves.</p>
 <h2 id="where-things-are">Where things are</h2>
-<p>One repository per host at <code>/media/backup-0/&lt;host&gt;/restic-backup-workloads</code> on
-the nas-pve1 <code>backups</code> share, with the drill's scratch directory next to it. The
-restic binary exists only inside the job container, built from
-<code>/etc/ferrarimarco-home-lab/restic/</code>, whose <code>compose.yaml</code> (root only) holds the
-password: every operation below is a <code>docker compose run</code> of that container, so
-Docker and the share mount must be up. The job's textfile metrics
-(<code>restic-&lt;job&gt;.prom</code> in the node exporter textfile directory) carry the
-repository identity, the last completed run, the read cycle length, the last
-success of each step (<code>backup</code>, <code>check</code>, <code>check-read-data</code> with its group,
-<code>prune</code>, <code>restore-drill</code>), and the drill's file count.</p>
-<p>Shorthand used below, run on the host:</p>
-<div class="highlight"><pre><span></span><code>restic_run<span class="o">()</span><span class="w"> </span><span class="o">{</span>
-<span class="w">  </span>sudo<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--file<span class="w"> </span>/etc/ferrarimarco-home-lab/restic/compose.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--profile<span class="w"> </span>restic-backup-job<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--entrypoint<span class="w"> </span>restic<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>restic-backup-workloads<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+<p>Every host runs its restic jobs the same way, through the backup role: the
+Debian restic package, the job script and one root-only environment file per job
+(repository, password, backup set, drill settings) under
+<code>/etc/ferrarimarco-home-lab/restic/</code>, the job's backup and drill units and
+timers, and an exporter service per job. On the Debian workload hosts the
+<code>restic-backup-workloads</code> job has its repository at
+<code>/media/backup-0/&lt;host&gt;/restic-backup-workloads</code> on the nas-pve1 <code>backups</code>
+share, with the drill's scratch directory next to it; the share mount must be up
+for every operation below, and the units require it. On the Proxmox nodes the
+<code>restic-backup-nas-state</code> job backs up the NAS containers' state directories to
+a repository on the node's own backups dataset (pve1:
+<code>/rpool-sata/backups/pve1/restic-backup-nas-state</code>). The job's textfile metrics
+(<code>restic-&lt;job&gt;.prom</code> in the node exporter textfile directory:
+<code>/var/lib/node_exporter/textfile_collector</code> on the Debian hosts,
+<code>/var/lib/prometheus/node-exporter</code> on the nodes) carry the repository identity,
+the last completed run, the read cycle length, the last success of each step
+(<code>backup</code>, <code>check</code>, <code>check-read-data</code> with its group, <code>prune</code>, <code>restore-drill</code>),
+and the drill's file count.</p>
+<p>Shorthand used below, run as root on the host (<code>sudo -i</code> on the Debian hosts),
+with the job name in <code>RESTIC_JOB</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">RESTIC_JOB</span><span class="o">=</span>restic-backup-workloads
+restic_run<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;set -a; . /etc/ferrarimarco-home-lab/restic/&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">RESTIC_JOB</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;.env; exec restic &quot;$@&quot;&#39;</span><span class="w"> </span>restic<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
 <span class="o">}</span>
 </code></pre></div>
-<h2 id="the-node-job">The node job</h2>
-<p>The Proxmox nodes back up the NAS containers' state directories with the
-<code>restic-backup-nas-state</code> job of the backup role, which runs the same script
-from the packaged restic binary, with no container and no share mount: on pve1
-the repository is <code>/rpool-sata/backups/pve1/restic-backup-nas-state</code> on the
-local dataset, with the drill's scratch directory next to it, and the job's
-environment (repository, password, backup set, drill settings) is
-<code>/etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env</code>, root
-only. The metrics land in the packaged node exporter's textfile directory,
-<code>/var/lib/prometheus/node-exporter</code>. Shorthand, run as root on the node:</p>
-<div class="highlight"><pre><span></span><code>restic_nas_run<span class="o">()</span><span class="w"> </span><span class="o">{</span>
-<span class="w">  </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;set -a; . /etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env; exec restic &quot;$@&quot;&#39;</span><span class="w"> </span>restic<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
-<span class="o">}</span>
-</code></pre></div>
-<p>The script's restore mode runs through <code>systemd-run</code>, which reads the same
-environment file the units read, so the space guard and the file count checks
-apply; a restore in place needs the container stopped first (<code>pct stop &lt;id&gt;</code>),
-since Samba, Syncthing, and Tailscale rewrite their state while running:</p>
-<div class="highlight"><pre><span></span><code>systemd-run<span class="w"> </span>--wait<span class="w"> </span>--pipe<span class="w"> </span>--collect<span class="w"> </span>--quiet<span class="w"> </span>--unit<span class="w"> </span>restic-backup-nas-state-restore<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--property<span class="w"> </span><span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/ferrarimarco-home-lab/restic-native/restic-backup-nas-state.env<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--property<span class="w"> </span><span class="nv">CacheDirectory</span><span class="o">=</span>restic-native<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_SNAPSHOT</span><span class="o">=</span>latest<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_INCLUDE</span><span class="o">=</span>/var/lib/syncthing-state/nas-pve1<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_TARGET</span><span class="o">=</span>/<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_DRY_RUN</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>/etc/ferrarimarco-home-lab/restic-native/entrypoint.sh
-</code></pre></div>
-<p>Leave <code>RESTIC_RESTORE_DRY_RUN</code> at its default to list what the restore would
-write, and point <code>RESTIC_RESTORE_TARGET</code> at the drill's scratch directory for an
-inspection restore. The drill and its timer work as on the Debian hosts
-(<code>restic-backup-nas-state-restore-drill.service</code>), and the first drill after the
-deployment is started by hand the same way.</p>
 <h2 id="inspect-a-repository">Inspect a repository</h2>
 <div class="highlight"><pre><span></span><code>restic_run<span class="w"> </span>snapshots
 restic_run<span class="w"> </span>ls<span class="w"> </span>latest<span class="w"> </span>/etc/ferrarimarco-home-lab/&lt;stack&gt;
@@ -1913,13 +1889,14 @@ restic_run<span class="w"> </span>stats<span class="w"> </span>latest<span class
 <p>An in-place restore is a recovery action: it overwrites live state with the
 snapshot's content (qBittorrent's state on hl01 was rolled back by four hours on
 2026-10-14 by a restore run as a rehearsal). Rehearsals, inspections, and checks
-of the restore path always target the scratch directory on the share, as the
-drill does; the playbook's dry run proves the command, not the outcome, and is
-no substitute for a scratch restore.</p>
+of the restore path always target the scratch directory next to the repository,
+as the drill does; the playbook's dry run proves the command, not the outcome,
+and is no substitute for a scratch restore.</p>
 <h3 id="in-place-through-the-playbook">In place, through the playbook</h3>
-<p><code>restore-workloads.yaml</code> restores a stack's two state trees from a snapshot
-through the job container's restore mode. It is a dry run unless told otherwise:
-the dry run lists what the restore would write and changes nothing.</p>
+<p><code>restore-workloads.yaml</code> restores a stack's two state trees on a Debian host
+from a snapshot through the job script's restore mode, run by <code>systemd-run</code> with
+the job's environment file. It is a dry run unless told otherwise: the dry run
+lists what the restore would write and changes nothing.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Dry run: what restoring qBittorrent&#39;s state on hl01 from the latest snapshot would do</span>
 <span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;-e restore_hosts=hl01.edge.lab.ferrari.how -e restore_stack=qbittorrent -e restore_compose_stack=media-stack -e restore_compose_service=qbittorrent-nox&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;restore-workloads.yaml&quot;</span><span class="w"> </span>scripts/run-ansible.sh
@@ -1939,55 +1916,72 @@ the dry run lists what the restore would write and changes nothing.</p>
   <code>media-stack</code>); only that service is stopped and started.</li>
 <li><code>restore_snapshot</code>: an ID or <code>latest</code>.</li>
 <li><code>restore_source_host</code>: an inventory host whose repository to use, for a host
-  that lost its own; the playbook mounts that repository and passes its password
-  from the vault, as the quoted literal the Compose template renders (the
-  repositories were keyed with the quotes included).</li>
+  that lost its own; the playbook writes that host's repository and password
+  (from its job declaration and the shared vault) to a temporary root-only
+  environment file, which the run loads instead of the local job's.</li>
 <li><code>restore_apply</code>: <code>true</code> for the real restore.</li>
 </ul>
 <p>A state tree absent from the snapshot is skipped; the two trees are restored
-independently. The restore log is printed at the end; the command itself is
-hidden from the Ansible output because it can carry a password. Blast radius:
-the service is stopped for the duration, and the restore overwrites the two
-subtrees with the snapshot's content without deleting files that exist only on
-the host. Verify through the service's own interface afterwards.</p>
-<h3 id="for-inspection-through-the-container">For inspection, through the container</h3>
+independently. The restore log is printed at the end. Blast radius: the service
+is stopped for the duration, and the restore overwrites the two subtrees with
+the snapshot's content without deleting files that exist only on the host.
+Verify through the service's own interface afterwards.</p>
+<h3 id="for-inspection-through-the-script">For inspection, through the script</h3>
 <p>The restore mode takes the snapshot, the path within it, the target, and whether
 it is a dry run (the default). The space guard refuses a restore when the
 target's filesystem has less free space than the restore size plus 20 percent of
 it, and the file count is checked against the snapshot listing (equal into an
-empty target, at least the listing in place).</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>--file<span class="w"> </span>/etc/ferrarimarco-home-lab/restic/compose.yaml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--profile<span class="w"> </span>restic-backup-job<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--env<span class="w"> </span><span class="nv">RESTIC_RESTORE_SNAPSHOT</span><span class="o">=</span>latest<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--env<span class="w"> </span><span class="nv">RESTIC_RESTORE_INCLUDE</span><span class="o">=</span>/etc/ferrarimarco-home-lab/&lt;stack&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--env<span class="w"> </span><span class="nv">RESTIC_RESTORE_TARGET</span><span class="o">=</span>/var/lib/restic/restore-drill<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--env<span class="w"> </span><span class="nv">RESTIC_RESTORE_DRY_RUN</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>restic-backup-workloads
+empty target, at least the listing in place). The run goes through
+<code>systemd-run</code>, which reads the same environment file the units read, so the
+guards apply; the textfile directory is unset so that the run writes no job
+metrics:</p>
+<div class="highlight"><pre><span></span><code>systemd-run<span class="w"> </span>--wait<span class="w"> </span>--pipe<span class="w"> </span>--collect<span class="w"> </span>--quiet<span class="w"> </span>--unit<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">RESTIC_JOB</span><span class="si">}</span><span class="s2">-restore&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--property<span class="w"> </span><span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/ferrarimarco-home-lab/restic/<span class="s2">&quot;</span><span class="si">${</span><span class="nv">RESTIC_JOB</span><span class="si">}</span><span class="s2">&quot;</span>.env<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--property<span class="w"> </span><span class="nv">CacheDirectory</span><span class="o">=</span>restic<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--property<span class="w"> </span><span class="nv">UnsetEnvironment</span><span class="o">=</span>RESTIC_TEXTFILE_COLLECTOR_DIRECTORY<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_SNAPSHOT</span><span class="o">=</span>latest<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_INCLUDE</span><span class="o">=</span>/etc/ferrarimarco-home-lab/&lt;stack&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_TARGET</span><span class="o">=</span>/media/backup-0/&lt;host&gt;/restore-drill-restic-backup-workloads<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--setenv<span class="w"> </span><span class="nv">RESTIC_RESTORE_DRY_RUN</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/etc/ferrarimarco-home-lab/restic/entrypoint.sh
 </code></pre></div>
-<p>The drill's scratch directory (<code>/var/lib/restic/restore-drill</code> in the container,
-<code>&lt;share&gt;/&lt;host&gt;/restore-drill-restic-backup-workloads</code> on the host) is the
-ready-made target; empty it afterwards, or the next drill empties it first. Any
-other target needs a <code>--volume</code> on the run, and a full inspection restore (17 GB
-on hl01) needs a scratch share, which no host disk has room for.</p>
+<p>Leave <code>RESTIC_RESTORE_DRY_RUN</code> at its default to list what the restore would
+write. The drill's scratch directory (<code>restore-drill-&lt;job&gt;</code> next to the
+repository) is the ready-made target; empty it afterwards, or the next drill
+empties it first. A full inspection restore (17 GB on hl01) needs a scratch
+filesystem with room for it. On a node, a restore in place of a NAS container's
+state directory (<code>RESTIC_RESTORE_TARGET=/</code>, the include being the state
+directory) needs the container stopped first (<code>pct stop &lt;id&gt;</code>), since Samba,
+Syncthing, and Tailscale rewrite their state while running.</p>
 <h3 id="a-fresh-host-after-a-re-image">A fresh host after a re-image</h3>
 <p>In this order: bootstrap, Docker (the container engine playbook), the share
-mount (the disks playbook), the restic stack of the node role (it never
-re-initializes an existing repository), the in-place restore of each stack with
-the playbook, then the node role for the stacks. A host that lost its repository
-as well restores from nothing: the second-copy item in the
+mount (the disks playbook), the backup playbook (it never re-initializes an
+existing repository), the in-place restore of each stack with the playbook, then
+the node role for the stacks. A host that lost its repository as well restores
+from nothing: the second-copy item in the
 <a href="../../../architecture/#backup">specs todo list</a> exists for that case. A
 Proxmox node restores the NAS container's state directories from its own node
 job before the container first starts, through the restore mode above.</p>
 <h2 id="the-drill">The drill</h2>
 <p>Monthly, on the first Sunday at 03:00 (<code>&lt;job&gt;-restore-drill.timer</code>, persistent),
-the job restores one secret-free file of the latest snapshot (<code>entrypoint.sh</code> by
-default, per job) into the scratch directory with <code>--verify</code>, checks the file
-count, and empties the directory before and after. Run it by hand with
-<code>sudo systemctl start restic-backup-workloads-restore-drill.service</code>, which is
-also the first step after deploying the stack on a host:
-<code>ResticRestoreDrillMissing</code> fires for a job that never drilled,
-<code>ResticRestoreDrillStale</code> after 40 days without success. The job's restic
-commands wait up to 30 minutes for a repository lock held by another run.</p>
+the job restores one secret-free file of the latest snapshot (the job script on
+the Debian hosts, a public cached file on the nodes, per job) into the scratch
+directory with <code>--verify</code>, checks the file count, and empties the directory
+before and after. Run it by hand with
+<code>sudo systemctl start &lt;job&gt;-restore-drill.service</code>, which is also the first step
+after deploying a job on a host: <code>ResticRestoreDrillMissing</code> fires for a job
+that never drilled, <code>ResticRestoreDrillStale</code> after 40 days without success. The
+job's restic commands wait up to 30 minutes for a repository lock held by
+another run.</p>
+<h2 id="the-exporter">The exporter</h2>
+<p><code>&lt;job&gt;-restic-exporter.service</code> serves the repository's metrics on the job's
+port and runs its own structural <code>restic check</code> at every refresh (every twelve
+hours). It opens the repository at start and exits on a restic error, so it
+stays down, and <code>ResticExporterDown</code> fires, while the repository is unreachable;
+systemd restarts it after a minute, and the share's mount unit starts it when
+the share mounts. Its venv is built at start from the requirements file next to
+the job script, so a new exporter release lands with a restart of the unit after
+the role rendered the file.</p>
 <h2 id="re-seed-qbittorrents-settings">Re-seed qBittorrent's settings</h2>
 <p>qBittorrent's settings file (<code>qBittorrent/qBittorrent.conf</code> in its configuration
 directory) is rendered by the node role as a seed and then owned by the client,

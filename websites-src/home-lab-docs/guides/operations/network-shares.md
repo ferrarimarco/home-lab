@@ -69,10 +69,10 @@ services of the project that do not bind the share and leaves the others in the
 
 The recovery is automatic: `mount-retry.timer` starts the failed mount units
 every five minutes, and a mount that succeeds starts the project units wanted by
-it (`docker-compose-up-media-stack.service` and
-`docker-compose-up-restic.service` on hl01), which run `docker compose up` for
-their project. Expect the containers back within five minutes of the NAS
-returning, and the alert to resolve. To check the retry and the recovery:
+it (`docker-compose-up-media-stack.service` on hl01, and the restic exporter of
+the backup role), which run `docker compose up` for their project, or start the
+exporter. Expect the containers back within five minutes of the NAS returning,
+and the alert to resolve. To check the retry and the recovery:
 
 ```shell
 systemctl list-timers mount-retry.timer
@@ -90,7 +90,7 @@ findmnt -t cifs -o TARGET,SOURCE,FSTYPE
 ```
 
 Then repeat the container check above. The restic backup job needs no action:
-its timer unit requires the mount and runs at its next schedule.
+its service requires the mount and runs at its timer's next schedule.
 
 A NAS restart while the clients are up needs none of this: the kernel's CIFS
 client keeps the mount and reconnects when the server returns (both shares

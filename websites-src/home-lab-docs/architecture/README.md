@@ -56,7 +56,9 @@ reliability risks first, then security exposure, then automation):
   host rather than moving to hl01 (decided 2026-10-26, which completed the
   container migration to hl01). The repository on the data disk was lost on
   2026-10-09, so the restore source is the per-host repository on the nas-pve1
-  `backups` share ([Backup](#backup)).
+  `backups` share ([Backup](#backup)). The re-image also brings a Python the
+  restic exporter release accepts, after which the host's job declares its
+  exporter on again ([Backups](./backups.md)).
 
 ### Bootstrapping and provisioning
 
@@ -108,12 +110,14 @@ reliability risks first, then security exposure, then automation):
         - Bootloader configuration on raspberrypi2 (`BOOT_ORDER=0xf42`,
           `TFTP_IP`, per-host `TFTP_PREFIX_STR`), applied once from the running
           OS, then a dry rescue with the boot disk untouched.
-        - Playbook compatibility with Raspberry Pi OS Trixie (Debian 13),
-          verified with Molecule against a Debian 13 image. Known breakages: the
-          firmware configuration path moved under `/boot/firmware`; dhcpcd was
-          replaced by NetworkManager, so the dhcpcd task and its restart handler
-          have no target; fail2ban needs the systemd backend without rsyslog;
-          the swap file package may be gone.
+        - Playbook compatibility with Raspberry Pi OS Trixie (Debian 13). The
+          Molecule matrix runs on a Debian 13 image since 2026-11-03 (the backup
+          role needs its restic), which covers the generic Debian path; the
+          Raspberry Pi OS specifics remain. Known breakages: the firmware
+          configuration path moved under `/boot/firmware`; dhcpcd was replaced
+          by NetworkManager, so the dhcpcd task and its restart handler have no
+          target; fail2ban needs the systemd backend without rsyslog; the swap
+          file package may be gone.
         - Documentation: the provisioning guide (EEPROM editing from the OS, the
           rescue procedure, the manual follow-ups), the restore recipe
           ([Backup](#backup)), and the unresponsive host runbook.
@@ -338,41 +342,6 @@ reliability risks first, then security exposure, then automation):
       folded scalar that turned the list into a string under ansible-core 2.19
       (fixed the same day) only failed on hl01.
 - Ansible:
-    - Consolidate the restic jobs into the backup role as a single flavour
-      (2026-10-26, assessed 2026-10-30): the backup role runs the packaged job
-      on the Proxmox nodes with the job script it owns, while the node role runs
-      the Compose flavour on the Debian hosts, with its own job schema and
-      enablement flag, four unit templates, the repository initialization guard,
-      the timer tasks, and the defaults all declared a second time, and the node
-      role's copy of the script is a symlink into the backup role, which the CI
-      image build context cannot follow. Nothing in the Compose flavour needs
-      Docker but the image, so the backup role should own every job as systemd
-      units running the packaged or pinned binary, and the Compose flavour
-      retires with its Dockerfile, its CI image build and Dependabot directory,
-      the exporter image pin, the Compose profile, `start_restic`, and the
-      symlink. The migration has to handle: the hl01 and raspberrypi2
-      repositories are keyed with the password including the double quotes the
-      Compose template renders, so the environment file carries the quoted
-      literal or the repositories get a new key; the repository directories on
-      the CIFS share need the mounting user as owner, as the node role declares;
-      the Compose job names its snapshots after the job and host, so the native
-      job passes `--host` with that name, since a forget policy of
-      `--keep-within` ages a group from its newest snapshot and an abandoned
-      group would never expire; the Debian hosts override the textfile directory
-      of the backup role, which defaults to the packaged node exporter's, with
-      the containerized exporter's; the default drill include, the job script
-      under the Compose flavour's configuration directory, is re-chosen under
-      the backup role's; `restore-workloads.yaml` moves from
-      `docker compose run` to `systemd-run` with the job's environment file,
-      which the backup operations guide already documents for the nodes, and the
-      cross-host restore passes the source repository and password without
-      loading the local job's environment file, whose values win over
-      `--setenv`; the restic binary source (Debian package or pinned release
-      binary, undecided) and the exporter's Python version on the Debian hosts
-      both need checking before they serve every host. Done before the
-      monitoring item of [Backup](#backup), the exporter service is written
-      once, and the scrape and expectation templates each become one loop over
-      one job list.
     - Get the Proxmox VMs data from the inventory instead of using the
       proxmox_vms list.
     - Move the handlers to a dedicated role and reuse that role across all
@@ -426,11 +395,11 @@ reliability risks first, then security exposure, then automation):
       (2026-10-12): the Docker prune unit the node role renders requires
       `docker.service`, which only the container-engine playbook installs, so
       restarting the unit on the Debian 12 image fails with "Unit docker.service
-      not found" and the run stops at "Restart OS services" before the restic
-      and systemd tasks. Either declare the Docker role as a dependency of the
-      node role, or skip the Docker-bound units when Docker is not installed
-      (and still render them). Blocks: testing `home-lab-node` on its own in the
-      Molecule matrix, in the workflow cost item above.
+      not found" and the run stops at "Restart OS services" before the systemd
+      tasks. Either declare the Docker role as a dependency of the node role, or
+      skip the Docker-bound units when Docker is not installed (and still render
+      them). Blocks: testing `home-lab-node` on its own in the Molecule matrix,
+      in the workflow cost item above.
 - Dependency updates: fully migrate from Dependabot to Renovate, so a single
   tool manages all dependency updates. Renovate is already configured
   (`.github/renovate.json`) behind Dependency Dashboard approval, and covers
@@ -497,6 +466,21 @@ reliability risks first, then security exposure, then automation):
   the ignore once actionlint accepts the syntax.
 
 ### Host configuration
+
+- **Upgrade hl01 to Debian 13 (2026-11-02)**: the non-Nix hosts are meant to
+  share one Debian release, and hl01 is the only one left on Debian 12 once
+  raspberrypi2 is re-imaged with Raspberry Pi OS Trixie (the Proxmox nodes run
+  Debian 13). Debian 12 ships a restic older than the backup job script needs,
+  so the backup role refuses the host until then, and hl01 keeps its former
+  Compose backup job, which nothing manages any more, until the upgrade
+  ([Backup](#backup)). The host is rebuilt, not upgraded in place, as the
+  state-only backup decision prescribes: Terraform for the VM, the playbooks,
+  and the in-place restore of each stack
+  ([backup operations guide](../guides/operations/backup.md)). Depends on: the
+  raspberrypi2 re-image ([Current focus](#current-focus)) for the restore
+  procedure rehearsal. Blocks: the backup role rollout on hl01
+  ([Backup](#backup)). Also closes the Frigate GPU statistics item below, whose
+  kernel requirement Debian 13 meets.
 
 - Frigate's Intel GPU statistics need kernel 6.5 or newer (0.18 reads the
   per-client DRM counters), so they stay empty on hl01's Debian 12 kernel 6.1,
@@ -1105,6 +1089,33 @@ reliability risks first, then security exposure, then automation):
 
 ### Backup
 
+- **Roll out the single-flavour backup role (2026-10-31)**: the role that runs
+  every restic job (the Debian restic package, systemd units, an exporter per
+  job) is implemented and tested, and the hosts still run the former flavours:
+  the Compose job on hl01 and raspberrypi2, the `restic-native` layout on pve1,
+  nothing yet on pve2. The role needs a restic that Debian 13 ships and Debian
+  12 does not, so hl01 follows its rebuild on Debian 13
+  ([Host configuration](#host-configuration)) and raspberrypi2 its re-image
+  ([Current focus](#current-focus)); until then both keep their Compose job,
+  which the node role no longer manages, and their repositories keep a key with
+  the quoted password the Compose template rendered. In this order, with a check
+  run before each apply: apply `backup.yaml` on pve1 (tag-scoped, as the node
+  guard requires), then remove `/etc/ferrarimarco-home-lab/restic-native` there;
+  for each Debian host, once on Debian 13: add a key with the unquoted vault
+  password to its repository (`restic key add --new-password-file`), stop and
+  remove the Compose restic project
+  (`docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml down --rmi local`,
+  then the project directory), so that the new exporter can bind the port and
+  the new units replace the old ones, apply `backup.yaml` and the node role's
+  `monitoring-backend` stack, and after the first native backup remove the
+  quoted key; verify the timers, the exporter targets, and the textfiles, and
+  start each drill by hand; after seven nightly snapshots forget the Compose-era
+  snapshot group of the two repositories by ID (its host label was the
+  container's hostname, and the keep-within policy never expires a group that
+  gets no new snapshot). pve2 follows when it is on. Depends on: the hl01
+  upgrade ([Host configuration](#host-configuration)) and the raspberrypi2
+  re-image for those two hosts. Update the [Backups specification](./backups.md)
+  status table as each step lands.
 - **State-only backups, no machine-level replication (decided 2026-10-10)**:
   configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
   host is rebuilt from Terraform, the playbooks or the flake, and a restic
@@ -1125,27 +1136,6 @@ reliability risks first, then security exposure, then automation):
   audit, and declare the job, whenever a stateful workload lands on a NixOS
   host. The restore procedure that proves the rebuild path is in the
   [backup operations guide](../guides/operations/backup.md).
-- **A restic job declaration is the single source of its monitoring
-  (2026-10-28)**: a job declared in a host's variables, of either flavour, must
-  produce its units, its exporter, its scrape target, and its expectation with
-  no per-host wiring, so the alert rules, which are global expressions, cover it
-  from the moment it is declared. The acceptance test is a new job entry in any
-  host's variables appearing in the backends' `restic` scrape targets and
-  expectation file with no other edit. The freshness and coverage rules already
-  hold this (2026-10-27: they read the textfile every job writes, and the
-  expectation derives from both flavours); the remaining break is the packaged
-  flavour, whose declaration produces no exporter and no scrape target, so the
-  exporter rules (`ResticExporterDown`, `ResticMetricsMissing`,
-  `ResticCheckFailed`, the independent `restic check` every twelve hours) never
-  see it. Close it by running the exporter as a Python service of the backup
-  role for every packaged job (the venv build script and `StateDirectory=`
-  pattern of the node role), with the password from the job's environment file
-  and a port per job, and by deriving the `restic` scrape job of the backends
-  from the packaged job declarations as it is from the Compose ones. The
-  single-flavour consolidation of the restic jobs
-  ([CI/CD, infrastructure-as-code, and GitOps](#cicd-infrastructure-as-code-and-gitops))
-  comes first by preference: it leaves one job list and one exporter mechanism
-  to wire.
 - **Second copy of the restic repositories (2026-10-19)**: the per-host
   repositories on the nas-pve1 `backups` share are the only copy of the Debian
   hosts' state backups, and the share's `rpool-sata` pool is a single-disk vdev
