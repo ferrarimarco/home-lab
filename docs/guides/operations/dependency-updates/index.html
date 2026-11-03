@@ -1776,8 +1776,9 @@ is the tag of the <code>restic-exporter</code> stage of the dependency updates h
 Dockerfile, which Dependabot bumps, and its content is pinned by hash in the
 role's <code>vars/main.yaml</code> (<code>restic_exporter_release_sha256</code>). A tag bump without
 the matching hash fails the Molecule run of the backup playbook and the Python
-requirements test, so a Dependabot pull request for that stage needs one more
-commit: download the tarball
+requirements test, so a Dependabot pull request for that stage (its own
+<code>backup-exporter</code> group, so that the other image bumps are not held back) needs
+one more commit: download the tarball
 (<code>https://github.com/ngosang/restic-exporter/archive/refs/tags/&lt;tag&gt;.tar.gz</code>),
 read the release notes, and set the variable to its <code>sha256sum</code>. The project
 signs nothing, so the pin records what GitHub served at verification time, and

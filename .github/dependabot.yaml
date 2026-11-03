@@ -62,6 +62,13 @@ updates:
     directories:
       - /config/ansible/files/dependency-updates-helper
     groups:
+      # The backup role pins the restic exporter's tarball by hash next to
+      # this tag, so a bump of the stage needs a hand-made commit before CI
+      # passes (see the dependency updates guide): its own pull request keeps
+      # the workloads group's from staying red meanwhile.
+      backup-exporter:
+        patterns:
+          - ngosang/restic-exporter
       home-lab-workloads:
         patterns:
           - "*"

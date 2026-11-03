@@ -54,8 +54,9 @@ is the tag of the `restic-exporter` stage of the dependency updates helper
 Dockerfile, which Dependabot bumps, and its content is pinned by hash in the
 role's `vars/main.yaml` (`restic_exporter_release_sha256`). A tag bump without
 the matching hash fails the Molecule run of the backup playbook and the Python
-requirements test, so a Dependabot pull request for that stage needs one more
-commit: download the tarball
+requirements test, so a Dependabot pull request for that stage (its own
+`backup-exporter` group, so that the other image bumps are not held back) needs
+one more commit: download the tarball
 (`https://github.com/ngosang/restic-exporter/archive/refs/tags/<tag>.tar.gz`),
 read the release notes, and set the variable to its `sha256sum`. The project
 signs nothing, so the pin records what GitHub served at verification time, and
