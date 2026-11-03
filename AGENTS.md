@@ -168,9 +168,12 @@ Key rules:
   rewraps prose and re-pads tables, so the global re-read-after-formatting rule
   applies to every run. Read the results from the output files the guide
   describes, and follow its rules on fix mode, console output, and concurrent
-  runs. A lint run can unstage staged changes, so stage files after linting,
-  right before committing; a new file is linted only once committed, so commit,
-  lint, and amend.
+  runs. Prettier leaves YAML comments as written and no linter checks their
+  width, so wrap them by hand at the 80 columns the prose uses. A deleted file
+  may still be named in `config/lint/.trivyignore.yaml` and
+  `config/lint/.checkov.baseline`: remove its entries with it. A lint run can
+  unstage staged changes, so stage files after linting, right before committing;
+  a new file is linted only once committed, so commit, lint, and amend.
 - **Validate commit messages before proposing commits** with the lint script's
   commit message mode, as the operational scripts guide describes. A lint run
   only validates the message of the last commit, while CI validates all the
