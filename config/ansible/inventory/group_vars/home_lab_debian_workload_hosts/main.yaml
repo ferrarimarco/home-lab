@@ -1,0 +1,26 @@
+---
+# Backup: every workload of these hosts, whatever runs it, keeps its state in
+# the configuration and runtime trees, which the nightly
+# restic-backup-workloads job of the backup role backs up to the host's own
+# repository on the nas-pve1 backups share (the Backups specification has the
+# layout). The share is a CIFS mount that presents every file as the mounting
+# user, which the repository directories declare as their owner. The drill
+# restores the job script, a secret-free file of the backup set, onto the
+# share.
+restic_backup_jobs:
+  - job_name: restic-backup-workloads
+    directories_to_backup:
+      - "{{ home_lab_configuration_directory_path }}"
+      - "{{ home_lab_runtime_directory_path }}"
+    job_schedule: "01:00:00"
+    # A host that cannot run the exporter yet declares this false
+    restic_exporter_enabled: "{{ restic_workloads_job_exporter_enabled | default(true) }}"
+    restic_prometheus_exporter_port: 9300
+    restic_repository_host_path: "{{ workloads_backup_disk_mount_path }}/{{ inventory_hostname_short }}/restic-backup-workloads"
+    restic_repository_mount_path: "{{ workloads_backup_disk_mount_path }}"
+    restic_repository_owner: "{{ ansible_user }}"
+    restic_repository_password: "{{ vault_workloads_backup_repository_password }}"
+    restic_restore_drill_include: "{{ home_lab_configuration_directory_path }}/restic/entrypoint.sh"
+# The hosts run the node role's containerized node exporter, which reads this
+# textfile directory
+restic_textfile_collector_directory: /var/lib/node_exporter/textfile_collector

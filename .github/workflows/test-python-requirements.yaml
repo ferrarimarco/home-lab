@@ -8,7 +8,9 @@ on: # yamllint disable-line rule:truthy
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt"
+      - "config/ansible/files/dependency-updates-helper/Dockerfile"
       - "config/ansible/files/scripts/build-python-venv.sh"
+      - "config/ansible/roles/ferrarimarco_home_lab_backup/vars/main.yaml"
       - "test/scripts/build-python-venv-test.sh"
   pull_request:
     paths:
@@ -16,7 +18,9 @@ on: # yamllint disable-line rule:truthy
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt"
+      - "config/ansible/files/dependency-updates-helper/Dockerfile"
       - "config/ansible/files/scripts/build-python-venv.sh"
+      - "config/ansible/roles/ferrarimarco_home_lab_backup/vars/main.yaml"
       - "test/scripts/build-python-venv-test.sh"
 
 permissions:
@@ -55,3 +59,37 @@ jobs:
           - config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt
           - config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt
           - config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt
+  # The restic exporter of the backup role is installed from its release
+  # tarball, pinned by the tag of the helper Dockerfile's stage and by the hash
+  # in the role's variables: download it as the role does, check the hash, and
+  # build the requirements line the role renders as the exporter units do.
+  # Only the Debian 13 interpreter, the deployment target the exporter release
+  # accepts, is tested.
+  test-restic-exporter-requirements:
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}-${{ github.event_name }}-restic-exporter-${{ matrix.python_container_image }}
+      cancel-in-progress: true
+    container:
+      image: ${{ matrix.python_container_image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test the restic exporter requirements on ${{ matrix.python_container_image }}
+        run: |
+          set -o errexit
+          set -o nounset
+          RESTIC_EXPORTER_VERSION="$(sed -n 's|^FROM ngosang/restic-exporter:\([^@ ]*\).*|\1|p' config/ansible/files/dependency-updates-helper/Dockerfile)"
+          RESTIC_EXPORTER_SHA256="$(sed -n 's|^restic_exporter_release_sha256: *\([0-9a-f]*\).*|\1|p' config/ansible/roles/ferrarimarco_home_lab_backup/vars/main.yaml)"
+          echo "restic-exporter version: ${RESTIC_EXPORTER_VERSION}, pinned sha256: ${RESTIC_EXPORTER_SHA256}"
+          ARCHIVE_PATH="$(mktemp -d)/restic-exporter-${RESTIC_EXPORTER_VERSION}.tar.gz"
+          curl --fail --silent --show-error --location --output "${ARCHIVE_PATH}" "https://github.com/ngosang/restic-exporter/archive/refs/tags/${RESTIC_EXPORTER_VERSION}.tar.gz"
+          echo "${RESTIC_EXPORTER_SHA256}  ${ARCHIVE_PATH}" | sha256sum --check
+          REQUIREMENTS_FILE_PATH="$(mktemp)"
+          echo "restic-exporter @ file://${ARCHIVE_PATH}" > "${REQUIREMENTS_FILE_PATH}"
+          test/scripts/build-python-venv-test.sh "${REQUIREMENTS_FILE_PATH}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_container_image:
+          - python:3.13-slim-trixie

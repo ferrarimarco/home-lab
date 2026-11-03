@@ -16,7 +16,6 @@ configure_monitoring_sata: "{{ configure_monitoring }}"
 configure_network_stack: false
 configure_network_shares: false
 configure_openssh_keypair: false
-configure_backup_restic: false
 configure_rsync_daemon: false
 configure_ssh: true
 # No host currently enables Syncthing (the nas-pve1 instance is
@@ -112,15 +111,6 @@ monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.c
 monitoring_smart_metrics_collection_script_checksum: "sha256:e5cc44e22d38b317ab05145cf1920c13d06c3343046e50153aaeec84577edeea"
 qbittorrent_user_interface_port: 8084
 raspberry_pi_config_file_values: {}
-restic_backup_jobs: []
-# One repository directory per host on the backup share, so that restoring
-# from another host's repository is a path change and a host retires by
-# deleting its directory.
-# Nights over which a job's nightly check reads every pack file of its
-# repository once (1 reads the whole repository every night, 0 disables the
-# read); a job entry overrides it with restic_check_read_data_cycle_days.
-restic_check_read_data_cycle_days: 7
-restic_backup_repositories_default_path: "{{ workloads_backup_disk_mount_path }}/{{ inventory_hostname_short }}"
 rsync_daemon_modules: []
 samba_additional_interfaces: "{{ edge_environment_subnet }}"
 samba_default_readers_group_name: "samba-readers"

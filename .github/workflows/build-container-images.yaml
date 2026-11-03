@@ -13,13 +13,11 @@ on: # yamllint disable-line rule:truthy
       - ".github/workflows/build-container-images.yaml"
       - "docker/**"
       - "config/ansible/files/dependency-updates-helper/**"
-      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic/**"
   pull_request:
     paths:
       - ".github/workflows/build-container-images.yaml"
       - "docker/**"
       - "config/ansible/files/dependency-updates-helper/**"
-      - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic/**"
 
 jobs:
   build-container-images:
@@ -98,9 +96,6 @@ jobs:
           - name: dependency-updates-helper
             build-contexts: null
             context-directory: config/ansible/files/dependency-updates-helper
-          - name: restic
-            build-contexts: null
-            context-directory: config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
           - name: cd-container
             build-contexts: null
             context-directory: docker/ci-cd-tools

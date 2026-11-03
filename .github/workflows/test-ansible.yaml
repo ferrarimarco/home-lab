@@ -15,7 +15,6 @@ on: # yamllint disable-line rule:truthy
       - "!config/ansible/files/dependency-updates-helper/Dockerfile"
       - "!config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"
       - "!config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
-      - "!config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic/Dockerfile"
       - "!config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt"
   pull_request:
     paths:
@@ -30,7 +29,6 @@ on: # yamllint disable-line rule:truthy
       - "!config/ansible/files/dependency-updates-helper/Dockerfile"
       - "!config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"
       - "!config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/requirements.txt"
-      - "!config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic/Dockerfile"
       - "!config/ansible/roles/ferrarimarco_home_lab_node/files/config/sense-hat-exporter/requirements.txt"
 
 permissions:
@@ -87,7 +85,7 @@ jobs:
       fail-fast: false
       matrix:
         test_container_image_id:
-          - "geerlingguy/docker-debian12-ansible:latest"
+          - "geerlingguy/docker-debian13-ansible:latest"
         test_playbook_name:
           - backup
           - boot-bare-metal

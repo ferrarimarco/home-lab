@@ -61,7 +61,6 @@ updates:
       prefix: "deps"
     directories:
       - /config/ansible/files/dependency-updates-helper
-      - /config/ansible/roles/ferrarimarco_home_lab_node/files/config/restic
     groups:
       home-lab-workloads:
         patterns:

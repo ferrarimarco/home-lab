@@ -5,6 +5,17 @@ set -o nounset
 
 restic version
 
+# Preflight mode: the provisioning runs the script this way after the
+# repository exists, to check that the installed restic accepts the flags the
+# script relies on (--retry-lock is the newest), with restic's own error as the
+# verdict; no lock is taken and no metrics are written. Extend the command
+# when the script adopts a newer flag.
+if [ "${RESTIC_PREFLIGHT:-"false"}" = "true" ]; then
+  echo "Preflight: checking that the installed restic runs this script against ${RESTIC_REPOSITORY}"
+  restic snapshots --latest 1 --no-lock --retry-lock "${RESTIC_RETRY_LOCK:-30m}" --verbose
+  exit 0
+fi
+
 echo "Restic repository: ${RESTIC_REPOSITORY}"
 
 echo "Checking if the ${RESTIC_REPOSITORY} Restic repository is initialized."

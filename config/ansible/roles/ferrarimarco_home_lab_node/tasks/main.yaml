@@ -176,11 +176,6 @@
   ansible.builtin.import_tasks: setup-tailscale.yaml
   when: configure_tailscale and ("tailscale" in ansible_run_tags or "all" in ansible_run_tags)
 
-- name: Import restic tasks
-  ansible.builtin.import_tasks: setup-restic.yaml
-  become: true
-  when: configure_backup_restic and ("restic" in ansible_run_tags or "all" in ansible_run_tags)
-
 - name: Register Home Assistant facts
   ansible.builtin.import_tasks: register-home-assistant-facts.yaml
   when: configure_home_assistant and ("home-assistant" in ansible_run_tags or "all" in ansible_run_tags)

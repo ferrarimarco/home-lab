@@ -1,18 +1,49 @@
 ---
 apt_cache_valid_time: 3600
+# The exporter release the venv installs is pinned twice: its version is the
+# tag of the restic-exporter stage of the dependency updates helper Dockerfile,
+# which Dependabot bumps, and its tarball by the hash below, updated by hand
+# after the check the dependency updates guide describes; until then the
+# Molecule run and the requirements test fail on the mismatch.
+restic_dependency_updates_helper_dockerfile_path: "{{ role_path }}/../../files/dependency-updates-helper/Dockerfile"
+restic_exporter_version: "{{ lookup('ansible.builtin.file', restic_dependency_updates_helper_dockerfile_path) | regex_search('^FROM ngosang/restic-exporter:([^@\\s]+)', '\\1', multiline=True) | first }}"
+restic_exporter_release_sha256: cc1b1259d5e7c3fcff596aaf07e66ea707760107f2fe25685c1631687507bed7
+# restic comes from the host's Debian release; the job script's preflight
+# tells whether that package can run it, and a host whose release ships an
+# older package is upgraded to a release that ships a recent one.
+restic_os_packages:
+  - restic
+# Needed to build the exporter's venv; other software uses it too, so it is
+# never removed
+restic_exporter_os_packages:
+  - python3-venv
 # The restic cache, per host, under /var/cache: systemd creates it before the
 # units' mount namespace, and the environment file points restic at it
-restic_native_cache_directory_name: restic-native
-restic_native_os_packages:
-  - restic
-restic_native_script_path: "{{ restic_native_configuration_directory_path }}/entrypoint.sh"
-restic_native_systemd_units_directory: /etc/systemd/system
-# The units of each job, rendered from the templates of the same name
-restic_native_unit_suffixes:
+restic_cache_directory_name: restic
+restic_script_path: "{{ restic_configuration_directory_path }}/entrypoint.sh"
+# The exporter: the shared venv build script installs the release tarball
+# into the state directory of the exporter units, which share one venv. The
+# role builds it too, so that a host the release refuses fails the run with
+# pip's message, and pip's cache stays out of root's home, as in the unit.
+build_python_venv_script_source_path: "{{ role_path }}/../../files/scripts/build-python-venv.sh"
+build_python_venv_script_destination_path: /usr/local/bin/build-python-venv
+restic_exporter_release_url: "https://github.com/ngosang/restic-exporter/archive/refs/tags/{{ restic_exporter_version }}.tar.gz"
+restic_exporter_release_directory_path: /usr/local/lib/restic-exporter
+restic_exporter_release_archive_path: "{{ restic_exporter_release_directory_path }}/restic-exporter-{{ restic_exporter_version }}.tar.gz"
+restic_exporter_requirements_file_path: "{{ restic_configuration_directory_path }}/restic-exporter-requirements.txt"
+restic_exporter_state_directory_name: restic-exporter
+restic_exporter_state_directory_path: "/var/lib/{{ restic_exporter_state_directory_name }}"
+restic_exporter_virtual_env_path: "{{ restic_exporter_state_directory_path }}/venv"
+restic_exporter_unit_suffix: -restic-exporter.service
+restic_systemd_units_directory: /etc/systemd/system
+# The units of each job, rendered from the templates of the same name; the
+# exporter unit is rendered for the jobs with an exporter only
+restic_job_unit_suffixes:
   - .service
   - .timer
   - -restore-drill.service
   - -restore-drill.timer
-restic_native_timer_suffixes:
+restic_unit_suffixes: "{{ restic_job_unit_suffixes + [restic_exporter_unit_suffix] }}"
+restic_timer_suffixes:
   - .timer
   - -restore-drill.timer

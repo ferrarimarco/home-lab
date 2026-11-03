@@ -1,0 +1,40 @@
+[Unit]
+Description=Export Prometheus metrics of the {{ restic_job.job_name }} restic repository
+# The exporter opens the repository at start: wait for the network it serves
+# on and for the mounts that carry the repository, as the job units do.
+After=network-online.target zfs-mount.service
+Wants=network-online.target
+RequiresMountsFor={{ restic_job.restic_repository_host_path }}
+
+[Service]
+EnvironmentFile={{ restic_configuration_directory_path }}/{{ restic_job.job_name }}.env
+Environment=LISTEN_PORT={{ restic_job.restic_prometheus_exporter_port }}
+Environment=REFRESH_INTERVAL={{ restic_job.restic_exporter_refresh_interval | default(restic_exporter_refresh_interval) }}
+# Exit on a restic error instead of serving no series until the next refresh:
+# a repository that drops out mid-run (the share reconnecting) then reaches
+# the restart delay below and, while down, the ResticExporterDown alert.
+Environment=EXIT_ON_ERROR=true
+# pip's cache goes to the state directory, since the home directory is hidden
+# below
+Environment=PIP_CACHE_DIR={{ restic_exporter_state_directory_path }}/pip-cache
+ExecStartPre={{ build_python_venv_script_destination_path }} {{ restic_exporter_virtual_env_path }} {{ restic_exporter_requirements_file_path }}
+# Same guard as the job units: never read a bare directory on the root disk as
+# the repository
+ExecStartPre=/bin/sh -c 'test "$$(stat -c %%d {{ restic_job.restic_repository_host_path }})" != "$$(stat -c %%d /)"'
+ExecStart={{ restic_exporter_virtual_env_path }}/bin/restic-exporter
+# The exporter reads the repository without taking locks and writes only the
+# restic cache and its own state directory, which holds the venv
+StateDirectory={{ restic_exporter_state_directory_name }}
+CacheDirectory={{ restic_cache_directory_name }}
+ProtectSystem=strict
+PrivateTmp=true
+ProtectHome=true
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
+{% if restic_job_mount_unit | default('') | length > 0 %}
+# Started again whenever the share that holds the repository is mounted
+WantedBy={{ restic_job_mount_unit }}
+{% endif %}

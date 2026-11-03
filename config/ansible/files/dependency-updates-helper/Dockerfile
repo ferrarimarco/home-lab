@@ -2,7 +2,8 @@
 # dependency management can manage updates.
 # We then fetch these identifiers for use in templates.
 
-# backup
+# backup: the backup role reads this tag as the exporter release its venv
+# installs (restic itself comes from the hosts' Debian packages)
 FROM ngosang/restic-exporter:2.1.2 AS restic-exporter
 
 # frigate

@@ -1,6 +1,5 @@
 ---
 ansible_user: debian
-configure_backup_restic: true
 configure_docker: true
 configure_frigate: true
 configure_home_assistant: true
@@ -16,9 +15,6 @@ has_intel_igpu: true
 network_interfaces:
   - mac_address: "bc:24:11:d4:f6:64"
     interface_name: eth0
-
-# Backup
-restic_backup_default_backup_job_repository_password: "{{ vault_workloads_backup_repository_password }}"
 
 # Storage
 # Backups and media live on the NAS LXC container's shares; the former local

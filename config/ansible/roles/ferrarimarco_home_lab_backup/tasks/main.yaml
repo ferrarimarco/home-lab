@@ -1,18 +1,20 @@
 ---
-# The jobs are data: a host opts in with configure_backup_restic_native and a
-# restic_native_backup_jobs list, and the tasks converge every resource both
+# The jobs are data: a host opts in with a restic_backup_jobs list, a job entry
+# opts out with state: absent, and the tasks converge every resource both
 # ways, except the repositories, which an opt-out leaves in place. A job entry
 # carries the repository password, and a failed loop item is printed whole, so
 # the loops below iterate over job names, indexes, or paths, never over the
-# entries themselves.
+# entries themselves, and the facts that split the list are set without a log.
 - name: Validate the restic job declarations
   ansible.builtin.assert:
     that:
       - item.job_name is defined
+      - item.state | default('present') in ['present', 'absent']
       - item.directories_to_backup | default([]) | length > 0
       - item.restic_repository_host_path is defined
       - item.restic_repository_password is defined
       - item.restic_restore_drill_include is defined
+      - item.restic_prometheus_exporter_port is defined
       # The environment file quotes the password with single quotes, which
       # systemd reads literally: a quote or a newline inside the value would
       # end the quoted string early.
@@ -20,49 +22,138 @@
       - "\"\\n\" not in item.restic_repository_password"
       # The drill empties its target directory before and after each run, so
       # the target must hold neither the repository nor the backup set.
-      - restic_native_drill_path != item.restic_repository_host_path
-      - not item.restic_repository_host_path.startswith(restic_native_drill_path ~ '/')
-      - item.directories_to_backup | default([]) | select('equalto', restic_native_drill_path) | list | length == 0
-      - item.directories_to_backup | default([]) | select('match', (restic_native_drill_path ~ '/') | regex_escape) | list | length == 0
+      - restic_drill_path != item.restic_repository_host_path
+      - not item.restic_repository_host_path.startswith(restic_drill_path ~ '/')
+      - item.directories_to_backup | default([]) | select('equalto', restic_drill_path) | list | length == 0
+      - item.directories_to_backup | default([]) | select('match', (restic_drill_path ~ '/') | regex_escape) | list | length == 0
     quiet: true
   # The item carries the password
   no_log: true
-  loop: "{{ restic_native_backup_jobs }}"
+  loop: "{{ restic_backup_jobs }}"
   loop_control:
     label: "{{ item.job_name | default('job without a name') }}"
   vars:
-    restic_native_drill_path: "{{ item.restic_restore_drill_host_path | default(item.restic_repository_host_path | default('') | dirname ~ '/restore-drill-' ~ item.job_name | default('')) }}"
-  when: configure_backup_restic_native
+    restic_drill_path: "{{ item.restic_restore_drill_host_path | default(item.restic_repository_host_path | default('') | dirname ~ '/restore-drill-' ~ item.job_name | default('')) }}"
+
+- name: Validate that the exporter ports are unique on the host
+  ansible.builtin.assert:
+    that:
+      - restic_backup_jobs | map(attribute='restic_prometheus_exporter_port') | list | unique | length == restic_backup_jobs | length
+    fail_msg: Two restic jobs of the host declare the same restic_prometheus_exporter_port
+    quiet: true
+
+- name: Split the restic jobs by state
+  ansible.builtin.set_fact:
+    restic_present_jobs: "{{ restic_backup_jobs | rejectattr('state', 'defined') | list + restic_backup_jobs | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list }}"
+    restic_absent_jobs: "{{ restic_backup_jobs | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | list }}"
+  # The entries carry the passwords
+  no_log: true
+
+- name: Record whether the host runs restic jobs
+  ansible.builtin.set_fact:
+    restic_enabled: "{{ restic_present_jobs | length > 0 }}"
+    restic_exporter_enabled: >-
+      {{ restic_present_jobs | rejectattr('restic_exporter_enabled', 'defined') | list | length > 0
+      or restic_present_jobs | selectattr('restic_exporter_enabled', 'defined') | selectattr('restic_exporter_enabled') | list | length > 0 }}
 
 - name: Converge the restic package
   ansible.builtin.apt:
     cache_valid_time: "{{ apt_cache_valid_time }}"
-    name: "{{ restic_native_os_packages }}"
-    state: "{{ configure_backup_restic_native | ternary('present', 'absent') }}"
+    name: "{{ restic_os_packages }}"
+    state: "{{ restic_enabled | ternary('present', 'absent') }}"
     update_cache: true
   become: true
 
-# Stop the timers before removing their units, so an opt-out leaves nothing
-# scheduled; the units may already be gone, which is the converged state.
-- name: Stop the restic timers of a host that opted out
+- name: Install the packages the exporter needs
+  ansible.builtin.apt:
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+    name: "{{ restic_exporter_os_packages }}"
+    state: present
+    update_cache: true
+  become: true
+  when: restic_exporter_enabled | bool
+
+- name: Configure the restic exporter release directory
+  ansible.builtin.file:
+    path: "{{ restic_exporter_release_directory_path }}"
+    state: "{{ (restic_exporter_enabled | bool) | ternary('directory', 'absent') }}"
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+# The archive is kept so that the download is a no-op while the pin stands:
+# with a declared checksum the module skips a kept file that matches, in check
+# mode too. In check mode the directory of a first deployment is only
+# predicted: accept that one failure as the prediction of the download.
+- name: Download the restic exporter release archive
+  ansible.builtin.get_url:
+    url: "{{ restic_exporter_release_url }}"
+    dest: "{{ restic_exporter_release_archive_path }}"
+    checksum: "sha256:{{ restic_exporter_release_sha256 }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  register: restic_exporter_release_download
+  delay: 5
+  retries: 10
+  until: >-
+    restic_exporter_release_download is not failed
+    or (ansible_check_mode and 'does not exist' in restic_exporter_release_download.msg | default(''))
+  failed_when:
+    - restic_exporter_release_download is failed
+    - not (ansible_check_mode and 'does not exist' in restic_exporter_release_download.msg | default(''))
+  when: restic_exporter_enabled | bool
+
+- name: Copy the Python virtual environment build script
+  ansible.builtin.copy:
+    src: "{{ build_python_venv_script_source_path }}"
+    dest: "{{ build_python_venv_script_destination_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+  when: restic_exporter_enabled | bool
+
+# Stop the timers and exporters before removing their units, so an opt-out
+# leaves nothing scheduled or listening; the units may already be gone,
+# which is the converged state.
+- name: Stop the units of the restic jobs that opted out
   ansible.builtin.systemd_service:
     name: "{{ item.0 }}{{ item.1 }}"
     enabled: false
     state: stopped
   become: true
-  loop: "{{ restic_native_backup_jobs | map(attribute='job_name') | product(restic_native_timer_suffixes) | list }}"
+  loop: "{{ restic_absent_jobs | map(attribute='job_name') | product(restic_timer_suffixes + [restic_exporter_unit_suffix]) | list }}"
   loop_control:
     label: "{{ item.0 }}{{ item.1 }}"
-  register: restic_native_stopped_timers
+  register: restic_stopped_units
   failed_when:
-    - restic_native_stopped_timers.failed
-    - '"Could not find the requested service" not in restic_native_stopped_timers.msg'
-  when: not configure_backup_restic_native
+    - restic_stopped_units.failed
+    - '"Could not find the requested service" not in restic_stopped_units.msg'
+
+- name: Stop the exporters of the restic jobs without one
+  ansible.builtin.systemd_service:
+    name: "{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+    enabled: false
+    state: stopped
+  become: true
+  loop: "{{ range(restic_present_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
+  register: restic_stopped_exporters
+  failed_when:
+    - restic_stopped_exporters.failed
+    - '"Could not find the requested service" not in restic_stopped_exporters.msg'
+  when: not restic_job.restic_exporter_enabled | default(true)
 
 - name: Configure the restic configuration directory
   ansible.builtin.file:
-    path: "{{ restic_native_configuration_directory_path }}"
-    state: "{{ configure_backup_restic_native | ternary('directory', 'absent') }}"
+    path: "{{ restic_configuration_directory_path }}"
+    state: "{{ restic_enabled | ternary('directory', 'absent') }}"
     owner: root
     group: root
     mode: "0750"
@@ -70,28 +161,28 @@
 
 - name: Create the textfile collector directory
   ansible.builtin.file:
-    path: "{{ restic_native_textfile_collector_directory }}"
+    path: "{{ restic_textfile_collector_directory }}"
     state: directory
     owner: root
     group: root
     mode: "0755"
   become: true
-  when: configure_backup_restic_native
+  when: restic_enabled
 
-# Repositories are initialized once, by the last task of this file only (the
-# job refuses an implicit init): read whether the repository exists and which
-# filesystem backs its path, then create the directories and initialize only
-# where the path is not on the root filesystem, which is what the path becomes
-# when its mount is gone; a bare directory left there would be the repository
-# the next mount hides and the job writes into when the mount is gone again.
+# Repositories are initialized once, by the initialization task below only
+# (the job refuses an implicit init): read whether the repository exists and
+# which filesystem backs its path, then create the directories and initialize
+# only where the path is not on the root filesystem, which is what the path
+# becomes when its mount is gone; a bare directory left there would be the
+# repository the next mount hides and the job writes into when the mount is
+# gone again.
 - name: Check whether the restic repositories are initialized
   ansible.builtin.stat:
     path: "{{ item }}/config"
   become: true
   check_mode: false
-  register: restic_native_repository_config
-  loop: "{{ restic_native_backup_jobs | map(attribute='restic_repository_host_path') | list }}"
-  when: configure_backup_restic_native
+  register: restic_repository_config
+  loop: "{{ restic_present_jobs | map(attribute='restic_repository_host_path') | list }}"
 
 - name: Find the filesystem backing the restic repositories
   # findmnt needs an existing path: in check mode the repository directory of a
@@ -104,97 +195,181 @@
   become: true
   changed_when: false
   check_mode: false
-  register: restic_native_repository_mount
-  loop: "{{ restic_native_backup_jobs | map(attribute='restic_repository_host_path') | list }}"
-  when: configure_backup_restic_native
+  register: restic_repository_mount
+  loop: "{{ restic_present_jobs | map(attribute='restic_repository_host_path') | list }}"
 
 # The repository directory is created, never removed: an opt-out keeps the
 # snapshots. The job refuses to initialize a repository implicitly, so the
 # directory stays empty until the initialization task below runs. A path on
-# the root filesystem is skipped, visibly, rather than created there.
+# the root filesystem is skipped, visibly, rather than created there. The
+# owner is the one the filesystem presents (a CIFS mount's uid), so that the
+# task does not try to change it on every run.
 - name: Create the restic repository directories
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ restic_job.restic_repository_host_path }}"
     state: directory
-    owner: root
-    group: root
+    owner: "{{ restic_job.restic_repository_owner | default('root') }}"
+    group: "{{ restic_job.restic_repository_owner | default('root') }}"
     mode: "0700"
   become: true
-  loop: "{{ restic_native_backup_jobs | map(attribute='restic_repository_host_path') | list }}"
+  loop: "{{ range(restic_present_jobs | length) | list }}"
   loop_control:
-    index_var: restic_native_job_index
-  when:
-    - configure_backup_restic_native
-    - restic_native_repository_mount.results[restic_native_job_index].stdout != "/"
+    label: "{{ restic_job.job_name }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
+  when: restic_repository_mount.results[item].stdout != "/"
 
 - name: Create the restic restore drill directories
   ansible.builtin.file:
-    path: "{{ restic_native_job.restic_restore_drill_host_path | default(restic_native_job.restic_repository_host_path | dirname ~ '/restore-drill-' ~ restic_native_job.job_name) }}"
+    path: "{{ restic_job.restic_restore_drill_host_path | default(restic_job.restic_repository_host_path | dirname ~ '/restore-drill-' ~ restic_job.job_name) }}"
     state: directory
-    owner: root
-    group: root
+    owner: "{{ restic_job.restic_repository_owner | default('root') }}"
+    group: "{{ restic_job.restic_repository_owner | default('root') }}"
     mode: "0700"
   become: true
-  loop: "{{ range(restic_native_backup_jobs | length) | list }}"
+  loop: "{{ range(restic_present_jobs | length) | list }}"
   loop_control:
-    label: "{{ restic_native_job.job_name }}"
+    label: "{{ restic_job.job_name }}"
   vars:
-    restic_native_job: "{{ restic_native_backup_jobs[item] }}"
-  when:
-    - configure_backup_restic_native
-    - restic_native_repository_mount.results[item].stdout != "/"
+    restic_job: "{{ restic_present_jobs[item] }}"
+  when: restic_repository_mount.results[item].stdout != "/"
 
 - name: Copy the restic job script
   ansible.builtin.copy:
     src: entrypoint.sh
-    dest: "{{ restic_native_script_path }}"
+    dest: "{{ restic_script_path }}"
     owner: root
     group: root
     mode: "0755"
   become: true
-  when: configure_backup_restic_native
+  when: restic_enabled
+
+- name: Render the exporter requirements file
+  ansible.builtin.template:
+    src: restic-exporter-requirements.txt.jinja
+    dest: "{{ restic_exporter_requirements_file_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  when: restic_exporter_enabled | bool
+
+# The build is what the exporter unit runs at start: the script rebuilds the
+# venv when the requirements file or the interpreter changed and reports it,
+# so a converged host reports no change, and pip's refusal of the host's
+# Python fails the run here, with its own message, rather than at the unit's
+# start. A write skipped in check mode: the start task below predicts the
+# exporter.
+- name: Build the restic exporter virtual environment
+  ansible.builtin.command:
+    argv:
+      - "{{ build_python_venv_script_destination_path }}"
+      - "{{ restic_exporter_virtual_env_path }}"
+      - "{{ restic_exporter_requirements_file_path }}"
+  environment:
+    PIP_CACHE_DIR: "{{ restic_exporter_state_directory_path }}/pip-cache"
+  become: true
+  changed_when: '"Creating or updating" in restic_exporter_venv_build.stdout'
+  register: restic_exporter_venv_build
+  when: restic_exporter_enabled | bool
 
 - name: Render the restic job environment files
   ansible.builtin.template:
-    src: restic-native-job.env.jinja
-    dest: "{{ restic_native_configuration_directory_path }}/{{ restic_native_job.job_name }}.env"
+    src: restic-job.env.jinja
+    dest: "{{ restic_configuration_directory_path }}/{{ restic_job.job_name }}.env"
     owner: root
     group: root
     mode: "0600"
   become: true
   # The file carries the repository password
   no_log: true
-  loop: "{{ range(restic_native_backup_jobs | length) | list }}"
+  loop: "{{ range(restic_present_jobs | length) | list }}"
   loop_control:
-    label: "{{ restic_native_job.job_name }}"
+    label: "{{ restic_job.job_name }}"
   vars:
-    restic_native_job: "{{ restic_native_backup_jobs[item] }}"
-  when: configure_backup_restic_native
+    restic_job: "{{ restic_present_jobs[item] }}"
 
 - name: Render the restic job units
   ansible.builtin.template:
-    src: "restic-native-job{{ item.1 }}.jinja"
-    dest: "{{ restic_native_systemd_units_directory }}/{{ restic_native_job.job_name }}{{ item.1 }}"
+    src: "restic-job{{ item.1 }}.jinja"
+    dest: "{{ restic_systemd_units_directory }}/{{ restic_job.job_name }}{{ item.1 }}"
     owner: root
     group: root
     mode: "0644"
   become: true
-  loop: "{{ range(restic_native_backup_jobs | length) | product(restic_native_unit_suffixes) | list }}"
+  loop: "{{ range(restic_present_jobs | length) | product(restic_job_unit_suffixes) | list }}"
   loop_control:
-    label: "{{ restic_native_job.job_name }}{{ item.1 }}"
+    label: "{{ restic_job.job_name }}{{ item.1 }}"
   vars:
-    restic_native_job: "{{ restic_native_backup_jobs[item.0] }}"
-  when: configure_backup_restic_native
+    restic_job: "{{ restic_present_jobs[item.0] }}"
 
-- name: Remove the restic job units of a host that opted out
+# The exporter unit is also wanted by the mount unit of the share that holds
+# the repository, when the job names one; systemd-escape gives the unit name
+# (a hyphen in the path becomes an escape sequence).
+- name: Escape the repository mount points into mount unit names
+  ansible.builtin.command:
+    argv:
+      - systemd-escape
+      - --path
+      - --suffix=mount
+      - "{{ restic_job.restic_repository_mount_path }}"
+  changed_when: false
+  check_mode: false
+  register: restic_repository_mount_units
+  loop: "{{ range(restic_present_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_job.job_name }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
+  when:
+    - restic_job.restic_exporter_enabled | default(true)
+    - restic_job.restic_repository_mount_path is defined
+
+- name: Render the restic exporter units
+  register: restic_exporter_unit_render
+  ansible.builtin.template:
+    src: "restic-job{{ restic_exporter_unit_suffix }}.jinja"
+    dest: "{{ restic_systemd_units_directory }}/{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  loop: "{{ range(restic_present_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
+    # The escape task registers a result per item; a skipped item has no output
+    restic_job_mount_unit: "{{ restic_repository_mount_units.results[item].stdout | default('') }}"
+  when: restic_job.restic_exporter_enabled | default(true)
+
+- name: Remove the units of the restic jobs that opted out
   ansible.builtin.file:
-    path: "{{ restic_native_systemd_units_directory }}/{{ item.0 }}{{ item.1 }}"
+    path: "{{ restic_systemd_units_directory }}/{{ item.0 }}{{ item.1 }}"
     state: absent
   become: true
-  loop: "{{ restic_native_backup_jobs | map(attribute='job_name') | product(restic_native_unit_suffixes) | list }}"
+  loop: "{{ restic_absent_jobs | map(attribute='job_name') | product(restic_unit_suffixes) | list }}"
   loop_control:
     label: "{{ item.0 }}{{ item.1 }}"
-  when: not configure_backup_restic_native
+
+- name: Remove the environment files of the restic jobs that opted out
+  ansible.builtin.file:
+    path: "{{ restic_configuration_directory_path }}/{{ item }}.env"
+    state: absent
+  become: true
+  loop: "{{ restic_absent_jobs | map(attribute='job_name') | list }}"
+
+- name: Remove the exporter units of the restic jobs without one
+  ansible.builtin.file:
+    path: "{{ restic_systemd_units_directory }}/{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+    state: absent
+  become: true
+  loop: "{{ range(restic_present_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
+  when: not restic_job.restic_exporter_enabled | default(true)
 
 - name: Reload the systemd daemon
   ansible.builtin.systemd_service:
@@ -210,14 +385,13 @@
     enabled: true
     state: started
   become: true
-  loop: "{{ restic_native_backup_jobs | map(attribute='job_name') | product(restic_native_timer_suffixes) | list }}"
+  loop: "{{ restic_present_jobs | map(attribute='job_name') | product(restic_timer_suffixes) | list }}"
   loop_control:
     label: "{{ item.0 }}{{ item.1 }}"
-  register: restic_native_started_timers
+  register: restic_started_timers
   failed_when:
-    - restic_native_started_timers.failed
-    - not (ansible_check_mode and "Could not find the requested service" in restic_native_started_timers.msg)
-  when: configure_backup_restic_native
+    - restic_started_timers.failed
+    - not (ansible_check_mode and "Could not find the requested service" in restic_started_timers.msg)
 
 # The run reads the job's environment file through systemd, as the units do,
 # so one parser interprets the password; --wait --pipe return the script's
@@ -229,19 +403,88 @@
 - name: Initialize missing restic repositories
   ansible.builtin.command: >-
     systemd-run --wait --pipe --collect --quiet
-    --unit "{{ item }}-init"
-    --property "EnvironmentFile={{ restic_native_configuration_directory_path }}/{{ item }}.env"
-    --property "CacheDirectory={{ restic_native_cache_directory_name }}"
+    --unit "{{ restic_job.job_name }}-init"
+    --property "EnvironmentFile={{ restic_configuration_directory_path }}/{{ restic_job.job_name }}.env"
+    --property "CacheDirectory={{ restic_cache_directory_name }}"
     --property "UnsetEnvironment=RESTIC_TEXTFILE_COLLECTOR_DIRECTORY"
     --setenv RESTIC_ALLOW_INIT=true
     --setenv RESTIC_ENABLE_BACKUP=false
-    {{ restic_native_script_path }}
+    {{ restic_script_path }}
   become: true
   changed_when: true
-  loop: "{{ restic_native_backup_jobs | map(attribute='job_name') | list }}"
+  register: restic_repository_init
+  loop: "{{ range(restic_present_jobs | length) | list }}"
   loop_control:
-    index_var: restic_native_job_index
+    label: "{{ restic_job.job_name }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
   when:
-    - configure_backup_restic_native
-    - not restic_native_repository_config.results[restic_native_job_index].stat.exists
-    - restic_native_repository_mount.results[restic_native_job_index].stdout != "/"
+    - not restic_repository_config.results[item].stat.exists
+    - restic_repository_mount.results[item].stdout != "/"
+
+# The script's preflight runs the cheapest command that uses the flags the
+# script relies on, against the repository the task above may just have
+# initialized, so a host whose Debian release ships a restic too old for the
+# script fails the run here with restic's own message; the job units fail the
+# same way at run time. Nothing is written: no lock, and the metrics directory
+# is unset as for the initialization.
+- name: Check that the installed restic runs the job script
+  ansible.builtin.command: >-
+    systemd-run --wait --pipe --collect --quiet
+    --unit "{{ restic_job.job_name }}-preflight"
+    --property "EnvironmentFile={{ restic_configuration_directory_path }}/{{ restic_job.job_name }}.env"
+    --property "CacheDirectory={{ restic_cache_directory_name }}"
+    --property "UnsetEnvironment=RESTIC_TEXTFILE_COLLECTOR_DIRECTORY"
+    --setenv RESTIC_PREFLIGHT=true
+    {{ restic_script_path }}
+  become: true
+  changed_when: false
+  loop: "{{ range(restic_present_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_job.job_name }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
+  when: restic_repository_config.results[item].stat.exists or restic_repository_init.results[item] is changed
+
+# The exporter opens the repository at start and exits on an error, so it is
+# started only once the repository exists: initialized by the task above in
+# this run, or found by the check before it. On a first run in check mode the
+# unit is only predicted. The systemd module leaves an enabled unit alone, so
+# a changed [Install] section (a mount unit added to WantedBy=) would not get
+# its symlink: the units whose file changed are re-linked first.
+- name: Re-link the changed restic exporter units
+  ansible.builtin.command:
+    argv:
+      - systemctl
+      - reenable
+      - "{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+  become: true
+  changed_when: true
+  loop: "{{ range(restic_present_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
+  when:
+    - restic_job.restic_exporter_enabled | default(true)
+    - restic_exporter_unit_render.results[item] is changed
+    - restic_repository_config.results[item].stat.exists or restic_repository_init.results[item] is changed
+
+- name: Start the restic exporters
+  ansible.builtin.systemd_service:
+    name: "{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+    enabled: true
+    state: started
+  become: true
+  loop: "{{ range(restic_present_jobs | length) | list }}"
+  loop_control:
+    label: "{{ restic_job.job_name }}{{ restic_exporter_unit_suffix }}"
+  vars:
+    restic_job: "{{ restic_present_jobs[item] }}"
+  register: restic_started_exporters
+  failed_when:
+    - restic_started_exporters.failed
+    - not (ansible_check_mode and "Could not find the requested service" in restic_started_exporters.msg)
+  when:
+    - restic_job.restic_exporter_enabled | default(true)
+    - restic_repository_config.results[item].stat.exists or restic_repository_init.results[item] is changed

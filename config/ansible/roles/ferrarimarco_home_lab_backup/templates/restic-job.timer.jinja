@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the {{ restic_job.job_name }} restic backup job as scheduled
+
+[Timer]
+OnCalendar={{ restic_job.job_schedule | default(restic_backup_schedule) }}
+# A night missed because the host was off runs at the next boot, after the
+# mounts the service orders itself behind
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,12 +1,11 @@
 ---
 # Backup: the NAS container's state directories live on this node, so their
-# restic job runs here, from the packaged restic binary (the node has no
-# container engine), with the repository on the same backups dataset that
+# restic job runs here, with the repository on the same backups dataset that
 # holds the Debian hosts' repositories. The monitoring backends expect the
-# job's metrics because it is configured here.
-configure_backup_restic_native: true
-restic_native_backup_jobs:
+# job's metrics, and scrape its exporter, because it is declared here.
+restic_backup_jobs:
   - job_name: restic-backup-nas-state
+    restic_prometheus_exporter_port: 9300
     directories_to_backup:
       - /var/lib/samba-state/nas-pve1
       - /var/lib/syncthing-state/nas-pve1

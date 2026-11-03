@@ -227,12 +227,12 @@ scrape_configs:
   - job_name: "restic"
     static_configs:
       - targets:
-{% for host in groups['all'] %}
-{% if hostvars[host].configure_backup_restic | default(false) %}
-{% for backup_job in hostvars[host].restic_backup_jobs | default([]) + restic_default_backup_jobs %}
+{# One target per restic job with an exporter, from the job declarations of every host #}
+{# (the backup role renders the exporter from the same entry) #}
+{% for host in groups['all'] | sort %}
+{% for backup_job in hostvars[host].restic_backup_jobs | default([]) if backup_job.state | default('present') == 'present' and backup_job.restic_exporter_enabled | default(true) %}
         - "{{ host }}:{{ backup_job.restic_prometheus_exporter_port }}"
 {% endfor %}
-{% endif %}
 {% endfor %}
 
   - job_name: ups

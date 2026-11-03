@@ -1,10 +1,10 @@
 ---
 # Restore a stack's state trees on a Debian host from a restic repository,
-# through the restore mode of the restic job container (see the backup
-# operations guide). Dry run by default: the run lists what a restore would
-# write and changes nothing; pass restore_apply=true to restore for real,
-# which stops the stack, restores both state trees in place, and starts the
-# stack again.
+# through the restore mode of the restic job script, run by systemd-run with
+# the job's environment (see the backup operations guide). Dry run by
+# default: the run lists what a restore would write and changes nothing; pass
+# restore_apply=true to restore for real, which stops the stack, restores both
+# state trees in place, and starts the stack again.
 #
 # Variables (pass them with -e):
 #   restore_hosts          the target host (required: the play refuses to run
@@ -33,8 +33,25 @@
     restore_job_name: restic-backup-workloads
     restore_compose_stack: "{{ restore_stack }}"
     restore_compose_service: "{{ restore_stack }}"
-    restore_compose_file_path: "{{ home_lab_configuration_directory_path }}/restic/compose.yaml"
+    restore_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/restic"
+    restore_script_path: "{{ restore_configuration_directory_path }}/entrypoint.sh"
+    restore_job_environment_file_path: "{{ restore_configuration_directory_path }}/{{ restore_job_name }}.env"
+    # The environment of a restore from another host's repository, written for
+    # the run and removed afterwards
+    restore_source_environment_file_path: "/run/{{ restore_job_name }}-restore.env"
     restore_log_file_path: "/tmp/restic-restore-{{ restore_stack | default('unset') }}.log"
+    # The jobs declared present on the target and on the source host, split as
+    # the backup role splits them
+    restore_target_jobs: "{{ restic_backup_jobs | default([]) }}"
+    restore_source_jobs: "{{ hostvars[restore_source_host].restic_backup_jobs | default([]) }}"
+    restore_target_present_jobs: >-
+      {{ (restore_target_jobs | rejectattr('state', 'defined') | list
+      + restore_target_jobs | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list)
+      | map(attribute='job_name') | list }}
+    restore_source_present_jobs: >-
+      {{ (restore_source_jobs | rejectattr('state', 'defined') | list
+      + restore_source_jobs | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list)
+      | map(attribute='job_name') | list }}
   tasks:
     - name: Check the restore variables
       ansible.builtin.assert:
@@ -42,11 +59,13 @@
           - restore_stack is defined
           - restore_stack | length > 0
           - restore_source_host in hostvars
-          - configure_backup_restic | default(false)
+          - restore_job_name in restore_target_present_jobs
+          - restore_job_name in restore_source_present_jobs
         fail_msg: >-
-          Pass restore_hosts (a host that runs the restic stack), restore_stack
-          (the state directory name) and, optionally, restore_snapshot,
-          restore_source_host (an inventory host), restore_compose_stack,
+          Pass restore_hosts (a host that declares the {{ restore_job_name }}
+          restic job as present), restore_stack (the state directory name) and,
+          optionally, restore_snapshot, restore_source_host (an inventory host
+          that declares the same job), restore_compose_stack,
           restore_compose_service, and restore_apply=true.
 
     - name: Compute the restore paths
@@ -55,40 +74,35 @@
         restore_state_trees:
           - "{{ home_lab_configuration_directory_path }}/{{ restore_stack }}"
           - "{{ home_lab_runtime_directory_path }}/{{ restore_stack }}"
-        restore_source_repository_host_path: >-
-          {{ hostvars[restore_source_host].restic_backup_repositories_default_path
-          | default(hostvars[restore_source_host].workloads_backup_disk_mount_path ~ '/' ~ restore_source_host.split('.')[0]) }}/{{ restore_job_name }}
+        restore_source_job: "{{ hostvars[restore_source_host].restic_backup_jobs | selectattr('job_name', 'equalto', restore_job_name) | first }}"
         restore_cross_host: "{{ restore_source_host != inventory_hostname }}"
+      # The job entry carries the repository password
+      no_log: true
 
     - name: Print the restore plan
       ansible.builtin.debug:
         msg: >-
           {{ (restore_apply | bool) | ternary('RESTORING', 'Dry run of restoring') }}
           {{ restore_state_trees | join(' and ') }} from snapshot {{ restore_snapshot }}
-          of {{ restore_source_host }}'s repository ({{ restore_source_repository_host_path }}),
-          through {{ restore_compose_file_path }} on {{ inventory_hostname }}.
+          of {{ restore_source_host }}'s repository ({{ restore_source_job.restic_repository_host_path }}),
+          through {{ restore_script_path }} on {{ inventory_hostname }}.
 
-    # Another host's repository is reached by overriding the repository volume
-    # of the job container and passing that host's repository password, which
-    # the shared vault provides to Ansible. The compose template writes the
-    # password as a quoted literal (RESTIC_PASSWORD="..."), and Compose passes
-    # list-form values verbatim, so the repositories were keyed with the quotes
-    # included: pass the same literal. The command carries the password, so it
-    # logs to a file on the host instead of the Ansible output.
+    # The run reads the environment through systemd, as the job units do, so
+    # one parser interprets the password; --wait --pipe return the script's
+    # output and exit status. The textfile directory is unset so that a
+    # restore writes no job metrics: a foreign repository identity reported
+    # here would fire ResticRepositoryChanged.
     - name: Build the restore command
       ansible.builtin.set_fact:
         restore_command: >-
-          docker compose --file {{ restore_compose_file_path }}
-          --profile restic-backup-job run --build --rm
-          {% if restore_cross_host %}
-          --volume {{ restore_source_repository_host_path }}:/var/lib/restic/repository
-          --env {{ ('RESTIC_PASSWORD="' ~ hostvars[restore_source_host].restic_backup_default_backup_job_repository_password ~ '"') | quote }}
-          {% endif %}
-          --env RESTIC_RESTORE_SNAPSHOT="{{ restore_snapshot }}"
-          --env RESTIC_RESTORE_TARGET=/
-          --env RESTIC_RESTORE_ALLOW_EMPTY=true
-          --env RESTIC_RESTORE_DRY_RUN="{{ (not (restore_apply | bool)) | string | lower }}"
-      no_log: true
+          systemd-run --wait --pipe --collect --quiet
+          --property EnvironmentFile={{ restore_cross_host | bool | ternary(restore_source_environment_file_path, restore_job_environment_file_path) }}
+          --property CacheDirectory=restic
+          --property UnsetEnvironment=RESTIC_TEXTFILE_COLLECTOR_DIRECTORY
+          --setenv RESTIC_RESTORE_SNAPSHOT={{ restore_snapshot | quote }}
+          --setenv RESTIC_RESTORE_TARGET=/
+          --setenv RESTIC_RESTORE_ALLOW_EMPTY=true
+          --setenv RESTIC_RESTORE_DRY_RUN={{ (not (restore_apply | bool)) | string | lower }}
 
     - name: Check that the Compose project exists
       ansible.builtin.stat:
@@ -110,6 +124,31 @@
       tags:
         - molecule-notest
 
+    # Another host's repository is reached through an environment file of its
+    # own, with that host's repository and password from the shared vault,
+    # instead of the local job's file: systemd applies EnvironmentFile= after
+    # Environment=, so a --setenv override of the password would lose. The
+    # file is single-quoted, as the role renders the job files, and the role
+    # asserts that the passwords hold no quote or newline. The script reads the
+    # job name from RESTIC_BACKUP_TAGS before it enters the restore mode.
+    - name: Write the environment of the source host's repository
+      ansible.builtin.copy:
+        content: |
+          RESTIC_BACKUP_TAGS='{{ restore_job_name }}'
+          RESTIC_CACHE_DIR='/var/cache/restic'
+          RESTIC_PASSWORD='{{ restore_source_job.restic_repository_password }}'
+          RESTIC_REPOSITORY='{{ restore_source_job.restic_repository_host_path }}'
+        dest: "{{ restore_source_environment_file_path }}"
+        owner: root
+        group: root
+        mode: "0600"
+      become: true
+      changed_when: false
+      no_log: true
+      when: restore_cross_host | bool
+      tags:
+        - molecule-notest
+
     - name: Restore with the service stopped
       block:
         - name: Stop the service before restoring its state
@@ -120,16 +159,21 @@
           tags:
             - molecule-notest
 
+        # One transient unit per state tree, named after the job, so that a
+        # run never collides with the job's own units
         - name: Restore the state trees
           ansible.builtin.shell: >-
-            {{ restore_command }} --env RESTIC_RESTORE_INCLUDE="{{ item }}" {{ restore_job_name }}
+            {{ restore_command }}
+            --unit {{ restore_job_name }}-restore-{{ restore_tree_index }}
+            --setenv RESTIC_RESTORE_INCLUDE={{ item | quote }}
+            {{ restore_script_path }}
             >> "{{ restore_log_file_path }}" 2>&1
           become: true
           changed_when: restore_apply | bool
           loop: "{{ restore_state_trees }}"
           loop_control:
+            index_var: restore_tree_index
             label: "{{ item }}"
-          no_log: true
           register: restore_runs
           tags:
             - molecule-notest
@@ -153,6 +197,14 @@
           ansible.builtin.debug:
             var: restore_log.stdout_lines
 
+        - name: Remove the environment of the source host's repository
+          ansible.builtin.file:
+            path: "{{ restore_source_environment_file_path }}"
+            state: absent
+          become: true
+          changed_when: false
+          when: restore_cross_host | bool
+
         - name: Start the service again
           ansible.builtin.command: docker compose --file {{ restore_stack_compose_file_path }} up --detach {{ restore_compose_service }}
           become: true
@@ -170,8 +222,7 @@
       ansible.builtin.debug:
         msg: >-
           Verify {{ restore_stack }} through its own interface, then compare the
-          restored trees with the snapshot listing
-          (docker compose --file {{ restore_compose_file_path }} --profile
-          restic-backup-job run --rm --entrypoint restic {{ restore_job_name }}
-          ls {{ restore_snapshot }} {{ restore_state_trees[0] }}).
+          restored trees with the snapshot listing: on the host, as root,
+          sh -c 'set -a; . {{ restore_job_environment_file_path }}; exec restic ls
+          {{ restore_snapshot }} {{ restore_state_trees[0] }}'.
       when: restore_apply | bool

@@ -1,1 +1,0 @@
-../../../../ferrarimarco_home_lab_backup/files/entrypoint.sh
