@@ -176,18 +176,20 @@ the copy before deciding.
 
 ## Forget a snapshot group
 
-The nightly `restic forget` groups snapshots by host label and keeps the daily
-ones within a week of each group's newest snapshot, so a group that stops
-receiving snapshots (the Compose-era job of a host switched to the backup role,
-which labelled its snapshots with the container's hostname) keeps its last week
-forever. The job script forgets and prunes the snapshots named in
+The nightly `restic forget` groups snapshots by host label and tags and keeps
+the daily ones within a week of each group's newest snapshot, so a group that
+stops receiving snapshots (the Compose-era job of a host switched to the backup
+role, which labelled its snapshots with the container's hostname) keeps its last
+week forever. The job script forgets and prunes the snapshots named in
 `RESTIC_SNAPSHOT_TO_PRUNE`, which is also how the last survivor of a keep policy
-goes, since restic never empties a group through a policy. Dry-run first, then
-run the script through the job's environment, as a restore does:
+goes, since restic never empties a group through a policy. Dry-run first with
+the shorthand above, then run the script through the job's environment, as a
+restore does; the script prunes without a cache, so restic's warning about a
+slow prune is expected:
 
 ```shell
 # What would go: the IDs of the group, from restic snapshots
-sudo sh -c 'set -a; . /etc/ferrarimarco-home-lab/restic/<job>.env; restic forget --dry-run --no-lock <id> [<id> ...]'
+restic_run forget --dry-run --no-lock <id> [<id> ...]
 
 sudo systemd-run --wait --pipe --collect --quiet --unit "<job>-forget" \
   --property EnvironmentFile=/etc/ferrarimarco-home-lab/restic/<job>.env \

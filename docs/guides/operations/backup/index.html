@@ -2013,16 +2013,18 @@ categories live in other files and survive; what the re-seed drops is any
 setting changed in the web interface that the template does not carry, so read
 the copy before deciding.</p>
 <h2 id="forget-a-snapshot-group">Forget a snapshot group</h2>
-<p>The nightly <code>restic forget</code> groups snapshots by host label and keeps the daily
-ones within a week of each group's newest snapshot, so a group that stops
-receiving snapshots (the Compose-era job of a host switched to the backup role,
-which labelled its snapshots with the container's hostname) keeps its last week
-forever. The job script forgets and prunes the snapshots named in
+<p>The nightly <code>restic forget</code> groups snapshots by host label and tags and keeps
+the daily ones within a week of each group's newest snapshot, so a group that
+stops receiving snapshots (the Compose-era job of a host switched to the backup
+role, which labelled its snapshots with the container's hostname) keeps its last
+week forever. The job script forgets and prunes the snapshots named in
 <code>RESTIC_SNAPSHOT_TO_PRUNE</code>, which is also how the last survivor of a keep policy
-goes, since restic never empties a group through a policy. Dry-run first, then
-run the script through the job's environment, as a restore does:</p>
+goes, since restic never empties a group through a policy. Dry-run first with
+the shorthand above, then run the script through the job's environment, as a
+restore does; the script prunes without a cache, so restic's warning about a
+slow prune is expected:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># What would go: the IDs of the group, from restic snapshots</span>
-sudo<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;set -a; . /etc/ferrarimarco-home-lab/restic/&lt;job&gt;.env; restic forget --dry-run --no-lock &lt;id&gt; [&lt;id&gt; ...]&#39;</span>
+restic_run<span class="w"> </span>forget<span class="w"> </span>--dry-run<span class="w"> </span>--no-lock<span class="w"> </span>&lt;id&gt;<span class="w"> </span><span class="o">[</span>&lt;id&gt;<span class="w"> </span>...<span class="o">]</span>
 
 sudo<span class="w"> </span>systemd-run<span class="w"> </span>--wait<span class="w"> </span>--pipe<span class="w"> </span>--collect<span class="w"> </span>--quiet<span class="w"> </span>--unit<span class="w"> </span><span class="s2">&quot;&lt;job&gt;-forget&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--property<span class="w"> </span><span class="nv">EnvironmentFile</span><span class="o">=</span>/etc/ferrarimarco-home-lab/restic/&lt;job&gt;.env<span class="w"> </span><span class="se">\</span>

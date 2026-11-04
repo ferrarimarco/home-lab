@@ -363,13 +363,16 @@ reliability risks first, then security exposure, then automation):
 - Ansible:
     - **The Coral role cannot tell the gasket package builds apart
       (2026-11-04)**: the community builds of `gasket-dkms` all carry the
-      upstream version `1.0-18`, so the role's installed-version check accepted
-      the 2024 Google package on hl01 as the pinned 2026 build, and the DKMS
-      source stayed unpatched until the Debian 13 kernel failed to build it
-      (recovered by `dpkg -i` of the pinned file and `dpkg --configure -a`).
-      Make the role compare the installed source with the pinned package (the
-      package's `md5sums` against `/usr/src/gasket-1.0`, or a marker holding the
-      installed file's checksum) and reinstall through `dpkg -i` on a mismatch.
+      upstream version `1.0-18`, and the apt module skips a package file whose
+      version is already installed (the check-mode prediction task compares the
+      same version string), so the pinned 2026 build never replaced the 2024
+      Google package on hl01 and the DKMS source stayed unpatched until the
+      Debian 13 kernel failed to build it (the release upgrade procedure of the
+      [Linux administration notes](../guides/useful-linux-admin-commands.md) has
+      the recovery). Make the role compare the installed source with the pinned
+      package (the package's `md5sums` against `/usr/src/gasket-1.0`, or a
+      marker holding the installed file's checksum) and reinstall through
+      `dpkg -i` on a mismatch.
     - **The detached dist-upgrade task does not protect the controller side
       (2026-11-04)**: on hl01's release upgrade the async job finished on the
       host, but the controller's worker process died after the first polls ("A
@@ -1163,12 +1166,11 @@ reliability risks first, then security exposure, then automation):
   the new units replace the old ones, apply `backup.yaml` and the node role's
   `monitoring-backend` stack, start the first backup and the drill by hand, and
   verify the timers, the exporter targets, and the textfiles. Then forget the
-  Compose-era snapshot group by ID (its host label was the container's hostname,
-  and the keep-within policy never expires a group that gets no new snapshot),
-  as the [backup operations guide](../guides/operations/backup.md) describes;
-  hl01's group was forgotten on 2026-11-04 right after the switch, by choice, so
-  its repository restarts from one snapshot. pve2 follows when it is on. Until
-  the pve1 apply, the `ResticExporterDown` alert fires for pve1 and pve2, whose
+  Compose-era snapshot group, which the retention policy never empties, as the
+  [backup operations guide](../guides/operations/backup.md) describes; hl01's
+  group was forgotten on 2026-11-04 right after the switch, by choice, so its
+  repository restarts from one snapshot. pve2 follows when it is on. Until the
+  pve1 apply, the `ResticExporterDown` alert fires for pve1 and pve2, whose
   exporter targets the monitoring backend scrapes since hl01's converge on
   2026-11-04 (left unsilenced by choice). Depends on: the raspberrypi2 re-image
   for that host. Update the [Backups specification](./backups.md) status table

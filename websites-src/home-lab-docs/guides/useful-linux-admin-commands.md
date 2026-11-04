@@ -64,7 +64,11 @@ follows the fresh host procedure of the
    dist-upgrade task runs detached from the SSH session, so a dropped connection
    does not interrupt it, and the playbook keeps the existing configuration
    files where the new packages ship changed defaults (the new files land beside
-   them with a `.dpkg-dist` suffix).
+   them with a `.dpkg-dist` suffix). The controller can still lose the job (its
+   worker died a minute into hl01's upgrade, and the play kept polling without
+   reaching the host): the host-side run is then read from the apt history log
+   and from the job's result file under `/root/.ansible_async/`, and the
+   playbook is run again once apt is idle, which finishes whatever remains.
 5. Reboot, then verify: the release in `/etc/os-release`, the running kernel,
    the boot time, the services from a fresh listing, the mounts, and the
    out-of-tree kernel modules (`dkms status`), whose DKMS builds run during the
@@ -73,9 +77,11 @@ follows the fresh host procedure of the
    unconfigured, and the host keeps booting the old kernel. Fix the module
    source (on hl01 on 2026-11-04, the Coral driver source predated the pinned
    package and lacked the fixes for kernel 6.12: `dpkg -i` of the pinned file
-   replaced it), then `dpkg --configure -a` configures the pending packages and
-   runs the hook again. The package run itself took four minutes on hl01 for 424
-   upgraded and 129 new packages.
+   unpacked the right source and exited non-zero because the headers were still
+   unconfigured, which is expected at that point), then `dpkg --configure -a`
+   configures the pending packages, the module among them, and runs the hook
+   again. The package run itself took three minutes on hl01 for 411 upgraded,
+   129 new, and 65 removed packages.
 6. Converge on the new release: the container engine playbook moves the Docker
    source to the new release, and the node playbook surfaces whatever the
    release changed under the roles, check runs first.
@@ -90,7 +96,9 @@ follows the fresh host procedure of the
 The [backup operations guide](./operations/backup.md) has the inspection,
 restore, drill, and repair procedures.
 
-- Open a shell in the Restic container:
+- Open a shell in the Restic container (raspberrypi2 only, until its re-image
+  moves it to the backup role; hl01 runs the role's packaged restic since
+  2026-11-04):
 
     ```sh
     sudo docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml run --build --interactive --rm --entrypoint /bin/bash restic-backup-workloads
