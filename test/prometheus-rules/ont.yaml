@@ -1,0 +1,66 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: OntMetricsMissing fires for a host with the exporter unit and no GPON state for 15 minutes
+    interval: 1m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="zte-f6005-ont-exporter.service", state="activating", type="simple"}'
+        values: "1x16"
+      - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="zte-f6005-ont-exporter.service", state="active", type="simple"}'
+        values: "0x16"
+      - series: 'node_systemd_unit_state{instance="hl01:9100", name="zte-f6005-ont-exporter.service", state="active", type="simple"}'
+        values: "1x16"
+      - series: 'ztef6005ont_gpon_status{instance="hl01:9100", flag="Operation state(O5)", pon_serial_number="ZTEG00000000"}'
+        values: "1x16"
+      - series: 'node_systemd_unit_state{instance="pve1:9100", name="frigate.service", state="active", type="simple"}'
+        values: "1x16"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: OntMetricsMissing
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: OntMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: raspberrypi2:9100
+            exp_annotations:
+              summary: "No ONT metrics from raspberrypi2:9100"
+              description: >-
+                raspberrypi2:9100 runs the ONT exporter unit but exports no
+                GPON state: the ONT admin interface is unreachable (it hangs
+                until the ONT is power-cycled) or the exporter is broken. The
+                unit deletes its textfile on exit, so the staleness rule cannot
+                see this.
+
+  - name: OntGponNotOperational fires when the ONT leaves the operation state for 5 minutes
+    interval: 1m
+    input_series:
+      - series: 'ztef6005ont_gpon_status{instance="raspberrypi2:9100", flag="Operation state(O5)", pon_serial_number="ZTEG00000000"}'
+        values: "0x6"
+      - series: 'ztef6005ont_gpon_status{instance="raspberrypi2:9100", flag="Standby state(O2)", pon_serial_number="ZTEG00000000"}'
+        values: "1x6"
+      - series: 'ztef6005ont_gpon_status{instance="hl01:9100", flag="Operation state(O5)", pon_serial_number="ZTEG11111111"}'
+        values: "1x6"
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: OntGponNotOperational
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: OntGponNotOperational
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: raspberrypi2:9100
+              flag: Operation state(O5)
+              pon_serial_number: ZTEG00000000
+            exp_annotations:
+              summary: "ONT ZTEG00000000 is not in the GPON operation state"
+              description: >-
+                The ONT has not been in the GPON operation state (O5) for 5
+                minutes: the optical link to the ISP is down or re-registering,
+                and the WAN is down with it.

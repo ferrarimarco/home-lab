@@ -19,3 +19,12 @@ receivers:
     telegram_configs:
       - bot_token: "{{ vault_monitoring_backend_alertmanager_telegram_bot_token }}"
         chat_id: {{ vault_monitoring_backend_alertmanager_telegram_chat_id }}
+
+# WanDown aggregates the WAN-scoped ping probes: their per-target alerts add
+# nothing while it fires.
+inhibit_rules:
+  - source_matchers:
+      - alertname = WanDown
+    target_matchers:
+      - alertname = BlackboxProbeFailed
+      - scope = wan

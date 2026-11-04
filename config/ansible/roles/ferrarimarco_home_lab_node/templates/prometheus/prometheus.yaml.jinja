@@ -150,6 +150,11 @@ scrape_configs:
         - "{{ dns_server.ipv4_address }}{% if dns_server.port is defined %}:{{ dns_server.port }}{% endif %}"
 {% endif %}
 {% endfor %}
+{% else %}
+{# A record that resolves only through the WAN: the WanDown rule inhibits its #}
+{# probe alerts while the WAN is down. #}
+        labels:
+          scope: wan
 {% endif %}
     relabel_configs:
       - source_labels: [__address__] # Add a target parameter of the scrape request URL
@@ -198,6 +203,14 @@ scrape_configs:
 {% for host in groups['all'] %}
         - "{{ host }}"
 {% endfor %}
+{# Hosts reachable only through the WAN: the WanDown rule aggregates their #}
+{# probes and inhibits their per-target alerts while it fires. #}
+      - targets:
+{% for host in monitoring_backend_wan_icmp_ping_hosts_to_check %}
+        - "{{ host }}"
+{% endfor %}
+        labels:
+          scope: wan
     relabel_configs:
       - source_labels: [__address__] # Add a target parameter of the scrape request URL
         target_label: __param_target

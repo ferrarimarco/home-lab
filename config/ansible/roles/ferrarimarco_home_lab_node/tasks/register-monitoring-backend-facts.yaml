@@ -52,6 +52,15 @@
     var: monitoring_backend_icmp_ping_hosts_to_check
     verbosity: 1
 
+- name: Sort the list of WAN hosts to check via ICMP
+  ansible.builtin.set_fact:
+    monitoring_backend_wan_icmp_ping_hosts_to_check: "{{ monitoring_backend_wan_icmp_ping_hosts_to_check | unique | sort }}"
+
+- name: Debug monitoring_backend_wan_icmp_ping_hosts_to_check
+  ansible.builtin.debug:
+    var: monitoring_backend_wan_icmp_ping_hosts_to_check
+    verbosity: 1
+
 - name: Add network stack DNS resolvers and servers to blackbox exporter targets for DNS checks
   ansible.builtin.set_fact:
     monitoring_backend_dns_targets_dns_resolvers: "{{ monitoring_backend_dns_targets_dns_resolvers + network_stack_edge_dns_resolvers }}"

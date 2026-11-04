@@ -97,3 +97,43 @@ tests:
                 The TCP probe against hl02.example.test:1883 has been failing
                 for 10 minutes: the service does not accept connections on its
                 port.
+
+  - name: WanDown fires when every WAN-scoped ping target fails for 3 minutes, whatever the LAN targets do
+    interval: 1m
+    input_series:
+      - series: 'probe_success{job="blackbox-ping", instance="1.1.1.1", scope="wan"}'
+        values: "0x4"
+      - series: 'probe_success{job="blackbox-ping", instance="dns.google", scope="wan"}'
+        values: "0x4"
+      - series: 'probe_success{job="blackbox-ping", instance="pve1.example.test"}'
+        values: "1x4"
+      - series: 'probe_success{job="blackbox-ping", instance="pve2.example.test"}'
+        values: "0x4"
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: WanDown
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: WanDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: "WAN connectivity lost"
+              description: >-
+                Every ping target that is only reachable through the WAN has
+                been failing for 3 minutes: the WAN is down (the ONT, the ISP,
+                or the router's PPPoE session). The per-target probe alerts
+                are inhibited while this fires.
+
+  - name: WanDown stays silent while one WAN-scoped target answers
+    interval: 1m
+    input_series:
+      - series: 'probe_success{job="blackbox-ping", instance="1.1.1.1", scope="wan"}'
+        values: "0x4"
+      - series: 'probe_success{job="blackbox-ping", instance="dns.google", scope="wan"}'
+        values: "1x4"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: WanDown
+        exp_alerts: []

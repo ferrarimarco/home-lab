@@ -447,3 +447,33 @@ tests:
                 The memory controller on pve1:9100 reported 2 uncorrectable
                 errors in the last hour. A memory module is failing; data
                 corruption is possible.
+
+  - name: SystemdUnitRestartLooping fires for a unit that spends most of 15 minutes activating, not for one restart or a user manager
+    interval: 1m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="zte-f6005-ont-exporter.service", state="activating", type="simple"}'
+        values: "1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 0 1 1 1 1 1 1"
+      - series: 'node_systemd_unit_state{instance="hl01:9100", name="frigate.service", state="activating", type="oneshot"}'
+        values: "1 1 0x44"
+      - series: 'node_systemd_unit_state{instance="pve1:9100", name="user@0.service", state="activating", type="notify"}'
+        values: "1x46"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: SystemdUnitRestartLooping
+        exp_alerts: []
+      - eval_time: 15m
+        alertname: SystemdUnitRestartLooping
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: raspberrypi2:9100
+              name: zte-f6005-ont-exporter.service
+              state: activating
+              type: simple
+            exp_annotations:
+              summary: "Unit zte-f6005-ont-exporter.service is restart-looping on raspberrypi2:9100"
+              description: >-
+                The systemd unit zte-f6005-ont-exporter.service on raspberrypi2:9100
+                has been starting most of the time for 15 minutes or more: it
+                fails on every attempt and its restart policy tries again.
+                Check its journal on the host.

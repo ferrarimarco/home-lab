@@ -197,6 +197,23 @@ groups:
             The systemd unit {{ $labels.name }} on {{ $labels.instance }}
             has been in the failed state for 15 minutes. Check its journal
             on the host.
+      - alert: SystemdUnitRestartLooping
+        # A unit with Restart= never settles in the failed state: it sits in
+        # activating between attempts and runs briefly in between, so the
+        # ratio over a window is the signal, not the state at one sample.
+        # The user managers sit in activating for the length of a login and
+        # are not services to recover.
+        expr: avg_over_time(node_systemd_unit_state{state="activating", name!~"user@.*"}[30m]) > 0.5
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unit {{ $labels.name }} is restart-looping on {{ $labels.instance }}"
+          description: >-
+            The systemd unit {{ $labels.name }} on {{ $labels.instance }}
+            has been starting most of the time for 15 minutes or more: it
+            fails on every attempt and its restart policy tries again.
+            Check its journal on the host.
       - alert: NodeClockSkewed
         expr: abs(node_timex_offset_seconds) > 0.05
         for: 15m
@@ -456,6 +473,45 @@ groups:
             The TCP probe against {{ $labels.instance }} has been failing
             for 10 minutes: the service does not accept connections on its
             port.
+      - alert: WanDown
+        expr: max(probe_success{job="blackbox-ping", scope="wan"}) == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "WAN connectivity lost"
+          description: >-
+            Every ping target that is only reachable through the WAN has
+            been failing for 3 minutes: the WAN is down (the ONT, the ISP,
+            or the router's PPPoE session). The per-target probe alerts
+            are inhibited while this fires.
+
+  - name: ont
+    rules:
+      - alert: OntMetricsMissing
+        expr: max by (instance) (node_systemd_unit_state{name="zte-f6005-ont-exporter.service"}) unless on (instance) ztef6005ont_gpon_status
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No ONT metrics from {{ $labels.instance }}"
+          description: >-
+            {{ $labels.instance }} runs the ONT exporter unit but exports no
+            GPON state: the ONT admin interface is unreachable (it hangs
+            until the ONT is power-cycled) or the exporter is broken. The
+            unit deletes its textfile on exit, so the staleness rule cannot
+            see this.
+      - alert: OntGponNotOperational
+        expr: ztef6005ont_gpon_status{flag="Operation state(O5)"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ONT {{ $labels.pon_serial_number }} is not in the GPON operation state"
+          description: >-
+            The ONT has not been in the GPON operation state (O5) for 5
+            minutes: the optical link to the ISP is down or re-registering,
+            and the WAN is down with it.
 
   - name: containers
     rules:
