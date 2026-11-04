@@ -1146,18 +1146,16 @@ reliability risks first, then security exposure, then automation):
 
 - **Roll out the single-flavour backup role (2026-10-31)**: the role that runs
   every restic job (the Debian restic package, systemd units, an exporter per
-  job) is implemented and tested, applied on hl01 on 2026-11-04 (with its Debian
-  13 upgrade), and the other hosts still run the former flavours: the Compose
-  job on raspberrypi2, the `restic-native` layout on pve1, nothing yet on pve2.
-  The role needs a restic that Debian 13 ships and Debian 12 does not, so
-  raspberrypi2 follows its re-image ([Current focus](#current-focus)); until
-  then it keeps its Compose job, which the node role no longer manages, and its
-  repository keeps the key with the quoted password the Compose template
-  rendered. In this order, with a check run before each apply: apply
-  `backup.yaml` on pve1 (tag-scoped, as the node guard requires), then remove
-  `/etc/ferrarimarco-home-lab/restic-native` there; raspberrypi2, once
-  re-imaged, follows the sequence hl01 went through: rewrite the repository key
-  with the unquoted vault password in place
+  job) is implemented and tested, applied on hl01 (with its Debian 13 upgrade)
+  and on pve1 (replacing the `restic-native` layout, removed afterwards) on
+  2026-11-04, and the other hosts still run the former flavours: the Compose job
+  on raspberrypi2, nothing yet on pve2. The role needs a restic that Debian 13
+  ships and Debian 12 does not, so raspberrypi2 follows its re-image
+  ([Current focus](#current-focus)); until then it keeps its Compose job, which
+  the node role no longer manages, and its repository keeps the key with the
+  quoted password the Compose template rendered. With a check run before each
+  apply: raspberrypi2, once re-imaged, follows the sequence hl01 went through:
+  rewrite the repository key with the unquoted vault password in place
   (`restic key passwd --new-password-file`, through the Compose container, which
   still opens the repository with the quoted one), stop and remove the Compose
   restic project
@@ -1169,12 +1167,12 @@ reliability risks first, then security exposure, then automation):
   Compose-era snapshot group, which the retention policy never empties, as the
   [backup operations guide](../guides/operations/backup.md) describes; hl01's
   group was forgotten on 2026-11-04 right after the switch, by choice, so its
-  repository restarts from one snapshot. pve2 follows when it is on. Until the
-  pve1 apply, the `ResticExporterDown` alert fires for pve1 and pve2, whose
-  exporter targets the monitoring backend scrapes since hl01's converge on
-  2026-11-04 (left unsilenced by choice). Depends on: the raspberrypi2 re-image
-  for that host. Update the [Backups specification](./backups.md) status table
-  as each step lands.
+  repository restarts from one snapshot. pve2 follows when it is on; until then
+  the `ResticExporterDown` alert fires for its exporter target, which the
+  monitoring backend scrapes since hl01's converge on 2026-11-04 (left
+  unsilenced by choice). Depends on: the raspberrypi2 re-image for that host.
+  Update the [Backups specification](./backups.md) status table as each step
+  lands.
 - **State-only backups, no machine-level replication (decided 2026-10-10)**:
   configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
   host is rebuilt from Terraform, the playbooks or the flake, and a restic
