@@ -1162,16 +1162,17 @@ reliability risks first, then security exposure, then automation):
   then the project directory), so that the new exporter can bind the port and
   the new units replace the old ones, apply `backup.yaml` and the node role's
   `monitoring-backend` stack, start the first backup and the drill by hand, and
-  verify the timers, the exporter targets, and the textfiles. After seven
-  nightly snapshots forget the Compose-era snapshot group by ID (its host label
-  was the container's hostname, and the keep-within policy never expires a group
-  that gets no new snapshot): hl01's from 2026-11-11, raspberrypi2's after its
-  switch. pve2 follows when it is on. Until the pve1 apply, the
-  `ResticExporterDown` alert fires for pve1 and pve2, whose exporter targets the
-  monitoring backend scrapes since hl01's converge on 2026-11-04 (left
-  unsilenced by choice). Depends on: the raspberrypi2 re-image for that host.
-  Update the [Backups specification](./backups.md) status table as each step
-  lands.
+  verify the timers, the exporter targets, and the textfiles. Then forget the
+  Compose-era snapshot group by ID (its host label was the container's hostname,
+  and the keep-within policy never expires a group that gets no new snapshot),
+  as the [backup operations guide](../guides/operations/backup.md) describes;
+  hl01's group was forgotten on 2026-11-04 right after the switch, by choice, so
+  its repository restarts from one snapshot. pve2 follows when it is on. Until
+  the pve1 apply, the `ResticExporterDown` alert fires for pve1 and pve2, whose
+  exporter targets the monitoring backend scrapes since hl01's converge on
+  2026-11-04 (left unsilenced by choice). Depends on: the raspberrypi2 re-image
+  for that host. Update the [Backups specification](./backups.md) status table
+  as each step lands.
 - **State-only backups, no machine-level replication (decided 2026-10-10)**:
   configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
   host is rebuilt from Terraform, the playbooks or the flake, and a restic

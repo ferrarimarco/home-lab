@@ -174,6 +174,32 @@ categories live in other files and survive; what the re-seed drops is any
 setting changed in the web interface that the template does not carry, so read
 the copy before deciding.
 
+## Forget a snapshot group
+
+The nightly `restic forget` groups snapshots by host label and keeps the daily
+ones within a week of each group's newest snapshot, so a group that stops
+receiving snapshots (the Compose-era job of a host switched to the backup role,
+which labelled its snapshots with the container's hostname) keeps its last week
+forever. The job script forgets and prunes the snapshots named in
+`RESTIC_SNAPSHOT_TO_PRUNE`, which is also how the last survivor of a keep policy
+goes, since restic never empties a group through a policy. Dry-run first, then
+run the script through the job's environment, as a restore does:
+
+```shell
+# What would go: the IDs of the group, from restic snapshots
+sudo sh -c 'set -a; . /etc/ferrarimarco-home-lab/restic/<job>.env; restic forget --dry-run --no-lock <id> [<id> ...]'
+
+sudo systemd-run --wait --pipe --collect --quiet --unit "<job>-forget" \
+  --property EnvironmentFile=/etc/ferrarimarco-home-lab/restic/<job>.env \
+  --property CacheDirectory=restic \
+  --property UnsetEnvironment=RESTIC_TEXTFILE_COLLECTOR_DIRECTORY \
+  --setenv "RESTIC_SNAPSHOT_TO_PRUNE=<id> [<id> ...]" \
+  /etc/ferrarimarco-home-lab/restic/entrypoint.sh
+```
+
+The exporter lists the repository every 12 hours; restart its service
+(`<job>-restic-exporter.service`) to see the change on the dashboard at once.
+
 ## Repair
 
 A repository that `restic check` reports as damaged (`ResticCheckFailed`, or a

@@ -3225,16 +3225,17 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   then the project directory), so that the new exporter can bind the port and
   the new units replace the old ones, apply <code>backup.yaml</code> and the node role's
   <code>monitoring-backend</code> stack, start the first backup and the drill by hand, and
-  verify the timers, the exporter targets, and the textfiles. After seven
-  nightly snapshots forget the Compose-era snapshot group by ID (its host label
-  was the container's hostname, and the keep-within policy never expires a group
-  that gets no new snapshot): hl01's from 2026-11-11, raspberrypi2's after its
-  switch. pve2 follows when it is on. Until the pve1 apply, the
-  <code>ResticExporterDown</code> alert fires for pve1 and pve2, whose exporter targets the
-  monitoring backend scrapes since hl01's converge on 2026-11-04 (left
-  unsilenced by choice). Depends on: the raspberrypi2 re-image for that host.
-  Update the <a href="backups/">Backups specification</a> status table as each step
-  lands.</li>
+  verify the timers, the exporter targets, and the textfiles. Then forget the
+  Compose-era snapshot group by ID (its host label was the container's hostname,
+  and the keep-within policy never expires a group that gets no new snapshot),
+  as the <a href="../guides/operations/backup/">backup operations guide</a> describes;
+  hl01's group was forgotten on 2026-11-04 right after the switch, by choice, so
+  its repository restarts from one snapshot. pve2 follows when it is on. Until
+  the pve1 apply, the <code>ResticExporterDown</code> alert fires for pve1 and pve2, whose
+  exporter targets the monitoring backend scrapes since hl01's converge on
+  2026-11-04 (left unsilenced by choice). Depends on: the raspberrypi2 re-image
+  for that host. Update the <a href="backups/">Backups specification</a> status table
+  as each step lands.</li>
 <li><strong>State-only backups, no machine-level replication (decided 2026-10-10)</strong>:
   configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
   host is rebuilt from Terraform, the playbooks or the flake, and a restic
