@@ -361,6 +361,24 @@ reliability risks first, then security exposure, then automation):
       folded scalar that turned the list into a string under ansible-core 2.19
       (fixed the same day) only failed on hl01.
 - Ansible:
+    - **The Coral role cannot tell the gasket package builds apart
+      (2026-11-04)**: the community builds of `gasket-dkms` all carry the
+      upstream version `1.0-18`, so the role's installed-version check accepted
+      the 2024 Google package on hl01 as the pinned 2026 build, and the DKMS
+      source stayed unpatched until the Debian 13 kernel failed to build it
+      (recovered by `dpkg -i` of the pinned file and `dpkg --configure -a`).
+      Make the role compare the installed source with the pinned package (the
+      package's `md5sums` against `/usr/src/gasket-1.0`, or a marker holding the
+      installed file's checksum) and reinstall through `dpkg -i` on a mismatch.
+    - **The detached dist-upgrade task does not protect the controller side
+      (2026-11-04)**: on hl01's release upgrade the async job finished on the
+      host, but the controller's worker process died after the first polls ("A
+      worker was found in a dead state", cause not found) and the play kept
+      printing polls without contacting the host until it was stopped. Run the
+      upgrade through a transient systemd unit instead (`systemd-run --wait`, as
+      the backup role runs its jobs), which a lost controller leaves running and
+      whose result the next run can read, or make the poll loop fail on an
+      unreachable host.
     - Get the Proxmox VMs data from the inventory instead of using the
       proxmox_vms list.
     - Move the handlers to a dedicated role and reuse that role across all
@@ -486,29 +504,6 @@ reliability risks first, then security exposure, then automation):
 
 ### Host configuration
 
-- **Upgrade hl01 to Debian 13 (2026-11-02)**: the non-Nix hosts are meant to
-  share one Debian release, and hl01 is the only one left on Debian 12 once
-  raspberrypi2 is re-imaged with Raspberry Pi OS Trixie (the Proxmox nodes run
-  Debian 13). Debian 12 ships a restic older than the backup job script needs,
-  so the backup role refuses the host until then, and hl01 keeps its former
-  Compose backup job, which nothing manages any more, until the upgrade
-  ([Backup](#backup)). The host is upgraded in place through the playbooks
-  (decided 2026-11-04, procedure in the
-  [Linux administration notes](../guides/useful-linux-admin-commands.md)), not
-  rebuilt as the state-only backup decision prescribes: the host is transitional
-  until its NixOS re-image, which is the rebuild with a state restore that
-  rehearses the fresh host procedure of the
-  [backup operations guide](../guides/operations/backup.md), so the rehearsal
-  belongs to that move and the upgrade avoids a Terraform replacement of the VM,
-  which needs both nodes up. Blocks: the backup role rollout on hl01
-  ([Backup](#backup)). Also closes the Frigate GPU statistics item below, whose
-  kernel requirement Debian 13 meets.
-
-- Frigate's Intel GPU statistics need kernel 6.5 or newer (0.18 reads the
-  per-client DRM counters), so they stay empty on hl01's Debian 12 kernel 6.1,
-  with a warning at every Frigate start, until the VM runs a newer kernel (a
-  backports kernel, or the NixOS re-image). Frigate's authenticated port (8971,
-  HTTP/2 since 0.18) is not exposed; the Compose file publishes 5000 only.
 - **Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)**:
   pve1 was installed with a ZFS root on UEFI, so it boots through
   `proxmox-boot-tool` with systemd-boot, keeps every ESP in sync, and takes the
@@ -1148,31 +1143,35 @@ reliability risks first, then security exposure, then automation):
 
 - **Roll out the single-flavour backup role (2026-10-31)**: the role that runs
   every restic job (the Debian restic package, systemd units, an exporter per
-  job) is implemented and tested, and the hosts still run the former flavours:
-  the Compose job on hl01 and raspberrypi2, the `restic-native` layout on pve1,
-  nothing yet on pve2. The role needs a restic that Debian 13 ships and Debian
-  12 does not, so hl01 follows its rebuild on Debian 13
-  ([Host configuration](#host-configuration)) and raspberrypi2 its re-image
-  ([Current focus](#current-focus)); until then both keep their Compose job,
-  which the node role no longer manages, and their repositories keep a key with
-  the quoted password the Compose template rendered. In this order, with a check
-  run before each apply: apply `backup.yaml` on pve1 (tag-scoped, as the node
-  guard requires), then remove `/etc/ferrarimarco-home-lab/restic-native` there;
-  for each Debian host, once on Debian 13: add a key with the unquoted vault
-  password to its repository (`restic key add --new-password-file`), stop and
-  remove the Compose restic project
+  job) is implemented and tested, applied on hl01 on 2026-11-04 (with its Debian
+  13 upgrade), and the other hosts still run the former flavours: the Compose
+  job on raspberrypi2, the `restic-native` layout on pve1, nothing yet on pve2.
+  The role needs a restic that Debian 13 ships and Debian 12 does not, so
+  raspberrypi2 follows its re-image ([Current focus](#current-focus)); until
+  then it keeps its Compose job, which the node role no longer manages, and its
+  repository keeps the key with the quoted password the Compose template
+  rendered. In this order, with a check run before each apply: apply
+  `backup.yaml` on pve1 (tag-scoped, as the node guard requires), then remove
+  `/etc/ferrarimarco-home-lab/restic-native` there; raspberrypi2, once
+  re-imaged, follows the sequence hl01 went through: rewrite the repository key
+  with the unquoted vault password in place
+  (`restic key passwd --new-password-file`, through the Compose container, which
+  still opens the repository with the quoted one), stop and remove the Compose
+  restic project
   (`docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml down --rmi local`,
   then the project directory), so that the new exporter can bind the port and
   the new units replace the old ones, apply `backup.yaml` and the node role's
-  `monitoring-backend` stack, and after the first native backup remove the
-  quoted key; verify the timers, the exporter targets, and the textfiles, and
-  start each drill by hand; after seven nightly snapshots forget the Compose-era
-  snapshot group of the two repositories by ID (its host label was the
-  container's hostname, and the keep-within policy never expires a group that
-  gets no new snapshot). pve2 follows when it is on. Depends on: the hl01
-  upgrade ([Host configuration](#host-configuration)) and the raspberrypi2
-  re-image for those two hosts. Update the [Backups specification](./backups.md)
-  status table as each step lands.
+  `monitoring-backend` stack, start the first backup and the drill by hand, and
+  verify the timers, the exporter targets, and the textfiles. After seven
+  nightly snapshots forget the Compose-era snapshot group by ID (its host label
+  was the container's hostname, and the keep-within policy never expires a group
+  that gets no new snapshot): hl01's from 2026-11-11, raspberrypi2's after its
+  switch. pve2 follows when it is on. Until the pve1 apply, the
+  `ResticExporterDown` alert fires for pve1 and pve2, whose exporter targets the
+  monitoring backend scrapes since hl01's converge on 2026-11-04 (left
+  unsilenced by choice). Depends on: the raspberrypi2 re-image for that host.
+  Update the [Backups specification](./backups.md) status table as each step
+  lands.
 - **State-only backups, no machine-level replication (decided 2026-10-10)**:
   configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
   host is rebuilt from Terraform, the playbooks or the flake, and a restic

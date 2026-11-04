@@ -1758,12 +1758,12 @@
 <tr>
 <td style="text-align: left;"><strong>Workloads backup job</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Nightly <code>restic-backup-workloads</code> job of the backup role over the two state trees of each Debian workload host, seven daily snapshots. The single-flavour role (2026-10-31) is not yet applied: hl01 and raspberrypi2 still run the former Compose job, unmanaged, until their Debian 13 rebuild and re-image (<a href="../#backup">rollout item</a>).</td>
+<td style="text-align: left;">Nightly <code>restic-backup-workloads</code> job of the backup role over the two state trees of each Debian workload host, seven daily snapshots. The single-flavour role (2026-10-31) runs on hl01 since 2026-11-04 (first native backup and drill clean); raspberrypi2 still runs the former Compose job, unmanaged, until its re-image (<a href="../#backup">rollout item</a>).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Per-host repositories</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">One repository per host on the nas-pve1 <code>backups</code> share; initialized only by a dedicated role task, implicit initialization refused by the job. The hl01 and raspberrypi2 repositories carry a key with the former quoted password until the re-key of the <a href="../#backup">rollout item</a>.</td>
+<td style="text-align: left;">One repository per host on the nas-pve1 <code>backups</code> share; initialized only by a dedicated role task, implicit initialization refused by the job. hl01's key was rewritten in place with the unquoted password on 2026-11-04; raspberrypi2's repository carries the former quoted password until the re-key of the <a href="../#backup">rollout item</a>.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Coverage declaration</strong></td>
@@ -1773,7 +1773,7 @@
 <tr>
 <td style="text-align: left;"><strong>Exporter per job</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">One exporter service per declared job, on every host, scraped through targets derived from the same declarations; not yet applied. raspberrypi2 declares its exporter off until its re-image, whose Python the exporter release accepts.</td>
+<td style="text-align: left;">One exporter service per declared job, on every host, scraped through targets derived from the same declarations; applied on hl01 on 2026-11-04 (target up), not yet on the nodes. raspberrypi2 declares its exporter off until its re-image, whose Python the exporter release accepts.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Structural and pack-data checks</strong></td>

@@ -68,7 +68,14 @@ follows the fresh host procedure of the
 5. Reboot, then verify: the release in `/etc/os-release`, the running kernel,
    the boot time, the services from a fresh listing, the mounts, and the
    out-of-tree kernel modules (`dkms status`), whose DKMS builds run during the
-   kernel install and fail there, not at boot.
+   kernel install and fail there, not at boot: a failed build fails the kernel
+   package's post-install hook, apt stops with the kernel and headers
+   unconfigured, and the host keeps booting the old kernel. Fix the module
+   source (on hl01 on 2026-11-04, the Coral driver source predated the pinned
+   package and lacked the fixes for kernel 6.12: `dpkg -i` of the pinned file
+   replaced it), then `dpkg --configure -a` configures the pending packages and
+   runs the hook again. The package run itself took four minutes on hl01 for 424
+   upgraded and 129 new packages.
 6. Converge on the new release: the container engine playbook moves the Docker
    source to the new release, and the node playbook surfaces whatever the
    release changed under the roles, check runs first.
