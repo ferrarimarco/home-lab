@@ -202,8 +202,9 @@ groups:
         # activating between attempts and runs briefly in between, so the
         # ratio over a window is the signal, not the state at one sample.
         # The user managers sit in activating for the length of a login and
-        # are not services to recover.
-        expr: avg_over_time(node_systemd_unit_state{state="activating", name!~"user@.*"}[30m]) > 0.5
+        # are not services to recover, and a oneshot unit is activating for
+        # its whole run (a backup job runs for hours).
+        expr: avg_over_time(node_systemd_unit_state{state="activating", type!="oneshot", name!~"user@.*"}[30m]) > 0.5
         for: 15m
         labels:
           severity: warning

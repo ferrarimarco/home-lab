@@ -448,7 +448,7 @@ tests:
                 errors in the last hour. A memory module is failing; data
                 corruption is possible.
 
-  - name: SystemdUnitRestartLooping fires for a unit that spends most of 15 minutes activating, not for one restart or a user manager
+  - name: SystemdUnitRestartLooping fires for a unit that spends most of 15 minutes activating, not for one restart, a user manager, or a running oneshot
     interval: 1m
     input_series:
       - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="zte-f6005-ont-exporter.service", state="activating", type="simple"}'
@@ -456,6 +456,8 @@ tests:
       - series: 'node_systemd_unit_state{instance="hl01:9100", name="frigate.service", state="activating", type="oneshot"}'
         values: "1 1 0x44"
       - series: 'node_systemd_unit_state{instance="pve1:9100", name="user@0.service", state="activating", type="notify"}'
+        values: "1x46"
+      - series: 'node_systemd_unit_state{instance="pve1:9100", name="restic-backup-workloads.service", state="activating", type="oneshot"}'
         values: "1x46"
     alert_rule_test:
       - eval_time: 14m
