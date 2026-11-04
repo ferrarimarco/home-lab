@@ -703,7 +703,8 @@ reliability risks first, then security exposure, then automation):
       was still booting after its power cycle. Feed the ONT ARP test and the
       `eth0` link state into the decision (link up, no ARP reply, and no PPPoE
       reply means the ONT), and expose the result for the plug trigger of the
-      ONT item in [Issues to solve](#issues-to-solve). Blocks: that item.
+      ONT item in [Issues to solve](#issues-to-solve). Blocks: the ONT hang and
+      power cycle item ([Issues to solve](#issues-to-solve)).
 - Asus gateway 2.4 GHz Wi-Fi (2026-10-09: clutter placed next to the router
   raised the band's noise floor until the radio reset itself repeatedly and
   dropped every 2.4 GHz client; clearing it restored the clients):

@@ -2543,10 +2543,10 @@ re-notification cadence, so chronic warnings do not drown urgent alerts:</p>
   group interval of ~5 minutes.</li>
 <li>Repeat interval: ~4 hours for <code>critical</code>, ~24 hours for <code>warning</code>.</li>
 <li>Inhibition: <code>WanDown</code> (§6.5) silences the <code>BlackboxProbeFailed</code> alerts of the
-  targets labelled <code>scope=wan</code> (the public ping hosts and the public DNS
-  records), so a WAN outage is one notification instead of one per target.
-  <code>AlertmanagerNotificationsFailing</code> is left alone: it is the record that the
-  outage could not be reported while it lasted.</li>
+  targets labelled <code>scope=wan</code> (the public ping hosts and the DNS records
+  outside the root zone), so a WAN outage is one notification instead of one per
+  target. <code>AlertmanagerNotificationsFailing</code> is left alone: it is the record
+  that the outage could not be reported while it lasted.</li>
 </ul>
 <h3 id="51-planned-downtime">5.1 Planned Downtime</h3>
 <p>Hosts that are deliberately powered off (for example a Proxmox node shut down on
@@ -2689,9 +2689,9 @@ with operational experience.</p>
 <tr>
 <td style="text-align: left;"><code>SystemdUnitRestartLooping</code></td>
 <td style="text-align: left;">warning</td>
-<td style="text-align: left;"><code>avg_over_time(node_systemd_unit_state{state="activating", name!~"user@.*"}[30m]) &gt; 0.5</code></td>
+<td style="text-align: left;"><code>avg_over_time(node_systemd_unit_state{state="activating", type!="oneshot", name!~"user@.*"}[30m]) &gt; 0.5</code></td>
 <td style="text-align: left;">15 min</td>
-<td style="text-align: left;">A unit with <code>Restart=</code> never settles in <code>failed</code>: it sits in <code>activating</code> between attempts and runs briefly in between (the ONT exporter was <code>activating</code> for 93 percent of the week before 2026-11-04 and <code>failed</code> for none of it, so its seven-month restart loop raised nothing). A state sampled at one instant resets a plain hold, so the rule averages over a window. The user managers sit in <code>activating</code> for the length of a login on the Debian 11 and Proxmox hosts and are excluded.</td>
+<td style="text-align: left;">A unit with <code>Restart=</code> never settles in <code>failed</code>: it sits in <code>activating</code> between attempts and runs briefly in between (the ONT exporter was <code>activating</code> for 93 percent of the week before 2026-11-04 and <code>failed</code> for none of it, so its seven-month restart loop raised nothing). A state sampled at one instant resets a plain hold, so the rule averages over a window. The user managers sit in <code>activating</code> for the length of a login on the Debian 11 and Proxmox hosts, and a oneshot unit for its whole run (the backup jobs run for hours): both are excluded.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>NodeClockSkewed</code></td>
@@ -2866,7 +2866,7 @@ with operational experience.</p>
 <td style="text-align: left;">critical</td>
 <td style="text-align: left;"><code>max(probe_success{job="blackbox-ping", scope="wan"}) == 0</code></td>
 <td style="text-align: left;">3 min</td>
-<td style="text-align: left;">Every target reachable only through the WAN fails at once: the WAN is down, whatever the cause. The Prometheus template labels the hosts of <code>monitoring_backend_wan_icmp_ping_hosts_to_check</code> (the public ping hosts) and the public DNS record probes with <code>scope=wan</code>. One alert instead of one per target (the 2026-11-04 outage fired eleven), and the one to route out of band when such a channel exists.</td>
+<td style="text-align: left;">Every target reachable only through the WAN fails at once: the WAN is down, whatever the cause. The Prometheus template labels the hosts of <code>monitoring_backend_wan_icmp_ping_hosts_to_check</code> (the public ping hosts) and the probes of DNS records outside the root zone with <code>scope=wan</code>. One alert instead of one per target (the 2026-11-04 outage fired eleven), and the one to route out of band when such a channel exists.</td>
 </tr>
 </tbody>
 </table>
