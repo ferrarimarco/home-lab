@@ -492,12 +492,15 @@ reliability risks first, then security exposure, then automation):
   Debian 13). Debian 12 ships a restic older than the backup job script needs,
   so the backup role refuses the host until then, and hl01 keeps its former
   Compose backup job, which nothing manages any more, until the upgrade
-  ([Backup](#backup)). The host is rebuilt, not upgraded in place, as the
-  state-only backup decision prescribes: Terraform for the VM, the playbooks,
-  and the in-place restore of each stack
-  ([backup operations guide](../guides/operations/backup.md)). Depends on: the
-  raspberrypi2 re-image ([Current focus](#current-focus)) for the restore
-  procedure rehearsal. Blocks: the backup role rollout on hl01
+  ([Backup](#backup)). The host is upgraded in place through the playbooks
+  (decided 2026-11-04, procedure in the
+  [Linux administration notes](../guides/useful-linux-admin-commands.md)), not
+  rebuilt as the state-only backup decision prescribes: the host is transitional
+  until its NixOS re-image, which is the rebuild with a state restore that
+  rehearses the fresh host procedure of the
+  [backup operations guide](../guides/operations/backup.md), so the rehearsal
+  belongs to that move and the upgrade avoids a Terraform replacement of the VM,
+  which needs both nodes up. Blocks: the backup role rollout on hl01
   ([Backup](#backup)). Also closes the Frigate GPU statistics item below, whose
   kernel requirement Debian 13 meets.
 

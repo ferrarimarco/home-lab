@@ -202,6 +202,9 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   restic repository and is documented in the
   [backup operations guide](../operations/backup.md); `backup.yaml` converges
   the restic jobs of the backup role on every host that declares them;
+  `update-os-packages.yaml` dist-upgrades the OS packages, including a release
+  upgrade prepared by the bootstrap playbook, as the
+  [Linux administration notes](../useful-linux-admin-commands.md) describe;
   `gateway-dnsmasq.yaml` converges the DHCP settings of the gateway's dnsmasq
   (pool bounds, lease time, the DNS option, the LAN domain, and the reservations
   rendered from the inventory) through the router's NVRAM over SSH, as the

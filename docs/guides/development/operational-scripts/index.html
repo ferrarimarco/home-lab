@@ -1952,6 +1952,9 @@ shell. See the <a href="../nix-dev-shells/">Nix development shells guide</a>.</p
   restic repository and is documented in the
   <a href="../../operations/backup/">backup operations guide</a>; <code>backup.yaml</code> converges
   the restic jobs of the backup role on every host that declares them;
+  <code>update-os-packages.yaml</code> dist-upgrades the OS packages, including a release
+  upgrade prepared by the bootstrap playbook, as the
+  <a href="../../useful-linux-admin-commands/">Linux administration notes</a> describe;
   <code>gateway-dnsmasq.yaml</code> converges the DHCP settings of the gateway's dnsmasq
   (pool bounds, lease time, the DNS option, the LAN domain, and the reservations
   rendered from the inventory) through the router's NVRAM over SSH, as the

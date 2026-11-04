@@ -1024,6 +1024,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#release-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release upgrade
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1723,6 +1732,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#release-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release upgrade
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1798,6 +1816,51 @@ changed before touching the known hosts file.</p>
   <code>apt-get install &lt;package-name&gt;=&lt;package-version-number&gt;</code></li>
 <li>The package update logs are in <code>/var/log/apt/history.log</code></li>
 </ul>
+<h3 id="release-upgrade">Release upgrade</h3>
+<p>The playbooks upgrade a Debian host in place to the next release; the host keeps
+its state trees and its container images, and the upgrade costs one reboot. A
+fresh install (a VM rebuilt from a cloud image, a re-imaged Raspberry Pi)
+follows the fresh host procedure of the
+<a href="../operations/backup/">backup operations guide</a> instead.</p>
+<ol>
+<li>Read the host: <code>apt-mark showhold</code> (nothing held), the packages installed
+   from backports or third-party repositories (<code>apt list --installed</code>, the
+   release notes of the new release say which are known to break), and the free
+   space on the root filesystem (the upgrade needs a few gigabytes).</li>
+<li>Secure the pre-change copy: run the host's backup job by hand and confirm its
+   snapshot, and for a VM snapshot its root volume on the node
+   (<code>zfs snapshot rpool/data/vm-&lt;id&gt;-disk-&lt;n&gt;@pre-&lt;release&gt;</code>), the rollback for
+   a broken upgrade (<code>zfs rollback</code> with the VM stopped). Silence the host's
+   alerts as the <a href="../operations/monitoring/">monitoring operations guide</a>
+   describes.</li>
+<li>
+<p>Point APT at the new release through the bootstrap playbook, which renders
+   the Debian sources from <code>debian_release_force_upgrade</code> instead of the running
+   release, check run first:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;--check --diff --limit &lt;host&gt; -e debian_release_force_upgrade=&lt;codename&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;bootstrap.yaml&quot;</span><span class="w"> </span>scripts/run-ansible.sh
+</code></pre></div>
+<p>Third-party sources (Docker's) keep the old release name until their role
+runs on the upgraded host; their packages for the old release install on the
+new one in the meantime.</p>
+</li>
+<li>
+<p>Predict the upgrade on the host (<code>sudo apt full-upgrade --simulate</code>), and
+   review the removals: a package the new release drops takes its dependents
+   with it. Then run the OS packages playbook limited to the host; its
+   dist-upgrade task runs detached from the SSH session, so a dropped connection
+   does not interrupt it, and the playbook keeps the existing configuration
+   files where the new packages ship changed defaults (the new files land beside
+   them with a <code>.dpkg-dist</code> suffix).</p>
+</li>
+<li>Reboot, then verify: the release in <code>/etc/os-release</code>, the running kernel,
+   the boot time, the services from a fresh listing, the mounts, and the
+   out-of-tree kernel modules (<code>dkms status</code>), whose DKMS builds run during the
+   kernel install and fail there, not at boot.</li>
+<li>Converge on the new release: the container engine playbook moves the Docker
+   source to the new release, and the node playbook surfaces whatever the
+   release changed under the roles, check runs first.</li>
+</ol>
 <h2 id="networking">Networking</h2>
 <ul>
 <li>Get the list of open ports on a system (with superuser privileges, it also

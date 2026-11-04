@@ -27,6 +27,52 @@ changed before touching the known hosts file.
   `apt-get install <package-name>=<package-version-number>`
 - The package update logs are in `/var/log/apt/history.log`
 
+### Release upgrade
+
+The playbooks upgrade a Debian host in place to the next release; the host keeps
+its state trees and its container images, and the upgrade costs one reboot. A
+fresh install (a VM rebuilt from a cloud image, a re-imaged Raspberry Pi)
+follows the fresh host procedure of the
+[backup operations guide](./operations/backup.md) instead.
+
+1. Read the host: `apt-mark showhold` (nothing held), the packages installed
+   from backports or third-party repositories (`apt list --installed`, the
+   release notes of the new release say which are known to break), and the free
+   space on the root filesystem (the upgrade needs a few gigabytes).
+2. Secure the pre-change copy: run the host's backup job by hand and confirm its
+   snapshot, and for a VM snapshot its root volume on the node
+   (`zfs snapshot rpool/data/vm-<id>-disk-<n>@pre-<release>`), the rollback for
+   a broken upgrade (`zfs rollback` with the VM stopped). Silence the host's
+   alerts as the [monitoring operations guide](./operations/monitoring.md)
+   describes.
+3. Point APT at the new release through the bootstrap playbook, which renders
+   the Debian sources from `debian_release_force_upgrade` instead of the running
+   release, check run first:
+
+    ```shell
+    ADDITIONAL_ANSIBLE_FLAGS="--check --diff --limit <host> -e debian_release_force_upgrade=<codename>" \
+      ANSIBLE_PLAYBOOK_FILE_NAME="bootstrap.yaml" scripts/run-ansible.sh
+    ```
+
+    Third-party sources (Docker's) keep the old release name until their role
+    runs on the upgraded host; their packages for the old release install on the
+    new one in the meantime.
+
+4. Predict the upgrade on the host (`sudo apt full-upgrade --simulate`), and
+   review the removals: a package the new release drops takes its dependents
+   with it. Then run the OS packages playbook limited to the host; its
+   dist-upgrade task runs detached from the SSH session, so a dropped connection
+   does not interrupt it, and the playbook keeps the existing configuration
+   files where the new packages ship changed defaults (the new files land beside
+   them with a `.dpkg-dist` suffix).
+5. Reboot, then verify: the release in `/etc/os-release`, the running kernel,
+   the boot time, the services from a fresh listing, the mounts, and the
+   out-of-tree kernel modules (`dkms status`), whose DKMS builds run during the
+   kernel install and fail there, not at boot.
+6. Converge on the new release: the container engine playbook moves the Docker
+   source to the new release, and the node playbook surfaces whatever the
+   release changed under the roles, check runs first.
+
 ## Networking
 
 - Get the list of open ports on a system (with superuser privileges, it also
