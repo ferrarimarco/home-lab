@@ -188,14 +188,33 @@ reliability risks first, then security exposure, then automation):
     - Prune the now-unreferenced `vault_raspberrypi2_monitoring_nut_*` variables
       from the raspberrypi2 Ansible vault (NUT moved to pve1; the host_vars
       references were removed on 2026-09-14).
-- ONT admin interface health: the ZTE ONT's admin interface sometimes hangs
-  until the ONT is rebooted (it hung from 2026-03-28 until at least 2026-09-15,
-  starving the ONT exporter; a manual reboot is still pending). The ONT is a
-  closed, ISP-managed device, so root-causing is likely not possible; explore
-  detecting the hang from monitoring (the exporter now fails visibly when it
-  happens) and eventually automating the reboot (e.g. a smart plug power cycle),
-  and assess whether that automation is worth the added failure modes.
-  Actionability unclear at this point.
+- ONT hang and power cycle: the ZTE ONT (model F6005V6.0, software V6.0.10N20)
+  hangs in a state that only a power cycle clears. Its admin interface hung from
+  2026-03-28 to 2026-11-04, starving the ONT exporter, and on 2026-11-04 its
+  forwarding plane hung too: the WAN was down from 01:20 to 06:12 UTC while the
+  PON LED stayed on, the gateway's Ethernet link to the ONT stayed up at 2.5
+  Gbps, PPPoE discovery got no reply, and the ONT answered no ARP. The router
+  WAN check restarted the WAN 98 times without effect (its only action is a
+  PPPoE restart on the router), a manual power cycle restored the PPPoE session
+  within seconds, and the admin interface came back with it (the exporter runs
+  again since 06:30 UTC, its first data since March). Verified the same day: the
+  admin interface serves three read-only pages (device, GPON, and LAN port info)
+  with no log, no uptime, and no reboot control, so a smart plug is the only
+  remote recovery lever; the ONT keeps no log and its counters restart with
+  power, so the router log is the only record of an outage start
+  ([Networking](#networking) has the log retention item). The ONT is a closed,
+  ISP-managed device, so root-causing is likely not possible. Design to assess:
+  a Zigbee plug on the ONT (whether it sits on one of the studio plugs today is
+  not recorded), switched over a path that does not need the WAN (Zigbee2MQTT on
+  raspberrypi2 and the MQTT broker on hl02, from a Home Assistant automation or
+  from the WAN check unit) when the check has failed for several consecutive
+  runs with the gateway's Ethernet link up and no PPPoE reply, at most one cycle
+  per hour. Failure modes to weigh before building it: a cycle during an ISP
+  outage is wasted but harmless; the plug, Zigbee2MQTT, and the check all depend
+  on raspberrypi2; an ONT reboot drops the WAN for about a minute, so the
+  trigger must not fire on a short blip (the check's `fails=1` setting is the
+  current sensitivity). Depends on: the WAN check telling an ONT hang from an
+  ISP outage ([Networking](#networking)).
 
 ### Reliability and resilience
 
@@ -670,6 +689,18 @@ reliability risks first, then security exposure, then automation):
       mostly unquoted expansions), then remove its `shellcheck disable=all`
       directive. The script runs on the router, so test each change against it
       before deploying.
+    - Re-add the ONT route script's NAT rule after each WAN restart:
+      `restart_wan` rebuilds the router's firewall and drops the MASQUERADE rule
+      the half-hourly `configure-route-to-ont.sh` adds, so the ONT exporter
+      loses its path for up to 30 minutes after every restart (the script
+      re-added the rule at every run on 2026-11-04). Run the route script from
+      the check after a restart.
+    - Tell an ONT hang from an ISP outage: on 2026-11-04 the check restarted the
+      WAN 98 times against a hung ONT, and once more at 06:12 UTC while the ONT
+      was still booting after its power cycle. Feed the ONT ARP test and the
+      `eth0` link state into the decision (link up, no ARP reply, and no PPPoE
+      reply means the ONT), and expose the result for the plug trigger of the
+      ONT item in [Issues to solve](#issues-to-solve). Blocks: that item.
 - Asus gateway 2.4 GHz Wi-Fi (2026-10-09: clutter placed next to the router
   raised the band's noise floor until the radio reset itself repeatedly and
   dropped every 2.4 GHz client; clearing it restored the clients):
@@ -814,8 +845,17 @@ reliability risks first, then security exposure, then automation):
       server, and define the DNS names there: refactor the roles so endpoint
       FQDNs in the vars file are automatically configured; reverse proxy
       (Traefik).
-- 4G/5G WAN fallback.
-- Disable UPnP on the gateway.
+- 4G/5G WAN fallback: dual WAN failover on the router with a USB modem or a
+  tethered phone. It restores service during an ONT or ISP outage (the lab was
+  offline for five hours on 2026-11-04) and lets Alertmanager deliver normally,
+  at the cost of a SIM and a modem. The WAN check must then probe the primary
+  interface (`i=wan0`), since a failover would hide the ONT fault from it.
+- Disable UPnP on the gateway, or at least its PCP logging, and forward the
+  router log off the router: miniupnpd's "Invalid PCP v2 MAP message" lines were
+  more than half of the router's 256 KB log on 2026-11-04 and rotated it every
+  two hours, so the start of that day's WAN outage was gone by the time the log
+  was read (the single rotated copy is overwritten in turn). The router's log
+  settings can send syslog to a remote host.
 
 ### Monitoring and alerting
 
@@ -882,6 +922,30 @@ reliability risks first, then security exposure, then automation):
   only apply to a freshly initialized database, so existing replicas need a
   one-time in-container `grafana-cli admin reset-admin-password` reading the
   value from the container environment.
+- **Alerts missing on 2026-11-04** (the WAN outage of the ONT item in
+  [Issues to solve](#issues-to-solve)): detection worked, with every external
+  ping and DNS probe failing at the same sample and `BlackboxProbeFailed` firing
+  after its 10-minute hold, but the lab said it eleven times, once per target,
+  and two failures had stayed silent for months. Rules to add, each with
+  promtool tests:
+    - A restart-loop rule, `node_systemd_unit_state{state="activating"} == 1`
+      for 30 minutes: `SystemdUnitFailed` needs the `failed` state for 15
+      minutes, and a unit with `Restart=always` sits in `activating` between
+      attempts (the ONT exporter spent 93 percent of the seven days before
+      2026-11-04 there and none in `failed`, so its restart loop since March
+      raised nothing).
+    - `OntMetricsMissing`, on the pattern of `AptMetricsMissing`: the exporter
+      unit exists on the host but no `ztef6005ont_gpon_status` series does.
+      `NodeTextfileStale` cannot cover it because the unit deletes its textfile
+      on exit.
+    - `OntGponNotOperational`: the operational-state series of
+      `ztef6005ont_gpon_status` at zero for 5 minutes, now that the exporter has
+      data. The PON LED stayed on through the outage; the rule records whether
+      the PON stays registered during the next hang.
+    - `WanDown`: every external ping target failing for 3 minutes, one critical
+      alert, with an inhibition rule silencing the per-target probe alerts while
+      it fires. This is the alert to route out of band (the dead man's switch
+      item below).
 - To monitor:
     - EdgeTPU: custom exporter, or
       [edgetpu-exporter](https://github.com/adaptant-labs/edgetpu-exporter).
@@ -915,14 +979,27 @@ reliability risks first, then security exposure, then automation):
   [Monitoring Alerting](./monitoring-alerting.md) spec:
     - Tune the textfile staleness alert threshold per collector (the first
       iteration uses one conservative threshold sized to the slowest daily
-      timer, so a stuck frequent collector is detected late).
+      timer, so a stuck frequent collector is detected late; the ONT exporter
+      writes every 30 seconds).
     - Dead-man's-switch: an always-firing heartbeat alert delivered through a
       channel independent of the Prometheus host, so a dead monitoring backend
       is itself noticed. Candidate channels: a hosted check that expects the
       heartbeat and notifies on absence (Healthchecks.io, UptimeRobot), or a
       scheduled GitHub Actions workflow that probes the heartbeat endpoint and
       notifies on failure, which needs no infrastructure beyond the repository
-      and is independent of the home connection.
+      and is independent of the home connection. The 2026-11-04 WAN outage is
+      the motivating case: Telegram needs the WAN, both Alertmanager replicas
+      gave up delivery after five minutes, and the alerts reached the phone at
+      06:12 UTC, after the manual recovery. A hosted check notifies the phone
+      through its own app, email, or SMS, so it is also the cheapest mobile
+      notification for a WAN outage, saying that the lab is unreachable but not
+      why. Alternatives that deliver the alert content: the 4G/5G WAN fallback
+      of [Networking](#networking), which restores service rather than
+      awareness, or an SMS modem with a prepaid SIM on a lab host behind an
+      Alertmanager webhook, one more component and a SIM to keep topped up. Not
+      viable: Home Assistant companion push (relayed through the cloud),
+      Tailscale (the phone cannot reach the lab without the WAN), and local
+      sirens or lights (not mobile).
 - Validate the reworked `sense-hat-exporter` unit (venv in a systemd state
   directory, metrics file deleted on start and exit, throttled restarts; changed
   2026-09-14) whenever a host with a Sense HAT returns to service; no such host
