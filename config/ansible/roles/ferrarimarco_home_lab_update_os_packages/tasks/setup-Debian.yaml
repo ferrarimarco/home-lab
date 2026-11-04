@@ -1,4 +1,9 @@
 ---
+# The upgrade runs detached from the SSH session: a release upgrade (the
+# bootstrap role points APT at the next release through
+# debian_release_force_upgrade) replaces hundreds of packages over many
+# minutes, and a session dropped in that window would otherwise hang up apt in
+# the middle of a dpkg transaction.
 - name: Update APT package index, dist-upgrade, autoclean, autoremove APT packages
   ansible.builtin.apt:
     autoclean: true
@@ -7,3 +12,5 @@
     update_cache: true
     upgrade: dist
   become: true
+  async: 3600
+  poll: 30
