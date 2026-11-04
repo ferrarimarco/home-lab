@@ -682,6 +682,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#613-ont" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.13 ONT
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2185,6 +2194,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#613-ont" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.13 ONT
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2255,7 +2273,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alertmanager Configuration</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Severity-aware routing and the Telegram receiver; end-to-end delivery verified with a synthetic alert (§4, §5).</td>
+<td style="text-align: left;">Severity-aware routing, the Telegram receiver, and the <code>WanDown</code> inhibition of the WAN-scoped probe alerts; end-to-end delivery verified with a synthetic alert (§4, §5). Inhibition rule not yet applied.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Prometheus Alerting Wiring</strong></td>
@@ -2270,7 +2288,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Node Health</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, failed systemd units, clock skew, and memory errors (§6.2).</td>
+<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, failed and restart-looping systemd units, clock skew, and memory errors (§6.2). Restart-loop rule not yet applied.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Temperature</strong></td>
@@ -2285,7 +2303,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">ICMP, DNS, HTTP, and TCP probe failures (§6.5).</td>
+<td style="text-align: left;">ICMP, DNS, HTTP, and TCP probe failures, and the aggregate <code>WanDown</code> on the WAN-scoped ping targets (§6.5). <code>WanDown</code> and the <code>scope=wan</code> target label not yet applied.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Frigate</strong></td>
@@ -2323,6 +2341,11 @@
 <td style="text-align: left;">Notification delivery, configuration reload, rule evaluation, and Alertmanager cluster health (§6.12).</td>
 </tr>
 <tr>
+<td style="text-align: left;"><strong>Alert Rules: ONT</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Missing ONT metrics and the GPON operation state on the ONT exporter textfile (§6.13). Not yet applied.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">All four monitoring backend services run with <code>restart: unless-stopped</code>, verified via <code>docker inspect</code> after deployment (§8).</td>
@@ -2345,7 +2368,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Unit Tests</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>promtool test rules</code> cases for all 51 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
+<td style="text-align: left;"><code>promtool test rules</code> cases for all 55 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
 </tr>
 </tbody>
 </table>
@@ -2519,6 +2542,11 @@ re-notification cadence, so chronic warnings do not drown urgent alerts:</p>
 <li>Grouping: by alert name and instance, with a short group wait (~30 s) and a
   group interval of ~5 minutes.</li>
 <li>Repeat interval: ~4 hours for <code>critical</code>, ~24 hours for <code>warning</code>.</li>
+<li>Inhibition: <code>WanDown</code> (§6.5) silences the <code>BlackboxProbeFailed</code> alerts of the
+  targets labelled <code>scope=wan</code> (the public ping hosts and the public DNS
+  records), so a WAN outage is one notification instead of one per target.
+  <code>AlertmanagerNotificationsFailing</code> is left alone: it is the record that the
+  outage could not be reported while it lasted.</li>
 </ul>
 <h3 id="51-planned-downtime">5.1 Planned Downtime</h3>
 <p>Hosts that are deliberately powered off (for example a Proxmox node shut down on
@@ -2657,6 +2685,13 @@ with operational experience.</p>
 <td style="text-align: left;"><code>node_systemd_unit_state{state="failed"} == 1</code></td>
 <td style="text-align: left;">15 min</td>
 <td style="text-align: left;">A failed unit sits between a dead host (<code>InstanceDown</code>) and service-specific rules; the fleet starts from zero failed units (openipmi cleared 2026-10-04).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SystemdUnitRestartLooping</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>avg_over_time(node_systemd_unit_state{state="activating", name!~"user@.*"}[30m]) &gt; 0.5</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">A unit with <code>Restart=</code> never settles in <code>failed</code>: it sits in <code>activating</code> between attempts and runs briefly in between (the ONT exporter was <code>activating</code> for 93 percent of the week before 2026-11-04 and <code>failed</code> for none of it, so its seven-month restart loop raised nothing). A state sampled at one instant resets a plain hold, so the rule averages over a window. The user managers sit in <code>activating</code> for the length of a login on the Debian 11 and Proxmox hosts and are excluded.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>NodeClockSkewed</code></td>
@@ -2825,6 +2860,13 @@ with operational experience.</p>
 <td style="text-align: left;"><code>probe_success == 0</code> on the TCP probe job</td>
 <td style="text-align: left;">10 min</td>
 <td style="text-align: left;">A service port stopped accepting connections (today the MQTT broker, whose consumers lose their bus while it is down).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>WanDown</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>max(probe_success{job="blackbox-ping", scope="wan"}) == 0</code></td>
+<td style="text-align: left;">3 min</td>
+<td style="text-align: left;">Every target reachable only through the WAN fails at once: the WAN is down, whatever the cause. The Prometheus template labels the hosts of <code>monitoring_backend_wan_icmp_ping_hosts_to_check</code> (the public ping hosts) and the public DNS record probes with <code>scope=wan</code>. One alert instead of one per target (the 2026-11-04 outage fired eleven), and the one to route out of band when such a channel exists.</td>
 </tr>
 </tbody>
 </table>
@@ -3119,6 +3161,39 @@ so a replica that cannot alert on itself is covered by the other.</p>
 <td style="text-align: left;"><code>alertmanager_cluster_members &lt; 2</code></td>
 <td style="text-align: left;">15 min</td>
 <td style="text-align: left;">Both Alertmanagers up but not gossiping breaks deduplication: duplicate or missing notifications.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="613-ont">6.13 ONT</h3>
+<p>The ONT exporter on raspberrypi2 logs into the ZTE ONT's admin interface every
+30 seconds and writes a textfile. The admin interface hangs for months at a time
+(2026-03-28 to 2026-11-04) until the ONT is power-cycled, and the unit deletes
+its textfile on exit, so neither <code>NodeTextfileStale</code> nor <code>SystemdUnitFailed</code> saw
+the exporter failing.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>OntMetricsMissing</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>max by (instance) (node_systemd_unit_state{name="zte-f6005-ont-exporter.service"}) unless on (instance) ztef6005ont_gpon_status</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">The host has the exporter unit but no GPON state series: the admin interface is unreachable or the exporter is broken. On the <code>AptMetricsMissing</code> pattern.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>OntGponNotOperational</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>ztef6005ont_gpon_status{flag="Operation state(O5)"} == 0</code></td>
+<td style="text-align: left;">5 min</td>
+<td style="text-align: left;">The ONT left the GPON operation state: the optical link is down or re-registering, and the WAN with it. The PON LED stayed on through the 2026-11-04 outage; the rule records whether the PON stays registered during the next hang.</td>
 </tr>
 </tbody>
 </table>

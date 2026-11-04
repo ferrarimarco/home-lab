@@ -2978,32 +2978,6 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   only apply to a freshly initialized database, so existing replicas need a
   one-time in-container <code>grafana-cli admin reset-admin-password</code> reading the
   value from the container environment.</li>
-<li><strong>Alerts missing on 2026-11-04</strong> (the WAN outage of the ONT item in
-  <a href="#issues-to-solve">Issues to solve</a>): detection worked, with every external
-  ping and DNS probe failing at the same sample and <code>BlackboxProbeFailed</code> firing
-  after its 10-minute hold, but the lab said it eleven times, once per target,
-  and two failures had stayed silent for months. Rules to add, each with
-  promtool tests:<ul>
-<li>A restart-loop rule, <code>node_systemd_unit_state{state="activating"} == 1</code>
-  for 30 minutes: <code>SystemdUnitFailed</code> needs the <code>failed</code> state for 15
-  minutes, and a unit with <code>Restart=always</code> sits in <code>activating</code> between
-  attempts (the ONT exporter spent 93 percent of the seven days before
-  2026-11-04 there and none in <code>failed</code>, so its restart loop since March
-  raised nothing).</li>
-<li><code>OntMetricsMissing</code>, on the pattern of <code>AptMetricsMissing</code>: the exporter
-  unit exists on the host but no <code>ztef6005ont_gpon_status</code> series does.
-  <code>NodeTextfileStale</code> cannot cover it because the unit deletes its textfile
-  on exit.</li>
-<li><code>OntGponNotOperational</code>: the operational-state series of
-  <code>ztef6005ont_gpon_status</code> at zero for 5 minutes, now that the exporter has
-  data. The PON LED stayed on through the outage; the rule records whether
-  the PON stays registered during the next hang.</li>
-<li><code>WanDown</code>: every external ping target failing for 3 minutes, one critical
-  alert, with an inhibition rule silencing the per-target probe alerts while
-  it fires. This is the alert to route out of band (the dead man's switch
-  item below).</li>
-</ul>
-</li>
 <li>To monitor:<ul>
 <li>EdgeTPU: custom exporter, or
   <a href="https://github.com/adaptant-labs/edgetpu-exporter">edgetpu-exporter</a>.</li>

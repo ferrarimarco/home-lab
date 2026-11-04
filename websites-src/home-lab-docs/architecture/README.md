@@ -922,30 +922,6 @@ reliability risks first, then security exposure, then automation):
   only apply to a freshly initialized database, so existing replicas need a
   one-time in-container `grafana-cli admin reset-admin-password` reading the
   value from the container environment.
-- **Alerts missing on 2026-11-04** (the WAN outage of the ONT item in
-  [Issues to solve](#issues-to-solve)): detection worked, with every external
-  ping and DNS probe failing at the same sample and `BlackboxProbeFailed` firing
-  after its 10-minute hold, but the lab said it eleven times, once per target,
-  and two failures had stayed silent for months. Rules to add, each with
-  promtool tests:
-    - A restart-loop rule, `node_systemd_unit_state{state="activating"} == 1`
-      for 30 minutes: `SystemdUnitFailed` needs the `failed` state for 15
-      minutes, and a unit with `Restart=always` sits in `activating` between
-      attempts (the ONT exporter spent 93 percent of the seven days before
-      2026-11-04 there and none in `failed`, so its restart loop since March
-      raised nothing).
-    - `OntMetricsMissing`, on the pattern of `AptMetricsMissing`: the exporter
-      unit exists on the host but no `ztef6005ont_gpon_status` series does.
-      `NodeTextfileStale` cannot cover it because the unit deletes its textfile
-      on exit.
-    - `OntGponNotOperational`: the operational-state series of
-      `ztef6005ont_gpon_status` at zero for 5 minutes, now that the exporter has
-      data. The PON LED stayed on through the outage; the rule records whether
-      the PON stays registered during the next hang.
-    - `WanDown`: every external ping target failing for 3 minutes, one critical
-      alert, with an inhibition rule silencing the per-target probe alerts while
-      it fires. This is the alert to route out of band (the dead man's switch
-      item below).
 - To monitor:
     - EdgeTPU: custom exporter, or
       [edgetpu-exporter](https://github.com/adaptant-labs/edgetpu-exporter).
