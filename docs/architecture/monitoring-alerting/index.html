@@ -2273,7 +2273,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alertmanager Configuration</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Severity-aware routing, the Telegram receiver, and the <code>WanDown</code> inhibition of the WAN-scoped probe alerts; end-to-end delivery verified with a synthetic alert (§4, §5). Inhibition rule not yet applied.</td>
+<td style="text-align: left;">Severity-aware routing, the Telegram receiver, and the <code>WanDown</code> inhibition of the WAN-scoped probe alerts; end-to-end delivery verified with a synthetic alert (§4, §5). Inhibition rule applied on hl01 and raspberrypi2 on 2026-11-04.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Prometheus Alerting Wiring</strong></td>
@@ -2288,7 +2288,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Node Health</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, failed and restart-looping systemd units, clock skew, and memory errors (§6.2). Restart-loop rule not yet applied.</td>
+<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, failed and restart-looping systemd units, clock skew, and memory errors (§6.2). Restart-loop rule applied on both replicas on 2026-11-04.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Temperature</strong></td>
@@ -2303,7 +2303,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">ICMP, DNS, HTTP, and TCP probe failures, and the aggregate <code>WanDown</code> on the WAN-scoped ping targets (§6.5). <code>WanDown</code> and the <code>scope=wan</code> target label not yet applied.</td>
+<td style="text-align: left;">ICMP, DNS, HTTP, and TCP probe failures, and the aggregate <code>WanDown</code> on the WAN-scoped ping targets (§6.5). <code>WanDown</code> and the <code>scope=wan</code> target label applied on both replicas on 2026-11-04 (11 labelled targets up on each).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Frigate</strong></td>
@@ -2343,7 +2343,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: ONT</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Missing ONT metrics and the GPON operation state on the ONT exporter textfile (§6.13). Not yet applied.</td>
+<td style="text-align: left;">Missing ONT metrics and the GPON operation state on the ONT exporter textfile (§6.13). Applied on both replicas on 2026-11-04; the exporter has produced data since 06:30 UTC that day.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
