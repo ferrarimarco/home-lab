@@ -76,6 +76,27 @@ the notifications sent are visible in Prometheus as
 `alertmanager_alerts{state="suppressed"}` and
 `alertmanager_notifications_total{integration="telegram"}`.
 
+### Did the alerts reach Telegram
+
+Telegram delivery needs the WAN (the
+[alerting spec](../../architecture/monitoring-alerting.md) covers the
+consequence), so after a WAN outage read the delivery attempts of the window
+from the Alertmanager container log on either replica:
+
+```shell
+ssh pi@raspberrypi2.edge.lab.ferrari.how \
+  docker logs --since 2026-11-04T01:30:00Z --until 2026-11-04T06:20:00Z \
+  alertmanager 2>&1 | grep -E 'Notify'
+```
+
+In Alertmanager 0.34: an error line "Notify for alerts failed" whose `err` says
+"notify retry canceled after N attempts" means the group was dropped until its
+next group interval; a warning "Notify attempt failed, will retry later" is
+logged when the error text changes, with the attempt count in its `attempts`
+field; "Notify success" is logged at the default level only for a delivery that
+needed retries, so an absent line is not a missed delivery. Count the deliveries
+with `alertmanager_notifications_total{integration="telegram"}`.
+
 ## Interpreting query results
 
 - **A gap in `query_range` samples is a state change.** `ALERTS` series exist

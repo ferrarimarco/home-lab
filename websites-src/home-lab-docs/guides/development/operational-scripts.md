@@ -162,7 +162,11 @@ different command inside that environment instead.
       sample interval within the 5 minute lookback for rules with a `for`
       clause, or the series goes stale between samples and the pending alert
       resets (6 m and 10 m intervals never fired it); rules without one may use
-      coarser samples evaluated at sample timestamps.
+      coarser samples evaluated at sample timestamps. A `for` hold counts from
+      the first evaluation where the expression holds, and a range function
+      returns the mean of the samples present, so an `avg_over_time(...[30m])`
+      rule with `for: 15m` fires at 15 minutes in a test whose series starts
+      true, not at 45: put the non-firing case before the `for` duration.
     - `AxN` in `values` emits N+1 samples (the value, then N repeats), so a
       transition written as `0x2 1x2` happens at the third sample, not the
       second.
@@ -335,7 +339,11 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     A stack that starts a service also needs `install-debian-packages` in the
     scope: the package install task runs only when the run names that tag, and
     without it the service's dependencies (`python3-venv` for `monitoring-apt`)
-    are missing when the unit starts.
+    are missing when the unit starts. A stack whose files land in a directory
+    another stack creates needs that stack's tag too: `monitoring-backend`
+    writes a textfile into the collector directory that `monitoring` creates, so
+    scope it `monitoring-backend,monitoring,untagged`, or the copy fails with
+    "Destination directory does not exist".
 
     Unset, the variable selects every task, which is what CI runs. Run the full
     unscoped test once before pushing: a scoped run does not exercise the other

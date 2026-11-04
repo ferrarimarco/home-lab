@@ -1910,7 +1910,11 @@ different command inside that environment instead.</p>
   sample interval within the 5 minute lookback for rules with a <code>for</code>
   clause, or the series goes stale between samples and the pending alert
   resets (6 m and 10 m intervals never fired it); rules without one may use
-  coarser samples evaluated at sample timestamps.</li>
+  coarser samples evaluated at sample timestamps. A <code>for</code> hold counts from
+  the first evaluation where the expression holds, and a range function
+  returns the mean of the samples present, so an <code>avg_over_time(...[30m])</code>
+  rule with <code>for: 15m</code> fires at 15 minutes in a test whose series starts
+  true, not at 45: put the non-firing case before the <code>for</code> duration.</li>
 <li><code>AxN</code> in <code>values</code> emits N+1 samples (the value, then N repeats), so a
   transition written as <code>0x2 1x2</code> happens at the third sample, not the
   second.</li>
@@ -2065,7 +2069,11 @@ a production run (the stack tag plus <code>untagged</code>, as the
 <p>A stack that starts a service also needs <code>install-debian-packages</code> in the
 scope: the package install task runs only when the run names that tag, and
 without it the service's dependencies (<code>python3-venv</code> for <code>monitoring-apt</code>)
-are missing when the unit starts.</p>
+are missing when the unit starts. A stack whose files land in a directory
+another stack creates needs that stack's tag too: <code>monitoring-backend</code>
+writes a textfile into the collector directory that <code>monitoring</code> creates, so
+scope it <code>monitoring-backend,monitoring,untagged</code>, or the copy fails with
+"Destination directory does not exist".</p>
 <p>Unset, the variable selects every task, which is what CI runs. Run the full
 unscoped test once before pushing: a scoped run does not exercise the other
 stacks' tasks, nor the tasks that consume the registered results of tasks

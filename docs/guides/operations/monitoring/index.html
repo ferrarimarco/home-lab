@@ -1409,6 +1409,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#did-the-alerts-reach-telegram" class="md-nav__link">
+    <span class="md-ellipsis">
+      Did the alerts reach Telegram
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1731,6 +1740,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#did-the-alerts-reach-telegram" class="md-nav__link">
+    <span class="md-ellipsis">
+      Did the alerts reach Telegram
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1852,6 +1870,22 @@ matchers within one silence are ANDed and anchored. The suppressed alerts and
 the notifications sent are visible in Prometheus as
 <code>alertmanager_alerts{state="suppressed"}</code> and
 <code>alertmanager_notifications_total{integration="telegram"}</code>.</p>
+<h3 id="did-the-alerts-reach-telegram">Did the alerts reach Telegram</h3>
+<p>Telegram delivery needs the WAN (the
+<a href="../../../architecture/monitoring-alerting/">alerting spec</a> covers the
+consequence), so after a WAN outage read the delivery attempts of the window
+from the Alertmanager container log on either replica:</p>
+<div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>pi@raspberrypi2.edge.lab.ferrari.how<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>docker<span class="w"> </span>logs<span class="w"> </span>--since<span class="w"> </span><span class="m">2026</span>-11-04T01:30:00Z<span class="w"> </span>--until<span class="w"> </span><span class="m">2026</span>-11-04T06:20:00Z<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>alertmanager<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;Notify&#39;</span>
+</code></pre></div>
+<p>In Alertmanager 0.34: an error line "Notify for alerts failed" whose <code>err</code> says
+"notify retry canceled after N attempts" means the group was dropped until its
+next group interval; a warning "Notify attempt failed, will retry later" is
+logged when the error text changes, with the attempt count in its <code>attempts</code>
+field; "Notify success" is logged at the default level only for a delivery that
+needed retries, so an absent line is not a missed delivery. Count the deliveries
+with <code>alertmanager_notifications_total{integration="telegram"}</code>.</p>
 <h2 id="interpreting-query-results">Interpreting query results</h2>
 <ul>
 <li><strong>A gap in <code>query_range</code> samples is a state change.</strong> <code>ALERTS</code> series exist
