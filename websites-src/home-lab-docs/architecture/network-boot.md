@@ -2,15 +2,15 @@
 
 ## Implementation Status
 
-| Component / Feature                   | Status                | Details                                                                                                                                                                         |
-| :------------------------------------ | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **`netboot-server` Nix role on hl02** | **Missing**           | Payload trees, per-host registry, and the rescue toggle.                                                                                                                        |
-| **Server address reservation**        | **Fully Implemented** | hl02 is reserved at `10.0.0.5` on the gateway, rendered from the inventory by the `gateway-dnsmasq` playbook (applied and verified 2026-10-28; no CI test covers the playbook). |
-| **Raspberry Pi boot path**            | **Missing**           | raspberrypi2 still boots SD then USB (`0xf41`) with no TFTP server address.                                                                                                     |
-| **x86 PXE boot path**                 | **Missing**           | Deferred; design direction recorded, nothing verified.                                                                                                                          |
-| **Raspberry Pi OS Lite payload**      | **Missing**           | Pinned image unpacked on hl02, served over TFTP and NFS.                                                                                                                        |
-| **Flash workflow**                    | **Missing**           | The `flash-os` script delivered to the rescue system through cloud-init.                                                                                                        |
-| **Raspberry Pi re-provisioning**      | **Missing**           | Restore path, Trixie playbook fixes, and guides, tracked in the todo list.                                                                                                      |
+| Component / Feature                   | Status                    | Details                                                                                                                                                                                                             |
+| :------------------------------------ | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`netboot-server` Nix role on hl02** | **Fully Implemented**     | Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports, HTTP seeds, firewall; the hl02 integration test passes locally (2026-11-05); not yet applied on hl02.                                         |
+| **Server address reservation**        | **Fully Implemented**     | hl02 is reserved at `10.0.0.5` on the gateway, rendered from the inventory by the `gateway-dnsmasq` playbook (applied and verified 2026-10-28; no CI test covers the playbook).                                     |
+| **Raspberry Pi boot path**            | **Partially Implemented** | Server-side done (proxy DHCP answer, per-host TFTP directory, rendered boot configuration) and covered by the test; raspberrypi2's EEPROM still boots SD then USB (`0xf41`) with no prefix set.                     |
+| **x86 PXE boot path**                 | **Missing**               | Deferred; the responder it needs exists, its `pxe-service` entry, boot file, and payload type do not.                                                                                                               |
+| **Raspberry Pi OS Lite payload**      | **Fully Implemented**     | The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, seeds rendered; the test covers the path with a mock image, not the boot; not yet applied on hl02. |
+| **Flash workflow**                    | **Partially Implemented** | `flash-os` written and delivered through the rescue seed; never run, the dry rescue is its first test.                                                                                                              |
+| **Raspberry Pi re-provisioning**      | **Missing**               | Restore path, Trixie playbook fixes, and guides, tracked in the todo list.                                                                                                                                          |
 
 ## Goal
 
@@ -54,6 +54,12 @@ built for a foreign architecture.
 - **Resident rescue SD card.** Written by hand, ages outside version control,
   and the first insertion needs the host's case opened. Kept only as the
   recovery path for a host whose EEPROM configuration is lost.
+- **A server address in the Raspberry Pi EEPROM (`TFTP_IP`).** The bootloader
+  can take the TFTP server from its EEPROM instead of from DHCP, which leaves no
+  DHCP footprint on the LAN. It bakes the server's address into every client, to
+  be edited from a running system on each Pi if it ever changes, and the x86
+  path needs a proxy DHCP responder anyway. Rejected on 2026-11-05 for the
+  proxy, which the vendor's own network boot tutorial uses.
 - **HTTP boot for the Raspberry Pi hosts.** Requires the boot image to be signed
   with a key stored in the EEPROM, which a public bootloader update erases;
   raspberrypi2 keeps bootloader self-update enabled.
@@ -75,17 +81,26 @@ own failure domain:
 - **Out of scope:** Proxmox guests. Terraform re-creates them from the installer
   artifacts, so they never need a rescue boot.
 
+The server is a VM on pve1, so a rescue of raspberrypi2 waits for pve1 when both
+are down at once. A normal boot of a Raspberry Pi host while the server is down
+still succeeds: the bootloader tries the network first, finds no "Raspberry Pi
+Boot" reply, and moves to its disk after its DHCP timeout. With the server up,
+that attempt ends in a second or two with "not found".
+
 A second server instance on pve2 would cover pve1 and hl02 once pve2 runs 24/7
-and the PXE path exists; it is tracked in the todo list.
+and the PXE path exists; it is tracked in the todo list, with the constraint
+that two responders must not both answer: the bootloader takes the first reply
+and gives up when that server has no directory for the host.
 
 ## Architecture Overview
 
-1. **Boot server on hl02** (`netboot-server` Nix role): the services of each
-   boot path, the payload trees, and a per-host registry.
-2. **Rescue toggle**: a templated systemd unit per host, stopped by default.
-   Starting it publishes the host's payload; stopping it withdraws it. The
-   published state lives under a runtime path, so after a server reboot every
-   host is in normal boot.
+1. **Boot server on hl02** (`netboot-server` Nix role): the shared responder and
+   TFTP tree, the payload trees, a per-host registry, and one file per platform
+   and per payload type.
+2. **Rescue toggle**: a systemd unit per host, stopped by default. Starting it
+   publishes the host's payload; stopping it withdraws it. The published state
+   lives under a runtime path, so after a server reboot every host is in normal
+   boot.
 3. **Boot paths**: how a host of a given platform finds the server and what it
    fetches. Raspberry Pi over TFTP now, x86 PXE deferred.
 4. **Payloads**: what a host runs once it network-boots. Raspberry Pi OS Lite
@@ -96,50 +111,93 @@ and the PXE path exists; it is tracked in the todo list.
 ## Boot Server Role
 
 The `netboot-server` role under `config/nix/roles/` takes an attribute set of
-hosts, each naming its boot path and payload, and manages the trees under
-`/var/lib/netboot/`:
+hosts, each naming its platform (boot path) and its payload, plus the server's
+address, the lab interface, and the client network. Platforms and payload types
+are files under the role's `platforms/` and `payloads/` directories, registered
+under their filenames: a platform provides how a host's boot files are published
+and which boot configuration it renders; a payload type provides how its image
+is fetched and unpacked, how a host's copy is prepared, and the kernel
+parameters that boot it. Adding an operating system shape or a boot path adds a
+file. The core composes them and manages:
 
-- **TFTP root** (`tftp/`): one directory per host. The directory the host asks
-  for is a link under a runtime path that the toggle manages, pointing at the
-  payload's files.
-- **NFS exports** (`nfs/<hostname>`): a writable per-host copy of a payload's
-  root filesystem, exported to the lab network only, root squashing disabled
-  because it is a root filesystem. It exists only while a rescue is active: the
-  toggle creates it from the pristine tree when it starts and removes it after
-  it stops.
-- **HTTP root** (`http/`): per-host cloud-init seeds, installed-system
-  cloud-init files, and the pinned images with their checksums.
-- **The toggle**: `netboot-rescue@<hostname>`. Starting it cancels any pending
-  removal, creates the host's export from the pristine tree, and publishes the
-  TFTP link. Stopping it withdraws the link at once and removes the export after
-  a grace period, because the workflow stops the toggle while the host still
-  runs from that export and reboots afterwards: an immediate removal would pull
-  the root filesystem from under a live system. A tmpfiles age rule on the
-  export directory is the backstop for an hl02 reboot during the grace period.
+- **Payload trees** (`/var/lib/netboot/payloads/<payload>/`): the image's boot
+  partition under `boot/` and its root filesystem under `root/`, pristine. A
+  unit per payload downloads the image into `images/` by URL, verifies its
+  SHA-256, and unpacks it at runtime as root through a loop mount: the Nix store
+  strips ownership, setuid, and sticky bits, so a root filesystem cannot be a
+  derivation output. The unit records the pin it unpacked and does nothing while
+  the pin is unchanged. It is a long-running service rather than a oneshot, so a
+  deployment never waits for the download; the toggle checks the recorded pin
+  instead of the unit's state.
+- **TFTP root** (`/run/netboot/tftp/<hostname>/`): a copy of the payload's boot
+  files with the rendered boot configuration in place of the image's own and of
+  its cloud-init seed. Under the runtime tree, so a server reboot withdraws
+  every host.
+- **NFS exports** (`/var/lib/netboot/nfs/<hostname>/`): a writable per-host copy
+  of the payload's root filesystem with its fstab reduced to `proc` (the image
+  mounts its own partitions by PARTUUID, which do not exist over NFS; the
+  vendor's tutorial makes the same edit), exported to the client network with
+  root squashing disabled because it is a root filesystem. It exists only while
+  a rescue is active, and so does its export: the toggle writes a per-host file
+  under `/etc/exports.d/`, which the NFS server reads beside its empty
+  `/etc/exports`, so the export list shows the hosts in rescue only and a server
+  restart during a rescue keeps the export.
+- **HTTP root** (`/var/lib/netboot/http/`): per-host rescue seeds
+  (`seeds/<hostname>/`), installed-system seeds (`installed/<hostname>/`), and
+  the images with their checksums (`images/`).
+- **The toggle**: `netboot-rescue@<hostname>`, a fully specified unit per host.
+  Starting it cancels any pending removal, creates the host's export from the
+  pristine tree, exports it, and publishes the TFTP directory. Stopping it
+  withdraws the directory at once and schedules the export's removal after a
+  grace period (ten minutes by default) through a transient timer, because the
+  workflow stops the toggle while the host still runs from that export and
+  reboots afterwards: an immediate removal would pull the root filesystem from
+  under a live system. The toggle only wants its daemons and is left alone by
+  deployments, so a rescue in progress survives a daemon restart and a change to
+  the role. A boot-only tmpfiles rule removes the exports and their files on an
+  hl02 reboot, rather than an age rule, which would let the daily cleaner delete
+  the untouched files of a live export.
+- **The daemons**: dnsmasq as the proxy DHCP responder (see the boot paths) and
+  the TFTP server on the runtime tree, with DNS disabled; the kernel NFS server,
+  version 3 only, with a fixed mountd port; nginx on the HTTP root.
 
 On a normal boot a host asks for its directory, gets "not found", and continues
 to its disk. With the toggle started, the host boots the payload on its next
 reboot or power cycle, and keeps doing so until the toggle is stopped, which is
-the last step of every rescue.
+the last step of every rescue. The
+[network boot guide](../guides/operations/network-boot.md) has the commands and
+the checks.
 
-The firewall admits TFTP (UDP 69), NFSv4 (TCP 2049), and HTTP (TCP 80) from the
-lab network only. The trees contain no secrets: firmware, public images, and
-cloud-init files holding a hostname and a public key.
+The firewall admits proxy DHCP (UDP 67 and 4011), TFTP (UDP 69), rpcbind (111),
+NFS (TCP 2049) with mountd (20048), and HTTP (TCP 80) on the lab interface only.
+The trees contain no secrets: firmware, public images, and cloud-init files
+holding a hostname and a public key.
 
 **Prerequisite: a DHCP reservation for hl02**, recorded in the inventory like
-the other reserved addresses, because the Raspberry Pi path names the server by
-address.
+the other reserved addresses: the proxy DHCP reply and the rendered boot
+configuration carry the address, and a rescue in progress depends on it staying
+put. The flake cannot read the inventory, so the host configuration repeats the
+address and the interface.
 
 ## Boot Paths
 
 ### Raspberry Pi
 
-The Raspberry Pi 4 bootloader fetches firmware, kernel, and ramdisk over TFTP
-from a server named in its EEPROM, so the router keeps its DHCP role. The
-configuration is applied once from the running operating system with the
-vendor's EEPROM tooling, which also installs the bootloader release bundled in
-its package (accepted: the host keeps self-update enabled). It never changes
-afterwards.
+The Raspberry Pi 4 bootloader sends a PXE-class DHCP discover, takes its lease
+from the router, and looks for a reply carrying the "Raspberry Pi Boot" vendor
+option, whose server address is the TFTP server it fetches firmware, kernel, and
+ramdisk from. hl02 answers that part of the exchange only (dnsmasq in proxy DHCP
+mode, as the vendor's network boot tutorial does), so the router keeps its DHCP
+role and no client stores the server's address (the EEPROM alternative is in the
+rejected alternatives). The cost is a responder that answers every PXE-class
+discover on the LAN: a PXE-booting x86 machine is offered the same entry, since
+the bootloader announces the x86 BIOS architecture code, and then gets "not
+found" from TFTP, the same fall-through the toggle relies on.
+
+The EEPROM configuration below is applied once from the running operating system
+with the vendor's EEPROM tooling, which also installs the bootloader release
+bundled in its package (accepted: the host keeps self-update enabled). It never
+changes afterwards.
 
 Bootloader releases are not this service's job: they come from the operating
 system's `rpi-eeprom` package and the boot-time update service, which applies
@@ -149,40 +207,47 @@ reports no update available although upstream is at 2026-09-23; the re-image to
 Trixie brings a current package and the update with it. Network boot needs no
 newer release than the one installed.
 
-| Option            | Value          | Reason                                                                |
-| :---------------- | :------------- | :-------------------------------------------------------------------- |
-| `BOOT_ORDER`      | `0xf42`        | Network first, then the boot disk, loop.                              |
-| `TFTP_IP`         | hl02's address | Names the server, so the router's DHCP configuration stays untouched. |
-| `TFTP_PREFIX`     | `1`            | Use a fixed per-host directory name.                                  |
-| `TFTP_PREFIX_STR` | `<hostname>/`  | Per-host directory, no serial numbers in the repository.              |
+| Option            | Value         | Reason                                                   |
+| :---------------- | :------------ | :------------------------------------------------------- |
+| `BOOT_ORDER`      | `0xf42`       | Network first, then the boot disk, loop.                 |
+| `TFTP_PREFIX`     | `1`           | Use a fixed per-host directory name.                     |
+| `TFTP_PREFIX_STR` | `<hostname>/` | Per-host directory, no serial numbers in the repository. |
+
+The bootloader's `DHCP_TIMEOUT` (45 seconds by default, 5 at least) bounds the
+wait before a host moves to its disk when no server answers; the dry rescue
+measures the server's answer time and decides whether to lower it.
 
 ### x86 PXE (deferred)
 
 An x86 firmware finds the boot server through DHCP, which the router owns. The
-design direction is a proxy-DHCP responder on hl02 that answers only the PXE
-part of the exchange, leaving leases to the router; the pinned nixpkgs ships a
-service that combines proxy DHCP, TFTP, and HTTP for PXE in one daemon, the
-candidate to verify when this path is implemented. The toggle semantics are the
-same: the responder answers only hosts whose toggle is started.
+responder on hl02 is the one the Raspberry Pi path uses: the x86 path adds a
+`pxe-service` entry for the x86 architecture naming a PXE boot file served from
+the same TFTP tree, and a payload type for what it boots. Nothing of it is
+verified. The toggle semantics are the same: a host without a published
+directory gets "not found".
 
 ## Payloads
 
 ### Raspberry Pi OS Lite over NFS
 
-The pinned Lite image, fetched by URL and checksum, is unpacked at build time (a
-Nix derivation): its boot partition files go to the host's TFTP directory, its
-root filesystem tree is the pristine copy of the host's NFS export. One pinned
-image serves both as the rescue system and as the image the flash workflow
-installs.
+The pinned Lite image (the 2026-10-06 Trixie release), fetched by URL and
+SHA-256 and unpacked at runtime as the boot server role describes: its boot
+partition files are the host's TFTP directory, its root filesystem tree is the
+pristine copy of the host's NFS export. One pinned image serves both as the
+rescue system and as the image the flash workflow installs.
 
-The role renders `config.txt` (64-bit mode, the Lite kernel and initramfs,
-serial console) and a `cmdline.txt` that replaces the image's own: NFS root on
-the host's export over NFSv4, DHCP addressing, the cloud-init seed URL, and none
-of the image's first-boot resize hooks. The image's own cloud-init applies the
-seed at boot: hostname, the `pi` user with the lab's bootstrap key and
-passwordless sudo, password login disabled, and the `flash-os` script as a
-written file. The tooling the rescue needs ships with Lite: EEPROM utilities,
-`xz`, partition tools, `curl`, SMART tools.
+The role renders `config.txt` (64-bit mode, the Lite kernel and its initramfs,
+serial console) and a `cmdline.txt` that replaces the image's own: the NFS root
+on the host's export over NFSv3 (TCP, no locking: what the image's initramfs
+mounts the root with through the klibc `nfsmount`, which speaks versions 2 and
+3; NFS and the Pi 4 Ethernet driver are built into the image's kernel), DHCP
+addressing, the cloud-init seed URL, and none of the image's first-boot resize
+hooks. The image's own cloud-init applies the seed at boot: hostname, the `pi`
+user with the lab's bootstrap key and passwordless sudo, password login
+disabled, the network left as the kernel configured it, and the `flash-os`
+script as a written file. The tooling the rescue needs ships with Lite: EEPROM
+utilities, `xz`, partition tools, `curl` (no SMART tools; the flash workflow
+needs none).
 
 ### Later candidates
 
@@ -253,13 +318,19 @@ else comes back from the playbooks, except:
 
 ## Testing
 
-- The `netboot-server` role gets a NixOS integration test through the existing
-  test generator: for a sample host, the TFTP service serves the payload files,
-  the NFS export and the HTTP seed are reachable, and starting and stopping the
-  toggle publishes and withdraws the host and resets the export.
+- The `netboot-server` role has a NixOS integration test through the existing
+  test generator, against a mock image of the same shape (an MBR image with a
+  FAT boot partition and an ext4 root, built-in a derivation): the payload unit
+  unpacks it; with the toggle stopped, TFTP answers "not found" and the export
+  list is empty; starting the toggle serves the rendered command line and the
+  boot files over TFTP (not the vendor seed), lists the export and mounts it
+  over NFSv3 with the rewritten fstab, and serves the rescue seed over HTTP;
+  stopping withdraws the TFTP directory at once, keeps the export, and removes
+  it after the grace period. The proxy DHCP answer cannot be exercised without a
+  PXE-class client; the test reads its presence from the dnsmasq log.
 - Payloads cannot boot in the x86_64 test framework. The dry rescue is the
   acceptance test, on real hardware with the boot disk untouched; it also
-  verifies the two expectations below.
+  verifies the three expectations below.
 
 ## Assumptions and Constraints
 
@@ -270,11 +341,12 @@ else comes back from the playbooks, except:
   provisioning guide.
 - When pve1 is down, raspberrypi2 is the monitoring replica still watching, and
   its own rescue waits for pve1 (see the coverage section).
-- Two expectations verified by the dry rescue: the Lite kernel and initramfs
+- Three expectations verified by the dry rescue: the Lite kernel and initramfs
   boot from an NFS root, the layout the vendor's own network boot tutorial uses;
-  and the image's cloud-init accepts a seed URL from the kernel command line.
-  The installed system's first boot uses the same cloud-init mechanism,
-  introduced by the Trixie release for headless setup.
-- hl02 holds each pinned image plus an unpacked root tree per host, a few
-  gigabytes on its 20 GB disk; image pins are bumped like other pinned
-  artifacts.
+  the image's cloud-init accepts a seed URL from the kernel command line; and
+  NetworkManager leaves the interface the kernel configured alone, so the root
+  stays mounted. The installed system's first boot uses the same cloud-init
+  mechanism, introduced by the Trixie release for headless setup.
+- hl02 holds each pinned image, its unpacked trees, and a root copy per host in
+  rescue, a few gigabytes on its 20 GB disk (about 6 GB at the peak of an
+  unpack); image pins are bumped like other pinned artifacts.

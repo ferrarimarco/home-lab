@@ -276,6 +276,11 @@ architectural patterns:
   configure HDD standby on pve2. The pve2 section of the
   [host power guide](./websites-src/home-lab-docs/guides/operations/host-power.md)
   records the reason and the levers that remain allowed.
+- **A host network-boots only while its rescue toggle on hl02 is started:**
+  start and stop `netboot-rescue@<host>` and read the server's state as the
+  [network boot guide](./websites-src/home-lab-docs/guides/operations/network-boot.md)
+  describes; the toggle, not a router or EEPROM change, decides what a host
+  boots next.
 - **Verify state-changing operations** (Terraform applies, playbook runs,
   bootstrap handoffs) afterward with read-only checks over SSH (`findmnt`,
   `zfs list`, `pct config`, `systemctl is-active`, ...) and report the evidence.

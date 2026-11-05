@@ -1554,6 +1554,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/operations/network-boot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network boot server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/operations/network-shares/" class="md-nav__link">
         
   
@@ -2018,7 +2041,7 @@ reference pages beside them, and the todo list for the whole lab.</p>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="network-boot/"><strong>Network Boot Service</strong></a></td>
-<td style="text-align: left;">Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi TFTP path now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer.</td>
+<td style="text-align: left;">Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi path (proxy DHCP and TFTP) now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer.</td>
 <td style="text-align: left;"><strong>Partially Implemented</strong></td>
 </tr>
 <tr>
@@ -2056,8 +2079,8 @@ reliability risks first, then security exposure, then automation):</p>
 <ul>
 <li>Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue (<a href="network-boot/">Network Boot Service</a>), then bump the <code>requests</code>
-  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the boot server and
-  rescue payload
+  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the EEPROM
+  configuration and the dry rescue
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>) and the
   restore procedure (<a href="../guides/operations/backup/">backup operations guide</a>).
   The re-image rewrites the boot disk only, and the host's services are restored
@@ -2108,19 +2131,30 @@ reliability risks first, then security exposure, then automation):</p>
   (<a href="https://wiki.debian.org/UnattendedUpgrades">UnattendedUpgrades</a>).</li>
 <li>Network boot service and Raspberry Pi re-provisioning, per the
   <a href="network-boot/">Network Boot Service</a> spec:<ul>
-<li><code>netboot-server</code> Nix role on hl02 (TFTP tree, NFS export, and
-  cloud-init seed per host, the pinned OS image over HTTP, and the
-  per-host rescue toggle unit) with its integration test.</li>
-<li>Rescue system and flash workflow: the pinned Raspberry Pi OS Lite
-  image unpacked on hl02 (boot partition over TFTP, root over NFS),
-  customized at boot by cloud-init from an HTTP seed, with the
-  <code>flash-os</code> script delivered through the seed.</li>
 <li>A second server instance on pve2, so that pve1 and hl02 are covered
-  too. Depends on: the x86 PXE path (deferred, see the spec) and the
-  pve2 power reduction (<a href="#host-configuration">Host configuration</a>).</li>
-<li>Bootloader configuration on raspberrypi2 (<code>BOOT_ORDER=0xf42</code>,
-  <code>TFTP_IP</code>, per-host <code>TFTP_PREFIX_STR</code>), applied once from the running
-  OS, then a dry rescue with the boot disk untouched.</li>
+  too. It must be a standby that answers only while the hl02 instance is
+  down, or share its toggle state: the bootloader takes the first
+  "Raspberry Pi Boot" reply and gives up when that server has no
+  directory for the host. Depends on: the x86 PXE path (deferred, see
+  the spec) and the pve2 power reduction
+  (<a href="#host-configuration">Host configuration</a>).</li>
+<li>Bootloader configuration on raspberrypi2 (<code>BOOT_ORDER=0xf42</code>, per-host
+  <code>TFTP_PREFIX_STR</code>), applied once from the running OS, then a dry
+  rescue with the boot disk untouched: the first run of the rescue
+  payload and of <code>flash-os</code>, which the role delivers since 2026-11-05
+  and the integration test exercises only against a mock image.</li>
+<li>Declared rescues beside the toggle command, deferred on 2026-11-05
+  until the dry rescue has exercised the command path: a <code>rescue</code> flag
+  per host in the <code>netboot-server</code> role that starts the toggle at boot
+  and at activation; a reconcile step acting only on the hosts whose
+  declaration changed since the previous activation, so a rescue started
+  by command survives unrelated deployments; a boot-time purge limited
+  to the undeclared hosts; and a start that keeps an existing export. A
+  declared rescue then survives an hl02 reboot and is recorded in the
+  repository. Decide at that point whether the command path stays
+  (hybrid) or the flag becomes the only way to start and stop a rescue
+  (code-only: two deployments per rescue, and none while the deployment
+  path itself is broken).</li>
 <li>Playbook compatibility with Raspberry Pi OS Trixie (Debian 13). The
   Molecule matrix runs on a Debian 13 image since 2026-11-03 (the backup
   role needs its restic), which covers the generic Debian path; the
@@ -2832,11 +2866,11 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   files re-read on SIGHUP for static hosts, DHCP reservations, upstream
   servers, and DHCP options), gives one declarative configuration,
   CNAMEs included, and lets the DHCP server hand out the boot server
-  itself, which drops the proxy-DHCP and the EEPROM-pinned address of
-  the <a href="network-boot/">Network Boot Service</a> spec; its cost is that
-  DHCP and DNS for every device in the house then depend on pve1, hl02,
-  and a comin-driven VM: new clients cannot join while it is down, and
-  the router's client list loses names. Revisit once the resolver pair
+  itself, which drops the proxy-DHCP responder of the
+  <a href="network-boot/">Network Boot Service</a> spec; its cost is that DHCP
+  and DNS for every device in the house then depend on pve1, hl02, and a
+  comin-driven VM: new clients cannot join while it is down, and the
+  router's client list loses names. Revisit once the resolver pair
   exists (stage 2 of the item above): with the servers static and only
   the cameras reserved, a dnsmasq pair with split pools has nothing but
   the camera reservations to agree on, and lease names stay cosmetic.</li>
@@ -2849,13 +2883,13 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>If staying on dnsmasq, consider using a repology source and Renovate
   to automatically update dependencies:
   <a href="https://docs.renovatebot.com/modules/datasource/repology/">Repology</a>.</li>
-<li>Configure network boot for the x86 Proxmox nodes: evaluate dnsmasq
-  proxy DHCP for PXE,
+<li>Configure network boot for the x86 Proxmox nodes: the proxy DHCP
+  responder of the <a href="network-boot/">Network Boot Service</a> spec runs
+  on hl02 since 2026-11-05; the x86 path needs its <code>pxe-service</code> entry,
+  a boot file (candidates:
   <a href="https://github.com/netbootxyz/netboot.xyz">netboot.xyz</a>,
-  <a href="https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz">PXE booting into netboot.xyz</a>.
-  The Raspberry Pi hosts are covered by the
-  <a href="network-boot/">Network Boot Service</a> spec, whose server on hl02
-  leaves room for the x86 nodes.</li>
+  <a href="https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz">PXE booting into netboot.xyz</a>),
+  and a payload type.</li>
 <li>Configure dnsmasq on the Asus router to use the recursive DNS
   resolver: the upstream servers are a UI-exposed NVRAM setting, which
   the <code>gateway-dnsmasq</code> playbook does not manage yet; add the variable

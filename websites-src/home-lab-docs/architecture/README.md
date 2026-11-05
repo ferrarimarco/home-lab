@@ -6,17 +6,17 @@ reference pages beside them, and the todo list for the whole lab.
 
 ## Specifications Directory Index
 
-| Specification                                                               | Description                                                                                                                                                                                                                                        | Current Implementation Status |
-| :-------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
-| [**Home Lab Bootstrapping**](./home-lab-bootstrapping.md)                   | Global VM installation infrastructure: Nix-native custom installer ISO, secure bootstrap key loading with Git-tracking guardrails, and `nixos-anywhere`.                                                                                           | **Fully Implemented**         |
-| [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                                                                                                             | **Fully Implemented**         |
-| [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                                                                                                                       | **Fully Implemented**         |
-| [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.                                                                                                     | **Fully Implemented**         |
-| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.                                                                             | **Partially Implemented**     |
-| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.                                                                      | **Fully Implemented**         |
-| [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi TFTP path now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer. | **Partially Implemented**     |
-| [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill.                                  | **Partially Implemented**     |
-| [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                 | **Fully Implemented**         |
+| Specification                                                               | Description                                                                                                                                                                                                                                                         | Current Implementation Status |
+| :-------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------- |
+| [**Home Lab Bootstrapping**](./home-lab-bootstrapping.md)                   | Global VM installation infrastructure: Nix-native custom installer ISO, secure bootstrap key loading with Git-tracking guardrails, and `nixos-anywhere`.                                                                                                            | **Fully Implemented**         |
+| [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                                                                                                                              | **Fully Implemented**         |
+| [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                                                                                                                                        | **Fully Implemented**         |
+| [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.                                                                                                                      | **Fully Implemented**         |
+| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.                                                                                              | **Partially Implemented**     |
+| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.                                                                                       | **Fully Implemented**         |
+| [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi path (proxy DHCP and TFTP) now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer. | **Partially Implemented**     |
+| [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill.                                                   | **Partially Implemented**     |
+| [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                                  | **Fully Implemented**         |
 
 ## Reference pages
 
@@ -45,8 +45,8 @@ reliability risks first, then security exposure, then automation):
 
 - Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue ([Network Boot Service](./network-boot.md)), then bump the `requests`
-  pin ([Issues to solve](#issues-to-solve)). Depends on: the boot server and
-  rescue payload
+  pin ([Issues to solve](#issues-to-solve)). Depends on: the EEPROM
+  configuration and the dry rescue
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)) and the
   restore procedure ([backup operations guide](../guides/operations/backup.md)).
   The re-image rewrites the boot disk only, and the host's services are restored
@@ -97,19 +97,30 @@ reliability risks first, then security exposure, then automation):
       ([UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)).
     - Network boot service and Raspberry Pi re-provisioning, per the
       [Network Boot Service](./network-boot.md) spec:
-        - `netboot-server` Nix role on hl02 (TFTP tree, NFS export, and
-          cloud-init seed per host, the pinned OS image over HTTP, and the
-          per-host rescue toggle unit) with its integration test.
-        - Rescue system and flash workflow: the pinned Raspberry Pi OS Lite
-          image unpacked on hl02 (boot partition over TFTP, root over NFS),
-          customized at boot by cloud-init from an HTTP seed, with the
-          `flash-os` script delivered through the seed.
         - A second server instance on pve2, so that pve1 and hl02 are covered
-          too. Depends on: the x86 PXE path (deferred, see the spec) and the
-          pve2 power reduction ([Host configuration](#host-configuration)).
-        - Bootloader configuration on raspberrypi2 (`BOOT_ORDER=0xf42`,
-          `TFTP_IP`, per-host `TFTP_PREFIX_STR`), applied once from the running
-          OS, then a dry rescue with the boot disk untouched.
+          too. It must be a standby that answers only while the hl02 instance is
+          down, or share its toggle state: the bootloader takes the first
+          "Raspberry Pi Boot" reply and gives up when that server has no
+          directory for the host. Depends on: the x86 PXE path (deferred, see
+          the spec) and the pve2 power reduction
+          ([Host configuration](#host-configuration)).
+        - Bootloader configuration on raspberrypi2 (`BOOT_ORDER=0xf42`, per-host
+          `TFTP_PREFIX_STR`), applied once from the running OS, then a dry
+          rescue with the boot disk untouched: the first run of the rescue
+          payload and of `flash-os`, which the role delivers since 2026-11-05
+          and the integration test exercises only against a mock image.
+        - Declared rescues beside the toggle command, deferred on 2026-11-05
+          until the dry rescue has exercised the command path: a `rescue` flag
+          per host in the `netboot-server` role that starts the toggle at boot
+          and at activation; a reconcile step acting only on the hosts whose
+          declaration changed since the previous activation, so a rescue started
+          by command survives unrelated deployments; a boot-time purge limited
+          to the undeclared hosts; and a start that keeps an existing export. A
+          declared rescue then survives an hl02 reboot and is recorded in the
+          repository. Decide at that point whether the command path stays
+          (hybrid) or the flag becomes the only way to start and stop a rescue
+          (code-only: two deployments per rescue, and none while the deployment
+          path itself is broken).
         - Playbook compatibility with Raspberry Pi OS Trixie (Debian 13). The
           Molecule matrix runs on a Debian 13 image since 2026-11-03 (the backup
           role needs its restic), which covers the generic Debian path; the
@@ -783,11 +794,11 @@ reliability risks first, then security exposure, then automation):
           files re-read on SIGHUP for static hosts, DHCP reservations, upstream
           servers, and DHCP options), gives one declarative configuration,
           CNAMEs included, and lets the DHCP server hand out the boot server
-          itself, which drops the proxy-DHCP and the EEPROM-pinned address of
-          the [Network Boot Service](./network-boot.md) spec; its cost is that
-          DHCP and DNS for every device in the house then depend on pve1, hl02,
-          and a comin-driven VM: new clients cannot join while it is down, and
-          the router's client list loses names. Revisit once the resolver pair
+          itself, which drops the proxy-DHCP responder of the
+          [Network Boot Service](./network-boot.md) spec; its cost is that DHCP
+          and DNS for every device in the house then depend on pve1, hl02, and a
+          comin-driven VM: new clients cannot join while it is down, and the
+          router's client list loses names. Revisit once the resolver pair
           exists (stage 2 of the item above): with the servers static and only
           the cameras reserved, a dnsmasq pair with split pools has nothing but
           the camera reservations to agree on, and lease names stay cosmetic.
@@ -800,13 +811,13 @@ reliability risks first, then security exposure, then automation):
         - If staying on dnsmasq, consider using a repology source and Renovate
           to automatically update dependencies:
           [Repology](https://docs.renovatebot.com/modules/datasource/repology/).
-        - Configure network boot for the x86 Proxmox nodes: evaluate dnsmasq
-          proxy DHCP for PXE,
+        - Configure network boot for the x86 Proxmox nodes: the proxy DHCP
+          responder of the [Network Boot Service](./network-boot.md) spec runs
+          on hl02 since 2026-11-05; the x86 path needs its `pxe-service` entry,
+          a boot file (candidates:
           [netboot.xyz](https://github.com/netbootxyz/netboot.xyz),
-          [PXE booting into netboot.xyz](https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz).
-          The Raspberry Pi hosts are covered by the
-          [Network Boot Service](./network-boot.md) spec, whose server on hl02
-          leaves room for the x86 nodes.
+          [PXE booting into netboot.xyz](https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz)),
+          and a payload type.
         - Configure dnsmasq on the Asus router to use the recursive DNS
           resolver: the upstream servers are a UI-exposed NVRAM setting, which
           the `gateway-dnsmasq` playbook does not manage yet; add the variable
