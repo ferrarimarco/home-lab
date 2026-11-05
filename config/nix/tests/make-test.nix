@@ -122,6 +122,17 @@ pkgs.testers.nixosTest {
           ];
         }
 
+        # --- Network Boot Server Test Tooling ---
+        # If the host runs the boot server, ship the NFS client tools the
+        # export assertions below use (showmount, mount.nfs) and a YAML parser
+        # for the hand-rendered seed.
+        (lib.optionalAttrs (options ? homeLab) {
+          environment.systemPackages = lib.mkIf config.homeLab.netboot.enable [
+            pkgs.nfs-utils
+            (pkgs.python3.withPackages (ps: [ ps.pyyaml ]))
+          ];
+        })
+
         # --- LXC Compatibility Settings ---
         # If this is an LXC container (indicated by the presence of root-level proxmoxLXC options),
         # apply container-to-VM compatibility overrides so the QEMU VM test runner can boot it.
@@ -278,6 +289,58 @@ pkgs.testers.nixosTest {
             print("MQTT retained round trips verified across a broker restart!")
           '';
 
+      # Verify the network boot server if the host declares netboot hosts: the
+      # payload unit unpacks its (mock) image, nothing is published while a
+      # host's toggle is stopped, starting the toggle publishes the boot files
+      # over TFTP, exports the host's root over NFSv3 (mounted back from the
+      # server's own address to prove the export, not just its listing) with
+      # the fstab rewritten, and serves the cloud-init seed over HTTP, which
+      # parses as YAML; stopping withdraws the TFTP directory at once, keeps
+      # the export listed, and removes it after the grace period. The TFTP and HTTP fetches go through the server address,
+      # which the hl02 override points at the VM's test interface. The DHCP
+      # proxy cannot be exercised without a PXE-class client; its presence is
+      # read from the dnsmasq log.
+      netboot = lib.attrByPath [ "homeLab" "netboot" ] { enable = false; } node_config;
+      netbootHosts = lib.attrNames netboot.hosts;
+      netbootPayloads = lib.unique (lib.mapAttrsToList (_: host: host.payload) netboot.hosts);
+      netbootCheck = lib.optionalString (netboot.enable && netbootHosts != [ ]) ''
+        print("--- Verifying the network boot server ---")
+        for unit in ("dnsmasq.service", "nfs-server.service", "nginx.service"):
+            machine.wait_for_unit(unit)
+        machine.wait_until_succeeds("journalctl -u dnsmasq.service | grep 'proxy on subnet' > /dev/null", timeout=60)
+        ${lib.concatMapStringsSep "\n" (payload: ''
+          machine.wait_until_succeeds("test -f /var/lib/netboot/images/${payload}.pin", timeout=300)
+          machine.succeed("test -d /var/lib/netboot/payloads/${payload}/boot && test -d /var/lib/netboot/payloads/${payload}/root/etc")
+        '') netbootPayloads}
+        ${lib.concatMapStringsSep "\n" (host: ''
+          print("--- Rescue toggle of ${host} ---")
+          machine.fail("curl -sSf tftp://${netboot.serverAddress}/${host}/config.txt > /dev/null")
+          exports = machine.succeed("showmount -e localhost")
+          assert "/var/lib/netboot/nfs/${host}" not in exports, f"Export of ${host} listed before its toggle started: {exports!r}"
+          machine.succeed("systemctl start netboot-rescue@${host}.service")
+          cmdline = machine.succeed("curl -sSf tftp://${netboot.serverAddress}/${host}/cmdline.txt")
+          assert "nfsroot=${netboot.serverAddress}:/var/lib/netboot/nfs/${host}" in cmdline, f"Unexpected command line for ${host}: {cmdline!r}"
+          machine.succeed("curl -sSf tftp://${netboot.serverAddress}/${host}/start4.elf > /dev/null")
+          machine.fail("curl -sSf tftp://${netboot.serverAddress}/${host}/user-data > /dev/null")
+          machine.succeed("showmount -e localhost | grep '/var/lib/netboot/nfs/${host}' > /dev/null")
+          machine.succeed("mkdir -p /mnt/${host} && mount -t nfs -o vers=3,tcp,nolock ${netboot.serverAddress}:/var/lib/netboot/nfs/${host} /mnt/${host}")
+          fstab = machine.succeed("cat /mnt/${host}/etc/fstab").strip()
+          assert fstab == "proc /proc proc defaults 0 0", f"Unexpected fstab in the export of ${host}: {fstab!r}"
+          machine.succeed("umount /mnt/${host}")
+          seed = machine.succeed("curl -sSf http://${netboot.serverAddress}/seeds/${host}/user-data")
+          assert seed.startswith("#cloud-config") and "hostname: ${host}" in seed, f"Unexpected rescue seed for ${host}: {seed[:200]!r}"
+          machine.succeed("curl -sSf http://${netboot.serverAddress}/seeds/${host}/user-data | python3 -c 'import sys, yaml; seed = yaml.safe_load(sys.stdin); assert seed[\"hostname\"] == \"${host}\"; assert seed[\"write_files\"][0][\"path\"] == \"/usr/local/sbin/flash-os\"'")
+          machine.succeed("systemctl stop netboot-rescue@${host}.service")
+          machine.fail("curl -sSf tftp://${netboot.serverAddress}/${host}/config.txt > /dev/null")
+          machine.succeed("test -d /var/lib/netboot/nfs/${host}")
+          machine.succeed("showmount -e localhost | grep '/var/lib/netboot/nfs/${host}' > /dev/null")
+          machine.wait_until_succeeds("test ! -e /var/lib/netboot/nfs/${host}", timeout=120)
+          exports = machine.succeed("showmount -e localhost")
+          assert "/var/lib/netboot/nfs/${host}" not in exports, f"Export of ${host} still listed after its removal: {exports!r}"
+          print("Rescue toggle of ${host} verified: published, exported, withdrawn, and cleaned up!")
+        '') netbootHosts}
+      '';
+
       cominCheck = lib.optionalString node_config.services.comin.enable ''
         print("--- GitOps Phase 1: Mocking Local Git Repository Layout ---")
         machine.succeed(
@@ -359,6 +422,7 @@ pkgs.testers.nixosTest {
       ${nodeExporterCheck}
       ${sambaCheck}
       ${mosquittoCheck}
+      ${netbootCheck}
       ${cominCheck}
 
       # Host-specific custom assertions (if any)
