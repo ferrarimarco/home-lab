@@ -114,7 +114,10 @@ The script runs:
   example, table pipe alignment) are cleared by a second markdownlint pass that
   runs after the other formatters, and the script fails only when that pass
   still reports issues — those need manual fixes.
-- [shfmt](https://github.com/mvdan/sh) on shell scripts.
+- [shfmt](https://github.com/mvdan/sh) on shell scripts. Run it on a new script
+  before the lint, and make the script executable (`chmod +x`): the lint's
+  BASH_EXEC check, on by default in super-linter, fails on a non-executable
+  `.sh` file.
 - [textlint](https://textlint.org/) with super-linter's default configuration on
   Markdown and text files.
 - `terraform fmt -recursive` on Terraform files.

@@ -51,10 +51,12 @@ fetch() {
     mv "$image.part" "$image"
   fi
 
-  local raw="$NETBOOT_IMAGES_DIR/$name.img"
-  local work="${NETBOOT_PAYLOADS_DIR:?}/$name.unpacking"
-  local mounts="${NETBOOT_RUN_DIR:?}/mnt/$name"
-  local loop=""
+  # The trap's variables stay global: an EXIT trap set in a function runs
+  # without its locals on a normal return and on an errexit failure alike.
+  raw="$NETBOOT_IMAGES_DIR/$name.img"
+  work="${NETBOOT_PAYLOADS_DIR:?}/$name.unpacking"
+  mounts="${NETBOOT_RUN_DIR:?}/mnt/$name"
+  loop=""
   cleanup() {
     umount "$mounts/boot" 2>/dev/null || true
     umount "$mounts/root" 2>/dev/null || true
@@ -89,7 +91,6 @@ fetch() {
   rm -rf "$payload_dir"
   mv "$work" "$payload_dir"
   echo "$pin" >"$pin_file"
-  # The trap's variables are local to this function: run it here, not at exit.
   cleanup
   trap - EXIT
   echo "payload $name is ready"
