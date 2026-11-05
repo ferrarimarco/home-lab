@@ -2033,7 +2033,7 @@
 <tr>
 <td style="text-align: left;"><strong><code>netboot-server</code> Nix role on hl02</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports, HTTP seeds, firewall; the hl02 integration test passes locally (2026-11-05); not yet applied on hl02.</td>
+<td style="text-align: left;">Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports, HTTP seeds, firewall; the hl02 integration test passes; applied on hl02 on 2026-11-05 and verified with a toggle round trip (publish, export, withdraw, removal).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Server address reservation</strong></td>
@@ -2053,7 +2053,7 @@
 <tr>
 <td style="text-align: left;"><strong>Raspberry Pi OS Lite payload</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, seeds rendered; the test covers the path with a mock image, not the boot; not yet applied on hl02.</td>
+<td style="text-align: left;">The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, seeds rendered; the test covers the path with a mock image, not the boot; unpacked on hl02 on 2026-11-05 (1.9 GB root, ownership and setuid kept).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Flash workflow</strong></td>
