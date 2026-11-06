@@ -29,6 +29,19 @@ mount_credential_files:
 mount_os_packages:
   - cifs-utils
 has_argonone_case: true
+# The bootloader (EEPROM) configuration: the node role renders it and asserts
+# that the live configuration matches (Network Boot Service specification).
+# The network comes first in the boot order, so the rescue toggle on the boot
+# server decides what the host boots, then the USB disk, then the SD card; the
+# prefix makes the bootloader ask for its TFTP directory by host name instead
+# of by serial number.
+raspberry_pi_bootloader_configuration:
+  BOOT_UART: "0"
+  WAKE_ON_GPIO: "1"
+  ENABLE_SELF_UPDATE: "1"
+  BOOT_ORDER: "0xf142"
+  TFTP_PREFIX: "1"
+  TFTP_PREFIX_STR: "raspberrypi2/"
 # The BCM2711 hardware watchdog supports timeouts up to about 15 seconds
 systemd_runtime_watchdog_seconds: 15
 tailscale_up_advertise_edge_environment_routes: true

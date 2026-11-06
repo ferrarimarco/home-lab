@@ -188,3 +188,17 @@
 - name: Run system-wide configuration handlers
   ansible.builtin.import_tasks: invoke-system-wide-configuration-handlers.yaml
   become: true
+
+# The bootloader assertion below can fail the host: run the handlers the
+# earlier tasks notified first, since a failed host skips its handlers and the
+# next run, seeing no change, never notifies them again.
+- name: Flush handlers before the Raspberry Pi bootloader assertion
+  ansible.builtin.meta: flush_handlers
+
+# Last, so that a host whose bootloader configuration drifted fails the run
+# after everything else converged, and gated on the run's tags, so that a run
+# scoped to another stack never reaches the assertion.
+- name: Import Raspberry Pi bootloader tasks
+  ansible.builtin.import_tasks: raspberry-pi-bootloader.yaml
+  become: true
+  when: raspberry_pi_bootloader_enabled and (raspberry_pi_bootloader_tag in ansible_run_tags or "all" in ansible_run_tags)

@@ -114,6 +114,12 @@ monitoring_smart_metrics_collection_script_url: "https://raw.githubusercontent.c
 # The hash of the pinned script: update it together with the URL pin.
 monitoring_smart_metrics_collection_script_checksum: "sha256:e5cc44e22d38b317ab05145cf1920c13d06c3343046e50153aaeec84577edeea"
 qbittorrent_user_interface_port: 8084
+# The bootloader (EEPROM) configuration a Raspberry Pi host must carry, as the
+# key-value pairs of its [all] section, every value a quoted string. The role
+# renders it to a file and asserts that the live configuration matches;
+# applying it stays a manual step, which the assertion's message documents.
+# Empty: nothing to render or check.
+raspberry_pi_bootloader_configuration: {}
 raspberry_pi_config_file_values: {}
 rsync_daemon_modules: []
 samba_additional_interfaces: "{{ edge_environment_subnet }}"

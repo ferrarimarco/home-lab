@@ -1,0 +1,39 @@
+---
+# The bootloader configuration lives in the EEPROM, outside every system the
+# lab manages. The stack renders the declared configuration to a file; these
+# tasks fail the run when the live configuration differs. Applying it needs a
+# reboot and the image of the installed bootloader release, so it stays a
+# manual step, which the failure message documents.
+- name: Read the live Raspberry Pi bootloader configuration
+  ansible.builtin.command: vcgencmd bootloader_config
+  changed_when: false
+  check_mode: false
+  register: raspberry_pi_bootloader_configuration_output
+
+- name: Assert that the live bootloader configuration matches the declared one
+  ansible.builtin.assert:
+    that:
+      - raspberry_pi_bootloader_configuration.values() | reject('string') | list | length == 0
+      - raspberry_pi_bootloader_configuration_sections == ['[all]']
+      - raspberry_pi_bootloader_configuration_live == raspberry_pi_bootloader_configuration
+    success_msg: "The live bootloader configuration matches the declared one."
+    fail_msg: >-
+      The bootloader (EEPROM) configuration check failed. Declared:
+      {{ raspberry_pi_bootloader_configuration }} (every value must be a
+      quoted string). Live: {{ raspberry_pi_bootloader_configuration_live }},
+      in the sections {{ raspberry_pi_bootloader_configuration_sections }} (the
+      check supports a single [all] section). To apply the declared
+      configuration: run the playbook without --check, so that
+      {{ raspberry_pi_bootloader_configuration_file_path }} is rendered, then
+      sudo rpi-eeprom-config --apply
+      {{ raspberry_pi_bootloader_configuration_file_path }} IMAGE and reboot,
+      where IMAGE is the pieeprom image of the installed bootloader release
+      (vcgencmd bootloader_version). Without the image argument the tool
+      patches the newest image of its own package, which downgrades the
+      bootloader when the package is older than the installed release. sudo
+      rpi-eeprom-update -r cancels a staged update before the reboot.
+  vars:
+    raspberry_pi_bootloader_configuration_live: "{{ dict(raspberry_pi_bootloader_configuration_output.stdout_lines | select('match', '^[A-Z0-9_]+=') | map('split', '=', 1)) }}"
+    # Every line that is neither a key-value pair nor empty: the section
+    # headers, and anything unexpected.
+    raspberry_pi_bootloader_configuration_sections: "{{ raspberry_pi_bootloader_configuration_output.stdout_lines | reject('match', '^[A-Z0-9_]+=') | reject('eq', '') | list }}"

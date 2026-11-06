@@ -90,6 +90,10 @@
       - enable_custom_fact: true
         fact_category: "{{ systemd_watchdog_tag }}"
         fact_templates_to_render: "{{ systemd_watchdog_templates_to_render }}"
+      - enable_custom_fact: "{{ raspberry_pi_bootloader_enabled }}"
+        fact_category: "{{ raspberry_pi_bootloader_tag }}"
+        fact_configuration_directories: "{{ raspberry_pi_bootloader_configuration_directories }}"
+        fact_templates_to_render: "{{ raspberry_pi_bootloader_templates_to_render }}"
       - enable_custom_fact: "{{ configure_docker }}"
         fact_category: "docker"
         fact_files_to_configure:

@@ -1,0 +1,15 @@
+---
+raspberry_pi_bootloader_tag: "raspberry-pi-bootloader"
+# True on the Raspberry Pi hosts that declare a bootloader configuration; the
+# stack's directory and file follow it, so a host that drops the declaration
+# loses the rendered file too.
+raspberry_pi_bootloader_enabled: "{{ is_raspberry_pi and raspberry_pi_bootloader_configuration | length > 0 }}"
+raspberry_pi_bootloader_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/raspberry-pi-bootloader"
+raspberry_pi_bootloader_configuration_file_path: "{{ raspberry_pi_bootloader_configuration_directory_path }}/boot.conf"
+raspberry_pi_bootloader_configuration_directories:
+  - path: "{{ raspberry_pi_bootloader_configuration_directory_path }}"
+    state: "{{ raspberry_pi_bootloader_enabled | ternary('directory', 'absent') }}"
+raspberry_pi_bootloader_templates_to_render:
+  - src: "raspberry-pi-bootloader/boot.conf.jinja"
+    dest: "{{ raspberry_pi_bootloader_configuration_file_path }}"
+    state: "{{ raspberry_pi_bootloader_enabled | ternary('file', 'absent') }}"
