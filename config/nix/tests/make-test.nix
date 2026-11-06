@@ -215,8 +215,9 @@ pkgs.testers.nixosTest {
       '';
 
       # Verify the Prometheus node exporter if it is enabled. The port is
-      # derived from the evaluated configuration, and the assertion targets
-      # the metric name prefix so it does not depend on specific collectors.
+      # derived from the evaluated configuration. The first assertion targets
+      # the metric name prefix; the second names the one collector the unit
+      # alerts depend on.
       nodeExporterPort = toString node_config.services.prometheus.exporters.node.port;
       nodeExporterCheck = lib.optionalString node_config.services.prometheus.exporters.node.enable ''
         print("--- Verifying Prometheus Node Exporter ---")
@@ -226,6 +227,10 @@ pkgs.testers.nixosTest {
         # match closes the pipe while curl is still writing the large metrics
         # payload, failing the pipeline with curl's write error under pipefail.
         machine.succeed("curl -sSf http://localhost:${nodeExporterPort}/metrics | grep '^node_' > /dev/null")
+        # Every host exports its unit states: the unit alerts read them, and a
+        # host whose exporter lacks the systemd collector is invisible to
+        # those rules.
+        machine.succeed("curl -sSf http://localhost:${nodeExporterPort}/metrics | grep '^node_systemd_unit_state' > /dev/null")
         print("Node exporter metrics endpoint verified successfully!")
       '';
 
@@ -294,12 +299,15 @@ pkgs.testers.nixosTest {
       # host's toggle is stopped, starting the toggle publishes the boot files
       # over TFTP, exports the host's root over NFSv3 (mounted back from the
       # server's own address to prove the export, not just its listing) with
-      # the fstab rewritten, and serves the cloud-init seed over HTTP, which
-      # parses as YAML; stopping withdraws the TFTP directory at once, keeps
-      # the export listed, and removes it after the grace period. The TFTP and HTTP fetches go through the server address,
-      # which the hl02 override points at the VM's test interface. The DHCP
-      # proxy cannot be exercised without a PXE-class client; its presence is
-      # read from the dnsmasq log.
+      # the fstab rewritten, serves the cloud-init seed over HTTP, which parses
+      # as YAML, and shows in the node exporter as the active unit series the
+      # lingering-rescue alert matches; stopping withdraws the TFTP directory
+      # at once, keeps the export listed, and removes it after the grace
+      # period. The image index the HTTP probe targets answers too. The TFTP
+      # and HTTP fetches go through the server address, which the hl02
+      # override points at the VM's test interface. The DHCP proxy cannot be
+      # exercised without a PXE-class client; its presence is read from the
+      # dnsmasq log.
       netboot = lib.attrByPath [ "homeLab" "netboot" ] { enable = false; } node_config;
       netbootHosts = lib.attrNames netboot.hosts;
       netbootPayloads = lib.unique (lib.mapAttrsToList (_: host: host.payload) netboot.hosts);
@@ -311,6 +319,7 @@ pkgs.testers.nixosTest {
         ${lib.concatMapStringsSep "\n" (payload: ''
           machine.wait_until_succeeds("test -f /var/lib/netboot/images/${payload}.pin", timeout=300)
           machine.succeed("test -d /var/lib/netboot/payloads/${payload}/boot && test -d /var/lib/netboot/payloads/${payload}/root/etc")
+          machine.succeed("curl -sSf http://${netboot.serverAddress}/images/ > /dev/null")
         '') netbootPayloads}
         ${lib.concatMapStringsSep "\n" (host: ''
           print("--- Rescue toggle of ${host} ---")
@@ -321,6 +330,9 @@ pkgs.testers.nixosTest {
           cmdline = machine.succeed("curl -sSf tftp://${netboot.serverAddress}/${host}/cmdline.txt")
           assert "nfsroot=${netboot.serverAddress}:/var/lib/netboot/nfs/${host}" in cmdline, f"Unexpected command line for ${host}: {cmdline!r}"
           machine.succeed("curl -sSf tftp://${netboot.serverAddress}/${host}/start4.elf > /dev/null")
+          ${lib.optionalString node_config.services.prometheus.exporters.node.enable ''
+            machine.wait_until_succeeds("curl -sSf http://localhost:${nodeExporterPort}/metrics | grep -F 'node_systemd_unit_state{name=\"netboot-rescue@${host}.service\",state=\"active\",type=\"oneshot\"} 1' > /dev/null", timeout=60)
+          ''}
           machine.fail("curl -sSf tftp://${netboot.serverAddress}/${host}/user-data > /dev/null")
           machine.succeed("showmount -e localhost | grep '/var/lib/netboot/nfs/${host}' > /dev/null")
           machine.succeed("mkdir -p /mnt/${host} && mount -t nfs -o vers=3,tcp,nolock ${netboot.serverAddress}:/var/lib/netboot/nfs/${host} /mnt/${host}")
