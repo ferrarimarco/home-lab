@@ -89,12 +89,16 @@ be captured, redirect it in full to a log file rather than through `tail` or
 `head`, which discard the failing linter's message and mask the exit code.
 
 Only one lint run fits on a machine at a time, Git worktrees included, because
-the linter container has a fixed name: the script exits with a message when
-another run is in progress. Wait for that run to finish instead of removing its
-container, which would end it. The same holds for `scripts/run-mkdocs.sh` and
-its container. A lint run also overwrites the `super-linter-output/` directory
-of its checkout, so read the results of a run before another session starts its
-own there.
+the linter container has a fixed name: the script exits with a message when that
+container already runs. When another session started it, wait for its run to
+finish instead of removing the container, which would end that run; a linter
+shell opened with `LINTER_CONTAINER_OPEN_SHELL` holds the name until it is
+closed. The same holds for `scripts/run-mkdocs.sh` and its container, which a
+`serve` preview holds until it is stopped. The check runs before the container
+starts, so two runs that start together still get Docker's name conflict error,
+whose advice to remove the container does not apply either. A lint run also
+overwrites the `super-linter-output/` directory of its checkout, so read the
+results of a run before another session starts its own there.
 
 The linter container runs as `root` and rewrites the Git index (`.git/index`),
 which then belongs to `root`. A lint run can also unstage staged changes, so

@@ -130,13 +130,14 @@ is_container_runtime_available() {
 
 # A container with a fixed name allows one run at a time, and Docker's name
 # conflict error suggests removing the container, which ends the run in
-# progress: report the run in progress instead.
+# progress: report the run in progress instead. The check is not atomic: two
+# runs that start together still reach Docker's error.
 exit_if_container_is_running() {
   local CONTAINER_NAME="${1}"
   local RUN_DESCRIPTION="${2}"
 
   if [ -n "$(docker ps --quiet --filter "name=^${CONTAINER_NAME}$")" ]; then
-    echo "Another ${RUN_DESCRIPTION} is in progress (container: ${CONTAINER_NAME}). Wait for it to finish and run this script again. Don't remove the container: that ends the run in progress."
+    echo "Another ${RUN_DESCRIPTION} is in progress (container: ${CONTAINER_NAME}). If another session started it, wait for it to finish and run this script again: removing the container ends that run. If you started it and it never finishes by itself (a preview, an open shell), stop it first."
     exit "${ERR_CONTAINER_ALREADY_RUNNING}"
   fi
 }

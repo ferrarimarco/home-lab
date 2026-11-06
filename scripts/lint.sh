@@ -55,7 +55,7 @@ if [ "${LINTER_CONTAINER_LINT_COMMIT_MESSAGE:-}" == "true" ]; then
 fi
 
 LINTER_CONTAINER_NAME="super-linter"
-exit_if_container_is_running "${LINTER_CONTAINER_NAME}" "lint run"
+exit_if_container_is_running "${LINTER_CONTAINER_NAME}" "lint run or linter shell"
 
 SUPER_LINTER_COMMAND=(
   docker run
