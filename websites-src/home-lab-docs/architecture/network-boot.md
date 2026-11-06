@@ -2,16 +2,16 @@
 
 ## Implementation Status
 
-| Component / Feature                   | Status                    | Details                                                                                                                                                                                                                                                             |
-| :------------------------------------ | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **`netboot-server` Nix role on hl02** | **Fully Implemented**     | Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports, HTTP seeds, firewall; the hl02 integration test passes; applied on hl02 on 2026-11-05 and verified with a toggle round trip (publish, export, withdraw, removal).                             |
-| **Server address reservation**        | **Fully Implemented**     | hl02 is reserved at `10.0.0.5` on the gateway, rendered from the inventory by the `gateway-dnsmasq` playbook (applied and verified 2026-10-28; no CI test covers the playbook).                                                                                     |
-| **Raspberry Pi boot path**            | **Partially Implemented** | Server-side done (proxy DHCP answer, per-host TFTP directory, rendered boot configuration) and covered by the test; raspberrypi2's EEPROM still boots SD then USB (`0xf41`) with no prefix set.                                                                     |
-| **x86 PXE boot path**                 | **Missing**               | Deferred; the responder it needs exists, its `pxe-service` entry, boot file, and payload type do not.                                                                                                                                                               |
-| **Raspberry Pi OS Lite payload**      | **Fully Implemented**     | The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, seeds rendered; the test covers the path with a mock image, not the boot; unpacked on hl02 on 2026-11-05 (1.9 GB root, ownership and setuid kept). |
-| **Flash workflow**                    | **Partially Implemented** | `flash-os` written and delivered through the rescue seed; never run, the dry rescue is its first test.                                                                                                                                                              |
-| **Raspberry Pi re-provisioning**      | **Missing**               | Restore path, Trixie playbook fixes, and guides, tracked in the todo list.                                                                                                                                                                                          |
-| **Monitoring**                        | **Fully Implemented**     | Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; applied on 2026-11-06 (the collector on hl02, the rules and probes on both monitoring replicas).         |
+| Component / Feature                   | Status                    | Details                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| :------------------------------------ | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`netboot-server` Nix role on hl02** | **Fully Implemented**     | Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports, HTTP seeds, firewall; the hl02 integration test passes; applied on hl02 on 2026-11-05 and verified with a toggle round trip (publish, export, withdraw, removal).                                                                                                                                                                                         |
+| **Server address reservation**        | **Fully Implemented**     | hl02 is reserved at `10.0.0.5` on the gateway, rendered from the inventory by the `gateway-dnsmasq` playbook (applied and verified 2026-10-28; no CI test covers the playbook).                                                                                                                                                                                                                                                 |
+| **Raspberry Pi boot path**            | **Partially Implemented** | Server-side done (proxy DHCP answer, per-host TFTP directory, rendered boot configuration) and covered by the test; the EEPROM configuration is declared in the inventory and asserted by the node role (no CI test covers the assertion, the Molecule instance not being a Raspberry Pi; a check-mode run on the host exercised it on 2026-11-06); raspberrypi2's EEPROM still boots SD then USB (`0xf41`) with no prefix set. |
+| **x86 PXE boot path**                 | **Missing**               | Deferred; the responder it needs exists, its `pxe-service` entry, boot file, and payload type do not.                                                                                                                                                                                                                                                                                                                           |
+| **Raspberry Pi OS Lite payload**      | **Fully Implemented**     | The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, seeds rendered; the test covers the path with a mock image, not the boot; unpacked on hl02 on 2026-11-05 (1.9 GB root, ownership and setuid kept).                                                                                                                                                             |
+| **Flash workflow**                    | **Partially Implemented** | `flash-os` written and delivered through the rescue seed; never run, the dry rescue is its first test.                                                                                                                                                                                                                                                                                                                          |
+| **Raspberry Pi re-provisioning**      | **Missing**               | Restore path, Trixie playbook fixes, and guides, tracked in the todo list.                                                                                                                                                                                                                                                                                                                                                      |
+| **Monitoring**                        | **Fully Implemented**     | Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; applied on 2026-11-06 (the collector on hl02, the rules and probes on both monitoring replicas).                                                                                                                                                                     |
 
 ## Goal
 
@@ -197,24 +197,35 @@ discover on the LAN: a PXE-booting x86 machine is offered the same entry, since
 the bootloader announces the x86 BIOS architecture code, and then gets "not
 found" from TFTP, the same fall-through the toggle relies on.
 
-The EEPROM configuration below is applied once from the running operating system
-with the vendor's EEPROM tooling, which also installs the bootloader release
-bundled in its package (accepted: the host keeps self-update enabled). It never
-changes afterwards.
+The EEPROM configuration is declared per host in the inventory
+(`raspberry_pi_bootloader_configuration`), with the options below added to the
+ones the host already carries. The node role renders it to a file on the host
+and asserts that the live configuration matches, in the runs that name the
+`raspberry-pi-bootloader` tag and in full runs: the EEPROM sits outside every
+system the lab manages, and a configuration lost to a recovery flash or to a
+bootloader update would otherwise close the rescue path without a sign. Until
+the configuration is applied on a host, a full run fails for it at the end of
+the node play and skips the later plays of `main.yaml`, the backup play
+included; scoped runs of other stacks are unaffected. Applying it stays a manual
+step with the vendor's tooling and a reboot, which the
+[network boot guide](../guides/operations/network-boot.md) describes. The tool
+patches a bootloader image and, without an explicit one, takes the newest image
+of its own package, so the image of the installed release is passed: on
+raspberrypi2 the Debian 11 package stops at the January 2023 image while the
+EEPROM runs the 2026-09-23 release (read on 2026-11-06), and the default would
+downgrade it.
 
 Bootloader releases are not this service's job: they come from the operating
 system's `rpi-eeprom` package and the boot-time update service, which applies
-the package's default channel while preserving the EEPROM configuration. Debian
-11 froze that package at the January 2023 release, which is why raspberrypi2
-reports no update available although upstream is at 2026-09-23; the re-image to
-Trixie brings a current package and the update with it. Network boot needs no
-newer release than the one installed.
+the package's default channel while preserving the EEPROM configuration. The
+re-image to Trixie brings raspberrypi2 a package that matches its installed
+release. Network boot needs no newer release than the one installed.
 
-| Option            | Value         | Reason                                                   |
-| :---------------- | :------------ | :------------------------------------------------------- |
-| `BOOT_ORDER`      | `0xf42`       | Network first, then the boot disk, loop.                 |
-| `TFTP_PREFIX`     | `1`           | Use a fixed per-host directory name.                     |
-| `TFTP_PREFIX_STR` | `<hostname>/` | Per-host directory, no serial numbers in the repository. |
+| Option            | Value         | Reason                                                         |
+| :---------------- | :------------ | :------------------------------------------------------------- |
+| `BOOT_ORDER`      | `0xf142`      | Network first, then the USB boot disk, then the SD card, loop. |
+| `TFTP_PREFIX`     | `1`           | Use a fixed per-host directory name.                           |
+| `TFTP_PREFIX_STR` | `<hostname>/` | Per-host directory, no serial numbers in the repository.       |
 
 The bootloader's `DHCP_TIMEOUT` (45 seconds by default, 5 at least) bounds the
 wait before a host moves to its disk when no server answers; the dry rescue
@@ -345,7 +356,7 @@ boot and Blackbox probe sections.
 ## Assumptions and Constraints
 
 - Wired Ethernet, and for the Raspberry Pi hosts a bootloader release of 2023 or
-  later (raspberrypi2 runs the January 2023 release).
+  later.
 - The EEPROM configuration is applied from a running operating system; a host
   with a lost configuration falls back to the SD card recovery path in the
   provisioning guide.

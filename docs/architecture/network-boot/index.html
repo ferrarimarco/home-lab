@@ -2061,7 +2061,7 @@
 <tr>
 <td style="text-align: left;"><strong>Raspberry Pi boot path</strong></td>
 <td style="text-align: left;"><strong>Partially Implemented</strong></td>
-<td style="text-align: left;">Server-side done (proxy DHCP answer, per-host TFTP directory, rendered boot configuration) and covered by the test; raspberrypi2's EEPROM still boots SD then USB (<code>0xf41</code>) with no prefix set.</td>
+<td style="text-align: left;">Server-side done (proxy DHCP answer, per-host TFTP directory, rendered boot configuration) and covered by the test; the EEPROM configuration is declared in the inventory and asserted by the node role (no CI test covers the assertion, the Molecule instance not being a Raspberry Pi; a check-mode run on the host exercised it on 2026-11-06); raspberrypi2's EEPROM still boots SD then USB (<code>0xf41</code>) with no prefix set.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>x86 PXE boot path</strong></td>
@@ -2258,17 +2258,28 @@ rejected alternatives). The cost is a responder that answers every PXE-class
 discover on the LAN: a PXE-booting x86 machine is offered the same entry, since
 the bootloader announces the x86 BIOS architecture code, and then gets "not
 found" from TFTP, the same fall-through the toggle relies on.</p>
-<p>The EEPROM configuration below is applied once from the running operating system
-with the vendor's EEPROM tooling, which also installs the bootloader release
-bundled in its package (accepted: the host keeps self-update enabled). It never
-changes afterwards.</p>
+<p>The EEPROM configuration is declared per host in the inventory
+(<code>raspberry_pi_bootloader_configuration</code>), with the options below added to the
+ones the host already carries. The node role renders it to a file on the host
+and asserts that the live configuration matches, in the runs that name the
+<code>raspberry-pi-bootloader</code> tag and in full runs: the EEPROM sits outside every
+system the lab manages, and a configuration lost to a recovery flash or to a
+bootloader update would otherwise close the rescue path without a sign. Until
+the configuration is applied on a host, a full run fails for it at the end of
+the node play and skips the later plays of <code>main.yaml</code>, the backup play
+included; scoped runs of other stacks are unaffected. Applying it stays a manual
+step with the vendor's tooling and a reboot, which the
+<a href="../../guides/operations/network-boot/">network boot guide</a> describes. The tool
+patches a bootloader image and, without an explicit one, takes the newest image
+of its own package, so the image of the installed release is passed: on
+raspberrypi2 the Debian 11 package stops at the January 2023 image while the
+EEPROM runs the 2026-09-23 release (read on 2026-11-06), and the default would
+downgrade it.</p>
 <p>Bootloader releases are not this service's job: they come from the operating
 system's <code>rpi-eeprom</code> package and the boot-time update service, which applies
-the package's default channel while preserving the EEPROM configuration. Debian
-11 froze that package at the January 2023 release, which is why raspberrypi2
-reports no update available although upstream is at 2026-09-23; the re-image to
-Trixie brings a current package and the update with it. Network boot needs no
-newer release than the one installed.</p>
+the package's default channel while preserving the EEPROM configuration. The
+re-image to Trixie brings raspberrypi2 a package that matches its installed
+release. Network boot needs no newer release than the one installed.</p>
 <table>
 <thead>
 <tr>
@@ -2280,8 +2291,8 @@ newer release than the one installed.</p>
 <tbody>
 <tr>
 <td style="text-align: left;"><code>BOOT_ORDER</code></td>
-<td style="text-align: left;"><code>0xf42</code></td>
-<td style="text-align: left;">Network first, then the boot disk, loop.</td>
+<td style="text-align: left;"><code>0xf142</code></td>
+<td style="text-align: left;">Network first, then the USB boot disk, then the SD card, loop.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>TFTP_PREFIX</code></td>
@@ -2431,7 +2442,7 @@ boot and Blackbox probe sections.</p>
 <h2 id="assumptions-and-constraints">Assumptions and Constraints</h2>
 <ul>
 <li>Wired Ethernet, and for the Raspberry Pi hosts a bootloader release of 2023 or
-  later (raspberrypi2 runs the January 2023 release).</li>
+  later.</li>
 <li>The EEPROM configuration is applied from a running operating system; a host
   with a lost configuration falls back to the SD card recovery path in the
   provisioning guide.</li>

@@ -1423,6 +1423,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#apply-the-bootloader-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply the bootloader configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#move-the-image-pin" class="md-nav__link">
     <span class="md-ellipsis">
       Move the image pin
@@ -1706,6 +1715,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#apply-the-bootloader-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply the bootloader configuration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#move-the-image-pin" class="md-nav__link">
     <span class="md-ellipsis">
       Move the image pin
@@ -1787,6 +1805,58 @@ is fixed.</p>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>tftp://10.0.0.5/raspberrypi2/cmdline.txt
 curl<span class="w"> </span>http://10.0.0.5/seeds/raspberrypi2/user-data
 </code></pre></div>
+<h2 id="apply-the-bootloader-configuration">Apply the bootloader configuration</h2>
+<p>A Raspberry Pi host network-boots only when its bootloader (EEPROM)
+configuration puts the network first and names its TFTP directory. The
+configuration is declared in the host's inventory variables
+(<code>raspberry_pi_bootloader_configuration</code>); the node role renders it to
+<code>/etc/ferrarimarco-home-lab/raspberry-pi-bootloader/boot.conf</code> and fails when
+the live configuration differs (the
+<a href="../../../architecture/network-boot/">Network Boot Service specification</a> has the
+design). Applying it is a manual step, once per host and again whenever that
+check fails:</p>
+<ol>
+<li>Run the node playbook on the host with the <code>raspberry-pi-bootloader</code> tag (and
+   <code>untagged</code>), as the
+   <a href="../../development/operational-scripts/">operational scripts guide</a> describes,
+   first with <code>--check --diff</code>, then without: the check run only predicts the
+   file, the real run renders it. Both fail at the assertion, listing the
+   declared and the live values.</li>
+<li>
+<p>Find the release the bootloader runs:</p>
+<div class="highlight"><pre><span></span><code>vcgencmd<span class="w"> </span>bootloader_version
+</code></pre></div>
+<p>The host's own <code>rpi-eeprom</code> package holds its images under
+<code>/lib/firmware/raspberrypi/bootloader/default/</code> (<code>bootloader-2711/default/</code>
+or <code>latest/</code> on newer releases of the package). When the installed release
+is newer than the package's images, as on a host still on Debian 11, copy
+the image from the boot server's unpacked payload through the control
+machine, then confirm it is the installed release: its <code>BUILD_TIMESTAMP</code>
+string must equal the <code>timestamp</code> that <code>vcgencmd bootloader_version</code> prints.</p>
+<div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>hl02.edge.lab.ferrari.how<span class="w"> </span>cat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/var/lib/netboot/payloads/raspios-lite/root/lib/firmware/raspberrypi/bootloader-2711/default/pieeprom-&lt;release&gt;.bin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>ssh<span class="w"> </span>pi@&lt;host&gt;<span class="w"> </span><span class="s1">&#39;cat &gt; pieeprom-&lt;release&gt;.bin&#39;</span>
+ssh<span class="w"> </span>pi@&lt;host&gt;<span class="w"> </span><span class="s1">&#39;strings pieeprom-&lt;release&gt;.bin | grep BUILD_TIMESTAMP&#39;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Silence the host's availability alerts as the
+   <a href="../monitoring/">monitoring operations guide</a> describes, then stage the
+   update and reboot. The bootloader flashes itself at the next boot:</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>rpi-eeprom-config<span class="w"> </span>--apply<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/etc/ferrarimarco-home-lab/raspberry-pi-bootloader/boot.conf<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>pieeprom-&lt;release&gt;.bin
+sudo<span class="w"> </span>reboot
+</code></pre></div>
+<p>Pass the image: without it the tool patches the newest image of its own
+package, which downgrades the bootloader when the package is older than the
+installed release. <code>sudo rpi-eeprom-update -r</code> cancels a staged update
+before the reboot.</p>
+</li>
+<li>
+<p>Run the playbook again with the same tag: the assertion passes.</p>
+</li>
+</ol>
 <h2 id="move-the-image-pin">Move the image pin</h2>
 <p>The image is pinned by URL and SHA-256 in the <code>homeLab.netboot.payloads</code> option
 of the <code>netboot-server</code> role, with the checksum taken from the <code>.sha256</code> file

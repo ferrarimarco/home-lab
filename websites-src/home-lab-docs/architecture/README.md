@@ -104,11 +104,14 @@ reliability risks first, then security exposure, then automation):
           directory for the host. Depends on: the x86 PXE path (deferred, see
           the spec) and the pve2 power reduction
           ([Host configuration](#host-configuration)).
-        - Bootloader configuration on raspberrypi2 (`BOOT_ORDER=0xf42`, per-host
-          `TFTP_PREFIX_STR`), applied once from the running OS, then a dry
-          rescue with the boot disk untouched: the first run of the rescue
-          payload and of `flash-os`, which the role delivers since 2026-11-05
-          and the integration test exercises only against a mock image.
+        - Bootloader configuration on raspberrypi2 (`BOOT_ORDER=0xf142`,
+          per-host `TFTP_PREFIX_STR`), declared in the inventory and asserted by
+          the node role: apply it from the running OS as the
+          [network boot guide](../guides/operations/network-boot.md) describes,
+          then run a dry rescue with the boot disk untouched: the first run of
+          the rescue payload and of `flash-os`, which the role delivers since
+          2026-11-05 and the integration test exercises only against a mock
+          image.
         - Declared rescues beside the toggle command, deferred on 2026-11-05
           until the dry rescue has exercised the command path: a `rescue` flag
           per host in the `netboot-server` role that starts the toggle at boot

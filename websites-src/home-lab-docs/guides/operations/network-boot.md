@@ -68,6 +68,63 @@ curl tftp://10.0.0.5/raspberrypi2/cmdline.txt
 curl http://10.0.0.5/seeds/raspberrypi2/user-data
 ```
 
+## Apply the bootloader configuration
+
+A Raspberry Pi host network-boots only when its bootloader (EEPROM)
+configuration puts the network first and names its TFTP directory. The
+configuration is declared in the host's inventory variables
+(`raspberry_pi_bootloader_configuration`); the node role renders it to
+`/etc/ferrarimarco-home-lab/raspberry-pi-bootloader/boot.conf` and fails when
+the live configuration differs (the
+[Network Boot Service specification](../../architecture/network-boot.md) has the
+design). Applying it is a manual step, once per host and again whenever that
+check fails:
+
+1. Run the node playbook on the host with the `raspberry-pi-bootloader` tag (and
+   `untagged`), as the
+   [operational scripts guide](../development/operational-scripts.md) describes,
+   first with `--check --diff`, then without: the check run only predicts the
+   file, the real run renders it. Both fail at the assertion, listing the
+   declared and the live values.
+2. Find the release the bootloader runs:
+
+    ```shell
+    vcgencmd bootloader_version
+    ```
+
+    The host's own `rpi-eeprom` package holds its images under
+    `/lib/firmware/raspberrypi/bootloader/default/` (`bootloader-2711/default/`
+    or `latest/` on newer releases of the package). When the installed release
+    is newer than the package's images, as on a host still on Debian 11, copy
+    the image from the boot server's unpacked payload through the control
+    machine, then confirm it is the installed release: its `BUILD_TIMESTAMP`
+    string must equal the `timestamp` that `vcgencmd bootloader_version` prints.
+
+    ```shell
+    ssh hl02.edge.lab.ferrari.how cat \
+      /var/lib/netboot/payloads/raspios-lite/root/lib/firmware/raspberrypi/bootloader-2711/default/pieeprom-<release>.bin \
+      | ssh pi@<host> 'cat > pieeprom-<release>.bin'
+    ssh pi@<host> 'strings pieeprom-<release>.bin | grep BUILD_TIMESTAMP'
+    ```
+
+3. Silence the host's availability alerts as the
+   [monitoring operations guide](./monitoring.md) describes, then stage the
+   update and reboot. The bootloader flashes itself at the next boot:
+
+    ```shell
+    sudo rpi-eeprom-config --apply \
+      /etc/ferrarimarco-home-lab/raspberry-pi-bootloader/boot.conf \
+      pieeprom-<release>.bin
+    sudo reboot
+    ```
+
+    Pass the image: without it the tool patches the newest image of its own
+    package, which downgrades the bootloader when the package is older than the
+    installed release. `sudo rpi-eeprom-update -r` cancels a staged update
+    before the reboot.
+
+4. Run the playbook again with the same tag: the assertion passes.
+
 ## Move the image pin
 
 The image is pinned by URL and SHA-256 in the `homeLab.netboot.payloads` option
