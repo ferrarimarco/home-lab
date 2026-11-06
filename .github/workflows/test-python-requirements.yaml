@@ -83,7 +83,7 @@ jobs:
           RESTIC_EXPORTER_SHA256="$(sed -n 's|^restic_exporter_release_sha256: *\([0-9a-f]*\).*|\1|p' config/ansible/roles/ferrarimarco_home_lab_backup/vars/main.yaml)"
           echo "restic-exporter version: ${RESTIC_EXPORTER_VERSION}, pinned sha256: ${RESTIC_EXPORTER_SHA256}"
           ARCHIVE_PATH="$(mktemp -d)/restic-exporter-${RESTIC_EXPORTER_VERSION}.tar.gz"
-          curl --fail --silent --show-error --location --output "${ARCHIVE_PATH}" "https://github.com/ngosang/restic-exporter/archive/refs/tags/${RESTIC_EXPORTER_VERSION}.tar.gz"
+          python3 -c 'import sys, urllib.request; urllib.request.urlretrieve(sys.argv[1], sys.argv[2])' "https://github.com/ngosang/restic-exporter/archive/refs/tags/${RESTIC_EXPORTER_VERSION}.tar.gz" "${ARCHIVE_PATH}"
           echo "${RESTIC_EXPORTER_SHA256}  ${ARCHIVE_PATH}" | sha256sum --check
           REQUIREMENTS_FILE_PATH="$(mktemp)"
           echo "restic-exporter @ file://${ARCHIVE_PATH}" > "${REQUIREMENTS_FILE_PATH}"
