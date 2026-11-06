@@ -186,6 +186,21 @@ groups:
             than 15 minutes: the timer is stopped, or systemd is not running
             its jobs. A share that fails to mount at boot is not retried
             until it runs again.
+      - alert: NodeSystemdMetricsMissing
+        # The unit rules below read node_systemd_unit_state, which only the
+        # systemd collector exports: an instance without it is invisible to
+        # them, so its failed and looping units raise nothing.
+        expr: up{job="node_exporter"} == 1 unless on (instance) count by (instance) (node_systemd_unit_state)
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "No systemd unit metrics from {{ $labels.instance }}"
+          description: >-
+            {{ $labels.instance }} answers the node exporter scrape but
+            exports no unit states: its exporter runs without the systemd
+            collector, or the collector cannot reach the system bus, so
+            failed and restart-looping units on it go unnoticed.
       - alert: SystemdUnitFailed
         expr: node_systemd_unit_state{state="failed"} == 1
         for: 15m
@@ -718,3 +733,24 @@ groups:
             The Syncthing device {{ $labels.device }} has not been connected
             to {{ $labels.instance }} for 3 days: offsite backups stopped
             flowing. Check the peer device and the tailnet connectivity.
+
+  - name: network-boot
+    rules:
+      - alert: NetbootRescueLingering
+        # A rescue ends with its toggle stopped; one left started makes the
+        # host boot the rescue payload at every reboot. A planned rescue
+        # longer than a day gets a silence. The day is a window, not a `for`
+        # hold: one missed scrape would restart a hold, while a window only
+        # needs every sample it holds to say active (a series younger than a
+        # day fires early, once, when the collector is first enabled).
+        expr: min_over_time(node_systemd_unit_state{name=~"netboot-rescue@.+\\.service", state="active"}[24h]) == 1
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rescue toggle {{ $labels.name }} left started on {{ $labels.instance }}"
+          description: >-
+            The network boot toggle {{ $labels.name }} on
+            {{ $labels.instance }} has been started for 24 hours: its host
+            boots the rescue payload at every reboot until the toggle is
+            stopped. Stop it if the rescue is over, or silence this alert
+            for a planned one.

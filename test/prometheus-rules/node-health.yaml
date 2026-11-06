@@ -359,6 +359,38 @@ tests:
                 jobs. A share that fails to mount at boot is not retried until
                 it runs again.
 
+  - name: NodeSystemdMetricsMissing fires for a scraped host without unit states for 1 hour
+    interval: 1m
+    input_series:
+      - series: 'up{job="node_exporter", instance="no-collector:9100"}'
+        values: "1x61"
+      - series: 'up{job="node_exporter", instance="with-collector:9100"}'
+        values: "1x61"
+      - series: 'node_systemd_unit_state{instance="with-collector:9100", name="sshd.service", state="active", type="notify"}'
+        values: "1x61"
+      - series: 'up{job="node_exporter", instance="down:9100"}'
+        values: "0x61"
+      - series: 'up{job="cadvisor", instance="other-job:8080"}'
+        values: "1x61"
+    alert_rule_test:
+      - eval_time: 59m
+        alertname: NodeSystemdMetricsMissing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: NodeSystemdMetricsMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: no-collector:9100
+              job: node_exporter
+            exp_annotations:
+              summary: "No systemd unit metrics from no-collector:9100"
+              description: >-
+                no-collector:9100 answers the node exporter scrape but
+                exports no unit states: its exporter runs without the systemd
+                collector, or the collector cannot reach the system bus, so
+                failed and restart-looping units on it go unnoticed.
+
   - name: SystemdUnitFailed fires for a unit failed for 15 minutes
     interval: 1m
     input_series:

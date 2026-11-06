@@ -134,7 +134,9 @@ in
 
   # A long-running service, not a oneshot: the activation that introduces a
   # pin would otherwise wait for the download. The toggle checks the payload's
-  # readiness stamp instead of the unit's state.
+  # readiness stamp instead of the unit's state. No automatic restart: a
+  # failed fetch leaves the unit failed, which the unit alert reports, where
+  # a paced restart loop with long attempts would stay under its threshold.
   units = payloadName: payload: {
     "netboot-payload-${payloadName}" = {
       description = "Network boot payload ${payloadName}: fetch and unpack the pinned image";
@@ -144,8 +146,6 @@ in
       serviceConfig = {
         Type = "exec";
         RemainAfterExit = true;
-        Restart = "on-failure";
-        RestartSec = "5min";
         ExecStart = "${netboot} fetch ${payloadName} ${payload.url} ${payload.sha256}";
       };
     };

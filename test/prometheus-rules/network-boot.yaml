@@ -1,0 +1,41 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  # The toggle is stopped for the first hour and started from 1h05m on: the
+  # 24-hour window holds a stopped sample until just before 25h.
+  - name: NetbootRescueLingering fires once a rescue toggle has been started for a full day
+    interval: 5m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="hl02:9100", name="netboot-rescue@raspberrypi2.service", state="active", type="oneshot"}'
+        values: "0x12 1x300"
+      - series: 'node_systemd_unit_state{instance="hl02:9100", name="netboot-rescue@raspberrypi2.service", state="inactive", type="oneshot"}'
+        values: "1x12 0x300"
+      - series: 'node_systemd_unit_state{instance="hl02:9100", name="netboot-rescue@other-host.service", state="active", type="oneshot"}'
+        values: "0x313"
+      - series: 'node_systemd_unit_state{instance="hl02:9100", name="netboot-payload-raspios-lite.service", state="active", type="exec"}'
+        values: "1x313"
+    alert_rule_test:
+      - eval_time: 24h55m
+        alertname: NetbootRescueLingering
+        exp_alerts: []
+      - eval_time: 25h5m
+        alertname: NetbootRescueLingering
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: netboot-rescue@raspberrypi2.service
+              state: active
+              type: oneshot
+            exp_annotations:
+              summary: "Rescue toggle netboot-rescue@raspberrypi2.service left started on hl02:9100"
+              description: >-
+                The network boot toggle netboot-rescue@raspberrypi2.service on
+                hl02:9100 has been started for 24 hours: its host boots the
+                rescue payload at every reboot until the toggle is stopped.
+                Stop it if the rescue is over, or silence this alert for a
+                planned one.
