@@ -1866,9 +1866,14 @@ directory in the repository root:</p>
 <p>Prefer these files over scrolling the console output: they persist after the run
 and separate each linter's findings. The console output is long: when a run must
 be captured, redirect it in full to a log file rather than through <code>tail</code> or
-<code>head</code>, which discard the failing linter's message and mask the exit code. Run
-only one <code>scripts/lint.sh</code> at a time: concurrent runs clobber the shared
-<code>super-linter-output/</code> directory.</p>
+<code>head</code>, which discard the failing linter's message and mask the exit code.</p>
+<p>Only one lint run fits on a machine at a time, Git worktrees included, because
+the linter container has a fixed name: the script exits with a message when
+another run is in progress. Wait for that run to finish instead of removing its
+container, which would end it. The same holds for <code>scripts/run-mkdocs.sh</code> and
+its container. A lint run also overwrites the <code>super-linter-output/</code> directory
+of its checkout, so read the results of a run before another session starts its
+own there.</p>
 <p>The linter container runs as <code>root</code> and rewrites the Git index (<code>.git/index</code>),
 which then belongs to <code>root</code>. A lint run can also unstage staged changes, so
 stage files after linting, right before committing. Committing still works

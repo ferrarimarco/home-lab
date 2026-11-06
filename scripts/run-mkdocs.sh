@@ -54,8 +54,11 @@ fi
 
 MKDOCS_CONFIG_FILE_DESTINATION_PATH="/config/mkdocs.yaml"
 
+MKDOCS_CONTAINER_NAME="mkdocs"
+exit_if_container_is_running "${MKDOCS_CONTAINER_NAME}" "documentation build or preview"
+
 RUN_CONTAINER_COMMAND+=(
-  --name "mkdocs"
+  --name "${MKDOCS_CONTAINER_NAME}"
   --publish "8000:8000"
   -v "${MKDOCS_CONFIG_FILE_PATH}":"${MKDOCS_CONFIG_FILE_DESTINATION_PATH}"
   -v "${MKDOCS_SOURCE_DIRECTORY_PATH}":/docs

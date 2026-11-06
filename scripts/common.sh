@@ -14,6 +14,7 @@ ERR_MISSING_GITHUB_TOKEN_FILE=5
 ERR_MISSING_RUNTIME_DEPENDENCY=6
 # shellcheck disable=SC2034
 ERR_FORMAT_SCRIPT_FIXER_COVERAGE=7
+ERR_CONTAINER_ALREADY_RUNNING=8
 
 COMMON_FILE_PATH="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 REPOSITORY_ROOT_PATH="$(dirname "$(readlink -f "${COMMON_FILE_PATH}")")"
@@ -124,6 +125,19 @@ is_container_runtime_available() {
     return 0
   else
     return 1
+  fi
+}
+
+# A container with a fixed name allows one run at a time, and Docker's name
+# conflict error suggests removing the container, which ends the run in
+# progress: report the run in progress instead.
+exit_if_container_is_running() {
+  local CONTAINER_NAME="${1}"
+  local RUN_DESCRIPTION="${2}"
+
+  if [ -n "$(docker ps --quiet --filter "name=^${CONTAINER_NAME}$")" ]; then
+    echo "Another ${RUN_DESCRIPTION} is in progress (container: ${CONTAINER_NAME}). Wait for it to finish and run this script again. Don't remove the container: that ends the run in progress."
+    exit "${ERR_CONTAINER_ALREADY_RUNNING}"
   fi
 }
 

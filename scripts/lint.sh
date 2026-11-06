@@ -54,6 +54,9 @@ if [ "${LINTER_CONTAINER_LINT_COMMIT_MESSAGE:-}" == "true" ]; then
   exit 0
 fi
 
+LINTER_CONTAINER_NAME="super-linter"
+exit_if_container_is_running "${LINTER_CONTAINER_NAME}" "lint run"
+
 SUPER_LINTER_COMMAND=(
   docker run
 )
@@ -82,7 +85,7 @@ SUPER_LINTER_COMMAND+=(
   --env MULTI_STATUS="false"
   --env RUN_LOCAL="true"
   --env-file "config/lint/super-linter.env"
-  --name "super-linter"
+  --name "${LINTER_CONTAINER_NAME}"
   --rm
   --volume "$(pwd)":/tmp/lint
   ${GIT_WORKTREE_VOLUMES[@]+"${GIT_WORKTREE_VOLUMES[@]}"}
