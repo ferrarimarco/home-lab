@@ -11,7 +11,7 @@
 | **Raspberry Pi OS Lite payload**      | **Fully Implemented**     | The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, seeds rendered; the test covers the path with a mock image, not the boot; unpacked on hl02 on 2026-11-05 (1.9 GB root, ownership and setuid kept). |
 | **Flash workflow**                    | **Partially Implemented** | `flash-os` written and delivered through the rescue seed; never run, the dry rescue is its first test.                                                                                                                                                              |
 | **Raspberry Pi re-provisioning**      | **Missing**               | Restore path, Trixie playbook fixes, and guides, tracked in the todo list.                                                                                                                                                                                          |
-| **Monitoring**                        | **Fully Implemented**     | Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; not yet applied.                                                                                         |
+| **Monitoring**                        | **Fully Implemented**     | Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; applied on 2026-11-06 (the collector on hl02, the rules and probes on both monitoring replicas).         |
 
 ## Goal
 
