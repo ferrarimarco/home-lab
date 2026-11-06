@@ -130,20 +130,17 @@ describes.
 ## Reading the state of the ONT
 
 For the state of the ONT during or after an incident, read the exporter's series
-in Prometheus first (`ztef6005ont_gpon_status` and the optical power series),
-which the `OntMetricsMissing` and `OntGponNotOperational` rules watch: the
-`Operation state(O5)` flag is the operational state.
+in Prometheus first: `ztef6005ont_gpon_status`, whose `Operation state(O5)` flag
+is the operational state and which the `OntMetricsMissing` and
+`OntGponNotOperational` rules watch, and the optical power series.
 
-The ONT's own admin interface cannot explain an outage after the fact. It has
-three read-only pages (device, GPON, and user information) and no log, uptime,
-alarm history, or reboot control, and its counters restart with power, so
-cutting its power is the only remote lever (the "ONT hang and power cycle" item
-of the [specs index](../../architecture/README.md#issues-to-solve)). For a live
-read, reach it at `https://192.168.1.1/` through the gateway's NAT rule and log
-in the way the exporter does
-(`config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/zte-f6005-ont-exporter.py`):
-a second session next to the exporter's is fine. The
-[archived access notes](../../archive/zte-ont-access.md) describe the route.
+The ONT's own admin interface cannot explain an outage after the fact: the "ONT
+hang and power cycle" item of the
+[specs index](../../architecture/README.md#issues-to-solve) records what it
+serves and what it lacks. For a live read, reach it at `https://192.168.1.1/`
+through the gateway's NAT rule and log in the way the exporter does
+(`config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/zte-f6005-ont-exporter.py`).
+The [archived access notes](../../archive/zte-ont-access.md) describe the route.
 
 ## Prometheus Blackbox Exporter example queries
 

@@ -11,13 +11,12 @@ remote command in `bash -ec '...'`.
 
 The gateway router accepts the lab key too, on a port and as a user that are
 vault values (`vault_asuswrt_administration_ssh_port` and
-`vault_asuswrt_administrator_username`). Prefer the `gateway-dnsmasq.yaml`
-playbook, whose check mode reads every setting it manages. For another read,
-take the two values from a playbook log or a rendered unit and keep them out of
-replies and committed files, point `UserKnownHostsFile` at a scratch file with
-`StrictHostKeyChecking=accept-new` (the control machine's known hosts file has
-no entry for that port), and keep each command short: a long batched script
-crashed the router's shell once.
+`vault_asuswrt_administrator_username`): take them from a playbook log or a
+rendered unit, and keep them out of replies and committed files. Prefer the
+`gateway-dnsmasq.yaml` playbook, which the
+[Ansible development guide](./development/ansible.md) describes together with
+the reason to keep commands on the router short. The router's host key gets the
+same treatment as any other host's.
 
 A first connection to a host from a machine fails under `BatchMode=yes` with
 "Host key verification failed", the line a changed key's output also ends with.

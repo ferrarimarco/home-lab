@@ -526,11 +526,12 @@ reliability risks first, then security exposure, then automation):
   the change under test.
 - **One Git worktree per agent session (parked on 2026-11-06, waiting for a
   decision)**: the agent sessions that work on this repository share one working
-  tree, one index, and one branch, which is why the guides carry a rule per
-  shared resource (a temporary index for a partial commit, a temporary worktree
-  for a docs build or a playbook apply, one lint run at a time). A worktree per
-  session that changes code (`claude --worktree <name>`) would keep the changes
-  of each session apart by construction. Untried; the costs to settle first:
+  tree, one index, and one branch, which is why the guides and the agent skills
+  carry a rule per shared resource (a temporary index for a partial commit, a
+  temporary worktree for a docs build or a playbook apply, one lint run at a
+  time). A worktree per session that changes code (`claude --worktree <name>`)
+  would keep the changes of each session apart by construction. Untried; the
+  costs to settle first:
     - The committed `docs/` output conflicts whenever two branches rebuild it.
       CI committing the site on master would remove the conflict:
       `.github/workflows/documentation.yaml` commits only on pull requests
