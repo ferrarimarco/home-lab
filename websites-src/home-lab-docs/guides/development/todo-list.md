@@ -46,3 +46,11 @@ explicitly discarded:
 When part of an approved plan is put on hold, add the deferred work as an item
 in the same pass, with the date and why it is on hold, and close it when the
 work later lands.
+
+Work that pauses between sessions because it waits on something (a host that is
+off, a measurement window, an action of the user) is deferred work too: record
+it as an item with the date, what remains in order, and what it waits on, and
+update that item as the work advances, so that any session finds the current
+state in one place. The progress of a rollout goes in the Details column of the
+specification's status table. A private note, such as an agent's memory store,
+is not that place: nothing versions it, and each session rewrites it.

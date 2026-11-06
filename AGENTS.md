@@ -52,6 +52,13 @@ annotations: follow the
 [Todo list management guide](./websites-src/home-lab-docs/guides/development/todo-list.md)
 when adding, completing, or discarding items.
 
+State that outlives a session lives in the repository as well: the progress of a
+rollout in the status tables, and work paused between sessions as a todo item,
+as the "Deferring work" section of that guide describes. The agent memory store
+is unversioned and every session rewrites it, so it holds only what this
+repository cannot: facts about the workstation and private identifiers, each
+behind a one-line index entry.
+
 ### Documentation Placement
 
 [`websites-src/home-lab-docs/architecture/`](./websites-src/home-lab-docs/architecture/)

@@ -2571,6 +2571,36 @@ reliability risks first, then security exposure, then automation):</p>
   release, bundled in super-linter v9.0.0) rejects the <code>$/</code> form, so the audit
   is ignored in <code>config/lint/zizmor.yaml</code> (2026-10-18). Switch the call and drop
   the ignore once actionlint accepts the syntax.</li>
+<li><strong>The <code>Lint</code> workflow fails on every master run (read on 2026-11-06)</strong>: none
+  of its last 30 runs on master passed, the oldest on 2026-10-18. On 2026-11-06
+  the only failing linter is Trivy, with two findings: CVE-2026-25645 in the
+  <code>requests</code> pin of the ONT exporter, which waits for the raspberrypi2 re-image
+  (<a href="#issues-to-solve">Issues to solve</a>), and CVE-2026-118764 in <code>minimatch</code> in
+  <code>docker/ci-cd-tools/package-lock.json</code>, which waits for nothing: update it. A
+  red <code>Lint</code> run on master is therefore not evidence of a regression: compare
+  the failing linters with these two findings before attributing a failure to
+  the change under test.</li>
+<li><strong>One Git worktree per agent session (parked on 2026-11-06, waiting for a
+  decision)</strong>: the agent sessions that work on this repository share one working
+  tree, one index, and one branch, which is why the guides carry a rule per
+  shared resource (a temporary index for a partial commit, a temporary worktree
+  for a docs build or a playbook apply, one lint run at a time). A worktree per
+  session that changes code (<code>claude --worktree &lt;name&gt;</code>) would keep the changes
+  of each session apart by construction. Untried; the costs to settle first:<ul>
+<li>The committed <code>docs/</code> output conflicts whenever two branches rebuild it.
+  CI committing the site on master would remove the conflict:
+  <code>.github/workflows/documentation.yaml</code> commits only on pull requests
+  today, and changing that was parked on 2026-10-22.</li>
+<li>Nearly every change edits this index, so it will sometimes conflict.</li>
+<li>The gitignored vault files need the hard links that the
+  <a href="../guides/development/operational-scripts/">operational scripts guide</a>
+  describes for a temporary worktree; where the Terraform state lives was
+  not checked.</li>
+<li>A playbook apply would need a rule to run only from a commit on master.</li>
+<li>The lint and docs containers have fixed names, so those runs stay one at a
+  time across worktrees.</li>
+</ul>
+</li>
 </ul>
 <h3 id="host-configuration">Host configuration</h3>
 <ul>

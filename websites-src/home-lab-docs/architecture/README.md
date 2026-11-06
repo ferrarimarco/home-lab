@@ -515,6 +515,34 @@ reliability risks first, then security exposure, then automation):
   release, bundled in super-linter v9.0.0) rejects the `$/` form, so the audit
   is ignored in `config/lint/zizmor.yaml` (2026-10-18). Switch the call and drop
   the ignore once actionlint accepts the syntax.
+- **The `Lint` workflow fails on every master run (read on 2026-11-06)**: none
+  of its last 30 runs on master passed, the oldest on 2026-10-18. On 2026-11-06
+  the only failing linter is Trivy, with two findings: CVE-2026-25645 in the
+  `requests` pin of the ONT exporter, which waits for the raspberrypi2 re-image
+  ([Issues to solve](#issues-to-solve)), and CVE-2026-118764 in `minimatch` in
+  `docker/ci-cd-tools/package-lock.json`, which waits for nothing: update it. A
+  red `Lint` run on master is therefore not evidence of a regression: compare
+  the failing linters with these two findings before attributing a failure to
+  the change under test.
+- **One Git worktree per agent session (parked on 2026-11-06, waiting for a
+  decision)**: the agent sessions that work on this repository share one working
+  tree, one index, and one branch, which is why the guides carry a rule per
+  shared resource (a temporary index for a partial commit, a temporary worktree
+  for a docs build or a playbook apply, one lint run at a time). A worktree per
+  session that changes code (`claude --worktree <name>`) would keep the changes
+  of each session apart by construction. Untried; the costs to settle first:
+    - The committed `docs/` output conflicts whenever two branches rebuild it.
+      CI committing the site on master would remove the conflict:
+      `.github/workflows/documentation.yaml` commits only on pull requests
+      today, and changing that was parked on 2026-10-22.
+    - Nearly every change edits this index, so it will sometimes conflict.
+    - The gitignored vault files need the hard links that the
+      [operational scripts guide](../guides/development/operational-scripts.md)
+      describes for a temporary worktree; where the Terraform state lives was
+      not checked.
+    - A playbook apply would need a rule to run only from a commit on master.
+    - The lint and docs containers have fixed names, so those runs stay one at a
+      time across worktrees.
 
 ### Host configuration
 

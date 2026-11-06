@@ -1448,6 +1448,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reading-the-state-of-the-ont" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reading the state of the ONT
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prometheus-blackbox-exporter-example-queries" class="md-nav__link">
     <span class="md-ellipsis">
       Prometheus Blackbox Exporter example queries
@@ -1802,6 +1811,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reading-the-state-of-the-ont" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reading the state of the ONT
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prometheus-blackbox-exporter-example-queries" class="md-nav__link">
     <span class="md-ellipsis">
       Prometheus Blackbox Exporter example queries
@@ -1937,6 +1955,21 @@ before writing it: exporters rename and re-label metrics between versions. Give
 every new rule a unit test, as the
 <a href="../../development/operational-scripts/#testing">operational scripts guide</a>
 describes.</p>
+<h2 id="reading-the-state-of-the-ont">Reading the state of the ONT</h2>
+<p>For the state of the ONT during or after an incident, read the exporter's series
+in Prometheus first (<code>ztef6005ont_gpon_status</code> and the optical power series),
+which the <code>OntMetricsMissing</code> and <code>OntGponNotOperational</code> rules watch: the
+<code>Operation state(O5)</code> flag is the operational state.</p>
+<p>The ONT's own admin interface cannot explain an outage after the fact. It has
+three read-only pages (device, GPON, and user information) and no log, uptime,
+alarm history, or reboot control, and its counters restart with power, so
+cutting its power is the only remote lever (the "ONT hang and power cycle" item
+of the <a href="../../../architecture/#issues-to-solve">specs index</a>). For a live
+read, reach it at <code>https://192.168.1.1/</code> through the gateway's NAT rule and log
+in the way the exporter does
+(<code>config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/zte-f6005-ont-exporter.py</code>):
+a second session next to the exporter's is fine. The
+<a href="../../../archive/zte-ont-access/">archived access notes</a> describe the route.</p>
 <h2 id="prometheus-blackbox-exporter-example-queries">Prometheus Blackbox Exporter example queries</h2>
 <p>The Blackbox Exporter exposes a probe endpoint at
 <code>http://&lt;blackbox-exporter-host&gt;:9115/probe</code>. You can query it directly to run a
