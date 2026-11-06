@@ -1758,10 +1758,15 @@ the running host keeps its root until it reboots. A start within that period
 cancels the removal but rebuilds the export from the pristine tree, so a host
 still running from it must reboot anyway. A reboot of hl02 withdraws every host
 and removes every export.</p>
+<p>A toggle left started for 24 hours raises the <code>NetbootRescueLingering</code> alert:
+stop it if the rescue is over, or silence the alert for a planned rescue that
+runs longer, as the <a href="../monitoring/">monitoring operations guide</a> describes.</p>
 <p>The toggle fails with <code>payload raspios-lite is not ready</code> when the payload unit
 has not finished downloading and unpacking the image, which happens once per
 pin; check the unit as the next section describes and start the toggle again
-afterwards.</p>
+afterwards. A payload unit in the failed state does not retry on its own:
+restart it once the cause (a download error, a checksum mismatch, a full disk)
+is fixed.</p>
 <h2 id="read-the-servers-state">Read the server's state</h2>
 <p>On hl02, all read-only:</p>
 <ul>

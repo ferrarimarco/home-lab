@@ -1979,7 +1979,12 @@ host's logical <code>configuration.nix</code>.</p>
   <code>smbclient</code> enumeration.</li>
 <li>If <code>services.prometheus.exporters.node</code> is enabled, it waits for
   <code>prometheus-node-exporter.service</code> and its configured port, and asserts
-  that the metrics endpoint serves <code>node_</code>-prefixed metrics.</li>
+  that the metrics endpoint serves <code>node_</code>-prefixed metrics and the unit
+  states of the systemd collector, which the unit alerts read.</li>
+<li>If the host declares network boot hosts (the <code>netboot-server</code> role), it
+  runs the rescue toggle round trip that the
+  <a href="../network-boot/">Network Boot Service specification</a> describes in its
+  testing section, against the mock image of the host's test override.</li>
 <li>If <code>services.mosquitto</code> is enabled with a TCP listener, it ships the
   broker's client tools into the test machine, waits for <code>mosquitto.service</code>
   and every TCP listener port, and asserts that retained messages published

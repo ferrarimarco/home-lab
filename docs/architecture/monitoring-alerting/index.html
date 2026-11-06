@@ -691,6 +691,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#614-network-boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.14 Network Boot
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2226,6 +2235,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#614-network-boot" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.14 Network Boot
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2311,7 +2329,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Node Health</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, failed and restart-looping systemd units, clock skew, and memory errors (§6.2). Restart-loop rule applied on both replicas on 2026-11-04.</td>
+<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, missing unit-state metrics, failed and restart-looping systemd units, clock skew, and memory errors (§6.2). <code>NodeSystemdMetricsMissing</code> not yet applied. Restart-loop rule applied on both replicas on 2026-11-04.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Temperature</strong></td>
@@ -2326,7 +2344,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">ICMP, DNS, HTTP, and TCP probe failures, and the aggregate <code>WanDown</code> on the WAN-scoped ping targets (§6.5). <code>WanDown</code> and the <code>scope=wan</code> target label applied on both replicas on 2026-11-04 (11 labelled targets up on each).</td>
+<td style="text-align: left;">ICMP, DNS, HTTP, and TCP probe failures, and the aggregate <code>WanDown</code> on the WAN-scoped ping targets (§6.5). The boot server's HTTP and NFS targets are not yet applied. <code>WanDown</code> and the <code>scope=wan</code> target label applied on both replicas on 2026-11-04 (11 labelled targets up on each).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Frigate</strong></td>
@@ -2369,6 +2387,11 @@
 <td style="text-align: left;">Missing ONT metrics and the GPON operation state on the ONT exporter textfile (§6.13). Applied on both replicas on 2026-11-04; the exporter has produced data since 06:30 UTC that day.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><strong>Alert Rules: Network Boot</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">A rescue toggle left started for a day, on the boot server's unit states, which its node exporter exports since the systemd collector was enabled on the NixOS hosts (§6.14); not yet applied.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">All four monitoring backend services run with <code>restart: unless-stopped</code>, verified via <code>docker inspect</code> after deployment (§8).</td>
@@ -2391,7 +2414,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Unit Tests</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>promtool test rules</code> cases for all 55 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
+<td style="text-align: left;"><code>promtool test rules</code> cases for all 57 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
 </tr>
 </tbody>
 </table>
@@ -2703,6 +2726,13 @@ with operational experience.</p>
 <td style="text-align: left;">The timer runs every five minutes and has not run for 15; the last trigger reads zero between a boot and the first run, which the hold absorbs.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>NodeSystemdMetricsMissing</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>up{job="node_exporter"} == 1 unless on (instance) count by (instance) (node_systemd_unit_state)</code></td>
+<td style="text-align: left;">1 h</td>
+<td style="text-align: left;">The two unit rules below read a series only the systemd collector exports, so an instance without it is invisible to them: hl02's exporter ran without the collector when this rule was written, and its units raised nothing. It also fires when the collector is enabled but cannot reach the system bus. On the <code>AptMetricsMissing</code> pattern.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>SystemdUnitFailed</code></td>
 <td style="text-align: left;">warning</td>
 <td style="text-align: left;"><code>node_systemd_unit_state{state="failed"} == 1</code></td>
@@ -2882,7 +2912,7 @@ with operational experience.</p>
 <td style="text-align: left;">critical</td>
 <td style="text-align: left;"><code>probe_success == 0</code> on the TCP probe job</td>
 <td style="text-align: left;">10 min</td>
-<td style="text-align: left;">A service port stopped accepting connections (today the MQTT broker, whose consumers lose their bus while it is down).</td>
+<td style="text-align: left;">A service port stopped accepting connections (the MQTT broker, whose consumers lose their bus while it is down, and the boot server's NFS port).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>WanDown</code></td>
@@ -2906,10 +2936,21 @@ endpoint exists exactly for this purpose. Verified passing on both replicas
 (2026-10-05).</p>
 <p><strong>MQTT broker probe:</strong> the <code>blackbox-tcp</code> job probes the broker with the
 <code>tcp_connect</code> module (a plain TCP connection, since the broker has no HTTP
-endpoint). Its single target derives from <code>mosquitto_server_fqdn</code>, the
+endpoint). The broker target derives from <code>mosquitto_server_fqdn</code>, the
 variable the consumers read, so the probe follows the broker wherever that
 variable points with no second place to update at a move (see the
 <a href="../mqtt-broker/">MQTT Broker specification</a>).</p>
+<p><strong>Boot server probes:</strong> the HTTP job probes the boot server's image index
+(<code>/images/</code>, independent of the hosts it serves) and the <code>blackbox-tcp</code> job
+its NFS port, both under <code>netboot_server_fqdn</code>, so they prove from the
+monitoring hosts that nginx and the NFS server answer across the server's
+firewall. The NFS target shares the critical <code>BlackboxTcpProbeFailed</code> rule
+with the broker although the server is dormant between rescues (kept on
+2026-11-06): it is the only check of the NFS port across the firewall, which
+would otherwise fail unnoticed until the next rescue. Its proxy DHCP and TFTP
+sides are UDP, which the Blackbox exporter cannot probe: the dnsmasq unit
+state stands in for them (see the
+<a href="../network-boot/">Network Boot Service specification</a>).</p>
 </blockquote>
 <h3 id="66-frigate">6.6 Frigate</h3>
 <p>These rules consume Frigate's native Prometheus metrics endpoint
@@ -3217,6 +3258,32 @@ the exporter failing.</p>
 <td style="text-align: left;"><code>ztef6005ont_gpon_status{flag="Operation state(O5)"} == 0</code></td>
 <td style="text-align: left;">5 min</td>
 <td style="text-align: left;">The ONT left the GPON operation state: the optical link is down or re-registering, and the WAN with it. The PON LED stayed on through the 2026-11-04 outage; the rule records whether the PON stays registered during the next hang.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="614-network-boot">6.14 Network Boot</h3>
+<p>The boot server on hl02 is used rarely, so its failures stay latent until a
+rescue needs it. Its units fall under the node health rules (a payload unit that
+fails to fetch or unpack, a failed export removal, a dead dnsmasq, NFS server,
+or nginx), its HTTP and NFS endpoints under the probes of §6.5, and one rule
+covers the state only this service has:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>NetbootRescueLingering</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>min_over_time(node_systemd_unit_state{name=~"netboot-rescue@.+\\.service", state="active"}[24h]) == 1</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">A rescue ends with its toggle stopped; one left started makes the host boot the rescue payload at every reboot and lose its services. The day is a window rather than a <code>for</code> hold, which one missed scrape would restart; a series younger than a day fires early, once, when the collector is first enabled. A planned rescue longer than a day gets a silence (§5.1).</td>
 </tr>
 </tbody>
 </table>

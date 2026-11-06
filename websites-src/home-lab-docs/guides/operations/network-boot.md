@@ -33,10 +33,16 @@ cancels the removal but rebuilds the export from the pristine tree, so a host
 still running from it must reboot anyway. A reboot of hl02 withdraws every host
 and removes every export.
 
+A toggle left started for 24 hours raises the `NetbootRescueLingering` alert:
+stop it if the rescue is over, or silence the alert for a planned rescue that
+runs longer, as the [monitoring operations guide](./monitoring.md) describes.
+
 The toggle fails with `payload raspios-lite is not ready` when the payload unit
 has not finished downloading and unpacking the image, which happens once per
 pin; check the unit as the next section describes and start the toggle again
-afterwards.
+afterwards. A payload unit in the failed state does not retry on its own:
+restart it once the cause (a download error, a checksum mismatch, a full disk)
+is fixed.
 
 ## Read the server's state
 

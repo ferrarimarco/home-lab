@@ -11,6 +11,7 @@
 | **Raspberry Pi OS Lite payload**      | **Fully Implemented**     | The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, seeds rendered; the test covers the path with a mock image, not the boot; unpacked on hl02 on 2026-11-05 (1.9 GB root, ownership and setuid kept). |
 | **Flash workflow**                    | **Partially Implemented** | `flash-os` written and delivered through the rescue seed; never run, the dry rescue is its first test.                                                                                                                                                              |
 | **Raspberry Pi re-provisioning**      | **Missing**               | Restore path, Trixie playbook fixes, and guides, tracked in the todo list.                                                                                                                                                                                          |
+| **Monitoring**                        | **Fully Implemented**     | Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; not yet applied.                                                                                         |
 
 ## Goal
 
@@ -128,7 +129,9 @@ file. The core composes them and manages:
   derivation output. The unit records the pin it unpacked and does nothing while
   the pin is unchanged. It is a long-running service rather than a oneshot, so a
   deployment never waits for the download; the toggle checks the recorded pin
-  instead of the unit's state.
+  instead of the unit's state. A failed fetch leaves the unit failed, with no
+  automatic restart, so the unit alert reports it; restart the unit once the
+  cause is fixed.
 - **TFTP root** (`/run/netboot/tftp/<hostname>/`): a copy of the payload's boot
   files with the rendered boot configuration in place of the image's own and of
   its cloud-init seed. Under the runtime tree, so a server reboot withdraws
@@ -315,6 +318,13 @@ else comes back from the playbooks, except:
 - The boot firmware's trust is the LAN: a rogue server could serve a different
   system to a host whose toggle is started. The lab network is private and the
   toggle is started on demand; secure boot with signed payloads is out of scope.
+
+## Monitoring
+
+The alerts that cover the server (its units, the probes of its HTTP and NFS
+endpoints, and the rule for a rescue left started) are described in the
+[Monitoring Alerting specification](./monitoring-alerting.md), in its network
+boot and Blackbox probe sections.
 
 ## Testing
 

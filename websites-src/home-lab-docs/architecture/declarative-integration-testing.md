@@ -64,7 +64,12 @@ The generator dynamically:
       `smbclient` enumeration.
     - If `services.prometheus.exporters.node` is enabled, it waits for
       `prometheus-node-exporter.service` and its configured port, and asserts
-      that the metrics endpoint serves `node_`-prefixed metrics.
+      that the metrics endpoint serves `node_`-prefixed metrics and the unit
+      states of the systemd collector, which the unit alerts read.
+    - If the host declares network boot hosts (the `netboot-server` role), it
+      runs the rescue toggle round trip that the
+      [Network Boot Service specification](./network-boot.md) describes in its
+      testing section, against the mock image of the host's test override.
     - If `services.mosquitto` is enabled with a TCP listener, it ships the
       broker's client tools into the test machine, waits for `mosquitto.service`
       and every TCP listener port, and asserts that retained messages published

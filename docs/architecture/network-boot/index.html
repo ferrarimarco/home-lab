@@ -646,6 +646,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monitoring
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
       Testing
@@ -1983,6 +1992,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monitoring
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
       Testing
@@ -2064,6 +2082,11 @@
 <td style="text-align: left;"><strong>Raspberry Pi re-provisioning</strong></td>
 <td style="text-align: left;"><strong>Missing</strong></td>
 <td style="text-align: left;">Restore path, Trixie playbook fixes, and guides, tracked in the todo list.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Monitoring</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; not yet applied.</td>
 </tr>
 </tbody>
 </table>
@@ -2173,7 +2196,9 @@ file. The core composes them and manages:</p>
   derivation output. The unit records the pin it unpacked and does nothing while
   the pin is unchanged. It is a long-running service rather than a oneshot, so a
   deployment never waits for the download; the toggle checks the recorded pin
-  instead of the unit's state.</li>
+  instead of the unit's state. A failed fetch leaves the unit failed, with no
+  automatic restart, so the unit alert reports it; restart the unit once the
+  cause is fixed.</li>
 <li><strong>TFTP root</strong> (<code>/run/netboot/tftp/&lt;hostname&gt;/</code>): a copy of the payload's boot
   files with the rendered boot configuration in place of the image's own and of
   its cloud-init seed. Under the runtime tree, so a server reboot withdraws
@@ -2382,6 +2407,11 @@ else comes back from the playbooks, except:</p>
   system to a host whose toggle is started. The lab network is private and the
   toggle is started on demand; secure boot with signed payloads is out of scope.</li>
 </ul>
+<h2 id="monitoring">Monitoring</h2>
+<p>The alerts that cover the server (its units, the probes of its HTTP and NFS
+endpoints, and the rule for a rescue left started) are described in the
+<a href="../monitoring-alerting/">Monitoring Alerting specification</a>, in its network
+boot and Blackbox probe sections.</p>
 <h2 id="testing">Testing</h2>
 <ul>
 <li>The <code>netboot-server</code> role has a NixOS integration test through the existing
