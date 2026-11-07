@@ -739,11 +739,15 @@ groups:
       - alert: NetbootRescueLingering
         # A rescue ends with its toggle stopped; one left started makes the
         # host boot the rescue payload at every reboot. A planned rescue
-        # longer than a day gets a silence. The day is a window, not a `for`
-        # hold: one missed scrape would restart a hold, while a window only
-        # needs every sample it holds to say active (a series younger than a
-        # day fires early, once, when the collector is first enabled).
-        expr: min_over_time(node_systemd_unit_state{name=~"netboot-rescue@.+\\.service", state="active"}[24h]) == 1
+        # longer than a day gets a silence. A `for` hold over a short window,
+        # not a day-long window: systemd unloads the stopped toggle, so the
+        # collector stops reporting it instead of reporting it inactive, and
+        # a window as long as the hold would keep firing for a day after the
+        # stop. The short window bridges scrape gaps, which a failed scrape
+        # turns into staleness markers that reset the hold of a bare instant
+        # selector, and goes empty fifteen minutes after the stop.
+        expr: max_over_time(node_systemd_unit_state{name=~"netboot-rescue@.+\\.service", state="active"}[15m]) == 1
+        for: 24h
         labels:
           severity: warning
         annotations:

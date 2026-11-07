@@ -6,7 +6,7 @@ evaluation_interval: 1m
 
 tests:
   # The toggle is stopped for the first hour and started from 1h05m on: the
-  # 24-hour window holds a stopped sample until just before 25h.
+  # hold starts with the first active sample and completes at 25h05m.
   - name: NetbootRescueLingering fires once a rescue toggle has been started for a full day
     interval: 5m
     input_series:
@@ -23,6 +23,53 @@ tests:
         alertname: NetbootRescueLingering
         exp_alerts: []
       - eval_time: 25h5m
+        alertname: NetbootRescueLingering
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: netboot-rescue@raspberrypi2.service
+              state: active
+              type: oneshot
+            exp_annotations:
+              summary: "Rescue toggle netboot-rescue@raspberrypi2.service left started on hl02:9100"
+              description: >-
+                The network boot toggle netboot-rescue@raspberrypi2.service on
+                hl02:9100 has been started for 24 hours: its host boots the
+                rescue payload at every reboot until the toggle is stopped.
+                Stop it if the rescue is over, or silence this alert for a
+                planned one.
+
+  # A toggle started for two hours and then stopped: systemd unloads the unit
+  # and its series ends instead of reading inactive. The hold is pending while
+  # the toggle runs and ends fifteen minutes after the series, so nothing fires
+  # a day later.
+  - name: NetbootRescueLingering stays silent for a toggle stopped within the day
+    interval: 5m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="hl02:9100", name="netboot-rescue@raspberrypi2.service", state="active", type="oneshot"}'
+        values: "1x24 _x300"
+    alert_rule_test:
+      - eval_time: 1h
+        alertname: NetbootRescueLingering
+        exp_alerts: []
+      - eval_time: 26h
+        alertname: NetbootRescueLingering
+        exp_alerts: []
+
+  # Two scrapes missing at 25m and 30m (a failed scrape marks every series of
+  # the target stale): the window bridges the gap and the hold completes on
+  # time.
+  - name: NetbootRescueLingering keeps its hold across a short scrape gap
+    interval: 5m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="hl02:9100", name="netboot-rescue@raspberrypi2.service", state="active", type="oneshot"}'
+        values: "1x4 _x2 1x300"
+    alert_rule_test:
+      - eval_time: 23h55m
+        alertname: NetbootRescueLingering
+        exp_alerts: []
+      - eval_time: 24h10m
         alertname: NetbootRescueLingering
         exp_alerts:
           - exp_labels:
