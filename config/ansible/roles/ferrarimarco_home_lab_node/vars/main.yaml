@@ -444,6 +444,9 @@ zigbee2mqtt_docker_compose_up_items:
     enable_containerized_services: "{{ configure_zigbee2mqtt }}"
     pull_container_images: "{{ configure_zigbee2mqtt }}"
     start_containerized_services: "{{ start_zigbee2mqtt | default(configure_zigbee2mqtt) }}"
+    # The coordinator's device node: the project unit waits for it and runs
+    # again when it appears, since Compose fails at once on a missing device.
+    required_device_paths: "{{ [zigbee_adapter_device_path] if zigbee_adapter_device_path is defined else [] }}"
 zigbee2mqtt_templates_to_render:
   - src: "zigbee2mqtt/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ zigbee2mqtt_configuration_directory_path }}/{{ default_docker_compose_file_name }}"

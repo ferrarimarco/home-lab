@@ -5,8 +5,9 @@
 # containers that had started successfully, and nothing else on the host ran
 # `docker compose up` (the playbook, from the control machine, was the only
 # caller). The playbook's start task runs the same unit. An item that binds
-# network shares declares their mount points in required_mount_paths, and its
-# unit is also wanted by those mount units.
+# network shares declares their mount points in required_mount_paths, one that
+# passes devices to its containers declares them in required_device_paths, and
+# its unit is also wanted by those mount and device units.
 - name: Escape the required mount points into mount unit names
   ansible.builtin.command:
     argv: "{{ ['systemd-escape', '--path', '--suffix=mount'] + item.required_mount_paths }}"
@@ -14,6 +15,19 @@
   check_mode: false
   register: docker_compose_up_required_mount_units
   when: item.required_mount_paths | default([]) | length > 0
+  loop: "{{ docker_compose_up_items | unique }}"
+  loop_control:
+    label: "{{ item.compose_file_path }}"
+
+# systemd creates a device unit per device path, one per symlink under /dev
+# included, named by escaping the path
+- name: Escape the required device paths into device unit names
+  ansible.builtin.command:
+    argv: "{{ ['systemd-escape', '--path', '--suffix=device'] + item.required_device_paths }}"
+  changed_when: false
+  check_mode: false
+  register: docker_compose_up_required_device_units
+  when: item.required_device_paths | default([]) | length > 0
   loop: "{{ docker_compose_up_items | unique }}"
   loop_control:
     label: "{{ item.compose_file_path }}"
@@ -32,6 +46,7 @@
     docker_compose_up_unit_required_mount_paths: "{{ item.required_mount_paths | default([]) }}"
     # The escape task registers a result per item; a skipped item has no output
     docker_compose_up_unit_required_mount_units: "{{ docker_compose_up_required_mount_units.results[docker_compose_up_item_index].stdout_lines | default([]) }}"
+    docker_compose_up_unit_required_device_units: "{{ docker_compose_up_required_device_units.results[docker_compose_up_item_index].stdout_lines | default([]) }}"
   loop: "{{ docker_compose_up_items | unique }}"
   loop_control:
     index_var: docker_compose_up_item_index
@@ -95,8 +110,8 @@
     daemon_reload: true
 
 # The systemd module leaves an enabled unit alone, so a changed [Install]
-# section (a mount path added to required_mount_paths) would not get its
-# symlink: re-link the units whose file changed.
+# section (a path added to required_mount_paths or required_device_paths)
+# would not get its symlink: re-link the units whose file changed.
 - name: Re-link the changed Docker Compose project units
   ansible.builtin.command:
     argv:

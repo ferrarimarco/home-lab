@@ -58,6 +58,9 @@ provisioner:
         # TODO: Enable configure_wifi after we install packages before rendering templates
         # configure_wifi: true
         configure_zigbee2mqtt: true
+        # A device path, absent on the instance, so the project unit's device
+        # dependency is rendered; the project is not started here
+        zigbee_adapter_device_path: /dev/serial/by-id/usb-test-zigbee-adapter-if00
         # A network mount entry with state present (fstab line only, no mount
         # attempt), so the setup_disks role exercises the Docker ordering
         # option on a path nothing else uses, and the node role the mount

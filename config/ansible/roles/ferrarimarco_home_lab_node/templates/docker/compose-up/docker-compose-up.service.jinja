@@ -11,6 +11,15 @@ After=docker.service
 # started successfully and later stopped.
 RequiresMountsFor={{ docker_compose_up_unit_required_mount_paths | join(' ') }}
 {% endif %}
+{% if docker_compose_up_unit_required_device_units | length > 0 %}
+# The project passes these devices to its containers: `docker compose up`
+# fails at once when one is missing, which a device enumerated after
+# docker.service at boot (a USB adapter) causes, and Docker's restart policy
+# never retries a failed start. The unit runs after the devices and again
+# whenever one appears.
+Requires={{ docker_compose_up_unit_required_device_units | join(' ') }}
+After={{ docker_compose_up_unit_required_device_units | join(' ') }}
+{% endif %}
 
 [Service]
 Type=oneshot
@@ -21,4 +30,4 @@ ExecStart=docker compose --file {{ docker_compose_up_unit_compose_file_path }} u
 TimeoutStartSec=30min
 
 [Install]
-WantedBy=multi-user.target{% for mount_unit in docker_compose_up_unit_required_mount_units %} {{ mount_unit }}{% endfor %}
+WantedBy=multi-user.target{% for unit in docker_compose_up_unit_required_mount_units + docker_compose_up_unit_required_device_units %} {{ unit }}{% endfor %}
