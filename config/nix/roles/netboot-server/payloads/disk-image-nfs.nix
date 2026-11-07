@@ -11,7 +11,8 @@
 # A vendor disk image with a boot partition and a root filesystem, served as
 # it is: the boot files over the platform's path, the root over NFS from a
 # fresh per-host copy, customized at boot by the image's own cloud-init from
-# a seed over HTTP. Raspberry Pi OS Lite is the first instance.
+# the rendered seed on the copy's boot directory. Raspberry Pi OS Lite is the
+# first instance.
 let
   yaml = pkgs.formats.yaml { };
 
@@ -50,9 +51,9 @@ let
     '';
 
   # The instance ID names the host and the purpose, so a seed is never taken
-  # for one cloud-init already applied. The rescue seed comes over HTTP, so
-  # the network stage fetches it, and it leaves the network the kernel
-  # configured alone.
+  # for one cloud-init already applied. The rescue seed is applied in the
+  # network stage and leaves the network the kernel configured alone; the
+  # installed seed is served over HTTP for the flash script.
   seedFiles = hostName: {
     rescue = {
       user-data = userData {
@@ -86,18 +87,21 @@ let
     };
   };
 
-  seedRules =
+  rescueSeedDir =
     hostName:
-    lib.concatLists (
-      lib.mapAttrsToList (
-        kind: files:
-        let
-          dir = "${paths.httpDir}/${if kind == "rescue" then "seeds" else "installed"}/${hostName}";
-        in
-        [ "d ${dir} 0755 root root -" ]
-        ++ lib.mapAttrsToList (fileName: file: "L+ ${dir}/${fileName} - - - - ${file}") files
-      ) (seedFiles hostName)
+    pkgs.linkFarm "netboot-rescue-seed-${hostName}" (
+      lib.mapAttrsToList (name: path: { inherit name path; }) (seedFiles hostName).rescue
     );
+
+  installedSeedRules =
+    hostName:
+    let
+      dir = "${paths.httpDir}/installed/${hostName}";
+    in
+    [ "d ${dir} 0755 root root -" ]
+    ++
+      lib.mapAttrsToList (fileName: file: "L+ ${dir}/${fileName} - - - - ${file}")
+        (seedFiles hostName).installed;
 
   imageRules =
     payloadName: payload:
@@ -117,8 +121,7 @@ in
   bootFilesDir = payloadName: "${paths.payloadsDir}/${payloadName}/boot";
 
   # NFSv3 over TCP without locking, what the image's initramfs (klibc
-  # nfsmount) accepts; the seed URL is the kernel command line form of
-  # cloud-init's NoCloud datasource.
+  # nfsmount) accepts.
   kernelParameters =
     hostName:
     lib.concatStringsSep " " [
@@ -127,10 +130,11 @@ in
       "rw"
       "ip=dhcp"
       "rootwait"
-      "ds=nocloud;s=http://${cfg.serverAddress}/seeds/${hostName}/"
     ];
 
-  prepareExport = { hostName, payloadName }: "${netboot} prepare ${hostName} ${payloadName}";
+  prepareExport =
+    { hostName, payloadName }:
+    "${netboot} prepare ${hostName} ${payloadName} ${rescueSeedDir hostName}";
 
   # A long-running service, not a oneshot: the activation that introduces a
   # pin would otherwise wait for the download. The toggle checks the payload's
@@ -154,5 +158,5 @@ in
   tmpfilesRules =
     { payloads, hosts }:
     lib.concatLists (lib.mapAttrsToList imageRules payloads)
-    ++ lib.concatLists (map seedRules (lib.attrNames hosts));
+    ++ lib.concatLists (map installedSeedRules (lib.attrNames hosts));
 }

@@ -23,7 +23,7 @@
     enable = true;
 
     # The address the clients reach this VM at. The proxy DHCP reply and the
-    # rendered boot configuration (NFS root, cloud-init seed URL) carry it,
+    # rendered boot configuration (the NFS root) carry it,
     # and a rescue in progress depends on it staying put, so it is the DHCP
     # reservation of the VM's interface on the gateway. The inventory records
     # the same address and interface, and the flake cannot read the

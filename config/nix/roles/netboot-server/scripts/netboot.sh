@@ -6,7 +6,7 @@
 # environment; the two lines below keep the file a complete script on its own.
 #
 #   netboot fetch PAYLOAD URL SHA256
-#   netboot prepare HOST PAYLOAD
+#   netboot prepare HOST PAYLOAD SEED_DIR
 #   netboot cancel-removal HOST
 #   netboot export HOST CLIENTS
 #   netboot publish HOST BOOT_FILES_DIR BOOT_CONFIG_DIR
@@ -98,7 +98,7 @@ fetch() {
 
 # Create a host's NFS export as a fresh copy of a payload's pristine root.
 prepare() {
-  local host="$1" payload="$2"
+  local host="$1" payload="$2" seed_dir="$3"
   check_names "$host" "$payload"
   local pristine="$NETBOOT_PAYLOADS_DIR/$payload/root"
   if ! [[ -f $NETBOOT_IMAGES_DIR/$payload.pin && -d $pristine ]]; then
@@ -113,6 +113,12 @@ prepare() {
   # exist and systemd would drop to emergency mode waiting for them. The
   # vendor's network boot tutorial makes the same edit.
   printf 'proc /proc proc defaults 0 0\n' >"$export_dir/etc/fstab"
+  # The image's cloud-init reads its seed from the boot partition, a setting
+  # of the image that overrides a seed named on the kernel command line, so
+  # the rendered seed takes the place of the vendor's files there.
+  cp -rL "$seed_dir"/. "$export_dir/boot/firmware/"
+  # The image grows its root partition at first boot; an NFS root has none.
+  ln -sf /dev/null "$export_dir/etc/systemd/system/systemd-growfs-root.service"
   echo "prepared $export_dir from $pristine"
 }
 

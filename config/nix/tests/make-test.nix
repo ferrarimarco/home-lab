@@ -299,8 +299,9 @@ pkgs.testers.nixosTest {
       # host's toggle is stopped, starting the toggle publishes the boot files
       # over TFTP, exports the host's root over NFSv3 (mounted back from the
       # server's own address to prove the export, not just its listing) with
-      # the fstab rewritten, serves the cloud-init seed over HTTP, which parses
-      # as YAML, and shows in the node exporter as the active unit series the
+      # the fstab rewritten, the cloud-init seed on its boot directory, which
+      # parses as YAML, and the root-growing unit masked, and shows in the node
+      # exporter as the active unit series the
       # lingering-rescue alert matches; stopping withdraws the TFTP directory
       # at once, keeps the export listed, and removes it after the grace
       # period. The image index the HTTP probe targets answers too. The TFTP
@@ -338,10 +339,12 @@ pkgs.testers.nixosTest {
           machine.succeed("mkdir -p /mnt/${host} && mount -t nfs -o vers=3,tcp,nolock ${netboot.serverAddress}:/var/lib/netboot/nfs/${host} /mnt/${host}")
           fstab = machine.succeed("cat /mnt/${host}/etc/fstab").strip()
           assert fstab == "proc /proc proc defaults 0 0", f"Unexpected fstab in the export of ${host}: {fstab!r}"
-          machine.succeed("umount /mnt/${host}")
-          seed = machine.succeed("curl -sSf http://${netboot.serverAddress}/seeds/${host}/user-data")
+          machine.succeed("test -L /mnt/${host}/etc/systemd/system/systemd-growfs-root.service -a \"$(readlink /mnt/${host}/etc/systemd/system/systemd-growfs-root.service)\" = /dev/null")
+          seed = machine.succeed("cat /mnt/${host}/boot/firmware/user-data")
           assert seed.startswith("#cloud-config") and "hostname: ${host}" in seed, f"Unexpected rescue seed for ${host}: {seed[:200]!r}"
-          machine.succeed("curl -sSf http://${netboot.serverAddress}/seeds/${host}/user-data | python3 -c 'import sys, yaml; seed = yaml.safe_load(sys.stdin); assert seed[\"hostname\"] == \"${host}\"; assert seed[\"write_files\"][0][\"path\"] == \"/usr/local/sbin/flash-os\"'")
+          machine.succeed("python3 -c 'import sys, yaml; seed = yaml.safe_load(open(\"/mnt/${host}/boot/firmware/user-data\")); assert seed[\"hostname\"] == \"${host}\"; assert seed[\"write_files\"][0][\"path\"] == \"/usr/local/sbin/flash-os\"'")
+          machine.succeed("test -f /mnt/${host}/boot/firmware/meta-data -a -f /mnt/${host}/boot/firmware/network-config")
+          machine.succeed("umount /mnt/${host}")
           machine.succeed("systemctl stop netboot-rescue@${host}.service")
           machine.fail("curl -sSf tftp://${netboot.serverAddress}/${host}/config.txt > /dev/null")
           machine.succeed("test -d /var/lib/netboot/nfs/${host}")

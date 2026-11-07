@@ -39,7 +39,9 @@ stdenvNoCC.mkDerivation {
     mkdir boot/overlays
     echo "placeholder overlay" > boot/overlays/README
 
-    mkdir -p root/etc root/usr/local/sbin
+    # The mount point of the boot partition and the unit directory the
+    # prepare step writes into, empty as in the image.
+    mkdir -p root/etc/systemd/system root/boot/firmware root/usr/local/sbin
     echo "raspberrypi" > root/etc/hostname
     printf '%s\n' \
       'proc            /proc           proc    defaults          0       0' \
