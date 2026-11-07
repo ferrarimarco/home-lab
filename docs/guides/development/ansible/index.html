@@ -1917,10 +1917,15 @@ set of generic tasks applies that data:</p>
   <code>RequiresMountsFor=</code> and is wanted by the mount units too, so every start of
   the mount runs the project again (the
   <a href="../../../architecture/nas-lxc-container/">NAS LXC container page</a>, SMB clients
-  section, has the design). The units of a stack a run disables are disabled and
-  removed in that run, whatever its tag scope; units of projects that no longer
-  exist in the role are swept by full runs only, since a tag-scoped run
-  registers the selected stacks' items alone and would remove the rest.</li>
+  section, has the design). An item whose containers are passed devices lists
+  them in <code>required_device_paths</code>: the unit requires and runs after the device
+  units systemd derives from the paths, <code>/dev</code> symlinks included, and is wanted
+  by them, so a device that appears after boot runs the project again, where
+  Compose would otherwise fail at once on the missing path. The units of a stack
+  a run disables are disabled and removed in that run, whatever its tag scope;
+  units of projects that no longer exist in the role are swept by full runs
+  only, since a tag-scoped run registers the selected stacks' items alone and
+  would remove the rest.</li>
 <li><strong>Templates for files the workload rewrites are seeds.</strong> A file the
   application edits at runtime (qBittorrent's settings, the Zigbee2MQTT secret,
   the Wi-Fi credentials) is rendered with <code>force: false</code>: it seeds a fresh host

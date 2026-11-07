@@ -2051,7 +2051,7 @@
 <tr>
 <td style="text-align: left;"><strong><code>netboot-server</code> Nix role on hl02</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports, HTTP seeds, firewall; the hl02 integration test passes; applied on hl02 on 2026-11-05 and verified with a toggle round trip (publish, export, withdraw, removal).</td>
+<td style="text-align: left;">Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports with the rescue seed on the export's boot directory, HTTP images and installed seeds, firewall; the hl02 integration test passes; applied on hl02 on 2026-11-05 and exercised by the dry rescue of 2026-11-07; the seed placement fix of that day is not yet applied, and the apply removes the old <code>seeds/</code> directory under the HTTP root by hand, which tmpfiles does not clean up for a dropped rule.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Server address reservation</strong></td>
@@ -2060,8 +2060,8 @@
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Raspberry Pi boot path</strong></td>
-<td style="text-align: left;"><strong>Partially Implemented</strong></td>
-<td style="text-align: left;">Server-side done (proxy DHCP answer, per-host TFTP directory, rendered boot configuration) and covered by the test; the EEPROM configuration is declared in the inventory and asserted by the node role (no CI test covers the assertion, the Molecule instance not being a Raspberry Pi; a check-mode run on the host exercised it on 2026-11-06); raspberrypi2's EEPROM still boots SD then USB (<code>0xf41</code>) with no prefix set.</td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Proxy DHCP answer, per-host TFTP directory, rendered boot configuration, covered by the test; the EEPROM configuration declared in the inventory, asserted by the node role (no CI test covers the assertion, the Molecule instance not being a Raspberry Pi), applied on raspberrypi2 on 2026-11-07 and verified by the dry rescue: network boot with the toggle started, fall-through to the SSD within 20 seconds with it stopped, on warm reboots and cold starts.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>x86 PXE boot path</strong></td>
@@ -2071,12 +2071,12 @@
 <tr>
 <td style="text-align: left;"><strong>Raspberry Pi OS Lite payload</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, seeds rendered; the test covers the path with a mock image, not the boot; unpacked on hl02 on 2026-11-05 (1.9 GB root, ownership and setuid kept).</td>
+<td style="text-align: left;">The 2026-10-06 Trixie release pinned, fetched and unpacked at runtime, per-host export with the fstab rewritten, the seed on its boot directory and the root-growing unit masked; booted by raspberrypi2 in the dry rescue of 2026-11-07 (NFS root, SSD visible and untouched; the seed was applied once placed on the export's boot directory by hand, which the fix of that day codifies); the test covers the path with a mock image, not the boot.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Flash workflow</strong></td>
 <td style="text-align: left;"><strong>Partially Implemented</strong></td>
-<td style="text-align: left;"><code>flash-os</code> written and delivered through the rescue seed; never run, the dry rescue is its first test.</td>
+<td style="text-align: left;"><code>flash-os</code> delivered through the rescue seed and present on the rescue system of 2026-11-07, where its argument check was exercised; never run against a disk.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Raspberry Pi re-provisioning</strong></td>
@@ -2086,7 +2086,7 @@
 <tr>
 <td style="text-align: left;"><strong>Monitoring</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; applied on 2026-11-06 (the collector on hl02, the rules and probes on both monitoring replicas).</td>
+<td style="text-align: left;">Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; applied on 2026-11-06; the rule rewritten on 2026-11-07 after it fired falsely for a stopped toggle (not yet applied).</td>
 </tr>
 </tbody>
 </table>
@@ -2206,15 +2206,19 @@ file. The core composes them and manages:</p>
 <li><strong>NFS exports</strong> (<code>/var/lib/netboot/nfs/&lt;hostname&gt;/</code>): a writable per-host copy
   of the payload's root filesystem with its fstab reduced to <code>proc</code> (the image
   mounts its own partitions by PARTUUID, which do not exist over NFS; the
-  vendor's tutorial makes the same edit), exported to the client network with
-  root squashing disabled because it is a root filesystem. It exists only while
-  a rescue is active, and so does its export: the toggle writes a per-host file
-  under <code>/etc/exports.d/</code>, which the NFS server reads beside its empty
-  <code>/etc/exports</code>, so the export list shows the hosts in rescue only and a server
-  restart during a rescue keeps the export.</li>
-<li><strong>HTTP root</strong> (<code>/var/lib/netboot/http/</code>): per-host rescue seeds
-  (<code>seeds/&lt;hostname&gt;/</code>), installed-system seeds (<code>installed/&lt;hostname&gt;/</code>), and
-  the images with their checksums (<code>images/</code>).</li>
+  vendor's tutorial makes the same edit), the rendered cloud-init seed in place
+  of the vendor's files on its boot directory (<code>boot/firmware/</code>, where the
+  image's own cloud-init configuration reads the seed from, a setting that
+  overrides a seed URL on the kernel command line), and the image's root-growing
+  unit masked, exported to the client network with root squashing disabled
+  because it is a root filesystem. It exists only while a rescue is active, and
+  so does its export: the toggle writes a per-host file under <code>/etc/exports.d/</code>,
+  which the NFS server reads beside its empty <code>/etc/exports</code>, so the export list
+  shows the hosts in rescue only and a server restart during a rescue keeps the
+  export.</li>
+<li><strong>HTTP root</strong> (<code>/var/lib/netboot/http/</code>): the installed-system seeds
+  (<code>installed/&lt;hostname&gt;/</code>) and the images with their checksums (<code>images/</code>),
+  what the flash script fetches.</li>
 <li><strong>The toggle</strong>: <code>netboot-rescue@&lt;hostname&gt;</code>, a fully specified unit per host.
   Starting it cancels any pending removal, creates the host's export from the
   pristine tree, exports it, and publishes the TFTP directory. Stopping it
@@ -2307,8 +2311,22 @@ release. Network boot needs no newer release than the one installed.</p>
 </tbody>
 </table>
 <p>The bootloader's <code>DHCP_TIMEOUT</code> (45 seconds by default, 5 at least) bounds the
-wait before a host moves to its disk when no server answers; the dry rescue
-measures the server's answer time and decides whether to lower it.</p>
+wait before a host moves to its disk when no server answers. It stays at the
+default: with the server up, the whole network stage of raspberrypi2 (DHCP, the
+eight TFTP requests answered "not found", the move to the disk) takes under ten
+seconds, and the kernel's own DHCP follows 20 seconds after the attempt; the
+timeout only matters while hl02 is down, when the router still answers the
+discover at once and the bootloader waits for the vendor option that never
+comes.</p>
+<p>The dry rescue of 2026-11-07 measured the path on raspberrypi2: 19 seconds for
+the toggle start on hl02 (the copy of the 1.9 GB root tree, the export, the boot
+files), 72 seconds from power-on to the rescue system answering SSH, and 43
+seconds from the reboot command on the rescue system to the installed system
+answering SSH from its SSD. It also found that a USB device that fails its
+cold-start enumeration (a Coral USB accelerator on a hub) hangs the bootloader
+after the network stage and hangs the rescue kernel before the NFS mount, while
+warm reboots work: the
+<a href="../../guides/operations/network-boot/">network boot guide</a> has the symptoms.</p>
 <h3 id="x86-pxe-deferred">x86 PXE (deferred)</h3>
 <p>An x86 firmware finds the boot server through DHCP, which the router owns. The
 responder on hl02 is the one the Raspberry Pi path uses: the x86 path adds a
@@ -2328,9 +2346,9 @@ serial console) and a <code>cmdline.txt</code> that replaces the image's own: th
 on the host's export over NFSv3 (TCP, no locking: what the image's initramfs
 mounts the root with through the klibc <code>nfsmount</code>, which speaks versions 2 and
 3; NFS and the Pi 4 Ethernet driver are built into the image's kernel), DHCP
-addressing, the cloud-init seed URL, and none of the image's first-boot resize
-hooks. The image's own cloud-init applies the seed at boot: hostname, the <code>pi</code>
-user with the lab's bootstrap key and passwordless sudo, password login
+addressing, and none of the image's first-boot resize hooks. The image's own
+cloud-init applies the seed from the export's boot directory at boot: hostname,
+the <code>pi</code> user with the lab's bootstrap key and passwordless sudo, password login
 disabled, the network left as the kernel configured it, and the <code>flash-os</code>
 script as a written file. The tooling the rescue needs ships with Lite: EEPROM
 utilities, <code>xz</code>, partition tools, <code>curl</code> (no SMART tools; the flash workflow
@@ -2431,7 +2449,7 @@ boot and Blackbox probe sections.</p>
   unpacks it; with the toggle stopped, TFTP answers "not found" and the export
   list is empty; starting the toggle serves the rendered command line and the
   boot files over TFTP (not the vendor seed), lists the export and mounts it
-  over NFSv3 with the rewritten fstab, and serves the rescue seed over HTTP;
+  over NFSv3 with the rewritten fstab and the rescue seed on its boot directory;
   stopping withdraws the TFTP directory at once, keeps the export, and removes
   it after the grace period. The proxy DHCP answer cannot be exercised without a
   PXE-class client; the test reads its presence from the dnsmasq log.</li>
@@ -2448,12 +2466,15 @@ boot and Blackbox probe sections.</p>
   provisioning guide.</li>
 <li>When pve1 is down, raspberrypi2 is the monitoring replica still watching, and
   its own rescue waits for pve1 (see the coverage section).</li>
-<li>Three expectations verified by the dry rescue: the Lite kernel and initramfs
-  boot from an NFS root, the layout the vendor's own network boot tutorial uses;
-  the image's cloud-init accepts a seed URL from the kernel command line; and
-  NetworkManager leaves the interface the kernel configured alone, so the root
-  stays mounted. The installed system's first boot uses the same cloud-init
-  mechanism, introduced by the Trixie release for headless setup.</li>
+<li>Three expectations checked by the dry rescue: the Lite kernel and initramfs
+  boot from an NFS root, the layout the vendor's own network boot tutorial uses
+  (verified); NetworkManager leaves the interface the kernel configured alone,
+  so the root stays mounted (verified); and the image's cloud-init accepts a
+  seed URL from the kernel command line (disproved: the image's own
+  configuration names the boot partition as the seed source and overrides the
+  command line, so the seed goes on the export's boot directory). The installed
+  system's first boot uses the same cloud-init mechanism, introduced by the
+  Trixie release for headless setup.</li>
 <li>hl02 holds each pinned image, its unpacked trees, and a root copy per host in
   rescue, a few gigabytes on its 20 GB disk (about 6 GB at the peak of an
   unpack); image pins are bumped like other pinned artifacts.</li>

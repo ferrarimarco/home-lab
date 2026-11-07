@@ -1411,6 +1411,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Start and stop a rescue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-host-that-does-not-come-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      A host that does not come up
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1703,6 +1718,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Start and stop a rescue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-host-that-does-not-come-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      A host that does not come up
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1759,9 +1789,8 @@ and how to move the image pin. The design, the trees, and the toggle semantics
 are in the specification; this page holds the commands.</p>
 <h2 id="start-and-stop-a-rescue">Start and stop a rescue</h2>
 <p>A host network-boots only while its toggle on hl02 is started. Starting it
-copies the payload's root tree into the host's export (a few gigabytes; the dry
-rescue measures how long that takes on hl02) and publishes the host's boot
-files:</p>
+copies the payload's root tree into the host's export (19 seconds for the 1.9 GB
+tree of Raspberry Pi OS Lite on hl02) and publishes the host's boot files:</p>
 <div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>netboot-rescue@raspberrypi2
 </code></pre></div>
 <p>The host boots the payload on its next reboot or power cycle, and keeps doing so
@@ -1785,6 +1814,26 @@ pin; check the unit as the next section describes and start the toggle again
 afterwards. A payload unit in the failed state does not retry on its own:
 restart it once the cause (a download error, a checksum mismatch, a full disk)
 is fixed.</p>
+<h3 id="a-host-that-does-not-come-up">A host that does not come up</h3>
+<p>Connect a display: the Raspberry Pi bootloader shows a diagnostics screen whose
+<code>boot:</code> line names the stage it is in (<code>mode NETWORK 2</code>, <code>mode USB-MSD 4</code>), the
+boot order, and the retry and restart counts. With the toggle stopped, the
+expected screen shows the DHCP answer, eight TFTP "not found" lines, and then
+the USB stage; hl02's dnsmasq journal shows the same eight requests, and the
+bootloader's "f" restart would produce a new DHCP exchange there every 30
+seconds or so if every medium failed.</p>
+<p>A screen frozen on <code>mode NETWORK</code> after the TFTP lines, or a rescue kernel that
+answers ping but never mounts its root (SSH refused, no mount request in hl02's
+<code>rpc.mountd</code> journal) with a <code>task swapper/0:1 blocked</code> trace on the console, is
+a USB device that failed its cold-start enumeration: the bootloader hangs when
+it initializes USB after the network stage and the kernel hangs in
+<code>async_synchronize_full</code> waiting for the device probe, while warm reboots work
+because the devices are already initialized. On 2026-11-07 the device was a
+Coral USB accelerator on raspberrypi2's hub; unplugging everything but the boot
+disk, then adding the devices back one at a time with the Pi powered off, finds
+it. Never plug a hub into a running Raspberry Pi 4 whose boot disk is a
+bus-powered USB device: the power dip resets the disk and the root filesystem
+goes read-only.</p>
 <h2 id="read-the-servers-state">Read the server's state</h2>
 <p>On hl02, all read-only:</p>
 <ul>
@@ -1801,9 +1850,10 @@ is fixed.</p>
   directory and gets a <code>not found</code> line, which is the expected fall-through to
   its disk.</li>
 </ul>
-<p>From any lab host, what a client would fetch, with the toggle started:</p>
+<p>From any lab host, what a client would fetch, with the toggle started, and the
+seed the rescue system applies, read on the server:</p>
 <div class="highlight"><pre><span></span><code>curl<span class="w"> </span>tftp://10.0.0.5/raspberrypi2/cmdline.txt
-curl<span class="w"> </span>http://10.0.0.5/seeds/raspberrypi2/user-data
+ssh<span class="w"> </span>hl02.edge.lab.ferrari.how<span class="w"> </span>cat<span class="w"> </span>/var/lib/netboot/nfs/raspberrypi2/boot/firmware/user-data
 </code></pre></div>
 <h2 id="apply-the-bootloader-configuration">Apply the bootloader configuration</h2>
 <p>A Raspberry Pi host network-boots only when its bootloader (EEPROM)

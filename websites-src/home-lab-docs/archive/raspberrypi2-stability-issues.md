@@ -151,6 +151,12 @@ migration to hl01 shrinks this host's role.
 
 ## Current mitigations
 
+- The powered USB 3 hub is gone since 2026-11-07, with the Coral accelerator and
+  the dead WD data disk it carried: the Coral failed its cold-start enumeration
+  and hung both the bootloader and a network-booted kernel (the
+  [network boot guide](../guides/operations/network-boot.md) has the symptoms),
+  and plugging the hub into the running host reset the root SSD twice. Only the
+  Argon One bridge (USB 3) and the Zigbee dongle (a USB 2 port) remain.
 - The systemd hardware watchdog is armed: `RuntimeWatchdogSec=15` (the maximum
   the BCM2711 platform watchdog supports), configured by the
   `ferrarimarco_home_lab_node` role, so a hard lockup should now self-reboot the

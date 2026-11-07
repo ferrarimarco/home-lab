@@ -77,10 +77,15 @@ Conventions the stacks rely on:
   `RequiresMountsFor=` and is wanted by the mount units too, so every start of
   the mount runs the project again (the
   [NAS LXC container page](../../architecture/nas-lxc-container.md), SMB clients
-  section, has the design). The units of a stack a run disables are disabled and
-  removed in that run, whatever its tag scope; units of projects that no longer
-  exist in the role are swept by full runs only, since a tag-scoped run
-  registers the selected stacks' items alone and would remove the rest.
+  section, has the design). An item whose containers are passed devices lists
+  them in `required_device_paths`: the unit requires and runs after the device
+  units systemd derives from the paths, `/dev` symlinks included, and is wanted
+  by them, so a device that appears after boot runs the project again, where
+  Compose would otherwise fail at once on the missing path. The units of a stack
+  a run disables are disabled and removed in that run, whatever its tag scope;
+  units of projects that no longer exist in the role are swept by full runs
+  only, since a tag-scoped run registers the selected stacks' items alone and
+  would remove the rest.
 - **Templates for files the workload rewrites are seeds.** A file the
   application edits at runtime (qBittorrent's settings, the Zigbee2MQTT secret,
   the Wi-Fi credentials) is rendered with `force: false`: it seeds a fresh host

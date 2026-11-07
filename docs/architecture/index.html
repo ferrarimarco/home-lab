@@ -2079,20 +2079,21 @@ reliability risks first, then security exposure, then automation):</p>
 <ul>
 <li>Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue (<a href="network-boot/">Network Boot Service</a>), then bump the <code>requests</code>
-  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the EEPROM
-  configuration and the dry rescue
+  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the Trixie playbook
+  compatibility
   (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>) and the
-  restore procedure (<a href="../guides/operations/backup/">backup operations guide</a>).
-  The re-image rewrites the boot disk only, and the host's services are restored
-  in place (decided 2026-10-08): Zigbee2MQTT and the host's half of the
-  monitoring backend pair from the restic repository, the ONT exporter and the
-  router WAN check by the playbook, since they are stateless and stay on this
-  host rather than moving to hl01 (decided 2026-10-26, which completed the
-  container migration to hl01). The repository on the data disk was lost on
-  2026-10-09, so the restore source is the per-host repository on the nas-pve1
-  <code>backups</code> share (<a href="#backup">Backup</a>). The re-image also brings a Python the
-  restic exporter release accepts, after which the host's job declares its
-  exporter on again (<a href="backups/">Backups</a>).</li>
+  restore procedure (<a href="../guides/operations/backup/">backup operations guide</a>);
+  the EEPROM configuration and the dry rescue were completed on 2026-11-07. The
+  re-image rewrites the boot disk only, and the host's services are restored in
+  place (decided 2026-10-08): Zigbee2MQTT and the host's half of the monitoring
+  backend pair from the restic repository, the ONT exporter and the router WAN
+  check by the playbook, since they are stateless and stay on this host rather
+  than moving to hl01 (decided 2026-10-26, which completed the container
+  migration to hl01). The repository on the data disk was lost on 2026-10-09, so
+  the restore source is the per-host repository on the nas-pve1 <code>backups</code> share
+  (<a href="#backup">Backup</a>). The re-image also brings a Python the restic exporter
+  release accepts, after which the host's job declares its exporter on again
+  (<a href="backups/">Backups</a>).</li>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
@@ -2138,26 +2139,18 @@ reliability risks first, then security exposure, then automation):</p>
   directory for the host. Depends on: the x86 PXE path (deferred, see
   the spec) and the pve2 power reduction
   (<a href="#host-configuration">Host configuration</a>).</li>
-<li>Bootloader configuration on raspberrypi2 (<code>BOOT_ORDER=0xf142</code>,
-  per-host <code>TFTP_PREFIX_STR</code>), declared in the inventory and asserted by
-  the node role: apply it from the running OS as the
-  <a href="../guides/operations/network-boot/">network boot guide</a> describes,
-  then run a dry rescue with the boot disk untouched: the first run of
-  the rescue payload and of <code>flash-os</code>, which the role delivers since
-  2026-11-05 and the integration test exercises only against a mock
-  image.</li>
 <li>Declared rescues beside the toggle command, deferred on 2026-11-05
-  until the dry rescue has exercised the command path: a <code>rescue</code> flag
-  per host in the <code>netboot-server</code> role that starts the toggle at boot
-  and at activation; a reconcile step acting only on the hosts whose
-  declaration changed since the previous activation, so a rescue started
-  by command survives unrelated deployments; a boot-time purge limited
-  to the undeclared hosts; and a start that keeps an existing export. A
-  declared rescue then survives an hl02 reboot and is recorded in the
-  repository. Decide at that point whether the command path stays
-  (hybrid) or the flag becomes the only way to start and stop a rescue
-  (code-only: two deployments per rescue, and none while the deployment
-  path itself is broken).</li>
+  until the dry rescue had exercised the command path (done on
+  2026-11-07): a <code>rescue</code> flag per host in the <code>netboot-server</code> role
+  that starts the toggle at boot and at activation; a reconcile step
+  acting only on the hosts whose declaration changed since the previous
+  activation, so a rescue started by command survives unrelated
+  deployments; a boot-time purge limited to the undeclared hosts; and a
+  start that keeps an existing export. A declared rescue then survives
+  an hl02 reboot and is recorded in the repository. Decide at that point
+  whether the command path stays (hybrid) or the flag becomes the only
+  way to start and stop a rescue (code-only: two deployments per rescue,
+  and none while the deployment path itself is broken).</li>
 <li>Playbook compatibility with Raspberry Pi OS Trixie (Debian 13). The
   Molecule matrix runs on a Debian 13 image since 2026-11-03 (the backup
   role needs its restic), which covers the generic Debian path; the
@@ -3078,6 +3071,13 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>Check the <a href="https://uptimerobot.com/">UptimeRobot</a> configuration.</li>
 <li>Alerting follow-ups deferred by the
   <a href="monitoring-alerting/">Monitoring Alerting</a> spec:<ul>
+<li>A rule for a Compose project whose unit never ran: since 2026-11-07 a
+  project unit requires its device units (<code>required_device_paths</code>), and a
+  boot without the device fails the start by dependency, which systemd
+  records as inactive rather than failed, so <code>SystemdUnitFailed</code> stays
+  silent and the container rules need a started container. Candidate: an
+  <code>absent()</code> rule over the container's <code>container_last_seen</code> series per
+  project the inventory enables, or a check of the unit's last result.</li>
 <li>Tune the textfile staleness alert threshold per collector (the first
   iteration uses one conservative threshold sized to the slowest daily
   timer, so a stuck frequent collector is detected late; the ONT exporter

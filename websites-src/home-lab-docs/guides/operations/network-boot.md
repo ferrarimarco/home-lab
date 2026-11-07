@@ -9,9 +9,8 @@ are in the specification; this page holds the commands.
 ## Start and stop a rescue
 
 A host network-boots only while its toggle on hl02 is started. Starting it
-copies the payload's root tree into the host's export (a few gigabytes; the dry
-rescue measures how long that takes on hl02) and publishes the host's boot
-files:
+copies the payload's root tree into the host's export (19 seconds for the 1.9 GB
+tree of Raspberry Pi OS Lite on hl02) and publishes the host's boot files:
 
 ```shell
 sudo systemctl start netboot-rescue@raspberrypi2
@@ -44,6 +43,29 @@ afterwards. A payload unit in the failed state does not retry on its own:
 restart it once the cause (a download error, a checksum mismatch, a full disk)
 is fixed.
 
+### A host that does not come up
+
+Connect a display: the Raspberry Pi bootloader shows a diagnostics screen whose
+`boot:` line names the stage it is in (`mode NETWORK 2`, `mode USB-MSD 4`), the
+boot order, and the retry and restart counts. With the toggle stopped, the
+expected screen shows the DHCP answer, eight TFTP "not found" lines, and then
+the USB stage; hl02's dnsmasq journal shows the same eight requests, and the
+bootloader's "f" restart would produce a new DHCP exchange there every 30
+seconds or so if every medium failed.
+
+A screen frozen on `mode NETWORK` after the TFTP lines, or a rescue kernel that
+answers ping but never mounts its root (SSH refused, no mount request in hl02's
+`rpc.mountd` journal) with a `task swapper/0:1 blocked` trace on the console, is
+a USB device that failed its cold-start enumeration: the bootloader hangs when
+it initializes USB after the network stage and the kernel hangs in
+`async_synchronize_full` waiting for the device probe, while warm reboots work
+because the devices are already initialized. On 2026-11-07 the device was a
+Coral USB accelerator on raspberrypi2's hub; unplugging everything but the boot
+disk, then adding the devices back one at a time with the Pi powered off, finds
+it. Never plug a hub into a running Raspberry Pi 4 whose boot disk is a
+bus-powered USB device: the power dip resets the disk and the root filesystem
+goes read-only.
+
 ## Read the server's state
 
 On hl02, all read-only:
@@ -61,11 +83,12 @@ On hl02, all read-only:
   directory and gets a `not found` line, which is the expected fall-through to
   its disk.
 
-From any lab host, what a client would fetch, with the toggle started:
+From any lab host, what a client would fetch, with the toggle started, and the
+seed the rescue system applies, read on the server:
 
 ```shell
 curl tftp://10.0.0.5/raspberrypi2/cmdline.txt
-curl http://10.0.0.5/seeds/raspberrypi2/user-data
+ssh hl02.edge.lab.ferrari.how cat /var/lib/netboot/nfs/raspberrypi2/boot/firmware/user-data
 ```
 
 ## Apply the bootloader configuration

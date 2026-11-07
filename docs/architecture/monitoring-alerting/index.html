@@ -3281,9 +3281,9 @@ covers the state only this service has:</p>
 <tr>
 <td style="text-align: left;"><code>NetbootRescueLingering</code></td>
 <td style="text-align: left;">warning</td>
-<td style="text-align: left;"><code>min_over_time(node_systemd_unit_state{name=~"netboot-rescue@.+\\.service", state="active"}[24h]) == 1</code></td>
-<td style="text-align: left;">—</td>
-<td style="text-align: left;">A rescue ends with its toggle stopped; one left started makes the host boot the rescue payload at every reboot and lose its services. The day is a window rather than a <code>for</code> hold, which one missed scrape would restart; a series younger than a day fires early, once, when the collector is first enabled. A planned rescue longer than a day gets a silence (§5.1).</td>
+<td style="text-align: left;"><code>max_over_time(node_systemd_unit_state{name=~"netboot-rescue@.+\\.service", state="active"}[15m]) == 1</code></td>
+<td style="text-align: left;">24h</td>
+<td style="text-align: left;">A rescue ends with its toggle stopped; one left started makes the host boot the rescue payload at every reboot and lose its services. A hold over a short window rather than a day-long window: systemd unloads the stopped toggle, so its series ends instead of reading inactive, and a day-long window kept firing for a day after a stop. The short window bridges scrape gaps (a failed scrape marks the series stale, which would reset the hold of a bare instant selector) and goes empty fifteen minutes after the stop. A planned rescue longer than a day gets a silence (§5.1).</td>
 </tr>
 </tbody>
 </table>

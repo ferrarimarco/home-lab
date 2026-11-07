@@ -45,20 +45,21 @@ reliability risks first, then security exposure, then automation):
 
 - Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
   rescue ([Network Boot Service](./network-boot.md)), then bump the `requests`
-  pin ([Issues to solve](#issues-to-solve)). Depends on: the EEPROM
-  configuration and the dry rescue
+  pin ([Issues to solve](#issues-to-solve)). Depends on: the Trixie playbook
+  compatibility
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)) and the
-  restore procedure ([backup operations guide](../guides/operations/backup.md)).
-  The re-image rewrites the boot disk only, and the host's services are restored
-  in place (decided 2026-10-08): Zigbee2MQTT and the host's half of the
-  monitoring backend pair from the restic repository, the ONT exporter and the
-  router WAN check by the playbook, since they are stateless and stay on this
-  host rather than moving to hl01 (decided 2026-10-26, which completed the
-  container migration to hl01). The repository on the data disk was lost on
-  2026-10-09, so the restore source is the per-host repository on the nas-pve1
-  `backups` share ([Backup](#backup)). The re-image also brings a Python the
-  restic exporter release accepts, after which the host's job declares its
-  exporter on again ([Backups](./backups.md)).
+  restore procedure ([backup operations guide](../guides/operations/backup.md));
+  the EEPROM configuration and the dry rescue were completed on 2026-11-07. The
+  re-image rewrites the boot disk only, and the host's services are restored in
+  place (decided 2026-10-08): Zigbee2MQTT and the host's half of the monitoring
+  backend pair from the restic repository, the ONT exporter and the router WAN
+  check by the playbook, since they are stateless and stay on this host rather
+  than moving to hl01 (decided 2026-10-26, which completed the container
+  migration to hl01). The repository on the data disk was lost on 2026-10-09, so
+  the restore source is the per-host repository on the nas-pve1 `backups` share
+  ([Backup](#backup)). The re-image also brings a Python the restic exporter
+  release accepts, after which the host's job declares its exporter on again
+  ([Backups](./backups.md)).
 
 ### Bootstrapping and provisioning
 
@@ -104,26 +105,18 @@ reliability risks first, then security exposure, then automation):
           directory for the host. Depends on: the x86 PXE path (deferred, see
           the spec) and the pve2 power reduction
           ([Host configuration](#host-configuration)).
-        - Bootloader configuration on raspberrypi2 (`BOOT_ORDER=0xf142`,
-          per-host `TFTP_PREFIX_STR`), declared in the inventory and asserted by
-          the node role: apply it from the running OS as the
-          [network boot guide](../guides/operations/network-boot.md) describes,
-          then run a dry rescue with the boot disk untouched: the first run of
-          the rescue payload and of `flash-os`, which the role delivers since
-          2026-11-05 and the integration test exercises only against a mock
-          image.
         - Declared rescues beside the toggle command, deferred on 2026-11-05
-          until the dry rescue has exercised the command path: a `rescue` flag
-          per host in the `netboot-server` role that starts the toggle at boot
-          and at activation; a reconcile step acting only on the hosts whose
-          declaration changed since the previous activation, so a rescue started
-          by command survives unrelated deployments; a boot-time purge limited
-          to the undeclared hosts; and a start that keeps an existing export. A
-          declared rescue then survives an hl02 reboot and is recorded in the
-          repository. Decide at that point whether the command path stays
-          (hybrid) or the flag becomes the only way to start and stop a rescue
-          (code-only: two deployments per rescue, and none while the deployment
-          path itself is broken).
+          until the dry rescue had exercised the command path (done on
+          2026-11-07): a `rescue` flag per host in the `netboot-server` role
+          that starts the toggle at boot and at activation; a reconcile step
+          acting only on the hosts whose declaration changed since the previous
+          activation, so a rescue started by command survives unrelated
+          deployments; a boot-time purge limited to the undeclared hosts; and a
+          start that keeps an existing export. A declared rescue then survives
+          an hl02 reboot and is recorded in the repository. Decide at that point
+          whether the command path stays (hybrid) or the flag becomes the only
+          way to start and stop a rescue (code-only: two deployments per rescue,
+          and none while the deployment path itself is broken).
         - Playbook compatibility with Raspberry Pi OS Trixie (Debian 13). The
           Molecule matrix runs on a Debian 13 image since 2026-11-03 (the backup
           role needs its restic), which covers the generic Debian path; the
@@ -998,6 +991,13 @@ reliability risks first, then security exposure, then automation):
 - Check the [UptimeRobot](https://uptimerobot.com/) configuration.
 - Alerting follow-ups deferred by the
   [Monitoring Alerting](./monitoring-alerting.md) spec:
+    - A rule for a Compose project whose unit never ran: since 2026-11-07 a
+      project unit requires its device units (`required_device_paths`), and a
+      boot without the device fails the start by dependency, which systemd
+      records as inactive rather than failed, so `SystemdUnitFailed` stays
+      silent and the container rules need a started container. Candidate: an
+      `absent()` rule over the container's `container_last_seen` series per
+      project the inventory enables, or a check of the unit's last result.
     - Tune the textfile staleness alert threshold per collector (the first
       iteration uses one conservative threshold sized to the slowest daily
       timer, so a stuck frequent collector is detected late; the ONT exporter
