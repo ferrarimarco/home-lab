@@ -3,8 +3,9 @@
 This guide covers the boot server on hl02 that the
 [Network Boot Service](../../architecture/network-boot.md) specification
 describes: how to put a host in rescue and back, how to read the server's state,
-and how to move the image pin. The design, the trees, and the toggle semantics
-are in the specification; this page holds the commands.
+how to re-image a Raspberry Pi through the rescue, and how to move the image
+pin. The design, the trees, and the toggle semantics are in the specification;
+this page holds the commands.
 
 ## Start and stop a rescue
 
@@ -170,6 +171,72 @@ check fails:
     before the reboot.
 
 4. Run the playbook again with the same tag: the assertion passes.
+
+## Re-image a Raspberry Pi
+
+The workflow of the specification, with the commands of the raspberrypi2
+re-image of 2026-11-08 (about three hours with the services down, two of them
+spent on the boot failures of the SSD bridge described below). Every playbook
+run is limited to the host, and every apply is preceded by a check run; the
+first check runs on a fresh system hit two limits of check mode, which the real
+runs do not have: the repository module needs `python3-debian` on the host to
+predict anything (install it by hand first), and the Docker role's packages look
+unavailable until its repository exists.
+
+1. Silence the host for four hours: its instance, the probes of its targets
+   (`alertname=~"Blackbox.*ProbeFailed"` with the instance pattern), the backup
+   coverage alert by its `host` label, and the replica-pair alerts.
+2. Stop the stateful projects and the backup exporter with
+   `docker compose --file <compose file> stop`, run the backup unit once
+   (`systemctl start restic-backup-workloads.service`, which also runs the
+   repository check), and record the snapshot ID from its journal.
+3. When the repository key still holds the quoted password of the former Compose
+   job, rewrite it before the flash, while that container can still open the
+   repository: `restic key passwd --new-password-file` through the job container
+   with the unquoted value in a root-only file, then confirm that a hash of the
+   file equals a hash of the vault value. The new backup role cannot open the
+   repository otherwise.
+4. Start the toggle, reboot into the rescue, and run the flash script with the
+   image hl02 serves, its checksum, the disk by its stable ID, and the installed
+   seed URL (`http://10.0.0.5/installed/<hostname>/`); the confirmation token
+   can be piped in. Then stop the toggle and reboot. The flash script writes the
+   SSH switch file beside the seed; without it the image boots with sshd
+   disabled.
+5. The new system answers SSH as `pi` with the bootstrap key after cloud-init's
+   first boot (root grown, hostname set). Clear the host's entries from the
+   control machine's known hosts (`ssh-keygen -R`); Ansible accepts the new key
+   on its own.
+6. Playbooks, each checked then applied: `bootstrap.yaml`,
+   `container-engine.yaml`, `setup-disks.yaml`, `backup.yaml`, then
+   `home-lab-node.yaml` with the stateful stacks held back. The hold-back flags
+   must be JSON booleans, a bare `-e start_x=false` is a string that the
+   conditionals refuse:
+
+    ```shell
+    ADDITIONAL_ANSIBLE_FLAGS="--diff --limit raspberrypi2.edge.lab.ferrari.how -e '{\"start_monitoring_backend\": false, \"start_zigbee2mqtt\": false}'" \
+      ANSIBLE_PLAYBOOK_FILE_NAME="home-lab-node.yaml" scripts/run-ansible.sh
+    ```
+
+    The node run blocks on `tailscale up` until the login URL is visited, and
+    Ansible shows a task's output only when it ends: read the URL on the host
+    with `tailscale status --json` (its `AuthURL` field) while the run waits.
+    Afterwards, in the admin console: approve the subnet route, delete the old
+    node, and rename the new one, which keeps its `-1` suffix on its own.
+
+7. Restore the stateful stacks with `restore-workloads.yaml` from the recorded
+   snapshot (dry run, then `restore_apply=true`), naming the Compose service
+   that owns the state (`prometheus` for the monitoring backend), then run
+   `home-lab-node.yaml` again without the hold-back flags.
+8. State outside the snapshots, as the specification lists: the login user's new
+   SSH public key goes on the router's authorized keys by hand, its known hosts
+   get the router's host key (`ssh-keyscan -p 1025`), and the new job runs once
+   by hand (`systemctl start restic-backup-workloads.service`), which also
+   clears the backup coverage alert; the former job's snapshot group, the
+   restore source, is forgotten later as the backup guide describes.
+9. Verify: the containers, the Zigbee coordinator with its restored network, the
+   Prometheus history, the backup timers and exporter, `nmcli device` listing
+   the Docker veth devices as unmanaged, then a reboot for the serial port
+   setting, and expire the silences.
 
 ## Move the image pin
 

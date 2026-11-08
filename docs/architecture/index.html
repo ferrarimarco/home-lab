@@ -2077,23 +2077,21 @@ items here.</p>
 <p>The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):</p>
 <ul>
-<li>Re-image raspberrypi2 with current Raspberry Pi OS through the network-boot
-  rescue (<a href="network-boot/">Network Boot Service</a>), then bump the <code>requests</code>
-  pin (<a href="#issues-to-solve">Issues to solve</a>). Depends on: the Trixie playbook
-  compatibility
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>) and the
-  restore procedure (<a href="../guides/operations/backup/">backup operations guide</a>);
-  the EEPROM configuration and the dry rescue were completed on 2026-11-07. The
-  re-image rewrites the boot disk only, and the host's services are restored in
-  place (decided 2026-10-08): Zigbee2MQTT and the host's half of the monitoring
-  backend pair from the restic repository, the ONT exporter and the router WAN
-  check by the playbook, since they are stateless and stay on this host rather
-  than moving to hl01 (decided 2026-10-26, which completed the container
-  migration to hl01). The repository on the data disk was lost on 2026-10-09, so
-  the restore source is the per-host repository on the nas-pve1 <code>backups</code> share
-  (<a href="#backup">Backup</a>). The re-image also brings a Python the restic exporter
-  release accepts, after which the host's job declares its exporter on again
-  (<a href="backups/">Backups</a>).</li>
+<li>Finish the raspberrypi2 re-image of 2026-11-08 (Raspberry Pi OS Trixie through
+  the network-boot rescue, the procedure now in the
+  <a href="../guides/operations/network-boot/">network boot guide</a>): the services were
+  restored in place from the per-host repository on the nas-pve1 <code>backups</code>
+  share, as decided on 2026-10-08 and 2026-10-26, and the host runs the backup
+  role with its exporter on. Left: bump the <code>requests</code> pin
+  (<a href="#issues-to-solve">Issues to solve</a>); forget the former Compose job's
+  snapshot group once the new job has its first snapshot (<a href="#backup">Backup</a>);
+  the Wi-Fi item and the router key item
+  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>). The
+  session also showed the SSD's USB bridge failing cold starts on its own
+  (bootloader <code>MSD error</code>, kernel probe hangs, "firmware not found" on an intact
+  boot partition), recorded in the
+  <a href="../archive/raspberrypi2-stability-issues/">stability notes</a>: the next such
+  hang goes through the rescue, and a replacement adapter is the fix to weigh.</li>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
@@ -2151,30 +2149,16 @@ reliability risks first, then security exposure, then automation):</p>
   whether the command path stays (hybrid) or the flag becomes the only
   way to start and stop a rescue (code-only: two deployments per rescue,
   and none while the deployment path itself is broken).</li>
-<li>Playbook compatibility with Raspberry Pi OS Trixie (Debian 13). The
-  Molecule matrix runs on a Debian 13 image since 2026-11-03 (the backup
-  role needs its restic), which covers the generic Debian path. The
-  Raspberry Pi OS specifics of the node role target Trixie only since
-  2026-11-08 (firmware path under <code>/boot/firmware</code>, the GPIO module from
-  <code>python3-rpi-lgpio</code>, fail2ban on the journal; the dhcpcd and
-  dphys-swapfile code is gone with the releases that had them, and
-  NetworkManager's udev rules leave the Docker veth devices unmanaged).
-  A check run of the untagged tasks against the rescue system, as the
-  <a href="../guides/operations/network-boot/">network boot guide</a> describes,
-  failed nothing and resolved the package list; the fail2ban jail and
-  the package operations await a run with their tags or the first real
-  run. Until the re-image, raspberrypi2 takes tag-scoped node runs only
-  (which the backup item below requires anyway) without the
-  <code>install-debian-packages</code> tag, whose list now names a package the
-  Bullseye archive lacks, and without the <code>fail2ban</code> tag, which would
-  move the jail to the journal backend; the uninstall tag is safe, a
-  full check of 2026-11-08 predicting wpasupplicant alone. What remains
-  is the first real run on the re-imaged host: confirm NetworkManager
-  leaves the veth devices unmanaged, the zram swap the image sets up,
-  the fail2ban jail on the journal, the Tailscale raspbian suite for
-  trixie (listed by the vendor, never fetched), the firmware path (only
-  a host with a Sense HAT writes to it), and the Argon case daemon
-  importing <code>RPi.GPIO</code> from the lgpio package.</li>
+<li>The router's keys for the WAN check and the ONT route units. Both run
+  as the login user and reach the router over SSH, so a re-imaged host
+  needs the router's host key in that user's known hosts and its new
+  public key on the router's authorized keys, both placed by hand (the
+  host key on 2026-11-08, the public key on 2026-11-09: until then the
+  units failed on host key verification, then on the router rejecting
+  the former key, with a password fallback that tripped the router's
+  login protection). The node role could place the host key from a
+  public value in the inventory and print the public key to authorize;
+  the <a href="network-boot/">Network Boot Service</a> spec lists the state.</li>
 <li>Wi-Fi on the re-imaged host. The Wi-Fi stack renders a wpa_supplicant
   file and a country for the dhcpcd releases; on Debian 12 and later
   NetworkManager owns Wi-Fi, reads connections from keyfiles under
@@ -2184,8 +2168,7 @@ reliability risks first, then security exposure, then automation):</p>
   warning of Raspberry Pi OS reads). raspberrypi2 keeps the stack off
   (<code>configure_wifi: false</code>, 2026-11-08) until the stack grows a
   NetworkManager branch: the country, then a keyfile rendered from vault
-  credentials with Ethernet kept as the preferred route. Depends on: the
-  re-image.</li>
+  credentials with Ethernet kept as the preferred route.</li>
 <li>Documentation: the provisioning guide (EEPROM editing from the OS, the
   rescue procedure, the manual follow-ups), the restore recipe
   (<a href="#backup">Backup</a>), and the unresponsive host runbook.</li>
@@ -3312,36 +3295,20 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <ul>
 <li><strong>Roll out the single-flavour backup role (2026-10-31)</strong>: the role that runs
   every restic job (the Debian restic package, systemd units, an exporter per
-  job) is implemented and tested, applied on hl01 (with its Debian 13 upgrade)
-  and on pve1 (replacing the <code>restic-native</code> layout, removed afterwards) on
-  2026-11-04, and the other hosts still run the former flavours: the Compose job
-  on raspberrypi2, nothing yet on pve2. The role needs a restic that Debian 13
-  ships and Debian 12 does not, so raspberrypi2 follows its re-image
-  (<a href="#current-focus">Current focus</a>); until then it keeps its Compose job, which
-  the node role no longer manages, and its repository keeps the key with the
-  quoted password the Compose template rendered. A full node run on that host
-  disables and removes the job's boot unit as a project no longer configured
-  (predicted by a check run on 2026-11-08): run the node role on raspberrypi2
-  with tags until the re-image. With a check run before each apply:
-  raspberrypi2, once re-imaged, follows the sequence hl01 went through: rewrite
-  the repository key with the unquoted vault password in place
-  (<code>restic key passwd --new-password-file</code>, through the Compose container, which
-  still opens the repository with the quoted one), stop and remove the Compose
-  restic project
-  (<code>docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml down --rmi local</code>,
-  then the project directory), so that the new exporter can bind the port and
-  the new units replace the old ones, apply <code>backup.yaml</code> and the node role's
-  <code>monitoring-backend</code> stack, start the first backup and the drill by hand, and
-  verify the timers, the exporter targets, and the textfiles. Then forget the
-  Compose-era snapshot group, which the retention policy never empties, as the
-  <a href="../guides/operations/backup/">backup operations guide</a> describes; hl01's
-  group was forgotten on 2026-11-04 right after the switch, by choice, so its
-  repository restarts from one snapshot. pve2 follows when it is on; until then
-  the <code>ResticExporterDown</code> alert fires for its exporter target, which the
-  monitoring backend scrapes since hl01's converge on 2026-11-04 (left
-  unsilenced by choice). Depends on: the raspberrypi2 re-image for that host.
-  Update the <a href="backups/">Backups specification</a> status table as each step
-  lands.</li>
+  job) is implemented and tested, and applied on hl01 (with its Debian 13
+  upgrade) and on pve1 (replacing the <code>restic-native</code> layout, removed
+  afterwards) on 2026-11-04, and on raspberrypi2 with its re-image on 2026-11-08
+  (the repository key rewritten to the unquoted vault password before the flash,
+  as the re-image procedure of the
+  <a href="../guides/operations/network-boot/">network boot guide</a> records). Left:
+  forget raspberrypi2's Compose-era snapshot group, which the retention policy
+  never empties, as the
+  <a href="../guides/operations/backup/">backup operations guide</a> describes, now that
+  the new job has its first snapshot; and pve2, which follows when it is on
+  (until then the <code>ResticExporterDown</code> alert fires for its exporter target,
+  which the monitoring backend scrapes since hl01's converge on 2026-11-04, left
+  unsilenced by choice). Update the <a href="backups/">Backups specification</a> status
+  table as each step lands.</li>
 <li><strong>State-only backups, no machine-level replication (decided 2026-10-10)</strong>:
   configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
   host is rebuilt from Terraform, the playbooks or the flake, and a restic

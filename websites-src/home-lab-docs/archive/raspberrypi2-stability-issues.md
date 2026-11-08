@@ -151,6 +151,15 @@ migration to hl01 shrinks this host's role.
 
 ## Current mitigations
 
+- The re-image of 2026-11-08 (Raspberry Pi OS Trixie, kernel 6.18) showed the
+  Argon One bridge failing cold starts with nothing else on the bus: the
+  bootloader logged `xHC-CMD err` and `MSD error` for the bridge and reported
+  "firmware not found" on a boot partition that was intact when read from the
+  rescue system, and the network-booted kernel hung in its device probe twice;
+  two of five cold starts that day failed this way, every warm reboot worked.
+  The UAS quirk would not reach the bootloader, so it stays untried; the next
+  hang goes through the rescue path, and a replacement SATA adapter is the fix
+  to weigh.
 - The powered USB 3 hub is gone since 2026-11-07, with the Coral accelerator and
   the dead WD data disk it carried: the Coral failed its cold-start enumeration
   and hung both the bootloader and a network-booted kernel (the
