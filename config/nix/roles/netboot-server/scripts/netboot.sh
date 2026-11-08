@@ -56,13 +56,14 @@ fetch() {
   raw="$NETBOOT_IMAGES_DIR/$name.img"
   work="${NETBOOT_PAYLOADS_DIR:?}/$name.unpacking"
   mounts="${NETBOOT_RUN_DIR:?}/mnt/$name"
-  loop=""
+  loops=()
   cleanup() {
     umount "$mounts/boot" 2>/dev/null || true
     umount "$mounts/root" 2>/dev/null || true
-    if [[ -n $loop ]]; then
-      losetup --detach "$loop" || true
-    fi
+    local device
+    for device in "${loops[@]}"; do
+      losetup --detach "$device" || true
+    done
     rm -f "$raw"
     rm -rf "$work"
   }
@@ -72,20 +73,28 @@ fetch() {
   mkdir -p "$work/boot" "$work/root" "$mounts/boot" "$mounts/root"
   echo "unpacking $image"
   xz --decompress --stdout "$image" >"$raw"
-  loop="$(losetup --find --show --partscan --read-only "$raw")"
-  # The partition nodes appear through udev shortly after the scan.
-  for _ in $(seq 1 50); do
-    [[ -b ${loop}p2 ]] && break
-    sleep 0.2
+  # One loop device per partition, at the offsets the partition table gives,
+  # rather than a scanned device whose partition nodes udev creates and then
+  # recreates on its own rescan: a mount in that window fails even when the
+  # node exists.
+  local number geometry start sectors
+  for number in 1 2; do
+    geometry=$(partx --show --noheadings --output START,SECTORS --nr "$number" "$raw")
+    [[ -n $geometry ]] || {
+      echo "no partition $number in $image" >&2
+      exit 1
+    }
+    read -r start sectors <<<"$geometry"
+    loops+=("$(losetup --find --show --read-only --offset $((start * 512)) --sizelimit $((sectors * 512)) "$raw")")
   done
-  mount -o ro "${loop}p1" "$mounts/boot"
-  mount -o ro "${loop}p2" "$mounts/root"
+  mount -o ro "${loops[0]}" "$mounts/boot"
+  mount -o ro "${loops[1]}" "$mounts/root"
   cp -a "$mounts/boot/." "$work/boot/"
   cp -a "$mounts/root/." "$work/root/"
   umount "$mounts/boot"
   umount "$mounts/root"
-  losetup --detach "$loop"
-  loop=""
+  losetup --detach "${loops[@]}"
+  loops=()
   rm -f "$raw"
 
   rm -rf "$payload_dir"

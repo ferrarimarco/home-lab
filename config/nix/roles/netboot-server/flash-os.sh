@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Write a pinned Raspberry Pi OS image to a whole disk from the network-boot
 # rescue system, then install the cloud-init files of the installed system
-# on its boot partition. Delivered to the rescue system by the netboot-server
-# role through its cloud-init seed. Never reboots, never touches the EEPROM.
+# and the SSH switch file on its boot partition. Delivered to the rescue
+# system by the netboot-server role through its cloud-init seed. Never
+# reboots, never touches the EEPROM.
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -98,6 +99,10 @@ mount "$boot_partition" "$work/boot"
 for file in user-data meta-data network-config; do
   curl --fail --location --silent --show-error --output "$work/boot/$file" "$seed/$file"
 done
+# The image leaves sshd disabled; its boot-time switch enables it when this
+# file exists, then removes the file. The seed cannot do it: cloud-init only
+# restarts a running sshd when it applies the password setting.
+touch "$work/boot/ssh"
 umount "$work/boot"
 
 echo "Done: $device carries the image and the cloud-init files from $seed."
