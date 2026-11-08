@@ -2051,7 +2051,7 @@
 <tr>
 <td style="text-align: left;"><strong><code>netboot-server</code> Nix role on hl02</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports with the rescue seed on the export's boot directory, HTTP images and installed seeds, firewall; the hl02 integration test passes; applied on hl02 on 2026-11-05 and exercised by the dry rescue of 2026-11-07; the seed placement fix of that day is not yet applied, and the apply removes the old <code>seeds/</code> directory under the HTTP root by hand, which tmpfiles does not clean up for a dropped rule.</td>
+<td style="text-align: left;">Trees, per-host toggle, proxy DHCP and TFTP (dnsmasq), NFSv3 exports with the rescue seed on the export's boot directory, HTTP images and installed seeds, firewall; the hl02 integration test passes; applied on hl02 on 2026-11-05 and exercised by the dry rescue of 2026-11-07; the seed placement fix of that day applied on 2026-11-07, and the old <code>seeds/</code> directory under the HTTP root, which tmpfiles does not clean up for a dropped rule, removed by hand on 2026-11-08.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Server address reservation</strong></td>
@@ -2086,7 +2086,7 @@
 <tr>
 <td style="text-align: left;"><strong>Monitoring</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; applied on 2026-11-06; the rule rewritten on 2026-11-07 after it fired falsely for a stopped toggle (not yet applied).</td>
+<td style="text-align: left;">Unit states through the node exporter's systemd collector, the lingering-rescue rule, and the HTTP and NFS probes; the rule tests and the hl02 check pass; applied on 2026-11-06; the rule rewritten on 2026-11-07 after it fired falsely for a stopped toggle, applied on both replicas the same day and seen clearing the false alert.</td>
 </tr>
 </tbody>
 </table>
