@@ -3,6 +3,7 @@
   ansible.builtin.command: "raspi-config nonint get_i2c"
   become: true
   changed_when: false
+  check_mode: false
   register: raspi_config_i2c_output
 
 - name: Debug i2c status command output
@@ -13,14 +14,16 @@
 - name: Enable i2c
   ansible.builtin.command: "raspi-config nonint do_i2c 0"
   become: true
-  changed_when: enable_i2c_output.stdout == "0"
-  register: enable_i2c_output
+  changed_when: true
   when: raspi_config_i2c_output.stdout != "0"
 
-- name: Get Raspberry Pi serial status
-  ansible.builtin.command: "raspi-config nonint get_serial"
+# The case daemon talks to the case over the hardware serial port; the
+# serial console is a separate setting since Raspberry Pi OS Trixie split it.
+- name: Get Raspberry Pi serial port status
+  ansible.builtin.command: "raspi-config nonint get_serial_hw"
   become: true
   changed_when: false
+  check_mode: false
   register: raspi_config_serial_output
 
 - name: Debug serial status command output
@@ -28,9 +31,8 @@
     var: raspi_config_serial_output
     verbosity: 1
 
-- name: Enable serial
-  ansible.builtin.command: "raspi-config nonint do_serial 0"
+- name: Enable the serial port
+  ansible.builtin.command: "raspi-config nonint do_serial_hw 0"
   become: true
-  changed_when: enable_serial_output.stdout == "0"
-  register: enable_serial_output
+  changed_when: true
   when: raspi_config_serial_output.stdout != "0"

@@ -5,6 +5,11 @@ apt_packages: []
 argonone_configuration_directories:
   - path: "{{ argonone_configuration_directory }}"
     state: "{{ has_argonone_case | ternary('directory', 'absent') }}"
+  # systemd runs the poweroff hook from this directory, which the Debian
+  # packages do not ship; other packages' hooks may share it, so its state
+  # does not follow the stack's flag: created everywhere, never removed
+  - path: "{{ systemd_system_shutdown_configuration_directory }}"
+    state: directory
 argonone_files_to_configure:
   - src: "config/argonone-case/etc/argonone/argononed.conf"
     dest: "{{ argonone_configuration_directory }}/argononed.conf"
@@ -19,6 +24,7 @@ argonone_files_to_configure:
   - src: "config/argonone-case/lib/systemd/system-shutdown/argononed-poweroff.py"
     dest: "{{ systemd_system_shutdown_configuration_directory }}/argononed-poweroff.py"
     state: "{{ has_argonone_case | ternary('file', 'absent') }}"
+    mode: "0755"
     os_services_to_restart:
       - "{{ argonone_os_service_name }}"
   - src: "config/argonone-case/usr/local/bin/argononed.py"
@@ -396,7 +402,9 @@ syncthing_templates_to_render:
     docker_compose_services_to_restart: "{{ syncthing_docker_compose_up_items }}"
 systemd_configuration_directory: /etc/systemd
 systemd_system_services_configuration_directory: "{{ systemd_configuration_directory }}/system"
-systemd_system_shutdown_configuration_directory: "{{ systemd_configuration_directory }}/system-shutdown"
+# systemd-shutdown runs the executables of this directory only, not of one
+# under /etc
+systemd_system_shutdown_configuration_directory: /usr/lib/systemd/system-shutdown
 systemd_journald_configuration_directory_path: "{{ systemd_configuration_directory + '/journald.conf.d' }}"
 systemd_manager_configuration_directory_path: "{{ systemd_configuration_directory + '/system.conf.d' }}"
 systemd_journal_file_path: /var/log/journal

@@ -1,9 +1,6 @@
 ---
 # Backup: the workloads job comes from the home_lab_debian_workload_hosts
-# group. The restic exporter release refuses the host's Python, so the
-# exporter waits for the re-image (specs index, current focus); the job's
-# textfile metrics still feed the coverage and freshness alerts.
-restic_workloads_job_exporter_enabled: false
+# group.
 configure_asuswrt_chkwan: true
 configure_monitoring_backend: true
 configure_monitoring_ont: true
