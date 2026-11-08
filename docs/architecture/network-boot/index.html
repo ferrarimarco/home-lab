@@ -2080,8 +2080,8 @@
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Raspberry Pi re-provisioning</strong></td>
-<td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;">Restore path, Trixie playbook fixes, and guides, tracked in the todo list.</td>
+<td style="text-align: left;"><strong>Partially Implemented</strong></td>
+<td style="text-align: left;">The node role's Raspberry Pi OS specifics target Trixie since 2026-11-08; a check run of the untagged tasks against the rescue system failed nothing and computed the package list (apt did not validate it), the fail2ban jail and the package operations not yet; until the re-image the Bullseye host takes tag-scoped runs without the <code>install-debian-packages</code> and <code>fail2ban</code> tags; the restore order is in the backup operations guide; the flash and the first real run on the new system have not happened.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Monitoring</strong></td>

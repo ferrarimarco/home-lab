@@ -307,6 +307,10 @@ keys converged with `--tags authorized-keys`; on a Proxmox node pair it with
 - Design tasks so check mode runs cleanly and truthfully on first runs:
   state-query tasks carry `changed_when: false` and `check_mode: false`, and
   later tasks tolerate resources that an earlier task would have created.
+- A change for a release no host runs yet (the role's Raspberry Pi OS specifics
+  ahead of a re-image) is check-run against the network boot rescue system of
+  that release, as the [network boot guide](../operations/network-boot.md)
+  describes, since the Molecule instance is a generic Debian image.
 
 ## Secrets and vault files
 

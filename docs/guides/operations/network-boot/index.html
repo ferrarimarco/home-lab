@@ -1415,6 +1415,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#check-the-playbooks-against-the-rescue-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check the playbooks against the rescue system
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#a-host-that-does-not-come-up" class="md-nav__link">
     <span class="md-ellipsis">
       A host that does not come up
@@ -1722,6 +1731,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#check-the-playbooks-against-the-rescue-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check the playbooks against the rescue system
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#a-host-that-does-not-come-up" class="md-nav__link">
     <span class="md-ellipsis">
       A host that does not come up
@@ -1814,6 +1832,24 @@ pin; check the unit as the next section describes and start the toggle again
 afterwards. A payload unit in the failed state does not retry on its own:
 restart it once the cause (a download error, a checksum mismatch, a full disk)
 is fixed.</p>
+<h3 id="check-the-playbooks-against-the-rescue-system">Check the playbooks against the rescue system</h3>
+<p>The rescue system is a stock image of the release the re-image installs, so a
+playbook can be check-run against it before any disk is written. The hostname
+and address are the installed system's, the <code>pi</code> user carries the bootstrap key,
+and the host key differs from the installed system's, so the run disables the
+host key check:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;--check --diff --tags untagged --tags fail2ban --tags install-debian-packages --tags uninstall-debian-packages --limit raspberrypi2.edge.lab.ferrari.how --ssh-common-args=&#39;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#39;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;home-lab-node.yaml&quot;</span><span class="w"> </span>scripts/run-ansible.sh
+</code></pre></div>
+<p>Name the tags of the stacks whose values change beside <code>untagged</code>, and the two
+package tags when package names change: a run without them never reaches the
+stack's templates or the apt tasks, so it exercises neither the values nor the
+package names, which the apt module validates in check mode. Read the run for
+those, not for a clean prediction: the rescue system has none of the
+prerequisites the earlier playbooks install, so a task that depends on them may
+fail or predict a first deployment. The cloud-init of the rescue is still
+running in the first minutes after boot, and the toggle, the reboots and the
+silences are the ones of the rescue procedure above.</p>
 <h3 id="a-host-that-does-not-come-up">A host that does not come up</h3>
 <p>Connect a display: the Raspberry Pi bootloader shows a diagnostics screen whose
 <code>boot:</code> line names the stage it is in (<code>mode NETWORK 2</code>, <code>mode USB-MSD 4</code>), the

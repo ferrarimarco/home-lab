@@ -2130,6 +2130,10 @@ keys converged with <code>--tags authorized-keys</code>; on a Proxmox node pair 
 <li>Design tasks so check mode runs cleanly and truthfully on first runs:
   state-query tasks carry <code>changed_when: false</code> and <code>check_mode: false</code>, and
   later tasks tolerate resources that an earlier task would have created.</li>
+<li>A change for a release no host runs yet (the role's Raspberry Pi OS specifics
+  ahead of a re-image) is check-run against the network boot rescue system of
+  that release, as the <a href="../../operations/network-boot/">network boot guide</a>
+  describes, since the Molecule instance is a generic Debian image.</li>
 </ul>
 <h2 id="secrets-and-vault-files">Secrets and vault files</h2>
 <p>Secret values reach the role only through <code>vault_*</code> variables defined in the

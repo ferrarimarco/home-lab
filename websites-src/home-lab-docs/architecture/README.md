@@ -119,12 +119,39 @@ reliability risks first, then security exposure, then automation):
           and none while the deployment path itself is broken).
         - Playbook compatibility with Raspberry Pi OS Trixie (Debian 13). The
           Molecule matrix runs on a Debian 13 image since 2026-11-03 (the backup
-          role needs its restic), which covers the generic Debian path; the
-          Raspberry Pi OS specifics remain. Known breakages: the firmware
-          configuration path moved under `/boot/firmware`; dhcpcd was replaced
-          by NetworkManager, so the dhcpcd task and its restart handler have no
-          target; fail2ban needs the systemd backend without rsyslog; the swap
-          file package may be gone.
+          role needs its restic), which covers the generic Debian path. The
+          Raspberry Pi OS specifics of the node role target Trixie only since
+          2026-11-08 (firmware path under `/boot/firmware`, the GPIO module from
+          `python3-rpi-lgpio`, fail2ban on the journal; the dhcpcd and
+          dphys-swapfile code is gone with the releases that had them, and
+          NetworkManager's udev rules leave the Docker veth devices unmanaged).
+          A check run of the untagged tasks against the rescue system, as the
+          [network boot guide](../guides/operations/network-boot.md) describes,
+          failed nothing and resolved the package list; the fail2ban jail and
+          the package operations await a run with their tags or the first real
+          run. Until the re-image, raspberrypi2 takes tag-scoped node runs only
+          (which the backup item below requires anyway) without the
+          `install-debian-packages` tag, whose list now names a package the
+          Bullseye archive lacks, and without the `fail2ban` tag, which would
+          move the jail to the journal backend; the uninstall tag is safe, a
+          full check of 2026-11-08 predicting wpasupplicant alone. What remains
+          is the first real run on the re-imaged host: confirm NetworkManager
+          leaves the veth devices unmanaged, the zram swap the image sets up,
+          the fail2ban jail on the journal, the Tailscale raspbian suite for
+          trixie (listed by the vendor, never fetched), the firmware path (only
+          a host with a Sense HAT writes to it), and the Argon case daemon
+          importing `RPi.GPIO` from the lgpio package.
+        - Wi-Fi on the re-imaged host. The Wi-Fi stack renders a wpa_supplicant
+          file and a country for the dhcpcd releases; on Debian 12 and later
+          NetworkManager owns Wi-Fi, reads connections from keyfiles under
+          `/etc/NetworkManager/system-connections/`, and the country goes on the
+          kernel command line (`cfg80211.ieee80211_regdom=`, which
+          `raspi-config nonint do_wifi_country` writes and the login-time rfkill
+          warning of Raspberry Pi OS reads). raspberrypi2 keeps the stack off
+          (`configure_wifi: false`, 2026-11-08) until the stack grows a
+          NetworkManager branch: the country, then a keyfile rendered from vault
+          credentials with Ethernet kept as the preferred route. Depends on: the
+          re-image.
         - Documentation: the provisioning guide (EEPROM editing from the OS, the
           rescue procedure, the manual follow-ups), the restore recipe
           ([Backup](#backup)), and the unresponsive host runbook.
@@ -989,6 +1016,14 @@ reliability risks first, then security exposure, then automation):
   measurement in the average DNS probe panel; automate updates of the
   provisioned dashboard JSONs (PRs with updates?).
 - Check the [UptimeRobot](https://uptimerobot.com/) configuration.
+- **A disabled stack leaves its service enabled (2026-11-08)**: the stacks that
+  stop a service when their flag is off keep `enabled: true` on the service
+  entry (the monitoring timers, Samba, the camera, the Argon case, the Sense
+  HAT), so the unit comes back at the next boot, and a configuration file
+  removed with the stack can still trigger a restart of the stopped service
+  through `os_services_to_restart`. The Wi-Fi stack got both fixed on 2026-11-08
+  (`enabled` follows the flag, no restart list when disabled); apply the same
+  shape to the other stacks, with a Molecule case that disables one.
 - Alerting follow-ups deferred by the
   [Monitoring Alerting](./monitoring-alerting.md) spec:
     - A rule for a Compose project whose unit never ran: since 2026-11-07 a
@@ -1196,9 +1231,12 @@ reliability risks first, then security exposure, then automation):
   ships and Debian 12 does not, so raspberrypi2 follows its re-image
   ([Current focus](#current-focus)); until then it keeps its Compose job, which
   the node role no longer manages, and its repository keeps the key with the
-  quoted password the Compose template rendered. With a check run before each
-  apply: raspberrypi2, once re-imaged, follows the sequence hl01 went through:
-  rewrite the repository key with the unquoted vault password in place
+  quoted password the Compose template rendered. A full node run on that host
+  disables and removes the job's boot unit as a project no longer configured
+  (predicted by a check run on 2026-11-08): run the node role on raspberrypi2
+  with tags until the re-image. With a check run before each apply:
+  raspberrypi2, once re-imaged, follows the sequence hl01 went through: rewrite
+  the repository key with the unquoted vault password in place
   (`restic key passwd --new-password-file`, through the Compose container, which
   still opens the repository with the quoted one), stop and remove the Compose
   restic project

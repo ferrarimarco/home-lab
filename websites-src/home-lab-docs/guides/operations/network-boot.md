@@ -43,6 +43,29 @@ afterwards. A payload unit in the failed state does not retry on its own:
 restart it once the cause (a download error, a checksum mismatch, a full disk)
 is fixed.
 
+### Check the playbooks against the rescue system
+
+The rescue system is a stock image of the release the re-image installs, so a
+playbook can be check-run against it before any disk is written. The hostname
+and address are the installed system's, the `pi` user carries the bootstrap key,
+and the host key differs from the installed system's, so the run disables the
+host key check:
+
+```shell
+ADDITIONAL_ANSIBLE_FLAGS="--check --diff --tags untagged --tags fail2ban --tags install-debian-packages --tags uninstall-debian-packages --limit raspberrypi2.edge.lab.ferrari.how --ssh-common-args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'" \
+  ANSIBLE_PLAYBOOK_FILE_NAME="home-lab-node.yaml" scripts/run-ansible.sh
+```
+
+Name the tags of the stacks whose values change beside `untagged`, and the two
+package tags when package names change: a run without them never reaches the
+stack's templates or the apt tasks, so it exercises neither the values nor the
+package names, which the apt module validates in check mode. Read the run for
+those, not for a clean prediction: the rescue system has none of the
+prerequisites the earlier playbooks install, so a task that depends on them may
+fail or predict a first deployment. The cloud-init of the rescue is still
+running in the first minutes after boot, and the toggle, the reboots and the
+silences are the ones of the rescue procedure above.
+
 ### A host that does not come up
 
 Connect a display: the Raspberry Pi bootloader shows a diagnostics screen whose
