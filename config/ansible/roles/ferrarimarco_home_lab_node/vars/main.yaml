@@ -45,12 +45,6 @@ directories_to_ensure_ownership:
 default_docker_compose_file_name: "compose.yaml"
 default_dockerfile_file_name: "Dockerfile"
 default_prometheus_configuration_file_name: "prometheus.yaml"
-dphys_swapfile_templates_to_render:
-  - src: "dphys-swapfile/dphys-swapfile.jinja"
-    dest: "/etc/dphys-swapfile"
-    state: "{{ configure_dphys_swapfile | ternary('file', 'absent') }}"
-    os_services_to_restart:
-      - "{{ dphys_swapfile_service_name }}"
 fail2ban_configuration_directory: "/etc/fail2ban"
 fail2ban_os_services:
   - enabled: true
@@ -428,8 +422,8 @@ wifi_templates_to_render:
     dest: "/etc/wpa_supplicant/wpa_supplicant.conf"
     state: "{{ configure_wifi | ternary('file', 'absent') }}"
     mode: "0600"
-    os_services_to_restart:
-      - "{{ wpa_supplicant_service_name }}"
+    # No restart for the removal: the stack stops the service in that case.
+    os_services_to_restart: "{{ configure_wifi | ternary([wpa_supplicant_service_name], []) }}"
     # Don't force template rendering because the user might have manually changed the WiFi network credentials
     force: false
 zigbee2mqtt_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/zigbee2mqtt"

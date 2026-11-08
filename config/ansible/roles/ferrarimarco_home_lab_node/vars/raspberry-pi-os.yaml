@@ -1,5 +1,4 @@
 ---
-configure_dphys_swapfile: true
 # Got those using: v4l2-ctl --list-devices
 frigate_gpu_decode_devices:
   - /dev/media0
@@ -20,14 +19,14 @@ frigate_gpu_decode_devices:
   - /dev/video22
   - /dev/video23
   - /dev/video31
-fail2ban_sshd_enable_systemd_backend: false
 frigate_ffmpeg_harware_acceleration_arguments: preset-rpi-64-h264
-raspberry_pi_config_file_path: "/boot/config.txt"
+raspberry_pi_config_file_path: "/boot/firmware/config.txt"
+# What the Argon case daemon imports: smbus and RPi.GPIO, whose module
+# Raspberry Pi OS ships from the lgpio-based package.
 raspberri_pi_os_os_packages:
   - name: i2c-tools
-  - name: python3-rpi.gpio
+  - name: python3-rpi-lgpio
   - name: python3-smbus
-  - name: raspi-gpio
 raspberry_pi_sense_hat_config_txt_values:
   # Force enable the sense hat overlay
   dtoverlay: rpi-sense

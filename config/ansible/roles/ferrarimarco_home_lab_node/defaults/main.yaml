@@ -2,7 +2,6 @@
 cadvisor_exposed_port: 8083
 configure_asuswrt_chkwan: false
 configure_docker: false
-configure_dphys_swapfile: false
 configure_fail2ban: true
 configure_frigate: false
 configure_home_assistant: false
@@ -28,7 +27,6 @@ configure_wifi: false
 configure_zigbee2mqtt: false
 default_user_groups: []
 delete_systemd_journal_file: false
-dphys_swapfile_swapfactor: 2
 enable_prometheus_node_exporter_scraping: true
 frigate_host_port: 5000
 has_argonone_case: false

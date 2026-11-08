@@ -7,7 +7,6 @@ default_os_packages:
   - name: parted
   - name: python3-venv
   - name: xz-utils
-dphys_swapfile_service_name: dphys-swapfile
 fail2ban_configuration_directories:
   - path: "{{ fail2ban_configuration_directory }}"
     state: "{{ configure_fail2ban | ternary('directory', 'absent') }}"

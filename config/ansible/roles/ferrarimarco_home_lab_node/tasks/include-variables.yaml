@@ -170,9 +170,6 @@
         fact_configuration_directories: "{{ frigate_configuration_directories }}"
         fact_docker_compose_up_items: "{{ frigate_docker_compose_up_items }}"
         fact_templates_to_render: "{{ frigate_templates_to_render }}"
-      - enable_custom_fact: "{{ configure_dphys_swapfile }}"
-        fact_category: "dphys-swapfile"
-        fact_templates_to_render: "{{ dphys_swapfile_templates_to_render }}"
       - enable_custom_fact: "{{ has_argonone_case }}"
         fact_category: "argonone-case"
         fact_configuration_directories: "{{ argonone_configuration_directories }}"
@@ -230,7 +227,7 @@
         fact_templates_to_render: "{{ wifi_templates_to_render }}"
         fact_os_packages: "{{ wifi_os_packages }}"
         fact_os_services:
-          - enabled: true
+          - enabled: "{{ configure_wifi }}"
             service_name: "{{ wpa_supplicant_service_name }}"
             service_state: "{{ configure_wifi | ternary('started', 'stopped') }}"
       - enable_custom_fact: "{{ configure_network_stack }}"
