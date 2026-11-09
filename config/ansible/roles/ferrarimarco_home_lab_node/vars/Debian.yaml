@@ -4,6 +4,7 @@ default_os_packages:
   - name: cron
   - name: dnsutils
   - name: gnupg
+  - name: locales
   - name: parted
   - name: python3-venv
   - name: xz-utils

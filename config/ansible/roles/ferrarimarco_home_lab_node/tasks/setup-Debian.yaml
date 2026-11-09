@@ -65,3 +65,25 @@
     update_cache: true
   become: true
   when: ("install-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
+
+# The locale_gen module skips its change in check mode and derives its report
+# from a presence read, so a check run shows nothing: the read and the report
+# below carry the prediction (locale -a prints the encoding as utf8).
+- name: List the generated locales
+  ansible.builtin.command: locale -a
+  changed_when: false
+  check_mode: false
+  register: generated_locales
+
+- name: Report the locales to generate
+  ansible.builtin.debug:
+    msg: "{{ locales_to_generate }}"
+  vars:
+    locales_to_generate: "{{ system_locales | reject('in', generated_locales.stdout_lines | map('replace', 'utf8', 'UTF-8') | list) | list }}"
+  changed_when: locales_to_generate | length > 0
+
+- name: Generate the system locales
+  community.general.locale_gen:
+    name: "{{ system_locales }}"
+    state: present
+  become: true
