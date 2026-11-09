@@ -1,8 +1,10 @@
 ---
 apt_cache_valid_time: 3600
 default_os_packages:
+  # The real package: from Trixie on, dnsutils is only a name this package
+  # provides, which the apt module cannot converge
+  - name: bind9-dnsutils
   - name: cron
-  - name: dnsutils
   - name: gnupg
   - name: locales
   - name: parted
