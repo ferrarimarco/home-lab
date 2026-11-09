@@ -81,19 +81,6 @@ updates:
     directories:
       - /docker/ansible
       - /docker/arduino-cli
-      - /docker/ci-cd-tools
-    groups:
-      dev-ci-tools:
-        patterns:
-          - "*"
-    open-pull-requests-limit: 100
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "npm"
-    commit-message:
-      prefix: "deps"
-    directories:
-      - /docker/ci-cd-tools
     groups:
       dev-ci-tools:
         patterns:

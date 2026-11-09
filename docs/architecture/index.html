@@ -2471,18 +2471,6 @@ reliability risks first, then security exposure, then automation):</p>
   approval flow, port the grouping, then remove <code>.github/dependabot.yaml</code>.
   Dependabot multi-ecosystem groups were abandoned on 2026-09-29 because group
   pull requests stopped updating after their creation.</li>
-<li><strong>Remove release-please (decided 2026-11-09)</strong>: the repository manages no
-  releases, so the tool only adds toil to dependency updates (its own bumps, the
-  transitive <code>minimatch</code> finding that keeps Trivy red, a container image built
-  for it alone). Remove the <code>Release</code> workflows (<code>release.yml</code> and
-  <code>preview-release-notes.yml</code>), the configuration under
-  <code>.github/release-please/</code>, <code>scripts/release-please-dry-run.sh</code> with its guide
-  entry, and the <code>docker/ci-cd-tools</code> image whose only package it is, with the
-  image's build job, its entries in <code>scripts/common.sh</code>,
-  <code>scripts/open-shell-ci-cd-tools-container.sh</code>, and the Dependabot
-  <code>dev-ci-tools</code> directories; check <code>config/lint/.trivyignore.yaml</code> and the
-  checkov baseline for entries naming the deleted files. Blocks: the Trivy
-  finding of the <code>Lint</code> workflow item.</li>
 <li>Move monitoring stack from the home_lab_node role to the home_lab_monitoring
   role. Today the node role deploys the containerized exporters and textfile
   collectors on Docker hosts while the monitoring role installs the Debian
@@ -2545,15 +2533,12 @@ reliability risks first, then security exposure, then automation):</p>
   of its last 30 runs on master passed, the oldest on 2026-10-18. On 2026-11-06
   the only failing linter is Trivy. Of its two findings, CVE-2026-25645 in the
   <code>requests</code> pin of the ONT exporter went with the pin bump of 2026-11-09 after
-  the raspberrypi2 re-image; CVE-2026-118764 in <code>minimatch</code> in
-  <code>docker/ci-cd-tools/package-lock.json</code> remains: the package arrives through
-  <code>release-please</code> (17.11.2, the latest release) and its
-  <code>@google-automations/git-file-utils</code>, which requires the 10.x line, so the
-  bump to 11.x waits for an upstream release that moves to it, or goes with the
-  tool: the release-please removal item below drops the package and the image
-  that carry it. A red <code>Lint</code> run on master is therefore not evidence of a
-  regression: compare the failing linters with this finding before attributing a
-  failure to the change under test.</li>
+  the raspberrypi2 re-image; CVE-2026-118764 in <code>minimatch</code> went with the
+  <code>docker/ci-cd-tools</code> image and release-please, removed on 2026-11-09 because
+  the repository manages no releases. Until a master run of <code>Lint</code> after that
+  removal passes, a red run is not evidence of a regression: compare the failing
+  linters with these findings before attributing a failure to the change under
+  test.</li>
 <li><strong>One Git worktree per agent session (parked on 2026-11-06, waiting for a
   decision)</strong>: the agent sessions that work on this repository share one working
   tree, one index, and one branch, which is why the guides and the agent skills

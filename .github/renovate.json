@@ -30,7 +30,6 @@
         "/^.devcontainer.json$/",
         "config/pre-commit/**",
         ".github/**",
-        "docker/ci-cd-tools/**",
         "scripts/run-renovate.sh"
       ],
       "groupName": "ci"

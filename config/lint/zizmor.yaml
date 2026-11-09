@@ -22,8 +22,6 @@ rules:
       - dependency-review.yaml
       - documentation.yaml
       - lint.yaml
-      - preview-release-notes.yml
-      - release.yml
       - renovate.yaml
       - scorecard.yaml
       - test-ansible.yaml

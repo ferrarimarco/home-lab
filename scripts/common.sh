@@ -88,8 +88,6 @@ check_format_script_fixer_coverage() {
   fi
 }
 
-CD_CONTAINER_URL="ferrarimarco/home-lab-cd:latest"
-
 GITHUB_TOKEN_PATH="$(pwd)/.github-personal-access-token"
 
 # shellcheck disable=SC2034
@@ -211,13 +209,6 @@ create_and_activate_python_virtual_environment() {
   unset PIP_REQUIREMENTS_PATH
   unset PYTHON_VIRTUAL_ENVIRONMENT_PATH
   unset _FORCE_UPDATE_PYTHON_VIRTUAL_ENVIRONMENT
-}
-
-build_cd_container() {
-  echo "Build CD container: ${CD_CONTAINER_URL}"
-  docker build \
-    --tag "${CD_CONTAINER_URL}" \
-    docker/ci-cd-tools
 }
 
 check_github_token_file() {

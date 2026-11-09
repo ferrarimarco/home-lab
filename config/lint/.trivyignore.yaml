@@ -10,4 +10,3 @@ misconfigurations:
       - config/ansible/files/dependency-updates-helper/Dockerfile
       - docker/ansible/Dockerfile
       - docker/arduino-cli/Dockerfile
-      - docker/ci-cd-tools/Dockerfile

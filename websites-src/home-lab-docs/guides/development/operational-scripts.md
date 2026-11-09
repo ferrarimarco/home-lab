@@ -399,10 +399,6 @@ for MkDocs. See [Develop and build the Home Lab site](./website-development.md).
 
 ## CI/CD tooling
 
-- `scripts/open-shell-ci-cd-tools-container.sh`: opens an interactive shell in
-  the CI/CD tools container (`docker/ci-cd-tools`).
-- `scripts/release-please-dry-run.sh`: runs a release-please `release-pr` dry
-  run against the current branch to preview release notes and version bumps.
 - `scripts/run-renovate.sh`: runs Renovate locally.
 
 ## Miscellaneous
