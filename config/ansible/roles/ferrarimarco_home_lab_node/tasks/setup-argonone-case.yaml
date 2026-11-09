@@ -6,10 +6,12 @@
   check_mode: false
   register: raspi_config_i2c_output
 
-- name: Debug i2c status command output
+# The enable commands below are skipped in check mode, so the report tasks
+# carry the prediction (raspi-config prints 0 for an enabled setting)
+- name: Report the i2c setting to enable
   ansible.builtin.debug:
-    var: raspi_config_i2c_output
-    verbosity: 1
+    msg: "i2c is disabled (raspi-config reports {{ raspi_config_i2c_output.stdout }}): enabling it"
+  changed_when: raspi_config_i2c_output.stdout != "0"
 
 - name: Enable i2c
   ansible.builtin.command: "raspi-config nonint do_i2c 0"
@@ -26,10 +28,10 @@
   check_mode: false
   register: raspi_config_serial_output
 
-- name: Debug serial status command output
+- name: Report the serial port setting to enable
   ansible.builtin.debug:
-    var: raspi_config_serial_output
-    verbosity: 1
+    msg: "The serial port is disabled (raspi-config reports {{ raspi_config_serial_output.stdout }}): enabling it"
+  changed_when: raspi_config_serial_output.stdout != "0"
 
 - name: Enable the serial port
   ansible.builtin.command: "raspi-config nonint do_serial_hw 0"
