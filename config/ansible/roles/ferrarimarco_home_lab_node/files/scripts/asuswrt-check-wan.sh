@@ -33,14 +33,14 @@ for target in $TARGETS; do
   if Is_Private_Or_Unspecified "$target"; then
     continue
   fi
-  if ping -q -c 1 -W 2 -w 3 "$target" > /dev/null 2>&1; then
+  if ping -q -c 1 -W 2 -w 3 "$target" >/dev/null 2>&1; then
     Say "WAN OK: ${target} answers"
     exit 0
   fi
 done
 
 Say "WAN check failed: no target answers (${TARGETS})"
-if pidof udhcpc > /dev/null; then
+if pidof udhcpc >/dev/null; then
   Say "Renewing the WAN DHCP lease"
   killall -USR1 udhcpc || Say "Could not signal udhcpc"
 fi
