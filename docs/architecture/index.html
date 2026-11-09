@@ -2149,16 +2149,20 @@ reliability risks first, then security exposure, then automation):</p>
   whether the command path stays (hybrid) or the flag becomes the only
   way to start and stop a rescue (code-only: two deployments per rescue,
   and none while the deployment path itself is broken).</li>
-<li>The router's keys for the WAN check and the ONT route units. Both run
-  as the login user and reach the router over SSH, so a re-imaged host
-  needs the router's host key in that user's known hosts and its new
-  public key on the router's authorized keys, both placed by hand (the
-  host key on 2026-11-08, the public key on 2026-11-09: until then the
+<li>A re-imaged host keeps its SSH identity (decided 2026-11-09). The
+  re-image regenerated the login user's keypair and the host keys, and
+  every peer noticed: the router needed the new public key on its
+  authorized keys and the user's known hosts needed the router's host
+  key (both placed by hand; until then the WAN check and the ONT route
   units failed on host key verification, then on the router rejecting
   the former key, with a password fallback that tripped the router's
-  login protection). The node role could place the host key from a
-  public value in the inventory and print the public key to authorize;
-  the <a href="network-boot/">Network Boot Service</a> spec lists the state.</li>
+  login protection for a day), and the control machine and the other
+  hosts needed their known-hosts entries replaced. Back up the login
+  user's keypair and <code>/etc/ssh</code>'s host keys in the restic set of the
+  Debian hosts and restore them before the first node run, so a
+  re-imaged host returns with the identity its peers already trust; the
+  <a href="network-boot/">Network Boot Service</a> spec's table of state
+  outside the snapshots shrinks accordingly.</li>
 <li>Wi-Fi on the re-imaged host. The Wi-Fi stack renders a wpa_supplicant
   file and a country for the dhcpcd releases; on Debian 12 and later
   NetworkManager owns Wi-Fi, reads connections from keyfiles under
@@ -2430,6 +2434,12 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 </li>
 <li>Ansible:<ul>
+<li>The <code>raspi-config</code> enable tasks of the Argon case stack (i2c, the serial
+  port) are <code>command</code> tasks, so check mode skips them and a host whose
+  setting differs shows no prediction. Pair each with a report task on the
+  same condition, as the
+  <a href="../guides/development/ansible/">Ansible development guide</a> describes
+  for writes without <code>creates</code>.</li>
 <li><strong>The Coral role cannot tell the gasket package builds apart
   (2026-11-04)</strong>: the community builds of <code>gasket-dkms</code> all carry the
   upstream version <code>1.0-18</code>, and the apt module skips a package file whose
@@ -2690,6 +2700,13 @@ reliability risks first, then security exposure, then automation):</p>
   root storage stalls of 2026-10-06 and 2026-10-07 (see the
   <a href="../archive/raspberrypi2-stability-issues/">stability notes</a>); verify
   with <code>lsusb -t</code> that the bridge binds to <code>usb-storage</code> after the reboot.</li>
+<li>Test the Argon case's poweroff hook: the node role places it in
+  <code>/usr/lib/systemd/system-shutdown</code> since 2026-11-09 (it sat in an unread
+  directory under <code>/etc</code> before, without the executable bit), so whether the
+  case cuts the power at the end of a poweroff has never been observed.
+  Power the host off on a quiet day, confirm the case's LED and fan stop,
+  and record the outcome in the
+  <a href="../archive/raspberrypi2-stability-issues/">stability notes</a>.</li>
 <li>Argon One M.2 case: set up logging for the fan controller
   (<a href="https://github.com/Argon40Tech/Argon40case/blob/master/src/argonone-firmwareupdate.py">firmware updater</a>,
   <a href="https://github.com/Argon40Tech/Argon-ONE-i2c-Codes">I2C codes</a>,

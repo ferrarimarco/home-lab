@@ -2004,11 +2004,14 @@ unavailable until its repository exists.</p>
 <div class="highlight"><pre><span></span><code><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;--diff --limit raspberrypi2.edge.lab.ferrari.how -e &#39;{\&quot;start_monitoring_backend\&quot;: false, \&quot;start_zigbee2mqtt\&quot;: false}&#39;&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;home-lab-node.yaml&quot;</span><span class="w"> </span>scripts/run-ansible.sh
 </code></pre></div>
-<p>The node run blocks on <code>tailscale up</code> until the login URL is visited, and
-Ansible shows a task's output only when it ends: read the URL on the host
-with <code>tailscale status --json</code> (its <code>AuthURL</code> field) while the run waits.
-Afterwards, in the admin console: approve the subnet route, delete the old
-node, and rename the new one, which keeps its <code>-1</code> suffix on its own.</p>
+<p>Before the node run, delete the host's old node in the Tailscale admin
+console: a new node registering under a taken name gets a <code>-1</code> suffix that
+stays after the conflict is gone, and removing it means editing the machine
+name by hand with its auto-generation turned off. The node run blocks on
+<code>tailscale up</code> until the login URL is visited, and Ansible shows a task's
+output only when it ends: read the URL on the host with
+<code>tailscale status --json</code> (its <code>AuthURL</code> field) while the run waits.
+Afterwards, approve the subnet route in the admin console.</p>
 </li>
 <li>
 <p>Restore the stateful stacks with <code>restore-workloads.yaml</code> from the recorded

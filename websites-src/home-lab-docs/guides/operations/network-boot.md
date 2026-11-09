@@ -217,11 +217,14 @@ unavailable until its repository exists.
       ANSIBLE_PLAYBOOK_FILE_NAME="home-lab-node.yaml" scripts/run-ansible.sh
     ```
 
-    The node run blocks on `tailscale up` until the login URL is visited, and
-    Ansible shows a task's output only when it ends: read the URL on the host
-    with `tailscale status --json` (its `AuthURL` field) while the run waits.
-    Afterwards, in the admin console: approve the subnet route, delete the old
-    node, and rename the new one, which keeps its `-1` suffix on its own.
+    Before the node run, delete the host's old node in the Tailscale admin
+    console: a new node registering under a taken name gets a `-1` suffix that
+    stays after the conflict is gone, and removing it means editing the machine
+    name by hand with its auto-generation turned off. The node run blocks on
+    `tailscale up` until the login URL is visited, and Ansible shows a task's
+    output only when it ends: read the URL on the host with
+    `tailscale status --json` (its `AuthURL` field) while the run waits.
+    Afterwards, approve the subnet route in the admin console.
 
 7. Restore the stateful stacks with `restore-workloads.yaml` from the recorded
    snapshot (dry run, then `restore_apply=true`), naming the Compose service

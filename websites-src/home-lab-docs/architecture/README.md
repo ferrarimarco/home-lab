@@ -115,16 +115,20 @@ reliability risks first, then security exposure, then automation):
           whether the command path stays (hybrid) or the flag becomes the only
           way to start and stop a rescue (code-only: two deployments per rescue,
           and none while the deployment path itself is broken).
-        - The router's keys for the WAN check and the ONT route units. Both run
-          as the login user and reach the router over SSH, so a re-imaged host
-          needs the router's host key in that user's known hosts and its new
-          public key on the router's authorized keys, both placed by hand (the
-          host key on 2026-11-08, the public key on 2026-11-09: until then the
+        - A re-imaged host keeps its SSH identity (decided 2026-11-09). The
+          re-image regenerated the login user's keypair and the host keys, and
+          every peer noticed: the router needed the new public key on its
+          authorized keys and the user's known hosts needed the router's host
+          key (both placed by hand; until then the WAN check and the ONT route
           units failed on host key verification, then on the router rejecting
           the former key, with a password fallback that tripped the router's
-          login protection). The node role could place the host key from a
-          public value in the inventory and print the public key to authorize;
-          the [Network Boot Service](./network-boot.md) spec lists the state.
+          login protection for a day), and the control machine and the other
+          hosts needed their known-hosts entries replaced. Back up the login
+          user's keypair and `/etc/ssh`'s host keys in the restic set of the
+          Debian hosts and restore them before the first node run, so a
+          re-imaged host returns with the identity its peers already trust; the
+          [Network Boot Service](./network-boot.md) spec's table of state
+          outside the snapshots shrinks accordingly.
         - Wi-Fi on the re-imaged host. The Wi-Fi stack renders a wpa_supplicant
           file and a country for the dhcpcd releases; on Debian 12 and later
           NetworkManager owns Wi-Fi, reads connections from keyfiles under
@@ -378,6 +382,12 @@ reliability risks first, then security exposure, then automation):
       folded scalar that turned the list into a string under ansible-core 2.19
       (fixed the same day) only failed on hl01.
 - Ansible:
+    - The `raspi-config` enable tasks of the Argon case stack (i2c, the serial
+      port) are `command` tasks, so check mode skips them and a host whose
+      setting differs shows no prediction. Pair each with a report task on the
+      same condition, as the
+      [Ansible development guide](../guides/development/ansible.md) describes
+      for writes without `creates`.
     - **The Coral role cannot tell the gasket package builds apart
       (2026-11-04)**: the community builds of `gasket-dkms` all carry the
       upstream version `1.0-18`, and the apt module skips a package file whose
@@ -630,6 +640,13 @@ reliability risks first, then security exposure, then automation):
       root storage stalls of 2026-10-06 and 2026-10-07 (see the
       [stability notes](../archive/raspberrypi2-stability-issues.md)); verify
       with `lsusb -t` that the bridge binds to `usb-storage` after the reboot.
+    - Test the Argon case's poweroff hook: the node role places it in
+      `/usr/lib/systemd/system-shutdown` since 2026-11-09 (it sat in an unread
+      directory under `/etc` before, without the executable bit), so whether the
+      case cuts the power at the end of a poweroff has never been observed.
+      Power the host off on a quiet day, confirm the case's LED and fan stop,
+      and record the outcome in the
+      [stability notes](../archive/raspberrypi2-stability-issues.md).
     - Argon One M.2 case: set up logging for the fan controller
       ([firmware updater](https://github.com/Argon40Tech/Argon40case/blob/master/src/argonone-firmwareupdate.py),
       [I2C codes](https://github.com/Argon40Tech/Argon-ONE-i2c-Codes),
