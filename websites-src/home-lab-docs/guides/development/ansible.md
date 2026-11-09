@@ -87,14 +87,13 @@ Conventions the stacks rely on:
   only, since a tag-scoped run registers the selected stacks' items alone and
   would remove the rest.
 - **Templates for files the workload rewrites are seeds.** A file the
-  application edits at runtime (qBittorrent's settings, the Zigbee2MQTT secret,
-  the Wi-Fi credentials) is rendered with `force: false`: it seeds a fresh host
-  and is never touched again, so the settings beyond the seed are owned by the
-  application's own interface, and a template change reaches only fresh hosts or
-  a deliberate re-seed (the [backup operations guide](../operations/backup.md)
-  has the qBittorrent recipe). Render the seed where the image reads it:
-  qBittorrent's was rendered one level above its directory and went unread for
-  twenty months.
+  application edits at runtime (qBittorrent's settings, the Zigbee2MQTT secret)
+  is rendered with `force: false`: it seeds a fresh host and is never touched
+  again, so the settings beyond the seed are owned by the application's own
+  interface, and a template change reaches only fresh hosts or a deliberate
+  re-seed (the [backup operations guide](../operations/backup.md) has the
+  qBittorrent recipe). Render the seed where the image reads it: qBittorrent's
+  was rendered one level above its directory and went unread for twenty months.
 
 Because a disabled stack still contributes its resources with `state: absent`,
 running a stack's tag with its enablement flag unset **tears the stack down**

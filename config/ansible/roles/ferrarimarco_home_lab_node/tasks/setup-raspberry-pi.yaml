@@ -6,3 +6,24 @@
     regexp: "^{{ item.key }}="
   notify: Reboot host and wait for it to restart
   with_dict: "{{ raspberry_pi_config_file_values }}"
+
+# The kernel command line is one line of space-separated options. The options
+# the host declares replace the ones of the same name and the rest is kept;
+# the file is written whole so that check mode shows the line it would write.
+- name: Read the kernel command line
+  ansible.builtin.command: cat {{ raspberry_pi_kernel_command_line_file_path }}
+  changed_when: false
+  check_mode: false
+  register: raspberry_pi_kernel_command_line
+  when: raspberry_pi_kernel_command_line_options | length > 0
+
+- name: Write the kernel command line
+  ansible.builtin.copy:
+    content: "{{ (raspberry_pi_kernel_command_line_kept_options + raspberry_pi_kernel_command_line_declared_options) | join(' ') }}\n"
+    dest: "{{ raspberry_pi_kernel_command_line_file_path }}"
+  vars:
+    raspberry_pi_kernel_command_line_managed_pattern: "^({{ raspberry_pi_kernel_command_line_options.keys() | map('regex_escape') | join('|') }})="
+    raspberry_pi_kernel_command_line_kept_options: "{{ raspberry_pi_kernel_command_line.stdout | trim | split(' ') | reject('match', raspberry_pi_kernel_command_line_managed_pattern) | list }}"
+    raspberry_pi_kernel_command_line_declared_options: "{{ raspberry_pi_kernel_command_line_options.items() | map('join', '=') | list }}"
+  notify: Reboot host and wait for it to restart
+  when: raspberry_pi_kernel_command_line_options | length > 0

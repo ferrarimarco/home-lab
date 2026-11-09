@@ -43,18 +43,8 @@ items here.
 The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):
 
-- Finish the raspberrypi2 re-image of 2026-11-08 (Raspberry Pi OS Trixie through
-  the network-boot rescue, the procedure now in the
-  [network boot guide](../guides/operations/network-boot.md)): the services were
-  restored in place from the per-host repository on the nas-pve1 `backups`
-  share, as decided on 2026-10-08 and 2026-10-26, and the host runs the backup
-  role with its exporter on. Left: the Wi-Fi item
-  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). The
-  session also showed the SSD's USB bridge failing cold starts on its own
-  (bootloader `MSD error`, kernel probe hangs, "firmware not found" on an intact
-  boot partition), recorded in the
-  [stability notes](../archive/raspberrypi2-stability-issues.md): the next such
-  hang goes through the rescue, and a replacement adapter is the fix to weigh.
+- None: the raspberrypi2 re-image of 2026-11-08 and its follow-ups closed on
+  2026-11-09; the next focus is to be chosen from the sections below.
 
 ### Bootstrapping and provisioning
 
@@ -112,16 +102,6 @@ reliability risks first, then security exposure, then automation):
           whether the command path stays (hybrid) or the flag becomes the only
           way to start and stop a rescue (code-only: two deployments per rescue,
           and none while the deployment path itself is broken).
-        - Wi-Fi on the re-imaged host. The Wi-Fi stack renders a wpa_supplicant
-          file and a country for the dhcpcd releases; on Debian 12 and later
-          NetworkManager owns Wi-Fi, reads connections from keyfiles under
-          `/etc/NetworkManager/system-connections/`, and the country goes on the
-          kernel command line (`cfg80211.ieee80211_regdom=`, which
-          `raspi-config nonint do_wifi_country` writes and the login-time rfkill
-          warning of Raspberry Pi OS reads). raspberrypi2 keeps the stack off
-          (`configure_wifi: false`, 2026-11-08) until the stack grows a
-          NetworkManager branch: the country, then a keyfile rendered from vault
-          credentials with Ethernet kept as the preferred route.
         - Documentation: the provisioning guide (EEPROM editing from the OS, the
           rescue procedure, the manual follow-ups), the restore recipe
           ([Backup](#backup)), and the unresponsive host runbook.
@@ -579,10 +559,9 @@ reliability risks first, then security exposure, then automation):
       the host configuration.
     - The power instrument depends on raspberrypi2: the Zigbee plugs reach Home
       Assistant through Zigbee2MQTT on that host, so measurements pause when it
-      stalls (2026-10-06), and Zigbee2MQTT stays there (2026-10-23). Depends on:
-      the raspberrypi2 re-image ([Current focus](#current-focus)); the network
-      coordinator ([Smart home](#smart-home)) removes the host dependency
-      altogether.
+      stalls (2026-10-06), and Zigbee2MQTT stays there (2026-10-23); the host
+      was re-imaged on 2026-11-08, and the network coordinator
+      ([Smart home](#smart-home)) removes the host dependency altogether.
     - Depends on: a stable BMC address for remote recovery during runtime
       experiments ([Networking](#networking)). Blocks: the media second copy on
       `tank-hdd` ([NAS](#nas)); the Proxmox node downtime alerts stay enabled by
@@ -612,10 +591,10 @@ reliability risks first, then security exposure, then automation):
     - Enable TRIM on the external SSD
       ([reference](https://www.jeffgeerling.com/blog/2020/enabling-trim-on-external-ssd-on-raspberry-pi)).
     - Force the Argon One M.2 bridge (ASMedia `174c:1156`, the root SSD) off the
-      `uas` driver with `usb-storage.quirks=174c:1156:u` in `cmdline.txt`,
-      rendered by the node role from a per-host list of kernel command line
-      options, with the reboot handler. This is the first mitigation for the
-      root storage stalls of 2026-10-06 and 2026-10-07 (see the
+      `uas` driver with `usb-storage.quirks: 174c:1156:u` in the host's
+      `raspberry_pi_kernel_command_line_options` (the node role rewrites
+      `cmdline.txt` and reboots). This is the first mitigation for the root
+      storage stalls of 2026-10-06 and 2026-10-07 (see the
       [stability notes](../archive/raspberrypi2-stability-issues.md)); verify
       with `lsusb -t` that the bridge binds to `usb-storage` after the reboot.
     - Test the Argon case's poweroff hook: the node role places it in
@@ -993,9 +972,10 @@ reliability risks first, then security exposure, then automation):
   entry (the monitoring timers, Samba, the camera, the Argon case, the Sense
   HAT), so the unit comes back at the next boot, and a configuration file
   removed with the stack can still trigger a restart of the stopped service
-  through `os_services_to_restart`. The Wi-Fi stack got both fixed on 2026-11-08
-  (`enabled` follows the flag, no restart list when disabled); apply the same
-  shape to the other stacks, with a Molecule case that disables one.
+  through `os_services_to_restart`. The Wi-Fi stack, since removed, got both
+  fixed on 2026-11-08 (`enabled` follows the flag, no restart list when
+  disabled); apply the same shape to the other stacks, with a Molecule case that
+  disables one.
 - Alerting follow-ups deferred by the
   [Monitoring Alerting](./monitoring-alerting.md) spec:
     - A rule for a Compose project whose unit never ran: since 2026-11-07 a

@@ -21,6 +21,7 @@ frigate_gpu_decode_devices:
   - /dev/video31
 frigate_ffmpeg_harware_acceleration_arguments: preset-rpi-64-h264
 raspberry_pi_config_file_path: "/boot/firmware/config.txt"
+raspberry_pi_kernel_command_line_file_path: "/boot/firmware/cmdline.txt"
 # What the Argon case daemon imports: smbus and RPi.GPIO, whose module
 # Raspberry Pi OS ships from the lgpio-based package.
 raspberri_pi_os_os_packages:

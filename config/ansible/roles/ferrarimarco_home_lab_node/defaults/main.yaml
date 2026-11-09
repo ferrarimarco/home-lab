@@ -23,7 +23,6 @@ configure_ssh: true
 # re-image (decision 2026-10-06).
 configure_syncthing: false
 configure_tailscale: false
-configure_wifi: false
 configure_zigbee2mqtt: false
 default_user_groups: []
 delete_systemd_journal_file: false
@@ -119,6 +118,10 @@ qbittorrent_user_interface_port: 8084
 # Empty: nothing to render or check.
 raspberry_pi_bootloader_configuration: {}
 raspberry_pi_config_file_values: {}
+# Kernel command line options (name to value) the node role sets in the boot
+# partition's cmdline.txt, replacing an option of the same name; the kernel
+# reads the file at the next boot, so a change reboots the host.
+raspberry_pi_kernel_command_line_options: {}
 rsync_daemon_modules: []
 samba_additional_interfaces: "{{ edge_environment_subnet }}"
 samba_default_readers_group_name: "samba-readers"
