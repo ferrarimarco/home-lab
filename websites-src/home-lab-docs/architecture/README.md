@@ -48,7 +48,7 @@ reliability risks first, then security exposure, then automation):
   [network boot guide](../guides/operations/network-boot.md)): the services were
   restored in place from the per-host repository on the nas-pve1 `backups`
   share, as decided on 2026-10-08 and 2026-10-26, and the host runs the backup
-  role with its exporter on. Left: the Wi-Fi item and the SSH identity item
+  role with its exporter on. Left: the Wi-Fi item
   ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). The
   session also showed the SSD's USB bridge failing cold starts on its own
   (bootloader `MSD error`, kernel probe hangs, "firmware not found" on an intact
@@ -112,20 +112,6 @@ reliability risks first, then security exposure, then automation):
           whether the command path stays (hybrid) or the flag becomes the only
           way to start and stop a rescue (code-only: two deployments per rescue,
           and none while the deployment path itself is broken).
-        - A re-imaged host keeps its SSH identity (decided 2026-11-09). The
-          re-image regenerated the login user's keypair and the host keys, and
-          every peer noticed: the router needed the new public key on its
-          authorized keys and the user's known hosts needed the router's host
-          key (both placed by hand; until then the WAN check and the ONT route
-          units failed on host key verification, then on the router rejecting
-          the former key, with a password fallback that tripped the router's
-          login protection for a day), and the control machine and the other
-          hosts needed their known-hosts entries replaced. Back up the login
-          user's keypair and `/etc/ssh`'s host keys in the restic set of the
-          Debian hosts and restore them before the first node run, so a
-          re-imaged host returns with the identity its peers already trust; the
-          [Network Boot Service](./network-boot.md) spec's table of state
-          outside the snapshots shrinks accordingly.
         - Wi-Fi on the re-imaged host. The Wi-Fi stack renders a wpa_supplicant
           file and a country for the dhcpcd releases; on Debian 12 and later
           NetworkManager owns Wi-Fi, reads connections from keyfiles under

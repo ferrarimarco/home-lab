@@ -3,7 +3,10 @@
 # the configuration and runtime trees, which the nightly
 # restic-backup-workloads job of the backup role backs up to the host's own
 # repository on the nas-pve1 backups share (the Backups specification has the
-# layout). The share is a CIFS mount that presents every file as the mounting
+# layout), together with the host's SSH identity: the host keys and the login
+# user's keypair and known hosts, so that a re-imaged host returns with the
+# identity its peers already trust (the restore playbook has the paths mode).
+# The share is a CIFS mount that presents every file as the mounting
 # user, which the repository directories declare as their owner. The drill
 # restores the job script, a secret-free file of the backup set, onto the
 # share.
@@ -12,6 +15,8 @@ restic_backup_jobs:
     directories_to_backup:
       - "{{ home_lab_configuration_directory_path }}"
       - "{{ home_lab_runtime_directory_path }}"
+      - /etc/ssh
+      - "/home/{{ ansible_user }}/.ssh"
     job_schedule: "01:00:00"
     # A host that cannot run the exporter yet declares this false
     restic_exporter_enabled: "{{ restic_workloads_job_exporter_enabled | default(true) }}"

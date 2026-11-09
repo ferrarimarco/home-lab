@@ -1,16 +1,24 @@
 ---
-# Restore a stack's state trees on a Debian host from a restic repository,
-# through the restore mode of the restic job script, run by systemd-run with
-# the job's environment (see the backup operations guide). Dry run by
-# default: the run lists what a restore would write and changes nothing; pass
-# restore_apply=true to restore for real, which stops the stack, restores both
-# state trees in place, and starts the stack again.
+# Restore a stack's state trees, or a list of paths, on a Debian host from a
+# restic repository, through the restore mode of the restic job script, run by
+# systemd-run with the job's environment (see the backup operations guide). Dry
+# run by default: the run lists what a restore would write and changes
+# nothing; pass restore_apply=true to restore for real, which stops the stack,
+# restores both state trees in place, and starts the stack again (a paths
+# restore stops nothing); in either mode the units named in
+# restore_services_to_restart are restarted after a real restore.
 #
 # Variables (pass them with -e):
 #   restore_hosts          the target host (required: the play refuses to run
 #                          without it, so a restore never fans out to all hosts)
 #   restore_stack          the state directory name, as in
 #                          /etc/ferrarimarco-home-lab/<stack>
+#   restore_paths          instead of restore_stack: the paths to restore in
+#                          place (a JSON list), for state outside the stacks
+#                          such as the host's SSH identity
+#   restore_services_to_restart  systemd units to restart after a real
+#                          restore (a JSON list, default none), such as ssh
+#                          after the host keys
 #   restore_compose_stack  the Compose project that runs it, when it differs
 #                          (qbittorrent's state is run by media-stack)
 #   restore_compose_service  the Compose service to stop and start (default:
@@ -23,7 +31,11 @@
 # Example, a dry run of restoring qBittorrent on hl01 from its own repository:
 #   ADDITIONAL_ANSIBLE_FLAGS="-e restore_hosts=hl01.edge.lab.ferrari.how -e restore_stack=qbittorrent -e restore_compose_stack=media-stack -e restore_compose_service=qbittorrent-nox" \
 #     ANSIBLE_PLAYBOOK_FILE_NAME="restore-workloads.yaml" scripts/run-ansible.sh
-- name: Restore a stack's state from a restic repository
+# Example, a dry run of restoring a re-imaged host's SSH identity (the backup
+# operations guide has the full path list):
+#   ADDITIONAL_ANSIBLE_FLAGS="-e restore_hosts=raspberrypi2.edge.lab.ferrari.how -e '{\"restore_paths\": [\"/etc/ssh/ssh_host_ed25519_key\", \"/home/pi/.ssh\"], \"restore_services_to_restart\": [\"ssh\"]}'" \
+#     ANSIBLE_PLAYBOOK_FILE_NAME="restore-workloads.yaml" scripts/run-ansible.sh
+- name: Restore a stack's state or a list of paths from a restic repository
   hosts: "{{ restore_hosts }}"
   gather_facts: false
   vars:
@@ -31,15 +43,19 @@
     restore_apply: false
     restore_source_host: "{{ inventory_hostname }}"
     restore_job_name: restic-backup-workloads
-    restore_compose_stack: "{{ restore_stack }}"
-    restore_compose_service: "{{ restore_stack }}"
+    # A stack restore stops and starts the service that owns the state; a
+    # paths restore manages no service
+    restore_manage_service: "{{ restore_paths is not defined }}"
+    restore_services_to_restart: []
+    restore_compose_stack: "{{ restore_stack | default('') }}"
+    restore_compose_service: "{{ restore_stack | default('') }}"
     restore_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/restic"
     restore_script_path: "{{ restore_configuration_directory_path }}/entrypoint.sh"
     restore_job_environment_file_path: "{{ restore_configuration_directory_path }}/{{ restore_job_name }}.env"
     # The environment of a restore from another host's repository, written for
     # the run and removed afterwards
     restore_source_environment_file_path: "/run/{{ restore_job_name }}-restore.env"
-    restore_log_file_path: "/tmp/restic-restore-{{ restore_stack | default('unset') }}.log"
+    restore_log_file_path: "/tmp/restic-restore-{{ restore_stack | default('paths') }}.log"
     # The jobs declared present on the target and on the source host, split as
     # the backup role splits them
     restore_target_jobs: "{{ restic_backup_jobs | default([]) }}"
@@ -56,24 +72,26 @@
     - name: Check the restore variables
       ansible.builtin.assert:
         that:
-          - restore_stack is defined
-          - restore_stack | length > 0
+          - (restore_paths is defined and restore_paths is not string and restore_paths | length > 0) or (restore_stack is defined and restore_stack | length > 0)
           - restore_source_host in hostvars
           - restore_job_name in restore_target_present_jobs
           - restore_job_name in restore_source_present_jobs
         fail_msg: >-
           Pass restore_hosts (a host that declares the {{ restore_job_name }}
-          restic job as present), restore_stack (the state directory name) and,
-          optionally, restore_snapshot, restore_source_host (an inventory host
-          that declares the same job), restore_compose_stack,
-          restore_compose_service, and restore_apply=true.
+          restic job as present), restore_stack (the state directory name) or
+          restore_paths (a list of paths to restore in place) and, optionally,
+          restore_snapshot, restore_source_host (an inventory host that
+          declares the same job), restore_compose_stack,
+          restore_compose_service, restore_services_to_restart, and
+          restore_apply=true.
 
     - name: Compute the restore paths
       ansible.builtin.set_fact:
         restore_stack_compose_file_path: "{{ home_lab_configuration_directory_path }}/{{ restore_compose_stack }}/compose.yaml"
-        restore_state_trees:
-          - "{{ home_lab_configuration_directory_path }}/{{ restore_stack }}"
-          - "{{ home_lab_runtime_directory_path }}/{{ restore_stack }}"
+        restore_state_trees: >-
+          {{ restore_paths if restore_paths is defined else
+          [home_lab_configuration_directory_path ~ '/' ~ restore_stack,
+          home_lab_runtime_directory_path ~ '/' ~ restore_stack] }}
         restore_source_job: "{{ hostvars[restore_source_host].restic_backup_jobs | selectattr('job_name', 'equalto', restore_job_name) | first }}"
         restore_cross_host: "{{ restore_source_host != inventory_hostname }}"
       # The job entry carries the repository password
@@ -110,7 +128,7 @@
       become: true
       register: restore_compose_file
       failed_when: not restore_compose_file.stat.exists
-      when: restore_apply | bool
+      when: restore_apply | bool and restore_manage_service | bool
 
     - name: Start a fresh restore log
       ansible.builtin.copy:
@@ -155,7 +173,7 @@
           ansible.builtin.command: docker compose --file {{ restore_stack_compose_file_path }} stop {{ restore_compose_service }}
           become: true
           changed_when: true
-          when: restore_apply | bool
+          when: restore_apply | bool and restore_manage_service | bool
           tags:
             - molecule-notest
 
@@ -209,20 +227,35 @@
           ansible.builtin.command: docker compose --file {{ restore_stack_compose_file_path }} up --detach {{ restore_compose_service }}
           become: true
           changed_when: true
-          when: restore_apply | bool
+          when: restore_apply | bool and restore_manage_service | bool
+          tags:
+            - molecule-notest
+
+        # The units that read the restored paths (sshd after the host keys);
+        # a restart of ssh keeps the established sessions
+        - name: Restart the services that read the restored paths
+          ansible.builtin.systemd_service:
+            name: "{{ item }}"
+            state: restarted
+          become: true
+          loop: "{{ restore_services_to_restart }}"
+          when: restore_apply | bool and not (restore_failed | default(false))
           tags:
             - molecule-notest
 
         - name: Fail the play when the restore failed
           ansible.builtin.fail:
-            msg: The restore failed; see the restore log above. The service was started again.
+            msg: >-
+              The restore failed; see the restore log above.
+              {{ restore_manage_service | bool | ternary('The service was started again.', 'No service was restarted.') }}
           when: restore_failed | default(false)
 
     - name: Print the verification steps
       ansible.builtin.debug:
         msg: >-
-          Verify {{ restore_stack }} through its own interface, then compare the
-          restored trees with the snapshot listing: on the host, as root,
+          {% if restore_manage_service | bool %}Verify {{ restore_stack }} through
+          its own interface, then compare{% else %}Compare{% endif %} the
+          restored paths with the snapshot listing: on the host, as root,
           sh -c 'set -a; . {{ restore_job_environment_file_path }}; exec restic ls
-          {{ restore_snapshot }} {{ restore_state_trees[0] }}'.
+          {{ restore_snapshot }} {{ restore_state_trees | join(' ') }}'.
       when: restore_apply | bool

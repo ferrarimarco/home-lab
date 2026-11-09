@@ -1950,7 +1950,8 @@ lists what the restore would write and changes nothing.</p>
 <ul>
 <li><code>restore_hosts</code> (required): the target host; the play refuses to run without
   it, so a restore never fans out.</li>
-<li><code>restore_stack</code> (required): the state directory name.</li>
+<li><code>restore_stack</code> (required unless <code>restore_paths</code> is given): the state
+  directory name.</li>
 <li><code>restore_compose_stack</code>, <code>restore_compose_service</code>: the Compose project and
   service that run that state when they differ from the directory name
   (qBittorrent's state belongs to the <code>qbittorrent-nox</code> service of
@@ -1960,8 +1961,24 @@ lists what the restore would write and changes nothing.</p>
   that lost its own; the playbook writes that host's repository and password
   (from its job declaration and the shared vault) to a temporary root-only
   environment file, which the run loads instead of the local job's.</li>
+<li><code>restore_paths</code>: a JSON list of paths to restore in place instead of a stack's
+  trees, for state outside the stacks: no service is stopped or started.</li>
+<li><code>restore_services_to_restart</code>: a JSON list of systemd units restarted after a
+  real restore in either mode (<code>ssh</code> after the host keys).</li>
 <li><code>restore_apply</code>: <code>true</code> for the real restore.</li>
 </ul>
+<p>The host's SSH identity, which the job backs up with the state trees, returns to
+a re-imaged host this way (dry run first, then with <code>restore_apply=true</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;-e restore_hosts=raspberrypi2.edge.lab.ferrari.how -e &#39;{\&quot;restore_paths\&quot;: [\&quot;/etc/ssh/ssh_host_rsa_key\&quot;, \&quot;/etc/ssh/ssh_host_rsa_key.pub\&quot;, \&quot;/etc/ssh/ssh_host_ecdsa_key\&quot;, \&quot;/etc/ssh/ssh_host_ecdsa_key.pub\&quot;, \&quot;/etc/ssh/ssh_host_ed25519_key\&quot;, \&quot;/etc/ssh/ssh_host_ed25519_key.pub\&quot;, \&quot;/home/pi/.ssh\&quot;], \&quot;restore_services_to_restart\&quot;: [\&quot;ssh\&quot;]}&#39;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;restore-workloads.yaml&quot;</span><span class="w"> </span>scripts/run-ansible.sh
+</code></pre></div>
+<p>Only the host key files come back from <code>/etc/ssh</code>, not the directory: an older
+release's <code>sshd_config</code> and <code>moduli</code> must not return, and the node role renders
+the SSH configuration. The user's <code>.ssh</code> directory comes back whole, with the
+authorized lab key and the known hosts (the router's host key among them); the
+restored <code>authorized_keys</code> replaces the fresh system's, which is safe because
+the bootstrap playbook puts the same lab key, the one the control machine
+authenticates with, in both.</p>
 <p>A state tree absent from the snapshot is skipped; the two trees are restored
 independently. The restore log is printed at the end. Blast radius: the service
 is stopped for the duration, and the restore overwrites the two subtrees with
@@ -1997,9 +2014,11 @@ Syncthing, and Tailscale rewrite their state while running.</p>
 <h3 id="a-fresh-host-after-a-re-image">A fresh host after a re-image</h3>
 <p>In this order: bootstrap, Docker (the container engine playbook), the share
 mount (the disks playbook), the backup playbook (it never re-initializes an
-existing repository), the in-place restore of each stack with the playbook, then
-the node role for the stacks. A host that lost its repository as well restores
-from nothing: the second-copy item in the
+existing repository), the SSH identity restore above (the host then presents its
+old host key again: clear the control machine's known-hosts entry a second time
+and accept it), the in-place restore of each stack with the playbook, then the
+node role for the stacks. A host that lost its repository as well restores from
+nothing: the second-copy item in the
 <a href="../../../architecture/#backup">specs todo list</a> exists for that case. A
 Proxmox node restores the NAS container's state directories from its own node
 job before the container first starts, through the restore mode above.</p>

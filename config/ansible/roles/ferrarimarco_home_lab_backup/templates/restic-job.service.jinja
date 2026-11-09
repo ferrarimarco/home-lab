@@ -37,4 +37,6 @@ ReadWritePaths=-{{ restic_job.restic_repository_host_path }}
 ReadWritePaths=-{{ restic_job.restic_restore_drill_host_path | default(restic_job.restic_repository_host_path | dirname ~ '/restore-drill-' ~ restic_job.job_name) }}
 ReadWritePaths={{ restic_textfile_collector_directory }}
 PrivateTmp=true
-ProtectHome=true
+# Read-only rather than hidden: the backup set holds the login user's .ssh
+# directory (the host's SSH identity), which the job reads and never writes
+ProtectHome=read-only

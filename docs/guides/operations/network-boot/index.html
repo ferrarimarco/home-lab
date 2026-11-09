@@ -1993,11 +1993,15 @@ unavailable until its repository exists.</p>
    disabled.</li>
 <li>The new system answers SSH as <code>pi</code> with the bootstrap key after cloud-init's
    first boot (root grown, hostname set). Clear the host's entries from the
-   control machine's known hosts (<code>ssh-keygen -R</code>); Ansible accepts the new key
-   on its own.</li>
+   control machine's known hosts (<code>ssh-keygen -R</code>); Ansible accepts the
+   temporary key on its own.</li>
 <li>
 <p>Playbooks, each checked then applied: <code>bootstrap.yaml</code>,
-   <code>container-engine.yaml</code>, <code>setup-disks.yaml</code>, <code>backup.yaml</code>, then
+   <code>container-engine.yaml</code>, <code>setup-disks.yaml</code>, <code>backup.yaml</code>, the SSH identity
+   restore of the <a href="../backup/">backup guide</a> (the host keys and the login
+   user's <code>.ssh</code> directory from the recorded snapshot; the host then presents
+   its old key again, so clear the control machine's known-hosts entry once
+   more, and no other peer ever sees the temporary key), then
    <code>home-lab-node.yaml</code> with the stateful stacks held back. The hold-back flags
    must be JSON booleans, a bare <code>-e start_x=false</code> is a string that the
    conditionals refuse:</p>
@@ -2019,11 +2023,9 @@ Afterwards, approve the subnet route in the admin console.</p>
    that owns the state (<code>prometheus</code> for the monitoring backend), then run
    <code>home-lab-node.yaml</code> again without the hold-back flags.</p>
 </li>
-<li>State outside the snapshots, as the specification lists: the login user's new
-   SSH public key goes on the router's authorized keys by hand, its known hosts
-   get the router's host key (<code>ssh-keyscan -p 1025</code>), and the new job runs once
-   by hand (<code>systemctl start restic-backup-workloads.service</code>), which also
-   clears the backup coverage alert; the former job's snapshot group, the
+<li>State outside the snapshots, as the specification lists, and the new job's
+   first run by hand (<code>systemctl start restic-backup-workloads.service</code>), which
+   also clears the backup coverage alert; the former job's snapshot group, the
    restore source, is forgotten later as the backup guide describes.</li>
 <li>Verify: the containers, the Zigbee coordinator with its restored network, the
    Prometheus history, the backup timers and exporter, <code>nmcli device</code> listing

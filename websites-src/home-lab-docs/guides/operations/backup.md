@@ -75,7 +75,8 @@ Variables:
 
 - `restore_hosts` (required): the target host; the play refuses to run without
   it, so a restore never fans out.
-- `restore_stack` (required): the state directory name.
+- `restore_stack` (required unless `restore_paths` is given): the state
+  directory name.
 - `restore_compose_stack`, `restore_compose_service`: the Compose project and
   service that run that state when they differ from the directory name
   (qBittorrent's state belongs to the `qbittorrent-nox` service of
@@ -85,7 +86,27 @@ Variables:
   that lost its own; the playbook writes that host's repository and password
   (from its job declaration and the shared vault) to a temporary root-only
   environment file, which the run loads instead of the local job's.
+- `restore_paths`: a JSON list of paths to restore in place instead of a stack's
+  trees, for state outside the stacks: no service is stopped or started.
+- `restore_services_to_restart`: a JSON list of systemd units restarted after a
+  real restore in either mode (`ssh` after the host keys).
 - `restore_apply`: `true` for the real restore.
+
+The host's SSH identity, which the job backs up with the state trees, returns to
+a re-imaged host this way (dry run first, then with `restore_apply=true`):
+
+```shell
+ADDITIONAL_ANSIBLE_FLAGS="-e restore_hosts=raspberrypi2.edge.lab.ferrari.how -e '{\"restore_paths\": [\"/etc/ssh/ssh_host_rsa_key\", \"/etc/ssh/ssh_host_rsa_key.pub\", \"/etc/ssh/ssh_host_ecdsa_key\", \"/etc/ssh/ssh_host_ecdsa_key.pub\", \"/etc/ssh/ssh_host_ed25519_key\", \"/etc/ssh/ssh_host_ed25519_key.pub\", \"/home/pi/.ssh\"], \"restore_services_to_restart\": [\"ssh\"]}'" \
+  ANSIBLE_PLAYBOOK_FILE_NAME="restore-workloads.yaml" scripts/run-ansible.sh
+```
+
+Only the host key files come back from `/etc/ssh`, not the directory: an older
+release's `sshd_config` and `moduli` must not return, and the node role renders
+the SSH configuration. The user's `.ssh` directory comes back whole, with the
+authorized lab key and the known hosts (the router's host key among them); the
+restored `authorized_keys` replaces the fresh system's, which is safe because
+the bootstrap playbook puts the same lab key, the one the control machine
+authenticates with, in both.
 
 A state tree absent from the snapshot is skipped; the two trees are restored
 independently. The restore log is printed at the end. Blast radius: the service
@@ -129,9 +150,11 @@ Syncthing, and Tailscale rewrite their state while running.
 
 In this order: bootstrap, Docker (the container engine playbook), the share
 mount (the disks playbook), the backup playbook (it never re-initializes an
-existing repository), the in-place restore of each stack with the playbook, then
-the node role for the stacks. A host that lost its repository as well restores
-from nothing: the second-copy item in the
+existing repository), the SSH identity restore above (the host then presents its
+old host key again: clear the control machine's known-hosts entry a second time
+and accept it), the in-place restore of each stack with the playbook, then the
+node role for the stacks. A host that lost its repository as well restores from
+nothing: the second-copy item in the
 [specs todo list](../../architecture/README.md#backup) exists for that case. A
 Proxmox node restores the NAS container's state directories from its own node
 job before the container first starts, through the restore mode above.

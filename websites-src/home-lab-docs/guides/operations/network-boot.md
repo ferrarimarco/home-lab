@@ -204,10 +204,14 @@ unavailable until its repository exists.
    disabled.
 5. The new system answers SSH as `pi` with the bootstrap key after cloud-init's
    first boot (root grown, hostname set). Clear the host's entries from the
-   control machine's known hosts (`ssh-keygen -R`); Ansible accepts the new key
-   on its own.
+   control machine's known hosts (`ssh-keygen -R`); Ansible accepts the
+   temporary key on its own.
 6. Playbooks, each checked then applied: `bootstrap.yaml`,
-   `container-engine.yaml`, `setup-disks.yaml`, `backup.yaml`, then
+   `container-engine.yaml`, `setup-disks.yaml`, `backup.yaml`, the SSH identity
+   restore of the [backup guide](./backup.md) (the host keys and the login
+   user's `.ssh` directory from the recorded snapshot; the host then presents
+   its old key again, so clear the control machine's known-hosts entry once
+   more, and no other peer ever sees the temporary key), then
    `home-lab-node.yaml` with the stateful stacks held back. The hold-back flags
    must be JSON booleans, a bare `-e start_x=false` is a string that the
    conditionals refuse:
@@ -230,11 +234,9 @@ unavailable until its repository exists.
    snapshot (dry run, then `restore_apply=true`), naming the Compose service
    that owns the state (`prometheus` for the monitoring backend), then run
    `home-lab-node.yaml` again without the hold-back flags.
-8. State outside the snapshots, as the specification lists: the login user's new
-   SSH public key goes on the router's authorized keys by hand, its known hosts
-   get the router's host key (`ssh-keyscan -p 1025`), and the new job runs once
-   by hand (`systemctl start restic-backup-workloads.service`), which also
-   clears the backup coverage alert; the former job's snapshot group, the
+8. State outside the snapshots, as the specification lists, and the new job's
+   first run by hand (`systemctl start restic-backup-workloads.service`), which
+   also clears the backup coverage alert; the former job's snapshot group, the
    restore source, is forgotten later as the backup guide describes.
 9. Verify: the containers, the Zigbee coordinator with its restored network, the
    Prometheus history, the backup timers and exporter, `nmcli device` listing
