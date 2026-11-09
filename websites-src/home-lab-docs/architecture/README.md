@@ -48,9 +48,8 @@ reliability risks first, then security exposure, then automation):
   [network boot guide](../guides/operations/network-boot.md)): the services were
   restored in place from the per-host repository on the nas-pve1 `backups`
   share, as decided on 2026-10-08 and 2026-10-26, and the host runs the backup
-  role with its exporter on. Left: bump the `requests` pin
-  ([Issues to solve](#issues-to-solve)); the Wi-Fi item and the SSH identity
-  item ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). The
+  role with its exporter on. Left: the Wi-Fi item and the SSH identity item
+  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). The
   session also showed the SSD's USB bridge failing cold starts on its own
   (bootloader `MSD error`, kernel probe hangs, "firmware not found" on an intact
   boot partition), recorded in the
@@ -185,21 +184,6 @@ reliability risks first, then security exposure, then automation):
 - raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
   lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
   thermal, or memory precursors in logs or Prometheus history):
-    - Upgrade the operating system: Debian 11 (bullseye) is past LTS end of
-      life, the April 2023 kernel is the most plausible lockup culprit, and the
-      system Python 3.9 caps `requests` below 2.33, pinning the ONT exporter
-      (2026-09-14) to a release with a known security vulnerability. Decision:
-      re-image with current Raspberry Pi OS, the most supported path for the
-      Raspberry Pi 4 hardware (its documentation strongly discourages in-place
-      upgrades, recommending a re-image instead); a NixOS migration was
-      deferred, to reconsider after the container migration to hl01 shrank this
-      host's role. That migration completed on 2026-10-26, leaving Zigbee2MQTT,
-      the ONT exporter, the router WAN check, and the host's half of the
-      monitoring backend pair. Path (2026-10-08): the network-boot rescue of the
-      [Network Boot Service](./network-boot.md) spec, with the services restored
-      in place from the host's restic repository. After the upgrade, bump the
-      `requests` pin and the CI requirements test matrix
-      (`test-python-requirements.yaml`).
     - Optionally prove the hardware watchdog recovery path end-to-end with a
       deliberate kernel crash (`echo c > /proc/sysrq-trigger`): the host should
       self-reboot within the 15 second timeout. Induced crash with the usual
@@ -531,12 +515,17 @@ reliability risks first, then security exposure, then automation):
   the ignore once actionlint accepts the syntax.
 - **The `Lint` workflow fails on every master run (read on 2026-11-06)**: none
   of its last 30 runs on master passed, the oldest on 2026-10-18. On 2026-11-06
-  the only failing linter is Trivy, with two findings: CVE-2026-25645 in the
-  `requests` pin of the ONT exporter, which waits for the raspberrypi2 re-image
-  ([Issues to solve](#issues-to-solve)), and CVE-2026-118764 in `minimatch` in
-  `docker/ci-cd-tools/package-lock.json`, which waits for nothing: update it. A
-  red `Lint` run on master is therefore not evidence of a regression: compare
-  the failing linters with these two findings before attributing a failure to
+  the only failing linter is Trivy. Of its two findings, CVE-2026-25645 in the
+  `requests` pin of the ONT exporter went with the pin bump of 2026-11-09 after
+  the raspberrypi2 re-image; CVE-2026-118764 in `minimatch` in
+  `docker/ci-cd-tools/package-lock.json` remains: the package arrives through
+  `release-please` (17.11.2, the latest release) and its
+  `@google-automations/git-file-utils`, which requires the 10.x line, so the
+  bump to 11.x waits for an upstream release that moves to it; until then the
+  levers are an npm `overrides` entry forcing minimatch 11 (to test against
+  `release-please`), or accepting the finding with an expiring Trivy ignore
+  entry. A red `Lint` run on master is therefore not evidence of a regression:
+  compare the failing linters with this finding before attributing a failure to
   the change under test.
 - **One Git worktree per agent session (parked on 2026-11-06, waiting for a
   decision)**: the agent sessions that work on this repository share one working
@@ -745,25 +734,6 @@ reliability risks first, then security exposure, then automation):
       [Terraform provider](https://tailscale.com/kb/1210/terraform-provider/),
       [Proxmox](https://tailscale.com/kb/1133/proxmox).
 - WAN check (`asuswrt-check-wan.sh` and its unit):
-    - Replace the vendored script with a minimal WAN check (decided 2026-11-09).
-      Under the unit's invocation (`once nowait wan tries=1 fails=1`) fewer than
-      80 of its 630 lines run, and they caused the outage of 2026-11-08: the
-      script's children inherit its lock descriptor, so the unit's `ExecStop`
-      pattern kill left orphans holding the lock for a day; an aborted run exits
-      0, so the unit reported success while checking nothing; the failure path
-      sleeps longer than the unit's 60-second limit; and the dnsmasq test is
-      inverted. The replacement (about 40 POSIX sh lines under ShellCheck) pings
-      the same targets (the WAN gateway and DNS from nvram, then 9.9.9.9 and
-      1.1.1.1, private addresses skipped) with a deadline, stops at the first
-      reply, and on total failure renews the DHCP lease and runs
-      `service restart_wan`, exiting non-zero; no lock, no sleeps, none of the
-      other modes. The unit drops `ExecStop` and keeps `RuntimeMaxSec`. With it,
-      an alert for units failing intermittently (failed at some point of each
-      half hour but not throughout, for an hour): timer-driven units never stay
-      failed long enough for `SystemdUnitFailed`, which is why the day went
-      unnoticed. The software-candidates row and the troubleshooting guide
-      follow the rename. The failure path is testable only against an
-      unreachable target on the router, which restarts the WAN.
     - Re-add the ONT route script's NAT rule after each WAN restart:
       `restart_wan` rebuilds the router's firewall and drops the MASQUERADE rule
       the half-hourly `configure-route-to-ont.sh` adds, so the ONT exporter

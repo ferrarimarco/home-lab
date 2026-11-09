@@ -48,12 +48,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # python:3.9-slim-bullseye matches the interpreter of the current
-        # Debian 11 deployment target (raspberrypi2). The newer versions match
-        # the interpreters of candidate upgrade targets.
+        # The interpreter of every Debian host that runs these exporters
+        # (Trixie on all of them since the raspberrypi2 re-image)
         python_container_image:
-          - python:3.9-slim-bullseye
-          - python:3.11-slim-bookworm
           - python:3.13-slim-trixie
         requirements_file_path:
           - config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt
