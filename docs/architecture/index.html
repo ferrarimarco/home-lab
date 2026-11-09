@@ -2160,14 +2160,9 @@ reliability risks first, then security exposure, then automation):</p>
   updates.</li>
 <li>Frigate doesn't restart because the cam3 name is not yet available.
   Restart it manually from the Frigate UI.</li>
-<li>Zigbee2MQTT doesn't restart. It restarted after a long time.</li>
 <li>Home Assistant doesn't connect to Zigbee2MQTT and Telegram (DNS error):
   <code>/etc/resolv.conf</code> is empty. Need to wait for the host network to be
   ready?</li>
-<li>Frigate: audio out of sync.</li>
-<li>Frigate: recordings don't fully capture events. References:
-  <a href="https://github.com/blakeblackshear/frigate/issues/3043">frigate#3043</a>,
-  <a href="https://github.com/blakeblackshear/frigate/issues/2270">frigate#2270</a>.</li>
 <li>Frigate pins its disk near full by design: its storage maintainer frees
   recordings only when the free space drops below one hour of camera
   bandwidth (about 1.8 GB on hl01), so the free space oscillates around that
@@ -2177,9 +2172,6 @@ reliability risks first, then security exposure, then automation):</p>
   disk for retention days times daily recording volume (about 1 GB per day
   today) plus the Prometheus TSDB growth under its 60-day retention, and
   resize before the headroom shrinks to that floor.</li>
-<li>Home Assistant sometimes leaves corrupted DBs behind on restart (clean up
-  if it happens). Remediation: safely restart the container by
-  <a href="https://community.home-assistant.io/t/shut-down-home-assistant-cleanly-before-shutdown-docker/301438">shutting Home Assistant down before updating</a>.</li>
 <li>The <code>network-stack-coredns</code> Prometheus scrape job renders zero targets: no
   inventory host sets <code>configure_network_stack</code> yet. Decision (2026-10-04):
   the job stays as preparation for the CoreDNS deployment, and the
@@ -2241,6 +2233,9 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Minimize external dependencies:<ul>
 <li>NixOS ISO server host</li>
 <li>Terraform provider registry</li>
+<li>Docker image registry.</li>
+<li>Debian package repository.</li>
+<li>Nix store.</li>
 </ul>
 </li>
 <li>Automated troubleshooting playbook: test the DNS server, test the DNS
@@ -2277,7 +2272,8 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="security">Security</h3>
 <ul>
-<li>Add hashes to container images.</li>
+<li>Reference container images by hashes.</li>
+<li>Reference GitHub Actions by hashes.</li>
 <li>Centralized user management: configure Linux system users, configure network
   shares permissions.</li>
 <li>Check security vulnerabilities:
@@ -2529,16 +2525,6 @@ reliability risks first, then security exposure, then automation):</p>
   release, bundled in super-linter v9.0.0) rejects the <code>$/</code> form, so the audit
   is ignored in <code>config/lint/zizmor.yaml</code> (2026-10-18). Switch the call and drop
   the ignore once actionlint accepts the syntax.</li>
-<li><strong>The <code>Lint</code> workflow fails on every master run (read on 2026-11-06)</strong>: none
-  of its last 30 runs on master passed, the oldest on 2026-10-18. On 2026-11-06
-  the only failing linter is Trivy. Of its two findings, CVE-2026-25645 in the
-  <code>requests</code> pin of the ONT exporter went with the pin bump of 2026-11-09 after
-  the raspberrypi2 re-image; CVE-2026-118764 in <code>minimatch</code> went with the
-  <code>docker/ci-cd-tools</code> image and release-please, removed on 2026-11-09 because
-  the repository manages no releases. Until a master run of <code>Lint</code> after that
-  removal passes, a red run is not evidence of a regression: compare the failing
-  linters with these findings before attributing a failure to the change under
-  test.</li>
 <li><strong>One Git worktree per agent session (parked on 2026-11-06, waiting for a
   decision)</strong>: the agent sessions that work on this repository share one working
   tree, one index, and one branch, which is why the guides and the agent skills
