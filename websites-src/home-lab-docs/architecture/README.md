@@ -730,12 +730,25 @@ reliability risks first, then security exposure, then automation):
       [Terraform provider](https://tailscale.com/kb/1210/terraform-provider/),
       [Proxmox](https://tailscale.com/kb/1133/proxmox).
 - ChkWAN script:
-    - Move the ExecStop command from asuswrt-chkwan.service to the ChkWAN.sh
-      script; delete the /tmp/ChkWAN.sh-running file.
-    - Fix the ShellCheck findings in the ChkWan.sh script (129 on 2026-09-29,
-      mostly unquoted expansions), then remove its `shellcheck disable=all`
-      directive. The script runs on the router, so test each change against it
-      before deploying.
+    - Replace the vendored script with a minimal WAN check (decided 2026-11-09).
+      Under the unit's invocation (`once nowait wan tries=1 fails=1`) fewer than
+      80 of its 630 lines run, and they caused the outage of 2026-11-08: the
+      script's children inherit its lock descriptor, so the unit's `ExecStop`
+      pattern kill left orphans holding the lock for a day; an aborted run exits
+      0, so the unit reported success while checking nothing; the failure path
+      sleeps longer than the unit's 60-second limit; and the dnsmasq test is
+      inverted. The replacement (about 40 POSIX sh lines under ShellCheck) pings
+      the same targets (the WAN gateway and DNS from nvram, then 9.9.9.9 and
+      1.1.1.1, private addresses skipped) with a deadline, stops at the first
+      reply, and on total failure renews the DHCP lease and runs
+      `service restart_wan`, exiting non-zero; no lock, no sleeps, none of the
+      other modes. The unit drops `ExecStop` and keeps `RuntimeMaxSec`. With it,
+      an alert for units failing intermittently (failed at some point of each
+      half hour but not throughout, for an hour): timer-driven units never stay
+      failed long enough for `SystemdUnitFailed`, which is why the day went
+      unnoticed. The software-candidates row and the troubleshooting guide
+      follow the rename. The failure path is testable only against an
+      unreachable target on the router, which restarts the WAN.
     - Re-add the ONT route script's NAT rule after each WAN restart:
       `restart_wan` rebuilds the router's firewall and drops the MASQUERADE rule
       the half-hourly `configure-route-to-ont.sh` adds, so the ONT exporter
