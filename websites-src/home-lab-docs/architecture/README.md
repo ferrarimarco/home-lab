@@ -49,10 +49,8 @@ reliability risks first, then security exposure, then automation):
   restored in place from the per-host repository on the nas-pve1 `backups`
   share, as decided on 2026-10-08 and 2026-10-26, and the host runs the backup
   role with its exporter on. Left: bump the `requests` pin
-  ([Issues to solve](#issues-to-solve)); forget the former Compose job's
-  snapshot group once the new job has its first snapshot ([Backup](#backup));
-  the Wi-Fi item and the router key item
-  ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). The
+  ([Issues to solve](#issues-to-solve)); the Wi-Fi item and the SSH identity
+  item ([Bootstrapping and provisioning](#bootstrapping-and-provisioning)). The
   session also showed the SSD's USB bridge failing cold starts on its own
   (bootloader `MSD error`, kernel probe hangs, "firmware not found" on an intact
   boot partition), recorded in the
@@ -1242,15 +1240,15 @@ reliability risks first, then security exposure, then automation):
   afterwards) on 2026-11-04, and on raspberrypi2 with its re-image on 2026-11-08
   (the repository key rewritten to the unquoted vault password before the flash,
   as the re-image procedure of the
-  [network boot guide](../guides/operations/network-boot.md) records). Left:
-  forget raspberrypi2's Compose-era snapshot group, which the retention policy
-  never empties, as the
-  [backup operations guide](../guides/operations/backup.md) describes, now that
-  the new job has its first snapshot; and pve2, which follows when it is on
-  (until then the `ResticExporterDown` alert fires for its exporter target,
-  which the monitoring backend scrapes since hl01's converge on 2026-11-04, left
-  unsilenced by choice). Update the [Backups specification](./backups.md) status
-  table as each step lands.
+  [network boot guide](../guides/operations/network-boot.md) records);
+  raspberrypi2's Compose-era snapshot group, which the retention policy never
+  empties, was forgotten on 2026-11-09 as the
+  [backup operations guide](../guides/operations/backup.md) describes, so its
+  repository restarts from the new job's snapshots. Left: pve2, which follows
+  when it is on (until then the `ResticExporterDown` alert fires for its
+  exporter target, which the monitoring backend scrapes since hl01's converge on
+  2026-11-04, left unsilenced by choice). Update the
+  [Backups specification](./backups.md) status table as each step lands.
 - **State-only backups, no machine-level replication (decided 2026-10-10)**:
   configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
   host is rebuilt from Terraform, the playbooks or the flake, and a restic

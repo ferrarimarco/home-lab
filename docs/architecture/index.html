@@ -2083,10 +2083,8 @@ reliability risks first, then security exposure, then automation):</p>
   restored in place from the per-host repository on the nas-pve1 <code>backups</code>
   share, as decided on 2026-10-08 and 2026-10-26, and the host runs the backup
   role with its exporter on. Left: bump the <code>requests</code> pin
-  (<a href="#issues-to-solve">Issues to solve</a>); forget the former Compose job's
-  snapshot group once the new job has its first snapshot (<a href="#backup">Backup</a>);
-  the Wi-Fi item and the router key item
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>). The
+  (<a href="#issues-to-solve">Issues to solve</a>); the Wi-Fi item and the SSH identity
+  item (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>). The
   session also showed the SSD's USB bridge failing cold starts on its own
   (bootloader <code>MSD error</code>, kernel probe hangs, "firmware not found" on an intact
   boot partition), recorded in the
@@ -3330,15 +3328,15 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   afterwards) on 2026-11-04, and on raspberrypi2 with its re-image on 2026-11-08
   (the repository key rewritten to the unquoted vault password before the flash,
   as the re-image procedure of the
-  <a href="../guides/operations/network-boot/">network boot guide</a> records). Left:
-  forget raspberrypi2's Compose-era snapshot group, which the retention policy
-  never empties, as the
-  <a href="../guides/operations/backup/">backup operations guide</a> describes, now that
-  the new job has its first snapshot; and pve2, which follows when it is on
-  (until then the <code>ResticExporterDown</code> alert fires for its exporter target,
-  which the monitoring backend scrapes since hl01's converge on 2026-11-04, left
-  unsilenced by choice). Update the <a href="backups/">Backups specification</a> status
-  table as each step lands.</li>
+  <a href="../guides/operations/network-boot/">network boot guide</a> records);
+  raspberrypi2's Compose-era snapshot group, which the retention policy never
+  empties, was forgotten on 2026-11-09 as the
+  <a href="../guides/operations/backup/">backup operations guide</a> describes, so its
+  repository restarts from the new job's snapshots. Left: pve2, which follows
+  when it is on (until then the <code>ResticExporterDown</code> alert fires for its
+  exporter target, which the monitoring backend scrapes since hl01's converge on
+  2026-11-04, left unsilenced by choice). Update the
+  <a href="backups/">Backups specification</a> status table as each step lands.</li>
 <li><strong>State-only backups, no machine-level replication (decided 2026-10-10)</strong>:
   configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
   host is rebuilt from Terraform, the playbooks or the flake, and a restic
