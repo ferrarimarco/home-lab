@@ -1133,6 +1133,16 @@ reliability risks first, then security exposure, then automation):
   fills the database and buries the occupancy history the
   [Zigbee2MQTT operations guide](../guides/operations/zigbee2mqtt.md) reads for
   its measurements.
+- **Kitchen presence sensor at the dinner table (2026-11-03)**: seated people at
+  2 to 2.4 m re-trigger the sensor (11 occupancy episodes in 42 minutes of a
+  dinner, four of which switched the light on), so the user disabled that
+  automation (off since 2026-11-02, the off automation stays on) and zone 4 went
+  off on 2026-11-03, as the
+  [Zigbee2MQTT operations guide](../guides/operations/zigbee2mqtt.md) records.
+  Left: the seated window at the next dinner with guests decides whether zones 1
+  to 3 suffice; if not, a manual-off cooldown in the light-on automation (no
+  switch-on for 30 minutes after a manual off) as a template change. Re-enable
+  the automation when done.
 - Automations:
     - Smart chair: contact sensor
       ([reference](https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar)).

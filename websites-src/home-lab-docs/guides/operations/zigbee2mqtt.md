@@ -128,14 +128,15 @@ next to the oven, facing away from it along the worktop, so the oven is out of
 the cone. A kitchen robot stands about 20 cm to its right, unplugged, with no
 other place to go; whether it amplifies the noise is untested.
 
-The settings the measurements validated, final since 2026-10-31: the occupancy
-timeout at 45 s (lighting hold time; the firmware default is 120 s), zones 1 to
-7 enabled, zone 8 disabled and never enabled (undocumented on the device page),
-the spatial learning run with the kitchen empty and no appliance in the cone,
-and the sensitivity at -1, written after the learning run. Read the live state
-with the recipe above rather than trusting this paragraph: a difference is drift
-to investigate, a learning run or a power event having rewritten the device, not
-an error in the guide.
+The settings the measurements validated: the occupancy timeout at 45 s (lighting
+hold time; the firmware default is 120 s), zones 1 to 3 enabled since 2026-11-03
+(zones 4 to 7 off, zone 8 never enabled, undocumented on the device page), the
+spatial learning run with the kitchen empty and no appliance in the cone, and
+the sensitivity at -1, written after the learning run (on firmware 1.0.4 a
+learning run resets the sensitivity to 0, so the order matters). Read the live
+state with the recipe above rather than trusting this paragraph: a difference is
+drift to investigate, a learning run or a power event having rewritten the
+device, not an error in the guide.
 
 The placement is the outcome of the first two weeks of measurements. At the
 first spot, the other end of the worktop with the oven front at 3 m on the axis,
@@ -163,6 +164,23 @@ against about 73 expected at the rate of sensitivity 0. The episode lengths tell
 the cases apart: a false detection is 47 to 48 s, a walkthrough 55 to 75 s (10
 to 30 s of detection plus the hold; two timed crossings read 56 and 57 s), a
 visit re-triggers for minutes.
+
+The zones follow the worktop's geometry: an L at 90 degrees with the sensor at
+the end of the long arm, the farthest standing positions at 1.7 m along it and
+2.3 m at the end of the short arm, so zone 4 (2 to 2.5 m) was the outermost band
+needed and zones 5 to 7 covered only the room beyond (disabled on 2026-11-02
+after two clean nights; the far zones were not the source of the walk-by
+episodes, which are movement inside the kitchen). Zone 4 went off on 2026-11-03
+because the dining table stands 2 m to the right of the sensor with its farthest
+seat at 2.4 m in the cone, the same band and side as the short arm's end: seated
+people re-triggered the sensor through dinner (11 episodes in 42 minutes on
+2026-11-02; sensitivity -2 halved them on 2026-11-03 and would cost worktop
+detection at -3, so -1 was restored the same evening and zone 4 went off
+instead), and no zone or yaw separates the seats from the worktop end. With
+zones 1 to 3 the kitchen is covered to 2 m, the last half metre of the short arm
+is lost, and the user's movements while seated outside the cone still leak as
+momentary triggers (three of 5 to 11 s at lunch on 2026-11-04); the deciding
+test is a dinner with guests seated at 2 to 2.4 m.
 
 The kitchen light automations in the Home Assistant template consume this
 sensor, as the [Home Assistant operations guide](./home-assistant.md) describes.
