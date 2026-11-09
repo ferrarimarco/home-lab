@@ -2329,7 +2329,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Node Health</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, missing unit-state metrics, failed and restart-looping systemd units, clock skew, and memory errors (§6.2). <code>NodeSystemdMetricsMissing</code> applied on both replicas on 2026-11-06, with no instance matching. Restart-loop rule applied on both replicas on 2026-11-04.</td>
+<td style="text-align: left;">Unexpected reboots, textfile staleness, filesystem space and inodes, missing unit-state metrics, failed, repeatedly failing and restart-looping systemd units, clock skew, and memory errors (§6.2). <code>SystemdUnitFailingRepeatedly</code> (two failed and recovered cycles in two hours, for the units a timer restarts) applied on both replicas on 2026-11-09, loaded and inactive. <code>NodeSystemdMetricsMissing</code> applied on both replicas on 2026-11-06, with no instance matching. Restart-loop rule applied on both replicas on 2026-11-04.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Temperature</strong></td>
@@ -2414,7 +2414,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Unit Tests</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>promtool test rules</code> cases for all 57 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
+<td style="text-align: left;"><code>promtool test rules</code> cases for all 58 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
 </tr>
 </tbody>
 </table>
@@ -2730,7 +2730,7 @@ with operational experience.</p>
 <td style="text-align: left;">warning</td>
 <td style="text-align: left;"><code>up{job="node_exporter"} == 1 unless on (instance) count by (instance) (node_systemd_unit_state)</code></td>
 <td style="text-align: left;">1 h</td>
-<td style="text-align: left;">The two unit rules below read a series only the systemd collector exports, so an instance without it is invisible to them: hl02's exporter ran without the collector when this rule was written, and its units raised nothing. It also fires when the collector is enabled but cannot reach the system bus. On the <code>AptMetricsMissing</code> pattern.</td>
+<td style="text-align: left;">The three unit rules below read a series only the systemd collector exports, so an instance without it is invisible to them: hl02's exporter ran without the collector when this rule was written, and its units raised nothing. It also fires when the collector is enabled but cannot reach the system bus. On the <code>AptMetricsMissing</code> pattern.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>SystemdUnitFailed</code></td>
@@ -2738,6 +2738,13 @@ with operational experience.</p>
 <td style="text-align: left;"><code>node_systemd_unit_state{state="failed"} == 1</code></td>
 <td style="text-align: left;">15 min</td>
 <td style="text-align: left;">A failed unit sits between a dead host (<code>InstanceDown</code>) and service-specific rules; the fleet starts from zero failed units (openipmi cleared 2026-10-04).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SystemdUnitFailingRepeatedly</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>changes(node_systemd_unit_state{state="failed"}[2h]) &gt;= 4</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">A unit its timer restarts after each failure alternates between failed and active, so a plain hold on the failed state rarely elapses (the WAN check failed every three minutes for a day on 2026-11-08 with <code>SystemdUnitFailed</code> silent); two failed and recovered cycles within two hours are the signal. A unit failing on every run can trip this rule and <code>SystemdUnitFailed</code> both.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>SystemdUnitRestartLooping</code></td>

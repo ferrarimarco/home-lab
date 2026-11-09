@@ -2812,7 +2812,7 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   <a href="https://tailscale.com/kb/1133/proxmox">Proxmox</a>.</li>
 </ul>
 </li>
-<li>ChkWAN script:<ul>
+<li>WAN check (<code>asuswrt-check-wan.sh</code> and its unit):<ul>
 <li>Replace the vendored script with a minimal WAN check (decided 2026-11-09).
   Under the unit's invocation (<code>once nowait wan tries=1 fails=1</code>) fewer than
   80 of its 630 lines run, and they caused the outage of 2026-11-08: the

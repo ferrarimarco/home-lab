@@ -212,6 +212,23 @@ groups:
             The systemd unit {{ $labels.name }} on {{ $labels.instance }}
             has been in the failed state for 15 minutes. Check its journal
             on the host.
+      - alert: SystemdUnitFailingRepeatedly
+        # A unit its timer restarts after each failure alternates between
+        # failed and active, so the hold above rarely elapses for it; the
+        # signal is the number of trips through the failed state: two failed
+        # and recovered cycles within two hours. A unit failing on every run
+        # can trip both rules.
+        expr: changes(node_systemd_unit_state{state="failed"}[2h]) >= 4
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unit {{ $labels.name }} keeps failing on {{ $labels.instance }}"
+          description: >-
+            The systemd unit {{ $labels.name }} on {{ $labels.instance }}
+            failed and recovered at least twice in the last two hours: a
+            timer restarts it and its runs keep failing. Check its journal
+            on the host.
       - alert: SystemdUnitRestartLooping
         # A unit with Restart= never settles in the failed state: it sits in
         # activating between attempts and runs briefly in between, so the

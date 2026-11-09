@@ -420,6 +420,42 @@ tests:
                 has been in the failed state for 15 minutes. Check its journal
                 on the host.
 
+  - name: SystemdUnitFailingRepeatedly fires for a unit that failed and recovered twice in two hours
+    interval: 1m
+    input_series:
+      # Two failed runs, 41 minutes apart, each failed for two minutes
+      - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="asuswrt-chkwan.service", state="failed", type="exec"}'
+        values: "0x5 1x1 0x38 1x1 0x30"
+      # One failed run only
+      - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="monitoring-ont-network-config.service", state="failed", type="simple"}'
+        values: "0x5 1x1 0x72"
+      # Failed throughout: the sustained-failure rule's case, not this one
+      - series: 'node_systemd_unit_state{instance="hl01:9100", name="restic-backup-workloads.service", state="failed", type="oneshot"}'
+        values: "1x79"
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: SystemdUnitFailingRepeatedly
+        exp_alerts: []
+      - eval_time: 63m
+        alertname: SystemdUnitFailingRepeatedly
+        exp_alerts: []
+      - eval_time: 64m
+        alertname: SystemdUnitFailingRepeatedly
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: raspberrypi2:9100
+              name: asuswrt-chkwan.service
+              state: failed
+              type: exec
+            exp_annotations:
+              summary: "Unit asuswrt-chkwan.service keeps failing on raspberrypi2:9100"
+              description: >-
+                The systemd unit asuswrt-chkwan.service on raspberrypi2:9100
+                failed and recovered at least twice in the last two hours: a
+                timer restarts it and its runs keep failing. Check its journal
+                on the host.
+
   - name: NodeClockSkewed fires when the offset exceeds 50 milliseconds either way for 15 minutes
     interval: 1m
     input_series:

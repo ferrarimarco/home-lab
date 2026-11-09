@@ -744,7 +744,7 @@ reliability risks first, then security exposure, then automation):
       [GitOps ACLs](https://tailscale.com/kb/1204/gitops-acls/),
       [Terraform provider](https://tailscale.com/kb/1210/terraform-provider/),
       [Proxmox](https://tailscale.com/kb/1133/proxmox).
-- ChkWAN script:
+- WAN check (`asuswrt-check-wan.sh` and its unit):
     - Replace the vendored script with a minimal WAN check (decided 2026-11-09).
       Under the unit's invocation (`once nowait wan tries=1 fails=1`) fewer than
       80 of its 630 lines run, and they caused the outage of 2026-11-08: the
