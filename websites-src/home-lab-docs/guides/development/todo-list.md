@@ -40,6 +40,10 @@ explicitly discarded:
   rollout that also deploys an integration an item was waiting on): close those
   items in the same pass and mention them in the commit message, so the list
   does not drift.
+- Search the specifications and this list for the words that described the step
+  as pending (`until the <event>`, `Depends on: the <event>`, the component's
+  name) and update every hit in the same change: a landed step leaves stale text
+  wherever it was awaited, status table rows included, not only in its own item.
 
 ## Deferring work
 

@@ -1790,6 +1790,10 @@ explicitly discarded:</p>
   rollout that also deploys an integration an item was waiting on): close those
   items in the same pass and mention them in the commit message, so the list
   does not drift.</li>
+<li>Search the specifications and this list for the words that described the step
+  as pending (<code>until the &lt;event&gt;</code>, <code>Depends on: the &lt;event&gt;</code>, the component's
+  name) and update every hit in the same change: a landed step leaves stale text
+  wherever it was awaited, status table rows included, not only in its own item.</li>
 </ul>
 <h2 id="deferring-work">Deferring work</h2>
 <p>When part of an approved plan is put on hold, add the deferred work as an item

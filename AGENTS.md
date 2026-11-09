@@ -38,7 +38,10 @@ As soon as code changes are successfully tested and completed (or when a logical
 sub-task is finished), update the `Status` and `Details` fields of the modified
 components with precise, objective details (e.g., "MAC declared in Terraform;
 awaiting test verification"), then update the global index. This prevents
-configuration drift between the specifications and the code.
+configuration drift between the specifications and the code. A landed step also
+closes or updates the items and rows that awaited it, as the
+[Todo list management guide](./websites-src/home-lab-docs/guides/development/todo-list.md)
+describes under "Completing items".
 
 ### Centralized Future Work and TODOs
 
