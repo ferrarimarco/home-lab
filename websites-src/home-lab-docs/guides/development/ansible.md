@@ -200,6 +200,15 @@ administration user and port (`group_vars/all/network.yaml` and the aliases in
 `group_vars/all/main.yaml`), and the second play runs the role on it with the
 `raw` module.
 
+The router's shell is BusyBox (1.24.1 on the current firmware;
+`busybox | head -1` prints the version): `/bin/sh` is the shell while the `sh`
+first in `PATH` is a vendor memory-debugging tool, `setsid` is absent, and
+`kill` takes a negative process group ID but rejects the `--` separator (`kill`
+with no arguments prints the usage). The scripts the node role runs there over
+one SSH session (see the `asuswrt-chkwan` service template) share that session's
+process group with every child, as any non-interactive shell without job control
+does.
+
 The role follows the read-then-act pattern: it reads every managed variable in
 one short `nvram get` loop (long batched commands have crashed the router's
 shell), compares each with its desired value, prints the differences, and writes

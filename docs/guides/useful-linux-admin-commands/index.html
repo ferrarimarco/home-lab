@@ -1829,8 +1829,19 @@ vault values (<code>vault_asuswrt_administration_ssh_port</code> and
 rendered unit, and keep them out of replies and committed files. Prefer the
 <code>gateway-dnsmasq.yaml</code> playbook, which the
 <a href="../development/ansible/">Ansible development guide</a> describes together with
-the reason to keep commands on the router short. The router's host key gets the
-same treatment as any other host's.</p>
+the reason to keep commands on the router short and the shell's quirks. The
+router's host key gets the same treatment as any other host's; to read it
+without logging in, use <code>ssh-keyscan</code>, since a connection offers every key the
+agent holds and the lab key is authorized there.</p>
+<p>Failed logins trip the router's login protection: a <code>DROP</code> rule for the source
+address appears in the <code>PTCSRVLAN</code> chain and that host's connections time out
+instead of being refused, while <code>dropbear</code> logs the attempts in
+<code>/tmp/syslog.log</code> ("Bad password attempt" when the offered key is rejected and
+the client falls back to a password). Read the chain from a host that is not
+blocked (<code>iptables -S PTCSRVLAN</code>) or the router's web interface; fix what the
+blocked host offers first (its key on the router's authorized keys), since a
+retry with the bad key re-arms the block, which was observed to expire about
+hourly on its own.</p>
 <p>A first connection to a host from a machine fails under <code>BatchMode=yes</code> with
 "Host key verification failed", the line a changed key's output also ends with.
 Tell the two apart before accepting anything: <code>ssh-keygen -F &lt;fqdn&gt;</code> (the name

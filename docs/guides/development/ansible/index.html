@@ -2031,6 +2031,14 @@ as an in-memory host from the inventory's gateway definition and the vaulted
 administration user and port (<code>group_vars/all/network.yaml</code> and the aliases in
 <code>group_vars/all/main.yaml</code>), and the second play runs the role on it with the
 <code>raw</code> module.</p>
+<p>The router's shell is BusyBox (1.24.1 on the current firmware;
+<code>busybox | head -1</code> prints the version): <code>/bin/sh</code> is the shell while the <code>sh</code>
+first in <code>PATH</code> is a vendor memory-debugging tool, <code>setsid</code> is absent, and
+<code>kill</code> takes a negative process group ID but rejects the <code>--</code> separator (<code>kill</code>
+with no arguments prints the usage). The scripts the node role runs there over
+one SSH session (see the <code>asuswrt-chkwan</code> service template) share that session's
+process group with every child, as any non-interactive shell without job control
+does.</p>
 <p>The role follows the read-then-act pattern: it reads every managed variable in
 one short <code>nvram get</code> loop (long batched commands have crashed the router's
 shell), compares each with its desired value, prints the differences, and writes

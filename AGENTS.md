@@ -84,7 +84,9 @@ here: this file carries rules and pointers, not the knowledge itself. Each fact
 has one home: a new page links to where a fact already lives (the backups
 specification holds the verification matrix, the operations guide the recipes)
 instead of restating it, and overlap between pages is removed rather than
-reworded.
+reworded. The one summary a spec may keep of a guide's procedure is its workflow
+list (the step order, no commands): when the guide's steps or their order
+change, update that list in the same edit.
 
 ## Agent Workflow
 
@@ -183,7 +185,8 @@ Key rules:
   may still be named in `config/lint/.trivyignore.yaml` and
   `config/lint/.checkov.baseline`: remove its entries with it. A lint run can
   unstage staged changes, so stage files after linting, right before committing;
-  a new file is linted only once committed, so commit, lint, and amend.
+  a new file is linted only once committed, so commit, lint, and amend before
+  pushing.
 - **Validate commit messages before proposing commits** with the lint script's
   commit message mode, as the operational scripts guide describes. A lint run
   only validates the message of the last commit, while CI validates all the

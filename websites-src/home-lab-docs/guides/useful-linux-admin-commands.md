@@ -15,8 +15,20 @@ vault values (`vault_asuswrt_administration_ssh_port` and
 rendered unit, and keep them out of replies and committed files. Prefer the
 `gateway-dnsmasq.yaml` playbook, which the
 [Ansible development guide](./development/ansible.md) describes together with
-the reason to keep commands on the router short. The router's host key gets the
-same treatment as any other host's.
+the reason to keep commands on the router short and the shell's quirks. The
+router's host key gets the same treatment as any other host's; to read it
+without logging in, use `ssh-keyscan`, since a connection offers every key the
+agent holds and the lab key is authorized there.
+
+Failed logins trip the router's login protection: a `DROP` rule for the source
+address appears in the `PTCSRVLAN` chain and that host's connections time out
+instead of being refused, while `dropbear` logs the attempts in
+`/tmp/syslog.log` ("Bad password attempt" when the offered key is rejected and
+the client falls back to a password). Read the chain from a host that is not
+blocked (`iptables -S PTCSRVLAN`) or the router's web interface; fix what the
+blocked host offers first (its key on the router's authorized keys), since a
+retry with the bad key re-arms the block, which was observed to expire about
+hourly on its own.
 
 A first connection to a host from a machine fails under `BatchMode=yes` with
 "Host key verification failed", the line a changed key's output also ends with.
