@@ -24,6 +24,8 @@ restic_backup_jobs:
     restic_repository_host_path: "{{ workloads_backup_disk_mount_path }}/{{ inventory_hostname_short }}/restic-backup-workloads"
     restic_repository_mount_path: "{{ workloads_backup_disk_mount_path }}"
     restic_repository_owner: "{{ ansible_user }}"
+    # The mode the CIFS mount presents (its dir_mode), since it stores no other
+    restic_repository_directory_mode: "0755"
     restic_repository_password: "{{ vault_workloads_backup_repository_password }}"
     restic_restore_drill_include: "{{ home_lab_configuration_directory_path }}/restic/entrypoint.sh"
 # The hosts run the node role's containerized node exporter, which reads this

@@ -203,14 +203,15 @@
 # directory stays empty until the initialization task below runs. A path on
 # the root filesystem is skipped, visibly, rather than created there. The
 # owner is the one the filesystem presents (a CIFS mount's uid), so that the
-# task does not try to change it on every run.
+# task does not try to change it on every run; the same goes for the mode a job
+# declares on a filesystem that cannot store one.
 - name: Create the restic repository directories
   ansible.builtin.file:
     path: "{{ restic_job.restic_repository_host_path }}"
     state: directory
     owner: "{{ restic_job.restic_repository_owner | default('root') }}"
     group: "{{ restic_job.restic_repository_owner | default('root') }}"
-    mode: "0700"
+    mode: "{{ restic_job.restic_repository_directory_mode | default('0700') }}"
   become: true
   loop: "{{ range(restic_present_jobs | length) | list }}"
   loop_control:
@@ -225,7 +226,7 @@
     state: directory
     owner: "{{ restic_job.restic_repository_owner | default('root') }}"
     group: "{{ restic_job.restic_repository_owner | default('root') }}"
-    mode: "0700"
+    mode: "{{ restic_job.restic_repository_directory_mode | default('0700') }}"
   become: true
   loop: "{{ range(restic_present_jobs | length) | list }}"
   loop_control:
