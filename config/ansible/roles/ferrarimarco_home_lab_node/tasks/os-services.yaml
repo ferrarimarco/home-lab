@@ -10,10 +10,16 @@
     enabled: "{{ item.enabled }}"
   with_items: "{{ os_services }}"
   register: stop_os_service
-  # Services to stop might not exist, so we don't fail in that case
+  # A disabled stack's unit may never have existed on this host: a stopped
+  # state on a missing unit is converged. In check mode the package that ships
+  # a unit was only predicted, so a missing unit is the prediction. A unit a
+  # real run wants started and cannot find is a defect (a misspelled name, a
+  # package that did not install).
   failed_when:
     - stop_os_service.failed == true
-    - '"Could not find the requested service" not in stop_os_service.msg'
+    - >-
+      not ("Could not find the requested service" in stop_os_service.msg
+      and (item.service_state | default('') == 'stopped' or ansible_check_mode))
 
 - name: Reload the systemd daemon
   ansible.builtin.systemd:

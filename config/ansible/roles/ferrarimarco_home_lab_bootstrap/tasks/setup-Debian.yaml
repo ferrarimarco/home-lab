@@ -40,6 +40,13 @@
       components:
         - main
         - contrib
+  register: debian_deb822_repositories
+  # On a host without python3-debian, check mode cannot predict the source
+  # (the module installs the package only in a real run): accept that one
+  # failure as the prediction, and keep every other.
+  failed_when:
+    - debian_deb822_repositories is failed
+    - not (ansible_check_mode and 'python3-debian must be installed' in debian_deb822_repositories.msg | default(''))
   notify:
     - Update APT cache
 
@@ -69,6 +76,11 @@
       - deb
       - deb-src
   become: true
+  register: debian_non_free_firmware_deb822_repository
+  # See the first repository task: the same check-mode tolerance
+  failed_when:
+    - debian_non_free_firmware_deb822_repository is failed
+    - not (ansible_check_mode and 'python3-debian must be installed' in debian_non_free_firmware_deb822_repository.msg | default(''))
   notify:
     - Update APT cache
 

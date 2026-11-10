@@ -9,6 +9,53 @@
     var: debian_packages_to_uninstall
     verbosity: 1
 
+# apt removes the dependents of a package with it. Read what the removal would
+# take, and refuse one that reaches beyond the declared list: a package a
+# release started depending on is found at run time, not at design time. Only
+# the installed packages are simulated: apt rejects a name its sources do not
+# carry (a repository the disabled stack removed), while the removal task
+# below treats such a package as already absent.
+- name: Gather the installed packages
+  ansible.builtin.package_facts:
+    manager: apt
+  when:
+    - debian_packages_to_uninstall | default([]) | length > 0
+    - ("uninstall-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
+
+- name: Simulate the removal of the installed Debian packages to uninstall
+  ansible.builtin.command:
+    # A simulation takes no lock (apt-get(8): locking is disabled), so a daily
+    # apt job running at the same time does not fail it
+    argv: "{{ ['apt-get', '--simulate', '--purge', 'remove'] + debian_packages_to_uninstall_installed }}"
+  environment:
+    LANG: C
+  become: true
+  changed_when: false
+  check_mode: false
+  register: debian_packages_removal_simulation
+  vars:
+    debian_packages_to_uninstall_installed: "{{ debian_packages_to_uninstall | default([]) | select('in', ansible_facts.packages | default({})) | list }}"
+  when:
+    - debian_packages_to_uninstall_installed | length > 0
+    - ("uninstall-debian-packages" in ansible_run_tags or "all" in ansible_run_tags)
+
+- name: Assert that the removal reaches no other package
+  ansible.builtin.assert:
+    that:
+      - debian_packages_removal_extra | length == 0
+    fail_msg: >-
+      Removing {{ debian_packages_to_uninstall | join(', ') }} would also
+      remove {{ debian_packages_removal_extra | join(', ') }}: a package a
+      stack declares removable has become a dependency of something else on
+      this host. Keep it (drop its uninstall_when_disabled flag) or declare
+      the dependents.
+    quiet: true
+  vars:
+    # One "Purg <package> [<version>]" line per package apt would remove
+    # (Remv without --purge)
+    debian_packages_removal_extra: "{{ debian_packages_removal_simulation.stdout_lines | select('match', '^(Purg|Remv) ') | map('regex_replace', '^(Purg|Remv) ([^ :]+).*$', '\\2') | difference(debian_packages_to_uninstall) }}"
+  when: debian_packages_removal_simulation is not skipped
+
 - name: Uninstall Debian packages
   ansible.builtin.apt:
     name: "{{ debian_packages_to_uninstall | default([]) }}"
@@ -45,6 +92,12 @@
   loop_control:
     label: "{{ item.name }}"
   register: apt_deb822_repositories
+  # On a host without python3-debian, check mode cannot predict the source
+  # (the module installs the package only in a real run): accept that one
+  # failure as the prediction, and keep every other.
+  failed_when:
+    - apt_deb822_repositories is failed
+    - not (ansible_check_mode and 'python3-debian must be installed' in apt_deb822_repositories.msg | default(''))
 
 - name: Update the APT cache after changing repositories
   ansible.builtin.apt:
@@ -87,3 +140,10 @@
     name: "{{ system_locales }}"
     state: present
   become: true
+  register: generated_locales_result
+  # On a host without the locales package, which the package task above only
+  # predicted, check mode cannot generate anything: the report task above
+  # carries the prediction, so accept that one failure and keep every other.
+  failed_when:
+    - generated_locales_result is failed
+    - not (ansible_check_mode and 'Is the package "locales" installed' in generated_locales_result.msg | default(''))

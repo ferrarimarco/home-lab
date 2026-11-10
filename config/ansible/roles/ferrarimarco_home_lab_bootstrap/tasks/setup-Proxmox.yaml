@@ -32,6 +32,13 @@
     - name: ceph
       uris: http://download.proxmox.com/debian/ceph-squid
       components: no-subscription
+  register: proxmox_deb822_repositories
+  # On a host without python3-debian, check mode cannot predict the source
+  # (the module installs the package only in a real run): accept that one
+  # failure as the prediction, and keep every other.
+  failed_when:
+    - proxmox_deb822_repositories is failed
+    - not (ansible_check_mode and 'python3-debian must be installed' in proxmox_deb822_repositories.msg | default(''))
   notify:
     - Update APT cache
 

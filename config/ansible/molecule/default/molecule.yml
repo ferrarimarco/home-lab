@@ -117,6 +117,9 @@ provisioner:
             ipv4_address: "10.0.0.2"
         prometheus_blackbox_exporter_http_endpoint_fqdn: "prometheus-blackbox-exporter"
         prometheus_http_endpoint_fqdn: "prometheus"
+        # The instance runs as root, which the role's default root-login
+        # policy would lock out; the value the Proxmox nodes use
+        security_ssh_permit_root_login: prohibit-password
         media_stack_qbittorrent_webui_password: "media_stack_qbittorrent_webui_password"
         root_dns_zone:
           default_record_ttl: 3600

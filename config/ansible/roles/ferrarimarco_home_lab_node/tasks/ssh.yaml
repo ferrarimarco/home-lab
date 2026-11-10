@@ -1,4 +1,23 @@
 ---
+# sshd keeps the established sessions through a restart, so a policy that
+# rejects the user the run authenticates as surfaces only at the next login:
+# fail the host before writing it instead.
+- name: Assert that the SSH policy admits the user the run authenticates as
+  ansible.builtin.assert:
+    that:
+      - security_ssh_permit_root_login != 'no' or ansible_user != 'root'
+      - security_ssh_allowed_users | length == 0 or ansible_user in security_ssh_allowed_users
+    fail_msg: >-
+      The SSH policy would reject the next login of {{ ansible_user }}: set
+      security_ssh_permit_root_login (prohibit-password keeps a key-only root
+      login) or security_ssh_allowed_users in the host's or group's variables.
+      When security_ssh_allowed_groups is set, confirm the user's membership
+      by hand: the run does not read it.
+    quiet: true
+
+# The validation loads the candidate file as sshd would at start, its Include
+# directive resolved against the real drop-in directory, so a value sshd
+# rejects fails the task before the file is written and the restart notified.
 - name: Configure SSH server
   ansible.builtin.lineinfile:
     dest: "{{ security_ssh_config_path }}"
@@ -6,6 +25,7 @@
     line: "{{ item.line }}"
     state: present
     mode: "0644"
+    validate: "{{ sshd_path }} -t -f %s"
   notify: Restart ssh
   with_items:
     - regexp: "^PermitRootLogin"
@@ -32,6 +52,7 @@
     line: "PasswordAuthentication {{ security_ssh_password_authentication }}"
     state: present
     mode: "0644"
+    validate: "{{ sshd_path }} -t -f %s"
   notify: Restart ssh
   when: ansible_password is not defined
 
@@ -43,6 +64,7 @@
     state: present
     create: true
     mode: "0644"
+    validate: "{{ sshd_path }} -t -f %s"
   notify: Restart ssh
   when: security_ssh_allowed_users | length > 0
 
@@ -54,5 +76,6 @@
     state: present
     create: true
     mode: "0644"
+    validate: "{{ sshd_path }} -t -f %s"
   notify: Restart ssh
   when: security_ssh_allowed_groups | length > 0

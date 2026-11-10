@@ -16,14 +16,19 @@ fail2ban_configuration_directories:
 fail2ban_packages:
   - name: fail2ban
     state: "{{ configure_fail2ban | ternary('present', 'absent') }}"
+    uninstall_when_disabled: true
 fail2ban_service_name: fail2ban
 fail2ban_sshd_enable_systemd_backend: true
 monitoring_os_packages:
+  # Kept when the stack is off: Proxmox's storage layer and Debian's SMART
+  # collector depend on it
   - name: smartmontools
     state: "{{ configure_monitoring | ternary('present', 'absent') }}"
 security_ssh_config_path: /etc/ssh/sshd_config
 security_sshd_name: ssh
 ssh_os_packages:
+  # Kept when the stack is off: the flag governs the hardening, and the run
+  # logs in through this server
   - name: openssh-server
     state: "{{ configure_ssh | ternary('present', 'absent') }}"
 sshd_path: /usr/sbin/sshd
@@ -32,4 +37,5 @@ tailscale_package_repository_url: "{{ tailscale_base_package_repository_url }}/d
 unattended_upgrades_packages:
   - name: unattended-upgrades
     state: "{{ security_unattended_upgrades_enabled | ternary('present', 'absent') }}"
+    uninstall_when_disabled: true
 unattended_upgrades_service_name: unattended-upgrades

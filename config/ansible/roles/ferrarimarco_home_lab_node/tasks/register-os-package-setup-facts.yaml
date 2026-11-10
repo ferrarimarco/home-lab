@@ -11,11 +11,15 @@
     var: debian_packages_to_install
     verbosity: 1
 
+# A disabled stack removes only the packages that declare it: a package the
+# stack needs but does not own (one Proxmox or the base system depends on, the
+# SSH server the run logs in through) stays installed when the stack is off.
 - name: Register facts for the Debian packages to uninstall
   ansible.builtin.set_fact:
     debian_packages_to_uninstall: "{{ (debian_packages_to_uninstall | default([]) + [item.name]) | unique }}"
   when:
     - item.state is defined and item.state == "absent"
+    - item.uninstall_when_disabled | default(false)
   with_items: "{{ default_os_packages + apt_packages | sort(attribute='name') }}"
 
 - name: Debug debian_packages_to_uninstall

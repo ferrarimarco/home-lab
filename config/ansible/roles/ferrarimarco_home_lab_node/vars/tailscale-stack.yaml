@@ -16,4 +16,5 @@ tailscale_os_package_repositories:
 tailscale_os_packages:
   - name: tailscale
     state: "{{ configure_tailscale | ternary('present', 'absent') }}"
+    uninstall_when_disabled: true
 tailscale_up_command: tailscale up --accept-routes

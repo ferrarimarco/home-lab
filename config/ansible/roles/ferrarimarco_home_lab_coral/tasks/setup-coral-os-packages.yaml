@@ -4,6 +4,13 @@
     name: coral-edgetpu-stable
     state: absent
   become: true
+  register: coral_deb822_repository
+  # On a host without python3-debian, check mode cannot predict the removal
+  # (the node role installs the package in a real run): accept that one
+  # failure as the prediction, and keep every other.
+  failed_when:
+    - coral_deb822_repository is failed
+    - not (ansible_check_mode and 'python3-debian must be installed' in coral_deb822_repository.msg | default(''))
 
 - name: Download the gasket DKMS package
   ansible.builtin.get_url:

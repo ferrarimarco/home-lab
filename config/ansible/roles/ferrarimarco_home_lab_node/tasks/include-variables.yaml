@@ -189,6 +189,7 @@
         fact_os_packages:
           - name: samba
             state: "{{ configure_network_shares | ternary('present', 'absent') }}"
+            uninstall_when_disabled: true
         fact_os_services:
           - enabled: true
             service_name: "{{ samba_service_name }}"
@@ -207,6 +208,7 @@
         fact_os_packages:
           - name: vlc
             state: "{{ has_raspberry_pi_v2_camera | ternary('present', 'absent') }}"
+            uninstall_when_disabled: true
         fact_os_services:
           - enabled: true
             service_name: "raspberry-pi-v2-camera-rtsp.service"

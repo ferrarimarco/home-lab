@@ -12,6 +12,7 @@ rsync_daemon_templates_to_render:
     state: "{{ configure_rsync_daemon | ternary('file', 'absent') }}"
 
 rsync_daemon_os_packages:
+  # Kept when the stack is off: a general tool, and Proxmox depends on it
   - name: rsync
     state: "{{ configure_rsync_daemon | ternary('present', 'absent') }}"
 

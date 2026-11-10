@@ -378,10 +378,12 @@ sense_hat_templates_to_render:
     state: "{{ has_sense_hat | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ sense_hat_exporter_os_service_name }}"
+# The flag governs the hardening, never whether the server the run logs in
+# through runs
 ssh_os_services:
   - enabled: true
     service_name: "{{ security_sshd_name }}"
-    service_state: "{{ configure_ssh | ternary('started', 'stopped') }}"
+    service_state: started
 sudoers_configuration_file_path: /etc/sudoers
 syncthing_docker_compose_destination_file_path: "{{ syncthing_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
 syncthing_configuration_directories:
