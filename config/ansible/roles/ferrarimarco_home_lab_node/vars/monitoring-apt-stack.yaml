@@ -31,9 +31,12 @@ monitoring_apt_files_to_configure:
     state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
     os_services_to_restart:
       - "{{ monitoring_apt_os_service_name }}"
+  # The stamp serves whichever apt collector the host runs, so it follows the
+  # monitoring flag, not this stack's: the monitoring role deploys the same
+  # file on the hosts that run Debian's collector
   - src: "config/{{ monitoring_apt_tag }}/99-monitoring-apt-update-success-stamp"
     dest: "/etc/apt/apt.conf.d/99-monitoring-apt-update-success-stamp"
-    state: "{{ configure_monitoring_apt | ternary('file', 'absent') }}"
+    state: "{{ configure_monitoring | ternary('file', 'absent') }}"
 
 monitoring_apt_files_to_download:
   - url: "{{ monitoring_apt_metrics_collection_script_url }}"

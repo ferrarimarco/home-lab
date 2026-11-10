@@ -2,6 +2,20 @@
 enable_intel_microcode_update: true
 is_proxmox_node: true
 install_debian_non_free_firmware: true
+# Debian's node exporter collectors package already writes the apt and SMART
+# series the alerts read, so the node role's own collectors stay off
+configure_monitoring_apt: false
+configure_monitoring_sata: false
+# The textfile directory of the packaged node exporter the nodes run, where
+# the node role's static metrics and the restic jobs' metrics are scraped
+monitoring_textfile_collector_directory: /var/lib/prometheus/node-exporter
+# The nodes are reached as root with the lab key, as is Proxmox's own
+# inter-node SSH: keep the key-only root login the hardening would forbid
+security_ssh_permit_root_login: prohibit-password
+# Debian security and point-release updates daily, the role's default; the
+# Proxmox origin is not among the tool's origins, so pve-manager, the kernel
+# and ZFS upgrade by hand (apt full-upgrade), nudged by AptUpgradesPending
+security_unattended_upgrades_enabled: true
 # The IOMMU in passthrough mode, for the PCI devices the guests are given
 proxmox_kernel_command_line_options:
   intel_iommu: "on"

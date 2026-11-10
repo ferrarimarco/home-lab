@@ -289,16 +289,19 @@ monitoring_backend_templates_to_render:
     docker_compose_services_to_restart: "{{ monitoring_backend_docker_compose_up_items }}"
 monitoring_configuration_directories:
   - path: "{{ monitoring_configuration_directory_path }}"
-    state: "{{ configure_monitoring | ternary('directory', 'absent') }}"
+    state: "{{ monitoring_containerized_exporters_enabled | ternary('directory', 'absent') }}"
   - path: "{{ monitoring_textfile_collector_directory }}"
     state: "{{ configure_monitoring | ternary('directory', 'absent') }}"
 monitoring_configuration_directory_path: "{{ home_lab_configuration_directory_path }}/monitoring"
+# The containerized exporters need Docker: a host without it gets the host
+# collectors alone, scraped by the node exporter it runs itself (the Proxmox
+# nodes run the packaged one)
+monitoring_containerized_exporters_enabled: "{{ configure_monitoring and configure_docker }}"
 monitoring_docker_compose_up_items:
   - compose_file_path: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-    enable_containerized_services: "{{ configure_monitoring }}"
-    pull_container_images: "{{ configure_monitoring }}"
-    start_containerized_services: "{{ start_monitoring | default(configure_monitoring) }}"
-monitoring_textfile_collector_directory: /var/lib/node_exporter/textfile_collector
+    enable_containerized_services: "{{ monitoring_containerized_exporters_enabled }}"
+    pull_container_images: "{{ monitoring_containerized_exporters_enabled }}"
+    start_containerized_services: "{{ start_monitoring | default(monitoring_containerized_exporters_enabled) }}"
 monitoring_host_metrics_directory_path: "{{ monitoring_textfile_collector_directory }}"
 monitoring_prometheus_node_exporter_textfile_collector_directory: "{{ monitoring_textfile_collector_directory }}"
 monitoring_smartmon_prometheus_exporter_script_destination_path: "/usr/local/bin/node-exporter-text-smartmon"
@@ -308,7 +311,7 @@ monitoring_smartmon_prometheus_exporter_timer_file_name: "{{ monitoring_smartmon
 monitoring_templates_to_render:
   - src: "monitoring/{{ default_docker_compose_file_name }}.jinja"
     dest: "{{ monitoring_configuration_directory_path }}/{{ default_docker_compose_file_name }}"
-    state: "{{ configure_monitoring | ternary('file', 'absent') }}"
+    state: "{{ monitoring_containerized_exporters_enabled | ternary('file', 'absent') }}"
     docker_compose_services_to_restart: "{{ monitoring_docker_compose_up_items }}"
   # The node exporter reads the textfile directory at every scrape: no restart
   - src: "monitoring/expected-mounts.static.prom.jinja"
