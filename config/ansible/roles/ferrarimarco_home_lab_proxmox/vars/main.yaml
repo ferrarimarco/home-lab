@@ -1,5 +1,11 @@
 ---
-intel_iommu_kernel_options: intel_iommu=on iommu=pt
+grub_default_file_path: /etc/default/grub
+proxmox_boot_tool_kernel_command_line_file_path: /etc/kernel/cmdline
+proxmox_boot_tool_uuids_file_path: /etc/kernel/proxmox-boot-uuids
+# The declared options as command line tokens (a flag declared with an empty
+# value renders bare), and the pattern of the current tokens they replace
+proxmox_kernel_command_line_declared_options: "{{ proxmox_kernel_command_line_options.items() | map('join', '=') | map('regex_replace', '=$', '') | list }}"
+proxmox_kernel_command_line_managed_pattern: "^({{ proxmox_kernel_command_line_options.keys() | map('regex_escape') | join('|') }})(=|$)"
 
 proxmox_state_directory_path: /var/lib/vz
 

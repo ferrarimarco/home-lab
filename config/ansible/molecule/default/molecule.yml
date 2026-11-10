@@ -6,6 +6,11 @@ driver:
   name: docker
 platforms:
   - name: instance
+    # The plays that target the Proxmox nodes group match the instance too,
+    # so the Proxmox role runs in the tests (its host-only steps skip: the
+    # instance has no boot layout)
+    groups:
+      - home_lab_proxmox_nodes
     image: "${ANSIBLE_TEST_DISTRO}"
     # Default to an empty command to run the default command of the image.
     # Molecule fails the validation of this file if the command is null.
@@ -117,6 +122,11 @@ provisioner:
             ipv4_address: "10.0.0.2"
         prometheus_blackbox_exporter_http_endpoint_fqdn: "prometheus-blackbox-exporter"
         prometheus_http_endpoint_fqdn: "prometheus"
+        # The instance has no boot layout, so the Proxmox role's layout read
+        # runs and both command line writes skip
+        proxmox_kernel_command_line_options:
+          intel_iommu: "on"
+          iommu: "pt"
         # The instance runs as root, which the role's default root-login
         # policy would lock out; the value the Proxmox nodes use
         security_ssh_permit_root_login: prohibit-password

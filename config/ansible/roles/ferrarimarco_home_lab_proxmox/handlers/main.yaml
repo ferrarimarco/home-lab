@@ -3,6 +3,10 @@
   ansible.builtin.command: proxmox-boot-tool refresh
   become: true
 
+- name: Update GRUB
+  ansible.builtin.command: update-grub
+  become: true
+
 - name: Reboot the host
   become: true
   ansible.builtin.reboot:

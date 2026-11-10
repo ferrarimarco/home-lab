@@ -2,6 +2,10 @@
 enable_intel_microcode_update: true
 is_proxmox_node: true
 install_debian_non_free_firmware: true
+# The IOMMU in passthrough mode, for the PCI devices the guests are given
+proxmox_kernel_command_line_options:
+  intel_iommu: "on"
+  iommu: "pt"
 proxmox_vms:
   - hostname: hl01
     default_network_interface_mac_address: "bc:24:11:d4:f6:64"

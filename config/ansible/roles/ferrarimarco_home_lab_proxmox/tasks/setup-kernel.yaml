@@ -1,18 +1,84 @@
 ---
-- name: Append IOMMU options to kernel command line
-  ansible.builtin.lineinfile:
-    backrefs: true
-    insertafter: EOF
-    line: '\1 {{ intel_iommu_kernel_options }}' # Append to the matched line
-    path: /etc/kernel/cmdline
-    regexp: "^(.*) {{ intel_iommu_kernel_options }}$" # Match the entire line
-    state: present
+# The kernel command line is one line of space-separated options. The options
+# the host declares replace the ones of the same name and the rest is kept,
+# whitespace included, so a host that already carries them is left alone; a
+# write is a change the host must reboot for. Where the line lives depends on
+# the boot layout: proxmox-boot-tool owns the boot entries where its uuids file
+# exists and reads /etc/kernel/cmdline; otherwise GRUB reads
+# GRUB_CMDLINE_LINUX_DEFAULT in /etc/default/grub (Proxmox host bootloader
+# documentation). A test instance has neither file and skips both.
+- name: Check the boot layout
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ proxmox_boot_tool_uuids_file_path }}"
+    - "{{ grub_default_file_path }}"
+  register: proxmox_boot_layout
+  become: true
+
+- name: Register the boot layout facts
+  ansible.builtin.set_fact:
+    proxmox_boot_tool_manages_boot: "{{ proxmox_boot_layout.results[0].stat.exists }}"
+    grub_manages_boot: "{{ not proxmox_boot_layout.results[0].stat.exists and proxmox_boot_layout.results[1].stat.exists }}"
+
+- name: Read the proxmox-boot-tool kernel command line
+  ansible.builtin.command: cat {{ proxmox_boot_tool_kernel_command_line_file_path }}
+  changed_when: false
+  check_mode: false
+  register: proxmox_boot_tool_kernel_command_line
+  become: true
+  when:
+    - proxmox_kernel_command_line_options | length > 0
+    - proxmox_boot_tool_manages_boot
+
+- name: Write the proxmox-boot-tool kernel command line
+  ansible.builtin.copy:
+    content: "{{ (proxmox_kernel_command_line_kept_options + proxmox_kernel_command_line_declared_options) | join(' ') }}\n"
+    dest: "{{ proxmox_boot_tool_kernel_command_line_file_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    proxmox_kernel_command_line_current_options: "{{ proxmox_boot_tool_kernel_command_line.stdout | split }}"
+    proxmox_kernel_command_line_kept_options: "{{ proxmox_kernel_command_line_current_options | reject('match', proxmox_kernel_command_line_managed_pattern) | list }}"
+  become: true
   notify:
     - Update proxmox boot config
     - Reboot the host
   when:
-    - is_intel_platform | default(true)
-    - is_iommu_supported | default(true)
+    - proxmox_kernel_command_line_options | length > 0
+    - proxmox_boot_tool_manages_boot
+    - proxmox_kernel_command_line_declared_options | difference(proxmox_kernel_command_line_current_options) | length > 0
+
+- name: Read the GRUB default kernel command line
+  ansible.builtin.command: grep -E '^GRUB_CMDLINE_LINUX_DEFAULT=' {{ grub_default_file_path }}
+  changed_when: false
+  check_mode: false
+  # grep exits 1 when the file has no such line, which the write below adds
+  failed_when: grub_default_kernel_command_line.rc > 1
+  register: grub_default_kernel_command_line
+  become: true
+  when:
+    - proxmox_kernel_command_line_options | length > 0
+    - grub_manages_boot
+
+- name: Write the GRUB default kernel command line
+  ansible.builtin.lineinfile:
+    path: "{{ grub_default_file_path }}"
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT="
+    line: GRUB_CMDLINE_LINUX_DEFAULT="{{ (proxmox_kernel_command_line_kept_options + proxmox_kernel_command_line_declared_options) | join(' ') }}"
+  vars:
+    # The value between the quotes; a missing line reads as no options
+    proxmox_kernel_command_line_current_options: '{{ grub_default_kernel_command_line.stdout | regex_replace(''^GRUB_CMDLINE_LINUX_DEFAULT='', '''') | regex_replace(''^"|"$'', '''') | split }}'
+    proxmox_kernel_command_line_kept_options: "{{ proxmox_kernel_command_line_current_options | reject('match', proxmox_kernel_command_line_managed_pattern) | list }}"
+  become: true
+  notify:
+    - Update GRUB
+    - Reboot the host
+  when:
+    - proxmox_kernel_command_line_options | length > 0
+    - grub_manages_boot
+    - proxmox_kernel_command_line_declared_options | difference(proxmox_kernel_command_line_current_options) | length > 0
 
 # Proxmox needs these modules to enable PCI passthrough
 - name: Load VFIO kernel modules
@@ -26,6 +92,13 @@
     - vfio
     - vfio_iommu_type1
     - vfio_pci
+  # Molecule skips the tasks with the molecule-notest tag: the test container
+  # shares the control machine's kernel, has no modprobe, and must not load
+  # modules into it. The always tag keeps the task selected in tag-scoped
+  # runs, which would otherwise deselect it: a tagged task is not untagged.
+  tags:
+    - molecule-notest
+    - always
 
 - name: Flush handlers after configuring the kernel
   ansible.builtin.meta: flush_handlers

@@ -1,1 +1,6 @@
 ---
+# Kernel command line options (name to value) the role sets on the node,
+# replacing an option of the same name and keeping the rest; a flag with no
+# value is declared with an empty value. The kernel reads the line at the next
+# boot, so a change reboots the host. Empty: nothing to write.
+proxmox_kernel_command_line_options: {}
