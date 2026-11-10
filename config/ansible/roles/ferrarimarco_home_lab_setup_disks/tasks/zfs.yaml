@@ -22,6 +22,42 @@
       zpool create {{ item.create_options | default('') }} {{ item.name }} {{ item.topology }}
   with_items: "{{ zfs_pools | default([]) }}"
 
+# A pool is imported at boot by its zfs-import@<pool> instance, which runs
+# before zfs-import.target, so zfs-mount.service mounts the pool's datasets
+# before local-fs.target and the guests that bind them start after. A pool
+# without an instance is imported only when Proxmox activates its storage,
+# seconds after the guests started (the NAS container of pve1 failed its
+# boot-time start that way on 2026-11-10). The instance name carries the pool
+# name escaped as systemd escapes it (a dash becomes \x2d).
+- name: Enable the boot-time import unit of each ZFS pool
+  ansible.builtin.systemd_service:
+    # Double-quoted so that YAML, not Jinja, turns the escape into one backslash
+    name: "zfs-import@{{ item.name | replace('-', '\\x2d') }}.service"
+    enabled: true
+  become: true
+  with_items: "{{ zfs_pools | default([]) }}"
+
+# An enabled instance is a symlink in the target's wants directory, which
+# list-unit-files does not list (it prints the template alone); the target's
+# dependencies list every instance wanted by it.
+- name: List the enabled ZFS pool import units
+  ansible.builtin.command: systemctl list-dependencies --plain --no-legend zfs-import.target
+  register: zfs_import_units_actual
+  changed_when: false
+  check_mode: false
+  become: true
+
+- name: Assert that every enabled ZFS pool import unit has a declared pool
+  ansible.builtin.assert:
+    that: zfs_import_units_undeclared | length == 0
+    fail_msg: >-
+      ZFS pool import units are enabled on {{ inventory_hostname }} for pools
+      the inventory does not declare: {{ zfs_import_units_undeclared | join(', ') }}.
+      Declare the pools in zfs_pools, or disable the units.
+  vars:
+    zfs_import_units_pools: "{{ zfs_import_units_actual.stdout_lines | map('trim') | select('match', '^zfs-import@') | map('regex_replace', '^zfs-import@(\\S+)\\.service.*$', '\\1') | map('replace', '\\x2d', '-') | list }}"
+    zfs_import_units_undeclared: "{{ zfs_import_units_pools | difference(zfs_pools | default([]) | map(attribute='name') | list) }}"
+
 - name: List existing ZFS datasets
   ansible.builtin.command: zfs list -H -o name -t filesystem
   register: zfs_datasets_actual
