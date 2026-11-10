@@ -1,0 +1,24 @@
+---
+# The test image ships without package lists (its build cleans them), while a
+# host the installer set up has them, so a check run against the fresh image
+# cannot resolve a package name where the same run on a fresh host can:
+# refresh the lists once, before the check and the converge. The deb822
+# repository module needs python3-debian to predict anything in check mode
+# and installs it only in a real run: the lab's roles accept that one failure
+# as the prediction, the third-party Docker role does not, so the package is
+# installed here (a first check against a fresh host installs it by hand).
+# The SSH server is installed for the same reason: a host the playbooks reach
+# over SSH has it, with the configuration file the ssh stack edits, while the
+# instances are reached through Docker.
+- name: Prepare the test instances
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Update the APT cache and install what a check run on a fresh host has
+      ansible.builtin.apt:
+        name:
+          - openssh-server
+          - python3-debian
+        state: present
+        update_cache: true
+      become: true

@@ -4,16 +4,30 @@ dependency:
   requirements-file: requirements.yml
 driver:
   name: docker
+# Two instances converge through the same playbook: one with every stack on,
+# the shape of the Debian workload hosts, and one with every Debian workload
+# stack off, the shape of the Proxmox nodes, which exercises the disabled
+# branches (the
+# absent states, the stopped units, the uninstall guard). Both are in the
+# Proxmox nodes group, so the plays that target it run (the Proxmox role's
+# host-only steps skip: neither instance has a boot layout).
 platforms:
   - name: instance
-    # The plays that target the Proxmox nodes group match the instance too,
-    # so the Proxmox role runs in the tests (its host-only steps skip: the
-    # instance has no boot layout)
     groups:
       - home_lab_proxmox_nodes
     image: "${ANSIBLE_TEST_DISTRO}"
     # Default to an empty command to run the default command of the image.
     # Molecule fails the validation of this file if the command is null.
+    command: ${ANSIBLE_TEST_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    privileged: true
+    pre_build_image: true
+  - name: proxmox
+    groups:
+      - home_lab_proxmox_nodes
+    image: "${ANSIBLE_TEST_DISTRO}"
     command: ${ANSIBLE_TEST_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
@@ -35,42 +49,18 @@ provisioner:
       stdout_callback: ansible.posix.debug
       stderr_callback: ansible.posix.debug
   inventory:
-    host_vars:
-      instance:
+    # The variables every instance needs: the edge environment, the
+    # endpoints, the paths, and placeholder secrets
+    group_vars:
+      all:
         ansible_user: root
+        # Defined for every host in the production inventory, and read by the
+        # media stack's project item on every host, enabled or not
+        data_disk_mount_path: /media/test-share
         asuswrt_administration_ssh_port: "1234"
         asuswrt_administrator_username: "asuswrt_administrator_username"
         cam_3_rtps_password: "cam_3_rtps_password"
         cam_3_rtps_username: "cam_3_rtps_username"
-        configure_asuswrt_chkwan: true
-        configure_docker: true
-        # TODO: Enable after we have more space on the GitHub Actions runner
-        # configure_frigate: true
-        # configure_home_assistant: true
-        configure_media_stack: true
-        configure_monitoring_backend: true
-        # TODO: Enable configure_monitoring_nut after we install packages before rendering templates
-        # configure_monitoring_nut: true
-        # TODO: Enable configure_monitoring_ont after we don't fail running the service if the ONT is not reachable
-        # configure_monitoring_ont: true
-        configure_network_shares: true
-        configure_network_stack: true
-        configure_rsync_daemon: true
-        configure_ssh: true
-        configure_syncthing: true
-        # TODO: Enable after we support configuring Tailscale and running it separately
-        # configure_tailscale: true
-        configure_zigbee2mqtt: true
-        # A device path, absent on the instance, so the project unit's device
-        # dependency is rendered; the project is not started here
-        zigbee_adapter_device_path: /dev/serial/by-id/usb-test-zigbee-adapter-if00
-        # A network mount entry with state present (fstab line only, no mount
-        # attempt), so the setup_disks role exercises the Docker ordering
-        # option on a path nothing else uses, and the node role the mount
-        # requirement of the media stack's project unit (data_disk_mount_path
-        # below). The mount-point guard (protect_mount_point) stays out: chattr
-        # is refused on the test container's overlay filesystem.
-        data_disk_mount_path: /media/test-share
         # The edge environment definitions of the production inventory
         # (group_vars/all/network.yaml)
         edge_environment_gateway:
@@ -78,14 +68,7 @@ provisioner:
           ipv4_address: "{{ edge_environment_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
         edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
         edge_environment_subnet: "10.0.0.0/8"
-        disks_to_mount:
-          - fstype: cifs
-            opts: "guest,_netdev,nofail,x-systemd.before=docker.service"
-            path: /media/test-share
-            src: //nas.example/share
-            state: present
         frigate_http_endpoint_fqdn: "frigate"
-        has_coral_pci_accelerator: true
         home_assistant_http_endpoint_fqdn: "home-assistant"
         home_assistant_internal_url_home: "http://home-assistant"
         home_assistant_secrets:
@@ -116,10 +99,6 @@ provisioner:
         monitoring_nut_server_admin_password: "monitoring-nut-password"
         monitoring_nut_server_admin_username: "monitoring-nut-user"
         mosquitto_server_fqdn: "mosquitto"
-        network_interfaces:
-          - mac_address: "12:34:56:78:90:AB"
-            interface_name: eth0
-            ipv4_address: "10.0.0.2"
         prometheus_blackbox_exporter_http_endpoint_fqdn: "prometheus-blackbox-exporter"
         prometheus_http_endpoint_fqdn: "prometheus"
         # The instance has no boot layout, so the Proxmox role's layout read
@@ -135,6 +114,58 @@ provisioner:
           default_record_ttl: 3600
           fqdn: "{{ root_dns_zone_fqdn }}"
         root_dns_zone_fqdn: "lab.ferrari.how"
+        qbittorrent_http_endpoint_fqdn: "qbittorrent"
+        syncthing_user_interface_http_endpoint_fqdn: "syncthing"
+        torrent_download_path: "/torrent-download-path"
+        zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
+        vault_media_stack_qbittorrent_webui_password: "vault_media_stack_qbittorrent_webui_password"
+        vault_monitoring_backend_alertmanager_telegram_bot_token: "vault_monitoring_backend_alertmanager_telegram_bot_token"
+        vault_monitoring_backend_alertmanager_telegram_chat_id: "1234"
+        vault_zigbee2mqtt_network_key:
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        workloads_backup_disk_mount_path: "/media/backup-0"
+    host_vars:
+      instance:
+        configure_asuswrt_chkwan: true
+        configure_docker: true
+        # TODO: Enable after we have more space on the GitHub Actions runner
+        # configure_frigate: true
+        # configure_home_assistant: true
+        configure_media_stack: true
+        configure_monitoring_backend: true
+        # TODO: Enable configure_monitoring_nut after we install packages before rendering templates
+        # configure_monitoring_nut: true
+        # TODO: Enable configure_monitoring_ont after we don't fail running the service if the ONT is not reachable
+        # configure_monitoring_ont: true
+        configure_network_shares: true
+        configure_network_stack: true
+        configure_rsync_daemon: true
+        configure_ssh: true
+        configure_syncthing: true
+        # TODO: Enable after we support configuring Tailscale and running it separately
+        # configure_tailscale: true
+        configure_zigbee2mqtt: true
+        # A device path, absent on the instance, so the project unit's device
+        # dependency is rendered; the project is not started here
+        zigbee_adapter_device_path: /dev/serial/by-id/usb-test-zigbee-adapter-if00
+        # A network mount entry with state present (fstab line only, no mount
+        # attempt), so the setup_disks role exercises the Docker ordering
+        # option on a path nothing else uses, and the node role the mount
+        # requirement of the media stack's project unit (data_disk_mount_path
+        # in the group variables). The mount-point guard (protect_mount_point)
+        # stays out: chattr is refused on the test container's overlay
+        # filesystem.
+        disks_to_mount:
+          - fstype: cifs
+            opts: "guest,_netdev,nofail,x-systemd.before=docker.service"
+            path: /media/test-share
+            src: //nas.example/share
+            state: present
+        has_coral_pci_accelerator: true
+        network_interfaces:
+          - mac_address: "12:34:56:78:90:AB"
+            interface_name: eth0
+            ipv4_address: "10.0.0.2"
         # Two restic jobs of the backup role, with repositories under /tmp,
         # which the test image mounts as its own filesystem: the role
         # initializes them, runs the script's preflight, starts the timers,
@@ -159,21 +190,25 @@ provisioner:
             restic_repository_password: restic_backup_test_repository_password
             restic_restore_drill_include: /etc/home-lab/restic/entrypoint.sh
         restic_textfile_collector_directory: /var/lib/node_exporter/textfile_collector
-        qbittorrent_http_endpoint_fqdn: "qbittorrent"
         # Don't start network stack because we cannot bind certain ports (53)
         # on hosts in the CI environment
         start_network_stack: false
         # Don't start zigbee2mqtt because it fails due to missing hardware
         start_zigbee2mqtt: false
-        syncthing_user_interface_http_endpoint_fqdn: "syncthing"
-        torrent_download_path: "/torrent-download-path"
-        zigbee2mqtt_http_endpoint_fqdn: "zigbee2mqtt"
-        vault_media_stack_qbittorrent_webui_password: "vault_media_stack_qbittorrent_webui_password"
-        vault_monitoring_backend_alertmanager_telegram_bot_token: "vault_monitoring_backend_alertmanager_telegram_bot_token"
-        vault_monitoring_backend_alertmanager_telegram_chat_id: "1234"
-        vault_zigbee2mqtt_network_key:
-          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-        workloads_backup_disk_mount_path: "/media/backup-0"
+      proxmox:
+        # The settings of the Proxmox nodes group (the production inventory's
+        # group variables are not loaded here): Debian's collectors package
+        # writes the apt and SMART series,
+        # the packaged exporter reads its own directory, and the Debian
+        # origins upgrade unattended
+        configure_monitoring_apt: false
+        configure_monitoring_sata: false
+        monitoring_textfile_collector_directory: /var/lib/prometheus/node-exporter
+        security_unattended_upgrades_enabled: true
+        network_interfaces:
+          - mac_address: "12:34:56:78:90:AC"
+            interface_name: eth0
+            ipv4_address: "10.0.0.3"
   options:
     # Enable Ansible diff mode
     D: true
@@ -183,3 +218,23 @@ provisioner:
     tags: ${ANSIBLE_TEST_TAGS:-all}
   playbooks:
     converge: "${ANSIBLE_TEST_PLAYBOOK_PATH}"
+    prepare: prepare.yml
+scenario:
+  # The default sequence plus a check run on the fresh instances before the
+  # converge: the gate every production apply goes through, which has its own
+  # failure class (a unit a predicted install did not create, a read of a file
+  # a predicted task would have written)
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - check
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
