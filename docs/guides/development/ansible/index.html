@@ -1114,6 +1114,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-node-role-on-the-proxmox-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      The node role on the Proxmox nodes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#check-mode-conventions" class="md-nav__link">
     <span class="md-ellipsis">
       Check mode conventions
@@ -1796,6 +1805,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-node-role-on-the-proxmox-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      The node role on the Proxmox nodes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#check-mode-conventions" class="md-nav__link">
     <span class="md-ellipsis">
       Check mode conventions
@@ -1926,14 +1944,38 @@ set of generic tasks applies that data:</p>
   units of projects that no longer exist in the role are swept by full runs
   only, since a tag-scoped run registers the selected stacks' items alone and
   would remove the rest.</li>
-<li><strong>Templates for files the workload rewrites are seeds.</strong> A file the
+<li>
+<p><strong>Templates for files the workload rewrites are seeds.</strong> A file the
   application edits at runtime (qBittorrent's settings, the Zigbee2MQTT secret)
   is rendered with <code>force: false</code>: it seeds a fresh host and is never touched
   again, so the settings beyond the seed are owned by the application's own
   interface, and a template change reaches only fresh hosts or a deliberate
   re-seed (the <a href="../../operations/backup/">backup operations guide</a> has the
   qBittorrent recipe). Render the seed where the image reads it: qBittorrent's
-  was rendered one level above its directory and went unread for twenty months.</li>
+  was rendered one level above its directory and went unread for twenty months.</p>
+</li>
+<li>
+<p><strong>A disabled stack removes only the packages that declare it.</strong> A package
+  entry with <code>state: absent</code> reaches the uninstall list only when it carries
+  <code>uninstall_when_disabled: true</code>; a package the stack needs but does not own
+  (<code>rsync</code>, which Proxmox depends on; <code>smartmontools</code>, which Proxmox and
+  Debian's SMART collector need; <code>openssh-server</code>, which the run logs in
+  through) carries a comment instead and stays installed when the stack is off.
+  Before removing anything, the role simulates the removal of the listed
+  packages that are installed (<code>apt-get --simulate --purge remove</code>) and fails
+  the host when apt would take a package the list does not name: a dependency a
+  release added since the flag was set (pve-manager depends on <code>rsync</code>; a check
+  run on pve1 on 2026-11-10 predicted the removal of Proxmox with it) is found
+  at runtime, not at design time. A package apt's sources no longer carry (a
+  repository the disabled stack removed) is left out of the simulation, since
+  the removal task treats it as already absent.</p>
+</li>
+<li><strong>A missing unit is converged when its state is <code>stopped</code>, or in check mode.</strong>
+  The service task lists every selected stack's units, enabled or not, so a
+  disabled stack's unit may never have existed on the host, and in check mode
+  the package that ships a unit was only predicted. A unit a real run wants
+  <code>started</code> and cannot find fails the run: a misspelled name, or a stack enabled
+  on a host whose package did not install.</li>
 </ul>
 <p>Because a disabled stack still contributes its resources with <code>state: absent</code>,
 running a stack's tag with its enablement flag unset <strong>tears the stack down</strong>
@@ -2117,6 +2159,63 @@ folded scalar the escape reaches Jinja literally, and the module then writes all
 the keys on one line.</p>
 <p>A future cluster needs the peer nodes' keys in the set as well (read them with
 <code>delegate_to</code>, tolerating a powered-off node); there is no cluster today.</p>
+<h2 id="the-node-role-on-the-proxmox-nodes">The node role on the Proxmox nodes</h2>
+<p>The node playbook targets every host, and its default-on stacks were written for
+the Debian workload hosts, so the Proxmox nodes group declares the differences
+in its group variables (<code>group_vars/home_lab_proxmox_nodes</code>):</p>
+<ul>
+<li><code>security_ssh_permit_root_login: prohibit-password</code>. The nodes are reached as
+  root with the lab key, as is Proxmox's own inter-node SSH, so the SSH stack's
+  hardening keeps a key-only root login and turns password authentication off.
+  The role defaults (<code>PermitRootLogin no</code>, <code>AllowUsers</code> limited to
+  <code>ansible_user</code>) assume a non-root login user, and on a host where
+  <code>ansible_user</code> is root they reject the next login while the run that wrote
+  them finishes green, since sshd keeps its established sessions through a
+  restart. Two guards in <code>tasks/ssh.yaml</code> close that class: an assertion fails
+  the host before any edit when the policy would reject <code>ansible_user</code> (root
+  login forbidden while the user is root, or the user missing from a non-empty
+  <code>AllowUsers</code>; <code>AllowGroups</code> membership is not checked, since the run does not
+  read it), and every <code>sshd_config</code> edit is validated with <code>sshd -t</code> on the
+  candidate file, its <code>Include</code> resolved against the real drop-in directory, so
+  a value sshd rejects fails the task instead of reaching the restart. The
+  Molecule instance runs as root with the same variable.</li>
+<li><code>configure_monitoring_apt: false</code> and <code>configure_monitoring_sata: false</code>. The
+  monitoring role installs Debian's <code>prometheus-node-exporter-collectors</code> on the
+  nodes, whose apt and SMART timers already write the series the alerts read;
+  the node role's own collectors would write the same series a second time into
+  the same directory. The apt success stamp the apt collector reads follows
+  <code>configure_monitoring</code> instead of the apt stack's flag: both roles deploy the
+  identical file, and a node run must not remove what the monitoring run put
+  there.</li>
+<li><code>monitoring_textfile_collector_directory: /var/lib/prometheus/node-exporter</code>,
+  the packaged exporter's directory, where the restic jobs already write: the
+  role's static metrics (the expected mounts) are rendered where they are
+  scraped. The variable is a role default so that the inventory can override it;
+  a role variable would win over the group.</li>
+<li><code>security_unattended_upgrades_enabled: true</code>, the role default made explicit.
+  The tool's default origins are Debian stable and Debian security for the
+  release; the Proxmox repository is a different origin, so pve-manager, the
+  kernel and ZFS upgrade by hand with <code>apt full-upgrade</code>, the command Proxmox
+  prescribes (<code>apt upgrade</code> can leave its packages partially upgraded, and
+  unattended-upgrades has that command's semantics by design: it holds back any
+  step that would remove a package). The package also installs the kernel hook
+  that sets the reboot-required flag, which the <code>RebootRequired</code> alert reads.</li>
+</ul>
+<p>The containerized exporters of the monitoring stack (the compose file, its
+directory and its project unit) follow
+<code>configure_monitoring and configure_docker</code>, so a host without Docker gets the
+host-side collectors alone. The kernel command line of the nodes is the Proxmox
+role's: a dictionary of option name to value
+(<code>proxmox_kernel_command_line_options</code>, the IOMMU options in the group
+variables) merged into the line the host boots with, the declared options
+replacing the ones of the same name and the rest kept, written to
+<code>/etc/kernel/cmdline</code> with <code>proxmox-boot-tool refresh</code> where
+<code>/etc/kernel/proxmox-boot-uuids</code> exists (pve1: ZFS root, systemd-boot) and to
+<code>GRUB_CMDLINE_LINUX_DEFAULT</code> in <code>/etc/default/grub</code> with <code>update-grub</code> otherwise
+(pve2: LVM root, GRUB), followed by a reboot. A host that already carries the
+options is left alone, whitespace included; the Molecule instance has neither
+file and skips both writes, and the VFIO module task is tagged out of the tests,
+since the test container shares the control machine's kernel.</p>
 <p>The exclusive set applies to every host, not only Proxmox nodes: keys added by
 hand on a host (hardware security keys, for example) disappear at the next
 bootstrap run unless the repository declares them. The user and key tasks carry

@@ -274,13 +274,12 @@ architectural patterns:
   `amtool` instead of touching the alert rules, as the
   [monitoring operations guide](./websites-src/home-lab-docs/guides/operations/monitoring.md)
   describes, which also explains why a down target is not necessarily an outage.
-- **Interim guard: run the node playbooks on pve1 and pve2 only with tags**
-  (`--tags untagged` is the safe subset) until the todo item "The Proxmox nodes
-  have only ever had tag-scoped node runs" in the
-  [specs index](./websites-src/home-lab-docs/architecture/README.md) is
-  resolved: a full run applies stacks the nodes should not run, including an SSH
-  hardening that locks out the login the lab uses. The item lists the stacks and
-  the pve2 kernel task gap of `proxmox-node.yaml`; remove this guard with it.
+- **The node role's settings for the Proxmox nodes live in their group
+  variables**, as the "node role on the Proxmox nodes" section of the
+  [Ansible development guide](./websites-src/home-lab-docs/guides/development/ansible.md)
+  describes: a full node run is safe there since 2026-11-10 (pve1); pve2's first
+  full run waits on the host, as the todo item of the
+  [specs index](./websites-src/home-lab-docs/architecture/README.md) records.
 - **`pct exec` into a NixOS container needs the full binary path or a login
   shell wrapper**, as the
   [Proxmox administration notes](./websites-src/home-lab-docs/guides/proxmox-admin-notes.md)

@@ -2087,10 +2087,24 @@ playbook to test, and pass the Molecule command to run:</p>
 <span class="w">  </span><span class="nv">ANSIBLE_TEST_PLAYBOOK_NAME</span><span class="o">=</span><span class="s2">&quot;bootstrap&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>scripts/run-ansible.sh<span class="w"> </span><span class="s2">&quot;molecule test&quot;</span>
 </code></pre></div>
-<p>The test starts a privileged container for the test instance, and removes it
-when the test completes. Molecule skips the tasks that have the
-<code>molecule-notest</code> tag: tests don't pull container images, and don't start
-containerized services.</p>
+<p>The test starts two privileged containers and removes them when the test
+completes: <code>instance</code>, with every stack on, the shape of the Debian workload
+hosts, and <code>proxmox</code>, with every Debian workload stack off and the settings of the Proxmox
+nodes group, the shape of the nodes, which exercises the disabled branches
+of the roles (absent states, stopped units, the package removal guard). Both
+are in the Proxmox nodes group, so the plays that target it run; the
+variables every instance needs are the scenario's <code>group_vars</code>, the stack
+flags and the per-host data its <code>host_vars</code>. The sequence runs the converge
+playbook in check mode on the fresh instances before the converge
+(Molecule's <code>check</code> action): the gate every production apply goes through,
+whose failures (a unit a predicted install did not create) no real run
+shows; the scenario's <code>prepare.yml</code> first refreshes the package lists and
+installs <code>openssh-server</code> and <code>python3-debian</code>, which the test image lacks
+and a host the installer set up and the playbooks reach over SSH has, so a
+first check against a fresh host needs <code>python3-debian</code> installed by hand.
+Molecule skips the tasks that have the <code>molecule-notest</code> tag: tests don't
+pull container images, don't start containerized services, and don't load
+kernel modules (the containers share the control machine's kernel).</p>
 <p>A full <code>main</code> run converges every stack twice (converge and idempotence) and
 takes about eight minutes. While iterating on one stack, scope both passes
 with <code>ANSIBLE_TEST_TAGS</code>, which takes the same value as the <code>--tags</code> flag of

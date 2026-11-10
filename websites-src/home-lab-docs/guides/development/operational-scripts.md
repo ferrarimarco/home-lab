@@ -331,10 +331,24 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
       scripts/run-ansible.sh "molecule test"
     ```
 
-    The test starts a privileged container for the test instance, and removes it
-    when the test completes. Molecule skips the tasks that have the
-    `molecule-notest` tag: tests don't pull container images, and don't start
-    containerized services.
+    The test starts two privileged containers and removes them when the test
+    completes: `instance`, with every stack on, the shape of the Debian workload
+    hosts, and `proxmox`, with every Debian workload stack off and the settings of the Proxmox
+    nodes group, the shape of the nodes, which exercises the disabled branches
+    of the roles (absent states, stopped units, the package removal guard). Both
+    are in the Proxmox nodes group, so the plays that target it run; the
+    variables every instance needs are the scenario's `group_vars`, the stack
+    flags and the per-host data its `host_vars`. The sequence runs the converge
+    playbook in check mode on the fresh instances before the converge
+    (Molecule's `check` action): the gate every production apply goes through,
+    whose failures (a unit a predicted install did not create) no real run
+    shows; the scenario's `prepare.yml` first refreshes the package lists and
+    installs `openssh-server` and `python3-debian`, which the test image lacks
+    and a host the installer set up and the playbooks reach over SSH has, so a
+    first check against a fresh host needs `python3-debian` installed by hand.
+    Molecule skips the tasks that have the `molecule-notest` tag: tests don't
+    pull container images, don't start containerized services, and don't load
+    kernel modules (the containers share the control machine's kernel).
 
     A full `main` run converges every stack twice (converge and idempotence) and
     takes about eight minutes. While iterating on one stack, scope both passes

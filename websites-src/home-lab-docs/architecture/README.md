@@ -75,12 +75,12 @@ reliability risks first, then security exposure, then automation):
       (NAS spec §13.4 records the deferral and the candidates: a
       Terraform-minted pre-authentication key with out-of-band delivery, or the
       Samba password automation mechanism).
-    - Configure unattended updates for the remaining hosts: the
-      [Proxmox hosts](https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/)
-      ([auto updates](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#system_software_updates))
-      and the Nix hosts. The Debian hosts are covered: the node role enables its
-      unattended-upgrades stack by default
-      ([UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)).
+    - Configure unattended updates for the Nix hosts. The Debian hosts and the
+      Proxmox nodes are covered for the Debian origins: the node role enables
+      its unattended-upgrades stack by default
+      ([UnattendedUpgrades](https://wiki.debian.org/UnattendedUpgrades)); the
+      Proxmox origin stays manual, see the item on automating the Proxmox
+      updates under [Host configuration](#host-configuration).
     - Network boot service and Raspberry Pi re-provisioning, per the
       [Network Boot Service](./network-boot.md) spec:
         - A second server instance on pve2, so that pve1 and hl02 are covered
@@ -319,13 +319,20 @@ reliability risks first, then security exposure, then automation):
       of Ansible where possible, since the long-term direction is Nix. Volumes
       declared by an image stay out of reach without a pull and hold no state by
       the same convention.
-    - SSH configuration validation: `"{{ sshd_path }} -T -f %s"`.
     - Declare one rsync module in the Molecule inventory (2026-10-18): the test
       host enables the rsync daemon without `rsync_daemon_modules`, so the loop
       that builds the daemon's templates list never runs in CI, and the quoted
       folded scalar that turned the list into a string under ansible-core 2.19
       (fixed the same day) only failed on hl01.
 - Ansible:
+    - Read the effective SSH policy after the writes (2026-11-10): the node
+      role's lockout assertion reasons about the variables, and `lineinfile`
+      appends a missing directive at the end of `sshd_config`, where an active
+      `Match` block would scope it, so the global policy could differ from the
+      declared one while the run reports converged (no lab host has such a
+      block). Read `sshd -T -C user=<ansible_user>` after the writes and
+      assert `permitrootlogin` and `allowusers` against the declaration, or
+      insert the directives before the first `Match` line.
     - **The Coral role cannot tell the gasket package builds apart
       (2026-11-04)**: the community builds of `gasket-dkms` all carry the
       upstream version `1.0-18`, and the apt module skips a package file whose
@@ -419,34 +426,34 @@ reliability risks first, then security exposure, then automation):
   packages on the Proxmox nodes, so the apt success-stamp snippet lives in both
   roles (2026-10-12); the monitoring playbook also targets every host with no
   gate, so it must be run with a host limit until the roles merge.
-- **The Proxmox nodes have only ever had tag-scoped node runs (2026-10-18)**: a
-  full `--check --diff` of `home-lab-node.yaml` on pve1 predicts fourteen
-  changes none of the recent work asked for, among them the SSH hardening
-  (`PermitRootLogin no`, `PasswordAuthentication no`, `AllowUsers root` and an
-  sshd restart, which would lock out the root login the lab uses on the nodes),
-  the removal of the Debian sample `smb.conf` with an smbd restart, fail2ban and
-  unattended-upgrades with their configurations, and the containerized node
-  exporter next to the packaged one. Until the stacks the nodes should not run
-  are opted out by inventory data (the SSH, Samba, and containerized monitoring
-  stacks at least) or the `sshd` settings are reconciled with how the nodes are
-  reached, run the node playbook on pve1 and pve2 only with tags; the untagged
-  tasks alone are safe (timezone, the systemd configuration directory, the venv
-  build script, applied on pve1 on 2026-10-18 and on pve2 on 2026-10-22).
-  Related: the monitoring role consolidation item above, which decides which
-  role owns the nodes. The Proxmox role has the same kind of gap on pve2
-  (2026-10-22): its first task appends the IOMMU options to
-  `/etc/kernel/cmdline`, the kernel command line of a node that boots through
-  `proxmox-boot-tool` (pve1: ZFS root, systemd-boot), and fails on pve2, which
-  was installed on LVM with an ext4 root and boots through GRUB, where the
-  command line is `GRUB_CMDLINE_LINUX_DEFAULT` in `/etc/default/grub` applied by
-  `update-grub` (Proxmox host bootloader documentation). The role has never
-  evaluated pve2 beyond that task (directories, cloud-init snippets, images).
-  The fix reads the layout first (`/etc/kernel/proxmox-boot-uuids` exists only
-  where `proxmox-boot-tool` manages the boot), keeps the current task for that
-  layout, adds the GRUB variant with an `update-grub` handler, and lets the
-  Molecule container, which has neither file, skip both; a reboot follows on
-  pve2. Nothing is passed through on pve2 today, so an inventory flag that opts
-  it out of the kernel task is the alternative.
+- **pve2's first full node run and its kernel command line (deferred on
+  2026-11-10, waiting on the host)**: pve1 had its first full
+  `home-lab-node.yaml` run on 2026-11-10 (key-only root SSH with password
+  authentication off, fail2ban, unattended-upgrades for the Debian origins, the
+  role's apt and SMART collectors off beside Debian's, the static metrics in the
+  packaged exporter's directory, no package removed) after a manual
+  `apt full-upgrade` and reboot cleared a 189-package backlog, and a second
+  check predicted nothing; the
+  [Ansible development guide](../guides/development/ansible.md) describes the
+  node settings and the two guards that made the run safe. pve2 has been off
+  since 2026-11-04 and repeats the sequence when it is back: the OS packages
+  playbook limited to the host, a reboot, the node playbook (check first; the
+  group variables already hold its settings), then `proxmox-node.yaml`, whose
+  kernel task now reads the boot layout and writes the IOMMU options to
+  `GRUB_CMDLINE_LINUX_DEFAULT` with `update-grub` on a GRUB host, followed by a
+  reboot. On pve1 the `proxmox-node.yaml` run of the same day found the kernel
+  line converged.
+    - Deferred the same day: the Samba configuration file guard. The
+      network-shares stack removes `/etc/samba/smb.conf` wherever it is
+      disabled, the debconf-generated file of `samba-common` included (pve1 lost
+      its sample on 2026-11-10, harmless there: no smbd, and smbclient falls
+      back to defaults). Render the template with a marker and remove the file
+      only when the marker is present, so a host that never enabled the stack
+      keeps the file its packages generated.
+- The `raspberry_pi_sense_hat_apt_packages` list in the node role's Raspberry Pi
+  variables is referenced by no stack (read on 2026-11-10): the sense-hat
+  package has never been installed or removed by the stack machinery. Wire it
+  into the sense hat stack or drop it.
 - NixOS VMs ([NixOS VMs on Proxmox](./proxmox-vm.md)): factor the per-host
   Terraform VM resources into a shared module (or `for_each` over a host map),
   so the reference pattern is enforced by code rather than by convention. The
@@ -492,6 +499,23 @@ reliability risks first, then security exposure, then automation):
 
 ### Host configuration
 
+- **Automate the Proxmox package upgrades, with a human in the loop (decided to
+  design on 2026-11-10)**: the vendor prescribes `apt full-upgrade` and warns
+  that `apt upgrade` can leave a partially upgraded state; unattended-upgrades
+  has the latter's semantics by design (it holds back any step that removes a
+  package), so the node role runs it for the Debian origins only and the Proxmox
+  origin (pve-manager, the kernel, ZFS) stays manual, nudged by
+  `AptUpgradesPending` (191 packages had accumulated on pve1 by 2026-11-10, 34
+  of them security fixes). Candidate shapes: a host timer that refreshes and
+  downloads, then notifies and waits for a human go before the upgrade and the
+  reboot; or a scheduled run of the OS packages playbook from a host that is
+  always on (the control machine suspends). Any shape needs a reboot window, the
+  guest start ordering on pve1 (hl01, hl02, the NAS container, whose
+  `rpool-usb-2` pool had no import unit until the reboot of 2026-11-10 exposed
+  it), the `proxmox-ve` apt hook as the only built-in guard against a removal,
+  and an alert for a run that failed or never happened. The cost side of the
+  rejected automatic variant: unattended removals and hypervisor changes nobody
+  reviews, which the staff position in the linked forum thread advises against.
 - **Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)**:
   pve1 was installed with a ZFS root on UEFI, so it boots through
   `proxmox-boot-tool` with systemd-boot, keeps every ESP in sync, and takes the

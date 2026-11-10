@@ -2644,7 +2644,7 @@ Syncthing offsite transport depends on (§13).</p>
 <tr>
 <td style="text-align: left;"><strong>Host Storage Prep (Ansible)</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>setup_disks</code> role: pools asserted, datasets and Samba state dir converged (§11).</td>
+<td style="text-align: left;"><code>setup_disks</code> role: pools asserted with their boot-time import units, datasets and Samba state dir converged (§11).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Host Integration Tests</strong></td>
@@ -3320,7 +3320,15 @@ this lives in the Ansible layer that already manages the Proxmox nodes:</p>
   pool on <code>pve1</code> and <code>pve2</code> is a single-disk vdev today, so a disk failure loses
   the pool's contents; the intended layout is mirrored vdevs, and the second
   copies of what the pools hold are tracked with it in the
-  <a href="../#nas">specs todo list</a>.</li>
+  <a href="../#nas">specs todo list</a>. The role enables each declared pool's
+  <code>zfs-import@&lt;pool&gt;</code> systemd instance, which imports the pool before
+  <code>zfs-import.target</code>, so <code>zfs-mount.service</code> mounts its datasets before
+  <code>local-fs.target</code> and the guests that bind them start after (Proxmox's guest
+  start is ordered after <code>local-fs.target</code>); a pool without an instance is
+  imported only when Proxmox activates its storage, seconds after the guests,
+  which is how the <code>nas-pve1</code> container failed its boot-time start on 2026-11-10
+  on <code>rpool-usb-2</code>. The role also fails on an enabled instance whose pool the
+  inventory does not declare.</li>
 <li><strong><code>zfs_datasets</code> — created if missing</strong> (<code>zfs create -p</code>). The declared
   <code>mount_point</code> is not an input to ZFS (datasets mount at the ZFS-computed path,
   by default <code>/&lt;pool&gt;/&lt;dataset&gt;</code>), so the role then asserts that each dataset's
