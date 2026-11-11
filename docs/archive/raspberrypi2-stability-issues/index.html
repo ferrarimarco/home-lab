@@ -808,6 +808,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#root-filesystem-stall-watchdog-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      Root filesystem stall watchdog design
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#other-open-follow-ups" class="md-nav__link">
     <span class="md-ellipsis">
       Other open follow-ups
@@ -1817,6 +1826,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#root-filesystem-stall-watchdog-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      Root filesystem stall watchdog design
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#other-open-follow-ups" class="md-nav__link">
     <span class="md-ellipsis">
       Other open follow-ups
@@ -2012,9 +2030,32 @@ migration to hl01 shrinks this host's role.</p>
   It does not cover a root I/O stall (see the 2026-10-06 and 2026-10-07 episodes
   above): a complementary stall watchdog was designed and reviewed on 2026-10-12
   (a resident probe service with a systemd failure action, plus kernel hung-task
-  sysctls) and postponed until the OS re-image and a way to trigger the stall
-  deliberately exist, since nothing today can show that the probe sees the real
-  failure; the design is kept in the same list.</li>
+  sysctls) and postponed until a way to trigger the stall deliberately exists,
+  since nothing today can show that the probe sees the real failure; the design
+  is recorded below and the item in the same list.</li>
+</ul>
+<h2 id="root-filesystem-stall-watchdog-design">Root filesystem stall watchdog design</h2>
+<p>Reviewed against the systemd 247 sources on 2026-10-12 and kept so the next
+attempt starts from it:</p>
+<ul>
+<li>A resident Python probe service (<code>Type=notify</code>) that writes and syncs a file
+  on the root filesystem every 30 s and pings systemd only after a successful
+  sync, sending <code>READY=1</code> with the first ping. The loop never exits: a probe
+  error withholds the ping, since an exit reaches the start rate limit, which is
+  a failed state.</li>
+<li><code>WatchdogSec=180</code>, <code>TimeoutStopSec=5</code> (the kill sequence has four legs),
+  <code>Restart=no</code>, <code>ConditionPathIsReadWrite=/var/lib</code>, and a kill switch file on
+  the boot partition.</li>
+<li><code>FailureAction=reboot-immediate</code>, never <code>reboot-force</code>, which hands PID 1 to a
+  binary on the stalled disk and disarms the hardware watchdog.</li>
+<li>Kernel backstop behind the same flag: <code>kernel.hung_task_panic=1</code> and
+  <code>kernel.panic=10</code> (the detector exists on the host's kernel, 120 s), with the
+  caveat that any 120 s uninterruptible wait panics the host (the CIFS backup
+  mount is the candidate, unverified).</li>
+<li>Rehearsal: <code>SIGSTOP</code> on the unit exercises the exact expiry and kill sequence.
+  It only proves that the unit reboots the host when its own probe hangs;
+  whether the probe sees the real failure needs a deliberate stall (a controlled
+  reset or power cut of the USB bridge).</li>
 </ul>
 <h2 id="other-open-follow-ups">Other open follow-ups</h2>
 <p>Tracked in the

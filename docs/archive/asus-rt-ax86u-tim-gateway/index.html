@@ -760,6 +760,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#script-launchers-and-firmware-update-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Script launchers and firmware update signals
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#references" class="md-nav__link">
     <span class="md-ellipsis">
       References
@@ -1859,6 +1868,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#script-launchers-and-firmware-update-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Script launchers and firmware update signals
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#references" class="md-nav__link">
     <span class="md-ellipsis">
       References
@@ -2011,6 +2029,29 @@ require additional parameters:</p>
 <li>VAD (Voice Activity Detection): disabled</li>
 <li>100rel support (PRACK message, RFC 3262): enabled</li>
 <li>UPDATE support (RFC 3311): enabled</li>
+</ul>
+<h2 id="script-launchers-and-firmware-update-signals">Script launchers and firmware update signals</h2>
+<p>Findings of 2026-10-23 on the stock firmware (3.0.0.4.388_24436), gathered for
+the node exporter and the firmware update alert items of the
+<a href="../../architecture/#host-configuration">specs todo list</a>:</p>
+<ul>
+<li>The firmware has no <code>init-start</code> hook: the <code>rc</code> binary carries no <code>jffs2_exec</code>
+  or <code>script_usbmount</code> string, only <code>.asusrouter</code>, untested. The
+  <code>script_usbmount</code> NVRAM variable is blocked and scrubbed on recent builds, so
+  the known launcher for scripts is a USB stick carrying a fake Download Master
+  package whose init script starts them after the mount, as
+  <a href="https://github.com/jacklul/asuswrt-scripts">jacklul/asuswrt-scripts</a> does.</li>
+<li>The router's daily firmware check (<code>firmware_check=1</code>, auto-upgrade off, log
+  in <code>/jffs/webs_upgrade.log</code>) posts to an Asus feedback server and receives a
+  per-device control file naming the build Asus offers to that device under a
+  staged rollout (region code, ISP, force level), left in NVRAM as
+  <code>webs_state_info</code>, <code>webs_state_flag</code>, and <code>webs_update_ts</code>. On 2026-10-23 it
+  still offered 24436 while the support page had published 24437 (a DNSSEC
+  resolution fix) on 2026-10-22, so the router's signal means "installable from
+  the UI now" and the page means "published".</li>
+<li>The legacy live-update manifests do not list this model, and the JSON API
+  behind the support page refused direct calls on two variants, while the page
+  itself is server-rendered.</li>
 </ul>
 <h2 id="references">References</h2>
 <ul>

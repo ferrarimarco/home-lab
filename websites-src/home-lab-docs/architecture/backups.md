@@ -114,6 +114,22 @@ Decisions:
   Compose job's carried a container hostname, so the repositories of hl01 and
   raspberrypi2 keep a second snapshot group until the
   [rollout item](./README.md#backup) forgets it.
+- **State is backed up, machines are not** (2026-10-10). Configuration is code
+  on every host (Ansible for Debian, Nix for NixOS), so a host is rebuilt from
+  Terraform, the playbooks or the flake, and a restic restore of its state;
+  shipping VM disks between the Proxmox nodes was considered and rejected as a
+  second mechanism that only shortens recovery. Two rules keep this true. Debian
+  workloads keep every stateful path under the two trees the workloads job
+  covers: audit the hosts (named volumes, container mounts outside the trees,
+  systemd state directories) whenever a workload is added; the audit of
+  2026-10-10 found only FlareSolverr's anonymous browser cache volume outside
+  them, tracked in the
+  [CI/CD](./README.md#cicd-infrastructure-as-code-and-gitops) todo items, plus
+  rebuildable exporter virtual environments. NixOS hosts back up state
+  directories only, from the node that holds them, through the
+  `restic-backup-nas-state` job, and declare the job whenever a stateful
+  workload lands on one. The restore procedure that proves the rebuild path is
+  in the [backup operations guide](../guides/operations/backup.md).
 
 ## What is verified, and what is not
 

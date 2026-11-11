@@ -1184,6 +1184,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#item-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      Item shape
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       Dependencies
@@ -1729,6 +1738,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#item-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      Item shape
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       Dependencies
@@ -1787,7 +1805,28 @@ This guide describes the conventions that keep that list useful.</p>
 <li>The "Current focus" subsection lists the items being actively worked toward,
   in priority order: data-loss and reliability risks first, then security
   exposure, then automation. Keep it short (three to five items), each item a
-  one-liner linking to its themed subsection.</li>
+  one-liner linking to its themed subsection, and never empty: when the last
+  focus item closes, promote the next ones in the same change.</li>
+<li>The "Ideas" subsection, last, parks the undated ideas that have no decision
+  and no first step (wishlists, links to read, questions), grouped by theme, so
+  the themed subsections hold only work. An idea becomes an item when it gets a
+  date and a first step; software alternatives go to the
+  <a href="../../../architecture/software-candidates/">software candidates</a> page instead,
+  whose rows link to the idea or the item that evaluates them.</li>
+</ul>
+<h2 id="item-shape">Item shape</h2>
+<p>An item is work with a next step, and reads as one:</p>
+<ul>
+<li>A bold title with the date of the decision or of the last change of state,
+  then the remaining steps in order and what the work waits on, with
+  <code>Depends on:</code> and <code>Blocks:</code> annotations as the next section describes.</li>
+<li>Evidence and narrative (an incident chronology, measurements, the alternatives
+  weighed, the design of a postponed attempt) live in the page that owns them, a
+  guide, an archive note, or the specification, and the item links to them. An
+  item that grows past ten lines or so is carrying narrative that belongs in
+  such a page.</li>
+<li>The state of a rollout goes in the Details column of the specification's
+  status table, not in the item.</li>
 </ul>
 <h2 id="dependencies">Dependencies</h2>
 <ul>
@@ -1801,8 +1840,13 @@ This guide describes the conventions that keep that list useful.</p>
   <code>[Networking](#networking)</code>).</li>
 </ul>
 <h2 id="completing-items">Completing items</h2>
-<p>When an item is implemented (and reflected in the relevant specification) or
-explicitly discarded:</p>
+<p>An item leaves the list in one of three ways: it is implemented and reflected in
+the relevant specification; it is explicitly discarded; or it was a decision to
+take, and the decision is taken and recorded with its rationale in the page that
+owns it (the specification, the references page, or an archive note). A decided
+item that stays in the list has no exit and only grows, so record the decision
+and remove the item in the same change, leaving at most a one-line pointer where
+another item depends on it. In every case:</p>
 <ul>
 <li>Remove it from its themed subsection.</li>
 <li>Remove it from "Current focus" if it is listed there, and promote the next

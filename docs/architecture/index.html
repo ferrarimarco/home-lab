@@ -468,18 +468,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cloud-environment" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      Cloud environment
+      Documentation
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#ideas" class="md-nav__link">
     <span class="md-ellipsis">
-      Documentation
+      Ideas
     </span>
   </a>
   
@@ -1977,18 +1977,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cloud-environment" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      Cloud environment
+      Documentation
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#ideas" class="md-nav__link">
     <span class="md-ellipsis">
-      Documentation
+      Ideas
     </span>
   </a>
   
@@ -2095,7 +2095,9 @@ grouped by theme, and stay here until they are implemented and reflected in the
 relevant specification, or explicitly discarded. The software considered for
 each need, in use or candidate, is tracked in
 <a href="software-candidates/">Software candidates</a>: only active evaluations become
-items here.</p>
+items here. An item is work with a next step: a decision that has been taken
+leaves the list once the owning specification records it, and an undated idea
+with no first step waits in the <a href="#ideas">Ideas</a> subsection until it gets one.</p>
 <h3 id="current-focus">Current focus</h3>
 <p>The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):</p>
@@ -2105,229 +2107,138 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
-<li>Extend <code>ferrarimarco_home_lab_boot_bare_metal</code> to power on hosts through their
-  BMC: today the role only sends Wake-on-LAN packets to every MAC in
-  <code>network_interfaces</code> and waits for SSH. Verify the existing Wake-on-LAN path
-  first: the task sends the magic packets from inside the Ansible container,
-  delegated to localhost, and the runner does not use host networking, so the
-  broadcast may never leave Docker's bridge. A magic packet sent from a LAN host
-  (raspberrypi2) did wake pve2 on 2026-10-06, so the host side works (the i210
-  reports <code>Wake-on: g</code>). Test the playbook against pve2 while it is off,
-  watching the plug; if it fails, either run that playbook with host networking
-  or delegate the send to a LAN host. For hosts that declare a BMC address, use
-  <code>community.general.ipmi_power</code> (state <code>on</code>, delegated to the control machine;
-  it needs the <code>pyghmi</code> library in the Ansible container image) with the BMC
-  address from the inventory and the credentials from the vault, before the SSH
-  wait. The inventory carries the BMC address since 2026-10-28, reserved on the
-  gateway as <code>pve2-bmc</code>.</li>
-<li>Generate a Home Lab bootstrapping keypair.</li>
-<li>Fully automate Terraform runs. Reference:
-  <a href="https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform">Running Terraform in automation</a>.</li>
-<li>Fully automate provisioning and configuration of new hosts. Currently manual
-  steps:<ul>
-<li>Copy ESPHome secrets.</li>
-<li>Configure the Ansible Vault password file and the per-host vault files.</li>
-<li>Configure SSH keys.</li>
-<li>Join hosts to the tailnet: <code>tailscale up</code> is interactive, one run per node
-  (NAS spec §13.4 records the deferral and the candidates: a
-  Terraform-minted pre-authentication key with out-of-band delivery, or the
-  Samba password automation mechanism).</li>
-<li>Configure unattended updates for the Nix hosts. The Debian hosts and the
-  Proxmox nodes are covered for the Debian origins: the node role enables
-  its unattended-upgrades stack by default
-  (<a href="https://wiki.debian.org/UnattendedUpgrades">UnattendedUpgrades</a>); the
-  Proxmox origin stays manual, see the item on automating the Proxmox
-  updates under <a href="#host-configuration">Host configuration</a>.</li>
-<li>Network boot service and Raspberry Pi re-provisioning, per the
+<li><strong>Power on hosts through their BMC from
+  <code>ferrarimarco_home_lab_boot_bare_metal</code> (2026-10-28)</strong>: the role only sends
+  Wake-on-LAN packets to every MAC in <code>network_interfaces</code> and waits for SSH.
+  First verify that path: the packets are sent from inside the Ansible
+  container, delegated to localhost, and the runner does not use host
+  networking, so the broadcast may never leave Docker's bridge (a packet sent
+  from raspberrypi2 did wake pve2 on 2026-10-06, so the host side works: the
+  i210 reports <code>Wake-on: g</code>). Test the playbook against pve2 while it is off,
+  watching the plug; if it fails, run that playbook with host networking or
+  delegate the send to a LAN host. Then, for hosts that declare a BMC address
+  (pve2 does, reserved on the gateway as <code>pve2-bmc</code>), use
+  <code>community.general.ipmi_power</code> before the SSH wait, delegated to the control
+  machine, with the credentials from the vault; it needs the <code>pyghmi</code> library in
+  the Ansible container image.</li>
+<li><strong>Manual steps left in the provisioning of a new host</strong>: copy the ESPHome
+  secrets; configure the Ansible Vault password file and the per-host vault
+  files; configure the SSH keys; join the host to the tailnet (<code>tailscale up</code> is
+  interactive, one run per node; the
+  <a href="nas-lxc-container/#134-node-identity-and-joining">NAS spec</a> records the
+  deferral and the candidates); configure unattended updates for the Nix hosts
+  (the Debian hosts and the Proxmox nodes are covered for the Debian origins by
+  the node role's
+  <a href="https://wiki.debian.org/UnattendedUpgrades">unattended-upgrades</a> stack; the
+  Proxmox origin stays manual, see the item on automating the Proxmox updates
+  under <a href="#host-configuration">Host configuration</a>); run Ansible; run Terraform
+  (networking; the storage stack is applied on both nodes).</li>
+<li><strong>Network boot service follow-ups</strong>, per the
   <a href="network-boot/">Network Boot Service</a> spec:<ul>
-<li>A second server instance on pve2, so that pve1 and hl02 are covered
-  too. It must be a standby that answers only while the hl02 instance is
-  down, or share its toggle state: the bootloader takes the first
-  "Raspberry Pi Boot" reply and gives up when that server has no
-  directory for the host. Depends on: the x86 PXE path (deferred, see
-  the spec) and the pve2 power reduction
+<li>A second server instance on pve2, so that pve1 and hl02 are covered too.
+  It must be a standby that answers only while the hl02 instance is down, or
+  share its toggle state: the bootloader takes the first "Raspberry Pi Boot"
+  reply and gives up when that server has no directory for the host. Depends
+  on: the x86 PXE path (deferred, see the spec) and the pve2 power reduction
   (<a href="#host-configuration">Host configuration</a>).</li>
-<li>Declared rescues beside the toggle command, deferred on 2026-11-05
-  until the dry rescue had exercised the command path (done on
-  2026-11-07): a <code>rescue</code> flag per host in the <code>netboot-server</code> role
-  that starts the toggle at boot and at activation; a reconcile step
-  acting only on the hosts whose declaration changed since the previous
-  activation, so a rescue started by command survives unrelated
-  deployments; a boot-time purge limited to the undeclared hosts; and a
-  start that keeps an existing export. A declared rescue then survives
-  an hl02 reboot and is recorded in the repository. Decide at that point
-  whether the command path stays (hybrid) or the flag becomes the only
-  way to start and stop a rescue (code-only: two deployments per rescue,
-  and none while the deployment path itself is broken).</li>
+<li>Declared rescues beside the toggle command (deferred on 2026-11-05 until
+  the dry rescue of 2026-11-07 had exercised the command path): a <code>rescue</code>
+  flag per host in the <code>netboot-server</code> role that starts the toggle at boot
+  and at activation; a reconcile step acting only on the hosts whose
+  declaration changed since the previous activation, so a rescue started by
+  command survives unrelated deployments; a boot-time purge limited to the
+  undeclared hosts; a start that keeps an existing export. Then decide
+  whether the command path stays (hybrid) or the flag becomes the only way
+  to start and stop a rescue (two deployments per rescue, none while the
+  deployment path itself is broken).</li>
 <li>Documentation: the provisioning guide (EEPROM editing from the OS, the
   rescue procedure, the manual follow-ups), the restore recipe
   (<a href="#backup">Backup</a>), and the unresponsive host runbook.</li>
 </ul>
 </li>
-<li>Run Ansible.</li>
-<li>Run Terraform to set up the Proxmox hosts (networking; the storage stack
-  is applied on both nodes).</li>
-</ul>
-</li>
 </ul>
 <h3 id="issues-to-solve">Issues to solve</h3>
 <ul>
-<li>Workload issues to solve:<ul>
-<li>Investigate the recurring cam-3 ffmpeg VAAPI decode crashes on hl01 (about
-  11 per hour: <code>Failed to sync surface</code> then <code>hwdownload</code> failures; they
-  persist over RTSP TCP, so stream transport corruption is ruled out).
-  Hardware acceleration stays enabled by decision (2026-09-23): the Frigate
-  watchdog recovers capture each time and the Frigate alert rules watch for
-  lasting degradation. Candidate angles: Intel media driver and kernel
-  versions, the camera sub-stream H.264 parameters, Frigate and ffmpeg
-  updates.</li>
-<li>Frigate doesn't restart because the cam3 name is not yet available.
-  Restart it manually from the Frigate UI.</li>
+<li><strong>Recurring cam-3 ffmpeg VAAPI decode crashes on hl01</strong> (about 11 per hour:
+  <code>Failed to sync surface</code> then <code>hwdownload</code> failures; they persist over RTSP
+  TCP, so stream transport corruption is ruled out). Hardware acceleration stays
+  enabled by decision (2026-09-23): the Frigate watchdog recovers capture each
+  time and the Frigate alert rules watch for lasting degradation. Angles: Intel
+  media driver and kernel versions, the camera sub-stream H.264 parameters,
+  Frigate and ffmpeg updates.</li>
+<li>Frigate doesn't restart because the cam3 name is not yet available. Restart it
+  manually from the Frigate UI.</li>
 <li>Home Assistant doesn't connect to Zigbee2MQTT and Telegram (DNS error):
-  <code>/etc/resolv.conf</code> is empty. Need to wait for the host network to be
-  ready?</li>
-<li>Frigate pins its disk near full by design: its storage maintainer frees
-  recordings only when the free space drops below one hour of camera
-  bandwidth (about 1.8 GB on hl01), so the free space oscillates around that
-  floor, which on a 38 GB disk matched the 5 percent
-  <code>NodeFilesystemSpaceCritical</code> threshold and made the alert flap
-  (2026-10-04; fixed by growing the disk to 64 GB). Budget the hl01 root
-  disk for retention days times daily recording volume (about 1 GB per day
-  today) plus the Prometheus TSDB growth under its 60-day retention, and
-  resize before the headroom shrinks to that floor.</li>
-<li>The <code>network-stack-coredns</code> Prometheus scrape job renders zero targets: no
-  inventory host sets <code>configure_network_stack</code> yet. Decision (2026-10-04):
-  the job stays as preparation for the CoreDNS deployment, and the
-  zero-target state is accepted until then; the blackbox DNS probes cover
-  the resolution path meanwhile.</li>
-</ul>
-</li>
-<li>raspberrypi2 stability follow-ups (freeze investigated on 2026-09-13: hard
-  lockup between 13:39 and 13:42 local time with no kernel, undervoltage,
-  thermal, or memory precursors in logs or Prometheus history):<ul>
+  <code>/etc/resolv.conf</code> is empty. Need to wait for the host network to be ready?</li>
+<li><strong>Budget the hl01 root disk</strong>: Frigate's storage maintainer frees recordings
+  only when the free space drops below one hour of camera bandwidth (about 1.8
+  GB), so the free space oscillates around that floor, which on a 38 GB disk
+  matched the 5 percent <code>NodeFilesystemSpaceCritical</code> threshold and made the
+  alert flap (2026-10-04, fixed by growing the disk to 64 GB). Size the disk for
+  retention days times daily recording volume (about 1 GB per day) plus the
+  Prometheus TSDB growth under its 60-day retention, and resize before the
+  headroom shrinks to that floor.</li>
+<li>raspberrypi2 stability follow-ups (the
+  <a href="../archive/raspberrypi2-stability-issues/">stability notes</a> record the
+  episodes):<ul>
 <li>Optionally prove the hardware watchdog recovery path end-to-end with a
   deliberate kernel crash (<code>echo c &gt; /proc/sysrq-trigger</code>): the host should
-  self-reboot within the 15 second timeout. Induced crash with the usual
-  unclean-shutdown cost, so schedule it consciously.</li>
-<li>Prune the now-unreferenced <code>vault_raspberrypi2_monitoring_nut_*</code> variables
+  self-reboot within the 15 second timeout. Schedule it consciously, since
+  it has the usual unclean-shutdown cost.</li>
+<li>Prune the unreferenced <code>vault_raspberrypi2_monitoring_nut_*</code> variables
   from the raspberrypi2 Ansible vault (NUT moved to pve1; the host_vars
   references were removed on 2026-09-14).</li>
 </ul>
 </li>
-<li>ONT hang and power cycle: the ZTE ONT (model F6005V6.0, software V6.0.10N20)
-  hangs in a state that only a power cycle clears. Its admin interface hung from
-  2026-03-28 to 2026-11-04, starving the ONT exporter, and on 2026-11-04 its
-  forwarding plane hung too: the WAN was down from 01:20 to 06:12 UTC while the
-  PON LED stayed on, the gateway's Ethernet link to the ONT stayed up at 2.5
-  Gbps, PPPoE discovery got no reply, and the ONT answered no ARP. The router
-  WAN check restarted the WAN 98 times without effect (its only action is a
-  PPPoE restart on the router), a manual power cycle restored the PPPoE session
-  within seconds, and the admin interface came back with it (the exporter runs
-  again since 06:30 UTC, its first data since March). Verified the same day: the
-  admin interface serves three read-only pages (device, GPON, and LAN port info)
-  with no log, no uptime, and no reboot control, so a smart plug is the only
-  remote recovery lever; the ONT keeps no log and its counters restart with
-  power, so the router log is the only record of an outage start
-  (<a href="#networking">Networking</a> has the log retention item). The ONT is a closed,
-  ISP-managed device, so root-causing is likely not possible. Design to assess:
-  a Zigbee plug on the ONT (whether it sits on one of the studio plugs today is
-  not recorded), switched over a path that does not need the WAN (Zigbee2MQTT on
-  raspberrypi2 and the MQTT broker on hl02, from a Home Assistant automation or
-  from the WAN check unit) when the check has failed for several consecutive
-  runs with the gateway's Ethernet link up and no PPPoE reply, at most one cycle
-  per hour. Failure modes to weigh before building it: a cycle during an ISP
-  outage is wasted but harmless; the plug, Zigbee2MQTT, and the check all depend
-  on raspberrypi2; an ONT reboot drops the WAN for about a minute, so the
+<li><strong>ONT hang and power cycle (2026-11-04)</strong>: the ZTE ONT hangs in a state that
+  only a power cycle clears, as the
+  <a href="../archive/ont-connection-instability/">ONT notes</a> record; its admin
+  interface has no reboot control and the device keeps no log, so a smart plug
+  is the only remote recovery lever and the router log the only record of an
+  outage start (<a href="#networking">Networking</a> has the log retention item). Design to
+  assess: a Zigbee plug on the ONT (whether it sits on one of the studio plugs
+  today is not recorded), switched over a path that does not need the WAN
+  (Zigbee2MQTT on raspberrypi2 and the MQTT broker on hl02, from a Home
+  Assistant automation or from the WAN check unit) when the check has failed for
+  several consecutive runs with the gateway's Ethernet link up and no PPPoE
+  reply, at most one cycle per hour. Failure modes to weigh: a cycle during an
+  ISP outage is wasted but harmless; the plug, Zigbee2MQTT, and the check all
+  depend on raspberrypi2; an ONT reboot drops the WAN for about a minute, so the
   trigger must not fire on a short blip (the check's <code>fails=1</code> setting is the
   current sensitivity). Depends on: the WAN check telling an ONT hang from an
   ISP outage (<a href="#networking">Networking</a>).</li>
 </ul>
 <h3 id="reliability-and-resilience">Reliability and resilience</h3>
 <ul>
-<li>Single points of failure to mitigate:<ul>
-<li>Hardware: network gateway, Wi-Fi access point, network switches, network
-  cables, power supply units, UPS, Zigbee antenna.</li>
-<li>Software: DHCP server, DNS resolver, MQTT broker, Zigbee2MQTT. Also,
-  without an internet connection the Ansible container can't be built unless
-  the image is already stored on the host running Ansible.</li>
-<li>Services: WAN.</li>
-</ul>
-</li>
-<li>Minimize external dependencies:<ul>
-<li>NixOS ISO server host</li>
-<li>Terraform provider registry</li>
-<li>Docker image registry.</li>
-<li>Debian package repository.</li>
-<li>Nix store.</li>
-</ul>
-</li>
-<li>Automated troubleshooting playbook: test the DNS server, test the DNS
-  resolver.</li>
-<li>raspberrypi2: a watchdog that covers a root filesystem stall (postponed
-  2026-10-13). The armed hardware watchdog (<code>RuntimeWatchdogSec=15</code>) only resets
-  a hung kernel: PID 1 keeps petting it during a root I/O stall, which is the
-  failure the host actually has (2026-10-06 and 2026-10-07, see the
-  <a href="../archive/raspberrypi2-stability-issues/">stability notes</a>). A design was
-  reviewed against the systemd 247 sources on 2026-10-12 and is kept here so the
-  next attempt starts from it: a resident Python probe service (<code>Type=notify</code>)
-  that writes and syncs a file on the root filesystem every 30 s and pings
-  systemd only after a successful sync, sending <code>READY=1</code> with the first ping; a
-  loop that never exits (a probe error withholds the ping, since an exit reaches
-  the start rate limit, which is a failed state); <code>WatchdogSec=180</code>,
-  <code>TimeoutStopSec=5</code> (the kill sequence has four legs), <code>Restart=no</code>,
-  <code>ConditionPathIsReadWrite=/var/lib</code>, a kill switch file on the boot partition;
-  and <code>FailureAction=reboot-immediate</code>, never <code>reboot-force</code>, which hands PID 1
-  to a binary on the stalled disk and disarms the hardware watchdog. Kernel
-  backstop behind the same flag: <code>kernel.hung_task_panic=1</code> and
-  <code>kernel.panic=10</code> (the detector exists on the host's kernel, 120 s), with the
-  caveat that any 120 s uninterruptible wait panics the host (the CIFS backup
-  mount is the candidate, unverified). Rehearsal: <code>SIGSTOP</code> on the unit
-  exercises the exact expiry and kill sequence. Postponed because the only thing
-  a rehearsal proves is that the unit reboots the host when its own probe hangs;
-  whether the probe sees the real failure, and whether the fix for the cause
-  works, needs a way to trigger the stall deliberately (a controlled reset or
-  power cut of the USB bridge), and a watchdog that can reboot the alerting
-  backend's host for the wrong reason is worse than none. Depends on: the OS
-  re-image (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>)
-  and a reproducible trigger for the stall, to be designed with the UAS quirk
-  (<a href="#host-configuration">Host configuration</a>). Until then a stall means a power
-  cycle.</li>
+<li><strong>raspberrypi2 root filesystem stall watchdog (postponed 2026-10-13)</strong>: the
+  armed hardware watchdog only resets a hung kernel, while the host's failure is
+  a root I/O stall that PID 1 survives. The design reviewed on 2026-10-12 is
+  recorded in the
+  <a href="../archive/raspberrypi2-stability-issues/#root-filesystem-stall-watchdog-design">stability notes</a>,
+  so the next attempt starts from it. Postponed because a rehearsal only proves
+  that the unit reboots the host when its own probe hangs; whether the probe
+  sees the real failure needs a way to trigger the stall deliberately (a
+  controlled reset or power cut of the USB bridge), and a watchdog that can
+  reboot the alerting backend's host for the wrong reason is worse than none.
+  Depends on: a reproducible trigger for the stall, to be designed with the UAS
+  quirk (<a href="#host-configuration">Host configuration</a>). Until then a stall means a
+  power cycle.</li>
 </ul>
 <h3 id="security">Security</h3>
 <ul>
-<li>Reference container images by hashes.</li>
-<li>Reference GitHub Actions by hashes.</li>
-<li>Centralized user management: configure Linux system users, configure network
-  shares permissions.</li>
-<li>Check security vulnerabilities:
-  <a href="https://github.com/ferrarimarco/home-lab/security/code-scanning">code scanning</a>,
-  <a href="https://github.com/threat9/routersploit">routersploit</a>.</li>
-<li>Ansible:
-  <a href="https://github.com/dev-sec/ansible-collection-hardening/">dev-sec hardening collection</a>.</li>
-<li>Secure Debian:
-  <a href="https://www.debian.org/doc/manuals/securing-debian-manual/index.en.html">Securing Debian manual</a>.</li>
-<li>Secrets: restrict access to the Frigate configuration file to root only.</li>
-<li>Mosquitto: configure encryption, authentication, and mTLS. The broker runs on
-  hl02 as a NixOS module (<a href="mqtt-broker/">MQTT Broker</a>), whose module takes
-  password files and certificates from paths on the host, so this item needs a
-  secret delivery path for the NixOS hosts, which none has yet (the open
-  listener needs none).</li>
-<li>Docker: remove users from the Docker group?; Docker socket hardening
-  (<a href="https://doc.traefik.io/traefik/providers/docker/#docker-api-access">Traefik Docker API access</a>,
-  <a href="https://github.com/Tecnativa/docker-socket-proxy">docker-socket-proxy</a>);
-  don't bind ports to every host interface.</li>
-<li>Block internet access to local-only devices.</li>
-<li><a href="https://www.home-assistant.io/docs/configuration/securing/">Securing Home Assistant</a>.</li>
-<li><a href="https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification">Commit signature verification</a>.</li>
-<li>qBittorrent: enable HTTPS.</li>
-<li>Proxmox hardening:
-  <a href="https://dustri.org/b/hardening-proxmox-against-physical-attacks.html">against physical attacks</a>,
-  <a href="https://www.virtualizationhowto.com/2025/08/top-security-hardening-steps-for-proxmox-ve-9/">Proxmox VE 9 hardening steps</a>.</li>
-<li>Encrypt disks; unlock remotely:
-  <a href="https://www.cyberciti.biz/security/how-to-unlock-luks-using-dropbear-ssh-keys-remotely-in-linux/">LUKS unlock via Dropbear SSH</a>.</li>
-<li>SSH: sshd AuthorizedKeysCommand; IdentitiesOnly.</li>
-<li>NixOS hardening, in order of intrusiveness: enable the NixOS firewall with the
-  Tailscale interface trusted; harden each service unit with the systemd
+<li><strong>Pin every GitHub Action to a commit SHA</strong>: 4 of the 14 third-party actions
+  the workflows use are SHA-pinned, the rest by tag, and
+  <code>config/lint/zizmor.yaml</code> ignores the <code>unpinned-uses</code> audit for twelve
+  workflows until they are. Pin them with the release tag in a trailing comment
+  and drop the ignores.</li>
+<li>Restrict the Frigate configuration file to root only (the node role renders it
+  with mode <code>0640</code> today).</li>
+<li><strong>Mosquitto encryption, authentication, and mTLS</strong>: the broker runs on hl02 as
+  a NixOS module (<a href="mqtt-broker/">MQTT Broker</a>) that takes password files and
+  certificates from paths on the host, so this needs a secret delivery path for
+  the NixOS hosts, which none has yet (the open listener needs none).</li>
+<li><strong>NixOS hardening, in order of intrusiveness</strong>: enable the NixOS firewall with
+  the Tailscale interface trusted; harden each service unit with the systemd
   sandboxing directives (ProtectSystem, ProtectHome, NoNewPrivileges, the
   ProtectKernel family), using <code>systemd-analyze security</code> as the yardstick;
   audit every <code>execve</code> with the kernel audit subsystem and ship the logs off the
@@ -2346,6 +2257,11 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Move secrets to
   <a href="https://docs.docker.com/compose/use-secrets/">Docker Compose secrets</a>.</li>
 <li>Move environment variables to env files.</li>
+<li>Replace FlareSolverr's anonymous <code>/config</code> volume (a browser cache that
+  its image declares, the only volume in the fleet as of the 2026-10-10
+  audit) with a declared bind mount or <code>tmpfs</code>, so every stack keeps its
+  state in the two backed-up trees the <a href="backups/">Backups specification</a>
+  names.</li>
 </ul>
 </li>
 <li>Terraform:<ul>
@@ -2358,19 +2274,19 @@ reliability risks first, then security exposure, then automation):</p>
   untracked tfvars file per the secrets policy, and start with a
   <code>terraform import</code> of the existing zone and records so the first apply
   changes nothing.</li>
-<li>Configure
-  <a href="https://registry.terraform.io/providers/integrations/github/latest/docs">GitHub repositories</a>.</li>
-<li><a href="https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module">Ansible terraform module</a>.</li>
-<li>Setup CI for Terraform.</li>
-<li>Tolerate powered-off Proxmox nodes: every stack configures a provider per
-  node, so a single unreachable node (pve2 stays off until its power
-  reduction work completes, see <a href="#host-configuration">Host configuration</a>)
-  fails the whole <code>run-terraform.sh</code> sequence, even for changes that only
-  touch pve1 resources. Candidate directions: split the multi-node stacks
-  into per-node stacks so each node's resources apply independently, and let
-  <code>run-terraform.sh</code> select which stacks to run; evaluate whether the
-  <code>bpg/proxmox</code> provider can defer node connectivity until a resource
-  actually needs it.</li>
+<li><strong>Tolerate powered-off Proxmox nodes</strong>: every stack configures a provider
+  per node, so a single unreachable node (pve2 stays off until its power
+  reduction completes, see <a href="#host-configuration">Host configuration</a>) fails
+  the whole <code>run-terraform.sh</code> sequence, even for changes that only touch
+  pve1 resources. Candidates: split the multi-node stacks into per-node
+  stacks and let <code>run-terraform.sh</code> select which to run; check whether the
+  <code>bpg/proxmox</code> provider can defer node connectivity until a resource needs
+  it.</li>
+<li>Factor the per-host NixOS VM resources into a shared module (or <code>for_each</code>
+  over a host map), so the reference pattern of the
+  <a href="proxmox-vm/">VM framework spec</a> is enforced by code rather than by
+  convention; hl02 is the second VM, declared next to hl01 in the workloads
+  stack.</li>
 </ul>
 </li>
 <li>Tests to implement:<ul>
@@ -2379,24 +2295,20 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Validate the Unbound configuration: <code>unbound-checkconf unbound.conf</code>.</li>
 <li><a href="https://www.home-assistant.io/common-tasks/container/#configuration-check">Home Assistant config check</a>.</li>
 <li><a href="https://github.com/moby/moby/pull/42393">Docker config validation</a>.</li>
-<li>Guard the workload state convention (2026-10-12): the weekly Docker prune
-  runs with <code>--all --volumes</code>, which is safe only while every stack keeps
-  its state in bind-mounted directories under the backed-up configuration
-  and runtime trees and never in named or anonymous volumes (audited true on
-  2026-10-12: the only anonymous volume in the fleet is the one
-  Flaresolverr's image declares, empty). Add a check that fails when a
-  compose definition declares a volume or mounts one: rendering the compose
-  files and inspecting <code>docker compose config --format json</code> (top-level
-  <code>volumes</code> empty, every mount of type <code>bind</code>) is one option, inside the
-  existing Molecule run or as a standalone step; keep the check independent
-  of Ansible where possible, since the long-term direction is Nix. Volumes
-  declared by an image stay out of reach without a pull and hold no state by
-  the same convention.</li>
+<li><strong>Guard the workload state convention (2026-10-12)</strong>: the weekly Docker
+  prune runs with <code>--all --volumes</code>, which is safe only while every stack
+  keeps its state in bind-mounted directories under the backed-up trees and
+  never in named or anonymous volumes. Add a check that fails when a compose
+  definition declares a volume or mounts one: render the compose files and
+  inspect <code>docker compose config --format json</code> (top-level <code>volumes</code> empty,
+  every mount of type <code>bind</code>), inside the Molecule run or as a standalone
+  step, independent of Ansible where possible since the long-term direction
+  is Nix. Volumes declared by an image stay out of reach without a pull and
+  hold no state by the same convention.</li>
 <li>Declare one rsync module in the Molecule inventory (2026-10-18): the test
   host enables the rsync daemon without <code>rsync_daemon_modules</code>, so the loop
-  that builds the daemon's templates list never runs in CI, and the quoted
-  folded scalar that turned the list into a string under ansible-core 2.19
-  (fixed the same day) only failed on hl01.</li>
+  that builds the daemon's templates list never runs in CI, and a defect in
+  it only fails on hl01.</li>
 </ul>
 </li>
 <li>Ansible:<ul>
@@ -2411,98 +2323,87 @@ reliability risks first, then security exposure, then automation):</p>
 <li><strong>The Coral role cannot tell the gasket package builds apart
   (2026-11-04)</strong>: the community builds of <code>gasket-dkms</code> all carry the
   upstream version <code>1.0-18</code>, and the apt module skips a package file whose
-  version is already installed (the check-mode prediction task compares the
-  same version string), so the pinned 2026 build never replaced the 2024
-  Google package on hl01 and the DKMS source stayed unpatched until the
+  version is already installed, so the pinned 2026 build never replaced the
+  2024 Google package on hl01 and the DKMS source stayed unpatched until the
   Debian 13 kernel failed to build it (the release upgrade procedure of the
   <a href="../guides/useful-linux-admin-commands/">Linux administration notes</a> has
-  the recovery). Make the role compare the installed source with the pinned
-  package (the package's <code>md5sums</code> against <code>/usr/src/gasket-1.0</code>, or a
-  marker holding the installed file's checksum) and reinstall through
-  <code>dpkg -i</code> on a mismatch.</li>
+  the recovery). Compare the installed source with the pinned package (the
+  package's <code>md5sums</code> against <code>/usr/src/gasket-1.0</code>, or a marker holding the
+  installed file's checksum) and reinstall through <code>dpkg -i</code> on a mismatch.</li>
 <li><strong>The detached dist-upgrade task does not protect the controller side
   (2026-11-04)</strong>: on hl01's release upgrade the async job finished on the
-  host, but the controller's worker process died after the first polls ("A
-  worker was found in a dead state", cause not found) and the play kept
-  printing polls without contacting the host until it was stopped. Run the
-  upgrade through a transient systemd unit instead (<code>systemd-run --wait</code>, as
+  host, but the controller's worker process died after the first polls and
+  the play kept printing polls without contacting the host until stopped.
+  Run the upgrade through a transient systemd unit (<code>systemd-run --wait</code>, as
   the backup role runs its jobs), which a lost controller leaves running and
   whose result the next run can read, or make the poll loop fail on an
   unreachable host.</li>
-<li>Get the Proxmox VMs data from the inventory instead of using the
-  proxmox_vms list.</li>
-<li>Move the handlers to a dedicated role and reuse that role across all
-  playbooks.</li>
+<li>Get the Proxmox VMs data from the inventory instead of the <code>proxmox_vms</code>
+  list.</li>
+<li>Move the handlers to a dedicated role and reuse it across all playbooks.</li>
 <li>Cover the <code>gateway-dnsmasq</code> playbook in Molecule (deferred 2026-10-28):
   the default scenario has no <code>nvram</code>, so the playbook is not in the CI
   matrix and the check run against the router is its test. A prepare step
   installing stub <code>nvram</code> and <code>service</code> scripts on the test instance, with
   the gateway host pointed at that instance, would exercise the role's
   rendering and read-then-act logic in CI.</li>
-<li>Refactor the molecule tests to use <code>group_vars</code> and <code>host_vars</code> instead of
-  redefining variables in the molecule file
+<li>Refactor the Molecule tests to use <code>group_vars</code> and <code>host_vars</code> instead of
+  redefining variables in the Molecule file
   (<a href="https://ansible.readthedocs.io/projects/molecule/configuration/#molecule.provisioner.ansible.Ansible">reference</a>).</li>
 <li>Set the hostname (<code>/etc/hostname</code>: simple hostname).</li>
 <li>Validation: check that <code>start_xxxx</code> and <code>stop_xxxx</code> don't contradict each
   other.</li>
 <li>Cleanup users after switching from appending groups to creating dedicated
   users: set the "state" of users dynamically.</li>
-<li>Tailscale: don't run tailscale up if the flags didn't change between runs.</li>
-<li>Cut the Molecule workflow cost (measured 2026-10-12 on the last green run,
-  2026-09-29): each of the eight matrix jobs rebuilds the same Ansible
-  container image (220 to 230 s each, about 30 of the 55 job-minutes),
-  because they all build at once before any of them has written the shared
-  cache. Build the image once in a job the matrix depends on (push it to the
-  GitHub container registry, or warm the <code>gha</code> cache and let the matrix jobs
-  read it). Then reconsider the matrix: <code>main</code> imports every other playbook,
-  so the seven standalone jobs only add per-playbook attribution and a
-  standalone-run check, while <code>home-lab-node</code>, the most-changed playbook, is
-  tested only through <code>main</code>; the idempotence phase stays.</li>
-<li>Cut the Molecule converge time (measured 2026-10-23 on <code>main</code> against the
-  Debian 12 image): the baseline took 6:34 to converge and 4:11 for the
-  idempotence pass; enabling connection pipelining for the Docker connection
-  cut them to 4:53 and 2:34, and a run scoped to one stack with
-  <code>ANSIBLE_TEST_TAGS</code> takes 1:47 and 0:57. What remains is about 0.2 s of
-  fixed cost per task across some 370 tasks, the four file loops of the node
-  role (about 50 s per pass, one module execution per item), and three
-  levers not taken yet. First, the package installs (bootstrap apt, Docker,
-  Debian packages, Coral DKMS) cost about 110 s per converge on the bare
-  image: a test instance image layered on the geerlingguy image with the
-  role's packages pre-installed, built by the container image workflow,
-  removes them, but its package list drifts from the role's unless it is
-  derived from the role's variables. Second, the bootstrap role's untagged
-  apt cache refreshes and repository loops cost 48 s in the converge and 23
-  s in the idempotence pass of a scoped run, paid by every scope. Third,
-  Molecule keeps its state in the Ansible container's cache directory, which
-  the script removes with the container, so a <code>converge</code> cannot be followed
-  by <code>idempotence</code> or <code>login</code> from a second invocation; mounting a
-  persistent cache directory from the script would allow that iteration
-  workflow instead of running <code>converge</code> twice.</li>
-<li>Make the <code>home-lab-node</code> playbook pass a standalone Molecule run
-  (2026-10-12): the Docker prune unit the node role renders requires
+<li>Tailscale: don't run <code>tailscale up</code> if the flags didn't change between
+  runs.</li>
+<li><strong>Cut the Molecule workflow cost (measured 2026-10-12)</strong>: each of the
+  eight matrix jobs rebuilds the same Ansible container image (220 to 230 s
+  each, about 30 of the 55 job-minutes of the last green run, 2026-09-29),
+  because they all build at once before any has written the shared cache.
+  Build the image once in a job the matrix depends on (push it to the GitHub
+  container registry, or warm the <code>gha</code> cache). Then reconsider the matrix:
+  <code>main</code> imports every other playbook, so the seven standalone jobs only add
+  per-playbook attribution and a standalone-run check, while
+  <code>home-lab-node</code>, the most-changed playbook, is tested only through <code>main</code>;
+  the idempotence phase stays.</li>
+<li><strong>Cut the Molecule converge time (measured 2026-10-23 on <code>main</code> against
+  the Debian 12 image)</strong>: connection pipelining cut the converge from 6:34
+  to 4:53 and the idempotence pass from 4:11 to 2:34; a run scoped to one
+  stack takes about 1:47 and 0:57. What remains is about 0.2 s of fixed cost
+  per task across some 370 tasks, the four file loops of the node role
+  (about 50 s per pass, one module execution per item), and three levers not
+  taken yet: a test instance image layered on the geerlingguy image with the
+  role's packages pre-installed (about 110 s per converge), built by the
+  container image workflow with its package list derived from the role's
+  variables so it cannot drift; the bootstrap role's untagged apt cache
+  refreshes and repository loops (48 s and 23 s in a scoped run), paid by
+  every scope; a persistent Molecule cache directory mounted by the script,
+  so a <code>converge</code> can be followed by <code>idempotence</code> or <code>login</code> from a second
+  invocation.</li>
+<li><strong>Make the <code>home-lab-node</code> playbook pass a standalone Molecule run
+  (2026-10-12)</strong>: the Docker prune unit the node role renders requires
   <code>docker.service</code>, which only the container-engine playbook installs, so
-  restarting the unit on the Debian 12 image fails with "Unit docker.service
-  not found" and the run stops at "Restart OS services" before the systemd
-  tasks. Either declare the Docker role as a dependency of the node role, or
-  skip the Docker-bound units when Docker is not installed (and still render
-  them). Blocks: testing <code>home-lab-node</code> on its own in the Molecule matrix,
-  in the workflow cost item above.</li>
+  restarting it on the test image fails with "Unit docker.service not
+  found". Either declare the Docker role as a dependency of the node role,
+  or skip the Docker-bound units when Docker is not installed (and still
+  render them). Blocks: testing <code>home-lab-node</code> on its own in the Molecule
+  matrix, in the workflow cost item above.</li>
 </ul>
 </li>
-<li>Dependency updates: fully migrate from Dependabot to Renovate, so a single
-  tool manages all dependency updates. Renovate is already configured
-  (<code>.github/renovate.json</code>) behind Dependency Dashboard approval, and covers
-  sources that Dependabot does not (Ansible Galaxy requirements, pre-commit
-  hooks, and the <code>_VERSION</code> variables in Dockerfiles and scripts). Decide on the
-  approval flow, port the grouping, then remove <code>.github/dependabot.yaml</code>.
-  Dependabot multi-ecosystem groups were abandoned on 2026-09-29 because group
-  pull requests stopped updating after their creation.</li>
-<li>Move monitoring stack from the home_lab_node role to the home_lab_monitoring
-  role. Today the node role deploys the containerized exporters and textfile
-  collectors on Docker hosts while the monitoring role installs the Debian
-  packages on the Proxmox nodes, so the apt success-stamp snippet lives in both
-  roles (2026-10-12); the monitoring playbook also targets every host with no
-  gate, so it must be run with a host limit until the roles merge.</li>
+<li><strong>Migrate from Dependabot to Renovate</strong>, so a single tool manages all
+  dependency updates. Renovate is configured (<code>.github/renovate.json</code>) behind
+  Dependency Dashboard approval and covers sources Dependabot does not (Ansible
+  Galaxy requirements, pre-commit hooks, the <code>_VERSION</code> variables in Dockerfiles
+  and scripts). Decide on the approval flow, port the grouping, then remove
+  <code>.github/dependabot.yaml</code>. Dependabot multi-ecosystem groups were abandoned on
+  2026-09-29 because group pull requests stopped updating after creation.</li>
+<li><strong>Move the monitoring stack from the node role to the monitoring role</strong>: the
+  node role deploys the containerized exporters and textfile collectors on
+  Docker hosts while the monitoring role installs the Debian packages on the
+  Proxmox nodes, so the apt success-stamp snippet lives in both (2026-10-12);
+  the monitoring playbook also targets every host with no gate, so it must run
+  with a host limit until the roles merge.</li>
 <li><strong>pve2's first full node run and its kernel command line (deferred on
   2026-11-10, waiting on the host)</strong>: pve1 had its first full
   <code>home-lab-node.yaml</code> run on 2026-11-10 (key-only root SSH with password
@@ -2533,21 +2434,15 @@ reliability risks first, then security exposure, then automation):</p>
   variables is referenced by no stack (read on 2026-11-10): the sense-hat
   package has never been installed or removed by the stack machinery. Wire it
   into the sense hat stack or drop it.</li>
-<li>NixOS VMs (<a href="proxmox-vm/">NixOS VMs on Proxmox</a>): factor the per-host
-  Terraform VM resources into a shared module (or <code>for_each</code> over a host map),
-  so the reference pattern is enforced by code rather than by convention. The
-  trigger is met: hl02 is the second NixOS VM, declared next to hl01 in the
-  workloads stack.</li>
-<li>Nix tests<ul>
+<li>Nix tests:<ul>
 <li>Modularize the integration-test generator: move the per-service test
   fragments (SSH, QEMU guest agent, comin, Samba, ...) out of
-  <code>config/nix/tests/make-test.nix</code> — for example placing each fragment next
-  to its role — so the generator stays maintainable as service coverage
-  grows. Do it for all services at once to avoid a split paradigm.</li>
-<li>Check that configured users are present</li>
+  <code>config/nix/tests/make-test.nix</code>, for example next to each role, so the
+  generator stays maintainable as service coverage grows. Do it for all
+  services at once to avoid a split paradigm.</li>
+<li>Check that configured users are present.</li>
 <li>Check that configured users have their SSH keys authorized (reuse the
-  existing bootstrap key check because it already does most of the stuff we
-  need for this check).</li>
+  existing bootstrap key check, which already does most of the work).</li>
 </ul>
 </li>
 <li>Reusable workflow calls with the self-repository syntax: GitHub recommends
@@ -2560,25 +2455,19 @@ reliability risks first, then security exposure, then automation):</p>
 <li><strong>One Git worktree per agent session (parked on 2026-11-06, waiting for a
   decision)</strong>: the agent sessions that work on this repository share one working
   tree, one index, and one branch, which is why the guides and the agent skills
-  carry a rule per shared resource (a temporary index for a partial commit, a
-  temporary worktree for a docs build or a playbook apply, one lint run at a
-  time). A worktree per session that changes code (<code>claude --worktree &lt;name&gt;</code>)
-  would keep the changes of each session apart by construction. Untried; the
-  costs to settle first:<ul>
-<li>The committed <code>docs/</code> output conflicts whenever two branches rebuild it.
-  CI committing the site on master would remove the conflict:
-  <code>.github/workflows/documentation.yaml</code> commits only on pull requests
-  today, and changing that was parked on 2026-10-22.</li>
-<li>Nearly every change edits this index, so it will sometimes conflict.</li>
-<li>The gitignored vault files need the hard links that the
+  carry a rule per shared resource. A worktree per session that changes code
+  (<code>claude --worktree &lt;name&gt;</code>) would keep the changes of each session apart by
+  construction. Untried; the costs to settle first: the committed <code>docs/</code> output
+  conflicts whenever two branches rebuild it (CI committing the site on master
+  would remove the conflict; <code>.github/workflows/documentation.yaml</code> commits only
+  on pull requests today, parked on 2026-10-22); nearly every change edits this
+  index, so it will sometimes conflict; the gitignored vault files need the hard
+  links the
   <a href="../guides/development/operational-scripts/">operational scripts guide</a>
-  describes for a temporary worktree; where the Terraform state lives was
-  not checked.</li>
-<li>A playbook apply would need a rule to run only from a commit on master.</li>
-<li>The lint and docs containers have fixed names, so those runs stay one at a
-  time across worktrees.</li>
-</ul>
-</li>
+  describes for a temporary worktree, and where the Terraform state lives was
+  not checked; a playbook apply would need a rule to run only from a commit on
+  master; the lint and docs containers have fixed names, so those runs stay one
+  at a time across worktrees.</li>
 </ul>
 <h3 id="host-configuration">Host configuration</h3>
 <ul>
@@ -2598,109 +2487,89 @@ reliability risks first, then security exposure, then automation):</p>
   it), the <code>proxmox-ve</code> apt hook as the only built-in guard against a removal,
   and an alert for a run that failed or never happened. The cost side of the
   rejected automatic variant: unattended removals and hypervisor changes nobody
-  reviews, which the staff position in the linked forum thread advises against.</li>
+  reviews, which the staff position in the
+  <a href="https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/">Proxmox forum thread</a>
+  advises against.</li>
 <li><strong>Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)</strong>:
-  pve1 was installed with a ZFS root on UEFI, so it boots through
-  <code>proxmox-boot-tool</code> with systemd-boot, keeps every ESP in sync, and takes the
-  kernel command line from <code>/etc/kernel/cmdline</code>; pve2 was installed on LVM with
-  an ext4 root and boots through GRUB, so its root has no checksums,
-  compression, or snapshots to roll back an upgrade, and the Proxmox role's
-  kernel task fails on it (<a href="#cicd-infrastructure-as-code-and-gitops">CI/CD</a>).
+  pve1 boots a ZFS root through <code>proxmox-boot-tool</code> with systemd-boot, which
+  keeps every ESP in sync and takes the kernel command line from
+  <code>/etc/kernel/cmdline</code>; pve2 was installed on LVM with an ext4 root and boots
+  through GRUB, so its root has no checksums, compression, or snapshots to roll
+  back an upgrade. The Proxmox role's kernel task reads the boot layout and
+  writes the GRUB variant since 2026-11-10, not yet run on pve2 (the pve2 first
+  full node run item under <a href="#cicd-infrastructure-as-code-and-gitops">CI/CD</a>).
   Align at pve2's next reinstall by choosing a ZFS root in the installer with
-  Secure Boot off (Proxmox falls back to GRUB with it on), which gives pve1's
-  layout for free; a reinstall only for this is not worth its cost (guests
-  re-created by Terraform, the data pools exported and imported, the NAS
-  container's state directories on the root disk carried across). Until then the
-  role fix in the CI/CD item keeps both layouts converging.</li>
+  Secure Boot off (Proxmox falls back to GRUB with it on); a reinstall only for
+  this is not worth its cost (guests re-created by Terraform, the data pools
+  exported and imported, the NAS container's state directories on the root disk
+  carried across).</li>
 <li><strong>pve2 power reduction before running it 24/7</strong>: the goal is to run pve2
-  around the clock, but it stays powered off until its idle draw (~45 W at the
-  wall) comes down. The measurements, the attribution, the levers with their
-  status, the experiment log, the BIOS export, and the decisions taken (scratch
-  drives kept, HDD spin-down excluded, runtime tunables not persisted) are in
-  the <a href="../guides/operations/host-power/">host power guide</a>. Remaining steps:<ul>
-<li>Keep watching the SATA link power management that the BIOS change of
-  2026-10-06 enabled (the kernel applies <code>min_power_with_partial</code> on the
-  three links at boot): the nas-pve2 root filesystem on the data disk wakes
-  its link at every transaction group sync, and a 4 GiB sequential read pass
-  per drive on 2026-10-06 ran at full speed with no link events and no new
-  UDMA CRC errors. Before declaring it fit for 24/7 duty, check the kernel
-  log for <code>ata1</code>-<code>ata3</code> resets and the <code>UDMA_CRC_Error_Count</code> attributes
-  after a few days of uptime, and run a ZFS scrub once the pools hold enough
-  data for a scrub to exercise the links (today they hold about 1 GB).</li>
+  around the clock, but it stays powered off until its idle draw (about 45 W at
+  the wall) comes down. The measurements, the levers with their status, the
+  experiment log, the BIOS export, and the decisions taken are in the
+  <a href="../guides/operations/host-power/">host power guide</a>. Remaining steps:<ul>
+<li>Keep watching the SATA link power management the BIOS change of 2026-10-06
+  enabled: before declaring the host fit for 24/7 duty, check the kernel log
+  for <code>ata1</code>-<code>ata3</code> resets and the <code>UDMA_CRC_Error_Count</code> attributes after a
+  few days of uptime, and run a ZFS scrub once the pools hold enough data to
+  exercise the links (about 1 GB today).</li>
 <li>Replace the PSU, last, so it is measured at the final DC load.</li>
 <li>Deferred until the pve2 workload is defined: the CPU governor, the energy
-  performance bias (Balanced Performance today, BIOS-controlled at boot,
-  writable at runtime through <code>energy_perf_bias</code>), and the memory frequency
-  (1866 MT/s today; 1333 or 1600 MT/s is a BIOS line in the compact file).
-  All three trade performance for power under load: compare them with a
-  controlled load on the plug, then decide what goes into the BIOS file or
-  the host configuration.</li>
-<li>The power instrument depends on raspberrypi2: the Zigbee plugs reach Home
-  Assistant through Zigbee2MQTT on that host, so measurements pause when it
-  stalls (2026-10-06), and Zigbee2MQTT stays there (2026-10-23); the host
-  was re-imaged on 2026-11-08, and the network coordinator
-  (<a href="#smart-home">Smart home</a>) removes the host dependency altogether.</li>
+  performance bias, and the memory frequency, all of which trade performance
+  for power under load; compare them with a controlled load on the plug,
+  then decide what goes into the BIOS file or the host configuration.</li>
+<li>The power instrument depends on raspberrypi2 (the Zigbee plugs reach Home
+  Assistant through Zigbee2MQTT there); the network coordinator
+  (<a href="#smart-home">Smart home</a>) removes that dependency.</li>
 <li>Depends on: a stable BMC address for remote recovery during runtime
   experiments (<a href="#networking">Networking</a>). Blocks: the media second copy on
-  <code>tank-hdd</code> (<a href="#nas">NAS</a>); the Proxmox node downtime alerts stay enabled by
-  choice until pve2 runs 24/7
+  <code>tank-hdd</code> (<a href="#backup">Backup</a>); the Proxmox node downtime alerts stay
+  enabled by choice until pve2 runs 24/7
   (<a href="#monitoring-and-alerting">Monitoring and alerting</a>).</li>
 </ul>
 </li>
-<li>Proxmox cluster (pve1, pve2): configure certificates
-  (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management">certificate management</a>,
-  <a href="https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html">Let's Encrypt</a>).</li>
-<li>Asus RT-AX86U: copy the node public key to the Asus to allow SSH access,
-  configure the Asus host key as trusted in the node that connects via SSH,
-  deploy the Prometheus Node Exporter: run the arm64 release binary from the USB
-  storage, relaunch it when not running from a <code>cru</code> cron entry, add the router
-  to the <code>node</code> scrape job, and verify the netdev collector reports the
-  interface counters, since some exporter releases failed on this firmware. The
-  stock firmware has no <code>init-start</code> hook (checked 2026-10-23: the <code>rc</code> binary
-  carries no <code>jffs2_exec</code> or <code>script_usbmount</code> string, only <code>.asusrouter</code>,
-  untested), and its <code>script_usbmount</code> variable is blocked and scrubbed on
-  recent builds, so the known launcher is the one
+<li><strong>Prometheus node exporter on the Asus RT-AX86U</strong>: copy the node public key to
+  the router, trust its host key on the connecting node, run the arm64 release
+  binary from USB storage, relaunch it when not running from a <code>cru</code> cron entry,
+  add the router to the <code>node</code> scrape job, and verify the netdev collector
+  reports the interface counters, since some exporter releases failed on this
+  firmware
+  (<a href="https://www.snbforums.com/threads/successfully-got-node_exporter-on-rt-ax58u.64683/">reference</a>).
+  The stock firmware has no <code>init-start</code> hook and its <code>script_usbmount</code> variable
+  is blocked on recent builds (checked 2026-10-23; the
+  <a href="../archive/asus-rt-ax86u-tim-gateway/#script-launchers-and-firmware-update-signals">gateway notes</a>
+  have the evidence), so the known launcher is the one
   <a href="https://github.com/jacklul/asuswrt-scripts">jacklul/asuswrt-scripts</a> uses: a
   USB stick carrying a fake Download Master package whose init script starts the
   scripts after the mount. No USB storage is attached to the router today, so
-  this item starts with that stick; the same launcher would carry the
-  <code>uptime-reboot</code> and <code>update-notify</code> style scripts, none of which the lab needs
-  (the firmware check is covered from the lab side,
-  <a href="#monitoring-and-alerting">Monitoring and alerting</a>).</li>
+  this item starts with that stick.</li>
 <li>raspberrypi2:<ul>
 <li>Enable TRIM on the external SSD
   (<a href="https://www.jeffgeerling.com/blog/2020/enabling-trim-on-external-ssd-on-raspberry-pi">reference</a>).</li>
 <li>Force the Argon One M.2 bridge (ASMedia <code>174c:1156</code>, the root SSD) off the
   <code>uas</code> driver with <code>usb-storage.quirks: 174c:1156:u</code> in the host's
   <code>raspberry_pi_kernel_command_line_options</code> (the node role rewrites
-  <code>cmdline.txt</code> and reboots). This is the first mitigation for the root
-  storage stalls of 2026-10-06 and 2026-10-07 (see the
+  <code>cmdline.txt</code> and reboots since 2026-11-09). This is the first mitigation
+  for the root storage stalls of 2026-10-06 and 2026-10-07 (see the
   <a href="../archive/raspberrypi2-stability-issues/">stability notes</a>); verify
   with <code>lsusb -t</code> that the bridge binds to <code>usb-storage</code> after the reboot.</li>
 <li>Test the Argon case's poweroff hook: the node role places it in
   <code>/usr/lib/systemd/system-shutdown</code> since 2026-11-09 (it sat in an unread
-  directory under <code>/etc</code> before, without the executable bit), so whether the
-  case cuts the power at the end of a poweroff has never been observed.
-  Power the host off on a quiet day, confirm the case's LED and fan stop,
-  and record the outcome in the
+  directory before), so whether the case cuts the power at the end of a
+  poweroff has never been observed. Power the host off on a quiet day,
+  confirm the case's LED and fan stop, and record the outcome in the
   <a href="../archive/raspberrypi2-stability-issues/">stability notes</a>.</li>
-<li>Argon One M.2 case: set up logging for the fan controller
-  (<a href="https://github.com/Argon40Tech/Argon40case/blob/master/src/argonone-firmwareupdate.py">firmware updater</a>,
-  <a href="https://github.com/Argon40Tech/Argon-ONE-i2c-Codes">I2C codes</a>,
-  <a href="https://forum.argon40.com/t/much-better-argon-one-fan-linux-software-alternative/891">fan software alternative</a>).</li>
-</ul>
-</li>
-<li>Stable serial adapter assignment:<ul>
-<li>Create a udev rule:
-  <code>echo 'SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d4", SYMLINK+="zigbee_dongle"' | sudo tee /etc/udev/rules.d/99-zigbee.rules</code></li>
-<li>Change the mapping in Docker</li>
-<li>
-<p>Logs:</p>
-<div class="highlight"><pre><span></span><code>Error response from daemon: error gathering device information while adding custom device &quot;/dev/serial/by-id/usb-ITEAD_SONOFF_Zigbee_3.0_USB_Dongle_Plus_V2_20220708144056-if00&quot;: no such file or directory
-pi@raspberrypi2:~ $ ls /dev/serial/by-id
-usb-1a86_USB_Single_Serial_54DD003512-if00
-</code></pre></div>
-</li>
+<li>Stable device path for the Zigbee dongle: the Sonoff dongle (USB ID
+  <code>1a86:55d4</code>, a QinHeng serial chip) has enumerated at least once with the
+  chip's default descriptors ("USB Single Serial" strings and another serial
+  number) instead of ITEAD's, so the <code>by-id</code> symlink that
+  <code>zigbee_adapter_device_path</code> names did not exist and Docker refused to
+  start Zigbee2MQTT; since 2026-11-07 the project unit would stay inactive
+  on its missing required device path instead. Add a udev rule matching the
+  vendor and product IDs
+  (<code>SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="55d4", SYMLINK+="zigbee_dongle"</code>),
+  which exists under either enumeration, and point the inventory variable at
+  its symlink.</li>
 </ul>
 </li>
 </ul>
@@ -2722,94 +2591,58 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>A static address per host in its own toolchain: NixOS interface options
   for hl02 (and the future pve2 twin), the cloud-init network data file
   Terraform already stages for hl01, the container network settings for
-  nas-pve1, the interfaces file the Proxmox nodes already have, and the host
-  network configuration the node role renders for raspberrypi2. The resolver
-  hosts point at their local Unbound, so they boot without the router.</li>
+  nas-pve1 (the NAS static IP migration), the interfaces file the Proxmox
+  nodes already have, and the host network configuration the node role
+  renders for raspberrypi2. The resolver hosts point at their local Unbound,
+  so they boot without the router.</li>
 <li>Server records in the CoreDNS edge zone, generated from the inventory, the
   gateway's own name included: <code>gateway.edge.lab.ferrari.how</code> resolves today
   only because the router writes <code>gateway.&lt;LAN domain&gt;</code> to its hosts file,
   and the ChkWAN and ONT units reach the router by that name.</li>
 <li>Reservations reduced to pool guards during the transition and then to the
-  devices whose configuration the lab does not own (the cameras).</li>
+  devices whose configuration the lab does not own (the cameras); cam-1's
+  manual assignment is no longer needed.</li>
 <li>Sequence, gated by the resolver switch rather than by the addresses: every
   static host points at Unbound in its own configuration and DHCP clients
   through option 6 before the router's LAN domain changes (network stack
   item below), because afterwards the router knows servers only under the
   client zone and any host still resolving through it loses every server
-  name at once (the CIFS mount sources, the broker name Frigate and
-  Zigbee2MQTT read, the probe targets). Considered and rejected: renaming
-  the servers into <code>lab.ferrari.how</code> (every consumer carries the edge
-  names), and CoreDNS owning the edge zone with <code>fallthrough</code> to the router
-  as the end state (two authorities for one zone; kept as the transition
-  device, see the network stack item). The pool carve-out and option 6 are
+  name at once. Rejected: renaming the servers into <code>lab.ferrari.how</code> (every
+  consumer carries the edge names), and CoreDNS owning the edge zone with
+  <code>fallthrough</code> to the router as the end state (two authorities for one
+  zone; kept as the transition device). The pool carve-out and option 6 are
   <code>gateway_dhcp</code> values in the inventory, which the <code>gateway-dnsmasq</code>
-  playbook applies (2026-10-28). Blocks: the NAS static IP migration
-  (<a href="#nas">NAS</a>).</li>
+  playbook applies (2026-10-28).</li>
 </ul>
 </li>
 <li><strong>Tailscale subnet router on hl02 for general remote access</strong>: one node
   advertising the LAN covers ad-hoc remote access without installing Tailscale
   fleet-wide; service endpoints get direct nodes instead, per the NAS spec's
   <a href="nas-lxc-container/#13-tailscale-connectivity">placement rationale</a>.
-  Candidate host: hl02 (NixOS, so declarative; a full VM with a native
-  <code>/dev/net/tun</code>). Design considerations: remote access through an hl02 router
-  is down whenever pve1's virtualization layer is, and the current physical
-  tailnet fallback (raspberrypi2) is being retired — evaluate keeping a physical
-  device on the tailnet for out-of-band reach; high-availability route failover
-  is paid, so a second router would not fail over on the free plan; the
-  Tailscale Terraform provider can approve advertised routes declaratively
-  (<code>tailscale_device_subnet_routes</code>, related to the unapproved-routes item
-  below).</li>
-<li><strong>Tailscale exit node</strong>: evaluate routing remote client traffic through the
-  home network (for example, for untrusted networks). Separate from the subnet
-  router item: an exit node routes the client's internet traffic, not access to
-  the LAN.</li>
-<li>Tailscale:<ul>
-<li>Configure SSH.</li>
-<li>Don't accept DNS to avoid depending on Tailscale being up?</li>
-<li>Update the DNS resolver IP address.</li>
-<li>Subnet routes: don't advertise routes if there are already unapproved
-  routes for the same node (needs
-  <a href="https://github.com/tailscale/tailscale/issues/5724">tailscale#5724</a>).</li>
-<li>References:
-  <a href="https://tailscale.com/blog/invite-any-user/">invite any user</a>,
-  <a href="https://tailscale.com/kb/1103/exit-nodes/">exit nodes</a>,
-  <a href="https://tailscale.com/blog/tls-certs/">TLS certs</a>,
-  <a href="https://tailscale.com/blog/traefik-certificate-resolver/">Traefik certificate resolver</a>,
-  <a href="https://hub.docker.com/r/tailscale/tailscale">Docker image</a>,
-  <a href="https://docs.pikvm.org/tailscale/">PiKVM</a>,
-  <a href="https://tailscale.com/kb/1114/pi-hole/">Pi-hole</a>,
-  <a href="https://tailscale.com/kb/1218/nextdns/">NextDNS</a>,
-  <a href="https://tailscale.com/blog/introducing-tailscale-funnel/">Funnel</a>,
-  <a href="https://tailscale.com/blog/docker-tailscale-guide">Docker guide</a>,
-  <a href="https://tailscale.com/kb/1282/docker">Docker KB</a>,
-  <a href="https://tailscale.com/kb/1234/traefik-certificates/">Traefik certificates</a>,
-  <a href="https://tailscale.com/kb/1236/kubernetes-operator">Kubernetes operator</a>,
-  <a href="https://tailscale.com/kb/1293/cloud-init">cloud-init</a>,
-  <a href="https://tailscale.com/kb/1204/gitops-acls/">GitOps ACLs</a>,
-  <a href="https://tailscale.com/kb/1210/terraform-provider/">Terraform provider</a>,
-  <a href="https://tailscale.com/kb/1133/proxmox">Proxmox</a>.</li>
-</ul>
-</li>
+  Considerations: remote access through an hl02 router is down whenever pve1's
+  virtualization layer is, and the physical tailnet fallback (raspberrypi2) is
+  being retired, so evaluate keeping a physical device on the tailnet for
+  out-of-band reach; route failover is paid, so a second router would not fail
+  over on the free plan; the Tailscale Terraform provider can approve advertised
+  routes declaratively (<code>tailscale_device_subnet_routes</code>).</li>
 <li>WAN check (<code>asuswrt-check-wan.sh</code> and its unit):<ul>
 <li>Re-add the ONT route script's NAT rule after each WAN restart:
   <code>restart_wan</code> rebuilds the router's firewall and drops the MASQUERADE rule
   the half-hourly <code>configure-route-to-ont.sh</code> adds, so the ONT exporter
-  loses its path for up to 30 minutes after every restart (the script
-  re-added the rule at every run on 2026-11-04). Run the route script from
-  the check after a restart.</li>
+  loses its path for up to 30 minutes after every restart. Run the route
+  script from the check after a restart.</li>
 <li>Tell an ONT hang from an ISP outage: on 2026-11-04 the check restarted the
-  WAN 98 times against a hung ONT, and once more at 06:12 UTC while the ONT
-  was still booting after its power cycle. Feed the ONT ARP test and the
-  <code>eth0</code> link state into the decision (link up, no ARP reply, and no PPPoE
-  reply means the ONT), and expose the result for the plug trigger of the
-  ONT item in <a href="#issues-to-solve">Issues to solve</a>. Blocks: the ONT hang and
-  power cycle item (<a href="#issues-to-solve">Issues to solve</a>).</li>
+  WAN 98 times against a hung ONT, and once more while the ONT was still
+  booting after its power cycle. Feed the ONT ARP test and the <code>eth0</code> link
+  state into the decision (link up, no ARP reply, and no PPPoE reply means
+  the ONT), and expose the result for the plug trigger of the ONT item in
+  <a href="#issues-to-solve">Issues to solve</a>. Blocks: the ONT hang and power cycle
+  item (<a href="#issues-to-solve">Issues to solve</a>).</li>
 </ul>
 </li>
 <li>Asus gateway 2.4 GHz Wi-Fi (2026-10-09: clutter placed next to the router
   raised the band's noise floor until the radio reset itself repeatedly and
-  dropped every 2.4 GHz client; clearing it restored the clients):<ul>
+  dropped every 2.4 GHz client; clearing it restored them):<ul>
 <li>Record the incident, its cause, and the measurements in the manual changes
   diary, and correct the firmware entry there: the router runs
   3.0.0.4.388_24436, while the diary last records 24386.</li>
@@ -2827,43 +2660,47 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>Network stack
   (<a href="https://www.virtualizationhowto.com/2025/08/how-to-totally-control-dns-in-your-home-lab/">reference</a>).
   Today: Cloudflare is the authoritative name server for the root zone
-  (<code>ferrari.how</code>), configured by hand (its Terraform management is an item under
-  <a href="#cicd-infrastructure-as-code-and-gitops">CI/CD, infrastructure-as-code, and GitOps</a>);
-  the dnsmasq instance on the gateway is the DHCP server for the <code>10.0.0.0/8</code>
-  subnet, answers the <code>edge.lab.ferrari.how</code> zone from its DHCP leases
+  (<code>ferrari.how</code>), configured by hand (its Terraform management is a
+  <a href="#cicd-infrastructure-as-code-and-gitops">CI/CD</a> item); the dnsmasq instance
+  on the gateway is the DHCP server for the <code>10.0.0.0/8</code> subnet, answers the
+  <code>edge.lab.ferrari.how</code> zone from its DHCP leases
   (<a href="https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2008q4/002670.html">source</a>)
-  without being authoritative for it, and forwards everything else to
-  <a href="https://developers.google.com/speed/public-dns">Google Public DNS</a>. The node
-  role carries a network stack (Unbound as the private recursive resolver,
-  CoreDNS as the authoritative server for the <code>lab.ferrari.how</code> zone) behind
-  <code>configure_network_stack</code>, which defaults to false and no host enables, so the
-  CoreDNS scrape job renders zero targets. The items below deploy and harden
-  that stack:<ul>
+  without being authoritative for it, forwards everything else to its local DNS
+  over TLS listener (<code>dnspriv_enable=1</code>, verified 2026-10-23), and keeps DHCP
+  and lease DNS by decision (2026-10-23), managed through the <code>gateway_dhcp</code>
+  inventory values the <code>gateway-dnsmasq</code> playbook applies. The node role carries
+  a network stack (Unbound as the private recursive resolver, CoreDNS as the
+  authoritative server for the <code>lab.ferrari.how</code> zone) behind
+  <code>configure_network_stack</code>, which no host enables, so the
+  <code>network-stack-coredns</code> scrape job renders zero targets, accepted until the
+  deployment (2026-10-04). The items below deploy and harden that stack:<ul>
 <li><strong>DNS server and resolver, placement and staged route (decided
   2026-10-24)</strong>: the three roles stay separate (Unbound resolves, CoreDNS is
   authoritative, dnsmasq serves DHCP), and the resolver pair is the
   availability-critical piece, since the router stops being a fallback for
   infrastructure names once its LAN domain changes. Placement: hl02 now and
   a twin NixOS guest on pve2 once it runs 24/7, the same Nix role on both,
-  keepalived between them; hl01 is excluded because its CIFS mounts need
-  name resolution before Docker starts, so it cannot host its own resolver,
-  and raspberrypi2 stays the fallback for a second node if pve2 stays off
-  for long, at the price of a second implementation (the Compose stack) for
-  one service. The Nix role re-expresses the stack's Unbound and CoreDNS
-  configuration as NixOS modules and reads the zone data from a JSON file in
-  the repository, which Ansible reads as well, so the records have one home.
-  Stages:<ol>
+  keepalived between them
+  (<a href="https://github.com/matayto/pihole-keepalived">pihole-keepalived</a>) on a
+  VRRP address in the infrastructure range (clients take the first DNS
+  server from DHCP and fall back only after per-query timeouts, so two
+  addresses give degraded service rather than availability; DHCP needs no
+  address of its own, both instances answer broadcasts). hl01 is excluded
+  because its CIFS mounts need name resolution before Docker starts, and
+  raspberrypi2 stays the fallback for a second node if pve2 stays off for
+  long, at the price of a second implementation (the Compose stack). The Nix
+  role re-expresses the stack's Unbound and CoreDNS configuration as NixOS
+  modules and reads the zone data from a JSON file in the repository, which
+  Ansible reads as well, so the records have one home. Stages:<ol>
 <li>Unbound and CoreDNS on hl02: CoreDNS owns <code>edge.lab.ferrari.how</code> from
    the inventory (server records, the gateway record, CNAME aliases for
-   services, which the gateway cannot carry and whose targets a dnsmasq
-   CNAME would have to know locally anyway) with the <code>file</code> plugin's
-   <code>fallthrough</code> to the existing forward to the router for client lease
-   names (available since CoreDNS 1.12.2; the stack pins 1.14.7), plus
-   the reverse zone of the infrastructure range with the rest of
-   <code>in-addr.arpa</code> forwarded as today. DHCP option 6 points at hl02 with
-   the router second.</li>
-<li>The twin on pve2 and the keepalived address in the infrastructure
-   range; option 6 moves to it. Depends on: pve2 running 24/7
+   services) with the <code>file</code> plugin's <code>fallthrough</code> to the existing
+   forward to the router for client lease names (available since CoreDNS
+   1.12.2; the stack pins 1.14.7), plus the reverse zone of the
+   infrastructure range with the rest of <code>in-addr.arpa</code> forwarded as
+   today. DHCP option 6 points at hl02 with the router second.</li>
+<li>The twin on pve2 and the keepalived address; option 6 moves to it.
+   Depends on: pve2 running 24/7
    (<a href="#host-configuration">Host configuration</a>).</li>
 <li>The router's LAN domain changes to a client zone (a child such as
    <code>clients.edge.lab.ferrari.how</code>, which CoreDNS forwards to the router
@@ -2871,67 +2708,40 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
    clients get a name there within one lease and nothing is renamed; the
    fallthrough is dropped, the pool is carved, and the reservations
    shrink to the cameras (static addresses item above).</li>
-<li>Optionally, DHCP taken over by a dnsmasq pair (next item). The
-   <code>lab.ferrari.how</code> zone CoreDNS serves today is then free for names
-   that are not hosts on this network.</li>
+<li>Optionally, DHCP taken over by a dnsmasq pair with split pools: with
+   the servers static and only the cameras reserved, the pair has
+   nothing but the camera reservations to agree on, and lease names stay
+   cosmetic. A lab dnsmasq owning DHCP, DNS, and PXE (the design of the
+   former <code>provisioning/docker/dnsmasq</code> templates, last in the parent of
+   commit 0b10e5da: <code>dhcp-authoritative</code>, <code>bogus-priv</code>, <code>domain-needed</code>,
+   <code>expand-hosts</code>, <code>no-hosts</code>, <code>no-resolv</code>, TFTP with a <code>pxe-service</code>
+   entry, and four files re-read on SIGHUP for static hosts, DHCP
+   reservations, upstream servers, and DHCP options) gives one
+   declarative configuration, CNAMEs included, and lets the DHCP server
+   hand out the boot server itself, which drops the proxy-DHCP responder
+   of the <a href="network-boot/">Network Boot Service</a> spec; it was
+   rejected on 2026-10-23 as the first step, because DHCP and DNS for
+   every device in the house would then depend on pve1, hl02, and a
+   comin-driven VM.</li>
 </ol>
 </li>
-<li>DNS over TLS: the dnsmasq instance on the Asus forwards only to the local
-  stubby listener (<code>dnspriv_enable=1</code>, verified 2026-10-23); Unbound.</li>
-<li>DHCP server:<ul>
-<li>Deploy a managed DHCP server, or take control of the dnsmasq instance
-  on the Asus. Decided 2026-10-23: the router keeps DHCP and lease DNS,
-  managed through the <code>gateway_dhcp</code> inventory values that the
-  <code>gateway-dnsmasq</code> playbook applies, and the lab resolver adds what the
-  router cannot carry. The alternative, a lab dnsmasq that owns DHCP,
-  DNS, and PXE (the design of the former <code>provisioning/docker/dnsmasq</code>
-  templates, last in the parent of commit 0b10e5da:
-  <code>dhcp-authoritative</code>, <code>bogus-priv</code>, <code>domain-needed</code>, <code>expand-hosts</code>,
-  <code>no-hosts</code>, <code>no-resolv</code>, TFTP with a <code>pxe-service</code> entry, and four
-  files re-read on SIGHUP for static hosts, DHCP reservations, upstream
-  servers, and DHCP options), gives one declarative configuration,
-  CNAMEs included, and lets the DHCP server hand out the boot server
-  itself, which drops the proxy-DHCP responder of the
-  <a href="network-boot/">Network Boot Service</a> spec; its cost is that DHCP
-  and DNS for every device in the house then depend on pve1, hl02, and a
-  comin-driven VM: new clients cannot join while it is down, and the
-  router's client list loses names. Revisit once the resolver pair
-  exists (stage 2 of the item above): with the servers static and only
-  the cameras reserved, a dnsmasq pair with split pools has nothing but
-  the camera reservations to agree on, and lease names stay cosmetic.</li>
-<li>Configure the DHCP address pool as documented.</li>
-<li>Understand what the dhcp-script does.</li>
-<li>Deprecate the DNS resolver on the Asus, or take control of its
-  configuration?</li>
-<li>Deprecate the DHCP server on the Asus, or take control of its
-  configuration?</li>
-<li>If staying on dnsmasq, consider using a repology source and Renovate
-  to automatically update dependencies:
-  <a href="https://docs.renovatebot.com/modules/datasource/repology/">Repology</a>.</li>
-<li>Configure network boot for the x86 Proxmox nodes: the proxy DHCP
-  responder of the <a href="network-boot/">Network Boot Service</a> spec runs
-  on hl02 since 2026-11-05; the x86 path needs its <code>pxe-service</code> entry,
-  a boot file (candidates:
-  <a href="https://github.com/netbootxyz/netboot.xyz">netboot.xyz</a>,
+<li>Configure network boot for the x86 Proxmox nodes: the proxy DHCP responder
+  of the <a href="network-boot/">Network Boot Service</a> spec runs on hl02 since
+  2026-11-05; the x86 path needs its <code>pxe-service</code> entry, a boot file
+  (candidates: <a href="https://github.com/netbootxyz/netboot.xyz">netboot.xyz</a>,
   <a href="https://github.com/RMerl/asuswrt-merlin.ng/wiki/Enable-PXE-booting-into-netboot.xyz">PXE booting into netboot.xyz</a>),
   and a payload type.</li>
-<li>Configure dnsmasq on the Asus router to use the recursive DNS
-  resolver: the upstream servers are a UI-exposed NVRAM setting, which
-  the <code>gateway-dnsmasq</code> playbook does not manage yet; add the variable
-  to the gateway role when this lands (today the upstream is the
-  router's own DNS over TLS listener, which the lab resolver can keep as
-  its forwarder instead).</li>
-<li>Forward queries to the authoritative DNS server for the main zone. If
-  dnsmasq: <code>server=/{{ root_fqdn }}/{{ root_dns_servers[0].ipv4_address</code></li>
-<li>Remove the manual address assignments for servers.</li>
-<li>Remove the manual address assignment for cam-1 (no longer needed).</li>
-</ul>
-</li>
-<li>Unbound: configure DNSSEC validation (trust-anchor, auto-trust-anchor);
-  harden-unverified-glue.</li>
+<li>Configure dnsmasq on the Asus router to use the recursive DNS resolver:
+  the upstream servers are a UI-exposed NVRAM setting the <code>gateway-dnsmasq</code>
+  playbook does not manage yet; add the variable to the gateway role when
+  this lands (the lab resolver can keep the router's DNS over TLS listener
+  as its forwarder instead), and forward the main zone to the authoritative
+  server (<code>server=/{{ root_fqdn }}/{{ root_dns_servers[0].ipv4_address }}</code>).</li>
+<li>Unbound: DNS over TLS to its forwarders; DNSSEC validation (trust-anchor,
+  auto-trust-anchor); <code>harden-unverified-glue</code>.</li>
 <li>Block port 53 outbound on the router WAN interface, keeping port 53
-  allowed within the LAN: the router acts as a local DNS cache that
-  ultimately serves from DNS-over-TLS and DNS-over-HTTPS external resolvers.</li>
+  allowed within the LAN, since the router serves from DNS over TLS and DNS
+  over HTTPS external resolvers.</li>
 <li>Prevent LAN clients from bypassing the local resolver: NAT-redirect all
   LAN port 53 traffic to it (excluding the resolver itself), block outbound
   port 853 (DNS over TLS and DNS over QUIC), block outbound UDP 443 (QUIC,
@@ -2939,134 +2749,82 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   domain on the resolver and by IP on the firewall (for example the HaGeZi
   lists). Known gaps: apps that bundle DNS over HTTPS with their application
   traffic, private DNS-over-HTTPS servers, and VPN tunnels.</li>
-<li>Deploy an ad blocking server.</li>
-<li>Configure block lists for Unbound:
-  <a href="https://github.com/StevenBlack/hosts">StevenBlack/hosts</a>.</li>
-<li>Keepalived to make the DNS server, the DNS resolver, and the DHCP server
-  more reliable
-  (<a href="https://github.com/matayto/pihole-keepalived">pihole-keepalived</a>): stage
-  2 of the DNS server item above, a VRRP address in the infrastructure range
-  between hl02 and its pve2 twin, since clients take the first DNS server
-  from DHCP and fall back only after per-query timeouts, so two addresses
-  give degraded service rather than availability. DHCP needs no address of
-  its own: both instances answer broadcasts.</li>
-<li><a href="https://theorangeone.net/posts/expose-docker-internal-dns/">Exposing Docker's internal DNS with CoreDNS</a>.</li>
-<li>Store SSH fingerprints as DNS records?</li>
-<li>DNS rebinding protection: see the dnsmasq "rebind" options.</li>
 <li>Update the DNS records in <code>group_vars/all/main.yaml</code> to point to the DNS
   server, and define the DNS names there: refactor the roles so endpoint
   FQDNs in the vars file are automatically configured; reverse proxy
   (Traefik).</li>
 </ul>
 </li>
-<li>4G/5G WAN fallback: dual WAN failover on the router with a USB modem or a
+<li><strong>4G/5G WAN fallback</strong>: dual WAN failover on the router with a USB modem or a
   tethered phone. It restores service during an ONT or ISP outage (the lab was
   offline for five hours on 2026-11-04) and lets Alertmanager deliver normally,
   at the cost of a SIM and a modem. The WAN check must then probe the primary
   interface (<code>i=wan0</code>), since a failover would hide the ONT fault from it.</li>
-<li>Disable UPnP on the gateway, or at least its PCP logging, and forward the
-  router log off the router: miniupnpd's "Invalid PCP v2 MAP message" lines were
-  more than half of the router's 256 KB log on 2026-11-04 and rotated it every
-  two hours, so the start of that day's WAN outage was gone by the time the log
-  was read (the single rotated copy is overwritten in turn). The router's log
-  settings can send syslog to a remote host.</li>
+<li><strong>Disable UPnP on the gateway, or at least its PCP logging, and forward the
+  router log off the router</strong>: miniupnpd's "Invalid PCP v2 MAP message" lines
+  were more than half of the router's 256 KB log on 2026-11-04 and rotated it
+  every two hours, so the start of that day's WAN outage was gone by the time
+  the log was read. The router's log settings can send syslog to a remote host.</li>
 </ul>
 <h3 id="monitoring-and-alerting">Monitoring and alerting</h3>
 <ul>
-<li>Deploy a smart plug with power metering for each node and one for the network
-  stack: the studio plugs feed several devices each, so every host figure in the
+<li><strong>One metered smart plug per node and one for the network stack</strong>: the studio
+  plugs feed several devices each, so every host figure in the
   <a href="../guides/operations/host-power/">host power guide</a> is a difference against
-  a shared baseline that moves whenever something else is plugged in (a USB disk
-  added on 2026-10-10 shifted pve2's off baseline from 25 W to 30-31 W). One
-  metered plug per host gives direct readings.</li>
+  a shared baseline that moves whenever something else is plugged in.</li>
 <li><strong>Alert on obsolete packages (2026-10-12)</strong>: a package that no configured APT
   source provides anymore (the Coral runtime after Google retired its
   repository, leftovers after a release upgrade) gets no updates and raises
-  nothing when the source was removed cleanly. The apt collector's
-  <code>apt_packages_obsolete</code> metric (upstream <code>apt_info.py</code> from the 2026-04-20
-  merge) counts them, but that version reads <code>Package.phasing_applied</code>, which
-  python3-apt 2.6 (Debian 12) and the Debian-packaged collector on the Proxmox
-  nodes lack, so the role pins the 2026-02-25 version. Once the upstream script
-  runs on the hosts again (or Debian ships a newer collectors package), bump the
+  nothing. The apt collector's <code>apt_packages_obsolete</code> metric (upstream
+  <code>apt_info.py</code> from the 2026-04-20 merge) counts them, but that version reads
+  <code>Package.phasing_applied</code>, which python3-apt 2.6 (Debian 12) and the
+  Debian-packaged collector on the Proxmox nodes lack, so the role pins the
+  2026-02-25 version. Once the upstream script runs on the hosts again, bump the
   pin, add a warning rule on <code>apt_packages_obsolete &gt; 0</code>, and a dashboard panel;
   skip <code>apt_packages_per_origin</code>, an inventory figure with no threshold.</li>
 <li><strong>Kernel log error exporter (2026-10-10)</strong>: the kernel-level signs of the
   raspberrypi2 data disk failure and of the root SSD stalls (medium errors, a
-  USB reset loop, UAS command aborts; see the
-  <a href="../archive/raspberrypi2-stability-issues/">stability notes</a>) carried no
-  metric, while the SMART pending-sector alert did fire. Add a textfile
-  collector that keeps a cumulative counter per device and signature (block I/O
-  errors, medium errors, USB device resets, UAS aborts, ext4 errors) from a
-  journal cursor file, alerting with <code>increase(...[1h]) &gt; 0</code> as
-  <code>EdacUncorrectableErrors</code> does, so a failing disk or bridge is flagged before
-  the application symptoms.</li>
+  USB reset loop, UAS command aborts) carried no metric, while the SMART
+  pending-sector alert did fire. Add a textfile collector that keeps a
+  cumulative counter per device and signature (block I/O errors, medium errors,
+  USB device resets, UAS aborts, ext4 errors) from a journal cursor file,
+  alerting with <code>increase(...[1h]) &gt; 0</code> as <code>EdacUncorrectableErrors</code> does.</li>
 <li><strong>Asus firmware update alert (2026-10-24)</strong>: two sources disagree on what "new
   firmware" means, so the collector exports both. The router's daily firmware
-  check (<code>firmware_check=1</code>, auto-upgrade off, log in <code>/jffs/webs_upgrade.log</code>)
-  posts to an Asus feedback server and receives a per-device control file naming
-  the build Asus offers to that device under a staged rollout (region code, ISP,
-  force level), left in NVRAM as <code>webs_state_info</code>, <code>webs_state_flag</code>, and
-  <code>webs_update_ts</code>: on 2026-10-23 it still offered 24436 while the
+  check posts to an Asus feedback server and receives the build Asus offers to
+  that device under a staged rollout, left in NVRAM as <code>webs_state_info</code>,
+  <code>webs_state_flag</code>, and <code>webs_update_ts</code> ("installable from the UI now"); the
   <a href="https://www.asus.com/it/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-ax86u/helpdesk_bios?model2Name=RT-AX86U">support page</a>
-  had published 24437 on 2026-10-22 (a DNSSEC resolution fix), so the router's
-  signal means "installable from the UI now" and the page means "published". The
-  legacy live-update manifests do not list this model, and the JSON API behind
-  the page refused direct calls on two variants, while the page itself is
-  server-rendered. Design: a <code>monitoring-asuswrt</code> textfile stack on the host
-  that holds the router SSH key (raspberrypi2 today, next to the ChkWAN and ONT
-  units; it moves with them), modeled on the <code>monitoring-apt</code> stack: a daily
-  timer runs a script that reads the running version and the <code>webs_*</code> values
-  over SSH, fetches the support page and takes the highest version string of the
-  form <code>3.0.0.4.&lt;build&gt;_&lt;number&gt;</code> on it (the stable part of the markup) with its
-  release date, and writes an update-available gauge labelled by running,
-  offered, and published version plus a check-timestamp gauge per source. Rules
-  with promtool tests: <code>AsusFirmwareUpdateAvailable</code> when the published version
-  is newer than the running one, its description saying whether the router
-  already offers it; a stale-check rule when the page is unreachable or
-  unparsable for two days or the router's own check is older than two days. Not
-  in scope: triggering the router's check from the lab, and scripts on the
-  router (the node exporter item, <a href="#host-configuration">Host configuration</a>, has
-  the launcher constraints).</li>
-<li>Configure the Grafana admin credentials declaratively: vault-backed
+  publishes earlier (24437 on 2026-10-22 while the router still offered 24436),
+  is server-rendered, and its JSON API refused direct calls; the
+  <a href="../archive/asus-rt-ax86u-tim-gateway/#script-launchers-and-firmware-update-signals">gateway notes</a>
+  record the NVRAM variables and the log path. Design: a <code>monitoring-asuswrt</code>
+  textfile stack on the host that holds the router SSH key (raspberrypi2 today,
+  next to the ChkWAN and ONT units; it moves with them), modeled on the
+  <code>monitoring-apt</code> stack: a daily timer reads the running version and the
+  <code>webs_*</code> values over SSH, takes the highest version string of the form
+  <code>3.0.0.4.&lt;build&gt;_&lt;number&gt;</code> on the support page with its release date, and
+  writes an update-available gauge labelled by running, offered, and published
+  version plus a check-timestamp gauge per source. Rules with promtool tests:
+  <code>AsusFirmwareUpdateAvailable</code> when the published version is newer than the
+  running one, its description saying whether the router already offers it; a
+  stale-check rule when the page is unreachable or unparsable for two days or
+  the router's own check is older than two days. Not in scope: triggering the
+  router's check from the lab, and scripts on the router.</li>
+<li><strong>Declarative Grafana admin credentials</strong>: vault-backed
   <code>GF_SECURITY_ADMIN_USER</code> and <code>GF_SECURITY_ADMIN_PASSWORD</code> environment
   variables in the monitoring backend compose template, so a fresh replica
-  starts with the right account instead of the Grafana defaults. Today the
+  starts with the right account instead of the Grafana defaults; today the
   account exists only in Grafana's local database, seeded from an existing
-  replica at bring-up (monitoring-alerting spec §3.3). The environment variables
-  only apply to a freshly initialized database, so existing replicas need a
-  one-time in-container <code>grafana-cli admin reset-admin-password</code> reading the
-  value from the container environment.</li>
-<li>To monitor:<ul>
-<li>EdgeTPU: custom exporter, or
-  <a href="https://github.com/adaptant-labs/edgetpu-exporter">edgetpu-exporter</a>.</li>
-<li>CPU C states.</li>
-<li>CPU vulnerabilities.</li>
-<li><a href="https://docs.docker.com/engine/daemon/prometheus/">Docker engine metrics</a>.</li>
-<li>The ONT login endpoint (<code>https://192.168.1.1/login.html</code>).</li>
-<li><a href="https://tailscale.com/blog/client-metrics">Tailscale client metrics</a>.</li>
-<li>How to configure Prometheus Blackbox monitoring for reverse lookups?</li>
-<li><a href="https://github.com/letsencrypt/unbound_exporter">Unbound</a>.</li>
-<li>Flaresolverr.</li>
-<li>HTTPS and TLS certificate validity: ferrarimarco.info, ferrari.how.</li>
-<li>Gateway: dnsmasq DNS queries and DHCP leases
-  (<a href="https://github.com/google/dnsmasq_exporter">dnsmasq_exporter</a>), running
-  processes, and host metrics via the Prometheus Node Exporter
-  (<a href="https://www.snbforums.com/threads/successfully-got-node_exporter-on-rt-ax58u.64683/">reference</a>).</li>
-<li>The pve2 BMC: a blackbox probe (ICMP ping, or HTTPS against its web
-  interface) so that a host that is powered off but reachable for remote
-  power-on is distinguishable from one that is unplugged or whose BMC lost
-  its network. The target is <code>pve2-bmc.edge.lab.ferrari.how</code>, which the
-  gateway resolves from its reservation (2026-10-28).</li>
-</ul>
-</li>
-<li>Verify the authority section of public resource records.</li>
-<li>Setup Loki.</li>
-<li>Uptime Kuma.</li>
-<li>WoL watchdog.</li>
-<li>Grafana: set a datasource uid to reuse across dashboards; set the unit of
-  measurement in the average DNS probe panel; automate updates of the
-  provisioned dashboard JSONs (PRs with updates?).</li>
-<li>Check the <a href="https://uptimerobot.com/">UptimeRobot</a> configuration.</li>
+  replica at bring-up (monitoring-alerting spec §3.3). The variables only apply
+  to a freshly initialized database, so existing replicas need a one-time
+  in-container <code>grafana-cli admin reset-admin-password</code> reading the value from
+  the container environment.</li>
+<li><strong>Probe the pve2 BMC</strong> (ICMP ping, or HTTPS against its web interface) so that
+  a host that is powered off but reachable for remote power-on is
+  distinguishable from one that is unplugged or whose BMC lost its network. The
+  target is <code>pve2-bmc.edge.lab.ferrari.how</code>, which the gateway resolves from its
+  reservation (2026-10-28).</li>
 <li><strong>A disabled stack leaves its service enabled (2026-11-08)</strong>: the stacks that
   stop a service when their flag is off keep <code>enabled: true</code> on the service
   entry (the monitoring timers, Samba, the camera, the Argon case, the Sense
@@ -3089,25 +2847,21 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   iteration uses one conservative threshold sized to the slowest daily
   timer, so a stuck frequent collector is detected late; the ONT exporter
   writes every 30 seconds).</li>
-<li>Dead-man's-switch: an always-firing heartbeat alert delivered through a
-  channel independent of the Prometheus host, so a dead monitoring backend
-  is itself noticed. Candidate channels: a hosted check that expects the
-  heartbeat and notifies on absence (Healthchecks.io, UptimeRobot), or a
-  scheduled GitHub Actions workflow that probes the heartbeat endpoint and
-  notifies on failure, which needs no infrastructure beyond the repository
-  and is independent of the home connection. The 2026-11-04 WAN outage is
-  the motivating case: Telegram needs the WAN, both Alertmanager replicas
-  gave up delivery after five minutes, and the alerts reached the phone at
-  06:12 UTC, after the manual recovery. A hosted check notifies the phone
-  through its own app, email, or SMS, so it is also the cheapest mobile
+<li><strong>Dead-man's-switch</strong>: an always-firing heartbeat alert delivered through
+  a channel independent of the Prometheus host, so a dead monitoring backend
+  is itself noticed. The 2026-11-04 WAN outage is the motivating case:
+  Telegram needs the WAN, both Alertmanager replicas gave up delivery after
+  five minutes, and the alerts reached the phone after the manual recovery.
+  Candidates: a hosted check that expects the heartbeat and notifies on
+  absence (Healthchecks.io, UptimeRobot), which is also the cheapest mobile
   notification for a WAN outage, saying that the lab is unreachable but not
-  why. Alternatives that deliver the alert content: the 4G/5G WAN fallback
-  of <a href="#networking">Networking</a>, which restores service rather than
-  awareness, or an SMS modem with a prepaid SIM on a lab host behind an
-  Alertmanager webhook, one more component and a SIM to keep topped up. Not
-  viable: Home Assistant companion push (relayed through the cloud),
-  Tailscale (the phone cannot reach the lab without the WAN), and local
-  sirens or lights (not mobile).</li>
+  why; a scheduled GitHub Actions workflow that probes the heartbeat
+  endpoint and notifies on failure, with no infrastructure beyond the
+  repository. Alternatives that deliver the alert content: the 4G/5G WAN
+  fallback of <a href="#networking">Networking</a>, or an SMS modem with a prepaid SIM
+  behind an Alertmanager webhook. Not viable: Home Assistant companion push
+  (relayed through the cloud), Tailscale (the phone cannot reach the lab
+  without the WAN), and local sirens or lights (not mobile).</li>
 </ul>
 </li>
 <li>Validate the reworked <code>sense-hat-exporter</code> unit (venv in a systemd state
@@ -3117,207 +2871,46 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <li>Replace the <code>rm</code> ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the <code>truncate:</code> variant of
   <code>StandardOutput</code> once every host runs systemd &gt;= 248.</li>
-<li>Automate Telegram bot creation</li>
 </ul>
 <h3 id="smart-home">Smart home</h3>
 <ul>
-<li>Frigate: configure the
-  <a href="https://docs.frigate.video/configuration/live#setting-stream-for-live-ui">live view to use the high resolution stream</a>;
-  use
-  <a href="https://docs.frigate.video/configuration/#full-configuration-reference">environment variables</a>
-  to pass credentials; tune
-  <a href="https://github.com/blakeblackshear/frigate/discussions/559">notifications</a>.</li>
-<li>Smart desk:
-  <a href="https://community.home-assistant.io/t/dimmable-pcf8574-lcd-display-with-esphome/272308">dimmable LCD display</a>,
-  magnetic contact to signal actuators movement, sensor to ensure that the
-  actuators are extended to the same length, actuators that report extension,
-  programmable plug for the actuators power source so it can be disabled when
-  not needed.</li>
-<li>Sense HAT:
-  <a href="https://github.com/initialstate/wunderground-sensehat/wiki/Part-3.-Sense-HAT-Temperature-Correction">temperature correction</a>.</li>
-<li>Weather station:
-  <a href="https://learn.adafruit.com/wifi-weather-station-with-tft-display">Adafruit Wi-Fi weather station</a>,
-  <a href="https://github.com/lmarzen/esp32-weather-epd">esp32-weather-epd</a>.</li>
 <li><strong>Sonoff Zigbee dongle firmware and the <code>ember</code> driver</strong>: the Sonoff Zigbee
   3.0 USB Dongle Plus V2 on raspberrypi2 runs EmberZNet 6.10.3 (EZSP v8, read
-  from the retained bridge info on the broker on 2026-10-16), so Zigbee2MQTT 2.x
-  drives it through the deprecated <code>ezsp</code> driver, kept only for firmware older
-  than 7.4. Flash EmberZNet 7.4 or later (the firmware builders listed on the
+  from the retained bridge info on 2026-10-16), so Zigbee2MQTT 2.x drives it
+  through the deprecated <code>ezsp</code> driver, which timed out on two of three starts
+  at the 2.14.2 upgrade (2026-10-17). Flash EmberZNet 7.4 or later (the firmware
+  builders on the
   <a href="https://www.zigbee2mqtt.io/guide/adapters/emberznet.html">Zigbee2MQTT EmberZNet adapter page</a>,
   from a machine with USB access, which the Crostini workstation is not, or from
   raspberrypi2 itself with a flasher container), then switch <code>serial.adapter</code> to
   <code>ember</code> in the rendered configuration template. The coordinator backup and the
   restic snapshot carry the network, so a reflash that loses it is recoverable.
-  On the 2.14.2 upgrade (2026-10-17) the <code>ezsp</code> driver timed out on the adapter
-  on the first two starts and connected on the third, under the Compose restart
-  policy: another reason to move to <code>ember</code>. The network coordinator (next item)
-  removes the flash-station constraint, since those devices update their own
-  firmware.</li>
+  The network coordinator (next item) removes the flash-station constraint,
+  since those devices update their own firmware.</li>
 <li><strong>Zigbee coordinator over the network (decided 2026-10-23)</strong>: replace the USB
   dongle with an Ethernet or PoE coordinator, so that Zigbee2MQTT connects to
   the radio over TCP (<code>serial.port: tcp://&lt;host&gt;:&lt;port&gt;</code>), runs on any host with
   no USB passthrough, and the radio sits where the mesh needs it; this is the
-  decoupling step chosen instead of moving the dongle to pve1
-  (<a href="#bootstrapping-and-provisioning">Bootstrapping and provisioning</a>). First
-  candidate: the SMLIGHT SLZB-06 family (EmberZNet, firmware updated from the
-  device's web interface); verify the firmware line, the <code>ember</code> driver support,
-  and the update path before buying. The coordinator backup carries the network
-  across the adapter change, as it does across a reflash.</li>
-<li>Lock-state sensing for the existing door locks: a Zigbee water-leak sensor
-  with an external two-wire probe, hidden in the door frame, with each probe
-  wire ending in a foil pad inside the strike box; the thrown deadbolt bridges
-  the pads, so "leak" means "locked". Fails safe (any fault reads as not locked)
-  and cannot actuate. In Zigbee2MQTT, invert the device's leak payload and show
-  the entity as a lock, since a leak reads as on while a lock entity expects off
-  for locked. Constraints: room for the wires in the strike box, a conductive
-  deadbolt, and a contact that holds across the play of the key.</li>
+  decoupling step chosen instead of moving the dongle to pve1. First candidate:
+  the SMLIGHT SLZB-06 family (EmberZNet, firmware updated from the device's web
+  interface); verify the firmware line, the <code>ember</code> driver support, and the
+  update path before buying. The coordinator backup carries the network across
+  the adapter change, as it does across a reflash.</li>
 <li>Exclude the kitchen presence sensor's illuminance entity from the Home
   Assistant recorder: the device reports it every few seconds by design, which
   fills the database and buries the occupancy history the
   <a href="../guides/operations/zigbee2mqtt/">Zigbee2MQTT operations guide</a> reads for
   its measurements.</li>
-<li>Automations:<ul>
-<li>Smart chair: contact sensor
-  (<a href="https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar">reference</a>).</li>
-<li>Closet lighting.</li>
-<li>Energy: turn the studio power plug off if computers are off.</li>
-<li>Safety and security: remind people to turn the alarm on when nobody is at
-  home; low-battery alerts for smoke detectors and door/window sensors;
-  smoke and CO2 alerts to phones and speakers; leak sensors with automatic
-  water shut-off if not overridden; arm the alarm when everyone is away
-  (motion notifies everyone, turns lights off, closes blinds, broadcasts on
-  speakers).</li>
-<li>Lights: morning wake-up fade-in, nighttime catch-all shutdown, turn Hue
-  lights on when main power goes off, night red lights in the corridor,
-  holiday lights, motion lights in kitchen and hallways at night,
-  dusk-to-armed-night outdoor lights, kids lights-out mode after bedtime,
-  bedside all-on/off button, motion plus BLE presence to turn lights off,
-  movie mode, all-asleep mode dimming to 1%.</li>
-<li>Voice commands: control lights.</li>
-<li>Reminders and announcements: whole-home speaker announcements based on
-  calendar events, school pick-up reminder based on presence, commute and
-  weather briefing on work days, 17track package notifications (out for
-  delivery, delivered).</li>
-<li>Computers and servers: consumption thresholds (disk, CPU), notify when a
-  critical device goes offline, alert if SenseHat readings report 0
-  (requires physically power cycling the Raspberry Pi), UPS battery load and
-  recharge.</li>
-<li>Washer and dryer: voice notification when the washing cycle completes.</li>
-<li>Home theater and TV: "I've got company" scene, one-button entertainment
-  center power-on (may need an IR blaster), TV device as master power
-  switch, mute speakers when movies play, stop speakers after 10 minutes of
-  pause, time-based speaker and Chromecast volume, cap speaker volume at 20%
-  on power-off.</li>
-<li>Kitchen: coffee machine preheating, oven preheat status.</li>
-<li>Blinds: automate blinds (sunrise/sunset offsets, close on summer sun via
-  outside temperature and window lux), close when movies play.</li>
-<li>Shower: exhaust fan, vanity light, preheat hair tools via smart plugs,
-  house lights on, TVs off, curtains closed, heated blanket off.</li>
-<li>Heating, A/C, and fans: humidity-driven exhaust fans, alert if the
-  thermostat is off while heating is on (needs heater state detection), open
-  door/window alerts with AC/heater shutdown and restore, wrong-mode
-  detection and open-the-windows suggestions, bathroom space heater on a
-  smart plug in a closed temperature loop, thermostat setpoints per
-  presence, day/time, and alarm state.</li>
-<li>Windows and doors: open-for-X-minutes phone alerts, leaving-home check
-  with presence logic, integration with a whole-house fan.</li>
-<li><a href="https://www.reddit.com/r/homeassistant/comments/116tk8l/psa_blueprint_to_notify_of_zigbeezwave_devices">Zigbee/Z-Wave device notification blueprint</a>.</li>
-</ul>
-</li>
-<li>Routines (ideas):<ul>
-<li>Good-night command: lights and TVs off, doors locked, bedroom fan on.</li>
-<li>Morning: blinds up and motion lights on a schedule, with snooze buttons.</li>
-<li>Wake-up button: lights, thermostat, coffee maker (only if it has water,
-  otherwise announce it).</li>
-<li>Bedtime button: lights off, thermostat, TV off, doors locked, bedside lamp
-  at 10%.</li>
-<li>Bathroom motion light, fan only above 65% humidity.</li>
-<li>Night bathroom light at 10% within certain hours.</li>
-<li>Pressure sensor turns on the TV when sitting down.</li>
-<li>BLE beacon in the car disarms the alarm on arrival.</li>
-<li>Door unlock: kitchen lights, thermostat, TV with a welcome announcement.</li>
-<li>Bathroom-door contact sensor locks the outside doors.</li>
-<li>Start streaming radio when the phone is detected in a zone (work).</li>
-<li>Occupancy-based automations driven by alarm state instead of schedules;
-  doors auto-deadbolt at a set time with a text alert.</li>
-<li>Phones-charging-after-bedtime trigger: lights off, fan on, delayed TV off.</li>
-</ul>
-</li>
-<li>Integrations to configure:<ul>
-<li><a href="https://github.com/ollo69/ha-smartthinq-sensors">ha-smartthinq-sensors</a></li>
-<li><a href="https://www.home-assistant.io/integrations/syncthing/">Syncthing</a></li>
-<li><a href="https://www.home-assistant.io/integrations/local_todo">Local to-do</a></li>
-<li><a href="https://www.home-assistant.io/integrations/google_tasks">Google Tasks</a></li>
-<li><a href="https://www.home-assistant.io/integrations/feedreader">Feedreader</a></li>
-<li>House map on dashboard
-  (<a href="https://github.com/ExperienceLovelace/ha-floorplan">ha-floorplan</a>)</li>
-<li>Family calendar</li>
-<li>Toyota MyT</li>
-<li>Frigate</li>
-<li><a href="https://www.home-assistant.io/integrations/backup/">Backup</a></li>
-<li><a href="https://www.home-assistant.io/integrations/bluetooth_tracker/">Bluetooth tracker</a></li>
-<li><a href="https://www.home-assistant.io/integrations/bluetooth_le_tracker/">Bluetooth LE tracker</a></li>
-<li><a href="https://www.home-assistant.io/integrations/cert_expiry/">Certificate expiry</a>:
-  ferrari.how</li>
-<li><a href="https://www.home-assistant.io/integrations/google_assistant/">Google Assistant</a></li>
-<li>Needs a Google Cloud project:
-  <a href="https://www.home-assistant.io/integrations/google/">Google Calendars</a>,
-  <a href="https://www.home-assistant.io/integrations/google_pubsub/">Google Pub/Sub</a></li>
-<li><a href="https://www.home-assistant.io/integrations/cloudflare/">Cloudflare</a></li>
-<li><a href="https://www.home-assistant.io/integrations/google_maps/">Google Maps</a></li>
-<li><a href="https://www.home-assistant.io/integrations/google_sheets">Google Sheets</a></li>
-<li><a href="https://www.home-assistant.io/integrations/google_travel_time/">Google Travel Time</a></li>
-<li><a href="https://www.home-assistant.io/docs/energy/">Energy monitoring</a>: overall
-  consumption, set energy costs,
-  <a href="https://www.home-assistant.io/integrations/utility_meter">utility meter</a></li>
-<li>Gas consumption monitoring</li>
-<li><a href="https://www.home-assistant.io/integrations/mobile_app/">Mobile app</a></li>
-<li>Water consumption monitoring</li>
-<li><a href="https://www.home-assistant.io/integrations/whois">Whois</a>: ferrari.how
-  (this TLD is not currently supported)</li>
-<li><a href="https://www.home-assistant.io/integrations/speedtestdotnet">Speedtest.net</a></li>
-</ul>
-</li>
-<li>Dashboard.</li>
 </ul>
 <h3 id="backup">Backup</h3>
 <ul>
-<li><strong>Roll out the single-flavour backup role (2026-10-31)</strong>: the role that runs
-  every restic job (the Debian restic package, systemd units, an exporter per
-  job) is implemented and tested, and applied on hl01 (with its Debian 13
-  upgrade) and on pve1 (replacing the <code>restic-native</code> layout, removed
-  afterwards) on 2026-11-04, and on raspberrypi2 with its re-image on 2026-11-08
-  (the repository key rewritten to the unquoted vault password before the flash,
-  as the re-image procedure of the
-  <a href="../guides/operations/network-boot/">network boot guide</a> records);
-  raspberrypi2's Compose-era snapshot group, which the retention policy never
-  empties, was forgotten on 2026-11-09 as the
-  <a href="../guides/operations/backup/">backup operations guide</a> describes, so its
-  repository restarts from the new job's snapshots. Left: pve2, which follows
-  when it is on (until then the <code>ResticExporterDown</code> alert fires for its
-  exporter target, which the monitoring backend scrapes since hl01's converge on
-  2026-11-04, left unsilenced by choice). Update the
+<li><strong>Roll out the single-flavour backup role (2026-10-31)</strong>: applied on hl01 and
+  pve1 on 2026-11-04 and on raspberrypi2 with its re-image on 2026-11-08, whose
+  Compose-era snapshot group was forgotten on 2026-11-09 as the
+  <a href="../guides/operations/backup/">backup operations guide</a> describes. Left:
+  pve2, which follows when it is on (until then the <code>ResticExporterDown</code> alert
+  fires for its exporter target, left unsilenced by choice). Update the
   <a href="backups/">Backups specification</a> status table as each step lands.</li>
-<li><strong>State-only backups, no machine-level replication (decided 2026-10-10)</strong>:
-  configuration is code on every host (Ansible for Debian, Nix for NixOS), so a
-  host is rebuilt from Terraform, the playbooks or the flake, and a restic
-  restore of its state; shipping VM disks between the Proxmox nodes was
-  considered and rejected as a second mechanism that only shortens recovery. Two
-  things keep this true. Debian workloads must keep every stateful path under
-  <code>/etc/ferrarimarco-home-lab</code> and <code>/var/lib/ferrarimarco-home-lab</code>, the two
-  trees the restic workloads job covers: an audit on 2026-10-10 found only
-  FlareSolverr's anonymous <code>/config</code> volume (a browser cache) outside them on
-  hl01 and raspberrypi2, to be replaced by a declared bind mount or <code>tmpfs</code>,
-  plus rebuildable exporter virtual environments; re-run the audit (named
-  volumes, container mounts outside the trees, systemd state directories)
-  whenever a workload is added. NixOS hosts back up state directories only,
-  never the machine, from the node that holds them: the
-  <code>restic-backup-nas-state</code> job of the backup role covers the NAS containers'
-  Samba, Syncthing, and Tailscale state directories on pve1 and pve2 (applied on
-  pve1 on 2026-10-27, pve2 is off), and hl02 declares an empty list. Re-run the
-  audit, and declare the job, whenever a stateful workload lands on a NixOS
-  host. The restore procedure that proves the rebuild path is in the
-  <a href="../guides/operations/backup/">backup operations guide</a>.</li>
 <li><strong>Second copy of the restic repositories (2026-10-19)</strong>: the per-host
   repositories on the nas-pve1 <code>backups</code> share are the only copy of the Debian
   hosts' state backups, and the share's <code>rpool-sata</code> pool is a single-disk vdev
@@ -3327,20 +2920,12 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   repository (which keeps restic's integrity checks on both copies) or a
   replicated dataset, and extend the verification ladder of the
   <a href="backups/">Backups specification</a> to the copy.</li>
-<li><strong>One restic repository per host (confirmed 2026-10-14)</strong>: a repository is
-  restic's deduplication, locking, and key domain; a shared one would
-  deduplicate little across state trees, let any host forget or prune every
-  other host's snapshots with no append-only protection on a CIFS backend, and
-  serialize the nightly jobs on its lock. Revisit when a backend with per-client
-  isolation and append-only mode exists (restic's REST server on the NAS would
-  qualify); the <a href="backups/">Backups specification</a> records the rationale.</li>
 <li><strong>Second copy of the media library (2026-10-10)</strong>: the library on
   <code>rpool-usb-2/media</code> is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
-  deleted after watching, so restic's deduplication, versioning, and encryption
-  buy nothing here: use one-way ZFS snapshot replication (<code>zfs send</code> and
-  <code>zfs receive</code>) to a dataset on pve2's <code>tank-hdd</code>, so deletions propagate and
-  the copy follows the library instead of hoarding it, with a short snapshot
+  deleted after watching, so restic buys nothing here: use one-way ZFS snapshot
+  replication (<code>zfs send</code> and <code>zfs receive</code>) to a dataset on pve2's <code>tank-hdd</code>,
+  so deletions propagate and the copy follows the library, with a short snapshot
   retention on the target as the undo for an accidental deletion. Replication
   can only run while pve2 is on: a timer that tolerates an absent target, or the
   pve2 24/7 decision. The evaluation of <code>tank-hdd</code> as the long-term media home
@@ -3348,44 +2933,25 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   (<a href="#host-configuration">Host configuration</a>).</li>
 <li><strong>Nightly file manifest of replaceable media (2026-10-10)</strong>: when the
   raspberrypi2 data disk died, the list of what it held had to be rebuilt from
-  the Sonarr, Lidarr, Readarr, and Jellyfin databases, which only cover what
-  those applications had scanned (Radarr's file table was already empty) and
-  took hours. Media is replaceable by decision and stays out of restic, but its
-  file list is cheap to keep: a timer on the host that mounts the share (hl01,
-  or pve1 against the <code>rpool-usb-2/media</code> dataset) writes a manifest (path,
-  size, modification time) into the host's state directory, which the nightly
-  restic workloads job already backs up to a repository on another disk.
-  Complement it with the arr and Jellyfin API exports for titles and
-  identifiers. A stack of the node role, enabled where a media disk is mounted.</li>
-<li>Cross-host workloads backup. Depends on: configuring the backup destinations
-  (see the Destinations item below).</li>
-<li>Storage replication: prefer "one-way replication where the direction reverses
-  sometimes" over two-way replication, which is harder to implement. Filesystem
-  level: ZFS replication.</li>
-<li>Immich to copy data from phones to the NAS.</li>
+  the arr and Jellyfin databases, which only cover what those applications had
+  scanned, and took hours. Media stays out of restic, but its file list is cheap
+  to keep: a timer on the host that mounts the share (hl01, or pve1 against the
+  <code>rpool-usb-2/media</code> dataset) writes a manifest (path, size, modification time)
+  into the host's state directory, which the nightly restic workloads job
+  already backs up to a repository on another disk. Complement it with the arr
+  and Jellyfin API exports for titles and identifiers. A stack of the node role,
+  enabled where a media disk is mounted.</li>
 <li>Back up the Tailscale node state and automate the Samba passwords on the
   Debian hosts, so a re-provisioned host needs neither a manual tailnet re-join
   with route re-approval nor <code>smbpasswd</code> runs. Both hold secret material; the
   Samba password automation item (<a href="#nas">NAS</a>) describes a mechanism that keeps
   it out of the repository.</li>
-<li>To backup:<ul>
-<li>Proxmox hosts
-  (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#chapter_pmxcfs">Proxmox Cluster File System (pmxcfs)</a>).</li>
-<li>Move to network storage: ebooks, comics, photos.</li>
-<li>Media: movies, shows, ebooks, comics, game saves, software and drivers.</li>
-<li>Needs disk encryption: passwords, 2 factor authentication secrets, backup
-  access codes, Ansible secrets (vault.yaml files, the
-  home-lab-node-ssh-key.pub public key file), ESPHome secrets, gateway
-  configuration, photos (RAWs, Lightroom library), GitHub (private and
-  public repositories and gists), Google accounts data.</li>
-</ul>
-</li>
-<li>Destinations:<ul>
+<li>Destinations for the second copies:<ul>
 <li>Offsite backup: deploy an offsite host, configure Tailscale, network
   shares, and the backup (repository, schedule, scheduled restic check,
   retention).</li>
 <li>Cloud backup: cloud sync via Rclone if the provider is not supported by
-  Restic
+  restic
   (<a href="https://rclone.org/commands/rclone_mount/#vfs-file-caching">VFS caching</a>
   to keep retrieval costs down); providers to evaluate: Google Cloud,
   Backblaze, Amazon Glacier, Google Drive; then configure the backup
@@ -3398,33 +2964,17 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
 <ul>
 <li><strong>Mirrored vdevs for the ZFS pools (intent recorded 2026-10-18)</strong>: every pool
   declared in <code>zfs_pools</code> on pve1 and pve2 is a single-disk vdev, so a disk
-  failure loses the pool's contents. The second copies are <a href="#backup">Backup</a>
-  items (the restic repositories on <code>rpool-sata</code>, the media library on
-  <code>rpool-usb-2</code>), while the Syncthing folder on <code>rpool-usb-1</code> is itself the copy
-  of the remote peer's data. The intended layout is one mirror per pool, which
-  needs a second device of at least the same size per pool to protect;
-  <code>zpool attach</code> turns a single-disk vdev into a mirror in place, with no
-  recreation and no data move, after which the pool's <code>zfs_pools</code> entry records
-  the new topology. The ZFS section of the
-  <a href="references/#zfs">references page</a> holds the rationale for mirrors over
+  failure loses the pool's contents (the second copies are <a href="#backup">Backup</a>
+  items, and the Syncthing folder on <code>rpool-usb-1</code> is itself the copy of the
+  remote peer's data). The intended layout is one mirror per pool, which needs a
+  second device of at least the same size per pool to protect; <code>zpool attach</code>
+  turns a single-disk vdev into a mirror in place, after which the pool's
+  <code>zfs_pools</code> entry records the new topology. The ZFS section of the
+  <a href="references/#zfs">references page</a> has the articles behind mirrors over
   RAIDZ.</li>
-<li><strong>Media storage on <code>rpool-usb-2</code> (pool layout decided 2026-09-26, pool created
-  2026-10-10)</strong>: the 2 TB USB disk is pve1's independent single-disk ZFS pool
-  <code>rpool-usb-2</code> for replaceable media only, and the <code>media-usb</code> share is backed
-  by <code>rpool-usb-2/media</code>. The 900 GB <code>rpool-usb-1</code> pool keeps the valuable data:
-  the Syncthing folders (about 200 GB) and the reserved <code>backups</code> dataset. The
-  split separates the pools by data replaceability, so neither single disk holds
-  sole custody of irreplaceable data. Rejected: extending <code>rpool-usb-1</code> with a
-  second striped vdev — it couples two single disks into one failure domain,
-  aggravated by the USB transport. The library was rebuilt there from the arr
-  databases by 2026-10-11 (what was not wanted back stayed out), and the empty
-  <code>rpool-usb-1/media</code> dataset was destroyed and undeclared the same day. The
-  library remains a single copy on an aging drive (the ST2000DM001 has a poor
-  reliability record); the second copy on pve2's <code>tank-hdd</code> is a
-  <a href="#backup">Backup</a> item.</li>
 <li><strong>Tailscale on nas-pve1: declarative device management</strong>: manage the joined
   device via the Tailscale Terraform provider, per the
-  <a href="nas-lxc-container/#13-tailscale-connectivity">Tailscale connectivity section</a>
+  <a href="nas-lxc-container/#135-operational-requirements">operational requirements</a>
   of the NAS spec: a new Terraform stack (no Proxmox provider, so it runs with
   pve2 off) with <code>tailscale_device_key</code> disabling the node's key expiry. Land
   well before the default expiry (about 180 days from the 2026-10-03 join)
@@ -3434,105 +2984,51 @@ usb-1a86_USB_Single_Serial_54DD003512-if00
   nixpkgs (section-replace semantics and a dead endpoint; the
   <a href="nas-lxc-container/#124-device-identity-and-state-persistence">device identity section</a>
   of the NAS spec records both). The fix is on nixpkgs master but not in
-  nixos-26.05 (verified against the Dependabot bump), so this needs the next
-  release (expected NixOS 26.11). Once on it: redeclare <code>gui.useTLS</code>, verify
-  <code>defaults.folder.path</code> applies, and confirm the imperative GUI credentials
-  survive an activation.</li>
+  nixos-26.05, so this needs the next release (expected NixOS 26.11). Once on
+  it: redeclare <code>gui.useTLS</code>, verify <code>defaults.folder.path</code> applies, and confirm
+  the imperative GUI credentials survive an activation.</li>
 <li><strong>Move the Syncthing configuration into a Nix role</strong>: factor the reusable
   parts of the nas-pve1 <code>services.syncthing</code> configuration into a role under
   <code>config/nix/roles/</code> (shared service defaults in the role, per-host values in
-  the host configuration), so a future nas-pve2 instance reuses it instead of
-  duplicating it.</li>
+  the host configuration), so a future nas-pve2 instance reuses it.</li>
 <li><strong>raspberrypi2 restic repository wind-down (decided 2026-09-26)</strong>: hl01's
-  restic repository stays on <code>rpool-sata</code> via the existing <code>backups</code> share (no
-  consolidation onto the USB pools). raspberrypi2's repository covers only the
+  repository stays on <code>rpool-sata</code> via the existing <code>backups</code> share (no
+  consolidation onto the USB pools), while raspberrypi2's covers only the
   workloads running there and retires with the host: the backup job keeps
   running until the last workload leaves, and each migrated workload's old
-  snapshots can be discarded after about a week of healthy hl01 snapshots (the
-  workloads job keeps 7 days of dailies, and hl01 picks up a migrated workload's
-  state directory automatically). The repository was lost with the data disk on
-  2026-10-09; since 2026-10-11 the job writes to a per-host directory on the
-  nas-pve1 <code>backups</code> share, which retires with the job.</li>
-<li><strong>NFS support</strong>: Re-introduce NFS sharing alongside SMB. Evaluate
+  snapshots can be discarded after about a week of healthy hl01 snapshots (hl01
+  picks up a migrated workload's state directory automatically). Since
+  2026-10-11 the job writes to a per-host directory on the nas-pve1 <code>backups</code>
+  share, which retires with the job.</li>
+<li><strong>NFS support</strong>: re-introduce NFS sharing alongside SMB. Evaluate
   <code>nfs-kernel-server</code> in a privileged container versus the user-space
   NFS-Ganesha server, which can run in an unprivileged container.</li>
-<li><strong>Automated template upload</strong>: Replace the local-file push
+<li><strong>Automated template upload</strong>: replace the local-file push
   (<code>proxmox_virtual_environment_file</code> pointing at the local build artifact, per
   the framework pattern) with <code>proxmox_virtual_environment_download_file</code>
   pulling the template from a published URL, removing the need for a locally
   built artifact at <code>terraform apply</code> time.</li>
-<li><strong>Samba performance tuning</strong>: Benchmark before adding any tuning to the <code>nas</code>
-  role. Modern Samba enables AIO by default, and the classic knobs interact (a
-  non-zero <code>aio write size</code> disables <code>min receivefile size</code>), so tuning without
-  measurement is at best a no-op.</li>
-<li><strong>GitOps requires the <code>comin</code> role per host</strong>: comin needs a hostname at build
-  time, so it cannot ride in the shared, hostname-less bootstrap template (see
-  <a href="proxmox-lxc/#5-lxc-template-generation">template generation</a>). Each NAS
-  host's <code>configuration.nix</code> must therefore import the <code>comin</code> role itself,
-  which is installed by the one-time <code>nixos-rebuild switch</code> handoff. True
-  zero-touch first-boot GitOps would require working around comin's build-time
-  hostname model.</li>
-<li><strong>Samba password automation</strong>: Replace the imperative <code>smbpasswd</code> step
+<li><strong>Samba password automation</strong>: replace the imperative <code>smbpasswd</code> step
   (<a href="nas-lxc-container/#72-imperative-part-one-time-setup">SMB user management</a>)
   with a mechanism/material split that keeps secrets out of the public
-  repository (committing encrypted secrets — e.g. <code>sops-nix</code> ciphertext — was
-  considered and rejected: this repository's policy keeps even encrypted secrets
-  untracked, and public Git history is immortal). Design: the <code>nas</code> role ships a
-  oneshot systemd unit that, on every activation, reads a password file from a
-  well-known path and pipes it into <code>smbpasswd -s -a ferrarimarco</code>; the Ansible
-  layer that already manages the Proxmox nodes writes that file (root-only,
-  <code>0600</code>) to <code>/var/lib/samba-state/nas-pveN/smb-password</code> from a vaulted
-  (untracked) variable, so the container's existing <code>/var/lib/samba</code> bind mount
-  delivers it. Container recreation then self-heals the password database,
-  rotation is an Ansible run plus a unit restart, and disaster recovery reduces
-  to the local Ansible vault, as for every other secret in the lab. The same
-  mechanism could deliver the Syncthing sync topology and GUI credentials on
-  nas-pve1, which are imperative for the same keep-private-material-out reason
-  (see the NAS spec,
+  repository. Design: the <code>nas</code> role ships a oneshot systemd unit that, on every
+  activation, reads a password file from a well-known path and pipes it into
+  <code>smbpasswd -s -a ferrarimarco</code>; the Ansible layer that already manages the
+  Proxmox nodes writes that file (root-only, <code>0600</code>) to
+  <code>/var/lib/samba-state/nas-pveN/smb-password</code> from a vaulted (untracked)
+  variable, so the container's existing <code>/var/lib/samba</code> bind mount delivers it.
+  Container recreation then self-heals the password database, rotation is an
+  Ansible run plus a unit restart, and disaster recovery reduces to the local
+  Ansible vault. The same mechanism could deliver the Syncthing sync topology
+  and GUI credentials on nas-pve1, which are imperative for the same reason (see
+  the NAS spec,
   <a href="nas-lxc-container/#124-device-identity-and-state-persistence">device identity and state persistence</a>).</li>
-<li><strong>SMB service discovery</strong>: Enable Samba's WS-Discovery or Avahi for automatic
-  share browsing on Windows and macOS clients.</li>
-<li><strong>Static IP migration</strong>: Transition from DHCP to static IP assignments defined
-  in the NixOS configuration once the network spec is written. Depends on:
-  configuring static IP addresses for servers (<a href="#networking">Networking</a>).</li>
-<li><strong>Terraform in-place mount point updates (blocked upstream)</strong>: the
-  <code>bpg/proxmox</code> provider (through at least 0.114.0) cannot update a container's
-  mount points in place — any change plans a container replacement, reverting
-  the guest to the bare bootstrap template. The
-  <a href="nas-lxc-container/#62-zfs-dataset-bind-mounts">bind mounts section</a> of
-  the NAS spec records the <code>pct set</code> fast-forward procedure used instead.
-  Revisit when upstream lands in-place management
-  (<a href="https://github.com/bpg/terraform-provider-proxmox/issues/1392">bpg/terraform-provider-proxmox#1392</a>,
-  scheduled for the provider's v2.0 milestone).</li>
-<li><strong>Terraform-managed ZFS pools (evaluated 2026-08, deferred)</strong>: the
-  <code>bpg/proxmox</code> provider (since 0.111.x) offers
-  <a href="https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/node_disk_zfs"><code>proxmox_node_disk_zfs</code></a>
-  for node ZFS pool lifecycle. Transitioning the pool layer of the <code>setup_disks</code>
-  role (see
-  <a href="nas-lxc-container/#111-zfs-dataset-mount-points-on-the-host">dataset mount points</a>)
-  to it was evaluated and rejected for now: its pool attributes (<code>devices</code>,
-  <code>raidlevel</code>, <code>ashift</code>, <code>compression</code>) are write-only, so the Terraform config
-  would be the same unverified documentation the <code>zfs_pools</code> inventory already
-  is, with no drift detection; the provider manages pools only, so datasets and
-  mount-point ownership would stay in Ansible, splitting the ZFS layer across
-  two tools; and with the local Terraform state backend, losing state would
-  invert the deliberate "pools are asserted, never created" stance into a
-  pool-creation attempt on data-bearing devices at the next apply. Revisit when
-  the provider gains readable pool attributes (real drift detection) or dataset
-  management, or when a durable remote state backend is in place.</li>
-<li><strong>Single source of truth for shares</strong>: Derive the Samba share exports (NixOS),
+<li><strong>Single source of truth for shares</strong>: derive the Samba share exports (NixOS),
   the bind mounts (Terraform), and the host datasets (Ansible <code>zfs_datasets</code>,
   <a href="nas-lxc-container/#111-zfs-dataset-mount-points-on-the-host">dataset mount points</a>)
-  from one data structure — for example a Nix attrset emitted to <code>tfvars</code> via
-  <code>nix eval</code> — so each share is declared once and the three halves cannot drift
+  from one data structure, for example a Nix attrset emitted to <code>tfvars</code> via
+  <code>nix eval</code>, so each share is declared once and the three halves cannot drift
   (see <a href="nas-lxc-container/#51-adding-per-host-shares">per-host shares</a>).</li>
-</ul>
-<h3 id="cloud-environment">Cloud environment</h3>
-<ul>
-<li>Configure a cloud environment on Google Cloud: create the resource hierarchy.</li>
-<li>Set quotas to match the caps of the free tier when possible
-  (<a href="https://cloud.google.com/docs/quota#capping_usage">capping usage</a>,
-  <a href="https://cloud.google.com/billing/docs/how-to/notify#cap_disable_billing_to_stop_usage">disable billing to stop usage</a>).</li>
 </ul>
 <h3 id="documentation">Documentation</h3>
 <ul>
@@ -3577,12 +3073,289 @@ or discard it.</p>
   the inventory, the list of Home Assistant automations, the list of cron jobs,
   and the network plan (the subnet, the lab DNS zone, and the gateway's address
   and name, declared by the node role variables <code>edge_environment_subnet</code>,
-  <code>root_dns_zone_fqdn</code>, and <code>edge_environment_gateway</code>; the router-side facts,
-  Cloudflare for the root zone and dnsmasq as the DHCP server, stay hand-written
-  in the network stack item under <a href="#networking">Networking</a>) from the
-  configuration instead of maintaining them by hand; the hand-written network
-  configuration page was dropped on 2026-10-19 because it could only drift from
-  those variables.</p>
+  <code>root_dns_zone_fqdn</code>, and <code>edge_environment_gateway</code>; the router-side facts
+  stay hand-written in the network stack item under <a href="#networking">Networking</a>)
+  from the configuration instead of maintaining them by hand; the hand-written
+  network configuration page was dropped on 2026-10-19 because it could only
+  drift from those variables.</p>
+</li>
+</ul>
+<h3 id="ideas">Ideas</h3>
+<p>Undated ideas with no decision and no first step, parked by theme so that the
+sections above hold only work. An idea becomes an item when it gets a date and a
+first step; software alternatives go to
+<a href="software-candidates/">Software candidates</a> instead.</p>
+<ul>
+<li>Bootstrapping and provisioning:<ul>
+<li>Generate a Home Lab bootstrapping keypair.</li>
+<li>Fully automate Terraform runs
+  (<a href="https://developer.hashicorp.com/terraform/tutorials/automation/automate-terraform">reference</a>),
+  with CI for Terraform and the
+  <a href="https://docs.ansible.com/ansible/latest/collections/community/general/terraform_module.html#ansible-collections-community-general-terraform-module">Ansible terraform module</a>.</li>
+<li>Configure the
+  <a href="https://registry.terraform.io/providers/integrations/github/latest/docs">GitHub repositories</a>
+  with Terraform.</li>
+</ul>
+</li>
+<li>Reliability and resilience:<ul>
+<li>Single points of failure to mitigate. Hardware: network gateway, Wi-Fi
+  access point, network switches, network cables, power supply units, UPS,
+  Zigbee antenna. Software: DHCP server, DNS resolver, MQTT broker,
+  Zigbee2MQTT; without an internet connection the Ansible container can't be
+  built unless the image is already stored on the host running Ansible.
+  Services: WAN.</li>
+<li>Minimize external dependencies: NixOS ISO server host, Terraform provider
+  registry, Docker image registry, Debian package repository, Nix store.</li>
+<li>Automated troubleshooting playbook: test the DNS server, test the DNS
+  resolver.</li>
+</ul>
+</li>
+<li>Security:<ul>
+<li>Reference container images by hashes.</li>
+<li>Centralized user management: configure Linux system users, configure
+  network shares permissions.</li>
+<li>Check security vulnerabilities:
+  <a href="https://github.com/ferrarimarco/home-lab/security/code-scanning">code scanning</a>,
+  <a href="https://github.com/threat9/routersploit">routersploit</a>.</li>
+<li>Ansible:
+  <a href="https://github.com/dev-sec/ansible-collection-hardening/">dev-sec hardening collection</a>.</li>
+<li>Secure Debian:
+  <a href="https://www.debian.org/doc/manuals/securing-debian-manual/index.en.html">Securing Debian manual</a>.</li>
+<li>Docker: remove users from the Docker group?; Docker socket hardening
+  (<a href="https://doc.traefik.io/traefik/providers/docker/#docker-api-access">Traefik Docker API access</a>,
+  <a href="https://github.com/Tecnativa/docker-socket-proxy">docker-socket-proxy</a>);
+  don't bind ports to every host interface.</li>
+<li>Block internet access to local-only devices.</li>
+<li><a href="https://www.home-assistant.io/docs/configuration/securing/">Securing Home Assistant</a>.</li>
+<li><a href="https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification">Commit signature verification</a>.</li>
+<li>qBittorrent: enable HTTPS.</li>
+<li>Proxmox hardening:
+  <a href="https://dustri.org/b/hardening-proxmox-against-physical-attacks.html">against physical attacks</a>,
+  <a href="https://www.virtualizationhowto.com/2025/08/top-security-hardening-steps-for-proxmox-ve-9/">Proxmox VE 9 hardening steps</a>.</li>
+<li>Encrypt disks; unlock remotely:
+  <a href="https://www.cyberciti.biz/security/how-to-unlock-luks-using-dropbear-ssh-keys-remotely-in-linux/">LUKS unlock via Dropbear SSH</a>.</li>
+<li>SSH: sshd AuthorizedKeysCommand; IdentitiesOnly.</li>
+</ul>
+</li>
+<li>Host configuration:<ul>
+<li>Proxmox cluster (pve1, pve2): configure certificates
+  (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management">certificate management</a>,
+  <a href="https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html">Let's Encrypt</a>).</li>
+<li>Argon One M.2 case: set up logging for the fan controller
+  (<a href="https://github.com/Argon40Tech/Argon40case/blob/master/src/argonone-firmwareupdate.py">firmware updater</a>,
+  <a href="https://github.com/Argon40Tech/Argon-ONE-i2c-Codes">I2C codes</a>,
+  <a href="https://forum.argon40.com/t/much-better-argon-one-fan-linux-software-alternative/891">fan software alternative</a>).</li>
+</ul>
+</li>
+<li>Networking:<ul>
+<li>Tailscale exit node: route remote client traffic through the home network
+  (for example, from untrusted networks). Separate from the subnet router
+  item: an exit node routes the client's internet traffic, not access to the
+  LAN.</li>
+<li>Tailscale: configure SSH; don't accept DNS to avoid depending on Tailscale
+  being up?; update the DNS resolver IP address; don't advertise subnet
+  routes if there are already unapproved routes for the same node (needs
+  <a href="https://github.com/tailscale/tailscale/issues/5724">tailscale#5724</a>). The
+  <a href="references/#tailscale">references page</a> lists the Tailscale articles.</li>
+<li>DHCP: understand what the dhcp-script does; if staying on dnsmasq, use a
+  <a href="https://docs.renovatebot.com/modules/datasource/repology/">Repology</a>
+  source with Renovate to update it.</li>
+<li>Deploy an ad blocking server; configure block lists for Unbound
+  (<a href="https://github.com/StevenBlack/hosts">StevenBlack/hosts</a>).</li>
+<li><a href="https://theorangeone.net/posts/expose-docker-internal-dns/">Exposing Docker's internal DNS with CoreDNS</a>.</li>
+<li>Store SSH fingerprints as DNS records?</li>
+<li>DNS rebinding protection: see the dnsmasq "rebind" options.</li>
+</ul>
+</li>
+<li>Monitoring and alerting:<ul>
+<li>To monitor: EdgeTPU (custom exporter, or
+  <a href="https://github.com/adaptant-labs/edgetpu-exporter">edgetpu-exporter</a>);
+  CPU C states; CPU vulnerabilities;
+  <a href="https://docs.docker.com/engine/daemon/prometheus/">Docker engine metrics</a>;
+  the ONT login endpoint (<code>https://192.168.1.1/login.html</code>);
+  <a href="https://tailscale.com/blog/client-metrics">Tailscale client metrics</a>;
+  Prometheus Blackbox monitoring for reverse lookups;
+  <a href="https://github.com/letsencrypt/unbound_exporter">Unbound</a>; FlareSolverr;
+  HTTPS and TLS certificate validity (ferrarimarco.info, ferrari.how); the
+  gateway's dnsmasq DNS queries and DHCP leases
+  (<a href="https://github.com/google/dnsmasq_exporter">dnsmasq_exporter</a>) and
+  running processes.</li>
+<li>Verify the authority section of public resource records.</li>
+<li>WoL watchdog.</li>
+<li>Grafana: set a datasource uid to reuse across dashboards; set the unit of
+  measurement in the average DNS probe panel; automate updates of the
+  provisioned dashboard JSONs (PRs with updates?).</li>
+<li>Check the <a href="https://uptimerobot.com/">UptimeRobot</a> configuration.</li>
+<li>Automate Telegram bot creation.</li>
+<li>Set up Loki for log aggregation.</li>
+</ul>
+</li>
+<li>Smart home:<ul>
+<li>Frigate: configure the
+  <a href="https://docs.frigate.video/configuration/live#setting-stream-for-live-ui">live view to use the high resolution stream</a>;
+  use
+  <a href="https://docs.frigate.video/configuration/#full-configuration-reference">environment variables</a>
+  to pass credentials; tune
+  <a href="https://github.com/blakeblackshear/frigate/discussions/559">notifications</a>.</li>
+<li>Smart desk:
+  <a href="https://community.home-assistant.io/t/dimmable-pcf8574-lcd-display-with-esphome/272308">dimmable LCD display</a>,
+  magnetic contact to signal actuators movement, sensor to ensure that the
+  actuators are extended to the same length, actuators that report
+  extension, programmable plug for the actuators power source so it can be
+  disabled when not needed.</li>
+<li>Sense HAT:
+  <a href="https://github.com/initialstate/wunderground-sensehat/wiki/Part-3.-Sense-HAT-Temperature-Correction">temperature correction</a>.</li>
+<li>Weather station:
+  <a href="https://learn.adafruit.com/wifi-weather-station-with-tft-display">Adafruit Wi-Fi weather station</a>,
+  <a href="https://github.com/lmarzen/esp32-weather-epd">esp32-weather-epd</a>.</li>
+<li>Lock-state sensing for the existing door locks: a Zigbee water-leak sensor
+  with an external two-wire probe, hidden in the door frame, with each probe
+  wire ending in a foil pad inside the strike box; the thrown deadbolt
+  bridges the pads, so "leak" means "locked". Fails safe (any fault reads as
+  not locked) and cannot actuate. In Zigbee2MQTT, invert the device's leak
+  payload and show the entity as a lock. Constraints: room for the wires in
+  the strike box, a conductive deadbolt, and a contact that holds across the
+  play of the key.</li>
+<li>Automations:<ul>
+<li>Smart chair: contact sensor
+  (<a href="https://bogdanbujdea.dev/how-i-made-my-chair-smart-with-10dollar">reference</a>).</li>
+<li>Closet lighting.</li>
+<li>Energy: turn the studio power plug off if computers are off.</li>
+<li>Safety and security: remind people to turn the alarm on when nobody is
+  at home; low-battery alerts for smoke detectors and door/window
+  sensors; smoke and CO2 alerts to phones and speakers; leak sensors
+  with automatic water shut-off if not overridden; arm the alarm when
+  everyone is away (motion notifies everyone, turns lights off, closes
+  blinds, broadcasts on speakers).</li>
+<li>Lights: morning wake-up fade-in, nighttime catch-all shutdown, turn
+  Hue lights on when main power goes off, night red lights in the
+  corridor, holiday lights, motion lights in kitchen and hallways at
+  night, dusk-to-armed-night outdoor lights, kids lights-out mode after
+  bedtime, bedside all-on/off button, motion plus BLE presence to turn
+  lights off, movie mode, all-asleep mode dimming to 1%.</li>
+<li>Voice commands: control lights.</li>
+<li>Reminders and announcements: whole-home speaker announcements based on
+  calendar events, school pick-up reminder based on presence, commute
+  and weather briefing on work days, 17track package notifications (out
+  for delivery, delivered).</li>
+<li>Computers and servers: consumption thresholds (disk, CPU), notify when
+  a critical device goes offline, alert if SenseHat readings report 0
+  (requires physically power cycling the Raspberry Pi), UPS battery load
+  and recharge.</li>
+<li>Washer and dryer: voice notification when the washing cycle completes.</li>
+<li>Home theater and TV: "I've got company" scene, one-button
+  entertainment center power-on (may need an IR blaster), TV device as
+  master power switch, mute speakers when movies play, stop speakers
+  after 10 minutes of pause, time-based speaker and Chromecast volume,
+  cap speaker volume at 20% on power-off.</li>
+<li>Kitchen: coffee machine preheating, oven preheat status.</li>
+<li>Blinds: automate blinds (sunrise/sunset offsets, close on summer sun
+  via outside temperature and window lux), close when movies play.</li>
+<li>Shower: exhaust fan, vanity light, preheat hair tools via smart plugs,
+  house lights on, TVs off, curtains closed, heated blanket off.</li>
+<li>Heating, A/C, and fans: humidity-driven exhaust fans, alert if the
+  thermostat is off while heating is on (needs heater state detection),
+  open door/window alerts with AC/heater shutdown and restore,
+  wrong-mode detection and open-the-windows suggestions, bathroom space
+  heater on a smart plug in a closed temperature loop, thermostat
+  setpoints per presence, day/time, and alarm state.</li>
+<li>Windows and doors: open-for-X-minutes phone alerts, leaving-home check
+  with presence logic, integration with a whole-house fan.</li>
+<li><a href="https://www.reddit.com/r/homeassistant/comments/116tk8l/psa_blueprint_to_notify_of_zigbeezwave_devices">Zigbee/Z-Wave device notification blueprint</a>.</li>
+</ul>
+</li>
+<li>Routines:<ul>
+<li>Good-night command: lights and TVs off, doors locked, bedroom fan on.</li>
+<li>Morning: blinds up and motion lights on a schedule, with snooze
+  buttons.</li>
+<li>Wake-up button: lights, thermostat, coffee maker (only if it has
+  water, otherwise announce it).</li>
+<li>Bedtime button: lights off, thermostat, TV off, doors locked, bedside
+  lamp at 10%.</li>
+<li>Bathroom motion light, fan only above 65% humidity.</li>
+<li>Night bathroom light at 10% within certain hours.</li>
+<li>Pressure sensor turns on the TV when sitting down.</li>
+<li>BLE beacon in the car disarms the alarm on arrival.</li>
+<li>Door unlock: kitchen lights, thermostat, TV with a welcome
+  announcement.</li>
+<li>Bathroom-door contact sensor locks the outside doors.</li>
+<li>Start streaming radio when the phone is detected in a zone (work).</li>
+<li>Occupancy-based automations driven by alarm state instead of
+  schedules; doors auto-deadbolt at a set time with a text alert.</li>
+<li>Phones-charging-after-bedtime trigger: lights off, fan on, delayed TV
+  off.</li>
+</ul>
+</li>
+<li>Integrations to configure:<ul>
+<li><a href="https://github.com/ollo69/ha-smartthinq-sensors">ha-smartthinq-sensors</a></li>
+<li><a href="https://www.home-assistant.io/integrations/syncthing/">Syncthing</a></li>
+<li><a href="https://www.home-assistant.io/integrations/local_todo">Local to-do</a></li>
+<li><a href="https://www.home-assistant.io/integrations/google_tasks">Google Tasks</a></li>
+<li><a href="https://www.home-assistant.io/integrations/feedreader">Feedreader</a></li>
+<li>House map on dashboard
+  (<a href="https://github.com/ExperienceLovelace/ha-floorplan">ha-floorplan</a>)</li>
+<li>Family calendar</li>
+<li>Toyota MyT</li>
+<li>Frigate</li>
+<li><a href="https://www.home-assistant.io/integrations/backup/">Backup</a></li>
+<li><a href="https://www.home-assistant.io/integrations/bluetooth_tracker/">Bluetooth tracker</a></li>
+<li><a href="https://www.home-assistant.io/integrations/bluetooth_le_tracker/">Bluetooth LE tracker</a></li>
+<li><a href="https://www.home-assistant.io/integrations/cert_expiry/">Certificate expiry</a>:
+  ferrari.how</li>
+<li><a href="https://www.home-assistant.io/integrations/google_assistant/">Google Assistant</a></li>
+<li>Needs a Google Cloud project:
+  <a href="https://www.home-assistant.io/integrations/google/">Google Calendars</a>,
+  <a href="https://www.home-assistant.io/integrations/google_pubsub/">Google Pub/Sub</a></li>
+<li><a href="https://www.home-assistant.io/integrations/cloudflare/">Cloudflare</a></li>
+<li><a href="https://www.home-assistant.io/integrations/google_maps/">Google Maps</a></li>
+<li><a href="https://www.home-assistant.io/integrations/google_sheets">Google Sheets</a></li>
+<li><a href="https://www.home-assistant.io/integrations/google_travel_time/">Google Travel Time</a></li>
+<li><a href="https://www.home-assistant.io/docs/energy/">Energy monitoring</a>:
+  overall consumption, set energy costs,
+  <a href="https://www.home-assistant.io/integrations/utility_meter">utility meter</a></li>
+<li>Gas consumption monitoring</li>
+<li><a href="https://www.home-assistant.io/integrations/mobile_app/">Mobile app</a></li>
+<li>Water consumption monitoring</li>
+<li><a href="https://www.home-assistant.io/integrations/whois">Whois</a>: ferrari.how
+  (this TLD is not currently supported)</li>
+<li><a href="https://www.home-assistant.io/integrations/speedtestdotnet">Speedtest.net</a></li>
+</ul>
+</li>
+<li>Dashboard.</li>
+</ul>
+</li>
+<li>Backup:<ul>
+<li>Cross-host workloads backup, once the destinations exist.</li>
+<li>Immich to copy data from phones to the NAS.</li>
+<li>Storage replication: prefer "one-way replication where the direction
+  reverses sometimes" over two-way replication, which is harder to
+  implement. Filesystem level: ZFS replication.</li>
+<li>To back up: the Proxmox hosts
+  (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#chapter_pmxcfs">pmxcfs</a>);
+  ebooks, comics, and photos, moved to network storage; media (movies,
+  shows, ebooks, comics, game saves, software and drivers); with disk
+  encryption: passwords, 2 factor authentication secrets, backup access
+  codes, Ansible secrets (vault files, the bootstrap public key), ESPHome
+  secrets, gateway configuration, photos (RAWs, Lightroom library), GitHub
+  (private and public repositories and gists), Google accounts data.</li>
+</ul>
+</li>
+<li>NAS:<ul>
+<li>Samba performance tuning: benchmark before adding any tuning to the <code>nas</code>
+  role. Modern Samba enables AIO by default, and the classic knobs interact
+  (a non-zero <code>aio write size</code> disables <code>min receivefile size</code>), so tuning
+  without measurement is at best a no-op.</li>
+<li>SMB service discovery: enable Samba's WS-Discovery or Avahi for automatic
+  share browsing on Windows and macOS clients.</li>
+</ul>
+</li>
+<li>Cloud environment:<ul>
+<li>Configure a cloud environment on Google Cloud: create the resource
+  hierarchy.</li>
+<li>Set quotas to match the caps of the free tier when possible
+  (<a href="https://cloud.google.com/docs/quota#capping_usage">capping usage</a>,
+  <a href="https://cloud.google.com/billing/docs/how-to/notify#cap_disable_billing_to_stop_usage">disable billing to stop usage</a>).</li>
+</ul>
 </li>
 </ul>
 

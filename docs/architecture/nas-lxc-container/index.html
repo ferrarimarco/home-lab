@@ -3352,6 +3352,32 @@ this lives in the Ansible layer that already manages the Proxmox nodes:</p>
   which is how the <code>nas-pve1</code> container failed its boot-time start on 2026-11-10
   on <code>rpool-usb-2</code>. The role also fails on an enabled instance whose pool the
   inventory does not declare.</li>
+<li><strong>Pools are split by data replaceability</strong> (decided 2026-09-26, pools created
+  2026-10-10). On <code>pve1</code>, the 2 TB USB disk is the independent single-disk pool
+  <code>rpool-usb-2</code>, for replaceable media only (<code>rpool-usb-2/media</code> backs the
+  <code>media-usb</code> share), while the 900 GB <code>rpool-usb-1</code> pool keeps the valuable
+  data: the Syncthing folders (about 200 GB) and the reserved <code>backups</code> dataset.
+  Neither single disk thus holds sole custody of irreplaceable data. Extending
+  <code>rpool-usb-1</code> with a second striped vdev was rejected: it couples two single
+  disks into one failure domain, aggravated by the USB transport. The library
+  was rebuilt on <code>rpool-usb-2</code> from the arr databases by 2026-10-11 (what was
+  not wanted back stayed out), and the empty <code>rpool-usb-1/media</code> dataset was
+  destroyed and undeclared the same day. The library remains a single copy on an
+  aging drive (the ST2000DM001 has a poor reliability record); its second copy
+  is a <a href="../#backup">Backup</a> todo item.</li>
+<li><strong>Pool lifecycle stays out of Terraform</strong> (evaluated 2026-08). The
+  <code>bpg/proxmox</code> provider offers
+  <a href="https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/node_disk_zfs"><code>proxmox_node_disk_zfs</code></a>
+  since 0.111.x, rejected for now: its pool attributes (<code>devices</code>, <code>raidlevel</code>,
+  <code>ashift</code>, <code>compression</code>) are write-only, so the Terraform configuration would
+  be the same unverified documentation <code>zfs_pools</code> already is, with no drift
+  detection; the provider manages pools only, so datasets and mount-point
+  ownership would stay in Ansible, splitting the ZFS layer across two tools; and
+  with the local Terraform state backend, losing state would invert the
+  "asserted, never created" stance into a pool-creation attempt on data-bearing
+  devices at the next apply. Revisit when the provider gains readable pool
+  attributes or dataset management, or when a durable remote state backend is in
+  place.</li>
 <li><strong><code>zfs_datasets</code> — created if missing</strong> (<code>zfs create -p</code>). The declared
   <code>mount_point</code> is not an input to ZFS (datasets mount at the ZFS-computed path,
   by default <code>/&lt;pool&gt;/&lt;dataset&gt;</code>), so the role then asserts that each dataset's

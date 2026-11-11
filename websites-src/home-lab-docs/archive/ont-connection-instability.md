@@ -7,6 +7,9 @@ was down too.
 
 Root cause: a faulty ONT. TIM replaced it, solving the issue.
 
+The replacement (model F6005V6.0, software V6.0.10N20) has a different failure
+mode, recorded in [The 2026-11-04 hang](#the-2026-11-04-hang) below.
+
 ## Investigation
 
 - Checked the ONT admin interface while the issue was happening:
@@ -52,3 +55,25 @@ GPON ONT states:
    enters this state, and then turns to the O1 state.
 7. Emergency-Stop-state(O7): when the ONU receives the Disable_Serial_Number
    message, it enters this state and then turns to the O2 state.
+
+## The 2026-11-04 hang
+
+The ONT hangs in a state that only a power cycle clears. Its admin interface
+hung from 2026-03-28 to 2026-11-04, starving the ONT exporter, and on 2026-11-04
+its forwarding plane hung too: the WAN was down from 01:20 to 06:12 UTC while
+the PON LED stayed on, the gateway's Ethernet link to the ONT stayed up at 2.5
+Gbps, PPPoE discovery got no reply, and the ONT answered no ARP. The router WAN
+check restarted the WAN 98 times without effect (its only action is a PPPoE
+restart on the router), a manual power cycle restored the PPPoE session within
+seconds, and the admin interface came back with it (the exporter runs again
+since 06:30 UTC, its first data since March).
+
+Verified the same day: the admin interface serves three read-only pages (device,
+GPON, and LAN port info) with no log, no uptime, and no reboot control, so a
+smart plug is the only remote recovery lever; the ONT keeps no log and its
+counters restart with power, so the router log is the only record of an outage
+start. The ONT is a closed, ISP-managed device, so root-causing is likely not
+possible. The remote power cycle design is an item in the
+[specs todo list](../architecture/README.md#issues-to-solve), and the WAN check
+changes it needs are under [Networking](../architecture/README.md#networking)
+there.

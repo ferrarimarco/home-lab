@@ -175,9 +175,33 @@ migration to hl01 shrinks this host's role.
   It does not cover a root I/O stall (see the 2026-10-06 and 2026-10-07 episodes
   above): a complementary stall watchdog was designed and reviewed on 2026-10-12
   (a resident probe service with a systemd failure action, plus kernel hung-task
-  sysctls) and postponed until the OS re-image and a way to trigger the stall
-  deliberately exist, since nothing today can show that the probe sees the real
-  failure; the design is kept in the same list.
+  sysctls) and postponed until a way to trigger the stall deliberately exists,
+  since nothing today can show that the probe sees the real failure; the design
+  is recorded below and the item in the same list.
+
+## Root filesystem stall watchdog design
+
+Reviewed against the systemd 247 sources on 2026-10-12 and kept so the next
+attempt starts from it:
+
+- A resident Python probe service (`Type=notify`) that writes and syncs a file
+  on the root filesystem every 30 s and pings systemd only after a successful
+  sync, sending `READY=1` with the first ping. The loop never exits: a probe
+  error withholds the ping, since an exit reaches the start rate limit, which is
+  a failed state.
+- `WatchdogSec=180`, `TimeoutStopSec=5` (the kill sequence has four legs),
+  `Restart=no`, `ConditionPathIsReadWrite=/var/lib`, and a kill switch file on
+  the boot partition.
+- `FailureAction=reboot-immediate`, never `reboot-force`, which hands PID 1 to a
+  binary on the stalled disk and disarms the hardware watchdog.
+- Kernel backstop behind the same flag: `kernel.hung_task_panic=1` and
+  `kernel.panic=10` (the detector exists on the host's kernel, 120 s), with the
+  caveat that any 120 s uninterruptible wait panics the host (the CIFS backup
+  mount is the candidate, unverified).
+- Rehearsal: `SIGSTOP` on the unit exercises the exact expiry and kill sequence.
+  It only proves that the unit reboots the host when its own probe hangs;
+  whether the probe sees the real failure needs a deliberate stall (a controlled
+  reset or power cut of the USB bridge).
 
 ## Other open follow-ups
 

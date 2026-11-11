@@ -64,6 +64,27 @@
   by Michael Stapelberg: a gokrazy Raspberry Pi serial console reached over
   Tailscale, plus a Tasmota smart plug for power cycling.
 
+## Tailscale
+
+- [Invite any user](https://tailscale.com/blog/invite-any-user/)
+- [Exit nodes](https://tailscale.com/kb/1103/exit-nodes/)
+- [TLS certs](https://tailscale.com/blog/tls-certs/) and
+  [Traefik certificates](https://tailscale.com/kb/1234/traefik-certificates/),
+  with the
+  [Traefik certificate resolver](https://tailscale.com/blog/traefik-certificate-resolver/)
+- [Docker image](https://hub.docker.com/r/tailscale/tailscale),
+  [Docker guide](https://tailscale.com/blog/docker-tailscale-guide), and
+  [Docker KB](https://tailscale.com/kb/1282/docker)
+- [PiKVM](https://docs.pikvm.org/tailscale/)
+- [Pi-hole](https://tailscale.com/kb/1114/pi-hole/) and
+  [NextDNS](https://tailscale.com/kb/1218/nextdns/)
+- [Funnel](https://tailscale.com/blog/introducing-tailscale-funnel/)
+- [Kubernetes operator](https://tailscale.com/kb/1236/kubernetes-operator)
+- [cloud-init](https://tailscale.com/kb/1293/cloud-init)
+- [GitOps ACLs](https://tailscale.com/kb/1204/gitops-acls/) and the
+  [Terraform provider](https://tailscale.com/kb/1210/terraform-provider/)
+- [Proxmox](https://tailscale.com/kb/1133/proxmox)
+
 ## Immutable infrastructure
 
 - [Erase your darlings](https://grahamc.com/blog/erase-your-darlings/), by

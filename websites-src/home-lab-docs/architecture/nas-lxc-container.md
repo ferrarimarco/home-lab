@@ -736,6 +736,32 @@ this lives in the Ansible layer that already manages the Proxmox nodes:
   which is how the `nas-pve1` container failed its boot-time start on 2026-11-10
   on `rpool-usb-2`. The role also fails on an enabled instance whose pool the
   inventory does not declare.
+- **Pools are split by data replaceability** (decided 2026-09-26, pools created
+  2026-10-10). On `pve1`, the 2 TB USB disk is the independent single-disk pool
+  `rpool-usb-2`, for replaceable media only (`rpool-usb-2/media` backs the
+  `media-usb` share), while the 900 GB `rpool-usb-1` pool keeps the valuable
+  data: the Syncthing folders (about 200 GB) and the reserved `backups` dataset.
+  Neither single disk thus holds sole custody of irreplaceable data. Extending
+  `rpool-usb-1` with a second striped vdev was rejected: it couples two single
+  disks into one failure domain, aggravated by the USB transport. The library
+  was rebuilt on `rpool-usb-2` from the arr databases by 2026-10-11 (what was
+  not wanted back stayed out), and the empty `rpool-usb-1/media` dataset was
+  destroyed and undeclared the same day. The library remains a single copy on an
+  aging drive (the ST2000DM001 has a poor reliability record); its second copy
+  is a [Backup](./README.md#backup) todo item.
+- **Pool lifecycle stays out of Terraform** (evaluated 2026-08). The
+  `bpg/proxmox` provider offers
+  [`proxmox_node_disk_zfs`](https://registry.terraform.io/providers/bpg/proxmox/latest/docs/resources/node_disk_zfs)
+  since 0.111.x, rejected for now: its pool attributes (`devices`, `raidlevel`,
+  `ashift`, `compression`) are write-only, so the Terraform configuration would
+  be the same unverified documentation `zfs_pools` already is, with no drift
+  detection; the provider manages pools only, so datasets and mount-point
+  ownership would stay in Ansible, splitting the ZFS layer across two tools; and
+  with the local Terraform state backend, losing state would invert the
+  "asserted, never created" stance into a pool-creation attempt on data-bearing
+  devices at the next apply. Revisit when the provider gains readable pool
+  attributes or dataset management, or when a durable remote state backend is in
+  place.
 - **`zfs_datasets` — created if missing** (`zfs create -p`). The declared
   `mount_point` is not an input to ZFS (datasets mount at the ZFS-computed path,
   by default `/<pool>/<dataset>`), so the role then asserts that each dataset's

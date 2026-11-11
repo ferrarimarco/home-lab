@@ -23,9 +23,9 @@ The broker is the bus between Home Assistant, Frigate, and Zigbee2MQTT: the
 Zigbee devices, the camera events, and the automations that react to them all
 pass through it, and the availability of every MQTT entity in Home Assistant
 follows it. On raspberrypi2 it shared a host whose stalls and disk failure are
-recorded in the [specs todo list](./README.md#issues-to-solve), and it was the
-last stateless workload keeping that host in the smart home path besides
-Zigbee2MQTT, which stays where the Zigbee radio is.
+recorded in the [stability notes](../archive/raspberrypi2-stability-issues.md),
+and it was the last stateless workload keeping that host in the smart home path
+besides Zigbee2MQTT, which stays where the Zigbee radio is.
 
 The containers of raspberrypi2 move to hl01 (decided 2026-10-08), but that
 decision covered Compose workloads: a native NixOS module is not one, and hl02

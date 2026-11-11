@@ -1922,9 +1922,9 @@ like the rest of that host, replacing the Compose stack of the
 Zigbee devices, the camera events, and the automations that react to them all
 pass through it, and the availability of every MQTT entity in Home Assistant
 follows it. On raspberrypi2 it shared a host whose stalls and disk failure are
-recorded in the <a href="../#issues-to-solve">specs todo list</a>, and it was the
-last stateless workload keeping that host in the smart home path besides
-Zigbee2MQTT, which stays where the Zigbee radio is.</p>
+recorded in the <a href="../../archive/raspberrypi2-stability-issues/">stability notes</a>,
+and it was the last stateless workload keeping that host in the smart home path
+besides Zigbee2MQTT, which stays where the Zigbee radio is.</p>
 <p>The containers of raspberrypi2 move to hl01 (decided 2026-10-08), but that
 decision covered Compose workloads: a native NixOS module is not one, and hl02
 is the lab's declarative always-on VM with no other role beyond monitoring and

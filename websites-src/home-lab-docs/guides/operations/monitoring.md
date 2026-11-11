@@ -134,11 +134,11 @@ in Prometheus first: `ztef6005ont_gpon_status`, whose `Operation state(O5)` flag
 is the operational state and which the `OntMetricsMissing` and
 `OntGponNotOperational` rules watch, and the optical power series.
 
-The ONT's own admin interface cannot explain an outage after the fact: the "ONT
-hang and power cycle" item of the
-[specs index](../../architecture/README.md#issues-to-solve) records what it
-serves and what it lacks. For a live read, reach it at `https://192.168.1.1/`
-through the gateway's NAT rule and log in the way the exporter does
+The ONT's own admin interface cannot explain an outage after the fact: the
+[ONT notes](../../archive/ont-connection-instability.md#the-2026-11-04-hang)
+record what it serves and what it lacks. For a live read, reach it at
+`https://192.168.1.1/` through the gateway's NAT rule and log in the way the
+exporter does
 (`config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/zte-f6005-ont-exporter.py`).
 The [archived access notes](../../archive/zte-ont-access.md) describe the route.
 

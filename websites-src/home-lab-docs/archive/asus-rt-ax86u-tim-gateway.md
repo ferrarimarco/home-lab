@@ -133,6 +133,30 @@ require additional parameters:
 - 100rel support (PRACK message, RFC 3262): enabled
 - UPDATE support (RFC 3311): enabled
 
+## Script launchers and firmware update signals
+
+Findings of 2026-10-23 on the stock firmware (3.0.0.4.388_24436), gathered for
+the node exporter and the firmware update alert items of the
+[specs todo list](../architecture/README.md#host-configuration):
+
+- The firmware has no `init-start` hook: the `rc` binary carries no `jffs2_exec`
+  or `script_usbmount` string, only `.asusrouter`, untested. The
+  `script_usbmount` NVRAM variable is blocked and scrubbed on recent builds, so
+  the known launcher for scripts is a USB stick carrying a fake Download Master
+  package whose init script starts them after the mount, as
+  [jacklul/asuswrt-scripts](https://github.com/jacklul/asuswrt-scripts) does.
+- The router's daily firmware check (`firmware_check=1`, auto-upgrade off, log
+  in `/jffs/webs_upgrade.log`) posts to an Asus feedback server and receives a
+  per-device control file naming the build Asus offers to that device under a
+  staged rollout (region code, ISP, force level), left in NVRAM as
+  `webs_state_info`, `webs_state_flag`, and `webs_update_ts`. On 2026-10-23 it
+  still offered 24436 while the support page had published 24437 (a DNSSEC
+  resolution fix) on 2026-10-22, so the router's signal means "installable from
+  the UI now" and the page means "published".
+- The legacy live-update manifests do not list this model, and the JSON API
+  behind the support page refused direct calls on two variants, while the page
+  itself is server-rendered.
+
 ## References
 
 - [Router generico (Asus RT-AX86U) e FTTH](https://forum.fibra.click/d/23793-router-generico-asus-rt-ax86u-e-ftth)

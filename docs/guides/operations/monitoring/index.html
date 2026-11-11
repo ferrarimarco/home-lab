@@ -1983,11 +1983,11 @@ describes.</p>
 in Prometheus first: <code>ztef6005ont_gpon_status</code>, whose <code>Operation state(O5)</code> flag
 is the operational state and which the <code>OntMetricsMissing</code> and
 <code>OntGponNotOperational</code> rules watch, and the optical power series.</p>
-<p>The ONT's own admin interface cannot explain an outage after the fact: the "ONT
-hang and power cycle" item of the
-<a href="../../../architecture/#issues-to-solve">specs index</a> records what it
-serves and what it lacks. For a live read, reach it at <code>https://192.168.1.1/</code>
-through the gateway's NAT rule and log in the way the exporter does
+<p>The ONT's own admin interface cannot explain an outage after the fact: the
+<a href="../../../archive/ont-connection-instability/#the-2026-11-04-hang">ONT notes</a>
+record what it serves and what it lacks. For a live read, reach it at
+<code>https://192.168.1.1/</code> through the gateway's NAT rule and log in the way the
+exporter does
 (<code>config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-ont/zte-f6005-ont-exporter.py</code>).
 The <a href="../../../archive/zte-ont-access/">archived access notes</a> describe the route.</p>
 <h2 id="prometheus-blackbox-exporter-example-queries">Prometheus Blackbox Exporter example queries</h2>

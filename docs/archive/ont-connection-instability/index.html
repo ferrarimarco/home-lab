@@ -739,6 +739,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-2026-11-04-hang" class="md-nav__link">
+    <span class="md-ellipsis">
+      The 2026-11-04 hang
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1717,6 +1726,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-2026-11-04-hang" class="md-nav__link">
+    <span class="md-ellipsis">
+      The 2026-11-04 hang
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1742,6 +1760,8 @@ on the <a href="../zte-ont-access/">ZTE ONT</a> flashed, and the connection came
 after 5-10 seconds. While the PON connection was down, the internet connection
 was down too.</p>
 <p>Root cause: a faulty ONT. TIM replaced it, solving the issue.</p>
+<p>The replacement (model F6005V6.0, software V6.0.10N20) has a different failure
+mode, recorded in <a href="#the-2026-11-04-hang">The 2026-11-04 hang</a> below.</p>
 <h2 id="investigation">Investigation</h2>
 <ul>
 <li>Checked the ONT admin interface while the issue was happening:<ul>
@@ -1788,6 +1808,25 @@ ONT doesn't reverse the operation. See
 <li>Emergency-Stop-state(O7): when the ONU receives the Disable_Serial_Number
    message, it enters this state and then turns to the O2 state.</li>
 </ol>
+<h2 id="the-2026-11-04-hang">The 2026-11-04 hang</h2>
+<p>The ONT hangs in a state that only a power cycle clears. Its admin interface
+hung from 2026-03-28 to 2026-11-04, starving the ONT exporter, and on 2026-11-04
+its forwarding plane hung too: the WAN was down from 01:20 to 06:12 UTC while
+the PON LED stayed on, the gateway's Ethernet link to the ONT stayed up at 2.5
+Gbps, PPPoE discovery got no reply, and the ONT answered no ARP. The router WAN
+check restarted the WAN 98 times without effect (its only action is a PPPoE
+restart on the router), a manual power cycle restored the PPPoE session within
+seconds, and the admin interface came back with it (the exporter runs again
+since 06:30 UTC, its first data since March).</p>
+<p>Verified the same day: the admin interface serves three read-only pages (device,
+GPON, and LAN port info) with no log, no uptime, and no reboot control, so a
+smart plug is the only remote recovery lever; the ONT keeps no log and its
+counters restart with power, so the router log is the only record of an outage
+start. The ONT is a closed, ISP-managed device, so root-causing is likely not
+possible. The remote power cycle design is an item in the
+<a href="../../architecture/#issues-to-solve">specs todo list</a>, and the WAN check
+changes it needs are under <a href="../../architecture/#networking">Networking</a>
+there.</p>
 
 
 
