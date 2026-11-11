@@ -21,6 +21,20 @@ pct exec <vmid> -- /run/current-system/sw/bin/<cmd>
 pct exec <vmid> -- /bin/sh -lc '<cmd> <args>'
 ```
 
+## Diagnose a container that failed its boot-time start
+
+`pve-guests` logs only `startup for container '<id>' failed`. Read the start
+task's log under `/var/log/pve/tasks/` (the `vzstart:<id>` UPID) and
+`/run/pve/ct-<id>.stderr`, where the pre-start hook names what it refused (a
+bind-mount source that did not exist, in the case of 2026-11-10). For a missing
+ZFS dataset, compare the container's start time with the pool's import time
+(`zpool history <pool>`): a pool that only Proxmox's storage activation imports
+can arrive after the guests start, while one with a `zfs-import@` instance is
+imported before them, as the
+[NAS LXC container specification](../architecture/nas-lxc-container.md)
+describes under the host dataset mount points. `pct start <id>` recovers the
+guest.
+
 ## Disable Secure Boot
 
 Either enter the UEFI console and disable Secure Boot manually, or delete the

@@ -1033,6 +1033,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documentation conventions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../nix-dev-shells/" class="md-nav__link">
         
   
@@ -1916,6 +1939,15 @@ to super-linter fix mode, are listed in <code>scripts/common.sh</code>. <code>sc
 fails when <code>config/lint/super-linter-fix-mode.env</code> enables a fixer that appears
 in neither list, forcing a deliberate decision for every new fixer: implement it
 in <code>scripts/format.sh</code>, or explicitly delegate it.</p>
+<p>Four details of a lint run are easy to miss. Prettier leaves YAML comments as
+written and no linter checks their width, so wrap them by hand at the 80 columns
+the prose uses. A deleted file may still be named in
+<code>config/lint/.trivyignore.yaml</code> and <code>config/lint/.checkov.baseline</code>: remove its
+entries with it. A lint run can unstage staged changes, so stage files after
+linting, right before committing. A new file is linted only once committed, so
+commit, lint, and amend before pushing; the commit message mode above validates
+only the last commit's message, while the <code>Lint</code> CI workflow validates every
+pushed commit.</p>
 <p><code>scripts/run-pre-commit.sh</code> runs the configured
 <a href="https://pre-commit.com/">pre-commit</a> hooks
 (<code>config/pre-commit/.pre-commit-config.yaml</code>) against all files, creating a
@@ -1985,14 +2017,16 @@ shell. See the <a href="../nix-dev-shells/">Nix development shells guide</a>.</p
 <p><code>scripts/run-ansible.sh</code>: runs Ansible playbooks from <code>config/ansible</code> inside
   a purpose-built container. Select the playbook with
   <code>ANSIBLE_PLAYBOOK_FILE_NAME</code> and pass extra flags via
-  <code>ADDITIONAL_ANSIBLE_FLAGS</code>. Pick the narrowest playbook for the change first:
-  per-purpose playbooks under <code>config/ansible/playbooks/</code> exist alongside
-  <code>home-lab-node.yaml</code>; <code>restore-workloads.yaml</code> restores a stack's state from a
-  restic repository and is documented in the
-  <a href="../../operations/backup/">backup operations guide</a>; <code>backup.yaml</code> converges
-  the restic jobs of the backup role on every host that declares them;
-  <code>update-os-packages.yaml</code> dist-upgrades the OS packages, including a release
-  upgrade prepared by the bootstrap playbook, as the
+  <code>ADDITIONAL_ANSIBLE_FLAGS</code>, which the script expands through <code>eval</code>: quote an
+  extra variable in single quotes inside the value (<code>-e '{key: [value]}'</code>), as a
+  bare <code>{...}</code> value is split into words and fails the YAML parse. Pick the
+  narrowest playbook for the change first: per-purpose playbooks under
+  <code>config/ansible/playbooks/</code> exist alongside <code>home-lab-node.yaml</code>;
+  <code>restore-workloads.yaml</code> restores a stack's state from a restic repository and
+  is documented in the <a href="../../operations/backup/">backup operations guide</a>;
+  <code>backup.yaml</code> converges the restic jobs of the backup role on every host that
+  declares them; <code>update-os-packages.yaml</code> dist-upgrades the OS packages,
+  including a release upgrade prepared by the bootstrap playbook, as the
   <a href="../../useful-linux-admin-commands/">Linux administration notes</a> describe;
   <code>gateway-dnsmasq.yaml</code> converges the DHCP settings of the gateway's dnsmasq
   (pool bounds, lease time, the DNS option, the LAN domain, and the reservations
@@ -2089,22 +2123,23 @@ playbook to test, and pass the Molecule command to run:</p>
 </code></pre></div>
 <p>The test starts two privileged containers and removes them when the test
 completes: <code>instance</code>, with every stack on, the shape of the Debian workload
-hosts, and <code>proxmox</code>, with every Debian workload stack off and the settings of the Proxmox
-nodes group, the shape of the nodes, which exercises the disabled branches
-of the roles (absent states, stopped units, the package removal guard). Both
-are in the Proxmox nodes group, so the plays that target it run; the
-variables every instance needs are the scenario's <code>group_vars</code>, the stack
-flags and the per-host data its <code>host_vars</code>. The sequence runs the converge
-playbook in check mode on the fresh instances before the converge
-(Molecule's <code>check</code> action): the gate every production apply goes through,
-whose failures (a unit a predicted install did not create) no real run
-shows; the scenario's <code>prepare.yml</code> first refreshes the package lists and
-installs <code>openssh-server</code> and <code>python3-debian</code>, which the test image lacks
-and a host the installer set up and the playbooks reach over SSH has, so a
-first check against a fresh host needs <code>python3-debian</code> installed by hand.
-Molecule skips the tasks that have the <code>molecule-notest</code> tag: tests don't
-pull container images, don't start containerized services, and don't load
-kernel modules (the containers share the control machine's kernel).</p>
+hosts, and <code>proxmox</code>, with every Debian workload stack off and the settings
+of the Proxmox nodes group, the shape of the nodes, which exercises the
+disabled branches of the roles (absent states, stopped units, the package
+removal guard). Both are in the Proxmox nodes group, so the plays that
+target it run; the variables every instance needs are the scenario's
+<code>group_vars</code>, the stack flags and the per-host data its <code>host_vars</code>. The
+sequence runs the converge playbook in check mode on the fresh instances
+before the converge (Molecule's <code>check</code> action): the gate every production
+apply goes through, whose failures (a unit a predicted install did not
+create) no real run shows; the scenario's <code>prepare.yml</code> first refreshes the
+package lists and installs <code>openssh-server</code> and <code>python3-debian</code>, which the
+test image lacks and a host the installer set up and the playbooks reach
+over SSH has, so a first check against a fresh host needs <code>python3-debian</code>
+installed by hand. Molecule skips the tasks that have the <code>molecule-notest</code>
+tag: tests don't pull container images, don't start containerized services,
+and don't load kernel modules (the containers share the control machine's
+kernel).</p>
 <p>A full <code>main</code> run converges every stack twice (converge and idempotence) and
 takes about eight minutes. While iterating on one stack, scope both passes
 with <code>ANSIBLE_TEST_TAGS</code>, which takes the same value as the <code>--tags</code> flag of

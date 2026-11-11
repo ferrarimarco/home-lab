@@ -1232,6 +1232,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/development/documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documentation conventions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/development/nix-dev-shells/" class="md-nav__link">
         
   
@@ -2382,9 +2405,9 @@ reliability risks first, then security exposure, then automation):</p>
   appends a missing directive at the end of <code>sshd_config</code>, where an active
   <code>Match</code> block would scope it, so the global policy could differ from the
   declared one while the run reports converged (no lab host has such a
-  block). Read <code>sshd -T -C user=&lt;ansible_user&gt;</code> after the writes and
-  assert <code>permitrootlogin</code> and <code>allowusers</code> against the declaration, or
-  insert the directives before the first <code>Match</code> line.</li>
+  block). Read <code>sshd -T -C user=&lt;ansible_user&gt;</code> after the writes and assert
+  <code>permitrootlogin</code> and <code>allowusers</code> against the declaration, or insert the
+  directives before the first <code>Match</code> line.</li>
 <li><strong>The Coral role cannot tell the gasket package builds apart
   (2026-11-04)</strong>: the community builds of <code>gasket-dkms</code> all carry the
   upstream version <code>1.0-18</code>, and the apt module skips a package file whose

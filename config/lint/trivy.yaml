@@ -9,6 +9,8 @@ scan:
     - misconfig
     - secret
   skip-dirs:
+    # Worktrees of the agent sessions, untracked by design
+    - "**/.claude/worktrees"
     - "**/super-linter-output"
     - "**/test/linters/arm"
     - "**/test/linters/checkov"
