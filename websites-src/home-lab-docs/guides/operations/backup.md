@@ -150,11 +150,14 @@ Syncthing, and Tailscale rewrite their state while running.
 
 In this order: bootstrap, Docker (the container engine playbook), the share
 mount (the disks playbook), the backup playbook (it never re-initializes an
-existing repository), the SSH identity restore above (the host then presents its
-old host key again: clear the control machine's known-hosts entry a second time
-and accept it), the in-place restore of each stack with the playbook, then the
-node role for the stacks. A host that lost its repository as well restores from
-nothing: the second-copy item in the
+existing repository), the job's first [drill](#the-drill) by hand (its timer may
+not fire for a month; it reads the repository's latest snapshot, here the last
+one from before the re-image, and fails when that snapshot lacks the drill
+file), the SSH identity restore above (the host then presents its old host key
+again: clear the control machine's known-hosts entry a second time and accept
+it), the in-place restore of each stack with the playbook, then the node role
+for the stacks. A host that lost its repository as well restores from nothing:
+the second-copy item in the
 [specs todo list](../../architecture/README.md#backup) exists for that case. A
 Proxmox node restores the NAS container's state directories from its own node
 job before the container first starts, through the restore mode above.
