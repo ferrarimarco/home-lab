@@ -163,12 +163,30 @@ The kitchen light automations in the automations template use it: occupancy from
 the kitchen presence sensor (the
 [Zigbee2MQTT operations guide](./zigbee2mqtt.md) records its settings) turns the
 Shelly relay on when the light is off and the kitchen is dark, and the clear
-state turns it off only when an automation turned it on. Two limits, both of
-which leave a light on rather than switch one off: a wall flip while the
-automation already holds the light on changes no state and goes unnoticed, and a
-restart gives restored states a fresh context, so a light the automation turned
-on before the restart counts as manual afterwards. The Shelly's input mode
-matters too: in `follow` mode the relay copies the wall switch position, so
-after the automation has turned the relay off the next flip does nothing visible
-and a second one is needed, while `flip` mode toggles the relay on every flip;
-the mode is a setting on the device, not in the repository.
+state turns it off only when an automation turned it on.
+
+The illuminance is a trigger of the turn-on automation as well as a condition. A
+condition is evaluated once, when occupancy starts, on the last value the sensor
+reported, and that value misleads in two ways: it was measured with the kitchen
+empty, while a person at the worktop lowers the reading by 30 to 50 lx (105 to
+150 lx empty against 57 to 100 lx occupied on a grey morning, on either side of
+the 100 lx threshold), and right after the automation turned the light off it
+still shows the lit room until the next report, seconds to a minute later. With
+the trigger, a reading that falls below the threshold while the kitchen is
+occupied turns the light on. That trigger acts only when an automation made the
+last change of the switch, with the context condition above: switching the light
+off by hand also makes the reading fall, and the light would come straight back
+on. It therefore stays inactive after a wall flip or a restart until an
+automation next switches the light, while the occupancy trigger keeps working.
+To see why a visit got no light, read the occupancy, illuminance, and switch
+rows of the recorder side by side: a blocked condition leaves no line in the
+log.
+
+Two limits, both of which leave a light on rather than switch one off: a wall
+flip while the automation already holds the light on changes no state and goes
+unnoticed, and a restart gives restored states a fresh context, so a light the
+automation turned on before the restart counts as manual afterwards. The
+Shelly's input mode matters too: in `follow` mode the relay copies the wall
+switch position, so after the automation has turned the relay off the next flip
+does nothing visible and a second one is needed, while `flip` mode toggles the
+relay on every flip; the mode is a setting on the device, not in the repository.

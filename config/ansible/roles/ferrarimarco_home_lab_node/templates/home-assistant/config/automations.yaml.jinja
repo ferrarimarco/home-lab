@@ -206,19 +206,34 @@
   mode: single
 - id: '1793025600001'
   alias: Turn on the kitchen light on occupancy
-  description: Occupancy turns the kitchen light on when it is off and the kitchen is dark
+  description: Occupancy, or the kitchen getting dark while occupied, turns the light on when it is off; getting dark leaves alone a light switched off by hand
   triggers:
   - trigger: state
+    id: occupancy
     entity_id:
     - binary_sensor.presenza_cucina_occupancy
     to: 'on'
+  - trigger: numeric_state
+    id: illuminance
+    entity_id:
+    - sensor.presenza_cucina_illuminance
+    below: 100
   conditions:
+  - condition: state
+    entity_id: binary_sensor.presenza_cucina_occupancy
+    state: 'on'
   - condition: state
     entity_id: switch.shelly1pmg4_e4b0637018ac
     state: 'off'
   - condition: numeric_state
     entity_id: sensor.presenza_cucina_illuminance
     below: 100
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: occupancy
+    - condition: template
+      value_template: '{{ states.switch.shelly1pmg4_e4b0637018ac.context.parent_id is not none }}'
   actions:
   - action: switch.turn_on
     metadata: {}
