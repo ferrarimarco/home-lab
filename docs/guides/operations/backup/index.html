@@ -2068,6 +2068,12 @@ systemd restarts it after a minute, and the share's mount unit starts it when
 the share mounts. Its venv is built at start from the requirements file next to
 the job script, so a new exporter release lands with a restart of the unit after
 the role rendered the file.</p>
+<p>On a repository that holds no snapshot yet, exporter 2.1.2 exits with
+<code>KeyError: 'total_blob_count'</code>. The role starts the exporter right after it
+initializes a repository, so on a host's first apply the unit fails once and
+comes up at the restart that follows the first backup (pve2, 2026-11-16): run
+the job by hand right after that apply (<code>sudo systemctl start &lt;job&gt;.service</code>),
+then the drill.</p>
 <h2 id="re-seed-qbittorrents-settings">Re-seed qBittorrent's settings</h2>
 <p>qBittorrent's settings file (<code>qBittorrent/qBittorrent.conf</code> in its configuration
 directory) is rendered by the node role as a seed and then owned by the client,

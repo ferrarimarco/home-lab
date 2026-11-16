@@ -6,10 +6,11 @@ diagnosed, so we don't have to rediscover them.
 ## BMC management with IPMI
 
 The `pve2` node (Supermicro X10SRL-F motherboard) has a BMC reachable at
-`10.246.67.56`. Query and configure it with `ipmitool` over the LAN interface:
+`pve2-bmc.edge.lab.ferrari.how`, the name of its reservation on the gateway.
+Query and configure it with `ipmitool` over the LAN interface:
 
 ```shell
-ipmitool -I lanplus -H 10.246.67.56 -U ADMIN sensor list
+ipmitool -I lanplus -H pve2-bmc.edge.lab.ferrari.how -U ADMIN sensor list
 ```
 
 ### Configure fan thresholds
@@ -19,8 +20,8 @@ critical events and BMC fan-boost cycling. Lower the thresholds of the affected
 fan sensors to stop that:
 
 ```shell
-ipmitool -I lanplus -H 10.246.67.56 -U ADMIN sensor thresh FAN1 lower 150 200 250
-ipmitool -I lanplus -H 10.246.67.56 -U ADMIN sensor thresh FAN2 lower 150 200 250
+ipmitool -I lanplus -H pve2-bmc.edge.lab.ferrari.how -U ADMIN sensor thresh FAN1 lower 150 200 250
+ipmitool -I lanplus -H pve2-bmc.edge.lab.ferrari.how -U ADMIN sensor thresh FAN2 lower 150 200 250
 ```
 
 The three values after `lower` are, in order: lower non-recoverable, lower
@@ -29,13 +30,15 @@ critical, and lower non-critical.
 Thresholds are stored in the BMC, so they may need re-applying after a BMC
 firmware update or a BMC factory reset.
 
-The BMC address is a DHCP lease, so it can change. The bootstrap role also
-installs `ipmitool` on the host itself for hosts flagged `has_bmc` in their
-host_vars: in-band commands (`ipmitool sdr type Fan`, `ipmitool sensor`) work
-over SSH regardless of the BMC's address, through the `/dev/ipmi0` interface the
-kernel exposes. On 2026-10-04 the fan mode read Optimal, the fans 300-1100 RPM,
-and FAN1 sat below its lower non-critical threshold at 300 RPM, the symptom the
-thresholds above address.
+The BMC takes its address from a reservation on the gateway, declared in the
+host's `network_interfaces` and applied by the gateway playbook, as the
+[Ansible development guide](../development/ansible.md#the-gateway-role)
+describes. The bootstrap role also installs `ipmitool` on the host itself for
+hosts flagged `has_bmc` in their host_vars: in-band commands
+(`ipmitool sdr type Fan`, `ipmitool sensor`) work over SSH without the BMC's LAN
+access, through the `/dev/ipmi0` interface the kernel exposes. On 2026-10-04 the
+fan mode read Optimal, the fans 300-1100 RPM, and FAN1 sat below its lower
+non-critical threshold at 300 RPM, the symptom the thresholds above address.
 
 ## BIOS configuration with SUM
 

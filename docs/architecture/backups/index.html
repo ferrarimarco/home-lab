@@ -1819,7 +1819,7 @@
 <tr>
 <td style="text-align: left;"><strong>Exporter per job</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">One exporter service per declared job, on every host, scraped through targets derived from the same declarations; applied on hl01 on 2026-11-04 and on raspberrypi2 on 2026-11-08 (targets up), not yet on the nodes.</td>
+<td style="text-align: left;">One exporter service per declared job, on every host, scraped through targets derived from the same declarations; applied on hl01 and pve1 on 2026-11-04, on raspberrypi2 on 2026-11-08, and on pve2 on 2026-11-16 (targets up).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Structural and pack-data checks</strong></td>
@@ -1834,7 +1834,7 @@
 <tr>
 <td style="text-align: left;"><strong>NixOS state backup</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>restic-backup-nas-state</code> job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour and on 2026-11-04 with the single-flavour role (first backup and drill clean on both days, the former layout removed, exporter target up); pve2 off.</td>
+<td style="text-align: left;"><code>restic-backup-nas-state</code> job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour and on 2026-11-04 with the single-flavour role (first backup and drill clean on both days, the former layout removed, exporter target up); applied on pve2 on 2026-11-16 (first backup and drill clean, exporter target up).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Second copy of the repositories</strong></td>

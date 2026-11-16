@@ -2108,19 +2108,21 @@ reliability risks first, then security exposure, then automation):</p>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
 <li><strong>Power on hosts through their BMC from
-  <code>ferrarimarco_home_lab_boot_bare_metal</code> (2026-10-28)</strong>: the role only sends
-  Wake-on-LAN packets to every MAC in <code>network_interfaces</code> and waits for SSH.
-  First verify that path: the packets are sent from inside the Ansible
-  container, delegated to localhost, and the runner does not use host
-  networking, so the broadcast may never leave Docker's bridge (a packet sent
-  from raspberrypi2 did wake pve2 on 2026-10-06, so the host side works: the
-  i210 reports <code>Wake-on: g</code>). Test the playbook against pve2 while it is off,
-  watching the plug; if it fails, run that playbook with host networking or
-  delegate the send to a LAN host. Then, for hosts that declare a BMC address
-  (pve2 does, reserved on the gateway as <code>pve2-bmc</code>), use
+  <code>ferrarimarco_home_lab_boot_bare_metal</code> (2026-11-16)</strong>: the role only sends
+  Wake-on-LAN packets to every MAC in <code>network_interfaces</code> and waits for SSH,
+  and that path does not work from the control machine. The module sends a
+  limited broadcast (<code>255.255.255.255</code>), which no router forwards, and the task
+  is delegated to localhost, the Ansible container on Docker's bridge; host
+  networking would not help a control machine that is not on the LAN segment,
+  and the current one is two routed hops away. Tested against pve2 on
+  2026-11-16, watching the plug: no wake in the ten-minute wait, while a magic
+  packet sent from raspberrypi2 woke the host within a minute, so the host side
+  works (the i210 reports <code>Wake-on: g</code>). Remaining steps: delegate the send to a
+  LAN host that is always on; then, for hosts that declare a BMC address (pve2
+  does, reserved on the gateway as <code>pve2-bmc</code>), use
   <code>community.general.ipmi_power</code> before the SSH wait, delegated to the control
-  machine, with the credentials from the vault; it needs the <code>pyghmi</code> library in
-  the Ansible container image.</li>
+  machine, since routed traffic reaches the BMC from there, with the credentials
+  from the vault; it needs the <code>pyghmi</code> library in the Ansible container image.</li>
 <li><strong>Manual steps left in the provisioning of a new host</strong>: copy the ESPHome
   secrets; configure the Ansible Vault password file and the per-host vault
   files; configure the SSH keys; join the host to the tailnet (<code>tailscale up</code> is
@@ -2139,8 +2141,9 @@ reliability risks first, then security exposure, then automation):</p>
   It must be a standby that answers only while the hl02 instance is down, or
   share its toggle state: the bootloader takes the first "Raspberry Pi Boot"
   reply and gives up when that server has no directory for the host. Depends
-  on: the x86 PXE path (deferred, see the spec) and the pve2 power reduction
-  (<a href="#host-configuration">Host configuration</a>).</li>
+  on: the x86 PXE path (deferred, see the spec) and pve2 running 24/7, a
+  decision the <a href="../guides/operations/host-power/#pve2">host power guide</a>
+  records as open.</li>
 <li>Declared rescues beside the toggle command (deferred on 2026-11-05 until
   the dry rescue of 2026-11-07 had exercised the command path): a <code>rescue</code>
   flag per host in the <code>netboot-server</code> role that starts the toggle at boot
@@ -2275,8 +2278,9 @@ reliability risks first, then security exposure, then automation):</p>
   <code>terraform import</code> of the existing zone and records so the first apply
   changes nothing.</li>
 <li><strong>Tolerate powered-off Proxmox nodes</strong>: every stack configures a provider
-  per node, so a single unreachable node (pve2 stays off until its power
-  reduction completes, see <a href="#host-configuration">Host configuration</a>) fails
+  per node, so a single unreachable node (pve2 runs since 2026-11-16, but
+  whether it stays on is undecided, as the
+  <a href="../guides/operations/host-power/#pve2">host power guide</a> records) fails
   the whole <code>run-terraform.sh</code> sequence, even for changes that only touch
   pve1 resources. Candidates: split the multi-node stacks into per-node
   stacks and let <code>run-terraform.sh</code> select which to run; check whether the
@@ -2404,32 +2408,13 @@ reliability risks first, then security exposure, then automation):</p>
   Proxmox nodes, so the apt success-stamp snippet lives in both (2026-10-12);
   the monitoring playbook also targets every host with no gate, so it must run
   with a host limit until the roles merge.</li>
-<li><strong>pve2's first full node run and its kernel command line (deferred on
-  2026-11-10, waiting on the host)</strong>: pve1 had its first full
-  <code>home-lab-node.yaml</code> run on 2026-11-10 (key-only root SSH with password
-  authentication off, fail2ban, unattended-upgrades for the Debian origins, the
-  role's apt and SMART collectors off beside Debian's, the static metrics in the
-  packaged exporter's directory, no package removed) after a manual
-  <code>apt full-upgrade</code> and reboot cleared a 189-package backlog, and a second
-  check predicted nothing; the
-  <a href="../guides/development/ansible/">Ansible development guide</a> describes the
-  node settings and the two guards that made the run safe. pve2 has been off
-  since 2026-11-04 and repeats the sequence when it is back: the OS packages
-  playbook limited to the host, a reboot, the node playbook (check first; the
-  group variables already hold its settings), then <code>proxmox-node.yaml</code>, whose
-  kernel task now reads the boot layout and writes the IOMMU options to
-  <code>GRUB_CMDLINE_LINUX_DEFAULT</code> with <code>update-grub</code> on a GRUB host, followed by a
-  reboot. On pve1 the <code>proxmox-node.yaml</code> run of the same day found the kernel
-  line converged.<ul>
-<li>Deferred the same day: the Samba configuration file guard. The
-  network-shares stack removes <code>/etc/samba/smb.conf</code> wherever it is
-  disabled, the debconf-generated file of <code>samba-common</code> included (pve1 lost
-  its sample on 2026-11-10, harmless there: no smbd, and smbclient falls
-  back to defaults). Render the template with a marker and remove the file
-  only when the marker is present, so a host that never enabled the stack
-  keeps the file its packages generated.</li>
-</ul>
-</li>
+<li><strong>Guard the removal of the Samba configuration file (deferred on
+  2026-11-10)</strong>: the network-shares stack removes <code>/etc/samba/smb.conf</code> wherever
+  it is disabled, the debconf-generated file of <code>samba-common</code> included (pve1
+  lost its sample on 2026-11-10 and pve2 on 2026-11-16, harmless there: no smbd,
+  and smbclient falls back to defaults). Render the template with a marker and
+  remove the file only when the marker is present, so a host that never enabled
+  the stack keeps the file its packages generated.</li>
 <li>The <code>raspberry_pi_sense_hat_apt_packages</code> list in the node role's Raspberry Pi
   variables is referenced by no stack (read on 2026-11-10): the sense-hat
   package has never been installed or removed by the stack machinery. Wire it
@@ -2496,38 +2481,12 @@ reliability risks first, then security exposure, then automation):</p>
   <code>/etc/kernel/cmdline</code>; pve2 was installed on LVM with an ext4 root and boots
   through GRUB, so its root has no checksums, compression, or snapshots to roll
   back an upgrade. The Proxmox role's kernel task reads the boot layout and
-  writes the GRUB variant since 2026-11-10, not yet run on pve2 (the pve2 first
-  full node run item under <a href="#cicd-infrastructure-as-code-and-gitops">CI/CD</a>).
-  Align at pve2's next reinstall by choosing a ZFS root in the installer with
-  Secure Boot off (Proxmox falls back to GRUB with it on); a reinstall only for
-  this is not worth its cost (guests re-created by Terraform, the data pools
-  exported and imported, the NAS container's state directories on the root disk
-  carried across).</li>
-<li><strong>pve2 power reduction before running it 24/7</strong>: the goal is to run pve2
-  around the clock, but it stays powered off until its idle draw (about 45 W at
-  the wall) comes down. The measurements, the levers with their status, the
-  experiment log, the BIOS export, and the decisions taken are in the
-  <a href="../guides/operations/host-power/">host power guide</a>. Remaining steps:<ul>
-<li>Keep watching the SATA link power management the BIOS change of 2026-10-06
-  enabled: before declaring the host fit for 24/7 duty, check the kernel log
-  for <code>ata1</code>-<code>ata3</code> resets and the <code>UDMA_CRC_Error_Count</code> attributes after a
-  few days of uptime, and run a ZFS scrub once the pools hold enough data to
-  exercise the links (about 1 GB today).</li>
-<li>Replace the PSU, last, so it is measured at the final DC load.</li>
-<li>Deferred until the pve2 workload is defined: the CPU governor, the energy
-  performance bias, and the memory frequency, all of which trade performance
-  for power under load; compare them with a controlled load on the plug,
-  then decide what goes into the BIOS file or the host configuration.</li>
-<li>The power instrument depends on raspberrypi2 (the Zigbee plugs reach Home
-  Assistant through Zigbee2MQTT there); the network coordinator
-  (<a href="#smart-home">Smart home</a>) removes that dependency.</li>
-<li>Depends on: a stable BMC address for remote recovery during runtime
-  experiments (<a href="#networking">Networking</a>). Blocks: the media second copy on
-  <code>tank-hdd</code> (<a href="#backup">Backup</a>); the Proxmox node downtime alerts stay
-  enabled by choice until pve2 runs 24/7
-  (<a href="#monitoring-and-alerting">Monitoring and alerting</a>).</li>
-</ul>
-</li>
+  writes the GRUB variant, which ran on pve2 on 2026-11-16 (the IOMMU options
+  are on its command line). Align at pve2's next reinstall by choosing a ZFS
+  root in the installer with Secure Boot off (Proxmox falls back to GRUB with it
+  on); a reinstall only for this is not worth its cost (guests re-created by
+  Terraform, the data pools exported and imported, the NAS container's state
+  directories on the root disk carried across).</li>
 <li><strong>Prometheus node exporter on the Asus RT-AX86U</strong>: copy the node public key to
   the router, trust its host key on the connecting node, run the arm64 release
   binary from USB storage, relaunch it when not running from a <code>cru</code> cron entry,
@@ -2700,8 +2659,9 @@ reliability risks first, then security exposure, then automation):</p>
    infrastructure range with the rest of <code>in-addr.arpa</code> forwarded as
    today. DHCP option 6 points at hl02 with the router second.</li>
 <li>The twin on pve2 and the keepalived address; option 6 moves to it.
-   Depends on: pve2 running 24/7
-   (<a href="#host-configuration">Host configuration</a>).</li>
+   Depends on: pve2 running 24/7, a decision the
+   <a href="../guides/operations/host-power/#pve2">host power guide</a> records
+   as open.</li>
 <li>The router's LAN domain changes to a client zone (a child such as
    <code>clients.edge.lab.ferrari.how</code>, which CoreDNS forwards to the router
    by longest match, or a sibling under <code>lab.ferrari.how</code>), so dynamic
@@ -2824,7 +2784,19 @@ reliability risks first, then security exposure, then automation):</p>
   a host that is powered off but reachable for remote power-on is
   distinguishable from one that is unplugged or whose BMC lost its network. The
   target is <code>pve2-bmc.edge.lab.ferrari.how</code>, which the gateway resolves from its
-  reservation (2026-10-28).</li>
+  reservation (2026-10-28). The host's downtime and backup alerts fired by
+  choice while it was off, until 2026-11-16: if pve2 goes back to being woken on
+  demand, decide here as well whether a host that is off on purpose keeps them
+  firing.</li>
+<li><strong>Alert on SATA link CRC errors (2026-11-16)</strong>: the SMART rules cover a drive
+  that reports itself unhealthy and growing pending or reallocated sectors, and
+  nothing watches the link between a drive and its controller. pve2's links run
+  under link power management since 2026-10-06, and the alert replaces a manual
+  read of the counters after days of uptime. First step: a rule on
+  <code>delta(smartmon_udma_crc_error_count_raw_value[24h]) &gt; 0</code>, the shape of
+  <code>SmartSectorsDegrading</code>, with its firing and non-firing promtool cases; the
+  series exists for pve1 and for pve2's two hard disks (read on 2026-11-16). A
+  link reset that produces no CRC error stays visible in the kernel log only.</li>
 <li><strong>A disabled stack leaves its service enabled (2026-11-08)</strong>: the stacks that
   stop a service when their flag is off keep <code>enabled: true</code> on the service
   entry (the monitoring timers, Samba, the camera, the Argon case, the Sense
@@ -2914,13 +2886,6 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="backup">Backup</h3>
 <ul>
-<li><strong>Roll out the single-flavour backup role (2026-10-31)</strong>: applied on hl01 and
-  pve1 on 2026-11-04 and on raspberrypi2 with its re-image on 2026-11-08, whose
-  Compose-era snapshot group was forgotten on 2026-11-09 as the
-  <a href="../guides/operations/backup/">backup operations guide</a> describes. Left:
-  pve2, which follows when it is on (until then the <code>ResticExporterDown</code> alert
-  fires for its exporter target, left unsilenced by choice). Update the
-  <a href="backups/">Backups specification</a> status table as each step lands.</li>
 <li><strong>Second copy of the restic repositories (2026-10-19)</strong>: the per-host
   repositories on the nas-pve1 <code>backups</code> share are the only copy of the Debian
   hosts' state backups, and the share's <code>rpool-sata</code> pool is a single-disk vdev
@@ -2939,8 +2904,7 @@ reliability risks first, then security exposure, then automation):</p>
   retention on the target as the undo for an accidental deletion. Replication
   can only run while pve2 is on: a timer that tolerates an absent target, or the
   pve2 24/7 decision. The evaluation of <code>tank-hdd</code> as the long-term media home
-  or second copy lives here. Depends on: the pve2 power reduction
-  (<a href="#host-configuration">Host configuration</a>).</li>
+  or second copy lives here.</li>
 <li><strong>Nightly file manifest of replaceable media (2026-10-10)</strong>: when the
   raspberrypi2 data disk died, the list of what it held had to be rebuilt from
   the arr and Jellyfin databases, which only cover what those applications had
@@ -3148,6 +3112,14 @@ first step; software alternatives go to
 </ul>
 </li>
 <li>Host configuration:<ul>
+<li>pve2: run it around the clock (about 44 W at the wall, 34 EUR per year
+  more than off and plugged in) or wake it on demand? The second network
+  boot instance and the DNS twin need the first. The
+  <a href="../guides/operations/host-power/#pve2">host power guide</a> has the
+  measurements and the decisions taken so far.</li>
+<li>pve2: replace the 2008-era PSU if the host moves to 24/7 duty; compare the
+  CPU governor, the energy performance bias, and the memory frequency under
+  a controlled load once its workload is defined.</li>
 <li>Proxmox cluster (pve1, pve2): configure certificates
   (<a href="https://pve.proxmox.com/pve-docs/pve-admin-guide.html#sysadmin_certificate_management">certificate management</a>,
   <a href="https://www.derekseaman.com/2023/04/proxmox-lets-encrypt-ssl-the-easy-button.html">Let's Encrypt</a>).</li>

@@ -2099,6 +2099,12 @@ list the key names a vault file defines without exposing secret values:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">ANSIBLE_VIEW_VAULT_FILE</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>scripts/run-ansible.sh<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-oE<span class="w"> </span><span class="s1">&#39;^vault[a-zA-Z_0-9-]*&#39;</span>
 </code></pre></div>
+<p>The edit mode opens an existing file only, since <code>ansible-vault edit</code> reads
+the file first. Create a new vault file (the first secret of a host) with a
+custom command, from a terminal with the SSH agent set, as the script
+forwards the socket for every custom command:</p>
+<div class="highlight"><pre><span></span><code>scripts/run-ansible.sh<span class="w"> </span><span class="s2">&quot;ansible-vault create --vault-id home_lab_vault@/etc/ansible/home_lab_vault_password_file /etc/ansible/inventory/host_vars/&lt;host&gt;/vault.yaml&quot;</span>
+</code></pre></div>
 <p>Never print decrypted vault values: pipe <code>ansible-vault view</code> output through
 a filter (as above) that only surfaces key names. The filter anchors on the
 <code>vault</code> prefix because all vaulted variables follow the <code>vault_*</code> naming

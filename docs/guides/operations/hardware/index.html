@@ -1791,27 +1791,30 @@
 diagnosed, so we don't have to rediscover them.</p>
 <h2 id="bmc-management-with-ipmi">BMC management with IPMI</h2>
 <p>The <code>pve2</code> node (Supermicro X10SRL-F motherboard) has a BMC reachable at
-<code>10.246.67.56</code>. Query and configure it with <code>ipmitool</code> over the LAN interface:</p>
-<div class="highlight"><pre><span></span><code>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span><span class="m">10</span>.246.67.56<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>list
+<code>pve2-bmc.edge.lab.ferrari.how</code>, the name of its reservation on the gateway.
+Query and configure it with <code>ipmitool</code> over the LAN interface:</p>
+<div class="highlight"><pre><span></span><code>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span>pve2-bmc.edge.lab.ferrari.how<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>list
 </code></pre></div>
 <h3 id="configure-fan-thresholds">Configure fan thresholds</h3>
 <p>Quiet, low-RPM fans can dip below the factory lower thresholds, triggering false
 critical events and BMC fan-boost cycling. Lower the thresholds of the affected
 fan sensors to stop that:</p>
-<div class="highlight"><pre><span></span><code>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span><span class="m">10</span>.246.67.56<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>thresh<span class="w"> </span>FAN1<span class="w"> </span>lower<span class="w"> </span><span class="m">150</span><span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="m">250</span>
-ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span><span class="m">10</span>.246.67.56<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>thresh<span class="w"> </span>FAN2<span class="w"> </span>lower<span class="w"> </span><span class="m">150</span><span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="m">250</span>
+<div class="highlight"><pre><span></span><code>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span>pve2-bmc.edge.lab.ferrari.how<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>thresh<span class="w"> </span>FAN1<span class="w"> </span>lower<span class="w"> </span><span class="m">150</span><span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="m">250</span>
+ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span>pve2-bmc.edge.lab.ferrari.how<span class="w"> </span>-U<span class="w"> </span>ADMIN<span class="w"> </span>sensor<span class="w"> </span>thresh<span class="w"> </span>FAN2<span class="w"> </span>lower<span class="w"> </span><span class="m">150</span><span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="m">250</span>
 </code></pre></div>
 <p>The three values after <code>lower</code> are, in order: lower non-recoverable, lower
 critical, and lower non-critical.</p>
 <p>Thresholds are stored in the BMC, so they may need re-applying after a BMC
 firmware update or a BMC factory reset.</p>
-<p>The BMC address is a DHCP lease, so it can change. The bootstrap role also
-installs <code>ipmitool</code> on the host itself for hosts flagged <code>has_bmc</code> in their
-host_vars: in-band commands (<code>ipmitool sdr type Fan</code>, <code>ipmitool sensor</code>) work
-over SSH regardless of the BMC's address, through the <code>/dev/ipmi0</code> interface the
-kernel exposes. On 2026-10-04 the fan mode read Optimal, the fans 300-1100 RPM,
-and FAN1 sat below its lower non-critical threshold at 300 RPM, the symptom the
-thresholds above address.</p>
+<p>The BMC takes its address from a reservation on the gateway, declared in the
+host's <code>network_interfaces</code> and applied by the gateway playbook, as the
+<a href="../../development/ansible/#the-gateway-role">Ansible development guide</a>
+describes. The bootstrap role also installs <code>ipmitool</code> on the host itself for
+hosts flagged <code>has_bmc</code> in their host_vars: in-band commands
+(<code>ipmitool sdr type Fan</code>, <code>ipmitool sensor</code>) work over SSH without the BMC's LAN
+access, through the <code>/dev/ipmi0</code> interface the kernel exposes. On 2026-10-04 the
+fan mode read Optimal, the fans 300-1100 RPM, and FAN1 sat below its lower
+non-critical threshold at 300 RPM, the symptom the thresholds above address.</p>
 <h2 id="bios-configuration-with-sum">BIOS configuration with SUM</h2>
 <p>Supermicro Update Manager (SUM) reads and writes the BIOS configuration as a
 text file. On this board generation it is the only programmatic path: the BMC's

@@ -1862,9 +1862,8 @@
 <p>This guide records how we measure the power consumption of the home lab hosts
 and the numbers we measured, so that a new evaluation starts from them instead
 of re-measuring. The generic method (instrument choice, attribution, levers,
-experiment discipline) is not repeated here; the specs todo list tracks the open
-work per host under
-<a href="../../../architecture/#host-configuration">Host configuration</a>.</p>
+experiment discipline) is not repeated here; what stays open per host is in the
+<a href="../../../architecture/#ideas">Ideas</a> of the specs todo list.</p>
 <h2 id="instrument">Instrument</h2>
 <p>The studio smart plugs report power to Home Assistant, which Prometheus on
 raspberrypi2 scrapes every 30 seconds (job <code>home_assistant</code>, metric
@@ -1908,9 +1907,15 @@ window, 20 samples. A change smaller than 1 W is within the plug's noise.</p>
 x 16 GB DDR4-2133 RDIMM running at 1866 MT/s, Crucial P310 NVMe boot disk,
 Seagate ST4000VN006 data disk, Samsung HD103SJ and OCZ Vertex 3 scratch drives,
 two on-board i210 NICs, OCZ ModXStream Pro 600 W PSU (2008-era 80 Plus, no
-PMBus). The goal is to run the host 24/7 once its idle draw comes down; the
-remaining steps are tracked in the
-<a href="../../../architecture/#host-configuration">specs todo list</a>.</p>
+PMBus).</p>
+<p>The firmware and operating system tuning is complete (decided on 2026-11-13):
+the host idles at about 44 W at the wall, the two scratch drives stay until they
+fail, and the PSU replacement is an option for later. The host was powered on
+again on 2026-11-16, when its configuration was brought up to date, and left
+running. Whether its workloads warrant running it around the clock (about 34 EUR
+per year more than leaving it off and plugged in) or waking it on demand is
+undecided, a question parked in the <a href="../../../architecture/#ideas">Ideas</a>
+of the specs todo list.</p>
 <p>The disks never spin down, by policy: the platters keep spinning to avoid the
 wear of start and stop cycles, so HDD standby timers (<code>hdparm -y</code>/<code>-S</code>,
 ZFS-triggered standby) are out of scope on this host. Power tuning is limited to
@@ -1995,8 +2000,57 @@ W for the ST4000VN006, ~1 W for the Vertex 3, under 1 W for the NVMe in APST.
 The PSU runs at ~7% load, where a unit of that generation is expected to lose a
 quarter or more of the input power; the 80 Plus figures only cover 20% load and
 above.</p>
+<p>Attribution of the 44 W measured at the wall on 2026-10-22, estimated on
+2026-11-13 from the readings above and datasheet expectations. The PSU has no
+PMBus, so no DC reading exists: only the rows marked as measured are readings.</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>DC draw</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU, 88% of the time in package C6</td>
+<td>7.6 W</td>
+<td>Measured (RAPL package)</td>
+</tr>
+<tr>
+<td>Memory, 8 x 16 GB RDIMM at 1866 MT/s</td>
+<td>3.5-4.5 W</td>
+<td>3.5 W measured (RAPL DRAM), the register chips expected</td>
+</tr>
+<tr>
+<td>CPU and memory voltage regulator losses</td>
+<td>1.5-2 W</td>
+<td>Expected</td>
+</tr>
+<tr>
+<td>Four drives, spinning</td>
+<td>~11.5 W</td>
+<td>Datasheet idle figures</td>
+</tr>
+<tr>
+<td>Board: chipset, BMC, one active NIC, fans</td>
+<td>9.5-11 W</td>
+<td>BMC and standby rail measured at 4-5 W at the wall; the rest expected</td>
+</tr>
+<tr>
+<td>Total DC load</td>
+<td>33-35 W</td>
+<td>Sum of the rows above</td>
+</tr>
+<tr>
+<td>PSU losses at about 6% load (75-78% efficiency)</td>
+<td>9-11 W</td>
+<td>Difference to the wall reading</td>
+</tr>
+</tbody>
+</table>
 <h3 id="levers">Levers</h3>
-<p>In order of expected gain, with status as of 2026-10-05:</p>
+<p>In order of expected gain, with status as of 2026-11-13:</p>
 <table>
 <thead>
 <tr>
@@ -2008,13 +2062,13 @@ above.</p>
 <tbody>
 <tr>
 <td>PSU replacement (450-550 W Platinum/Titanium)</td>
-<td>7-10 W, plus 1-2 W standby</td>
-<td>Planned last, so it is measured at the final DC load</td>
+<td>5-8 W</td>
+<td>Deferred: an option for later (decision 2026-11-13)</td>
 </tr>
 <tr>
 <td>Scratch drives removal</td>
 <td>~7 W DC</td>
-<td>Rejected for now: the drives stay (decision 2026-10-04)</td>
+<td>Rejected: the drives stay until they fail (decision 2026-11-13)</td>
 </tr>
 <tr>
 <td>BIOS changes (see below)</td>
@@ -2053,10 +2107,12 @@ above.</p>
 </tr>
 </tbody>
 </table>
-<p>Realistic landing points with the scratch drives kept: 38-42 W after the BIOS
-changes, 30-33 W after the PSU replacement. The runtime tunables alone do not
-justify a configuration management role: their combined gain is 1-2 W, under 2
-EUR per year.</p>
+<p>The baseline measured after the BIOS changes is about 44 W (2026-10-22), where
+the projection made before them was 38-42 W. With the scratch drives kept and a
+DC load of 33-35 W, a PSU replacement is expected to land at 36-40 W, not at the
+30-33 W projected earlier. The runtime tunables alone do not justify a
+configuration management role: their combined gain is 1-2 W, under 2 EUR per
+year.</p>
 <h3 id="runtime-experiments">Runtime experiments</h3>
 <table>
 <thead>
@@ -2125,6 +2181,13 @@ EUR per year.</p>
 <td>74 W (median 30 min, one hour after boot; p25 73, p75 77; 5-minute medians 72-77 W from 13:10)</td>
 <td>pve2 share about 44 W against the 30 W baseline, matching the idle figure; boot peak 135 W on the plug (13:04), 73 W two minutes after SSH answered</td>
 </tr>
+<tr>
+<td>2026-11-16</td>
+<td>pve2 powered on after 25 days off, then upgraded to kernel 7.0.14 and Proxmox VE 9.2, with the IOMMU options and two reboots</td>
+<td>31 W (median 30 min, p25 30, p75 33)</td>
+<td>80 W (median 10 min, 23 minutes after the last boot; p25 75, p75 80, min 75, max 81)</td>
+<td>pve2 share about 49 W against the 31 W baseline, 5 W above the 2026-10-22 figure and not attributed: RAPL reads 8.1 W package and 3.9 W DRAM, close to the baseline, and other devices share the plug; read a day-long window before concluding</td>
+</tr>
 </tbody>
 </table>
 <p>The ASPM change enabled L0s and L1 on both i210 links and L1 on their root ports
@@ -2165,8 +2228,13 @@ full speed, no errors, and the drives active (not in standby: link power
 management acts on the SATA link, not on the spindle). A 4 GiB sequential read
 per drive after idle gaps (direct I/O) ran at 140, 210, and 539 MB/s with no
 link events and no new <code>UDMA_CRC_Error_Count</code>; a scrub only reads allocated
-blocks, so it becomes a meaningful test once the pools hold data. Check the
-kernel log and the CRC counters again after a few days of uptime.</p>
+blocks, so it becomes a meaningful test once the pools hold data. No multi-day
+soak is planned (decision 2026-11-13): the monthly scrub of
+<code>/etc/cron.d/zfsutils-linux</code> exercises the links whenever the host is on, and an
+alert on the CRC counters is a
+<a href="../../../architecture/#monitoring-and-alerting">Monitoring and alerting</a>
+todo item. The counters read 153 (HD103SJ) and 51 (ST4000VN006) on 2026-11-16,
+the lifetime totals to compare a later reading against.</p>
 <h3 id="bios-settings">BIOS settings</h3>
 <p>The export below was taken with Supermicro Update Manager, following the
 <a href="../hardware/#bios-configuration-with-sum">BIOS configuration procedure</a> in the

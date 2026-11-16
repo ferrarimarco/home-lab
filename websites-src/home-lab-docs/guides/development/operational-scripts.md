@@ -316,6 +316,15 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
       | grep -oE '^vault[a-zA-Z_0-9-]*'
     ```
 
+    The edit mode opens an existing file only, since `ansible-vault edit` reads
+    the file first. Create a new vault file (the first secret of a host) with a
+    custom command, from a terminal with the SSH agent set, as the script
+    forwards the socket for every custom command:
+
+    ```shell
+    scripts/run-ansible.sh "ansible-vault create --vault-id home_lab_vault@/etc/ansible/home_lab_vault_password_file /etc/ansible/inventory/host_vars/<host>/vault.yaml"
+    ```
+
     Never print decrypted vault values: pipe `ansible-vault view` output through
     a filter (as above) that only surfaces key names. The filter anchors on the
     `vault` prefix because all vaulted variables follow the `vault_*` naming

@@ -186,6 +186,13 @@ the share mounts. Its venv is built at start from the requirements file next to
 the job script, so a new exporter release lands with a restart of the unit after
 the role rendered the file.
 
+On a repository that holds no snapshot yet, exporter 2.1.2 exits with
+`KeyError: 'total_blob_count'`. The role starts the exporter right after it
+initializes a repository, so on a host's first apply the unit fails once and
+comes up at the restart that follows the first backup (pve2, 2026-11-16): run
+the job by hand right after that apply (`sudo systemctl start <job>.service`),
+then the drill.
+
 ## Re-seed qBittorrent's settings
 
 qBittorrent's settings file (`qBittorrent/qBittorrent.conf` in its configuration

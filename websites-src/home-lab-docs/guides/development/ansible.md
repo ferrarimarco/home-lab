@@ -374,6 +374,13 @@ options is left alone, whitespace included; the Molecule instance has neither
 file and skips both writes, and the VFIO module task is tagged out of the tests,
 since the test container shares the control machine's kernel.
 
+Both nodes had their first full node run (pve1 on 2026-11-10, pve2 on
+2026-11-16), each after the OS packages playbook and a reboot, and each followed
+by a second check run that predicted nothing. The GRUB branch of the kernel task
+first ran on pve2 the same day: the line went from `quiet` to
+`quiet intel_iommu=on iommu=pt`, and after the reboot the kernel log reports the
+IOMMU enabled with passthrough as the default domain type.
+
 The exclusive set applies to every host, not only Proxmox nodes: keys added by
 hand on a host (hardware security keys, for example) disappear at the next
 bootstrap run unless the repository declares them. The user and key tasks carry
@@ -392,6 +399,13 @@ keys converged with `--tags authorized-keys`; on a Proxmox node pair it with
   without a request, in check mode too; without it, check mode always predicts a
   change, since its HEAD request carries no content to compare. A pin moved
   without a new hash fails the download instead of deploying unverified content.
+- The apt module does not refresh the package lists in check mode (read in its
+  source at ansible-core 2.21), so a check run of the OS packages playbook
+  simulates the upgrade against the lists the host already holds. On a host that
+  was off, or that runs no periodic refresh, run `apt-get update` on it first
+  (pve2's lists were 25 days old on 2026-11-16). With `--diff`, that check run
+  prints apt's simulated upgrade, the removals included: the review a manual
+  `apt full-upgrade --simulate` would give.
 - Design tasks so check mode runs cleanly and truthfully on first runs:
   state-query tasks carry `changed_when: false` and `check_mode: false`, and
   later tasks tolerate resources that an earlier task would have created.

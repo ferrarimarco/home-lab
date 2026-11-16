@@ -3,9 +3,8 @@
 This guide records how we measure the power consumption of the home lab hosts
 and the numbers we measured, so that a new evaluation starts from them instead
 of re-measuring. The generic method (instrument choice, attribution, levers,
-experiment discipline) is not repeated here; the specs todo list tracks the open
-work per host under
-[Host configuration](../../architecture/README.md#host-configuration).
+experiment discipline) is not repeated here; what stays open per host is in the
+[Ideas](../../architecture/README.md#ideas) of the specs todo list.
 
 ## Instrument
 
@@ -58,9 +57,16 @@ Supermicro X10SRL-F (BIOS 3.4, BMC firmware 3.93), Xeon E5-2683 v4 (16 cores), 8
 x 16 GB DDR4-2133 RDIMM running at 1866 MT/s, Crucial P310 NVMe boot disk,
 Seagate ST4000VN006 data disk, Samsung HD103SJ and OCZ Vertex 3 scratch drives,
 two on-board i210 NICs, OCZ ModXStream Pro 600 W PSU (2008-era 80 Plus, no
-PMBus). The goal is to run the host 24/7 once its idle draw comes down; the
-remaining steps are tracked in the
-[specs todo list](../../architecture/README.md#host-configuration).
+PMBus).
+
+The firmware and operating system tuning is complete (decided on 2026-11-13):
+the host idles at about 44 W at the wall, the two scratch drives stay until they
+fail, and the PSU replacement is an option for later. The host was powered on
+again on 2026-11-16, when its configuration was brought up to date, and left
+running. Whether its workloads warrant running it around the clock (about 34 EUR
+per year more than leaving it off and plugged in) or waking it on demand is
+undecided, a question parked in the [Ideas](../../architecture/README.md#ideas)
+of the specs todo list.
 
 The disks never spin down, by policy: the platters keep spinning to avoid the
 wear of start and stop cycles, so HDD standby timers (`hdparm -y`/`-S`,
@@ -104,39 +110,56 @@ The PSU runs at ~7% load, where a unit of that generation is expected to lose a
 quarter or more of the input power; the 80 Plus figures only cover 20% load and
 above.
 
+Attribution of the 44 W measured at the wall on 2026-10-22, estimated on
+2026-11-13 from the readings above and datasheet expectations. The PSU has no
+PMBus, so no DC reading exists: only the rows marked as measured are readings.
+
+| Component                                       | DC draw   | Source                                                                |
+| ----------------------------------------------- | --------- | --------------------------------------------------------------------- |
+| CPU, 88% of the time in package C6              | 7.6 W     | Measured (RAPL package)                                               |
+| Memory, 8 x 16 GB RDIMM at 1866 MT/s            | 3.5-4.5 W | 3.5 W measured (RAPL DRAM), the register chips expected               |
+| CPU and memory voltage regulator losses         | 1.5-2 W   | Expected                                                              |
+| Four drives, spinning                           | ~11.5 W   | Datasheet idle figures                                                |
+| Board: chipset, BMC, one active NIC, fans       | 9.5-11 W  | BMC and standby rail measured at 4-5 W at the wall; the rest expected |
+| Total DC load                                   | 33-35 W   | Sum of the rows above                                                 |
+| PSU losses at about 6% load (75-78% efficiency) | 9-11 W    | Difference to the wall reading                                        |
+
 ### Levers
 
-In order of expected gain, with status as of 2026-10-05:
+In order of expected gain, with status as of 2026-11-13:
 
-| Lever                                         | Expected gain              | Status                                                                  |
-| --------------------------------------------- | -------------------------- | ----------------------------------------------------------------------- |
-| PSU replacement (450-550 W Platinum/Titanium) | 7-10 W, plus 1-2 W standby | Planned last, so it is measured at the final DC load                    |
-| Scratch drives removal                        | ~7 W DC                    | Rejected for now: the drives stay (decision 2026-10-04)                 |
-| BIOS changes (see below)                      | under 1 W (applied set)    | Applied 2026-10-06 via SUM; memory frequency deferred                   |
-| SATA link power management                    | 1-3 W                      | Active since the BIOS change (kernel default `min_power_with_partial`)  |
-| PCIe ASPM `powersave`                         | under 1 W                  | Measured within noise; not persisted                                    |
-| PCI runtime PM `auto`                         | under 1 W                  | Measured within noise; not persisted                                    |
-| BMC fan mode                                  | none                       | Already Optimal, fans at 300-1100 RPM                                   |
-| CPU governor (`schedutil`)                    | under 1 W idle             | Deferred until the workload is defined; benefit is under sustained load |
-| HDD spin-down                                 | excluded                   | Policy: the platters keep spinning                                      |
+| Lever                                         | Expected gain           | Status                                                                  |
+| --------------------------------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| PSU replacement (450-550 W Platinum/Titanium) | 5-8 W                   | Deferred: an option for later (decision 2026-11-13)                     |
+| Scratch drives removal                        | ~7 W DC                 | Rejected: the drives stay until they fail (decision 2026-11-13)         |
+| BIOS changes (see below)                      | under 1 W (applied set) | Applied 2026-10-06 via SUM; memory frequency deferred                   |
+| SATA link power management                    | 1-3 W                   | Active since the BIOS change (kernel default `min_power_with_partial`)  |
+| PCIe ASPM `powersave`                         | under 1 W               | Measured within noise; not persisted                                    |
+| PCI runtime PM `auto`                         | under 1 W               | Measured within noise; not persisted                                    |
+| BMC fan mode                                  | none                    | Already Optimal, fans at 300-1100 RPM                                   |
+| CPU governor (`schedutil`)                    | under 1 W idle          | Deferred until the workload is defined; benefit is under sustained load |
+| HDD spin-down                                 | excluded                | Policy: the platters keep spinning                                      |
 
-Realistic landing points with the scratch drives kept: 38-42 W after the BIOS
-changes, 30-33 W after the PSU replacement. The runtime tunables alone do not
-justify a configuration management role: their combined gain is 1-2 W, under 2
-EUR per year.
+The baseline measured after the BIOS changes is about 44 W (2026-10-22), where
+the projection made before them was 38-42 W. With the scratch drives kept and a
+DC load of 33-35 W, a PSU replacement is expected to land at 36-40 W, not at the
+30-33 W projected earlier. The runtime tunables alone do not justify a
+configuration management role: their combined gain is 1-2 W, under 2 EUR per
+year.
 
 ### Runtime experiments
 
-| Date       | Change                                                                                                                    | Before (median)                                    | After (median)                                                                                 | Result                                                                                                                                              |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-10-04 | PCIe ASPM policy `default` to `powersave`                                                                                 | 68 W, 1.6 h                                        | 68 W, 3.3 h                                                                                    | Within noise, no errors                                                                                                                             |
-| 2026-10-05 | PCIe ASPM `powersave` again after a boot                                                                                  | 69 W                                               | 68-73 W (shared plug)                                                                          | Within noise, no errors                                                                                                                             |
-| 2026-10-05 | PCI runtime PM `auto` on 99 devices                                                                                       | 69 W                                               | 68 W                                                                                           | 80 devices suspended, no errors                                                                                                                     |
-| 2026-10-05 | SATA `med_power_with_dipm` on host0                                                                                       | 69 W                                               | not applied                                                                                    | Kernel refused: `Operation not supported`                                                                                                           |
-| 2026-10-06 | BIOS: sSATA ALPM on, hot-plug off, six-port SATA controller, audio, serial port 1 off; links now `min_power_with_partial` | 68-70 W (1 h before)                               | 69 W, 1 h (p25 67, p75 71)                                                                     | Within noise, at most 1-2 W; no errors                                                                                                              |
-| 2026-10-06 | Sequential read pass, 4 GiB per drive, under link PM                                                                      | n/a                                                | n/a                                                                                            | 140/210/539 MB/s, no link events, no new CRC errors                                                                                                 |
-| 2026-10-10 | A self-powered USB disk connected to the shared plug (pve2 off since 2026-10-06)                                          | 24 W (daily median)                                | 30-31 W (p25-p75 over 12 days)                                                                 | The plug baseline for an off pve2 is 30-31 W from this date                                                                                         |
-| 2026-10-22 | pve2 powered on after 16 days off (reference read at 12:54 UTC, before the power-on)                                      | 30 W (median 24 h, p25 30, p75 31, min 27, max 45) | 74 W (median 30 min, one hour after boot; p25 73, p75 77; 5-minute medians 72-77 W from 13:10) | pve2 share about 44 W against the 30 W baseline, matching the idle figure; boot peak 135 W on the plug (13:04), 73 W two minutes after SSH answered |
+| Date       | Change                                                                                                                       | Before (median)                                    | After (median)                                                                                 | Result                                                                                                                                                                                                                                          |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-10-04 | PCIe ASPM policy `default` to `powersave`                                                                                    | 68 W, 1.6 h                                        | 68 W, 3.3 h                                                                                    | Within noise, no errors                                                                                                                                                                                                                         |
+| 2026-10-05 | PCIe ASPM `powersave` again after a boot                                                                                     | 69 W                                               | 68-73 W (shared plug)                                                                          | Within noise, no errors                                                                                                                                                                                                                         |
+| 2026-10-05 | PCI runtime PM `auto` on 99 devices                                                                                          | 69 W                                               | 68 W                                                                                           | 80 devices suspended, no errors                                                                                                                                                                                                                 |
+| 2026-10-05 | SATA `med_power_with_dipm` on host0                                                                                          | 69 W                                               | not applied                                                                                    | Kernel refused: `Operation not supported`                                                                                                                                                                                                       |
+| 2026-10-06 | BIOS: sSATA ALPM on, hot-plug off, six-port SATA controller, audio, serial port 1 off; links now `min_power_with_partial`    | 68-70 W (1 h before)                               | 69 W, 1 h (p25 67, p75 71)                                                                     | Within noise, at most 1-2 W; no errors                                                                                                                                                                                                          |
+| 2026-10-06 | Sequential read pass, 4 GiB per drive, under link PM                                                                         | n/a                                                | n/a                                                                                            | 140/210/539 MB/s, no link events, no new CRC errors                                                                                                                                                                                             |
+| 2026-10-10 | A self-powered USB disk connected to the shared plug (pve2 off since 2026-10-06)                                             | 24 W (daily median)                                | 30-31 W (p25-p75 over 12 days)                                                                 | The plug baseline for an off pve2 is 30-31 W from this date                                                                                                                                                                                     |
+| 2026-10-22 | pve2 powered on after 16 days off (reference read at 12:54 UTC, before the power-on)                                         | 30 W (median 24 h, p25 30, p75 31, min 27, max 45) | 74 W (median 30 min, one hour after boot; p25 73, p75 77; 5-minute medians 72-77 W from 13:10) | pve2 share about 44 W against the 30 W baseline, matching the idle figure; boot peak 135 W on the plug (13:04), 73 W two minutes after SSH answered                                                                                             |
+| 2026-11-16 | pve2 powered on after 25 days off, then upgraded to kernel 7.0.14 and Proxmox VE 9.2, with the IOMMU options and two reboots | 31 W (median 30 min, p25 30, p75 33)               | 80 W (median 10 min, 23 minutes after the last boot; p25 75, p75 80, min 75, max 81)           | pve2 share about 49 W against the 31 W baseline, 5 W above the 2026-10-22 figure and not attributed: RAPL reads 8.1 W package and 3.9 W DRAM, close to the baseline, and other devices share the plug; read a day-long window before concluding |
 
 The ASPM change enabled L0s and L1 on both i210 links and L1 on their root ports
 (the NVMe already ran L1). Runtime PM suspended the uncore stubs, idle bridges,
@@ -180,8 +203,13 @@ full speed, no errors, and the drives active (not in standby: link power
 management acts on the SATA link, not on the spindle). A 4 GiB sequential read
 per drive after idle gaps (direct I/O) ran at 140, 210, and 539 MB/s with no
 link events and no new `UDMA_CRC_Error_Count`; a scrub only reads allocated
-blocks, so it becomes a meaningful test once the pools hold data. Check the
-kernel log and the CRC counters again after a few days of uptime.
+blocks, so it becomes a meaningful test once the pools hold data. No multi-day
+soak is planned (decision 2026-11-13): the monthly scrub of
+`/etc/cron.d/zfsutils-linux` exercises the links whenever the host is on, and an
+alert on the CRC counters is a
+[Monitoring and alerting](../../architecture/README.md#monitoring-and-alerting)
+todo item. The counters read 153 (HD103SJ) and 51 (ST4000VN006) on 2026-11-16,
+the lifetime totals to compare a later reading against.
 
 ### BIOS settings
 

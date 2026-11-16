@@ -129,13 +129,11 @@ never from the host.
   [network boot](./websites-src/home-lab-docs/guides/operations/network-boot.md)
   (the rescue toggle on hl02 decides what a host boots), and
   [host power](./websites-src/home-lab-docs/guides/operations/host-power.md)
-  (smart plug measurements, the pve2 policy of running 24/7 with no HDD
-  spin-down) guides, the
+  (smart plug measurements, no HDD spin-down on pve2) guides, the
   [Proxmox administration notes](./websites-src/home-lab-docs/guides/proxmox-admin-notes.md)
   (`pct exec` into a NixOS container needs the full binary path), and the
   [Ansible development guide](./websites-src/home-lab-docs/guides/development/ansible.md)
-  (the node role's settings for the Proxmox nodes; pve2's first full run waits
-  on the host, as the specs index records).
+  (the node role's settings for the Proxmox nodes).
 
 ## Ansible Conventions
 
