@@ -1864,11 +1864,13 @@ only slower than the exporter's timeout:</p>
 <p>What slowed the handshake is not known, and neither is whether the interface was
 hung or only this slow before 2026-11-04. The exporter itself is a candidate
 cause: it opens a new session, with a handshake and a login, 30 seconds after
-each read (about 2,500 a day) and never logs out. The role now gives the
-exporter a connect timeout of 30 seconds, and the <code>OntMetricsMissing</code> rule reads
-the share of samples that carry the GPON state
-(<a href="../../architecture/monitoring-alerting/#613-ont">Monitoring Alerting</a>); neither
-is applied yet. A lighter client is an item in the
+each read (about 2,500 a day) and never logs out.</p>
+<p>Since 2026-11-16 the exporter has a connect timeout of 30 seconds, and the
+<code>OntMetricsMissing</code> rule reads the share of samples that carry the GPON state
+(<a href="../../architecture/monitoring-alerting/#613-ont">Monitoring Alerting</a>). In the
+half hour after that change all 44 logins succeeded, in 8 to 15 seconds each
+(median 12), the unit did not restart, and the two alerts it had raised
+resolved. A lighter client is an item in the
 <a href="../../architecture/#monitoring-and-alerting">specs todo list</a>.</p>
 
 
