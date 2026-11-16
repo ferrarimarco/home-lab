@@ -548,16 +548,21 @@ groups:
             exporter's timeout, or the exporter is broken. The unit deletes
             its textfile on exit, so the staleness rule cannot see this.
       - alert: OntGponNotOperational
-        expr: ztef6005ont_gpon_status{flag="Operation state(O5)"} == 0
+        # The series is absent after every failed login of the exporter, which
+        # resets a hold on its value at one sample: the hold is on the latest
+        # reading. The window outlasts the time OntMetricsMissing takes to fire
+        # once the readings stop, so this alert does not resolve before that one
+        # reports the missing data.
+        expr: last_over_time(ztef6005ont_gpon_status{flag="Operation state(O5)"}[35m]) == 0
         for: 5m
         labels:
           severity: critical
         annotations:
           summary: "ONT {{ $labels.pon_serial_number }} is not in the GPON operation state"
           description: >-
-            The ONT has not been in the GPON operation state (O5) for 5
-            minutes: the optical link to the ISP is down or re-registering,
-            and the WAN is down with it.
+            The latest readings of the ONT have not shown the GPON operation
+            state (O5) for 5 minutes: the optical link to the ISP is down or
+            re-registering, and the WAN is down with it.
 
   - name: containers
     rules:

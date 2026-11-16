@@ -2407,7 +2407,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: ONT</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Missing ONT metrics and the GPON operation state on the ONT exporter textfile (§6.13). Applied on both replicas on 2026-11-04; the exporter has produced data since 06:30 UTC that day. The <code>OntMetricsMissing</code> expression that reads a share of samples is not yet applied.</td>
+<td style="text-align: left;">Missing ONT metrics and the GPON operation state on the ONT exporter textfile (§6.13). Applied on both replicas on 2026-11-04; the exporter has produced data since 06:30 UTC that day. The <code>OntMetricsMissing</code> expression that reads a share of samples and the <code>OntGponNotOperational</code> expression that reads the latest reading are not yet applied.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Network Boot</strong></td>
@@ -3287,9 +3287,9 @@ the exporter failing.</p>
 <tr>
 <td style="text-align: left;"><code>OntGponNotOperational</code></td>
 <td style="text-align: left;">critical</td>
-<td style="text-align: left;"><code>ztef6005ont_gpon_status{flag="Operation state(O5)"} == 0</code></td>
+<td style="text-align: left;"><code>last_over_time(ztef6005ont_gpon_status{flag="Operation state(O5)"}[35m]) == 0</code></td>
 <td style="text-align: left;">5 min</td>
-<td style="text-align: left;">The ONT left the GPON operation state: the optical link is down or re-registering, and the WAN with it. The PON LED stayed on through the 2026-11-04 outage; the rule records whether the PON stays registered during the next hang.</td>
+<td style="text-align: left;">The ONT left the GPON operation state: the optical link is down or re-registering, and the WAN with it. The PON LED stayed on through the 2026-11-04 outage; the rule records whether the PON stays registered during the next hang. The hold is on the latest reading of the last 35 minutes, not on the value at one sample: the series is absent after every failed login of the exporter, which would reset the hold while only some logins succeed. A reading of the operation state resolves the alert at once. When the readings stop, <code>OntMetricsMissing</code> takes 31 minutes to fire, and the window keeps this alert firing until then: a 15-minute window would resolve it, with 16 minutes in which neither fires.</td>
 </tr>
 </tbody>
 </table>

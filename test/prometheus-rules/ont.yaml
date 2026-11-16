@@ -112,7 +112,7 @@ tests:
         exp_alerts: []
       - eval_time: 5m
         alertname: OntGponNotOperational
-        exp_alerts:
+        exp_alerts: &ont_gpon_not_operational_alerts
           - exp_labels:
               severity: critical
               instance: raspberrypi2:9100
@@ -121,6 +121,58 @@ tests:
             exp_annotations:
               summary: "ONT ZTEG00000000 is not in the GPON operation state"
               description: >-
-                The ONT has not been in the GPON operation state (O5) for 5
-                minutes: the optical link to the ISP is down or re-registering,
-                and the WAN is down with it.
+                The latest readings of the ONT have not shown the GPON operation
+                state (O5) for 5 minutes: the optical link to the ISP is down or
+                re-registering, and the WAN is down with it.
+
+  # The exporter's logins fail between the readings, and the series goes stale
+  # after each one. raspberrypi2 reads a state other than O5 at 0m and 5m and
+  # nothing after; hl01 reads one at 0m and O5 at 3m.
+  - name: OntGponNotOperational holds on the latest reading across failed logins
+    interval: 1m
+    input_series:
+      - series: 'ztef6005ont_gpon_status{instance="raspberrypi2:9100", flag="Operation state(O5)", pon_serial_number="ZTEG00000000"}'
+        values: "0 stale _x3 0 stale"
+      - series: 'ztef6005ont_gpon_status{instance="hl01:9100", flag="Operation state(O5)", pon_serial_number="ZTEG11111111"}'
+        values: "0 stale _ 1 stale"
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: OntGponNotOperational
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: OntGponNotOperational
+        exp_alerts: *ont_gpon_not_operational_alerts
+      # The reading of 5m is the latest for 35 minutes, then nothing is known
+      - eval_time: 39m
+        alertname: OntGponNotOperational
+        exp_alerts: *ont_gpon_not_operational_alerts
+      - eval_time: 40m
+        alertname: OntGponNotOperational
+        exp_alerts: []
+
+  # The ONT leaves the operation state at 30m and the exporter reads nothing
+  # after that: OntGponNotOperational fires at 35m and holds until 64m, and
+  # OntMetricsMissing fires from 61m.
+  - name: OntGponNotOperational holds until OntMetricsMissing fires when the readings stop
+    interval: 1m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="zte-f6005-ont-exporter.service", state="active", type="simple"}'
+        values: "1x65"
+      - series: 'ztef6005ont_gpon_status{instance="raspberrypi2:9100", flag="Operation state(O5)", pon_serial_number="ZTEG00000000"}'
+        values: "1x29 0"
+    alert_rule_test:
+      - eval_time: 60m
+        alertname: OntMetricsMissing
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: OntGponNotOperational
+        exp_alerts: *ont_gpon_not_operational_alerts
+      - eval_time: 61m
+        alertname: OntMetricsMissing
+        exp_alerts: *ont_metrics_missing_alerts
+      - eval_time: 64m
+        alertname: OntGponNotOperational
+        exp_alerts: *ont_gpon_not_operational_alerts
+      - eval_time: 65m
+        alertname: OntGponNotOperational
+        exp_alerts: []
