@@ -5,7 +5,7 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
-  - name: OntMetricsMissing fires for a host with the exporter unit and no GPON state for 15 minutes
+  - name: OntMetricsMissing fires for a host whose exporter unit never exports the GPON state
     interval: 1m
     input_series:
       - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="zte-f6005-ont-exporter.service", state="activating", type="simple"}'
@@ -24,18 +24,78 @@ tests:
         exp_alerts: []
       - eval_time: 15m
         alertname: OntMetricsMissing
-        exp_alerts:
+        exp_alerts: &ont_metrics_missing_alerts
           - exp_labels:
               severity: warning
               instance: raspberrypi2:9100
             exp_annotations:
               summary: "No ONT metrics from raspberrypi2:9100"
               description: >-
-                raspberrypi2:9100 runs the ONT exporter unit but exports no
-                GPON state: the ONT admin interface is unreachable (it hangs
-                until the ONT is power-cycled) or the exporter is broken. The
-                unit deletes its textfile on exit, so the staleness rule cannot
-                see this.
+                raspberrypi2:9100 runs the ONT exporter unit but exported
+                the GPON state for less than half of the last 30 minutes: the
+                ONT admin interface is unreachable or slower than the
+                exporter's timeout, or the exporter is broken. The unit deletes
+                its textfile on exit, so the staleness rule cannot see this.
+
+  # raspberrypi2 exports the GPON state at one sample in ten for 40 minutes,
+  # then at every sample; hl01 misses one sample in ten throughout. The exporter
+  # writes one series per GPON state: a sample counts once, however many carry it.
+  - name: OntMetricsMissing stays firing while the GPON state comes and goes and ignores short gaps
+    interval: 1m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="zte-f6005-ont-exporter.service", state="active", type="simple"}'
+        values: "1x80"
+      - series: 'ztef6005ont_gpon_status{instance="raspberrypi2:9100", flag="Operation state(O5)", pon_serial_number="ZTEG00000000"}'
+        values: "1 _x9 1 _x9 1 _x9 1 _x9 1x40"
+      - series: 'ztef6005ont_gpon_status{instance="raspberrypi2:9100", flag="Standby state(O2)", pon_serial_number="ZTEG00000000"}'
+        values: "0 _x9 0 _x9 0 _x9 0 _x9 0x40"
+      - series: 'node_systemd_unit_state{instance="hl01:9100", name="zte-f6005-ont-exporter.service", state="active", type="simple"}'
+        values: "1x80"
+      - series: 'ztef6005ont_gpon_status{instance="hl01:9100", flag="Operation state(O5)", pon_serial_number="ZTEG11111111"}'
+        values: "1x8 _ 1x8 _ 1x8 _ 1x8 _ 1x8 _ 1x8 _ 1x8 _ 1x8 _"
+    alert_rule_test:
+      - eval_time: 16m
+        alertname: OntMetricsMissing
+        exp_alerts: []
+      - eval_time: 17m
+        alertname: OntMetricsMissing
+        exp_alerts: *ont_metrics_missing_alerts
+      # A sample that carries the GPON state does not resolve the alert
+      - eval_time: 30m
+        alertname: OntMetricsMissing
+        exp_alerts: *ont_metrics_missing_alerts
+      - eval_time: 45m
+        alertname: OntMetricsMissing
+        exp_alerts: *ont_metrics_missing_alerts
+      # The last sample below half of the window: 14 of 30 carry the GPON state
+      - eval_time: 52m
+        alertname: OntMetricsMissing
+        exp_alerts: *ont_metrics_missing_alerts
+      # The share is back at one half from 53m, and the alert keeps firing for
+      # 15 minutes from there
+      - eval_time: 67m
+        alertname: OntMetricsMissing
+        exp_alerts: *ont_metrics_missing_alerts
+      - eval_time: 68m
+        alertname: OntMetricsMissing
+        exp_alerts: []
+
+  # The GPON state stops at 30m: the share falls below one half at 46m, when 14
+  # of the 30 samples of the window carry it, and the hold ends at 61m.
+  - name: OntMetricsMissing fires half an hour after the GPON state stops for good
+    interval: 1m
+    input_series:
+      - series: 'node_systemd_unit_state{instance="raspberrypi2:9100", name="zte-f6005-ont-exporter.service", state="active", type="simple"}'
+        values: "1x61"
+      - series: 'ztef6005ont_gpon_status{instance="raspberrypi2:9100", flag="Operation state(O5)", pon_serial_number="ZTEG00000000"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 60m
+        alertname: OntMetricsMissing
+        exp_alerts: []
+      - eval_time: 61m
+        alertname: OntMetricsMissing
+        exp_alerts: *ont_metrics_missing_alerts
 
   - name: OntGponNotOperational fires when the ONT leaves the operation state for 5 minutes
     interval: 1m

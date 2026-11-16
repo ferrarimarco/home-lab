@@ -2407,7 +2407,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: ONT</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Missing ONT metrics and the GPON operation state on the ONT exporter textfile (§6.13). Applied on both replicas on 2026-11-04; the exporter has produced data since 06:30 UTC that day.</td>
+<td style="text-align: left;">Missing ONT metrics and the GPON operation state on the ONT exporter textfile (§6.13). Applied on both replicas on 2026-11-04; the exporter has produced data since 06:30 UTC that day. The <code>OntMetricsMissing</code> expression that reads a share of samples is not yet applied.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Network Boot</strong></td>
@@ -3261,7 +3261,9 @@ so a replica that cannot alert on itself is covered by the other.</p>
 <h3 id="613-ont">6.13 ONT</h3>
 <p>The ONT exporter on raspberrypi2 logs into the ZTE ONT's admin interface every
 30 seconds and writes a textfile. The admin interface hangs for months at a time
-(2026-03-28 to 2026-11-04) until the ONT is power-cycled, and the unit deletes
+(2026-03-28 to 2026-11-04) until the ONT is power-cycled, or answers too slowly
+for some logins to succeed
+(<a href="../../archive/ont-connection-instability/">ONT notes</a>), and the unit deletes
 its textfile on exit, so neither <code>NodeTextfileStale</code> nor <code>SystemdUnitFailed</code> saw
 the exporter failing.</p>
 <table>
@@ -3278,9 +3280,9 @@ the exporter failing.</p>
 <tr>
 <td style="text-align: left;"><code>OntMetricsMissing</code></td>
 <td style="text-align: left;">warning</td>
-<td style="text-align: left;"><code>max by (instance) (node_systemd_unit_state{name="zte-f6005-ont-exporter.service"}) unless on (instance) ztef6005ont_gpon_status</code></td>
+<td style="text-align: left;"><code>max by (instance) (node_systemd_unit_state{name="zte-f6005-ont-exporter.service"}) unless on (instance) (max by (instance) (count_over_time(ztef6005ont_gpon_status[30m])) / max by (instance) (count_over_time(node_systemd_unit_state{name="zte-f6005-ont-exporter.service", state="active"}[30m])) &gt;= 0.5)</code></td>
 <td style="text-align: left;">15 min</td>
-<td style="text-align: left;">The host has the exporter unit but no GPON state series: the admin interface is unreachable or the exporter is broken. On the <code>AptMetricsMissing</code> pattern.</td>
+<td style="text-align: left;">The host has the exporter unit but the GPON state series covers less than half of the unit's samples of the last 30 minutes: the admin interface is unreachable or slower than the exporter's timeout, or the exporter is broken. A share over a window, not an absence at one sample: the series returns with every successful login, and the absence check fired and resolved 20 times in 21 hours while the interface answered only some logins (2026-11-13). The alert keeps firing for 15 minutes after the share recovers (<code>keep_firing_for</code>), so a share that sits near one half does not resolve and fire it again. On the <code>AptMetricsMissing</code> pattern.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>OntGponNotOperational</code></td>
