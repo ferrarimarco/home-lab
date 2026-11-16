@@ -77,3 +77,30 @@ possible. The remote power cycle design is an item in the
 [specs todo list](../architecture/README.md#issues-to-solve), and the WAN check
 changes it needs are under [Networking](../architecture/README.md#networking)
 there.
+
+## The slow admin interface of 2026-11-13
+
+From 2026-11-12 23:42 UTC, 8.7 days after the power cycle, the exporter's logins
+started to fail, more of them by the hour (none of about 100 an hour before, 40
+of 63 by 13:00 UTC on 2026-11-13), while the WAN stayed up and the ONT reported
+the operation state at every successful login. The admin interface was not hung,
+only slower than the exporter's timeout:
+
+- On 2026-11-14 the ONT answered six unauthenticated HTTPS requests out of six,
+  in 7 to 11 seconds, of which the TLS handshake took 6 to 7.7 seconds. The
+  exporter gave up at 5 seconds: its connect timeout, which also bounds the
+  handshake.
+- The handshakes of the logins that succeeded took 3.6 to 5 seconds (median 4.4
+  to 4.7), so that timeout had little margin before the slowdown either.
+- The same request over plain HTTP was answered in 1.4 seconds, with a redirect
+  to a login page over HTTP.
+
+What slowed the handshake is not known, and neither is whether the interface was
+hung or only this slow before 2026-11-04. The exporter itself is a candidate
+cause: it opens a new session, with a handshake and a login, 30 seconds after
+each read (about 2,500 a day) and never logs out. The role now gives the
+exporter a connect timeout of 30 seconds, and the `OntMetricsMissing` rule reads
+the share of samples that carry the GPON state
+([Monitoring Alerting](../architecture/monitoring-alerting.md#613-ont)); neither
+is applied yet. A lighter client is an item in the
+[specs todo list](../architecture/README.md#monitoring-and-alerting).

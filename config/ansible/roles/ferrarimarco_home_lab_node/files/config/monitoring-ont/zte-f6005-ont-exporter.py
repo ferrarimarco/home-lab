@@ -364,8 +364,10 @@ def _get_script_tag_content(response, page_name, field_names):
 
 # Connect and read timeouts, in seconds. The ONT admin interface sometimes
 # hangs until the ONT is rebooted; without a timeout a request blocks the
-# collection loop forever while the service still reports as active.
-HTTP_TIMEOUT = (5, 30)
+# collection loop forever while the service still reports as active. The
+# connect timeout also bounds the TLS handshake, which takes the ONT several
+# seconds: a value close to that fails logins the ONT would have answered.
+HTTP_TIMEOUT = (30, 30)
 
 
 def login(session, username, password, ip_address):

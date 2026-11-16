@@ -748,6 +748,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-slow-admin-interface-of-2026-11-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      The slow admin interface of 2026-11-13
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1735,6 +1744,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-slow-admin-interface-of-2026-11-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      The slow admin interface of 2026-11-13
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1827,6 +1845,31 @@ possible. The remote power cycle design is an item in the
 <a href="../../architecture/#issues-to-solve">specs todo list</a>, and the WAN check
 changes it needs are under <a href="../../architecture/#networking">Networking</a>
 there.</p>
+<h2 id="the-slow-admin-interface-of-2026-11-13">The slow admin interface of 2026-11-13</h2>
+<p>From 2026-11-12 23:42 UTC, 8.7 days after the power cycle, the exporter's logins
+started to fail, more of them by the hour (none of about 100 an hour before, 40
+of 63 by 13:00 UTC on 2026-11-13), while the WAN stayed up and the ONT reported
+the operation state at every successful login. The admin interface was not hung,
+only slower than the exporter's timeout:</p>
+<ul>
+<li>On 2026-11-14 the ONT answered six unauthenticated HTTPS requests out of six,
+  in 7 to 11 seconds, of which the TLS handshake took 6 to 7.7 seconds. The
+  exporter gave up at 5 seconds: its connect timeout, which also bounds the
+  handshake.</li>
+<li>The handshakes of the logins that succeeded took 3.6 to 5 seconds (median 4.4
+  to 4.7), so that timeout had little margin before the slowdown either.</li>
+<li>The same request over plain HTTP was answered in 1.4 seconds, with a redirect
+  to a login page over HTTP.</li>
+</ul>
+<p>What slowed the handshake is not known, and neither is whether the interface was
+hung or only this slow before 2026-11-04. The exporter itself is a candidate
+cause: it opens a new session, with a handshake and a login, 30 seconds after
+each read (about 2,500 a day) and never logs out. The role now gives the
+exporter a connect timeout of 30 seconds, and the <code>OntMetricsMissing</code> rule reads
+the share of samples that carry the GPON state
+(<a href="../../architecture/monitoring-alerting/#613-ont">Monitoring Alerting</a>); neither
+is applied yet. A lighter client is an item in the
+<a href="../../architecture/#monitoring-and-alerting">specs todo list</a>.</p>
 
 
 
