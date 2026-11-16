@@ -2847,7 +2847,7 @@ reliability risks first, then security exposure, then automation):</p>
   read may be what slows the ONT's admin interface down, so it now keeps one
   session and one connection and logs out when it stops, as the
   <a href="../archive/ont-connection-instability/#the-lighter-exporter-of-2026-11-16">ONT notes</a>
-  record. Remaining: apply the change to raspberrypi2; then, after the next
+  record; it runs on raspberrypi2 since that day. Remaining: after the next
   power cycle of the ONT, compare how long the interface stays fast with the 8.7
   days of the last one: <code>ztef6005ont_login_duration_seconds</code>, which a restart of
   the exporter unit samples, and <code>ztef6005ont_read_duration_seconds</code>, against

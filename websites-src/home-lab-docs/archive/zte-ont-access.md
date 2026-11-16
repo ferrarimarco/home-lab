@@ -77,8 +77,9 @@ on 2026-11-16, 12 days after a power cycle):
 - The web server is GoAhead, going by the name of its session cookie
   (`-goahead-session-`). The login is a POST to `/goform/LoginForm` that sets
   the cookie, and the cookie alone identifies the session, on any connection. An
-  idle session was still valid after 20 minutes and gone after 35, and other
-  logins from the same address do not end it.
+  idle session was still valid after 20 minutes and gone after 35, while a
+  session read every 30 seconds was still valid after 42 minutes; other logins
+  from the same address do not end a session.
 - A request without a valid session gets a 401, and a request with the cookie of
   a logged-out session a 302 to the login page.
 - An empty POST to `/goform/LogoutForm` ends the session.

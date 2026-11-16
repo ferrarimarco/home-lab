@@ -131,7 +131,13 @@ ONT's uptime (`ztef6005ont_uptime_seconds`), the time each read takes
 absence, can be read against the time since the last boot. The login is the
 measure of what degraded on 2026-11-13, since it includes the handshake of a new
 connection, and the exporter logs in only when it starts or loses its session: a
-restart of its unit takes a sample. Whether the interface now stays fast is what
-the item in the
+restart of its unit takes a sample.
+
+The exporter runs on raspberrypi2 since 2026-11-16 14:25 UTC, with the ONT up
+for 12.3 days. In its first 42 minutes it logged in once and read 83 times, each
+read taking at most 0.64 seconds (median 0.42), and no alert fired. That first
+login took 18.6 seconds, but the exporter it replaced was stopped in the middle
+of a login of its own, so the sample is not a clean one. Whether the interface
+now stays fast is what the item in the
 [specs todo list](../architecture/README.md#monitoring-and-alerting) waits to
 learn.
