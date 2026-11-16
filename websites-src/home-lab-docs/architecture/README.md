@@ -801,6 +801,16 @@ reliability risks first, then security exposure, then automation):
 
 ### Backup
 
+- **Drop the manual first backup once the restic exporter handles an empty
+  repository (2026-11-16)**: exporter 2.1.2 exits on a repository with no
+  snapshot, so on a repository's first apply the exporter unit fails until the
+  first backup, which the
+  [backup operations guide](../guides/operations/backup.md#the-exporter) tells
+  the operator to run by hand. Reported upstream as
+  [restic-exporter issue 62](https://github.com/ngosang/restic-exporter/issues/62).
+  When a release with the fix is pinned, start the exporter against a scratch
+  repository with no snapshot to confirm, then remove that paragraph from the
+  guide. Waits on: the upstream fix.
 - **Second copy of the restic repositories (2026-10-19)**: the per-host
   repositories on the nas-pve1 `backups` share are the only copy of the Debian
   hosts' state backups, and the share's `rpool-sata` pool is a single-disk vdev
