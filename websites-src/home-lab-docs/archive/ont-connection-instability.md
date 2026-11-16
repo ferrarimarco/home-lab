@@ -69,14 +69,15 @@ seconds, and the admin interface came back with it (the exporter runs again
 since 06:30 UTC, its first data since March).
 
 Verified the same day: the admin interface serves three read-only pages (device,
-GPON, and LAN port info) with no log, no uptime, and no reboot control, so a
-smart plug is the only remote recovery lever; the ONT keeps no log and its
-counters restart with power, so the router log is the only record of an outage
-start. The ONT is a closed, ISP-managed device, so root-causing is likely not
-possible. The remote power cycle design is an item in the
-[specs todo list](../architecture/README.md#issues-to-solve), and the WAN check
-changes it needs are under [Networking](../architecture/README.md#networking)
-there.
+GPON, and LAN port info) with no log, no uptime (it is only in the `Date` header
+of the responses, as the [access notes](./zte-ont-access.md#log-in) describe),
+and no reboot control, so a smart plug is the only remote recovery lever; the
+ONT keeps no log and its counters restart with power, so the router log is the
+only record of an outage start. The ONT is a closed, ISP-managed device, so
+root-causing is likely not possible. The remote power cycle design is an item in
+the [specs todo list](../architecture/README.md#issues-to-solve), and the WAN
+check changes it needs are under
+[Networking](../architecture/README.md#networking) there.
 
 ## The slow admin interface of 2026-11-13
 
@@ -105,5 +106,32 @@ Since 2026-11-16 the exporter has a connect timeout of 30 seconds, and the
 ([Monitoring Alerting](../architecture/monitoring-alerting.md#613-ont)). In the
 half hour after that change all 44 logins succeeded, in 8 to 15 seconds each
 (median 12), the unit did not restart, and the two alerts it had raised
-resolved. A lighter client is an item in the
-[specs todo list](../architecture/README.md#monitoring-and-alerting).
+resolved.
+
+## The lighter exporter of 2026-11-16
+
+The exporter's journal and probes of the admin interface on 2026-11-16 showed
+where the exporter's cost was; the [access notes](./zte-ont-access.md#log-in)
+record how the interface behaves. By the journal, each login took 8 to 15
+seconds, a TLS handshake of about 7 and a login request of about 5, against one
+to two seconds for the three page reads that followed. The ONT also appears to
+answer one request at a time: while a probe was logging in, the exporter's login
+and reads took 10 to 20 seconds longer than otherwise, and the probes were
+delayed the same way. With a login 30 seconds after each read, the exporter
+would then keep the interface busy for about 30 percent of the time. Plain HTTP
+is no alternative, since port 80 only redirects to HTTPS.
+
+The exporter now logs in once and keeps the session and its connection. It reads
+the GPON and LAN port pages every 30 seconds, an interval that keeps the
+connection open, and the device page once; it logs in again when the ONT no
+longer accepts the session, and logs out when it stops. It also exports the
+ONT's uptime (`ztef6005ont_uptime_seconds`), the time each read takes
+(`ztef6005ont_read_duration_seconds`), and the time the last login took
+(`ztef6005ont_login_duration_seconds`), so that the next slowdown, or its
+absence, can be read against the time since the last boot. The login is the
+measure of what degraded on 2026-11-13, since it includes the handshake of a new
+connection, and the exporter logs in only when it starts or loses its session: a
+restart of its unit takes a sample. Whether the interface now stays fast is what
+the item in the
+[specs todo list](../architecture/README.md#monitoring-and-alerting) waits to
+learn.

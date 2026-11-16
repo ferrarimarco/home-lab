@@ -437,10 +437,10 @@ so a replica that cannot alert on itself is covered by the other.
 
 ### 6.13 ONT
 
-The ONT exporter on raspberrypi2 logs into the ZTE ONT's admin interface every
-30 seconds and writes a textfile. The admin interface hangs for months at a time
-(2026-03-28 to 2026-11-04) until the ONT is power-cycled, or answers too slowly
-for some logins to succeed
+The ONT exporter on raspberrypi2 holds a session on the ZTE ONT's admin
+interface, reads it every 30 seconds, and writes a textfile. The admin interface
+hangs for months at a time (2026-03-28 to 2026-11-04) until the ONT is
+power-cycled, or answers too slowly for some logins to succeed
 ([ONT notes](../archive/ont-connection-instability.md)), and the unit deletes
 its textfile on exit, so neither `NodeTextfileStale` nor `SystemdUnitFailed` saw
 the exporter failing.

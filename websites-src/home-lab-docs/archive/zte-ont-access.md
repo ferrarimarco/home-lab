@@ -69,6 +69,32 @@ documented:
 - User: admin
 - Password: admin
 
+The interface behaves as follows (firmware V6.0.10N20, probed from raspberrypi2
+on 2026-11-16, 12 days after a power cycle):
+
+- Port 80 only redirects: the root to the login page, and the login page, the
+  data pages, and the login form to their HTTPS addresses.
+- The web server is GoAhead, going by the name of its session cookie
+  (`-goahead-session-`). The login is a POST to `/goform/LoginForm` that sets
+  the cookie, and the cookie alone identifies the session, on any connection. An
+  idle session was still valid after 20 minutes and gone after 35, and other
+  logins from the same address do not end it.
+- A request without a valid session gets a 401, and a request with the cookie of
+  a logged-out session a 302 to the login page.
+- An empty POST to `/goform/LogoutForm` ends the session.
+- A new connection is expensive: the TLS handshake took about 7 seconds and the
+  first request on the connection 4 to 6 more, while a request on an open
+  connection took under a second, or up to 4 while a second client was logging
+  in.
+- The ONT closes a connection that stays idle for about a minute: reads 30 to 50
+  seconds apart reused the connection, a read after 55 seconds got a 408
+  "Request Timeout" although its session was still valid, and the one after that
+  took as long as a new connection does.
+- The server appears to handle one request at a time: while one client was
+  logging in, the requests of a second one took 10 to 20 seconds longer.
+- The `Date` header of every response counts from 1970-01-01 at boot, so it
+  gives the ONT's uptime, which no page reports.
+
 ## Automation
 
 The manual procedure above has been automated as part of the ONT monitoring

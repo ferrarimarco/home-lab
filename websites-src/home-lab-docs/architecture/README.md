@@ -758,16 +758,15 @@ reliability risks first, then security exposure, then automation):
 - Replace the `rm` ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the `truncate:` variant of
   `StandardOutput` once every host runs systemd >= 248.
-- **A lighter ONT exporter (2026-11-14)**: the exporter opens a new session,
-  with a TLS handshake and a login, 30 seconds after each read and never logs
-  out, which may be what slows the ONT's admin interface down, as the
-  [ONT notes](../archive/ont-connection-instability.md#the-slow-admin-interface-of-2026-11-13)
-  record. First step: test logins against the ONT from raspberrypi2 to learn
-  whether the login works over plain HTTP (no handshake; the exporter does not
-  verify the certificate anyway), how long a session lasts, and how the ONT
-  answers an expired one. Then reuse one session across reads over the cheaper
-  transport, read less often, and compare how long the interface stays fast
-  after the next power cycle.
+- **A lighter ONT exporter (2026-11-16)**: the exporter's login before every
+  read may be what slows the ONT's admin interface down, so it now keeps one
+  session and one connection and logs out when it stops, as the
+  [ONT notes](../archive/ont-connection-instability.md#the-lighter-exporter-of-2026-11-16)
+  record. Remaining: apply the change to raspberrypi2; then, after the next
+  power cycle of the ONT, compare how long the interface stays fast with the 8.7
+  days of the last one: `ztef6005ont_login_duration_seconds`, which a restart of
+  the exporter unit samples, and `ztef6005ont_read_duration_seconds`, against
+  `ztef6005ont_uptime_seconds`. Waits on: that power cycle.
 
 ### Smart home
 

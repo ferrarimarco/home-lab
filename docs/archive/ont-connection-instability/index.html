@@ -757,6 +757,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-lighter-exporter-of-2026-11-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      The lighter exporter of 2026-11-16
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1753,6 +1762,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-lighter-exporter-of-2026-11-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      The lighter exporter of 2026-11-16
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1837,14 +1855,15 @@ restart on the router), a manual power cycle restored the PPPoE session within
 seconds, and the admin interface came back with it (the exporter runs again
 since 06:30 UTC, its first data since March).</p>
 <p>Verified the same day: the admin interface serves three read-only pages (device,
-GPON, and LAN port info) with no log, no uptime, and no reboot control, so a
-smart plug is the only remote recovery lever; the ONT keeps no log and its
-counters restart with power, so the router log is the only record of an outage
-start. The ONT is a closed, ISP-managed device, so root-causing is likely not
-possible. The remote power cycle design is an item in the
-<a href="../../architecture/#issues-to-solve">specs todo list</a>, and the WAN check
-changes it needs are under <a href="../../architecture/#networking">Networking</a>
-there.</p>
+GPON, and LAN port info) with no log, no uptime (it is only in the <code>Date</code> header
+of the responses, as the <a href="../zte-ont-access/#log-in">access notes</a> describe),
+and no reboot control, so a smart plug is the only remote recovery lever; the
+ONT keeps no log and its counters restart with power, so the router log is the
+only record of an outage start. The ONT is a closed, ISP-managed device, so
+root-causing is likely not possible. The remote power cycle design is an item in
+the <a href="../../architecture/#issues-to-solve">specs todo list</a>, and the WAN
+check changes it needs are under
+<a href="../../architecture/#networking">Networking</a> there.</p>
 <h2 id="the-slow-admin-interface-of-2026-11-13">The slow admin interface of 2026-11-13</h2>
 <p>From 2026-11-12 23:42 UTC, 8.7 days after the power cycle, the exporter's logins
 started to fail, more of them by the hour (none of about 100 an hour before, 40
@@ -1870,8 +1889,32 @@ each read (about 2,500 a day) and never logs out.</p>
 (<a href="../../architecture/monitoring-alerting/#613-ont">Monitoring Alerting</a>). In the
 half hour after that change all 44 logins succeeded, in 8 to 15 seconds each
 (median 12), the unit did not restart, and the two alerts it had raised
-resolved. A lighter client is an item in the
-<a href="../../architecture/#monitoring-and-alerting">specs todo list</a>.</p>
+resolved.</p>
+<h2 id="the-lighter-exporter-of-2026-11-16">The lighter exporter of 2026-11-16</h2>
+<p>The exporter's journal and probes of the admin interface on 2026-11-16 showed
+where the exporter's cost was; the <a href="../zte-ont-access/#log-in">access notes</a>
+record how the interface behaves. By the journal, each login took 8 to 15
+seconds, a TLS handshake of about 7 and a login request of about 5, against one
+to two seconds for the three page reads that followed. The ONT also appears to
+answer one request at a time: while a probe was logging in, the exporter's login
+and reads took 10 to 20 seconds longer than otherwise, and the probes were
+delayed the same way. With a login 30 seconds after each read, the exporter
+would then keep the interface busy for about 30 percent of the time. Plain HTTP
+is no alternative, since port 80 only redirects to HTTPS.</p>
+<p>The exporter now logs in once and keeps the session and its connection. It reads
+the GPON and LAN port pages every 30 seconds, an interval that keeps the
+connection open, and the device page once; it logs in again when the ONT no
+longer accepts the session, and logs out when it stops. It also exports the
+ONT's uptime (<code>ztef6005ont_uptime_seconds</code>), the time each read takes
+(<code>ztef6005ont_read_duration_seconds</code>), and the time the last login took
+(<code>ztef6005ont_login_duration_seconds</code>), so that the next slowdown, or its
+absence, can be read against the time since the last boot. The login is the
+measure of what degraded on 2026-11-13, since it includes the handshake of a new
+connection, and the exporter logs in only when it starts or loses its session: a
+restart of its unit takes a sample. Whether the interface now stays fast is what
+the item in the
+<a href="../../architecture/#monitoring-and-alerting">specs todo list</a> waits to
+learn.</p>
 
 
 

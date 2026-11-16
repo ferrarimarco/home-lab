@@ -2843,16 +2843,15 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Replace the <code>rm</code> ExecStartPre workaround in systemd units that write node
   exporter textfiles (e.g. monitoring-apt) with the <code>truncate:</code> variant of
   <code>StandardOutput</code> once every host runs systemd &gt;= 248.</li>
-<li><strong>A lighter ONT exporter (2026-11-14)</strong>: the exporter opens a new session,
-  with a TLS handshake and a login, 30 seconds after each read and never logs
-  out, which may be what slows the ONT's admin interface down, as the
-  <a href="../archive/ont-connection-instability/#the-slow-admin-interface-of-2026-11-13">ONT notes</a>
-  record. First step: test logins against the ONT from raspberrypi2 to learn
-  whether the login works over plain HTTP (no handshake; the exporter does not
-  verify the certificate anyway), how long a session lasts, and how the ONT
-  answers an expired one. Then reuse one session across reads over the cheaper
-  transport, read less often, and compare how long the interface stays fast
-  after the next power cycle.</li>
+<li><strong>A lighter ONT exporter (2026-11-16)</strong>: the exporter's login before every
+  read may be what slows the ONT's admin interface down, so it now keeps one
+  session and one connection and logs out when it stops, as the
+  <a href="../archive/ont-connection-instability/#the-lighter-exporter-of-2026-11-16">ONT notes</a>
+  record. Remaining: apply the change to raspberrypi2; then, after the next
+  power cycle of the ONT, compare how long the interface stays fast with the 8.7
+  days of the last one: <code>ztef6005ont_login_duration_seconds</code>, which a restart of
+  the exporter unit samples, and <code>ztef6005ont_read_duration_seconds</code>, against
+  <code>ztef6005ont_uptime_seconds</code>. Waits on: that power cycle.</li>
 </ul>
 <h3 id="smart-home">Smart home</h3>
 <ul>

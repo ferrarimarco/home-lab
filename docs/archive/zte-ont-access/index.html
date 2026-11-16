@@ -1839,6 +1839,32 @@ documented:</p>
 <li>User: admin</li>
 <li>Password: admin</li>
 </ul>
+<p>The interface behaves as follows (firmware V6.0.10N20, probed from raspberrypi2
+on 2026-11-16, 12 days after a power cycle):</p>
+<ul>
+<li>Port 80 only redirects: the root to the login page, and the login page, the
+  data pages, and the login form to their HTTPS addresses.</li>
+<li>The web server is GoAhead, going by the name of its session cookie
+  (<code>-goahead-session-</code>). The login is a POST to <code>/goform/LoginForm</code> that sets
+  the cookie, and the cookie alone identifies the session, on any connection. An
+  idle session was still valid after 20 minutes and gone after 35, and other
+  logins from the same address do not end it.</li>
+<li>A request without a valid session gets a 401, and a request with the cookie of
+  a logged-out session a 302 to the login page.</li>
+<li>An empty POST to <code>/goform/LogoutForm</code> ends the session.</li>
+<li>A new connection is expensive: the TLS handshake took about 7 seconds and the
+  first request on the connection 4 to 6 more, while a request on an open
+  connection took under a second, or up to 4 while a second client was logging
+  in.</li>
+<li>The ONT closes a connection that stays idle for about a minute: reads 30 to 50
+  seconds apart reused the connection, a read after 55 seconds got a 408
+  "Request Timeout" although its session was still valid, and the one after that
+  took as long as a new connection does.</li>
+<li>The server appears to handle one request at a time: while one client was
+  logging in, the requests of a second one took 10 to 20 seconds longer.</li>
+<li>The <code>Date</code> header of every response counts from 1970-01-01 at boot, so it
+  gives the ONT's uptime, which no page reports.</li>
+</ul>
 <h2 id="automation">Automation</h2>
 <p>The manual procedure above has been automated as part of the ONT monitoring
 stack that the <code>ferrarimarco_home_lab_node</code> Ansible role deploys:</p>

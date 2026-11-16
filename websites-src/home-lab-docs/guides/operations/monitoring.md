@@ -133,6 +133,14 @@ For the state of the ONT during or after an incident, read the exporter's series
 in Prometheus first: `ztef6005ont_gpon_status`, whose `Operation state(O5)` flag
 is the operational state and which the `OntMetricsMissing` and
 `OntGponNotOperational` rules watch, and the optical power series.
+`ztef6005ont_uptime_seconds` is the time since the ONT's last boot, so a reset
+of the series dates a power cycle or a reboot.
+`ztef6005ont_read_duration_seconds` is the time the admin interface took to
+answer the exporter's last read, and `ztef6005ont_login_duration_seconds` the
+time its last login took, with the TLS handshake of a new connection: the
+exporter logs in only when it starts or loses its session, so restart its unit
+to take a sample. The ONT row of the Home network dashboard in Grafana shows
+these series.
 
 The ONT's own admin interface cannot explain an outage after the fact: the
 [ONT notes](../../archive/ont-connection-instability.md#the-2026-11-04-hang)

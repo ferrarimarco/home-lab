@@ -1,6 +1,8 @@
 import argparse
+import calendar
 import logging
 import re
+import signal
 import sys
 import time
 from html.parser import HTMLParser
@@ -247,6 +249,33 @@ metrics = {
         namespace=namespace,
         registry=registry,
     ),
+    "uptime": Gauge(
+        name="uptime",
+        documentation="ONT uptime, read from the date of its HTTP responses",
+        labelnames=[
+            "pon_serial_number",
+        ],
+        namespace=namespace,
+        registry=registry,
+        unit="seconds",
+    ),
+    "read_duration": Gauge(
+        name="read_duration",
+        documentation="Time the last read of the ONT admin interface pages took",
+        labelnames=[
+            "pon_serial_number",
+        ],
+        namespace=namespace,
+        registry=registry,
+        unit="seconds",
+    ),
+    "login_duration": Gauge(
+        name="login_duration",
+        documentation="Time the last login to the ONT admin interface took",
+        namespace=namespace,
+        registry=registry,
+        unit="seconds",
+    ),
 }
 
 
@@ -318,9 +347,17 @@ ethernet_network_interface_field_names = {
 }
 
 
+class UnexpectedPageError(Exception):
+    """The ONT answered with something other than the requested page.
+
+    This is how it answers when the session is no longer valid.
+    """
+
+
 class AdminInterfaceHTMLParser(HTMLParser):
     def __init__(self, page_name, convert_charrefs: bool = True) -> None:
         self.page_name = page_name
+        self.script_tag_content = None
         super().__init__(convert_charrefs=convert_charrefs)
 
     def handle_data(self, data):
@@ -338,6 +375,8 @@ def _get_script_tag_content(response, page_name, field_names):
     parser.feed(page_content)
 
     script_tag_content = parser.script_tag_content
+    if script_tag_content is None:
+        raise UnexpectedPageError(f"No {page_name} data in the response")
 
     matched_data = {}
 
@@ -370,6 +409,29 @@ def _get_script_tag_content(response, page_name, field_names):
 HTTP_TIMEOUT = (30, 30)
 
 
+def _get_page(session, ip_address, page_name):
+    # The ONT answers a request on a connection it is about to close for being
+    # idle with a 408, while the session is still valid: ask once more.
+    for _ in range(2):
+        # Disable SSL verification because the ONT uses a self-signed
+        # certificate. Don't follow redirects: the ONT answers a session that
+        # is no longer valid with a 401, or after a logout with a redirect to
+        # the login page.
+        response = session.get(
+            f"https://{ip_address}/{page_name}.html",
+            timeout=HTTP_TIMEOUT,
+            verify=False,
+            allow_redirects=False,
+        )
+        if response.status_code != 408:
+            break
+
+    if response.status_code != 200:
+        raise UnexpectedPageError(f"HTTP status {response.status_code} for {page_name}")
+
+    return response
+
+
 def login(session, username, password, ip_address):
     login_url = f"https://{ip_address}/goform/LoginForm"
 
@@ -391,7 +453,11 @@ def login(session, username, password, ip_address):
         "nonce": nonce,
     }
 
+    # A cookie of a session that is no longer valid must not go with the login
+    session.cookies.clear()
+
     # Disable SSL verification because the ONT uses a self-signed certificate
+    start = time.monotonic()
     login_response = session.post(
         login_url,
         headers=login_headers,
@@ -402,17 +468,41 @@ def login(session, username, password, ip_address):
 
     logger.info(login_response.text)
 
+    if "loginStatus = ok" not in login_response.text:
+        raise RuntimeError(f"Login failed: HTTP status {login_response.status_code}")
+
+    metrics["login_duration"].set(time.monotonic() - start)
+
+
+def logout(session, ip_address):
+    if not session.cookies:
+        return
+
+    logger.info(f"Logging out: {ip_address}")
+
+    # The session is left for the ONT to expire if the logout fails: the
+    # process is exiting, possibly because the ONT stopped answering.
+    try:
+        session.post(
+            f"https://{ip_address}/goform/LogoutForm",
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "Referer": f"https://{ip_address}/devinfo.html",
+            },
+            timeout=HTTP_TIMEOUT,
+            verify=False,
+            allow_redirects=False,
+        )
+    except requests.RequestException as e:
+        logger.warning(f"Logout failed: {e}")
+
 
 def collect_device_info(session, ip_address):
     device_info_url = f"https://{ip_address}/devinfo.html"
 
     logger.info(f"Collecting device info from {device_info_url}")
 
-    device_info_response = session.get(
-        device_info_url,
-        timeout=HTTP_TIMEOUT,
-        verify=False,
-    )
+    device_info_response = _get_page(session, ip_address, "devinfo")
 
     script_tag_content = _get_script_tag_content(
         device_info_response, "devinfo", device_info_field_names
@@ -432,12 +522,14 @@ def collect_device_info(session, ip_address):
 
 
 def collect_network_interface_metrics(session, pon_serial_number, ip_address):
-    gpon_info_url = f"https://{ip_address}/gponinfo.html"
-    gpon_info_response = session.get(
-        gpon_info_url,
-        timeout=HTTP_TIMEOUT,
-        verify=False,
-    )
+    gpon_info_response = _get_page(session, ip_address, "gponinfo")
+
+    # The ONT has no real-time clock source: the date of its responses counts
+    # from the Unix epoch at boot.
+    ont_date = time.strptime(gpon_info_response.headers["Date"], "%a %b %d %H:%M:%S %Y")
+    metrics["uptime"].labels(
+        pon_serial_number,
+    ).set(calendar.timegm(ont_date))
 
     script_tag_content = _get_script_tag_content(
         gpon_info_response, "gponinfo", optical_interface_field_names
@@ -486,12 +578,7 @@ def collect_network_interface_metrics(session, pon_serial_number, ip_address):
 
 
 def collect_user_network_interface_metrics(session, pon_serial_number, ip_address):
-    user_info_url = f"https://{ip_address}/userinfo.html"
-    user_info_response = session.get(
-        user_info_url,
-        timeout=HTTP_TIMEOUT,
-        verify=False,
-    )
+    user_info_response = _get_page(session, ip_address, "userinfo")
 
     script_tag_content = _get_script_tag_content(
         user_info_response, "userinfo", ethernet_network_interface_field_names
@@ -649,10 +736,28 @@ def main():
     )
 
     args = parser.parse_args(sys.argv[1:])
+    ont_ip_address = args.ont_ip_address
 
-    while True:
-        session = requests.Session()
-        ont_ip_address = args.ont_ip_address
+    def collect(session, pon_serial_number):
+        start = time.monotonic()
+        collect_network_interface_metrics(session, pon_serial_number, ont_ip_address)
+        collect_user_network_interface_metrics(
+            session, pon_serial_number, ont_ip_address
+        )
+        metrics["read_duration"].labels(
+            pon_serial_number,
+        ).set(time.monotonic() - start)
+
+    # Exit through the logout when systemd stops the unit
+    signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(0))
+
+    # One session and one connection for the life of the process: a new
+    # connection and a login cost the ONT several seconds each, a read on an
+    # open connection a fraction of a second. The ONT closes a connection that
+    # stays idle for about a minute, so the time between reads has to stay
+    # well below that.
+    session = requests.Session()
+    try:
         login(
             session,
             args.ont_username,
@@ -660,12 +765,27 @@ def main():
             ont_ip_address,
         )
         pon_serial_number = collect_device_info(session, ont_ip_address)
-        collect_network_interface_metrics(session, pon_serial_number, ont_ip_address)
-        collect_user_network_interface_metrics(
-            session, pon_serial_number, ont_ip_address
-        )
-        write_to_textfile(args.metrics_textfile_path, registry)
-        time.sleep(args.seconds_between_reads)
+        while True:
+            try:
+                collect(session, pon_serial_number)
+            except UnexpectedPageError as e:
+                logger.info(f"Logging in again: {e}")
+                login(
+                    session,
+                    args.ont_username,
+                    args.ont_password,
+                    ont_ip_address,
+                )
+                collect(session, pon_serial_number)
+            write_to_textfile(args.metrics_textfile_path, registry)
+            time.sleep(args.seconds_between_reads)
+    except requests.RequestException:
+        # The ONT is not answering: a logout would only delay the exit, and
+        # with it the removal of the metrics file.
+        raise
+    except BaseException:
+        logout(session, ont_ip_address)
+        raise
 
 
 if __name__ == "__main__":
