@@ -502,11 +502,11 @@ reliability risks first, then security exposure, then automation):
   fleet-wide; service endpoints get direct nodes instead, per the NAS spec's
   [placement rationale](./nas-lxc-container.md#13-tailscale-connectivity).
   Considerations: remote access through an hl02 router is down whenever pve1's
-  virtualization layer is, and the physical tailnet fallback (raspberrypi2) is
-  being retired, so evaluate keeping a physical device on the tailnet for
-  out-of-band reach; route failover is paid, so a second router would not fail
-  over on the free plan; the Tailscale Terraform provider can approve advertised
-  routes declaratively (`tailscale_device_subnet_routes`).
+  virtualization layer is, while raspberrypi2, the physical tailnet fallback,
+  stays in service, so out-of-band reach keeps a physical device on the tailnet;
+  route failover is paid, so a second router would not fail over on the free
+  plan; the Tailscale Terraform provider can approve advertised routes
+  declaratively (`tailscale_device_subnet_routes`).
 - WAN check (`asuswrt-check-wan.sh` and its unit):
     - Re-add the ONT route script's NAT rule after each WAN restart:
       `restart_wan` rebuilds the router's firewall and drops the MASQUERADE rule
@@ -886,15 +886,15 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   parts of the nas-pve1 `services.syncthing` configuration into a role under
   `config/nix/roles/` (shared service defaults in the role, per-host values in
   the host configuration), so a future nas-pve2 instance reuses it.
-- **raspberrypi2 restic repository wind-down (decided 2026-09-26)**: hl01's
-  repository stays on `rpool-sata` via the existing `backups` share (no
-  consolidation onto the USB pools), while raspberrypi2's covers only the
-  workloads running there and retires with the host: the backup job keeps
-  running until the last workload leaves, and each migrated workload's old
-  snapshots can be discarded after about a week of healthy hl01 snapshots (hl01
+- **raspberrypi2 restic repository (decided 2026-09-26, revised 2026-11-17)**:
+  hl01's repository stays on `rpool-sata` via the existing `backups` share (no
+  consolidation onto the USB pools), and raspberrypi2's covers the workloads
+  running there for as long as the host runs any: the host stays in service, so
+  the repository is not winding down. Remaining step: discard each migrated
+  workload's old snapshots after about a week of healthy hl01 snapshots (hl01
   picks up a migrated workload's state directory automatically). Since
   2026-10-11 the job writes to a per-host directory on the nas-pve1 `backups`
-  share, which retires with the job.
+  share.
 - **NFS support**: re-introduce NFS sharing alongside SMB. Evaluate
   `nfs-kernel-server` in a privileged container versus the user-space
   NFS-Ganesha server, which can run in an unprivileged container.
