@@ -364,22 +364,6 @@ reliability risks first, then security exposure, then automation):
   release, bundled in super-linter v9.0.0) rejects the `$/` form, so the audit
   is ignored in `config/lint/zizmor.yaml` (2026-10-18). Switch the call and drop
   the ignore once actionlint accepts the syntax.
-- **One Git worktree per agent session (parked on 2026-11-06, waiting for a
-  decision)**: the agent sessions that work on this repository share one working
-  tree, one index, and one branch, which is why the guides and the agent skills
-  carry a rule per shared resource. A worktree per session that changes code
-  (`claude --worktree <name>`) would keep the changes of each session apart by
-  construction. Untried; the costs to settle first: the committed `docs/` output
-  conflicts whenever two branches rebuild it (CI committing the site on master
-  would remove the conflict; `.github/workflows/documentation.yaml` commits only
-  on pull requests today, parked on 2026-10-22); nearly every change edits this
-  index, so it will sometimes conflict; the gitignored vault files need the hard
-  links the
-  [operational scripts guide](../guides/development/operational-scripts.md)
-  describes for a temporary worktree, and where the Terraform state lives was
-  not checked; a playbook apply would need a rule to run only from a commit on
-  master; the lint and docs containers have fixed names, so those runs stay one
-  at a time across worktrees.
 
 ### Host configuration
 

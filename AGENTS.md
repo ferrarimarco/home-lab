@@ -43,10 +43,11 @@ CLI tooling comes from the Nix dev shells of the
 [Nix development shells guide](./websites-src/home-lab-docs/guides/development/nix-dev-shells.md),
 never from the host.
 
-- **Terraform only via `scripts/run-terraform.sh`:** ask before any run that
-  contacts the Proxmox API (nodes may be powered off), run with stdin closed so
-  the first pending plan prints and aborts as the review pass, and check for
-  changes Proxmox holds for the next start after every VM change.
+- **Terraform only via `scripts/run-terraform.sh`, from the main checkout:** ask
+  before any run that contacts the Proxmox API (nodes may be powered off), run
+  with stdin closed so the first pending plan prints and aborts as the review
+  pass, and check for changes Proxmox holds for the next start after every VM
+  change.
 - **Ansible only via `scripts/run-ansible.sh`:** pick the narrowest playbook
   under `config/ansible/playbooks/`, run `--check --diff` first with the full
   output captured to a log outside the repository (it embeds rendered secrets),

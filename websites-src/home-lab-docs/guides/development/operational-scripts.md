@@ -292,7 +292,8 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     of the secret material. A hard link needs the worktree on the checkout's
     filesystem (a session scratchpad on the same mount qualifies); copy the
     files when `ln` fails with a cross-device error. Remove them together with
-    the worktree.
+    the worktree. A session that works in a worktree of its own
+    (`claude --worktree`) needs the same links for its playbook runs.
 
     Playbook runs and custom commands require a running SSH agent
     (`SSH_AUTH_SOCK`) holding the keys to connect to the nodes; the script
@@ -414,10 +415,14 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   `terraform apply` for each one. Run
   `scripts/run-terraform.sh output <service> [<output-name>]` to print a
   service's outputs as JSON instead. The script needs `terraform` from the
-  `operations` Nix shell. Reviewing and applying in two passes: with stdin
-  closed (`</dev/null`) the stacks without changes complete and the first stack
-  with changes prints its plan and aborts at the approval prompt; after
-  reviewing that plan, a run with a single approval on stdin
+  `operations` Nix shell. Run it from the main checkout only: the state of each
+  service is a local backend under `config/terraform/environments/backend/local`
+  and the secret variable files sit under `config/terraform/environments`, all
+  gitignored, so a Git worktree has none of them and a run there starts from an
+  empty state. Reviewing and applying in two passes: with stdin closed
+  (`</dev/null`) the stacks without changes complete and the first stack with
+  changes prints its plan and aborts at the approval prompt; after reviewing
+  that plan, a run with a single approval on stdin
   (`printf 'yes\n' | nix develop ./config/nix#operations --command scripts/run-terraform.sh`)
   applies that stack and still aborts at the next stack with changes, so nothing
   later is applied unreviewed. The approved run plans again, so compare its plan

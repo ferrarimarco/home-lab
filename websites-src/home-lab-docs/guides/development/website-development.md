@@ -45,6 +45,12 @@ New pages don't need navigation configuration: MkDocs generates the navigation
 from the directory tree, which is why adding a page changes the rendered
 navigation of every existing page in `docs/`.
 
+A branch rebased onto commits that also rebuilt the site, such as the branch of
+a session that works in its own Git worktree and lands after another session,
+conflicts under `docs/`. Never merge the generated files by hand: resolve the
+sources if they conflict too, rebuild the site, and stage `docs/` with the
+sources before continuing the rebase.
+
 ## Build the site from committed sources only
 
 The build reads the working tree, including uncommitted changes and untracked

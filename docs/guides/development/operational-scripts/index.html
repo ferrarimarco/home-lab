@@ -2080,7 +2080,8 @@ paths under the worktree's <code>config/ansible</code> first, which keeps a sing
 of the secret material. A hard link needs the worktree on the checkout's
 filesystem (a session scratchpad on the same mount qualifies); copy the
 files when <code>ln</code> fails with a cross-device error. Remove them together with
-the worktree.</p>
+the worktree. A session that works in a worktree of its own
+(<code>claude --worktree</code>) needs the same links for its playbook runs.</p>
 <p>Playbook runs and custom commands require a running SSH agent
 (<code>SSH_AUTH_SOCK</code>) holding the keys to connect to the nodes; the script
 forwards the agent socket into the Ansible container. The vault edit and
@@ -2184,10 +2185,14 @@ set.</p>
   <code>terraform apply</code> for each one. Run
   <code>scripts/run-terraform.sh output &lt;service&gt; [&lt;output-name&gt;]</code> to print a
   service's outputs as JSON instead. The script needs <code>terraform</code> from the
-  <code>operations</code> Nix shell. Reviewing and applying in two passes: with stdin
-  closed (<code>&lt;/dev/null</code>) the stacks without changes complete and the first stack
-  with changes prints its plan and aborts at the approval prompt; after
-  reviewing that plan, a run with a single approval on stdin
+  <code>operations</code> Nix shell. Run it from the main checkout only: the state of each
+  service is a local backend under <code>config/terraform/environments/backend/local</code>
+  and the secret variable files sit under <code>config/terraform/environments</code>, all
+  gitignored, so a Git worktree has none of them and a run there starts from an
+  empty state. Reviewing and applying in two passes: with stdin closed
+  (<code>&lt;/dev/null</code>) the stacks without changes complete and the first stack with
+  changes prints its plan and aborts at the approval prompt; after reviewing
+  that plan, a run with a single approval on stdin
   (<code>printf 'yes\n' | nix develop ./config/nix#operations --command scripts/run-terraform.sh</code>)
   applies that stack and still aborts at the next stack with changes, so nothing
   later is applied unreviewed. The approved run plans again, so compare its plan
