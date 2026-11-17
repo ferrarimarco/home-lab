@@ -264,6 +264,43 @@ fail (hl02's MQTT clients, 2026-10-28). Right after such an apply, renew the
 lease on the host (`dhcpcd -n <interface>` on a host running dhcpcd), which
 moves it within seconds at the cost of its open connections.
 
+## The boot role
+
+`ferrarimarco_home_lab_boot_bare_metal` sends a Wake-on-LAN magic packet to
+every MAC address a host declares in `network_interfaces`, then waits up to ten
+minutes for the host to answer over SSH. Its playbook, `boot-bare-metal.yaml`,
+is not chained into `main.yaml`: powering a host on is an act of its own, and
+the `community.general.wakeonlan` module sends nothing in check mode, so a full
+run would wake and configure a host that its check run found powered off and
+made no prediction for.
+
+The module sends one limited broadcast (`255.255.255.255`) from the host that
+runs it, and no router forwards a limited broadcast, so the sender must sit on
+the LAN segment of the host to wake. The role delegates the task to
+`boot_bare_metal_wake_on_lan_relay_host`. The role default is the control
+machine, which suits one on that segment; the inventory
+(`group_vars/all/network.yaml`) names a lab host that is always on instead,
+because the control machine reaches the LAN through routers and runs Ansible in
+a container on Docker's bridge.
+
+The send is best effort (`ignore_unreachable`): ansible-core removes a host from
+the play when the host its task is delegated to cannot be reached (read in the
+strategy plugin at ansible-core 2.21), so a relay that is down would otherwise
+fail a host that is up. The wait is the verdict: with the relay down, a host
+that is up passes it and one that is off fails it. The module reports nothing
+about the packet's effect, so when a host stays off after a send, check that
+Wake-on-LAN is armed on its interface (`Wake-on: g` in the `ethtool` output), or
+power it on through its BMC with the `ipmitool` of the
+[operations shell](./nix-dev-shells.md#ipmi).
+
+Both paths were run against pve2 while it was off, watching its smart plug. On
+2026-11-16, with the send delegated to the control machine, the host did not
+wake in the ten-minute wait, while a packet sent by hand from raspberrypi2 woke
+it within a minute. On 2026-11-17, with raspberrypi2 as the relay, the plug rose
+from 31 W to 104 W within 40 seconds of the send, and the host answered over SSH
+128 seconds after it. In check mode the module connects to the relay and sends
+nothing, and the wait is skipped, so a check run proves the delegation only.
+
 ## Python exporter services
 
 systemd services that run Python-based exporters build their virtual environment

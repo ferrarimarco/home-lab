@@ -2108,21 +2108,19 @@ reliability risks first, then security exposure, then automation):</p>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
 <li><strong>Power on hosts through their BMC from
-  <code>ferrarimarco_home_lab_boot_bare_metal</code> (2026-11-16)</strong>: the role only sends
-  Wake-on-LAN packets to every MAC in <code>network_interfaces</code> and waits for SSH,
-  and that path does not work from the control machine. The module sends a
-  limited broadcast (<code>255.255.255.255</code>), which no router forwards, and the task
-  is delegated to localhost, the Ansible container on Docker's bridge; host
-  networking would not help a control machine that is not on the LAN segment,
-  and the current one is two routed hops away. Tested against pve2 on
-  2026-11-16, watching the plug: no wake in the ten-minute wait, while a magic
-  packet sent from raspberrypi2 woke the host within a minute, so the host side
-  works (the i210 reports <code>Wake-on: g</code>). Remaining steps: delegate the send to a
-  LAN host that is always on; then, for hosts that declare a BMC address (pve2
-  does, reserved on the gateway as <code>pve2-bmc</code>), use
-  <code>community.general.ipmi_power</code> before the SSH wait, delegated to the control
-  machine, since routed traffic reaches the BMC from there, with the credentials
-  from the vault; it needs the <code>pyghmi</code> library in the Ansible container image.</li>
+  <code>ferrarimarco_home_lab_boot_bare_metal</code> (2026-11-17)</strong>: the role wakes hosts
+  with Wake-on-LAN packets sent from a relay on the LAN, as the
+  <a href="../guides/development/ansible/#the-boot-role">Ansible development guide</a>
+  describes, which cannot tell a packet that never arrived from a host that
+  failed to boot, and can neither power a host off nor reset one that hangs.
+  Remaining step: for hosts that declare a BMC address (pve2 does, reserved on
+  the gateway as <code>pve2-bmc</code>), use <code>community.general.ipmi_power</code> before the SSH
+  wait, delegated to the control machine, since routed traffic reaches the BMC
+  from there, with the credentials from the vault; it needs the <code>pyghmi</code> library
+  in the Ansible container image. The costs are a stored BMC credential and a
+  second code path with one consumer, which pay off mainly if pve2 is woken on
+  demand, a question parked in <a href="#ideas">Ideas</a>; until then the <code>ipmitool</code> of the
+  operations shell covers recovery by hand.</li>
 <li><strong>Manual steps left in the provisioning of a new host</strong>: copy the ESPHome
   secrets; configure the Ansible Vault password file and the per-host vault
   files; configure the SSH keys; join the host to the tailnet (<code>tailscale up</code> is

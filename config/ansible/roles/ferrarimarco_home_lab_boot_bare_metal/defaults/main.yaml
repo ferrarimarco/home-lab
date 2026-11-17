@@ -1,1 +1,5 @@
 ---
+# The host that sends the magic packets. They are limited broadcasts, which no
+# router forwards, so the sender must sit on the LAN segment of the hosts to
+# wake; the default suits a control machine on that segment.
+boot_bare_metal_wake_on_lan_relay_host: localhost

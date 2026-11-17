@@ -162,6 +162,10 @@ provisioner:
             src: //nas.example/share
             state: present
         has_coral_pci_accelerator: true
+        # The other instance sends this instance's magic packets, so the boot
+        # role's delegation to a relay runs; the proxmox instance keeps the
+        # default, the control machine
+        boot_bare_metal_wake_on_lan_relay_host: proxmox
         network_interfaces:
           - mac_address: "12:34:56:78:90:AB"
             interface_name: eth0

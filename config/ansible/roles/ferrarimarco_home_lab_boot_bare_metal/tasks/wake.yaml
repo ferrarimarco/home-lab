@@ -5,7 +5,10 @@
   # Don't report changes because this task always reports a status
   # of 'changed', breaking idempotence tests
   changed_when: false
-  delegate_to: localhost
+  delegate_to: "{{ boot_bare_metal_wake_on_lan_relay_host }}"
+  # The send is best effort: with the relay down, a host that is up still
+  # passes the wait below, and one that is off fails it
+  ignore_unreachable: true
   with_items: "{{ network_interfaces }}"
   when:
     - network_interfaces is defined

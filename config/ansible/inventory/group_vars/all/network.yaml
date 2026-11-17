@@ -12,6 +12,10 @@ edge_environment_gateway:
   fqdn: "gateway.{{ edge_environment_root_fqdn }}"
   ipv4_address: "{{ edge_environment_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 
+# The lab host that sends the Wake-on-LAN packets of the boot playbook: the
+# control machine reaches the LAN through routers, which drop them.
+boot_bare_metal_wake_on_lan_relay_host: "raspberrypi2.{{ edge_environment_root_fqdn }}"
+
 # The DHCP service of the gateway's dnsmasq, converged by the gateway-dnsmasq
 # playbook from these values and from the network_interfaces entries of the
 # inventory hosts that declare an ipv4_address (the field reference is in the

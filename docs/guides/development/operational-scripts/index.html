@@ -2034,7 +2034,10 @@ shell. See the <a href="../nix-dev-shells/">Nix development shells guide</a>.</p
   <a href="../ansible/">Ansible development guide</a> describes: it stays out of
   <code>main.yaml</code>, since the router is not a lab host, and needs the control
   machine's lab key in the router's authorized keys (Administration, System, in
-  the web UI) before its first run. The others (for example, <code>setup-disks.yaml</code>
+  the web UI) before its first run; <code>boot-bare-metal.yaml</code> wakes the hosts that
+  are powered off with Wake-on-LAN packets and waits for them, and stays out of
+  <code>main.yaml</code> as well, so that a configuration run never powers a host on, as
+  the same guide describes. The others (for example, <code>setup-disks.yaml</code>
   converges pools, datasets, mounts, and the <code>directories_to_create</code> list), and
   <code>main.yaml</code> chains all the playbooks, so tag-scoping it also runs the untagged
   tasks of every other role — on a host outside those roles' normal scope, the
