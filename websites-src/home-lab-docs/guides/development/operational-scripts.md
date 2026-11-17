@@ -405,9 +405,9 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     Both variables are required: `ANSIBLE_TEST_DISTRO` also switches the
     container image build to the target that contains Molecule, so a bare
     `scripts/run-ansible.sh "molecule test"` fails with
-    `exec: "molecule": executable file not found`. The SSH agent socket is
-    required for Molecule runs too, because the script forwards it before
-    checking the command: set `SSH_AUTH_SOCK` as described above.
+    `exec: "molecule": executable file not found`. A Molecule run needs no SSH
+    agent: the script does not forward the socket when `ANSIBLE_TEST_DISTRO` is
+    set.
 
 - `scripts/run-terraform.sh`: iterates over the numbered Terraform service
   directories in `config/terraform` and runs `terraform init` and

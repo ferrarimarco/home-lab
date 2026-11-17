@@ -2174,9 +2174,9 @@ the scope skipped.</p>
 <p>Both variables are required: <code>ANSIBLE_TEST_DISTRO</code> also switches the
 container image build to the target that contains Molecule, so a bare
 <code>scripts/run-ansible.sh "molecule test"</code> fails with
-<code>exec: "molecule": executable file not found</code>. The SSH agent socket is
-required for Molecule runs too, because the script forwards it before
-checking the command: set <code>SSH_AUTH_SOCK</code> as described above.</p>
+<code>exec: "molecule": executable file not found</code>. A Molecule run needs no SSH
+agent: the script does not forward the socket when <code>ANSIBLE_TEST_DISTRO</code> is
+set.</p>
 </li>
 <li>
 <p><code>scripts/run-terraform.sh</code>: iterates over the numbered Terraform service
