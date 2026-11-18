@@ -261,10 +261,11 @@ reliability risks first, then security exposure, then automation):
       version is already installed, so the pinned 2026 build never replaced the
       2024 Google package on hl01 and the DKMS source stayed unpatched until the
       Debian 13 kernel failed to build it (the release upgrade procedure of the
-      [Linux administration notes](../guides/useful-linux-admin-commands.md) has
-      the recovery). Compare the installed source with the pinned package (the
-      package's `md5sums` against `/usr/src/gasket-1.0`, or a marker holding the
-      installed file's checksum) and reinstall through `dpkg -i` on a mismatch.
+      [Linux administration notes](../guides/operations/linux-administration.md)
+      has the recovery). Compare the installed source with the pinned package
+      (the package's `md5sums` against `/usr/src/gasket-1.0`, or a marker
+      holding the installed file's checksum) and reinstall through `dpkg -i` on
+      a mismatch.
     - **The detached dist-upgrade task does not protect the controller side
       (2026-11-04)**: on hl01's release upgrade the async job finished on the
       host, but the controller's worker process died after the first polls and

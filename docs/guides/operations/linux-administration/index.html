@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/proxmox-admin-notes/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/linux-administration/">
       
       
-        <link rel="prev" href="../copy-jinja-templates/">
+        <link rel="prev" href="../host-power/">
       
       
-        <link rel="next" href="../troubleshoot-unresponsive-host/">
+        <link rel="next" href="../monitoring/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Proxmox administration notes - Home Lab docs</title>
+        <title>Linux administration notes - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#proxmox-administration-notes" class="md-skip">
+        <a href="#linux-administration-notes" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Proxmox administration notes
+              Linux administration notes
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/backups/" class="md-nav__link">
+      <a href="../../../architecture/backups/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/declarative-integration-testing/" class="md-nav__link">
+      <a href="../../../architecture/declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../../../architecture/home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/monitoring-alerting/" class="md-nav__link">
+      <a href="../../../architecture/monitoring-alerting/" class="md-nav__link">
         
   
   
@@ -395,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/mqtt-broker/" class="md-nav__link">
+      <a href="../../../architecture/mqtt-broker/" class="md-nav__link">
         
   
   
@@ -418,7 +418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nas-lxc-container/" class="md-nav__link">
+      <a href="../../../architecture/nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -441,7 +441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-boot/" class="md-nav__link">
+      <a href="../../../architecture/network-boot/" class="md-nav__link">
         
   
   
@@ -464,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/proxmox-lxc/" class="md-nav__link">
+      <a href="../../../architecture/proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -487,7 +487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/proxmox-vm/" class="md-nav__link">
+      <a href="../../../architecture/proxmox-vm/" class="md-nav__link">
         
   
   
@@ -510,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -533,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/software-candidates/" class="md-nav__link">
+      <a href="../../../architecture/software-candidates/" class="md-nav__link">
         
   
   
@@ -601,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
@@ -624,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
+      <a href="../../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
         
   
   
@@ -647,7 +647,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -670,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/ont-connection-instability/" class="md-nav__link">
+      <a href="../../../archive/ont-connection-instability/" class="md-nav__link">
         
   
   
@@ -693,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
+      <a href="../../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
         
   
   
@@ -716,7 +716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
+      <a href="../../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
         
   
   
@@ -739,7 +739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/zte-ont-access/" class="md-nav__link">
+      <a href="../../../archive/zte-ont-access/" class="md-nav__link">
         
   
   
@@ -808,13 +808,51 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
+      <a href="../../development/ansible/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Monitoring
+    Ansible development
     
   </span>
   
@@ -832,12 +870,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../../development/documentation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure network shares
+    Documentation conventions
     
   </span>
   
@@ -855,12 +893,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
+      <a href="../../development/nix-dev-shells/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Tailscale configuration
+    Nix development shells
     
   </span>
   
@@ -878,12 +916,267 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
+      <a href="../../development/nix/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Copy Jinja templates as they are
+    Nix development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/todo-list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manage the centralized todo list
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/website-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Develop and build the Home Lab site
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backup operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../container-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Container migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependency-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dependency updates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hardware operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home-assistant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Assistant operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../host-power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host power evaluation
     
   </span>
   
@@ -915,7 +1208,7 @@
   
   
   <span class="md-ellipsis">
-    Proxmox administration notes
+    Linux administration notes
     
   </span>
   
@@ -928,7 +1221,7 @@
   
   
   <span class="md-ellipsis">
-    Proxmox administration notes
+    Linux administration notes
     
   </span>
   
@@ -951,45 +1244,60 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#run-commands-in-nixos-containers" class="md-nav__link">
+  <a href="#reach-the-hosts" class="md-nav__link">
     <span class="md-ellipsis">
-      Run commands in NixOS containers
+      Reach the hosts
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnose-a-container-that-failed-its-boot-time-start" class="md-nav__link">
+  <a href="#debian" class="md-nav__link">
     <span class="md-ellipsis">
-      Diagnose a container that failed its boot-time start
+      Debian
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debian">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#os-package-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      OS package management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release upgrade
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#networking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Networking
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#disable-secure-boot" class="md-nav__link">
+  <a href="#disks-partitions-and-filesystems" class="md-nav__link">
     <span class="md-ellipsis">
-      Disable Secure Boot
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#expand-disk-filesystem-and-partition" class="md-nav__link">
-    <span class="md-ellipsis">
-      Expand disk, filesystem, and partition
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#capture-network-traffic-of-a-proxmox-vm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capture network traffic of a Proxmox VM
+      Disks, partitions, and filesystems
     </span>
   </a>
   
@@ -1011,436 +1319,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../troubleshoot-unresponsive-host/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Troubleshoot an unresponsive host
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Linux administration notes
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Development
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8">
-            <span class="md-nav__icon md-icon"></span>
-            Development
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/ansible/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Ansible development
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/documentation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Documentation conventions
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/nix-dev-shells/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Nix development shells
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Nix development
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/operational-scripts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Operational scripts
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/todo-list/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Manage the centralized todo list
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Develop and build the Home Lab site
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Operations
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_9">
-            <span class="md-nav__icon md-icon"></span>
-            Operations
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/backup/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Backup operations
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/container-migration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Container migration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/dependency-updates/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Dependency updates
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/hardware/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Hardware operations
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/home-assistant/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Home Assistant operations
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/host-power/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Host power evaluation
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/monitoring/" class="md-nav__link">
+      <a href="../monitoring/" class="md-nav__link">
         
   
   
@@ -1463,7 +1342,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/network-boot/" class="md-nav__link">
+      <a href="../network-boot/" class="md-nav__link">
         
   
   
@@ -1486,7 +1365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/network-shares/" class="md-nav__link">
+      <a href="../network-shares/" class="md-nav__link">
         
   
   
@@ -1509,7 +1388,76 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/zigbee2mqtt/" class="md-nav__link">
+      <a href="../proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Proxmox administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tailscale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tailscale configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unresponsive-host/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshoot an unresponsive host
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zigbee2mqtt/" class="md-nav__link">
         
   
   
@@ -1623,7 +1571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -1646,7 +1594,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -1669,7 +1617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -1727,45 +1675,60 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#run-commands-in-nixos-containers" class="md-nav__link">
+  <a href="#reach-the-hosts" class="md-nav__link">
     <span class="md-ellipsis">
-      Run commands in NixOS containers
+      Reach the hosts
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnose-a-container-that-failed-its-boot-time-start" class="md-nav__link">
+  <a href="#debian" class="md-nav__link">
     <span class="md-ellipsis">
-      Diagnose a container that failed its boot-time start
+      Debian
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Debian">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#os-package-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      OS package management
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#release-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release upgrade
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#networking" class="md-nav__link">
+    <span class="md-ellipsis">
+      Networking
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#disable-secure-boot" class="md-nav__link">
+  <a href="#disks-partitions-and-filesystems" class="md-nav__link">
     <span class="md-ellipsis">
-      Disable Secure Boot
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#expand-disk-filesystem-and-partition" class="md-nav__link">
-    <span class="md-ellipsis">
-      Expand disk, filesystem, and partition
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#capture-network-traffic-of-a-proxmox-vm" class="md-nav__link">
-    <span class="md-ellipsis">
-      Capture network traffic of a Proxmox VM
+      Disks, partitions, and filesystems
     </span>
   </a>
   
@@ -1790,93 +1753,119 @@
   
 
 
-<h1 id="proxmox-administration-notes">Proxmox administration notes</h1>
+<h1 id="linux-administration-notes">Linux administration notes</h1>
+<h2 id="reach-the-hosts">Reach the hosts</h2>
+<p>Connect over SSH using each host's fully qualified domain name as the Ansible
+inventory lists it (<code>&lt;host&gt;.edge.lab.ferrari.how</code>): the short hostnames do not
+resolve from the control machine. Log in as <code>root</code> on the Proxmox nodes, as
+<code>debian</code> on the hl01 VM, as <code>pi</code> on raspberrypi2, and as the administrative user
+of the <code>common</code> Nix role on the NixOS hosts. hl01 has no Zsh: wrap a multi-step
+remote command in <code>bash -ec '...'</code>.</p>
+<p>The gateway router accepts the lab key too, on a port and as a user that are
+vault values (<code>vault_asuswrt_administration_ssh_port</code> and
+<code>vault_asuswrt_administrator_username</code>): take them from a playbook log or a
+rendered unit, and keep them out of replies and committed files. Prefer the
+<code>gateway-dnsmasq.yaml</code> playbook, which the
+<a href="../../development/ansible/">Ansible development guide</a> describes together with
+the reason to keep commands on the router short and the shell's quirks. The
+router's host key gets the same treatment as any other host's; to read it
+without logging in, use <code>ssh-keyscan</code>, since a connection offers every key the
+agent holds and the lab key is authorized there.</p>
+<p>Failed logins trip the router's login protection: a <code>DROP</code> rule for the source
+address appears in the <code>PTCSRVLAN</code> chain and that host's connections time out
+instead of being refused, while <code>dropbear</code> logs the attempts in
+<code>/tmp/syslog.log</code> ("Bad password attempt" when the offered key is rejected and
+the client falls back to a password). Read the chain from a host that is not
+blocked (<code>iptables -S PTCSRVLAN</code>) or the router's web interface; fix what the
+blocked host offers first (its key on the router's authorized keys), since a
+retry with the bad key re-arms the block, which was observed to expire about
+hourly on its own.</p>
+<p>A first connection to a host from a machine fails under <code>BatchMode=yes</code> with
+"Host key verification failed", the line a changed key's output also ends with.
+Tell the two apart before accepting anything: <code>ssh-keygen -F &lt;fqdn&gt;</code> (the name
+as SSH stored it; <code>-f</code> selects a known hosts file other than
+<code>~/.ssh/known_hosts</code>) prints nothing for a host that file never saw, and an
+entry for a mismatch. For an unknown host, connect once with
+<code>-o StrictHostKeyChecking=accept-new</code>; for a mismatch, find out why the key
+changed before touching the known hosts file.</p>
+<h2 id="debian">Debian</h2>
+<h3 id="os-package-management">OS package management</h3>
 <ul>
-<li>Check if there are cloud-init datasource updates:
-  <code>qm cloudinit pending &lt;VM_ID&gt;</code></li>
-<li>Update cloud-init datasource: <code>qm cloudinit update &lt;VM_ID&gt;</code></li>
-<li>Get the next proxmox VM ID: <code>pvesh get /cluster/nextid</code></li>
-<li>Get the list of PCI devices of a given Proxmox host:
-  <code>pvesh get /nodes/{nodename}/hardware/pci --pci-class-blacklist ""</code></li>
-<li>Delete the EFI disk: <code>qm set &lt;VM_ID&gt; -delete efidisk0</code></li>
+<li>Get the versions that are available to install of a package:
+  <code>apt-cache madison &lt;package-name&gt;</code></li>
+<li>Install a specific package version:
+  <code>apt-get install &lt;package-name&gt;=&lt;package-version-number&gt;</code></li>
+<li>The package update logs are in <code>/var/log/apt/history.log</code></li>
 </ul>
-<h2 id="run-commands-in-nixos-containers">Run commands in NixOS containers</h2>
-<p><code>pct exec</code> does not source a login shell, and a NixOS container keeps its
-binaries under <code>/run/current-system/sw/bin</code>, which is not on the default <code>PATH</code>
-of the spawned process: a plain <code>pct exec &lt;vmid&gt; -- &lt;cmd&gt;</code> fails with "No such
-file or directory". Call the binary by its full path, or wrap the command in a
-login shell so the NixOS profile sets <code>PATH</code>:</p>
-<div class="highlight"><pre><span></span><code>pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;vmid&gt;<span class="w"> </span>--<span class="w"> </span>/run/current-system/sw/bin/&lt;cmd&gt;
-pct<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;vmid&gt;<span class="w"> </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-lc<span class="w"> </span><span class="s1">&#39;&lt;cmd&gt; &lt;args&gt;&#39;</span>
+<h3 id="release-upgrade">Release upgrade</h3>
+<p>The playbooks upgrade a Debian host in place to the next release; the host keeps
+its state trees and its container images, and the upgrade costs one reboot. A
+fresh install (a VM rebuilt from a cloud image, a re-imaged Raspberry Pi)
+follows the fresh host procedure of the <a href="../backup/">backup operations guide</a>
+instead.</p>
+<ol>
+<li>Read the host: <code>apt-mark showhold</code> (nothing held), the packages installed
+   from backports or third-party repositories (<code>apt list --installed</code>, the
+   release notes of the new release say which are known to break), and the free
+   space on the root filesystem (the upgrade needs a few gigabytes).</li>
+<li>Secure the pre-change copy: run the host's backup job by hand and confirm its
+   snapshot, and for a VM snapshot its root volume on the node
+   (<code>zfs snapshot rpool/data/vm-&lt;id&gt;-disk-&lt;n&gt;@pre-&lt;release&gt;</code>), the rollback for
+   a broken upgrade (<code>zfs rollback</code> with the VM stopped). Silence the host's
+   alerts as the <a href="../monitoring/">monitoring operations guide</a> describes.</li>
+<li>
+<p>Point APT at the new release through the bootstrap playbook, which renders
+   the Debian sources from <code>debian_release_force_upgrade</code> instead of the running
+   release, check run first:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;--check --diff --limit &lt;host&gt; -e debian_release_force_upgrade=&lt;codename&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;bootstrap.yaml&quot;</span><span class="w"> </span>scripts/run-ansible.sh
 </code></pre></div>
-<h2 id="diagnose-a-container-that-failed-its-boot-time-start">Diagnose a container that failed its boot-time start</h2>
-<p><code>pve-guests</code> logs only <code>startup for container '&lt;id&gt;' failed</code>. Read the start
-task's log under <code>/var/log/pve/tasks/</code> (the <code>vzstart:&lt;id&gt;</code> UPID) and
-<code>/run/pve/ct-&lt;id&gt;.stderr</code>, where the pre-start hook names what it refused (a
-bind-mount source that did not exist, in the case of 2026-11-10). For a missing
-ZFS dataset, compare the container's start time with the pool's import time
-(<code>zpool history &lt;pool&gt;</code>): a pool that only Proxmox's storage activation imports
-can arrive after the guests start, while one with a <code>zfs-import@</code> instance is
-imported before them, as the
-<a href="../../architecture/nas-lxc-container/">NAS LXC container specification</a>
-describes under the host dataset mount points. <code>pct start &lt;id&gt;</code> recovers the
-guest.</p>
-<h2 id="disable-secure-boot">Disable Secure Boot</h2>
-<p>Either enter the UEFI console and disable Secure Boot manually, or delete the
-EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</p>
-<p>Notes:</p>
+<p>Third-party sources (Docker's) keep the old release name until their role
+runs on the upgraded host; their packages for the old release install on the
+new one in the meantime.</p>
+</li>
+<li>
+<p>Predict the upgrade on the host (<code>sudo apt full-upgrade --simulate</code>), and
+   review the removals: a package the new release drops takes its dependents
+   with it. Then run the OS packages playbook limited to the host; its
+   dist-upgrade task runs detached from the SSH session, so a dropped connection
+   does not interrupt it, and the playbook keeps the existing configuration
+   files where the new packages ship changed defaults (the new files land beside
+   them with a <code>.dpkg-dist</code> suffix). The controller can still lose the job (its
+   worker died a minute into hl01's upgrade, and the play kept polling without
+   reaching the host): the host-side run is then read from the apt history log
+   and from the job's result file under <code>/root/.ansible_async/</code>, and the
+   playbook is run again once apt is idle, which finishes whatever remains.</p>
+</li>
+<li>Reboot, then verify: the release in <code>/etc/os-release</code>, the running kernel,
+   the boot time, the services from a fresh listing, the mounts, and the
+   out-of-tree kernel modules (<code>dkms status</code>), whose DKMS builds run during the
+   kernel install and fail there, not at boot: a failed build fails the kernel
+   package's post-install hook, apt stops with the kernel and headers
+   unconfigured, and the host keeps booting the old kernel. Fix the module
+   source (on hl01 on 2026-11-04, the Coral driver source predated the pinned
+   package and lacked the fixes for kernel 6.12: <code>dpkg -i</code> of the pinned file
+   unpacked the right source and exited non-zero because the headers were still
+   unconfigured, which is expected at that point), then <code>dpkg --configure -a</code>
+   configures the pending packages, the module among them, and runs the hook
+   again. The package run itself took three minutes on hl01 for 411 upgraded,
+   129 new, and 65 removed packages.</li>
+<li>Converge on the new release: the container engine playbook moves the Docker
+   source to the new release, and the node playbook surfaces whatever the
+   release changed under the roles, check runs first.</li>
+</ol>
+<h2 id="networking">Networking</h2>
 <ul>
-<li>Secure Boot prevents unsigned kernel modules from loading. Example: Coral PCIe
-  modules (<code>apex</code>, <code>gasket</code>)</li>
+<li>Get the list of open ports on a system (with superuser privileges, it also
+  returns process information): <code>sudo netstat -nlp</code></li>
 </ul>
-<h2 id="expand-disk-filesystem-and-partition">Expand disk, filesystem, and partition</h2>
-<p>On the Proxmox host:</p>
-<ol>
-<li>Resize the partition using the GUI (VM -&gt; Hardware -&gt; Select disk -&gt; Disk
-   action -&gt; Resize disk). To get the max capacity, see the corresponding
-   storage pool page in the Proxmox admin GUI.</li>
-</ol>
-<p>On the VM:</p>
-<ol>
-<li>
-<p>Get the device ID: <code>sudo dmesg | grep capacity</code></p>
-</li>
-<li>
-<p>Resize the partition:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>parted<span class="w"> </span>/dev/&lt;DEVICE_ID&gt;
-
-<span class="c1"># Get the partition ID</span>
-print
-
-<span class="c1"># Resize the partition</span>
-resizepart<span class="w"> </span>&lt;PARTITION_ID&gt;<span class="w"> </span><span class="m">100</span>%
-
-quit
-</code></pre></div>
-</li>
-<li>
-<p>Grow the filesystem:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>resize2fs<span class="w"> </span>/dev/&lt;DEVICE_ID&gt;&lt;PARTITION_ID&gt;
-</code></pre></div>
-</li>
-</ol>
-<p>For more information, see <a href="https://pve.proxmox.com/wiki/Resize_disks">https://pve.proxmox.com/wiki/Resize_disks</a>.</p>
-<h2 id="capture-network-traffic-of-a-proxmox-vm">Capture network traffic of a Proxmox VM</h2>
-<p>In order to capture the network traffic that goes through a network interface of
-a Proxmox VM, do the following:</p>
-<ol>
-<li>Get the Proxmox VM ID.</li>
-<li>Get the Proxmox VM interface name.</li>
-<li>On the Proxmox node that hosts the VM, check that there's a <code>tap</code> network
-   interface named <code>tap&lt;VM_ID&gt;i&lt;NET_INTERFACE_ID&gt;</code>.</li>
-<li>
-<p>On the Proxmox node that hosts the VM, run <code>tcpdump</code> in order to capture
-   network traffic to a file:</p>
-<div class="highlight"><pre><span></span><code>tcpdump<span class="w"> </span>-i<span class="w"> </span>tap&lt;VM_ID&gt;i&lt;NET_INTERFACE_ID&gt;<span class="w"> </span>-n<span class="w"> </span>-w<span class="w"> </span>&lt;filename&gt;.pcap
-</code></pre></div>
-</li>
-</ol>
-<p>Source: <a href="https://www.apalrd.net/posts/2023/tip_pcap/">https://www.apalrd.net/posts/2023/tip_pcap/</a></p>
+<h2 id="disks-partitions-and-filesystems">Disks, partitions, and filesystems</h2>
+<ul>
+<li>Get the list of block devices: <code>lsblk</code></li>
+<li>Get the attributes of a block device: <code>blkid &lt;device&gt;</code></li>
+<li>Get the list of disks and partitions and add the partition UUID:
+  <code>lsblk -o NAME,FSTYPE,SIZE,MOUNTPOINT,PARTUUID</code></li>
+</ul>
 
 
 
@@ -1931,10 +1920,10 @@ a Proxmox VM, do the following:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>

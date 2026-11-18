@@ -56,8 +56,7 @@ The host hard-locked between 13:39 and 13:42 local time, with no kernel,
 undervoltage, thermal, or memory precursors in the logs or in the Prometheus
 history, and required a manual power cycle. The investigation is recorded in the
 [manual changes diary](./manual-changes-diary.md#2026-09-13) and was distilled
-into the
-[unresponsive host runbook](../guides/troubleshoot-unresponsive-host.md).
+into the [unresponsive host runbook](../guides/operations/unresponsive-host.md).
 
 ## The 2026-10-06 root storage stall
 

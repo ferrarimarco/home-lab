@@ -106,7 +106,7 @@ never from the host.
 ## Operating on Deployed Hosts
 
 - **Reach the hosts over SSH as the
-  [Linux administration notes](./websites-src/home-lab-docs/guides/useful-linux-admin-commands.md)
+  [Linux administration notes](./websites-src/home-lab-docs/guides/operations/linux-administration.md)
   describe;** use read-only commands freely, get approval for state-changing
   ones, load the `apply-infra-change` skill before an apply, an upgrade, or a
   reboot, and verify afterwards with read-only checks whose evidence the report
@@ -131,7 +131,7 @@ never from the host.
   (the rescue toggle on hl02 decides what a host boots), and
   [host power](./websites-src/home-lab-docs/guides/operations/host-power.md)
   (smart plug measurements, no HDD spin-down on pve2) guides, the
-  [Proxmox administration notes](./websites-src/home-lab-docs/guides/proxmox-admin-notes.md)
+  [Proxmox administration notes](./websites-src/home-lab-docs/guides/operations/proxmox.md)
   (`pct exec` into a NixOS container needs the full binary path), and the
   [Ansible development guide](./websites-src/home-lab-docs/guides/development/ansible.md)
   (the node role's settings for the Proxmox nodes).

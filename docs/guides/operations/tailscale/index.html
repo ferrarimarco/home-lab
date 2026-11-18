@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/copy-jinja-templates/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/tailscale/">
       
       
-        <link rel="prev" href="../configure-tailscale/">
+        <link rel="prev" href="../proxmox/">
       
       
-        <link rel="next" href="../proxmox-admin-notes/">
+        <link rel="next" href="../unresponsive-host/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Copy Jinja templates as they are - Home Lab docs</title>
+        <title>Tailscale configuration - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#copy-jinja-templates-as-they-are" class="md-skip">
+        <a href="#tailscale-configuration" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Copy Jinja templates as they are
+              Tailscale configuration
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/backups/" class="md-nav__link">
+      <a href="../../../architecture/backups/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/declarative-integration-testing/" class="md-nav__link">
+      <a href="../../../architecture/declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../../../architecture/home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/monitoring-alerting/" class="md-nav__link">
+      <a href="../../../architecture/monitoring-alerting/" class="md-nav__link">
         
   
   
@@ -395,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/mqtt-broker/" class="md-nav__link">
+      <a href="../../../architecture/mqtt-broker/" class="md-nav__link">
         
   
   
@@ -418,7 +418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nas-lxc-container/" class="md-nav__link">
+      <a href="../../../architecture/nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -441,7 +441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-boot/" class="md-nav__link">
+      <a href="../../../architecture/network-boot/" class="md-nav__link">
         
   
   
@@ -464,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/proxmox-lxc/" class="md-nav__link">
+      <a href="../../../architecture/proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -487,7 +487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/proxmox-vm/" class="md-nav__link">
+      <a href="../../../architecture/proxmox-vm/" class="md-nav__link">
         
   
   
@@ -510,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -533,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/software-candidates/" class="md-nav__link">
+      <a href="../../../architecture/software-candidates/" class="md-nav__link">
         
   
   
@@ -601,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
@@ -624,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
+      <a href="../../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
         
   
   
@@ -647,7 +647,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -670,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/ont-connection-instability/" class="md-nav__link">
+      <a href="../../../archive/ont-connection-instability/" class="md-nav__link">
         
   
   
@@ -693,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
+      <a href="../../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
         
   
   
@@ -716,7 +716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
+      <a href="../../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
         
   
   
@@ -739,7 +739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/zte-ont-access/" class="md-nav__link">
+      <a href="../../../archive/zte-ont-access/" class="md-nav__link">
         
   
   
@@ -808,177 +808,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Monitoring
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Configure network shares
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../configure-tailscale/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Tailscale configuration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Copy Jinja templates as they are
-    
-  </span>
-  
-
-      </a>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../proxmox-admin-notes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Proxmox administration notes
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../troubleshoot-unresponsive-host/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Troubleshoot an unresponsive host
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Linux administration notes
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -988,10 +817,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
         
           
-          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
             
   
   
@@ -1004,8 +833,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
             <span class="md-nav__icon md-icon"></span>
             Development
           </label>
@@ -1018,7 +847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/ansible/" class="md-nav__link">
+      <a href="../../development/ansible/" class="md-nav__link">
         
   
   
@@ -1041,7 +870,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/documentation/" class="md-nav__link">
+      <a href="../../development/documentation/" class="md-nav__link">
         
   
   
@@ -1064,7 +893,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/nix-dev-shells/" class="md-nav__link">
+      <a href="../../development/nix-dev-shells/" class="md-nav__link">
         
   
   
@@ -1087,7 +916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
+      <a href="../../development/nix/" class="md-nav__link">
         
   
   
@@ -1110,7 +939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/operational-scripts/" class="md-nav__link">
+      <a href="../../development/operational-scripts/" class="md-nav__link">
         
   
   
@@ -1133,7 +962,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/todo-list/" class="md-nav__link">
+      <a href="../../development/todo-list/" class="md-nav__link">
         
   
   
@@ -1156,7 +985,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
+      <a href="../../development/website-development/" class="md-nav__link">
         
   
   
@@ -1184,21 +1013,23 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
             
   
   
@@ -1211,8 +1042,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_9">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
             <span class="md-nav__icon md-icon"></span>
             Operations
           </label>
@@ -1225,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/backup/" class="md-nav__link">
+      <a href="../backup/" class="md-nav__link">
         
   
   
@@ -1248,7 +1079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/container-migration/" class="md-nav__link">
+      <a href="../container-migration/" class="md-nav__link">
         
   
   
@@ -1271,7 +1102,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/dependency-updates/" class="md-nav__link">
+      <a href="../dependency-updates/" class="md-nav__link">
         
   
   
@@ -1294,7 +1125,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/hardware/" class="md-nav__link">
+      <a href="../hardware/" class="md-nav__link">
         
   
   
@@ -1317,7 +1148,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/home-assistant/" class="md-nav__link">
+      <a href="../home-assistant/" class="md-nav__link">
         
   
   
@@ -1340,7 +1171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/host-power/" class="md-nav__link">
+      <a href="../host-power/" class="md-nav__link">
         
   
   
@@ -1363,7 +1194,30 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/monitoring/" class="md-nav__link">
+      <a href="../linux-administration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Linux administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring/" class="md-nav__link">
         
   
   
@@ -1386,7 +1240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/network-boot/" class="md-nav__link">
+      <a href="../network-boot/" class="md-nav__link">
         
   
   
@@ -1409,7 +1263,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/network-shares/" class="md-nav__link">
+      <a href="../network-shares/" class="md-nav__link">
         
   
   
@@ -1432,7 +1286,136 @@
   
   
     <li class="md-nav__item">
-      <a href="../operations/zigbee2mqtt/" class="md-nav__link">
+      <a href="../proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Proxmox administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Tailscale configuration
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tailscale configuration
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tailscale-authentication-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tailscale authentication keys
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enable-subnet-routes-or-exit-nodes-in-the-tailscale-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable subnet routes or exit nodes in the Tailscale console
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../unresponsive-host/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Troubleshoot an unresponsive host
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../zigbee2mqtt/" class="md-nav__link">
         
   
   
@@ -1546,7 +1529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -1569,7 +1552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -1592,7 +1575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -1643,6 +1626,32 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tailscale-authentication-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tailscale authentication keys
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enable-subnet-routes-or-exit-nodes-in-the-tailscale-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable subnet routes or exit nodes in the Tailscale console
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1660,15 +1669,27 @@
   
 
 
-<h1 id="copy-jinja-templates-as-they-are">Copy Jinja templates as they are</h1>
-<p>If you need to copy Jinja templates with the Ansible Template Module, you can
-configure Ansible to change the variable start and end prefixes inside the
-template by adding a special header.</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">#jinja2:variable_start_string:&#39;[%&#39;, variable_end_string:&#39;%]&#39;</span>
-</code></pre></div>
-<p>Changes the default variable start and end prefixes from <code>{{</code> and <code>}}</code> to <code>[%</code>
-and <code>%]</code>.</p>
+<h1 id="tailscale-configuration">Tailscale configuration</h1>
+<p>In this section, you configure new hosts to join a Tailscale network.</p>
+<h2 id="tailscale-authentication-keys">Tailscale authentication keys</h2>
+<ul>
+<li>If you want to automate authentication, you can specify an authentication key
+  for each host using the <code>tailscale_authkey</code> variable. For more information
+  about Tailscale authentication keys, see
+  <a href="https://tailscale.com/kb/1085/auth-keys/">Authentication keys</a>. The
+  alternative is to manually run the <code>tailscale up</code> command on the host, and
+  follow the instructions to authenticate the host.</li>
+<li>If you prefer that the key for a particular host doesn't expire, you can
+  disable <a href="https://tailscale.com/kb/1028/key-expiry/">Tailscale key expiration</a>.</li>
+</ul>
+<h2 id="enable-subnet-routes-or-exit-nodes-in-the-tailscale-console">Enable subnet routes or exit nodes in the Tailscale console</h2>
+<p>If a Tailscale host advertises routes or advertises itself as an exit node, you
+need to enable these features in the Tailscale console or using the Tailscale
+API. For more information, see:</p>
+<ul>
+<li><a href="https://tailscale.com/kb/1019/subnets">Subnet routers and traffic relay nodes</a></li>
+<li><a href="https://tailscale.com/kb/1103/exit-nodes/">Exit nodes</a></li>
+</ul>
 
 
 
@@ -1723,10 +1744,10 @@ and <code>%]</code>.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>

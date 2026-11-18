@@ -14,7 +14,7 @@ vault values (`vault_asuswrt_administration_ssh_port` and
 `vault_asuswrt_administrator_username`): take them from a playbook log or a
 rendered unit, and keep them out of replies and committed files. Prefer the
 `gateway-dnsmasq.yaml` playbook, which the
-[Ansible development guide](./development/ansible.md) describes together with
+[Ansible development guide](../development/ansible.md) describes together with
 the reason to keep commands on the router short and the shell's quirks. The
 router's host key gets the same treatment as any other host's; to read it
 without logging in, use `ssh-keyscan`, since a connection offers every key the
@@ -54,8 +54,8 @@ changed before touching the known hosts file.
 The playbooks upgrade a Debian host in place to the next release; the host keeps
 its state trees and its container images, and the upgrade costs one reboot. A
 fresh install (a VM rebuilt from a cloud image, a re-imaged Raspberry Pi)
-follows the fresh host procedure of the
-[backup operations guide](./operations/backup.md) instead.
+follows the fresh host procedure of the [backup operations guide](./backup.md)
+instead.
 
 1. Read the host: `apt-mark showhold` (nothing held), the packages installed
    from backports or third-party repositories (`apt list --installed`, the
@@ -65,8 +65,7 @@ follows the fresh host procedure of the
    snapshot, and for a VM snapshot its root volume on the node
    (`zfs snapshot rpool/data/vm-<id>-disk-<n>@pre-<release>`), the rollback for
    a broken upgrade (`zfs rollback` with the VM stopped). Silence the host's
-   alerts as the [monitoring operations guide](./operations/monitoring.md)
-   describes.
+   alerts as the [monitoring operations guide](./monitoring.md) describes.
 3. Point APT at the new release through the bootstrap playbook, which renders
    the Debian sources from `debian_release_force_upgrade` instead of the running
    release, check run first:
@@ -112,19 +111,6 @@ follows the fresh host procedure of the
 
 - Get the list of open ports on a system (with superuser privileges, it also
   returns process information): `sudo netstat -nlp`
-
-## Restic
-
-The [backup operations guide](./operations/backup.md) has the inspection,
-restore, drill, and repair procedures.
-
-- Open a shell in the Restic container (raspberrypi2 only, until its re-image
-  moves it to the backup role; hl01 runs the role's packaged restic since
-  2026-11-04):
-
-    ```sh
-    sudo docker compose --file /etc/ferrarimarco-home-lab/restic/compose.yaml run --build --interactive --rm --entrypoint /bin/bash restic-backup-workloads
-    ```
 
 ## Disks, partitions, and filesystems
 

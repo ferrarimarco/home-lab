@@ -61,13 +61,10 @@ Normal metrics until the end are evidence too: they rule out thermal runaway,
 memory exhaustion, and load storms. Note that timestamps in the Prometheus API
 are UTC, while host logs (`journalctl`) print local time.
 
-Some metrics arrive through the node exporter textfile collector
-(`/var/lib/node_exporter/textfile_collector/` on each host) rather than
-exporters: `apt_info.prom` (pending updates, reboot-required, written by the
-`monitoring-apt` systemd timer on Debian hosts), `smartctl.prom` (SMART health),
-and host-specific files such as the ONT exporter's. A stale modification time on
-one of these files means its producing unit is broken even if the metric still
-appears in Prometheus.
+Some metrics arrive through the node exporter textfile collector rather than
+exporters: the
+[monitoring operations guide](./monitoring.md#metrics-from-the-textfile-collector)
+lists the files and how to tell that the unit producing one is broken.
 
 ## Check recovery-boot health
 
@@ -95,7 +92,7 @@ job and lands back at the prompt while the device is still missing (observed
 2026-10-09), so the console is no way out.
 
 Recovery needs another boot medium: the network-boot rescue once the
-[Network Boot Service](../architecture/network-boot.md) exists, otherwise a
+[Network Boot Service](../../architecture/network-boot.md) exists, otherwise a
 hand-written rescue SD card. Boot it, mount the host's root filesystem, and edit
 its `etc/fstab` so the entry carries `nofail,x-systemd.device-timeout=10` or is
 removed, then boot from the host's own disk again. The inventory entry in

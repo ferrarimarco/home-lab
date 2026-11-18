@@ -95,7 +95,7 @@ to eventually get to a state where we don't need this file anymore.
   between 13:39 and 13:42 local time; no kernel, undervoltage, thermal, or
   memory precursors in logs or Prometheus history). The investigation was
   distilled into the
-  [unresponsive host runbook](../guides/troubleshoot-unresponsive-host.md);
+  [unresponsive host runbook](../guides/operations/unresponsive-host.md);
   follow-ups (hardware watchdog, data-disk SMART test, OS upgrade) are tracked
   in the
   [specs todo list](../architecture/README.md#specifications-to-write-and-todos).

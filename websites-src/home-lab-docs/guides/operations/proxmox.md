@@ -31,7 +31,7 @@ ZFS dataset, compare the container's start time with the pool's import time
 (`zpool history <pool>`): a pool that only Proxmox's storage activation imports
 can arrive after the guests start, while one with a `zfs-import@` instance is
 imported before them, as the
-[NAS LXC container specification](../architecture/nas-lxc-container.md)
+[NAS LXC container specification](../../architecture/nas-lxc-container.md)
 describes under the host dataset mount points. `pct start <id>` recovers the
 guest.
 

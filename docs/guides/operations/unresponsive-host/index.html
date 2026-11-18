@@ -8,25 +8,25 @@
       
       
       
-        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/configure-tailscale/">
+        <link rel="canonical" href="https://ferrarimarco.info/home-lab/guides/operations/unresponsive-host/">
       
       
-        <link rel="prev" href="../configure-network-shares/">
+        <link rel="prev" href="../tailscale/">
       
       
-        <link rel="next" href="../copy-jinja-templates/">
+        <link rel="next" href="../zigbee2mqtt/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Tailscale configuration - Home Lab docs</title>
+        <title>Troubleshoot an unresponsive host - Home Lab docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.342714a4.min.css">
       
       
 
@@ -45,7 +45,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tailscale-configuration" class="md-skip">
+        <a href="#troubleshoot-an-unresponsive-host" class="md-skip">
           Skip to content
         </a>
       
@@ -80,7 +80,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-header__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tailscale configuration
+              Troubleshoot an unresponsive host
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
+    <a href="../../.." title="Home Lab docs" class="md-nav__button md-logo" aria-label="Home Lab docs" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -220,7 +220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -280,7 +280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   
@@ -303,7 +303,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/backups/" class="md-nav__link">
+      <a href="../../../architecture/backups/" class="md-nav__link">
         
   
   
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/declarative-integration-testing/" class="md-nav__link">
+      <a href="../../../architecture/declarative-integration-testing/" class="md-nav__link">
         
   
   
@@ -349,7 +349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/home-lab-bootstrapping/" class="md-nav__link">
+      <a href="../../../architecture/home-lab-bootstrapping/" class="md-nav__link">
         
   
   
@@ -372,7 +372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/monitoring-alerting/" class="md-nav__link">
+      <a href="../../../architecture/monitoring-alerting/" class="md-nav__link">
         
   
   
@@ -395,7 +395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/mqtt-broker/" class="md-nav__link">
+      <a href="../../../architecture/mqtt-broker/" class="md-nav__link">
         
   
   
@@ -418,7 +418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/nas-lxc-container/" class="md-nav__link">
+      <a href="../../../architecture/nas-lxc-container/" class="md-nav__link">
         
   
   
@@ -441,7 +441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/network-boot/" class="md-nav__link">
+      <a href="../../../architecture/network-boot/" class="md-nav__link">
         
   
   
@@ -464,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/proxmox-lxc/" class="md-nav__link">
+      <a href="../../../architecture/proxmox-lxc/" class="md-nav__link">
         
   
   
@@ -487,7 +487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/proxmox-vm/" class="md-nav__link">
+      <a href="../../../architecture/proxmox-vm/" class="md-nav__link">
         
   
   
@@ -510,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/references/" class="md-nav__link">
+      <a href="../../../architecture/references/" class="md-nav__link">
         
   
   
@@ -533,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/software-candidates/" class="md-nav__link">
+      <a href="../../../architecture/software-candidates/" class="md-nav__link">
         
   
   
@@ -601,7 +601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/" class="md-nav__link">
+      <a href="../../../archive/" class="md-nav__link">
         
   
   
@@ -624,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
+      <a href="../../../archive/asus-rt-ax86u-tim-gateway/" class="md-nav__link">
         
   
   
@@ -647,7 +647,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/manual-changes-diary/" class="md-nav__link">
+      <a href="../../../archive/manual-changes-diary/" class="md-nav__link">
         
   
   
@@ -670,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/ont-connection-instability/" class="md-nav__link">
+      <a href="../../../archive/ont-connection-instability/" class="md-nav__link">
         
   
   
@@ -693,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
+      <a href="../../../archive/raspberrypi2-stability-issues/" class="md-nav__link">
         
   
   
@@ -716,7 +716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
+      <a href="../../../archive/technicolor-dga-4130-bridge/" class="md-nav__link">
         
   
   
@@ -739,7 +739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/zte-ont-access/" class="md-nav__link">
+      <a href="../../../archive/zte-ont-access/" class="md-nav__link">
         
   
   
@@ -808,8 +808,416 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../configure-monitoring/" class="md-nav__link">
+      <a href="../../development/ansible/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ansible development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documentation conventions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/nix-dev-shells/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development shells
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/nix/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Nix development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Operational scripts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/todo-list/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manage the centralized todo list
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/website-development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Develop and build the Home Lab site
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backup operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../container-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Container migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependency-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dependency updates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hardware operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../home-assistant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home Assistant operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../host-power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host power evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../linux-administration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Linux administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitoring/" class="md-nav__link">
         
   
   
@@ -832,12 +1240,81 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-network-shares/" class="md-nav__link">
+      <a href="../network-boot/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure network shares
+    Network boot server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network-shares/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network share clients
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Proxmox administration notes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tailscale/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tailscale configuration
     
   </span>
   
@@ -869,7 +1346,7 @@
   
   
   <span class="md-ellipsis">
-    Tailscale configuration
+    Troubleshoot an unresponsive host
     
   </span>
   
@@ -882,7 +1359,7 @@
   
   
   <span class="md-ellipsis">
-    Tailscale configuration
+    Troubleshoot an unresponsive host
     
   </span>
   
@@ -905,18 +1382,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tailscale-authentication-keys" class="md-nav__link">
+  <a href="#establish-the-timeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Tailscale authentication keys
+      Establish the timeline
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#enable-subnet-routes-or-exit-nodes-in-the-tailscale-console" class="md-nav__link">
+  <a href="#sweep-for-precursors" class="md-nav__link">
     <span class="md-ellipsis">
-      Enable subnet routes or exit nodes in the Tailscale console
+      Sweep for precursors
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-the-monitoring-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query the monitoring history
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#check-recovery-boot-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check recovery-boot health
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boot-stalls-in-emergency-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Boot stalls in emergency mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#report-and-remediate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Report and remediate
     </span>
   </a>
   
@@ -938,551 +1451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../copy-jinja-templates/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Copy Jinja templates as they are
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../proxmox-admin-notes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Proxmox administration notes
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../troubleshoot-unresponsive-host/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Troubleshoot an unresponsive host
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../useful-linux-admin-commands/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Linux administration notes
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Development
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_8">
-            <span class="md-nav__icon md-icon"></span>
-            Development
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/ansible/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Ansible development
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/documentation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Documentation conventions
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/nix-dev-shells/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Nix development shells
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/nix/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Nix development
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/operational-scripts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Operational scripts
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/todo-list/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Manage the centralized todo list
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../development/website-development/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Develop and build the Home Lab site
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_9" id="__nav_4_9_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Operations
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_9">
-            <span class="md-nav__icon md-icon"></span>
-            Operations
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/backup/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Backup operations
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/container-migration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Container migration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/dependency-updates/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Dependency updates
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/hardware/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Hardware operations
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/home-assistant/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Home Assistant operations
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/host-power/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Host power evaluation
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/monitoring/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Monitoring
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/network-boot/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Network boot server
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/network-shares/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Network share clients
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../operations/zigbee2mqtt/" class="md-nav__link">
+      <a href="../zigbee2mqtt/" class="md-nav__link">
         
   
   
@@ -1596,7 +1565,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/" class="md-nav__link">
+      <a href="../../../installation/production/" class="md-nav__link">
         
   
   
@@ -1619,7 +1588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/provision-new-hosts/" class="md-nav__link">
+      <a href="../../../installation/production/provision-new-hosts/" class="md-nav__link">
         
   
   
@@ -1642,7 +1611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../installation/production/setup-proxmox/" class="md-nav__link">
+      <a href="../../../installation/production/setup-proxmox/" class="md-nav__link">
         
   
   
@@ -1700,18 +1669,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tailscale-authentication-keys" class="md-nav__link">
+  <a href="#establish-the-timeline" class="md-nav__link">
     <span class="md-ellipsis">
-      Tailscale authentication keys
+      Establish the timeline
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#enable-subnet-routes-or-exit-nodes-in-the-tailscale-console" class="md-nav__link">
+  <a href="#sweep-for-precursors" class="md-nav__link">
     <span class="md-ellipsis">
-      Enable subnet routes or exit nodes in the Tailscale console
+      Sweep for precursors
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-the-monitoring-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query the monitoring history
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#check-recovery-boot-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check recovery-boot health
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#boot-stalls-in-emergency-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Boot stalls in emergency mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#report-and-remediate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Report and remediate
     </span>
   </a>
   
@@ -1736,26 +1741,102 @@
   
 
 
-<h1 id="tailscale-configuration">Tailscale configuration</h1>
-<p>In this section, you configure new hosts to join a Tailscale network.</p>
-<h2 id="tailscale-authentication-keys">Tailscale authentication keys</h2>
+<h1 id="troubleshoot-an-unresponsive-host">Troubleshoot an unresponsive host</h1>
+<p>Runbook for investigating a home lab host that froze, crashed, or stopped
+accepting connections, after it has been recovered, or that will not finish
+booting (typically by a power cycle). The goal is a defensible timeline and
+root-cause hypothesis; "silent freeze with no precursors" is a valid conclusion
+when the evidence supports nothing stronger. This runbook was distilled from the
+raspberrypi2 freeze investigation of 2026-09-13.</p>
+<h2 id="establish-the-timeline">Establish the timeline</h2>
+<div class="highlight"><pre><span></span><code>uptime
+last<span class="w"> </span>-x<span class="w"> </span>reboot<span class="w"> </span>shutdown<span class="w"> </span><span class="p">|</span><span class="w"> </span>head
+journalctl<span class="w"> </span>--list-boots<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail
+journalctl<span class="w"> </span>-b<span class="w"> </span>-1<span class="w"> </span>--no-pager<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-50
+</code></pre></div>
 <ul>
-<li>If you want to automate authentication, you can specify an authentication key
-  for each host using the <code>tailscale_authkey</code> variable. For more information
-  about Tailscale authentication keys, see
-  <a href="https://tailscale.com/kb/1085/auth-keys/">Authentication keys</a>. The
-  alternative is to manually run the <code>tailscale up</code> command on the host, and
-  follow the instructions to authenticate the host.</li>
-<li>If you prefer that the key for a particular host doesn't expire, you can
-  disable <a href="https://tailscale.com/kb/1028/key-expiry/">Tailscale key expiration</a>.</li>
+<li>The end timestamp of the previous boot's journal is the last moment the host
+  was alive enough to log.</li>
+<li>An abrupt journal end mid-routine-activity, with no shutdown sequence,
+  indicates a hard freeze; an orderly shutdown sequence points elsewhere.</li>
+<li>Narrow the death window using periodic activity as a clock: home lab hosts run
+  recurring systemd timers (for example <code>asuswrt-chkwan</code> every 3 minutes on
+  raspberrypi2), so the first missing run bounds the freeze to within one
+  period.</li>
 </ul>
-<h2 id="enable-subnet-routes-or-exit-nodes-in-the-tailscale-console">Enable subnet routes or exit nodes in the Tailscale console</h2>
-<p>If a Tailscale host advertises routes or advertises itself as an exit node, you
-need to enable these features in the Tailscale console or using the Tailscale
-API. For more information, see:</p>
+<h2 id="sweep-for-precursors">Sweep for precursors</h2>
+<div class="highlight"><pre><span></span><code>journalctl<span class="w"> </span>-b<span class="w"> </span>-1<span class="w"> </span>-p<span class="w"> </span>err<span class="w"> </span>--no-pager
+journalctl<span class="w"> </span>-b<span class="w"> </span>-1<span class="w"> </span>-k<span class="w"> </span>--no-pager<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-iE<span class="w"> </span><span class="s2">&quot;voltage|throttl|oom|hung|I/O error|BUG|Oops|segfault&quot;</span>
+ls<span class="w"> </span>/sys/fs/pstore/<span class="w"> </span>/var/lib/systemd/pstore/
+sudo<span class="w"> </span>smartctl<span class="w"> </span>-H<span class="w"> </span>-A<span class="w"> </span>/dev/sdX
+</code></pre></div>
+<p>Separate chronic noise (errors repeating for days) from anything that first
+appears near the death window. On Raspberry Pi hosts, also check
+<code>vcgencmd get_throttled</code> and <code>sudo vclog --msg</code>; the throttle flags are sticky
+within a boot but reset by a power cycle.</p>
+<h2 id="query-the-monitoring-history">Query the monitoring history</h2>
+<p>The Prometheus backend runs on <code>raspberrypi2.edge.lab.ferrari.how</code> (port <code>9090</code>,
+not exposed beyond the host). Query the recorded history over SSH to reconstruct
+the state leading up to the incident:</p>
+<div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>pi@raspberrypi2.edge.lab.ferrari.how<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;curl -sf &quot;http://localhost:9090/api/v1/query_range?query=node_thermal_zone_temp{instance=~\&quot;.*raspberrypi2.*\&quot;}&amp;start=2026-09-13T11:30:00Z&amp;end=2026-09-13T12:45:00Z&amp;step=120&quot;&#39;</span>
+</code></pre></div>
+<p>Useful series for a pre-crash timeline:</p>
 <ul>
-<li><a href="https://tailscale.com/kb/1019/subnets">Subnet routers and traffic relay nodes</a></li>
-<li><a href="https://tailscale.com/kb/1103/exit-nodes/">Exit nodes</a></li>
+<li><code>node_thermal_zone_temp</code>, <code>node_hwmon_temp_celsius</code>: thermal state.</li>
+<li><code>node_load1</code>, <code>node_memory_MemAvailable_bytes</code>: load and memory pressure.</li>
+<li>The timestamp of an instance's last successful scrape independently bounds
+  when the host died.</li>
+</ul>
+<p>Normal metrics until the end are evidence too: they rule out thermal runaway,
+memory exhaustion, and load storms. Note that timestamps in the Prometheus API
+are UTC, while host logs (<code>journalctl</code>) print local time.</p>
+<p>Some metrics arrive through the node exporter textfile collector rather than
+exporters: the
+<a href="../monitoring/#metrics-from-the-textfile-collector">monitoring operations guide</a>
+lists the files and how to tell that the unit producing one is broken.</p>
+<h2 id="check-recovery-boot-health">Check recovery-boot health</h2>
+<div class="highlight"><pre><span></span><code>dmesg<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-iE<span class="w"> </span><span class="s2">&quot;ext4|recover|orphan|error&quot;</span>
+systemctl<span class="w"> </span>--failed
+docker<span class="w"> </span>ps<span class="w"> </span>--format<span class="w"> </span><span class="s1">&#39;{{.Names}}\t{{.Status}}&#39;</span>
+</code></pre></div>
+<p>Filesystem journal recovery and orphan-inode cleanup confirm the stop was
+unclean. Confirm all expected workloads restarted.</p>
+<h2 id="boot-stalls-in-emergency-mode">Boot stalls in emergency mode</h2>
+<p>A host that stops answering pings after a reboot, with no SSH, may be stuck at
+systemd's emergency prompt rather than dead: an fstab entry without <code>nofail</code>
+whose device never appears (a failed data disk) fails <code>local-fs.target</code> after
+the device timeout (90 seconds by default), and on Raspberry Pi OS the locked
+root account turns the prompt into "cannot open access to console, the root
+account is locked". Networking never comes up, so nothing is reachable. Confirm
+on an attached display: the console shows the emergency message, and the systemd
+messages above it (<code>Timed out waiting for device ...</code>,
+<code>Dependency failed for ...</code>) name the device. Pressing Enter re-runs the start
+job and lands back at the prompt while the device is still missing (observed
+2026-10-09), so the console is no way out.</p>
+<p>Recovery needs another boot medium: the network-boot rescue once the
+<a href="../../../architecture/network-boot/">Network Boot Service</a> exists, otherwise a
+hand-written rescue SD card. Boot it, mount the host's root filesystem, and edit
+its <code>etc/fstab</code> so the entry carries <code>nofail,x-systemd.device-timeout=10</code> or is
+removed, then boot from the host's own disk again. The inventory entry in
+<code>disks_to_mount</code> must change the same way, or the next playbook run re-renders
+the line without <code>nofail</code>. Unplug the failed disk before any of these reboots: a
+USB disk that resets every few seconds stalls udev and provokes UAS aborts on
+the other disks of the same controller, the root disk included.</p>
+<h2 id="report-and-remediate">Report and remediate</h2>
+<ul>
+<li>State the death window and the evidence for it, and list what the incident was
+  <strong>not</strong> (thermal, OOM, undervoltage, disk I/O) with the checks that rule each
+  out.</li>
+<li>A silent hard freeze at normal load and temperature typically leaves no trace.
+  Candidate causes worth listing as hypotheses: power transient, USB or firmware
+  lockup, aging kernel.</li>
+<li>Propose resilience fixes (hardware watchdog via <code>RuntimeWatchdogSec</code>, so the
+  host self-recovers) separately from root-cause fixes (kernel and OS upgrades,
+  hardware replacement).</li>
+<li>Record secondary findings (failing disks, broken units, stale textfile
+  exporters) even when unrelated: this investigation surfaced a disk with
+  pending sectors and a service broken since the previous reboot.</li>
 </ul>
 
 
@@ -1811,10 +1892,10 @@ API. For more information, see:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.top", "navigation.tracking"], "search": "../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
     
   </body>
