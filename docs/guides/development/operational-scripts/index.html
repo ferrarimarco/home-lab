@@ -2150,24 +2150,28 @@ installed by hand. Molecule skips the tasks that have the <code>molecule-notest<
 tag: tests don't pull container images, don't start containerized services,
 and don't load kernel modules (the containers share the control machine's
 kernel).</p>
-<p>A full <code>main</code> run converges every stack twice (converge and idempotence) and
-takes about eight minutes. While iterating on one stack, scope both passes
-with <code>ANSIBLE_TEST_TAGS</code>, which takes the same value as the <code>--tags</code> flag of
-a production run (the stack tag plus <code>untagged</code>, as the
-<a href="../ansible/">Ansible development guide</a> describes):</p>
+<p>A full <code>main</code> run goes through every stack three times (check, converge, and
+idempotence) and takes about fifteen minutes (4, 7, and 4 minutes on
+2026-11-18). While iterating on one stack, scope the passes with
+<code>ANSIBLE_TEST_TAGS</code>, which takes the value of the <code>--tags</code> flag of a
+production run (the stack tag plus <code>untagged</code>, as the
+<a href="../ansible/">Ansible development guide</a> describes) plus
+<code>install-debian-packages</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">ANSIBLE_TEST_DISTRO</span><span class="o">=</span><span class="s2">&quot;geerlingguy/docker-debian13-ansible:latest&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">ANSIBLE_TEST_PLAYBOOK_NAME</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">ANSIBLE_TEST_TAGS</span><span class="o">=</span><span class="s2">&quot;zigbee2mqtt,untagged&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_TEST_TAGS</span><span class="o">=</span><span class="s2">&quot;zigbee2mqtt,install-debian-packages,untagged&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>scripts/run-ansible.sh<span class="w"> </span><span class="s2">&quot;molecule test&quot;</span>
 </code></pre></div>
-<p>A stack that starts a service also needs <code>install-debian-packages</code> in the
-scope: the package install task runs only when the run names that tag, and
-without it the service's dependencies (<code>python3-venv</code> for <code>monitoring-apt</code>)
-are missing when the unit starts. A stack whose files land in a directory
-another stack creates needs that stack's tag too: <code>monitoring-backend</code>
-writes a textfile into the collector directory that <code>monitoring</code> creates, so
-scope it <code>monitoring-backend,monitoring,untagged</code>, or the copy fails with
-"Destination directory does not exist".</p>
+<p>The test instances start without the role's packages, and the package
+install task runs only when the run names that tag. Without it the converge
+fails at the first untagged task that needs a package (the locale
+generation, with <code>Is the package "locales" installed?</code>), and a unit whose
+dependencies a package brings (<code>python3-venv</code> for <code>monitoring-apt</code>) could
+not start either. A stack whose files land in a directory another stack
+creates needs that stack's tag too: <code>monitoring-backend</code> writes a textfile
+into the collector directory that <code>monitoring</code> creates, so scope it
+<code>monitoring-backend,monitoring,install-debian-packages,untagged</code>, or the
+copy fails with "Destination directory does not exist".</p>
 <p>Unset, the variable selects every task, which is what CI runs. Run the full
 unscoped test once before pushing: a scoped run does not exercise the other
 stacks' tasks, nor the tasks that consume the registered results of tasks

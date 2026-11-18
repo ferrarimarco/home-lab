@@ -376,27 +376,31 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     and don't load kernel modules (the containers share the control machine's
     kernel).
 
-    A full `main` run converges every stack twice (converge and idempotence) and
-    takes about eight minutes. While iterating on one stack, scope both passes
-    with `ANSIBLE_TEST_TAGS`, which takes the same value as the `--tags` flag of
-    a production run (the stack tag plus `untagged`, as the
-    [Ansible development guide](./ansible.md) describes):
+    A full `main` run goes through every stack three times (check, converge, and
+    idempotence) and takes about fifteen minutes (4, 7, and 4 minutes on
+    2026-11-18). While iterating on one stack, scope the passes with
+    `ANSIBLE_TEST_TAGS`, which takes the value of the `--tags` flag of a
+    production run (the stack tag plus `untagged`, as the
+    [Ansible development guide](./ansible.md) describes) plus
+    `install-debian-packages`:
 
     ```shell
     ANSIBLE_TEST_DISTRO="geerlingguy/docker-debian13-ansible:latest" \
       ANSIBLE_TEST_PLAYBOOK_NAME="main" \
-      ANSIBLE_TEST_TAGS="zigbee2mqtt,untagged" \
+      ANSIBLE_TEST_TAGS="zigbee2mqtt,install-debian-packages,untagged" \
       scripts/run-ansible.sh "molecule test"
     ```
 
-    A stack that starts a service also needs `install-debian-packages` in the
-    scope: the package install task runs only when the run names that tag, and
-    without it the service's dependencies (`python3-venv` for `monitoring-apt`)
-    are missing when the unit starts. A stack whose files land in a directory
-    another stack creates needs that stack's tag too: `monitoring-backend`
-    writes a textfile into the collector directory that `monitoring` creates, so
-    scope it `monitoring-backend,monitoring,untagged`, or the copy fails with
-    "Destination directory does not exist".
+    The test instances start without the role's packages, and the package
+    install task runs only when the run names that tag. Without it the converge
+    fails at the first untagged task that needs a package (the locale
+    generation, with `Is the package "locales" installed?`), and a unit whose
+    dependencies a package brings (`python3-venv` for `monitoring-apt`) could
+    not start either. A stack whose files land in a directory another stack
+    creates needs that stack's tag too: `monitoring-backend` writes a textfile
+    into the collector directory that `monitoring` creates, so scope it
+    `monitoring-backend,monitoring,install-debian-packages,untagged`, or the
+    copy fails with "Destination directory does not exist".
 
     Unset, the variable selects every task, which is what CI runs. Run the full
     unscoped test once before pushing: a scoped run does not exercise the other
