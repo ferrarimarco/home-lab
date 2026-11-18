@@ -1814,15 +1814,17 @@ messages above it (<code>Timed out waiting for device ...</code>,
 <code>Dependency failed for ...</code>) name the device. Pressing Enter re-runs the start
 job and lands back at the prompt while the device is still missing (observed
 2026-10-09), so the console is no way out.</p>
-<p>Recovery needs another boot medium: the network-boot rescue once the
-<a href="../../../architecture/network-boot/">Network Boot Service</a> exists, otherwise a
-hand-written rescue SD card. Boot it, mount the host's root filesystem, and edit
-its <code>etc/fstab</code> so the entry carries <code>nofail,x-systemd.device-timeout=10</code> or is
-removed, then boot from the host's own disk again. The inventory entry in
-<code>disks_to_mount</code> must change the same way, or the next playbook run re-renders
-the line without <code>nofail</code>. Unplug the failed disk before any of these reboots: a
-USB disk that resets every few seconds stalls udev and provokes UAS aborts on
-the other disks of the same controller, the root disk included.</p>
+<p>Recovery needs another boot medium: the network-boot rescue for a host the boot
+server serves (the Raspberry Pis today, as the
+<a href="../network-boot/#start-and-stop-a-rescue">network boot guide</a> describes),
+otherwise a hand-written rescue SD card. Boot it, mount the host's root
+filesystem, and edit its <code>etc/fstab</code> so the entry carries
+<code>nofail,x-systemd.device-timeout=10</code> or is removed, then boot from the host's
+own disk again. The inventory entry in <code>disks_to_mount</code> must change the same
+way, or the next playbook run re-renders the line without <code>nofail</code>. Unplug the
+failed disk before any of these reboots: a USB disk that resets every few
+seconds stalls udev and provokes UAS aborts on the other disks of the same
+controller, the root disk included.</p>
 <h2 id="report-and-remediate">Report and remediate</h2>
 <ul>
 <li>State the death window and the evidence for it, and list what the incident was

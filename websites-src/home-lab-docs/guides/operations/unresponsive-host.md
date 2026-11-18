@@ -91,15 +91,17 @@ messages above it (`Timed out waiting for device ...`,
 job and lands back at the prompt while the device is still missing (observed
 2026-10-09), so the console is no way out.
 
-Recovery needs another boot medium: the network-boot rescue once the
-[Network Boot Service](../../architecture/network-boot.md) exists, otherwise a
-hand-written rescue SD card. Boot it, mount the host's root filesystem, and edit
-its `etc/fstab` so the entry carries `nofail,x-systemd.device-timeout=10` or is
-removed, then boot from the host's own disk again. The inventory entry in
-`disks_to_mount` must change the same way, or the next playbook run re-renders
-the line without `nofail`. Unplug the failed disk before any of these reboots: a
-USB disk that resets every few seconds stalls udev and provokes UAS aborts on
-the other disks of the same controller, the root disk included.
+Recovery needs another boot medium: the network-boot rescue for a host the boot
+server serves (the Raspberry Pis today, as the
+[network boot guide](./network-boot.md#start-and-stop-a-rescue) describes),
+otherwise a hand-written rescue SD card. Boot it, mount the host's root
+filesystem, and edit its `etc/fstab` so the entry carries
+`nofail,x-systemd.device-timeout=10` or is removed, then boot from the host's
+own disk again. The inventory entry in `disks_to_mount` must change the same
+way, or the next playbook run re-renders the line without `nofail`. Unplug the
+failed disk before any of these reboots: a USB disk that resets every few
+seconds stalls udev and provokes UAS aborts on the other disks of the same
+controller, the root disk included.
 
 ## Report and remediate
 

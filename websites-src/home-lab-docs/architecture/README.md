@@ -12,7 +12,7 @@ reference pages beside them, and the todo list for the whole lab.
 | [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                                                                                                                              | **Fully Implemented**         |
 | [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                                                                                                                                        | **Fully Implemented**         |
 | [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.                                                                                                                      | **Fully Implemented**         |
-| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.                                                                                              | **Partially Implemented**     |
+| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.                                                                                              | **Fully Implemented**         |
 | [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.                                                                                       | **Fully Implemented**         |
 | [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi path (proxy DHCP and TFTP) now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer. | **Partially Implemented**     |
 | [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill.                                                   | **Partially Implemented**     |
@@ -69,13 +69,8 @@ reliability risks first, then security exposure, then automation):
   files; configure the SSH keys; join the host to the tailnet (`tailscale up` is
   interactive, one run per node; the
   [NAS spec](./nas-lxc-container.md#134-node-identity-and-joining) records the
-  deferral and the candidates); configure unattended updates for the Nix hosts
-  (the Debian hosts and the Proxmox nodes are covered for the Debian origins by
-  the node role's
-  [unattended-upgrades](https://wiki.debian.org/UnattendedUpgrades) stack; the
-  Proxmox origin stays manual, see the item on automating the Proxmox updates
-  under [Host configuration](#host-configuration)); run Ansible; run Terraform
-  (networking; the storage stack is applied on both nodes).
+  deferral and the candidates); run Ansible; run Terraform (networking; the
+  storage stack is applied on both nodes).
 - **Network boot service follow-ups**, per the
   [Network Boot Service](./network-boot.md) spec:
     - A second server instance on pve2, so that pve1 and hl02 are covered too.
@@ -95,9 +90,9 @@ reliability risks first, then security exposure, then automation):
       whether the command path stays (hybrid) or the flag becomes the only way
       to start and stop a rescue (two deployments per rescue, none while the
       deployment path itself is broken).
-    - Documentation: the provisioning guide (EEPROM editing from the OS, the
-      rescue procedure, the manual follow-ups), the restore recipe
-      ([Backup](#backup)), and the unresponsive host runbook.
+    - Documentation: the SD card recovery path for a Raspberry Pi that cannot
+      network-boot (a lost bootloader configuration, or pve1 down), which the
+      spec cites as part of a provisioning guide and no guide holds yet.
 
 ### Issues to solve
 
@@ -177,8 +172,9 @@ reliability risks first, then security exposure, then automation):
   a NixOS module ([MQTT Broker](./mqtt-broker.md)) that takes password files and
   certificates from paths on the host, so this needs a secret delivery path for
   the NixOS hosts, which none has yet (the open listener needs none).
-- **NixOS hardening, in order of intrusiveness**: enable the NixOS firewall with
-  the Tailscale interface trusted; harden each service unit with the systemd
+- **NixOS hardening, in order of intrusiveness**: trust the Tailscale interface
+  in the NixOS firewall on the hosts that join the tailnet (the firewall itself
+  is on for every NixOS host); harden each service unit with the systemd
   sandboxing directives (ProtectSystem, ProtectHome, NoNewPrivileges, the
   ProtectKernel family), using `systemd-analyze security` as the yardstick;
   audit every `execve` with the kernel audit subsystem and ship the logs off the
@@ -213,8 +209,8 @@ reliability risks first, then security exposure, then automation):
       `terraform import` of the existing zone and records so the first apply
       changes nothing.
     - **Tolerate powered-off Proxmox nodes**: every stack configures a provider
-      per node, so a single unreachable node (pve2 runs since 2026-11-16, but
-      whether it stays on is undecided, as the
+      per node, so a single unreachable node (whether pve2 runs around the clock
+      is undecided, as the
       [host power guide](../guides/operations/host-power.md#pve2) records) fails
       the whole `run-terraform.sh` sequence, even for changes that only touch
       pve1 resources. Candidates: split the multi-node stacks into per-node
@@ -283,26 +279,28 @@ reliability risks first, then security exposure, then automation):
       installing stub `nvram` and `service` scripts on the test instance, with
       the gateway host pointed at that instance, would exercise the role's
       rendering and read-then-act logic in CI.
-    - Refactor the Molecule tests to use `group_vars` and `host_vars` instead of
-      redefining variables in the Molecule file
-      ([reference](https://ansible.readthedocs.io/projects/molecule/configuration/#molecule.provisioner.ansible.Ansible)).
-    - Set the hostname (`/etc/hostname`: simple hostname).
     - Validation: check that `start_xxxx` and `stop_xxxx` don't contradict each
       other.
-    - Cleanup users after switching from appending groups to creating dedicated
-      users: set the "state" of users dynamically.
-    - Tailscale: don't run `tailscale up` if the flags didn't change between
-      runs.
-    - **Cut the Molecule workflow cost (measured 2026-10-12)**: each of the
-      eight matrix jobs rebuilds the same Ansible container image (220 to 230 s
-      each, about 30 of the 55 job-minutes of the last green run, 2026-09-29),
-      because they all build at once before any has written the shared cache.
-      Build the image once in a job the matrix depends on (push it to the GitHub
-      container registry, or warm the `gha` cache). Then reconsider the matrix:
-      `main` imports every other playbook, so the seven standalone jobs only add
-      per-playbook attribution and a standalone-run check, while
-      `home-lab-node`, the most-changed playbook, is tested only through `main`;
-      the idempotence phase stays.
+    - Remove the users of a disabled stack (2026-11-18): the users task takes a
+      `state` per user, but `os_users` collects the enabled stacks only, so a
+      stack that is turned off leaves its dedicated users behind. Collect it
+      from the selected stacks with a state that follows the stack's flag, as
+      `os_groups` does.
+    - Tailscale: apply a changed `tailscale up` flag to a node that is online
+      (2026-11-18): the task runs only while the node is offline, so a flag
+      declared later (the advertised routes) never reaches a joined node.
+      Compare the declared flags with what the node reports and run the command
+      on a difference.
+    - **Cut the Molecule workflow cost (measured 2026-10-12)**: each matrix job
+      rebuilds the same Ansible container image (220 to 230 s each, about 30 of
+      the 55 job-minutes of the last green run, 2026-09-29), because they all
+      build at once before any has written the shared cache. Build the image
+      once in a job the matrix depends on (push it to the GitHub container
+      registry, or warm the `gha` cache). Then reconsider the matrix: `main`
+      imports every other playbook, so the standalone jobs only add per-playbook
+      attribution and a standalone-run check, while `home-lab-node`, the
+      most-changed playbook, is tested only through `main`; the idempotence
+      phase stays.
     - **Cut the Molecule converge time (measured 2026-10-23 on `main` against
       the Debian 12 image)**: connection pipelining cut the converge from 6:34
       to 4:53 and the idempotence pass from 4:11 to 2:34; a run scoped to one
@@ -632,16 +630,20 @@ reliability risks first, then security exposure, then automation):
   plugs feed several devices each, so every host figure in the
   [host power guide](../guides/operations/host-power.md) is a difference against
   a shared baseline that moves whenever something else is plugged in.
-- **Alert on obsolete packages (2026-10-12)**: a package that no configured APT
+- **Alert on obsolete packages (2026-11-18)**: a package that no configured APT
   source provides anymore (the Coral runtime after Google retired its
   repository, leftovers after a release upgrade) gets no updates and raises
   nothing. The apt collector's `apt_packages_obsolete` metric (upstream
   `apt_info.py` from the 2026-04-20 merge) counts them, but that version reads
   `Package.phasing_applied`, which python3-apt 2.6 (Debian 12) and the
   Debian-packaged collector on the Proxmox nodes lack, so the role pins the
-  2026-02-25 version. Once the upstream script runs on the hosts again, bump the
-  pin, add a warning rule on `apt_packages_obsolete > 0`, and a dashboard panel;
-  skip `apt_packages_per_origin`, an inventory figure with no threshold.
+  2026-02-25 version. The two hosts that run the pinned script are on Debian 13
+  since the hl01 release upgrade of 2026-11-04 and the raspberrypi2 re-image of
+  2026-11-08: run the upstream script on one of them to confirm that it works
+  there, then bump the pin, add a warning rule on `apt_packages_obsolete > 0`,
+  and a dashboard panel. The Proxmox nodes stay without the metric while they
+  run the packaged collector; skip `apt_packages_per_origin`, an inventory
+  figure with no threshold.
 - **Kernel log error exporter (2026-10-10)**: the kernel-level signs of the
   raspberrypi2 data disk failure and of the root SSD stalls (medium errors, a
   USB reset loop, UAS command aborts) carried no metric, while the SMART
@@ -748,9 +750,11 @@ reliability risks first, then security exposure, then automation):
   directory, metrics file deleted on start and exit, throttled restarts; changed
   2026-09-14) whenever a host with a Sense HAT returns to service; no such host
   is currently deployed.
-- Replace the `rm` ExecStartPre workaround in systemd units that write node
-  exporter textfiles (e.g. monitoring-apt) with the `truncate:` variant of
-  `StandardOutput` once every host runs systemd >= 248.
+- Replace the `rm` ExecStartPre workaround in the systemd units that write node
+  exporter textfiles (`monitoring-apt`, `sense-hat-exporter`, the ONT exporter)
+  with the `truncate:` variant of `StandardOutput`, which needs systemd 248 or
+  later (2026-11-18): the hosts that run these units are on Debian 13 since the
+  raspberrypi2 re-image of 2026-11-08, so nothing waits anymore.
 - **A lighter ONT exporter (2026-11-16)**: the exporter's login before every
   read may be what slows the ONT's admin interface down, so it now keeps one
   session and one connection and logs out when it stops, as the
