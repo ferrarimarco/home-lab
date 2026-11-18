@@ -1363,6 +1363,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-media-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      The media manifest
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#repair" class="md-nav__link">
     <span class="md-ellipsis">
       Repair
@@ -1885,6 +1894,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-media-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      The media manifest
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#repair" class="md-nav__link">
     <span class="md-ellipsis">
       Repair
@@ -2109,6 +2127,45 @@ sudo<span class="w"> </span>systemd-run<span class="w"> </span>--wait<span class
 </code></pre></div>
 <p>The exporter lists the repository every 12 hours; restart its service
 (<code>&lt;job&gt;-restic-exporter.service</code>) to see the change on the dashboard at once.</p>
+<h2 id="the-media-manifest">The media manifest</h2>
+<p>The media library is replaceable and has no backup; what the backup holds is the
+list of its files. On hl01 the <code>media-manifest</code> service of the node role lists
+every file under the media directory of the share (<code>/media/data0/media</code>,
+downloads included) into
+<code>/var/lib/ferrarimarco-home-lab/media-manifest/media-manifest.tsv</code>: the path
+relative to that directory, the size in bytes, and the modification time in UTC,
+tab-separated and sorted by path. The service has no timer of its own: the
+host's restic job units want it and are ordered after it, so every backup run,
+whether nightly, caught up after a boot, or started by hand, first writes the
+list and then takes the snapshot that holds it. A separate timer ahead of the
+backup's was tried first and dropped: ordering two units only delays the second
+while the first is already queued, and the backup started first in one of two
+trials (2026-11-18).</p>
+<ul>
+<li>An empty listing is written like any other, since an emptied library is a
+  valid state. When it replaces a manifest that lists files, that manifest is
+  first kept beside it as <code>media-manifest.last-non-empty.tsv</code>: a share that is
+  served empty with that directory present (a dataset that did not mount on the
+  node, once something recreated the directory) reads the same from hl01. The
+  kept file protects that one transition: it is replaced at the next one, a few
+  files reappearing in between included, and a listing that drops to a few files
+  without reaching zero keeps nothing.</li>
+<li>A listing that fails (an I/O error, an unreadable or missing directory) fails
+  the unit and leaves the manifest as it was. The unit requires the share's
+  mount, so it does not run against the bare mount point. Neither stops the
+  backup, which only wants the unit; a listing that hangs delays it until the
+  unit's ten-minute timeout.</li>
+<li>The <code>media_manifest_files</code> gauge in the textfile directory carries the file
+  count of the last run, and <code>MediaManifestShrunk</code> warns for three days when it
+  falls below half of what it was: the signal to save an earlier list while one
+  exists.</li>
+</ul>
+<p>After a disk loss, read the two files on hl01. When hl01 is gone too, or the
+files no longer hold the full list, the workloads repository holds one manifest
+per daily snapshot, for the seven days its retention keeps:</p>
+<div class="highlight"><pre><span></span><code>restic_run<span class="w"> </span>snapshots
+restic_run<span class="w"> </span>dump<span class="w"> </span>&lt;snapshot&gt;<span class="w"> </span>/var/lib/ferrarimarco-home-lab/media-manifest/media-manifest.tsv
+</code></pre></div>
 <h2 id="repair">Repair</h2>
 <p>A repository that <code>restic check</code> reports as damaged (<code>ResticCheckFailed</code>, or a
 failed nightly job) must be repaired before any restore: follow the command's

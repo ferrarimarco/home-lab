@@ -5,6 +5,7 @@ configure_docker: false
 configure_fail2ban: true
 configure_frigate: false
 configure_home_assistant: false
+configure_media_manifest: false
 configure_media_stack: false
 configure_monitoring: true
 configure_monitoring_backend: false

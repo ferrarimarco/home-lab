@@ -11,6 +11,7 @@
 | **Structural and pack-data checks** | **Fully Implemented** | Exporter `restic check` every 12 hours; the job reads one group of pack files per night, every pack once per cycle.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Restore drill**                   | **Fully Implemented** | Monthly drill of one bounded subtree with `--verify` into a scratch directory next to the repository.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **NixOS state backup**              | **Fully Implemented** | `restic-backup-nas-state` job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour and on 2026-11-04 with the single-flavour role (first backup and drill clean on both days, the former layout removed, exporter target up); applied on pve2 on 2026-11-16 (first backup and drill clean, exporter target up).                                                                                                                                                     |
+| **Media manifest**                  | **Fully Implemented** | Nightly list of the files on the media share (path, size, modification time), written by the `media-manifest` stack of the node role into the runtime tree at the start of every run of the workloads job, whose unit wants the listing and waits for it; an empty listing keeps the last one that listed files, and `MediaManifestShrunk` warns when the count falls below half. Applied on hl01 on 2026-11-18: the first run listed 705 files, and the snapshot taken after it holds the manifest.                                                                          |
 | **Second copy of the repositories** | **Missing**           | The repositories exist only on the nas-pve1 share, a single-disk pool; the second copy is a [Backup](./README.md#backup) todo item.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ## Scope
@@ -39,7 +40,14 @@ password from the vault. Not backed up, by decision:
   registries, which is why the weekly Docker prune removes them freely.
 - Docker volumes: no stack keeps state in them, so there is nothing to back up,
   and anything that landed there would be pruned weekly.
-- Media: replaceable; a second copy and a nightly manifest are tracked in the
+- Media: replaceable. What the backup holds is the list of its files: a manifest
+  of the media share, written on hl01 into the runtime tree at the start of
+  every run of the workloads job (the
+  [backup operations guide](../guides/operations/backup.md#the-media-manifest)
+  describes it). Exports of the titles through the arr and Jellyfin APIs were
+  considered beside it and left out: those applications' databases are in the
+  backup set already, and the library was rebuilt from them in October 2026. A
+  second copy of the library is tracked in the
   [specs todo list](./README.md#backup).
 
 The NAS containers' service state (the Samba databases, the Syncthing device key

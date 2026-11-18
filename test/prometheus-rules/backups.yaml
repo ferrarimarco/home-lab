@@ -270,3 +270,35 @@ tests:
               description: >-
                 The restic repository integrity check reported failure for
                 hl01:9150. Backups in this repository may not be restorable.
+
+  - name: MediaManifestShrunk fires when the manifest loses more than half of its files, for three days
+    interval: 1h
+    input_series:
+      - series: 'media_manifest_files{instance="hl01:9100"}'
+        values: "705x30 3x100"
+      # A library that shrinks by less than half
+      - series: 'media_manifest_files{instance="raspberrypi2:9100"}'
+        values: "100x30 60x100"
+    alert_rule_test:
+      - eval_time: 30h
+        alertname: MediaManifestShrunk
+        exp_alerts: []
+      - eval_time: 31h
+        alertname: MediaManifestShrunk
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+            exp_annotations:
+              summary: "The media manifest on hl01:9100 lost more than half of its files"
+              description: >-
+                The media manifest on hl01:9100 lists 3 files, less than half
+                of what it listed within the last three days. Unless the
+                library was emptied on purpose, its share is served empty or
+                its disk is lost: read the manifests on the host, and dump an
+                earlier one from the workloads repository before its daily
+                snapshots expire.
+      # The last larger count left the three-day window
+      - eval_time: 104h
+        alertname: MediaManifestShrunk
+        exp_alerts: []

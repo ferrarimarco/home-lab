@@ -1,0 +1,38 @@
+---
+media_manifest_tag: "media-manifest"
+# The manifest lives in the runtime tree, which the workloads backup covers
+media_manifest_runtime_directory_path: "{{ home_lab_runtime_directory_path }}/{{ media_manifest_tag }}"
+media_manifest_file_path: "{{ media_manifest_runtime_directory_path }}/{{ media_manifest_tag }}.tsv"
+# The file count, so that the textfile staleness alert covers a manifest that
+# stopped being written; the stack needs the textfile directory the monitoring
+# stack creates
+media_manifest_metrics_file_path: "{{ monitoring_prometheus_node_exporter_textfile_collector_directory }}/{{ media_manifest_tag }}.prom"
+media_manifest_script_destination_path: "/usr/local/bin/{{ media_manifest_tag }}.sh"
+media_manifest_service_file_name: "{{ media_manifest_tag }}.service"
+media_manifest_source_directory_path: "{{ media_directory_path }}"
+media_manifest_source_mount_path: "{{ data_disk_mount_path }}"
+
+media_manifest_configuration_directories:
+  - path: "{{ media_manifest_runtime_directory_path }}"
+    state: "{{ configure_media_manifest | ternary('directory', 'absent') }}"
+
+media_manifest_files_to_configure:
+  - src: "scripts/{{ media_manifest_tag }}.sh"
+    dest: "{{ media_manifest_script_destination_path }}"
+    mode: "0755"
+    state: "{{ configure_media_manifest | ternary('file', 'absent') }}"
+
+# The host's restic jobs start the service, which its [Install] section makes
+# them want: it is enabled, and never started here, since it runs to
+# completion. Disabled, the stopped state lets a unit that is already gone
+# count as converged.
+media_manifest_os_services:
+  - enabled: "{{ configure_media_manifest }}"
+    service_name: "{{ media_manifest_service_file_name }}"
+    service_state: "{{ configure_media_manifest | ternary(omit, 'stopped') }}"
+
+# No service to restart: restarting the service runs the job
+media_manifest_templates_to_render:
+  - src: "{{ media_manifest_tag }}/{{ media_manifest_service_file_name }}.jinja"
+    dest: "{{ systemd_system_services_configuration_directory }}/{{ media_manifest_service_file_name }}"
+    state: "{{ configure_media_manifest | ternary('file', 'absent') }}"

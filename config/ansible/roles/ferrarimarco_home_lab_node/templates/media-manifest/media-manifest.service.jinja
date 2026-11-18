@@ -1,0 +1,28 @@
+{% set media_manifest_backup_units = restic_backup_jobs | default([]) | map(attribute='job_name') | map('regex_replace', '$', '.service') | list %}
+[Unit]
+Description=Write the manifest of the media files
+# The share that holds the files: a run never lists the bare mount point
+RequiresMountsFor={{ media_manifest_source_mount_path }}
+{% if media_manifest_backup_units | length > 0 %}
+# Every backup run starts this unit and waits for it, so each snapshot holds
+# the list as of that run; a failed listing does not stop the backup
+Before={{ media_manifest_backup_units | join(' ') }}
+{% endif %}
+
+[Service]
+Type=oneshot
+ExecStart={{ media_manifest_script_destination_path }} {{ media_manifest_source_directory_path }} {{ media_manifest_file_path }} {{ media_manifest_metrics_file_path }}
+# A listing over a share that stopped answering would otherwise never end,
+# and the backup waits for it
+TimeoutStartSec=10min
+# Write nothing except the manifest and its metric
+ProtectSystem=strict
+ReadWritePaths={{ media_manifest_runtime_directory_path }} {{ monitoring_prometheus_node_exporter_textfile_collector_directory }}
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+{% if media_manifest_backup_units | length > 0 %}
+
+[Install]
+WantedBy={{ media_manifest_backup_units | join(' ') }}
+{% endif %}

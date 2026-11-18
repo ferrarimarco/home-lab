@@ -821,16 +821,6 @@ reliability risks first, then security exposure, then automation):
   can only run while pve2 is on: a timer that tolerates an absent target, or the
   pve2 24/7 decision. The evaluation of `tank-hdd` as the long-term media home
   or second copy lives here.
-- **Nightly file manifest of replaceable media (2026-10-10)**: when the
-  raspberrypi2 data disk died, the list of what it held had to be rebuilt from
-  the arr and Jellyfin databases, which only cover what those applications had
-  scanned, and took hours. Media stays out of restic, but its file list is cheap
-  to keep: a timer on the host that mounts the share (hl01, or pve1 against the
-  `rpool-usb-2/media` dataset) writes a manifest (path, size, modification time)
-  into the host's state directory, which the nightly restic workloads job
-  already backs up to a repository on another disk. Complement it with the arr
-  and Jellyfin API exports for titles and identifiers. A stack of the node role,
-  enabled where a media disk is mounted.
 - Back up the Tailscale node state and automate the Samba passwords on the
   Debian hosts, so a re-provisioned host needs neither a manual tailnet re-join
   with route re-approval nor `smbpasswd` runs. Both hold secret material; the

@@ -3,6 +3,9 @@ ansible_user: debian
 configure_docker: true
 configure_frigate: true
 configure_home_assistant: true
+# The nightly list of the files on the media share, which holds replaceable
+# media and has no backup: after a disk loss the list says what it held
+configure_media_manifest: true
 configure_media_stack: true
 configure_monitoring_backend: true
 configure_monitoring_nut_exporter: true

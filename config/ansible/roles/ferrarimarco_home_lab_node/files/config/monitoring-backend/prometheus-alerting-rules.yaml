@@ -428,6 +428,22 @@ groups:
             The restic repository integrity check reported failure for
             {{ $labels.instance }}. Backups in this repository may not be
             restorable.
+      - alert: MediaManifestShrunk
+        # The manifest is written whatever it lists, an empty share included,
+        # so the judgment on a drop is left to the reader of this alert. It
+        # resolves by itself once the larger counts leave the window.
+        expr: media_manifest_files < 0.5 * max_over_time(media_manifest_files[3d])
+        labels:
+          severity: warning
+        annotations:
+          summary: "The media manifest on {{ $labels.instance }} lost more than half of its files"
+          description: >-
+            The media manifest on {{ $labels.instance }} lists {{ $value }}
+            files, less than half of what it listed within the last three
+            days. Unless the library was emptied on purpose, its share is
+            served empty or its disk is lost: read the manifests on the host,
+            and dump an earlier one from the workloads repository before its
+            daily snapshots expire.
 
   - name: frigate
     rules:

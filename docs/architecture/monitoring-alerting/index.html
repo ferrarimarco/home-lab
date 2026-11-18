@@ -2380,7 +2380,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Backups</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Restic backup staleness on the step timestamp every job writes, repository identity, structural and data-read checks, and the monthly restore drill (§6.4).</td>
+<td style="text-align: left;">Restic backup staleness on the step timestamp every job writes, repository identity, structural and data-read checks, the monthly restore drill, and a media manifest that lost more than half of its files (§6.4). <code>MediaManifestShrunk</code> applied on both replicas on 2026-11-18.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Blackbox Probes</strong></td>
@@ -2460,7 +2460,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Unit Tests</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>promtool test rules</code> cases for all 60 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
+<td style="text-align: left;"><code>promtool test rules</code> cases for all 61 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
 </tr>
 </tbody>
 </table>
@@ -2931,6 +2931,13 @@ with operational experience.</p>
 <td style="text-align: left;"><code>time() - restic_job_step_last_success_timestamp_seconds{step="check-read-data"} &gt; 3 * 86400</code></td>
 <td style="text-align: left;">—</td>
 <td style="text-align: left;">The backup job reads one group of pack files every night (<code>restic check --read-data-subset=n/t</code>, groups fixed by pack identifier, so each pack is read once per cycle of <code>t</code> nights, 7 by default per job); no completed read for three days means the job is failing or the read was disabled, and corrupt packs go unnoticed until a restore.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MediaManifestShrunk</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>media_manifest_files &lt; 0.5 * max_over_time(media_manifest_files[3d])</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">The media library has no backup, only the nightly list of its files, which is written whatever it lists: a share served empty or a lost disk shows as a list that shrank, while the daily snapshots still hold the earlier ones. Emptying the library on purpose raises it too; it resolves by itself once the larger counts leave the window.</td>
 </tr>
 </tbody>
 </table>

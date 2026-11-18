@@ -235,6 +235,49 @@ sudo systemd-run --wait --pipe --collect --quiet --unit "<job>-forget" \
 The exporter lists the repository every 12 hours; restart its service
 (`<job>-restic-exporter.service`) to see the change on the dashboard at once.
 
+## The media manifest
+
+The media library is replaceable and has no backup; what the backup holds is the
+list of its files. On hl01 the `media-manifest` service of the node role lists
+every file under the media directory of the share (`/media/data0/media`,
+downloads included) into
+`/var/lib/ferrarimarco-home-lab/media-manifest/media-manifest.tsv`: the path
+relative to that directory, the size in bytes, and the modification time in UTC,
+tab-separated and sorted by path. The service has no timer of its own: the
+host's restic job units want it and are ordered after it, so every backup run,
+whether nightly, caught up after a boot, or started by hand, first writes the
+list and then takes the snapshot that holds it. A separate timer ahead of the
+backup's was tried first and dropped: ordering two units only delays the second
+while the first is already queued, and the backup started first in one of two
+trials (2026-11-18).
+
+- An empty listing is written like any other, since an emptied library is a
+  valid state. When it replaces a manifest that lists files, that manifest is
+  first kept beside it as `media-manifest.last-non-empty.tsv`: a share that is
+  served empty with that directory present (a dataset that did not mount on the
+  node, once something recreated the directory) reads the same from hl01. The
+  kept file protects that one transition: it is replaced at the next one, a few
+  files reappearing in between included, and a listing that drops to a few files
+  without reaching zero keeps nothing.
+- A listing that fails (an I/O error, an unreadable or missing directory) fails
+  the unit and leaves the manifest as it was. The unit requires the share's
+  mount, so it does not run against the bare mount point. Neither stops the
+  backup, which only wants the unit; a listing that hangs delays it until the
+  unit's ten-minute timeout.
+- The `media_manifest_files` gauge in the textfile directory carries the file
+  count of the last run, and `MediaManifestShrunk` warns for three days when it
+  falls below half of what it was: the signal to save an earlier list while one
+  exists.
+
+After a disk loss, read the two files on hl01. When hl01 is gone too, or the
+files no longer hold the full list, the workloads repository holds one manifest
+per daily snapshot, for the seven days its retention keeps:
+
+```shell
+restic_run snapshots
+restic_run dump <snapshot> /var/lib/ferrarimarco-home-lab/media-manifest/media-manifest.tsv
+```
+
 ## Repair
 
 A repository that `restic check` reports as damaged (`ResticCheckFailed`, or a

@@ -1837,6 +1837,11 @@
 <td style="text-align: left;"><code>restic-backup-nas-state</code> job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour and on 2026-11-04 with the single-flavour role (first backup and drill clean on both days, the former layout removed, exporter target up); applied on pve2 on 2026-11-16 (first backup and drill clean, exporter target up).</td>
 </tr>
 <tr>
+<td style="text-align: left;"><strong>Media manifest</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">Nightly list of the files on the media share (path, size, modification time), written by the <code>media-manifest</code> stack of the node role into the runtime tree at the start of every run of the workloads job, whose unit wants the listing and waits for it; an empty listing keeps the last one that listed files, and <code>MediaManifestShrunk</code> warns when the count falls below half. Applied on hl01 on 2026-11-18: the first run listed 705 files, and the snapshot taken after it holds the manifest.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><strong>Second copy of the repositories</strong></td>
 <td style="text-align: left;"><strong>Missing</strong></td>
 <td style="text-align: left;">The repositories exist only on the nas-pve1 share, a single-disk pool; the second copy is a <a href="../#backup">Backup</a> todo item.</td>
@@ -1866,7 +1871,14 @@ password from the vault. Not backed up, by decision:</p>
   registries, which is why the weekly Docker prune removes them freely.</li>
 <li>Docker volumes: no stack keeps state in them, so there is nothing to back up,
   and anything that landed there would be pruned weekly.</li>
-<li>Media: replaceable; a second copy and a nightly manifest are tracked in the
+<li>Media: replaceable. What the backup holds is the list of its files: a manifest
+  of the media share, written on hl01 into the runtime tree at the start of
+  every run of the workloads job (the
+  <a href="../../guides/operations/backup/#the-media-manifest">backup operations guide</a>
+  describes it). Exports of the titles through the arr and Jellyfin APIs were
+  considered beside it and left out: those applications' databases are in the
+  backup set already, and the library was rebuilt from them in October 2026. A
+  second copy of the library is tracked in the
   <a href="../#backup">specs todo list</a>.</li>
 </ul>
 <p>The NAS containers' service state (the Samba databases, the Syncthing device key
