@@ -1,5 +1,7 @@
 ---
 apt_cache_valid_time: 3600
+# The file smartctl reads local drive database entries from
+monitoring_smartmontools_local_drive_database_path: /etc/smart_drivedb.h
 monitoring_os_packages:
   - prometheus-node-exporter
   # Textfile collectors (apt, smartmon, ...): a Recommends of the exporter

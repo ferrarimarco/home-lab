@@ -700,6 +700,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#615-zfs-pools" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.15 ZFS Pools
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2267,6 +2276,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#615-zfs-pools" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.15 ZFS Pools
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2387,7 +2405,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: SMART Disk Health</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">SMART health verdict and sector-growth rules on the smartmon textfile metrics (§6.9).</td>
+<td style="text-align: left;">SMART health verdict and sector-growth rules on the smartmon textfile metrics, and a rule for a disk the collector does not report (§6.9). <code>SmartDiskUnmonitored</code> applied on both replicas on 2026-11-18, after it fired there for the disk whose missing series prompted it, with the collector side of its expression pinned to a time before that disk's USB bridge was declared on pve1.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: UPS</strong></td>
@@ -2415,6 +2433,11 @@
 <td style="text-align: left;">A rescue toggle left started for a day, on the boot server's unit states, which its node exporter exports since the systemd collector was enabled on the NixOS hosts (§6.14); applied on both replicas on 2026-11-06.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><strong>Alert Rules: ZFS Pools</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;">A pool that left the online state, on the node exporter's pool state series (§6.15); applied on both replicas on 2026-11-18, the rule healthy and inactive: the four pools of pve1 report online, and pve2 was powered off.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><strong>Restart Policy Migration</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">All four monitoring backend services run with <code>restart: unless-stopped</code>, verified via <code>docker inspect</code> after deployment (§8).</td>
@@ -2437,7 +2460,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Unit Tests</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>promtool test rules</code> cases for all 58 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
+<td style="text-align: left;"><code>promtool test rules</code> cases for all 60 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
 </tr>
 </tbody>
 </table>
@@ -3114,7 +3137,11 @@ correctly.</p>
 <p>These rules consume the <code>smartmon</code> textfile collector metrics that the node
 exporter already exposes on the hosts with local disks. The textfile staleness
 rule (§6.2) covers the collector itself; these rules cover the disks it reports
-on.</p>
+on, and the last one the disks it leaves out: the collector reports the disks
+smartmontools finds by itself, which excludes a disk behind a USB bridge it does
+not know (the
+<a href="../../guides/operations/monitoring/#a-disk-without-smart-series">monitoring operations guide</a>
+describes how such a bridge is declared).</p>
 <table>
 <thead>
 <tr>
@@ -3139,6 +3166,13 @@ on.</p>
 <td style="text-align: left;"><code>delta(smartmon_current_pending_sector_raw_value[24h]) &gt; 0 or delta(smartmon_reallocated_sector_ct_raw_value[24h]) &gt; 0</code></td>
 <td style="text-align: left;">—</td>
 <td style="text-align: left;">Growth in pending or reallocated sectors is the classic pre-failure signal; the delta form ignores historic nonzero counts.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SmartDiskUnmonitored</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>(label_replace(node_disk_info{device=~"sd[a-z]+"}, "disk", "/dev/$1", "device", "(.+)") or label_replace(node_disk_info{device=~"nvme[0-9]+n[0-9]+"}, "disk", "/dev/$1", "device", "(nvme[0-9]+)n[0-9]+")) unless on (instance, disk) smartmon_device_active and on (instance) smartmon_device_active</code></td>
+<td style="text-align: left;">1 h</td>
+<td style="text-align: left;">A disk the node exporter lists and the collector does not report has no series for the two rules above to read, as the media disk of pve1 had none until 2026-11-18. Scoped to the hosts whose collector reports a disk, since a virtual machine's disks have no SMART data; the hold covers a disk attached between two collector runs. A host with no collector at all stays unseen.</td>
 </tr>
 </tbody>
 </table>
@@ -3319,6 +3353,35 @@ covers the state only this service has:</p>
 </tr>
 </tbody>
 </table>
+<h3 id="615-zfs-pools">6.15 ZFS Pools</h3>
+<p>The Proxmox nodes keep their guests and the NAS shares on ZFS pools, each on a
+single disk. The node exporter's ZFS collector writes one series per pool and
+state, valued 1 for the state the pool is in, and this rule reads it:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Alert</th>
+<th style="text-align: left;">Severity</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Duration</th>
+<th style="text-align: left;">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ZfsPoolNotOnline</code></td>
+<td style="text-align: left;">critical</td>
+<td style="text-align: left;"><code>node_zfs_zpool_state{state!="online"} == 1</code></td>
+<td style="text-align: left;">5 m</td>
+<td style="text-align: left;">A pool that is degraded, faulted, or suspended lost a device or stopped serving I/O; on a single disk there is no redundancy to keep running on.</td>
+</tr>
+</tbody>
+</table>
+<p>The rule sees the pool's state only. A pool that was never imported has no
+series, and its import unit falls under the node health rules; read and checksum
+errors on a pool that stays online, and the result of a scrub, have no metric
+yet (a <a href="../#monitoring-and-alerting">todo item</a>). The SMART rules (§6.9)
+cover the disks under the pools.</p>
 <h2 id="7-alerting-pipeline-health">7. Alerting Pipeline Health</h2>
 <p>The pipeline must not fail silently:</p>
 <ul>

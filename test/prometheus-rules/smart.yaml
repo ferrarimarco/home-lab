@@ -75,3 +75,44 @@ tests:
                 The pending or reallocated sector count of the disk /dev/sdb
                 on pve1:9100 grew within the last day. The drive surface is
                 degrading: plan a replacement before it fails.
+
+  - name: SmartDiskUnmonitored fires for a disk the SMART collector has not reported for an hour
+    interval: 1m
+    input_series:
+      # A node whose collector reports two of its three disks; the volume
+      # device is not a disk
+      - series: 'node_disk_info{instance="pve1:9100", device="sda"}'
+        values: "1x70"
+      - series: 'node_disk_info{instance="pve1:9100", device="sdb"}'
+        values: "1x70"
+      - series: 'node_disk_info{instance="pve1:9100", device="nvme0n1"}'
+        values: "1x70"
+      - series: 'node_disk_info{instance="pve1:9100", device="zd0"}'
+        values: "1x70"
+      - series: 'smartmon_device_active{instance="pve1:9100", disk="/dev/sda", type="sat"}'
+        values: "1x70"
+      - series: 'smartmon_device_active{instance="pve1:9100", disk="/dev/nvme0", type="nvme"}'
+        values: "1x70"
+      # A virtual machine: a disk, and no collector to report it
+      - series: 'node_disk_info{instance="hl01:9100", device="sda"}'
+        values: "1x70"
+    alert_rule_test:
+      - eval_time: 59m
+        alertname: SmartDiskUnmonitored
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: SmartDiskUnmonitored
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: pve1:9100
+              device: sdb
+              disk: /dev/sdb
+            exp_annotations:
+              summary: "Disk /dev/sdb on pve1:9100 has no SMART metrics"
+              description: >-
+                The node exporter lists the disk /dev/sdb on pve1:9100, and
+                the SMART collector has reported nothing for it for an hour,
+                so the SMART rules cannot see it failing. The collector's
+                device scan probably leaves it out (a USB bridge smartmontools
+                does not know): read smartctl --scan-open on the host.

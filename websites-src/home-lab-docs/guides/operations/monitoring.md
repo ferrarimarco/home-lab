@@ -127,6 +127,52 @@ every new rule a unit test, as the
 [operational scripts guide](../development/operational-scripts.md#testing)
 describes.
 
+### Testing a rule against a past failure
+
+A rule written for a failure that was just fixed can still be seen firing on the
+replicas, without recreating the failure: pin the side of its expression that
+the fix changed to a time before the fix with the `@` modifier
+(`<selector> @ <Unix time>`, from `date -u -d '<time>' +%s`), give it a hold of
+a few seconds, and deploy it. First evaluate the pinned expression through the
+query API on each replica, passing it on the standard input
+(`--data-urlencode query@-`) so that no shell expands a `$1` in it. Once the
+alert has fired and its notification is counted (the queries of the planned
+downtime section), remove the pin, set the real hold, and deploy again.
+`SmartDiskUnmonitored` was tested this way on 2026-11-18, the collector's series
+pinned to a time before the disk had any.
+
+### A disk without SMART series
+
+The SMART collector of the Proxmox nodes (the `smartmon.sh` script of Debian's
+collectors package) lists the disks with `smartctl --scan-open`, and the SMART
+rules read what it exports, so a disk the scan leaves out has no series for
+them: `SmartDiskUnmonitored` fires for it after an hour. smartmontools picks the
+protocol that reaches a disk behind a USB bridge from its drive database, by the
+bridge's USB ID, and leaves a disk behind an unknown bridge out of the scan
+(`smartctl -i <device>` then prints "Unknown USB bridge" with the ID). To find
+such a disk, compare the scan with the disks the host has:
+
+```shell
+smartctl --scan-open
+lsblk --scsi --output NAME,TRAN,VENDOR,MODEL
+```
+
+Try the device types by hand (`smartctl -d sat -i -H <device>`; `sat` is the
+standard pass-through). A local database entry then tells the scan which type to
+use; test one before declaring it, without writing anything, by feeding it on
+the standard input:
+
+```shell
+printf '%s\n' '{ "USB: <description>; ", "0x<vendor>:0x<product>", "", "", "-d sat" },' \
+  | smartctl --drivedb=+/dev/stdin --scan-open
+```
+
+Declare the bridge in the host's `monitoring_smartmontools_usb_bridges` list,
+which the monitoring role renders as `/etc/smart_drivedb.h` (pve1 declares the
+enclosure of its media disk), and apply the monitoring playbook with a host
+limit. An updated database (`update-smart-drivedb`) only helps when upstream
+knows the ID, which it did not for that enclosure on 2026-11-18.
+
 ## Reading the state of the ONT
 
 For the state of the ONT during or after an incident, read the exporter's series

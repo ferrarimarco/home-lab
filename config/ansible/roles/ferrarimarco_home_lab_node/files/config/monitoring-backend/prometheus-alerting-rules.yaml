@@ -614,6 +614,50 @@ groups:
             {{ $labels.disk }} on {{ $labels.instance }} grew within the
             last day. The drive surface is degrading: plan a replacement
             before it fails.
+      - alert: SmartDiskUnmonitored
+        # The disks the node exporter lists (device sda, nvme0n1) against the
+        # ones the SMART collector reports (disk /dev/sda, /dev/nvme0), on
+        # the hosts whose collector reports any: the disks of a virtual
+        # machine have no SMART data and no collector.
+        expr: >-
+          (
+            label_replace(node_disk_info{device=~"sd[a-z]+"}, "disk", "/dev/$1", "device", "(.+)")
+            or
+            label_replace(node_disk_info{device=~"nvme[0-9]+n[0-9]+"}, "disk", "/dev/$1", "device", "(nvme[0-9]+)n[0-9]+")
+          )
+          unless on (instance, disk) smartmon_device_active
+          and on (instance) smartmon_device_active
+        # A disk attached now is listed at once, and reported at the
+        # collector's next run
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk {{ $labels.disk }} on {{ $labels.instance }} has no SMART metrics"
+          description: >-
+            The node exporter lists the disk {{ $labels.disk }} on
+            {{ $labels.instance }}, and the SMART collector has reported
+            nothing for it for an hour, so the SMART rules cannot see it
+            failing. The collector's device scan probably leaves it out (a
+            USB bridge smartmontools does not know): read
+            smartctl --scan-open on the host.
+
+  - name: zfs
+    rules:
+      - alert: ZfsPoolNotOnline
+        # The node exporter writes one series per pool and state, valued 1
+        # for the state the pool is in.
+        expr: node_zfs_zpool_state{state!="online"} == 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ZFS pool {{ $labels.zpool }} on {{ $labels.instance }} is {{ $labels.state }}"
+          description: >-
+            The ZFS pool {{ $labels.zpool }} on {{ $labels.instance }} has
+            been {{ $labels.state }} for 5 minutes. Read zpool status on the
+            host: a device failed or went missing, and a pool on a single
+            disk has no redundancy to keep running on.
 
   - name: ups
     rules:

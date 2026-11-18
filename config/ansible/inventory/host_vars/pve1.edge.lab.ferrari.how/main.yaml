@@ -33,6 +33,12 @@ directories_to_create:
     # Holds the Tailscale node private key; tailscaled runs as root, so the
     # directory stays root-owned and owner-only.
     mode: "0700"
+# The enclosure of the rpool-usb-2 disk: smartmontools does not know its
+# bridge, which passes ATA commands through (SAT)
+monitoring_smartmontools_usb_bridges:
+  - description: LaCie Porsche Design Desktop Drive
+    usb_id: "0x059f:0x106e"
+    device_type: sat
 monitoring_nut_devices:
   - id: eaton-ellipse-pro-1600-din-1
     description: Eaton Ellipse PRO 1600 DIN

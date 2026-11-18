@@ -7,6 +7,26 @@
     update_cache: true
   become: true
 
+- name: Declare the USB bridges smartmontools does not know
+  ansible.builtin.template:
+    src: smart_drivedb.h.jinja
+    dest: "{{ monitoring_smartmontools_local_drive_database_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+    # smartctl parses the file as the whole database and fails on a syntax
+    # error, which it would otherwise report on every later run
+    validate: smartctl --drivedb=%s --presets=showall
+  become: true
+  when: monitoring_smartmontools_usb_bridges | length > 0
+
+- name: Remove the local drive database when no bridge is declared
+  ansible.builtin.file:
+    path: "{{ monitoring_smartmontools_local_drive_database_path }}"
+    state: absent
+  become: true
+  when: monitoring_smartmontools_usb_bridges | length == 0
+
 - name: Record successful APT updates for the apt collector
   ansible.builtin.copy:
     src: 99-monitoring-apt-update-success-stamp

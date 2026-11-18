@@ -1,0 +1,6 @@
+// Rendered by Ansible from this host's monitoring_smartmontools_usb_bridges:
+// local entries of the smartmontools drive database, read before the built in
+// ones, for the USB bridges the database does not know.
+{% for bridge in monitoring_smartmontools_usb_bridges %}
+{ "USB: {{ bridge.description }}; ", "{{ bridge.usb_id }}", "", "", "-d {{ bridge.device_type }}" },
+{% endfor %}

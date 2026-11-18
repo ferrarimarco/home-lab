@@ -208,6 +208,12 @@ provisioner:
         configure_monitoring_apt: false
         configure_monitoring_sata: false
         monitoring_textfile_collector_directory: /var/lib/prometheus/node-exporter
+        # A USB bridge entry, so the monitoring role renders and validates
+        # the local drive database; the other instance removes the file
+        monitoring_smartmontools_usb_bridges:
+          - description: Test bridge
+            usb_id: "0x1234:0x5678"
+            device_type: sat
         security_unattended_upgrades_enabled: true
         network_interfaces:
           - mac_address: "12:34:56:78:90:AC"

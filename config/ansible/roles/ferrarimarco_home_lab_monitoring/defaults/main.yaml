@@ -1,2 +1,7 @@
 ---
 configure_monitoring: false
+# USB bridges that smartmontools does not know, as a list of description,
+# usb_id (0x<vendor>:0x<product>), and device_type (the smartctl -d value that
+# reads the disk). smartctl leaves a disk behind an unknown bridge out of its
+# device scan, so the SMART collector exports nothing for it.
+monitoring_smartmontools_usb_bridges: []

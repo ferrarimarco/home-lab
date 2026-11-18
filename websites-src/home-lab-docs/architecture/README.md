@@ -696,6 +696,16 @@ reliability risks first, then security exposure, then automation):
   `SmartSectorsDegrading`, with its firing and non-firing promtool cases; the
   series exists for pve1 and for pve2's two hard disks (read on 2026-11-16). A
   link reset that produces no CRC error stays visible in the kernel log only.
+- **Alert on ZFS errors and scrub results (2026-11-18)**: `ZfsPoolNotOnline`
+  reads the pool state alone, so read, write, and checksum errors on a pool that
+  stays online, a scrub that found errors, and a scrub that stopped running
+  raise nothing: the node exporter (1.9.0 on the nodes) exports none of them,
+  and the `zfs_zpool.sh` script of Debian's collectors package reports health
+  and sizes only. First step: a textfile collector on the nodes that reads
+  `zpool status --json` (the per-device error counters and the last scrub's end
+  time and error count), with a rule on a growing counter and one on a scrub
+  older than its monthly schedule plus a margin. ZED is set to mail root on
+  these events (read on pve1); where that mail goes has not been checked.
 - **A disabled stack leaves its service enabled (2026-11-08)**: the stacks that
   stop a service when their flag is off keep `enabled: true` on the service
   entry (the monitoring timers, Samba, the camera, the Argon case, the Sense

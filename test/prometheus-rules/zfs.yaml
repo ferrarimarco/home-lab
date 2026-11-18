@@ -1,0 +1,41 @@
+---
+rule_files:
+  - ../../config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-backend/prometheus-alerting-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: ZfsPoolNotOnline fires when a pool has left the online state for 5 minutes
+    interval: 1m
+    input_series:
+      - series: 'node_zfs_zpool_state{instance="pve1:9100", zpool="rpool-usb-2", state="online"}'
+        values: "1x2 0x10"
+      - series: 'node_zfs_zpool_state{instance="pve1:9100", zpool="rpool-usb-2", state="suspended"}'
+        values: "0x2 1x10"
+      - series: 'node_zfs_zpool_state{instance="pve1:9100", zpool="rpool-usb-2", state="degraded"}'
+        values: "0x13"
+      - series: 'node_zfs_zpool_state{instance="pve1:9100", zpool="rpool-sata", state="online"}'
+        values: "1x13"
+      - series: 'node_zfs_zpool_state{instance="pve1:9100", zpool="rpool-sata", state="suspended"}'
+        values: "0x13"
+    alert_rule_test:
+      # The pool is suspended from the fourth sample (3m): the hold has not
+      # elapsed yet
+      - eval_time: 7m
+        alertname: ZfsPoolNotOnline
+        exp_alerts: []
+      - eval_time: 8m
+        alertname: ZfsPoolNotOnline
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: pve1:9100
+              zpool: rpool-usb-2
+              state: suspended
+            exp_annotations:
+              summary: "ZFS pool rpool-usb-2 on pve1:9100 is suspended"
+              description: >-
+                The ZFS pool rpool-usb-2 on pve1:9100 has been suspended for 5
+                minutes. Read zpool status on the host: a device failed or
+                went missing, and a pool on a single disk has no redundancy to
+                keep running on.
