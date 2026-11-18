@@ -22,13 +22,23 @@ This guide describes the conventions that keep that list useful.
   [software candidates](../../architecture/software-candidates.md) page instead,
   whose rows link to the idea or the item that evaluates them.
 
+## Adding, moving, and rewording items
+
+An item is a claim about the repository: that something is missing. Before
+adding an item, and before moving or rewording an existing one (a triage, a
+merge of two lists), read the code, the specification, and the guides it names
+and confirm that the claim holds: the work may have landed already, in part or
+under another name. An item whose claim cannot be read from the repository (a
+host's state, a vault variable, a measurement) names the command that checks it.
+
 ## Item shape
 
 An item is work with a next step, and reads as one:
 
 - A bold title with the date of the decision or of the last change of state,
   then the remaining steps in order and what the work waits on, with
-  `Depends on:` and `Blocks:` annotations as the next section describes.
+  `Depends on:`, `Blocks:`, and `Waits on:` annotations as the next section
+  describes.
 - Evidence and narrative (an incident chronology, measurements, the alternatives
   weighed, the design of a postponed attempt) live in the page that owns them, a
   guide, an archive note, or the specification, and the item links to them. An
@@ -36,6 +46,10 @@ An item is work with a next step, and reads as one:
   such a page.
 - The state of a rollout goes in the Details column of the specification's
   status table, not in the item.
+- An item does not restate a fact that the code or another page holds and that
+  changes without the item (a job count, a version, whether a host is on): it
+  links to where the fact lives, or gives the figure as a measurement with its
+  date.
 
 ## Dependencies
 
@@ -45,6 +59,12 @@ An item is work with a next step, and reads as one:
   without which the work cannot be done. An ordering preference (doing one item
   first because it shrinks another) is a plain sentence, not a dependency: a
   preference recorded as a dependency later has to be untangled.
+- `Waits on:` records what an item waits for outside the list (an upstream
+  release, a host event, a measurement window), and names the event in the words
+  the change that brings it would use: `Waits on: the raspberrypi2 re-image`,
+  not "once every host runs systemd 248". A condition on a property (a version,
+  a count) names the hosts or components that still fail it, so the sweep of
+  "Completing items" reaches it from their names.
 - Link cross-subsection references to the themed subsection anchors (for example
   `[Networking](#networking)`).
 
@@ -67,10 +87,12 @@ another item depends on it. In every case:
   rollout that also deploys an integration an item was waiting on): close those
   items in the same pass and mention them in the commit message, so the list
   does not drift.
-- Search the specifications and this list for the words that described the step
-  as pending (`until the <event>`, `Depends on: the <event>`, the component's
-  name) and update every hit in the same change: a landed step leaves stale text
-  wherever it was awaited, status table rows included, not only in its own item.
+- Search the specifications, the guides, and this list for the words that
+  described the step as pending (`until the <event>`,
+  `once the <component> exists`, `Depends on:` or `Waits on: the <event>`, the
+  names of the hosts and components the change touched) and update every hit in
+  the same change: a landed step leaves stale text wherever it was awaited,
+  status table rows and guides included, not only in its own item.
 
 ## Deferring work
 
@@ -85,3 +107,13 @@ update that item as the work advances, so that any session finds the current
 state in one place. The progress of a rollout goes in the Details column of the
 specification's status table. A private note, such as an agent's memory store,
 is not that place: nothing versions it, and each session rewrites it.
+
+## Auditing the list
+
+The rules above act when a change lands, so they miss an item that was wrong
+when it entered and a text the sweep did not reach. When the last "Current
+focus" item closes, read the whole list against the repository before promoting
+the next ones: for each item that names something checkable (a file, a variable,
+a rule, a workflow), confirm that the work is still missing and that the facts
+it states still hold, then close, narrow, or correct it. Report the items that
+cannot be checked from the repository instead of counting them as open.

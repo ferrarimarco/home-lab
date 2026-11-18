@@ -1023,6 +1023,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#adding-moving-and-rewording-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding, moving, and rewording items
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#item-shape" class="md-nav__link">
     <span class="md-ellipsis">
       Item shape
@@ -1053,6 +1062,15 @@
   <a href="#deferring-work" class="md-nav__link">
     <span class="md-ellipsis">
       Deferring work
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auditing-the-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auditing the list
     </span>
   </a>
   
@@ -1669,6 +1687,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#adding-moving-and-rewording-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding, moving, and rewording items
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#item-shape" class="md-nav__link">
     <span class="md-ellipsis">
       Item shape
@@ -1699,6 +1726,15 @@
   <a href="#deferring-work" class="md-nav__link">
     <span class="md-ellipsis">
       Deferring work
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auditing-the-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auditing the list
     </span>
   </a>
   
@@ -1745,12 +1781,20 @@ This guide describes the conventions that keep that list useful.</p>
   <a href="../../../architecture/software-candidates/">software candidates</a> page instead,
   whose rows link to the idea or the item that evaluates them.</li>
 </ul>
+<h2 id="adding-moving-and-rewording-items">Adding, moving, and rewording items</h2>
+<p>An item is a claim about the repository: that something is missing. Before
+adding an item, and before moving or rewording an existing one (a triage, a
+merge of two lists), read the code, the specification, and the guides it names
+and confirm that the claim holds: the work may have landed already, in part or
+under another name. An item whose claim cannot be read from the repository (a
+host's state, a vault variable, a measurement) names the command that checks it.</p>
 <h2 id="item-shape">Item shape</h2>
 <p>An item is work with a next step, and reads as one:</p>
 <ul>
 <li>A bold title with the date of the decision or of the last change of state,
   then the remaining steps in order and what the work waits on, with
-  <code>Depends on:</code> and <code>Blocks:</code> annotations as the next section describes.</li>
+  <code>Depends on:</code>, <code>Blocks:</code>, and <code>Waits on:</code> annotations as the next section
+  describes.</li>
 <li>Evidence and narrative (an incident chronology, measurements, the alternatives
   weighed, the design of a postponed attempt) live in the page that owns them, a
   guide, an archive note, or the specification, and the item links to them. An
@@ -1758,6 +1802,10 @@ This guide describes the conventions that keep that list useful.</p>
   such a page.</li>
 <li>The state of a rollout goes in the Details column of the specification's
   status table, not in the item.</li>
+<li>An item does not restate a fact that the code or another page holds and that
+  changes without the item (a job count, a version, whether a host is on): it
+  links to where the fact lives, or gives the figure as a measurement with its
+  date.</li>
 </ul>
 <h2 id="dependencies">Dependencies</h2>
 <ul>
@@ -1767,6 +1815,12 @@ This guide describes the conventions that keep that list useful.</p>
   without which the work cannot be done. An ordering preference (doing one item
   first because it shrinks another) is a plain sentence, not a dependency: a
   preference recorded as a dependency later has to be untangled.</li>
+<li><code>Waits on:</code> records what an item waits for outside the list (an upstream
+  release, a host event, a measurement window), and names the event in the words
+  the change that brings it would use: <code>Waits on: the raspberrypi2 re-image</code>,
+  not "once every host runs systemd 248". A condition on a property (a version,
+  a count) names the hosts or components that still fail it, so the sweep of
+  "Completing items" reaches it from their names.</li>
 <li>Link cross-subsection references to the themed subsection anchors (for example
   <code>[Networking](#networking)</code>).</li>
 </ul>
@@ -1788,10 +1842,12 @@ another item depends on it. In every case:</p>
   rollout that also deploys an integration an item was waiting on): close those
   items in the same pass and mention them in the commit message, so the list
   does not drift.</li>
-<li>Search the specifications and this list for the words that described the step
-  as pending (<code>until the &lt;event&gt;</code>, <code>Depends on: the &lt;event&gt;</code>, the component's
-  name) and update every hit in the same change: a landed step leaves stale text
-  wherever it was awaited, status table rows included, not only in its own item.</li>
+<li>Search the specifications, the guides, and this list for the words that
+  described the step as pending (<code>until the &lt;event&gt;</code>,
+  <code>once the &lt;component&gt; exists</code>, <code>Depends on:</code> or <code>Waits on: the &lt;event&gt;</code>, the
+  names of the hosts and components the change touched) and update every hit in
+  the same change: a landed step leaves stale text wherever it was awaited,
+  status table rows and guides included, not only in its own item.</li>
 </ul>
 <h2 id="deferring-work">Deferring work</h2>
 <p>When part of an approved plan is put on hold, add the deferred work as an item
@@ -1804,6 +1860,14 @@ update that item as the work advances, so that any session finds the current
 state in one place. The progress of a rollout goes in the Details column of the
 specification's status table. A private note, such as an agent's memory store,
 is not that place: nothing versions it, and each session rewrites it.</p>
+<h2 id="auditing-the-list">Auditing the list</h2>
+<p>The rules above act when a change lands, so they miss an item that was wrong
+when it entered and a text the sweep did not reach. When the last "Current
+focus" item closes, read the whole list against the repository before promoting
+the next ones: for each item that names something checkable (a file, a variable,
+a rule, a workflow), confirm that the work is still missing and that the facts
+it states still hold, then close, narrow, or correct it. Report the items that
+cannot be checked from the repository instead of counting them as open.</p>
 
 
 
