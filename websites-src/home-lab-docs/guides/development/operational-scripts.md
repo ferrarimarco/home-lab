@@ -240,17 +240,17 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   [Ansible development guide](./ansible.md) describes: it stays out of
   `main.yaml`, since the router is not a lab host, and needs the control
   machine's lab key in the router's authorized keys (Administration, System, in
-  the web UI) before its first run; `boot-bare-metal.yaml` wakes the hosts that
-  are powered off with Wake-on-LAN packets and waits for them, and stays out of
-  `main.yaml` as well, so that a configuration run never powers a host on, as
-  the same guide describes. The others (for example, `setup-disks.yaml`
-  converges pools, datasets, mounts, and the `directories_to_create` list), and
-  `main.yaml` chains all the playbooks, so tag-scoping it also runs the untagged
-  tasks of every other role — on a host outside those roles' normal scope, the
-  check run then predicts unrelated, possibly destructive changes. To scope a
-  run to one workload stack on one host, combine the stack's tag with the
-  `untagged` pseudo-tag (global, untagged initialization tasks must always run)
-  and a host limit:
+  the web UI) before its first run; `boot-bare-metal.yaml` powers on the hosts
+  that are off, through the BMC of those that declare one and with Wake-on-LAN
+  packets, and waits for them, and stays out of `main.yaml` as well, so that a
+  configuration run never powers a host on, as the same guide describes. The
+  others (for example, `setup-disks.yaml` converges pools, datasets, mounts, and
+  the `directories_to_create` list), and `main.yaml` chains all the playbooks,
+  so tag-scoping it also runs the untagged tasks of every other role — on a host
+  outside those roles' normal scope, the check run then predicts unrelated,
+  possibly destructive changes. To scope a run to one workload stack on one
+  host, combine the stack's tag with the `untagged` pseudo-tag (global, untagged
+  initialization tasks must always run) and a host limit:
 
     ```shell
     ADDITIONAL_ANSIBLE_FLAGS="--check --diff --tags='monitoring-apt' --tags untagged --limit raspberrypi2.edge.lab.ferrari.how" \

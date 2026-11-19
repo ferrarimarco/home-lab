@@ -2,3 +2,4 @@ ansible==14.4.0
 fqdn==1.5.1
 netaddr==1.3.0
 paramiko==5.0.0
+pyghmi==1.6.19

@@ -50,20 +50,6 @@ reliability risks first, then security exposure, then automation):
 
 ### Bootstrapping and provisioning
 
-- **Power on hosts through their BMC from
-  `ferrarimarco_home_lab_boot_bare_metal` (2026-11-17)**: the role wakes hosts
-  with Wake-on-LAN packets sent from a relay on the LAN, as the
-  [Ansible development guide](../guides/development/ansible.md#the-boot-role)
-  describes, which cannot tell a packet that never arrived from a host that
-  failed to boot, and can neither power a host off nor reset one that hangs.
-  Remaining step: for hosts that declare a BMC address (pve2 does, reserved on
-  the gateway as `pve2-bmc`), use `community.general.ipmi_power` before the SSH
-  wait, delegated to the control machine, since routed traffic reaches the BMC
-  from there, with the credentials from the vault; it needs the `pyghmi` library
-  in the Ansible container image. The costs are a stored BMC credential and a
-  second code path with one consumer, which pay off mainly if pve2 is woken on
-  demand, a question parked in [Ideas](#ideas); until then the `ipmitool` of the
-  operations shell covers recovery by hand.
 - **Manual steps left in the provisioning of a new host**: copy the ESPHome
   secrets; configure the Ansible Vault password file and the per-host vault
   files; configure the SSH keys; join the host to the tailnet (`tailscale up` is
@@ -948,10 +934,9 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
     The model separates the concerns the lab has, but nothing follows it yet:
     the configuration tree is split by tool (Ansible, Nix, Terraform), the specs
     index is not grouped by layer, and the hardware management layer has no
-    component beyond the `ipmitool` package (BMC power control is an item under
-    [Bootstrapping and provisioning](#bootstrapping-and-provisioning)). Adopt
-    it, by grouping the specifications index and the todo subsections by layer,
-    or discard it.
+    component beyond the `ipmitool` package and the BMC power-on of the boot
+    role. Adopt it, by grouping the specifications index and the todo
+    subsections by layer, or discard it.
 
 - Documentation automation: generate the endpoints list, the monitoring checks,
   the inventory, the list of Home Assistant automations, the list of cron jobs,

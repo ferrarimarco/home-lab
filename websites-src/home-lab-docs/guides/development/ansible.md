@@ -266,17 +266,34 @@ moves it within seconds at the cost of its open connections.
 
 ## The boot role
 
-`ferrarimarco_home_lab_boot_bare_metal` sends a Wake-on-LAN magic packet to
-every MAC address a host declares in `network_interfaces`, then waits up to ten
-minutes for the host to answer over SSH. Its playbook, `boot-bare-metal.yaml`,
-is not chained into `main.yaml`: powering a host on is an act of its own, and
-the `community.general.wakeonlan` module sends nothing in check mode, so a full
-run would wake and configure a host that its check run found powered off and
-made no prediction for.
+`ferrarimarco_home_lab_boot_bare_metal` powers a host on through its BMC when
+the host declares one, sends a Wake-on-LAN magic packet to every MAC address the
+host declares in `network_interfaces`, then waits up to ten minutes for the host
+to answer over SSH. Its playbook, `boot-bare-metal.yaml`, is not chained into
+`main.yaml`: powering a host on is an act of its own, and the
+`community.general.wakeonlan` module sends nothing in check mode, so a full run
+would wake and configure a host that its check run found powered off and made no
+prediction for.
 
-The module sends one limited broadcast (`255.255.255.255`) from the host that
-runs it, and no router forwards a limited broadcast, so the sender must sit on
-the LAN segment of the host to wake. The role delegates the task to
+A host declares its BMC with `boot_bare_metal_bmc`, a mapping in its host
+variables with the `address` of the BMC and the `user` and `password` of an
+account that may control the chassis power, both from the host's vault file (the
+[hardware operations guide](../operations/hardware.md#the-operator-account)
+describes the account). The task runs `community.general.ipmi_power` on the
+control machine, since IPMI over the LAN (UDP port 623) is routed traffic, and
+the module needs the `pyghmi` library, which the Ansible container image
+installs. The module reads the power state and changes it only when the host is
+off, so it predicts in check mode too: `changed` for a host that is off, `ok`
+for one that is on. Unlike a magic packet, the BMC confirms the power state, so
+the task has no best-effort handling: a BMC that does not answer, a credential
+it refuses, or a host that does not reach the on state fails the host at that
+task, before the packets and the wait. The role only powers hosts on: powering
+off or resetting a host that hangs stays a manual act, with the `ipmitool` of
+the [operations shell](./nix-dev-shells.md#ipmi).
+
+The Wake-on-LAN module sends one limited broadcast (`255.255.255.255`) from the
+host that runs it, and no router forwards a limited broadcast, so the sender
+must sit on the LAN segment of the host to wake. The role delegates the task to
 `boot_bare_metal_wake_on_lan_relay_host`. The role default is the control
 machine, which suits one on that segment; the inventory
 (`group_vars/all/network.yaml`) names a lab host that is always on instead,
@@ -300,6 +317,13 @@ it within a minute. On 2026-11-17, with raspberrypi2 as the relay, the plug rose
 from 31 W to 104 W within 40 seconds of the send, and the host answered over SSH
 128 seconds after it. In check mode the module connects to the relay and sends
 nothing, and the wait is skipped, so a check run proves the delegation only.
+
+The BMC path was run against pve2 while it was off, on 2026-11-18. With a wrong
+password injected as an extra variable, the run failed at the BMC task
+(`Incorrect password provided`) and the host stayed off. The check run predicted
+the change and left the host off. The real run reported the change after 5
+seconds, and the host answered over SSH 133 seconds after the start of the run.
+A check run with the host on reported no change.
 
 ## Python exporter services
 

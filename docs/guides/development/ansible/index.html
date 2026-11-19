@@ -2103,16 +2103,32 @@ fail (hl02's MQTT clients, 2026-10-28). Right after such an apply, renew the
 lease on the host (<code>dhcpcd -n &lt;interface&gt;</code> on a host running dhcpcd), which
 moves it within seconds at the cost of its open connections.</p>
 <h2 id="the-boot-role">The boot role</h2>
-<p><code>ferrarimarco_home_lab_boot_bare_metal</code> sends a Wake-on-LAN magic packet to
-every MAC address a host declares in <code>network_interfaces</code>, then waits up to ten
-minutes for the host to answer over SSH. Its playbook, <code>boot-bare-metal.yaml</code>,
-is not chained into <code>main.yaml</code>: powering a host on is an act of its own, and
-the <code>community.general.wakeonlan</code> module sends nothing in check mode, so a full
-run would wake and configure a host that its check run found powered off and
-made no prediction for.</p>
-<p>The module sends one limited broadcast (<code>255.255.255.255</code>) from the host that
-runs it, and no router forwards a limited broadcast, so the sender must sit on
-the LAN segment of the host to wake. The role delegates the task to
+<p><code>ferrarimarco_home_lab_boot_bare_metal</code> powers a host on through its BMC when
+the host declares one, sends a Wake-on-LAN magic packet to every MAC address the
+host declares in <code>network_interfaces</code>, then waits up to ten minutes for the host
+to answer over SSH. Its playbook, <code>boot-bare-metal.yaml</code>, is not chained into
+<code>main.yaml</code>: powering a host on is an act of its own, and the
+<code>community.general.wakeonlan</code> module sends nothing in check mode, so a full run
+would wake and configure a host that its check run found powered off and made no
+prediction for.</p>
+<p>A host declares its BMC with <code>boot_bare_metal_bmc</code>, a mapping in its host
+variables with the <code>address</code> of the BMC and the <code>user</code> and <code>password</code> of an
+account that may control the chassis power, both from the host's vault file (the
+<a href="../../operations/hardware/#the-operator-account">hardware operations guide</a>
+describes the account). The task runs <code>community.general.ipmi_power</code> on the
+control machine, since IPMI over the LAN (UDP port 623) is routed traffic, and
+the module needs the <code>pyghmi</code> library, which the Ansible container image
+installs. The module reads the power state and changes it only when the host is
+off, so it predicts in check mode too: <code>changed</code> for a host that is off, <code>ok</code>
+for one that is on. Unlike a magic packet, the BMC confirms the power state, so
+the task has no best-effort handling: a BMC that does not answer, a credential
+it refuses, or a host that does not reach the on state fails the host at that
+task, before the packets and the wait. The role only powers hosts on: powering
+off or resetting a host that hangs stays a manual act, with the <code>ipmitool</code> of
+the <a href="../nix-dev-shells/#ipmi">operations shell</a>.</p>
+<p>The Wake-on-LAN module sends one limited broadcast (<code>255.255.255.255</code>) from the
+host that runs it, and no router forwards a limited broadcast, so the sender
+must sit on the LAN segment of the host to wake. The role delegates the task to
 <code>boot_bare_metal_wake_on_lan_relay_host</code>. The role default is the control
 machine, which suits one on that segment; the inventory
 (<code>group_vars/all/network.yaml</code>) names a lab host that is always on instead,
@@ -2134,6 +2150,12 @@ it within a minute. On 2026-11-17, with raspberrypi2 as the relay, the plug rose
 from 31 W to 104 W within 40 seconds of the send, and the host answered over SSH
 128 seconds after it. In check mode the module connects to the relay and sends
 nothing, and the wait is skipped, so a check run proves the delegation only.</p>
+<p>The BMC path was run against pve2 while it was off, on 2026-11-18. With a wrong
+password injected as an extra variable, the run failed at the BMC task
+(<code>Incorrect password provided</code>) and the host stayed off. The check run predicted
+the change and left the host off. The real run reported the change after 5
+seconds, and the host answered over SSH 133 seconds after the start of the run.
+A check run with the host on reported no change.</p>
 <h2 id="python-exporter-services">Python exporter services</h2>
 <p>systemd services that run Python-based exporters build their virtual environment
 through the shared <code>/usr/local/bin/build-python-venv</code> script (source:

@@ -1193,6 +1193,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#the-operator-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Operator account
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1675,6 +1684,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#the-operator-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Operator account
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1746,6 +1764,24 @@ hosts flagged <code>has_bmc</code> in their host_vars: in-band commands
 access, through the <code>/dev/ipmi0</code> interface the kernel exposes. On 2026-10-04 the
 fan mode read Optimal, the fans 300-1100 RPM, and FAN1 sat below its lower
 non-critical threshold at 300 RPM, the symptom the thresholds above address.</p>
+<h3 id="the-operator-account">The Operator account</h3>
+<p>The boot playbook powers pve2 on through the BMC, as the
+<a href="../../development/ansible/#the-boot-role">Ansible development guide</a> describes,
+with a dedicated account limited to the Operator privilege level: enough for
+chassis power control (a power-on and a status read ran on 2026-11-18), and not
+for the BMC's users, network settings, or firmware. Its name and password are
+the <code>vault_bmc_operator_user</code> and <code>vault_bmc_operator_password</code> entries of the
+host's vault file. The name stays out of the repository as well, because the
+IPMI 2.0 login handshake hands a hash of the password to any client that names a
+valid account. The account was created by hand in the BMC's web interface and
+nothing in the repository converges it, so a BMC that lost its users needs it
+created again, with the vault entries updated to match.</p>
+<p><code>ipmitool</code> asks for the Administrator level unless told otherwise, which the BMC
+refuses for this account
+(<code>Set Session Privilege Level to ADMINISTRATOR failed</code>), so commands run with it
+take <code>-L OPERATOR</code>:</p>
+<div class="highlight"><pre><span></span><code>ipmitool<span class="w"> </span>-I<span class="w"> </span>lanplus<span class="w"> </span>-H<span class="w"> </span>pve2-bmc.edge.lab.ferrari.how<span class="w"> </span>-U<span class="w"> </span>&lt;account&gt;<span class="w"> </span>-L<span class="w"> </span>OPERATOR<span class="w"> </span>-E<span class="w"> </span>chassis<span class="w"> </span>power<span class="w"> </span>status
+</code></pre></div>
 <h2 id="bios-configuration-with-sum">BIOS configuration with SUM</h2>
 <p>Supermicro Update Manager (SUM) reads and writes the BIOS configuration as a
 text file. On this board generation it is the only programmatic path: the BMC's

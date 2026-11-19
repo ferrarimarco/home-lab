@@ -40,6 +40,29 @@ access, through the `/dev/ipmi0` interface the kernel exposes. On 2026-10-04 the
 fan mode read Optimal, the fans 300-1100 RPM, and FAN1 sat below its lower
 non-critical threshold at 300 RPM, the symptom the thresholds above address.
 
+### The Operator account
+
+The boot playbook powers pve2 on through the BMC, as the
+[Ansible development guide](../development/ansible.md#the-boot-role) describes,
+with a dedicated account limited to the Operator privilege level: enough for
+chassis power control (a power-on and a status read ran on 2026-11-18), and not
+for the BMC's users, network settings, or firmware. Its name and password are
+the `vault_bmc_operator_user` and `vault_bmc_operator_password` entries of the
+host's vault file. The name stays out of the repository as well, because the
+IPMI 2.0 login handshake hands a hash of the password to any client that names a
+valid account. The account was created by hand in the BMC's web interface and
+nothing in the repository converges it, so a BMC that lost its users needs it
+created again, with the vault entries updated to match.
+
+`ipmitool` asks for the Administrator level unless told otherwise, which the BMC
+refuses for this account
+(`Set Session Privilege Level to ADMINISTRATOR failed`), so commands run with it
+take `-L OPERATOR`:
+
+```shell
+ipmitool -I lanplus -H pve2-bmc.edge.lab.ferrari.how -U <account> -L OPERATOR -E chassis power status
+```
+
 ## BIOS configuration with SUM
 
 Supermicro Update Manager (SUM) reads and writes the BIOS configuration as a

@@ -3,3 +3,8 @@
 # router forwards, so the sender must sit on the LAN segment of the hosts to
 # wake; the default suits a control machine on that segment.
 boot_bare_metal_wake_on_lan_relay_host: localhost
+# A host with a BMC that answers IPMI over the LAN declares boot_bare_metal_bmc,
+# a mapping with the address, user, and password of an account that may control
+# the chassis power: the role then powers the host on through the BMC, from the
+# control machine, and fails the host when the BMC does not confirm it. It has
+# no default, so that hosts that do not declare it skip the task.
