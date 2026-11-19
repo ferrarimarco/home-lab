@@ -1,0 +1,35 @@
+---
+# The gateway is a router that keeps its DHCP settings in NVRAM and runs no
+# Python: the instance stands in for it with the administration user the
+# playbook connects as and with stand-ins for the two commands the gateway
+# role calls, so the test covers what the role renders, reads, compares, and
+# writes, and not the router's shell.
+- name: Stand in for the gateway on the test instance
+  hosts: instance
+  gather_facts: false
+  tasks:
+    - name: Create the gateway's administration user
+      ansible.builtin.user:
+        name: "{{ asuswrt_administrator_username }}"
+      become: true
+
+    - name: Create the directory that stands in for the NVRAM
+      ansible.builtin.file:
+        path: /var/lib/gateway-nvram
+        state: directory
+        owner: "{{ asuswrt_administrator_username }}"
+        group: "{{ asuswrt_administrator_username }}"
+        mode: "0755"
+      become: true
+
+    - name: Install the stand-ins for the gateway's commands
+      ansible.builtin.copy:
+        src: "gateway-dnsmasq/{{ item }}.sh"
+        dest: "/usr/local/bin/{{ item }}"
+        owner: root
+        group: root
+        mode: "0755"
+      become: true
+      loop:
+        - nvram
+        - service

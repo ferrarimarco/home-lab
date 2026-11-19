@@ -1,0 +1,36 @@
+---
+# The idempotence pass shows that the role reads back what it wrote, not that
+# it wrote the right thing: a wrong rendering would be written, read, and
+# compared with itself. The values here are literals, derived by hand from the
+# test inventory: the pool, the lease, and the domain of gateway_dhcp, and the
+# reservations of both instances and of the declared device, sorted by address,
+# with every MAC in uppercase. The two DNS variables are not in the list: the
+# inventory hands out no resolver, so the role leaves them unset.
+- name: Check what the gateway role wrote to the stand-in
+  hosts: instance
+  gather_facts: false
+  vars:
+    gateway_expected_nvram:
+      dhcp_start: "10.0.0.2"
+      dhcp_end: "10.255.255.254"
+      dhcp_lease: "86400"
+      lan_domain: "edge.lab.ferrari.how"
+      dhcp_static_x: "1"
+      dhcp_staticlist: "<12:34:56:78:90:AB>10.0.0.2>>instance<12:34:56:78:90:AC>10.0.0.3>>proxmox<12:34:56:78:90:AD>10.0.0.4>>camera"
+  tasks:
+    - name: Read the variables the role manages
+      ansible.builtin.slurp:
+        src: "/var/lib/gateway-nvram/{{ item }}"
+      become: true
+      loop: "{{ gateway_expected_nvram.keys() | list }}"
+      register: gateway_nvram_files
+
+    - name: Check the value of each variable
+      ansible.builtin.assert:
+        that:
+          - (item.content | b64decode | trim) == gateway_expected_nvram[item.item]
+        fail_msg: "{{ item.item }} holds: {{ item.content | b64decode | trim }}"
+        quiet: true
+      loop: "{{ gateway_nvram_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"

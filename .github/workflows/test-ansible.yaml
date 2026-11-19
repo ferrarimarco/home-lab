@@ -97,6 +97,7 @@ jobs:
           - bootstrap
           - container-engine
           - coral
+          - gateway-dnsmasq
           - home-lab-node
           - monitoring
           - update-os-packages

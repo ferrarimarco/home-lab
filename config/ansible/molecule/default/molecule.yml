@@ -69,6 +69,23 @@ provisioner:
         edge_environment_root_fqdn: "edge.{{ root_dns_zone.fqdn }}"
         edge_environment_subnet: "10.0.0.0/8"
         frigate_http_endpoint_fqdn: "frigate"
+        # The gateway playbook reaches the instance that stands in for the
+        # router (prepare-gateway-dnsmasq.yml), as the administration user
+        # above, and renders the reservations of both instances'
+        # network_interfaces plus this one, whose MAC is in lowercase so the
+        # role's normalization runs
+        gateway_ansible_connection: community.docker.docker
+        gateway_ansible_host: instance
+        gateway_dhcp:
+          pool_start: "10.0.0.2"
+          pool_end: "10.255.255.254"
+          lease_seconds: 86400
+          dns_servers: []
+          lan_domain: "{{ edge_environment_root_fqdn }}"
+        gateway_dhcp_reservations:
+          - mac_address: "12:34:56:78:90:ad"
+            ipv4_address: "10.0.0.4"
+            hostname: camera
         home_assistant_http_endpoint_fqdn: "home-assistant"
         home_assistant_internal_url_home: "http://home-assistant"
         home_assistant_secrets:

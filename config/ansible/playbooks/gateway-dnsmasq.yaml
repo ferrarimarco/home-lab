@@ -11,7 +11,11 @@
       ansible.builtin.add_host:
         name: "{{ edge_environment_gateway.fqdn }}"
         groups: gateways
-        ansible_connection: ssh
+        # The connection and the address are the router's unless the inventory
+        # says otherwise: the test inventory points them at the container that
+        # stands in for the router.
+        ansible_connection: "{{ gateway_ansible_connection | default('ssh') }}"
+        ansible_host: "{{ gateway_ansible_host | default(edge_environment_gateway.fqdn) }}"
         ansible_port: "{{ asuswrt_administration_ssh_port }}"
         ansible_user: "{{ asuswrt_administrator_username }}"
       changed_when: false
