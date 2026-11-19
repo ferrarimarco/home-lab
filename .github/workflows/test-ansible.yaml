@@ -3,6 +3,11 @@ name: Test Ansible collections, roles, playbooks
 
 on: # yamllint disable-line rule:truthy
   push:
+    # The pull_request event tests the pull request branches: a push run there
+    # repeats it for the same commit, and also starts for a rebased branch
+    # whose own changes touch none of these paths.
+    branches:
+      - master
     paths:
       - ".github/workflows/test-ansible.yaml"
       - "config/ansible/**"

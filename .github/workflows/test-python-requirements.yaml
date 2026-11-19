@@ -3,6 +3,10 @@ name: Test Python requirements files
 
 on: # yamllint disable-line rule:truthy
   push:
+    # The pull_request event tests the pull request branches, where a push run
+    # would repeat it for the same commit
+    branches:
+      - master
     paths:
       - ".github/workflows/test-python-requirements.yaml"
       - "config/ansible/roles/ferrarimarco_home_lab_node/files/config/monitoring-apt/requirements.txt"

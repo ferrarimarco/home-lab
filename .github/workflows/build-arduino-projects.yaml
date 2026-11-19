@@ -6,6 +6,10 @@ permissions:
 
 on: # yamllint disable-line rule:truthy
   push:
+    # The pull_request event tests the pull request branches, where a push run
+    # would repeat it for the same commit
+    branches:
+      - master
     paths:
       - ".github/workflows/build-arduino-projects.yaml"
       - "config/arduino/**"

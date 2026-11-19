@@ -3,6 +3,10 @@ name: Test shell scripts
 
 on: # yamllint disable-line rule:truthy
   push:
+    # The pull_request event tests the pull request branches, where a push run
+    # would repeat it for the same commit
+    branches:
+      - master
     paths:
       - ".github/workflows/test-shell-scripts.yaml"
       - "config/lint/**"
@@ -10,9 +14,10 @@ on: # yamllint disable-line rule:truthy
       - "test/scripts/**"
   pull_request:
     paths:
+      - ".github/workflows/test-shell-scripts.yaml"
       - "config/lint/**"
-      - "scripts/common.sh"
-      - "scripts/run-ansible.sh"
+      - "scripts/**"
+      - "test/scripts/**"
 
 permissions:
   contents: read

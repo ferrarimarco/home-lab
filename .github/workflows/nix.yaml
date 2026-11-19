@@ -3,6 +3,10 @@ name: Build and check Nix config
 
 on: # yamllint disable-line rule:truthy
   push:
+    # The pull_request event tests the pull request branches, where a push run
+    # would repeat it for the same commit
+    branches:
+      - master
     paths:
       - ".github/workflows/nix.yaml"
       - "config/nix/**"
