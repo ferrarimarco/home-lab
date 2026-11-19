@@ -76,7 +76,9 @@
 # own, and a playbook that imports more than one of them would run the role
 # once per import: the bootstrap play skips the role on a host that carries
 # this fact. Last, so that a host the role failed on does not carry it, and
-# always, so that a tag-scoped run records it too.
+# always, so that a tag-scoped run records it too. The flush above has to stay
+# right before it: the role's handlers inherit the play's condition on this
+# fact, so a handler that ran after this task would be skipped.
 - name: Record that the role ran on this host in this playbook run
   ansible.builtin.set_fact:
     bootstrap_completed: true

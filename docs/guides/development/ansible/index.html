@@ -2447,7 +2447,11 @@ needs something else brings its own, named after it in the scenario directory,
 which <code>scripts/run-ansible.sh</code> selects when they exist: <code>prepare-&lt;name&gt;.yml</code>
 when it needs more on the instances than a fresh host has, <code>converge-&lt;name&gt;.yml</code>
 when it requires extra variables, which the wrapper sets while importing it, and
-<code>verify-&lt;name&gt;.yml</code> for what the three passes cannot assert.</p>
+<code>verify-&lt;name&gt;.yml</code> for what the three passes cannot assert. Molecule passes
+<code>ANSIBLE_TEST_TAGS</code> to the verify playbook as well, whose tasks are untagged: a
+scope without <code>untagged</code> runs none of them and the step still passes (seen with
+a scope that selected nothing, 2026-11-19), so a scoped test asserts something
+only when its scope includes <code>untagged</code>.</p>
 <ul>
 <li><code>home-lab-node</code> has a prepare playbook that applies the bootstrap and
   container engine playbooks first. The node playbook runs on hosts that got
@@ -2477,7 +2481,12 @@ after the bootstrap playbook itself, which ran the bootstrap role four times per
 host in every <code>main</code> run, in production as in the tests. The role now sets a
 fact as its last task, and the bootstrap play skips the role on a host that
 carries it: the first import runs the role and the later ones skip its tasks.
-The fact lives for one playbook run, so every run still bootstraps once.</p>
+The fact lives for one playbook run, so every run still bootstraps once. The
+role's handlers inherit the same condition, so the role flushes them right
+before it sets the fact: a handler left for the end of the play would be skipped
+without a word, the reboot one included (a scratch role on ansible-core 2.21
+showed it, 2026-11-19). A task that notifies a handler therefore never goes
+after that flush.</p>
 <p>That one run takes 20, 33, and 14 seconds of the three passes of a <code>main</code> test
 (2026-11-19). On a converged host its apt tasks account for about 5 of those
 seconds and its repository tasks for about 3: the role's tasks are untagged, so

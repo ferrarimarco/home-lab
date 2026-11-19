@@ -507,7 +507,11 @@ needs something else brings its own, named after it in the scenario directory,
 which `scripts/run-ansible.sh` selects when they exist: `prepare-<name>.yml`
 when it needs more on the instances than a fresh host has, `converge-<name>.yml`
 when it requires extra variables, which the wrapper sets while importing it, and
-`verify-<name>.yml` for what the three passes cannot assert.
+`verify-<name>.yml` for what the three passes cannot assert. Molecule passes
+`ANSIBLE_TEST_TAGS` to the verify playbook as well, whose tasks are untagged: a
+scope without `untagged` runs none of them and the step still passes (seen with
+a scope that selected nothing, 2026-11-19), so a scoped test asserts something
+only when its scope includes `untagged`.
 
 - `home-lab-node` has a prepare playbook that applies the bootstrap and
   container engine playbooks first. The node playbook runs on hosts that got
@@ -538,7 +542,12 @@ after the bootstrap playbook itself, which ran the bootstrap role four times per
 host in every `main` run, in production as in the tests. The role now sets a
 fact as its last task, and the bootstrap play skips the role on a host that
 carries it: the first import runs the role and the later ones skip its tasks.
-The fact lives for one playbook run, so every run still bootstraps once.
+The fact lives for one playbook run, so every run still bootstraps once. The
+role's handlers inherit the same condition, so the role flushes them right
+before it sets the fact: a handler left for the end of the play would be skipped
+without a word, the reboot one included (a scratch role on ansible-core 2.21
+showed it, 2026-11-19). A task that notifies a handler therefore never goes
+after that flush.
 
 That one run takes 20, 33, and 14 seconds of the three passes of a `main` test
 (2026-11-19). On a converged host its apt tasks account for about 5 of those
