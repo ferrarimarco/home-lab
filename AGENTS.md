@@ -77,6 +77,9 @@ never from the host.
   [dependency updates guide](./websites-src/home-lab-docs/guides/operations/dependency-updates.md)**
   before changing `.github/dependabot.yaml` or investigating a missing pull
   request.
+- **Read the
+  [GitHub Actions guide](./websites-src/home-lab-docs/guides/development/github-actions.md)**
+  before adding a workflow or changing a workflow's triggers.
 
 ## Design Rules
 

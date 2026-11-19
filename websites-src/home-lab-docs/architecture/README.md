@@ -259,12 +259,6 @@ reliability risks first, then security exposure, then automation):
     - Get the Proxmox VMs data from the inventory instead of the `proxmox_vms`
       list.
     - Move the handlers to a dedicated role and reuse it across all playbooks.
-    - Cover the `gateway-dnsmasq` playbook in Molecule (deferred 2026-10-28):
-      the default scenario has no `nvram`, so the playbook is not in the CI
-      matrix and the check run against the router is its test. A prepare step
-      installing stub `nvram` and `service` scripts on the test instance, with
-      the gateway host pointed at that instance, would exercise the role's
-      rendering and read-then-act logic in CI.
     - Validation: check that `start_xxxx` and `stop_xxxx` don't contradict each
       other.
     - Remove the users of a disabled stack (2026-11-18): the users task takes a
@@ -277,38 +271,6 @@ reliability risks first, then security exposure, then automation):
       declared later (the advertised routes) never reaches a joined node.
       Compare the declared flags with what the node reports and run the command
       on a difference.
-    - **Cut the Molecule workflow cost (measured 2026-10-12)**: each matrix job
-      rebuilds the same Ansible container image (220 to 230 s each, about 30 of
-      the 55 job-minutes of the last green run, 2026-09-29), because they all
-      build at once before any has written the shared cache. Build the image
-      once in a job the matrix depends on (push it to the GitHub container
-      registry, or warm the `gha` cache). Then reconsider the matrix: `main`
-      imports every other playbook, so the standalone jobs only add per-playbook
-      attribution and a standalone-run check, while `home-lab-node`, the
-      most-changed playbook, is tested only through `main`; the idempotence
-      phase stays.
-    - **Cut the Molecule converge time (measured 2026-10-23 on `main` against
-      the Debian 12 image)**: connection pipelining cut the converge from 6:34
-      to 4:53 and the idempotence pass from 4:11 to 2:34; a run scoped to one
-      stack takes about 1:47 and 0:57. What remains is about 0.2 s of fixed cost
-      per task across some 370 tasks, the four file loops of the node role
-      (about 50 s per pass, one module execution per item), and three levers not
-      taken yet: a test instance image layered on the geerlingguy image with the
-      role's packages pre-installed (about 110 s per converge), built by the
-      container image workflow with its package list derived from the role's
-      variables so it cannot drift; the bootstrap role's untagged apt cache
-      refreshes and repository loops (48 s and 23 s in a scoped run), paid by
-      every scope; a persistent Molecule cache directory mounted by the script,
-      so a `converge` can be followed by `idempotence` or `login` from a second
-      invocation.
-    - **Make the `home-lab-node` playbook pass a standalone Molecule run
-      (2026-10-12)**: the Docker prune unit the node role renders requires
-      `docker.service`, which only the container-engine playbook installs, so
-      restarting it on the test image fails with "Unit docker.service not
-      found". Either declare the Docker role as a dependency of the node role,
-      or skip the Docker-bound units when Docker is not installed (and still
-      render them). Blocks: testing `home-lab-node` on its own in the Molecule
-      matrix, in the workflow cost item above.
 - **Migrate from Dependabot to Renovate**, so a single tool manages all
   dependency updates. Renovate is configured (`.github/renovate.json`) behind
   Dependency Dashboard approval and covers sources Dependabot does not (Ansible

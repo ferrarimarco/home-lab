@@ -35,9 +35,9 @@ all dependency updates to Renovate.
   [12957](https://github.com/dependabot/dependabot-core/issues/12957).
 
 The `check-dependabot` pre-commit hook validates the configuration file against
-its schema on every push and pull request, through the pre-commit job of the
-lint workflow. Run it locally with the pre-commit script, which creates the
-virtual environment it needs:
+its schema on every pull request and every push to the default branch, through
+the pre-commit job of the lint workflow. Run it locally with the pre-commit
+script, which creates the virtual environment it needs:
 
 ```shell
 scripts/run-pre-commit.sh "pre-commit run --all-files --config config/pre-commit/.pre-commit-config.yaml check-dependabot"

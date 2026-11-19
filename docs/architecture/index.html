@@ -1094,6 +1094,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/development/github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GitHub Actions workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/development/nix-dev-shells/" class="md-nav__link">
         
   
@@ -2257,12 +2280,6 @@ reliability risks first, then security exposure, then automation):</p>
 <li>Get the Proxmox VMs data from the inventory instead of the <code>proxmox_vms</code>
   list.</li>
 <li>Move the handlers to a dedicated role and reuse it across all playbooks.</li>
-<li>Cover the <code>gateway-dnsmasq</code> playbook in Molecule (deferred 2026-10-28):
-  the default scenario has no <code>nvram</code>, so the playbook is not in the CI
-  matrix and the check run against the router is its test. A prepare step
-  installing stub <code>nvram</code> and <code>service</code> scripts on the test instance, with
-  the gateway host pointed at that instance, would exercise the role's
-  rendering and read-then-act logic in CI.</li>
 <li>Validation: check that <code>start_xxxx</code> and <code>stop_xxxx</code> don't contradict each
   other.</li>
 <li>Remove the users of a disabled stack (2026-11-18): the users task takes a
@@ -2275,38 +2292,6 @@ reliability risks first, then security exposure, then automation):</p>
   declared later (the advertised routes) never reaches a joined node.
   Compare the declared flags with what the node reports and run the command
   on a difference.</li>
-<li><strong>Cut the Molecule workflow cost (measured 2026-10-12)</strong>: each matrix job
-  rebuilds the same Ansible container image (220 to 230 s each, about 30 of
-  the 55 job-minutes of the last green run, 2026-09-29), because they all
-  build at once before any has written the shared cache. Build the image
-  once in a job the matrix depends on (push it to the GitHub container
-  registry, or warm the <code>gha</code> cache). Then reconsider the matrix: <code>main</code>
-  imports every other playbook, so the standalone jobs only add per-playbook
-  attribution and a standalone-run check, while <code>home-lab-node</code>, the
-  most-changed playbook, is tested only through <code>main</code>; the idempotence
-  phase stays.</li>
-<li><strong>Cut the Molecule converge time (measured 2026-10-23 on <code>main</code> against
-  the Debian 12 image)</strong>: connection pipelining cut the converge from 6:34
-  to 4:53 and the idempotence pass from 4:11 to 2:34; a run scoped to one
-  stack takes about 1:47 and 0:57. What remains is about 0.2 s of fixed cost
-  per task across some 370 tasks, the four file loops of the node role
-  (about 50 s per pass, one module execution per item), and three levers not
-  taken yet: a test instance image layered on the geerlingguy image with the
-  role's packages pre-installed (about 110 s per converge), built by the
-  container image workflow with its package list derived from the role's
-  variables so it cannot drift; the bootstrap role's untagged apt cache
-  refreshes and repository loops (48 s and 23 s in a scoped run), paid by
-  every scope; a persistent Molecule cache directory mounted by the script,
-  so a <code>converge</code> can be followed by <code>idempotence</code> or <code>login</code> from a second
-  invocation.</li>
-<li><strong>Make the <code>home-lab-node</code> playbook pass a standalone Molecule run
-  (2026-10-12)</strong>: the Docker prune unit the node role renders requires
-  <code>docker.service</code>, which only the container-engine playbook installs, so
-  restarting it on the test image fails with "Unit docker.service not
-  found". Either declare the Docker role as a dependency of the node role,
-  or skip the Docker-bound units when Docker is not installed (and still
-  render them). Blocks: testing <code>home-lab-node</code> on its own in the Molecule
-  matrix, in the workflow cost item above.</li>
 </ul>
 </li>
 <li><strong>Migrate from Dependabot to Renovate</strong>, so a single tool manages all

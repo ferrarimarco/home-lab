@@ -895,6 +895,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GitHub Actions workflows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../nix-dev-shells/" class="md-nav__link">
         
   
@@ -2077,13 +2100,18 @@ create) no real run shows; the scenario's <code>prepare.yml</code> first refresh
 package lists and installs <code>openssh-server</code> and <code>python3-debian</code>, which the
 test image lacks and a host the installer set up and the playbooks reach
 over SSH has, so a first check against a fresh host needs <code>python3-debian</code>
-installed by hand. Molecule skips the tasks that have the <code>molecule-notest</code>
-tag: tests don't pull container images, don't start containerized services,
-and don't load kernel modules (the containers share the control machine's
+installed by hand. A playbook that needs more than that on the instances has
+a prepare playbook of its own, which the script selects by name, as the
+<a href="../ansible/#scenario-playbooks-named-after-a-playbook">Ansible development guide</a>
+describes. Molecule skips the tasks that have the <code>molecule-notest</code> tag:
+tests don't pull container images, don't start containerized services, and
+don't load kernel modules (the containers share the control machine's
 kernel).</p>
 <p>A full <code>main</code> run goes through every stack three times (check, converge, and
-idempotence) and takes about fifteen minutes (4, 7, and 4 minutes on
-2026-11-18). While iterating on one stack, scope the passes with
+idempotence) and takes about thirteen minutes (3, 7, and 3 minutes on
+2026-11-19; the
+<a href="../ansible/#where-the-time-goes">Ansible development guide</a> has the
+measurements). While iterating on one stack, scope the passes with
 <code>ANSIBLE_TEST_TAGS</code>, which takes the value of the <code>--tags</code> flag of a
 production run (the stack tag plus <code>untagged</code>, as the
 <a href="../ansible/">Ansible development guide</a> describes) plus
@@ -2107,6 +2135,51 @@ copy fails with "Destination directory does not exist".</p>
 unscoped test once before pushing: a scoped run does not exercise the other
 stacks' tasks, nor the tasks that consume the registered results of tasks
 the scope skipped.</p>
+<p><code>molecule test</code> destroys the instances before and after its passes, so every
+run pays for their creation, the check pass, and the package installs. While
+iterating, keep the instances instead and run one action per invocation: the
+script keeps Molecule's record of the instances in
+<code>~/.cache/home-lab/molecule</code> (under <code>XDG_CACHE_HOME</code> when it is set), so an
+invocation continues where the previous one stopped.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">ANSIBLE_TEST_DISTRO</span><span class="o">=</span><span class="s2">&quot;geerlingguy/docker-debian13-ansible:latest&quot;</span>
+
+<span class="c1"># Once: create, prepare, and converge the instances (7 minutes for main)</span>
+<span class="nv">ANSIBLE_TEST_PLAYBOOK_NAME</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="w"> </span>scripts/run-ansible.sh<span class="w"> </span><span class="s2">&quot;molecule converge&quot;</span>
+
+<span class="c1"># After each edit: converge again, with or without ANSIBLE_TEST_TAGS</span>
+<span class="nv">ANSIBLE_TEST_PLAYBOOK_NAME</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="w"> </span>scripts/run-ansible.sh<span class="w"> </span><span class="s2">&quot;molecule converge&quot;</span>
+
+<span class="c1"># At the end: remove the instances</span>
+<span class="nv">ANSIBLE_TEST_PLAYBOOK_NAME</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="w"> </span>scripts/run-ansible.sh<span class="w"> </span><span class="s2">&quot;molecule destroy&quot;</span>
+</code></pre></div>
+<p>A repeat converge of <code>main</code> takes about three minutes. The instances that
+<code>main</code> converged also take a narrower playbook, as a production host does:
+with <code>ANSIBLE_TEST_PLAYBOOK_NAME="home-lab-node"</code> a converge takes two
+minutes, and 20 seconds scoped to one stack (<code>zigbee2mqtt,untagged</code>, without
+<code>install-debian-packages</code>, since the packages are there), all measured on
+2026-11-19. <code>molecule idempotence</code> and <code>molecule list</code> continue the same
+way, and so does <code>molecule login --host instance</code> from a terminal, which
+creates the instances when there are none. <code>molecule check</code> does not: it
+runs a sequence of its own that destroys the instances before and after.</p>
+<p>Two limits come with kept instances. Molecule does not prepare them again,
+so a prepare playbook only runs on fresh ones, and it does not notice
+instances that changed behind its record: after removing the containers by
+hand, or to change <code>ANSIBLE_TEST_DISTRO</code>, run <code>molecule destroy</code> first. And
+a converge on instances that earlier converges changed proves less than a
+test: it skips the check pass on a fresh instance, and a file an earlier
+version of a role left behind can hide a task the role lost. The full
+<code>molecule test</code> before a push stays the verdict.</p>
+<p>The instances and their record belong to one checkout at a time: the
+instances have the same names in every checkout and worktree, and the record
+has one directory. The script writes the checkout that last used them to a
+file beside the record, and a command from another checkout stops with a
+message that names it, since it would run its own playbooks on that
+checkout's instances. <code>molecule test</code> and <code>molecule destroy</code> go through,
+because they start by removing the instances, and clear the file when they
+succeed. The container writes the record as root, so removing the directory
+takes a container too, as the
+<a href="../website-development/">site development guide</a> does for the root-owned
+files of a worktree.</p>
 <p>Both variables are required: <code>ANSIBLE_TEST_DISTRO</code> also switches the
 container image build to the target that contains Molecule, so a bare
 <code>scripts/run-ansible.sh "molecule test"</code> fails with

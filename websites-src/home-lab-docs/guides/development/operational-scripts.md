@@ -371,14 +371,19 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     package lists and installs `openssh-server` and `python3-debian`, which the
     test image lacks and a host the installer set up and the playbooks reach
     over SSH has, so a first check against a fresh host needs `python3-debian`
-    installed by hand. Molecule skips the tasks that have the `molecule-notest`
-    tag: tests don't pull container images, don't start containerized services,
-    and don't load kernel modules (the containers share the control machine's
+    installed by hand. A playbook that needs more than that on the instances has
+    a prepare playbook of its own, which the script selects by name, as the
+    [Ansible development guide](./ansible.md#scenario-playbooks-named-after-a-playbook)
+    describes. Molecule skips the tasks that have the `molecule-notest` tag:
+    tests don't pull container images, don't start containerized services, and
+    don't load kernel modules (the containers share the control machine's
     kernel).
 
     A full `main` run goes through every stack three times (check, converge, and
-    idempotence) and takes about fifteen minutes (4, 7, and 4 minutes on
-    2026-11-18). While iterating on one stack, scope the passes with
+    idempotence) and takes about thirteen minutes (3, 7, and 3 minutes on
+    2026-11-19; the
+    [Ansible development guide](./ansible.md#where-the-time-goes) has the
+    measurements). While iterating on one stack, scope the passes with
     `ANSIBLE_TEST_TAGS`, which takes the value of the `--tags` flag of a
     production run (the stack tag plus `untagged`, as the
     [Ansible development guide](./ansible.md) describes) plus
@@ -406,6 +411,57 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     unscoped test once before pushing: a scoped run does not exercise the other
     stacks' tasks, nor the tasks that consume the registered results of tasks
     the scope skipped.
+
+    `molecule test` destroys the instances before and after its passes, so every
+    run pays for their creation, the check pass, and the package installs. While
+    iterating, keep the instances instead and run one action per invocation: the
+    script keeps Molecule's record of the instances in
+    `~/.cache/home-lab/molecule` (under `XDG_CACHE_HOME` when it is set), so an
+    invocation continues where the previous one stopped.
+
+    ```shell
+    export ANSIBLE_TEST_DISTRO="geerlingguy/docker-debian13-ansible:latest"
+
+    # Once: create, prepare, and converge the instances (7 minutes for main)
+    ANSIBLE_TEST_PLAYBOOK_NAME="main" scripts/run-ansible.sh "molecule converge"
+
+    # After each edit: converge again, with or without ANSIBLE_TEST_TAGS
+    ANSIBLE_TEST_PLAYBOOK_NAME="main" scripts/run-ansible.sh "molecule converge"
+
+    # At the end: remove the instances
+    ANSIBLE_TEST_PLAYBOOK_NAME="main" scripts/run-ansible.sh "molecule destroy"
+    ```
+
+    A repeat converge of `main` takes about three minutes. The instances that
+    `main` converged also take a narrower playbook, as a production host does:
+    with `ANSIBLE_TEST_PLAYBOOK_NAME="home-lab-node"` a converge takes two
+    minutes, and 20 seconds scoped to one stack (`zigbee2mqtt,untagged`, without
+    `install-debian-packages`, since the packages are there), all measured on
+    2026-11-19. `molecule idempotence` and `molecule list` continue the same
+    way, and so does `molecule login --host instance` from a terminal, which
+    creates the instances when there are none. `molecule check` does not: it
+    runs a sequence of its own that destroys the instances before and after.
+
+    Two limits come with kept instances. Molecule does not prepare them again,
+    so a prepare playbook only runs on fresh ones, and it does not notice
+    instances that changed behind its record: after removing the containers by
+    hand, or to change `ANSIBLE_TEST_DISTRO`, run `molecule destroy` first. And
+    a converge on instances that earlier converges changed proves less than a
+    test: it skips the check pass on a fresh instance, and a file an earlier
+    version of a role left behind can hide a task the role lost. The full
+    `molecule test` before a push stays the verdict.
+
+    The instances and their record belong to one checkout at a time: the
+    instances have the same names in every checkout and worktree, and the record
+    has one directory. The script writes the checkout that last used them to a
+    file beside the record, and a command from another checkout stops with a
+    message that names it, since it would run its own playbooks on that
+    checkout's instances. `molecule test` and `molecule destroy` go through,
+    because they start by removing the instances, and clear the file when they
+    succeed. The container writes the record as root, so removing the directory
+    takes a container too, as the
+    [site development guide](./website-development.md) does for the root-owned
+    files of a worktree.
 
     Both variables are required: `ANSIBLE_TEST_DISTRO` also switches the
     container image build to the target that contains Molecule, so a bare

@@ -221,6 +221,21 @@ administration user and port (`group_vars/all/network.yaml` and the aliases in
 `group_vars/all/main.yaml`), and the second play runs the role on it with the
 `raw` module.
 
+The Molecule test runs the playbook against a stand-in: the registered host's
+connection and address are the router's unless the inventory sets
+`gateway_ansible_connection` and `gateway_ansible_host`, which only the test
+inventory does, pointing them at the test instance. The scenario's
+`prepare-gateway-dnsmasq.yml` gives that instance the administration user and
+two scripts in place of the firmware's `nvram` and `service` commands (one file
+per variable; any `service` call other than the dnsmasq restart fails). The
+three passes show that the role reads back what it wrote and that a second run
+changes nothing, which a wrong rendering would pass too, so the scenario's
+`verify-gateway-dnsmasq.yml` compares what the stand-in holds with literal
+values written by hand from the test inventory (the reservations sorted by
+address, every MAC in uppercase). The test does not cover the router's shell or
+the size limit of a real NVRAM variable, for which the check run against the
+router stays the test.
+
 The router's shell is BusyBox (1.24.1 on the current firmware;
 `busybox | head -1` prints the version): `/bin/sh` is the shell while the `sh`
 first in `PATH` is a vendor memory-debugging tool, `setsid` is absent, and
@@ -449,6 +464,137 @@ the `authorized-keys` tag, so a host whose OS tasks cannot run yet (raspberrypi2
 on Debian 11, whose release has no `non-free-firmware` component) still gets its
 keys converged with `--tags authorized-keys`; on a Proxmox node pair it with
 `proxmox`, which registers the node's own key.
+
+## Testing with Molecule
+
+The [operational scripts guide](./operational-scripts.md) describes how to run a
+test and what the scenario's two instances are. This section describes what the
+tests cover and why they have this shape.
+
+### What the workflow runs
+
+The `Test Ansible collections, roles, playbooks` workflow runs `molecule test`
+for each playbook of its matrix, in a job of its own, on pull requests and on
+pushes to the default branch, as the
+[GitHub Actions guide](./github-actions.md#triggers) describes for every
+workflow.
+
+Every playbook has a job although `main.yaml` imports most of them, because a
+production run applies the narrowest playbook for a change. A play of `main`
+runs after the plays before it in the same process, with the variables their
+roles loaded through `include_vars` and the facts they set, so a role that reads
+another role's variable passes in `main` and fails on its own. `main` does not
+import `boot-bare-metal`, `gateway-dnsmasq`, `monitoring`, `restore-workloads`,
+and `update-os-packages`: their jobs are their only test. Reducing the matrix to
+`main` and the playbooks it does not import was considered on 2026-11-19 and
+rejected: it would halve the job time of a run without shortening the run, since
+`main` is the longest job, and remove the only test of the other playbooks on
+their own.
+
+Each job builds the Ansible container image from a build cache the jobs share.
+The build step takes 31 to 71 seconds while the cache is warm and 184 to 278
+seconds in every job after a change to the image's inputs, when all the jobs
+build at once (both measured on 2026-11-19; three commits changed those inputs
+in the sixty days before). Building the image once in a job the matrix waits for
+was considered the same day and rejected: it adds a job and its delay to every
+run to shorten the few runs that follow such a change.
+
+### Scenario playbooks named after a playbook
+
+Molecule prepares the fresh instances with the scenario's `prepare.yml`,
+converges the playbook under test, and has no verify playbook. A playbook that
+needs something else brings its own, named after it in the scenario directory,
+which `scripts/run-ansible.sh` selects when they exist: `prepare-<name>.yml`
+when it needs more on the instances than a fresh host has, `converge-<name>.yml`
+when it requires extra variables, which the wrapper sets while importing it, and
+`verify-<name>.yml` for what the three passes cannot assert.
+
+- `home-lab-node` has a prepare playbook that applies the bootstrap and
+  container engine playbooks first. The node playbook runs on hosts that got
+  both before it, and it calls Docker wherever `configure_docker` is set: on a
+  fresh instance its idempotence pass fails at the first Compose command. The
+  prepare run is a process of its own, so the test is the node playbook alone on
+  a prepared host, which is how a production run applies it.
+- `gateway-dnsmasq` has a prepare playbook that makes the instance stand in for
+  the gateway and a verify playbook that checks what the role wrote to it, as
+  [the gateway role](#the-gateway-role) describes.
+- `restore-workloads` has all three. The prepare playbook applies the bootstrap
+  and backup playbooks, writes a file under the configuration tree, and takes a
+  snapshot with the job script, as the role initializes a repository (the job
+  unit hides `/tmp`, where the test repository lives, behind a private one). The
+  converge wrapper sets the target host and that file's directory as the paths
+  to restore, so the three passes are dry runs. The verify playbook changes the
+  file, runs a real paths restore, and asserts that the file holds the
+  snapshot's content again; the assertion failed in a run with the restore
+  turned off (2026-11-19). The Compose stop and start of a stack restore, a
+  restore from another host's repository, and the unit restarts stay untested:
+  they carry the `molecule-notest` tag or need a second repository.
+
+### The bootstrap role runs once per playbook run
+
+The container engine, Proxmox node, and Coral playbooks import the bootstrap
+playbook so that each can run on its own, and `main.yaml` imports all of them
+after the bootstrap playbook itself, which ran the bootstrap role four times per
+host in every `main` run, in production as in the tests. The role now sets a
+fact as its last task, and the bootstrap play skips the role on a host that
+carries it: the first import runs the role and the later ones skip its tasks.
+The fact lives for one playbook run, so every run still bootstraps once.
+
+That one run takes 20, 33, and 14 seconds of the three passes of a `main` test
+(2026-11-19). On a converged host its apt tasks account for about 5 of those
+seconds and its repository tasks for about 3: the role's tasks are untagged, so
+this is what a tag-scoped run of `main` still pays. Merging the apt tasks or
+tagging the role was not worth that; the node playbook on its own does not
+import the bootstrap playbook.
+
+### Where the time goes
+
+A `main` test on the workstation, against the Debian 13 image:
+
+| Pass        | 2026-11-18 | 2026-11-19, bootstrap once | 2026-11-19, deletions read first |
+| ----------- | ---------- | -------------------------- | -------------------------------- |
+| Check       | 4:15       | 3:09                       | 2:55                             |
+| Converge    | 7:21       | 6:36                       | 6:43                             |
+| Idempotence | 3:38       | 3:06                       | 2:47                             |
+
+The converge of the middle column comes from a `molecule converge` on fresh
+instances rather than from the full test, whose converge stalled for 21 minutes
+while the workstation was suspended. The deletion change shows in the check and
+idempotence passes; the converge, where the package installs dominate, stayed
+within its variation from run to run.
+
+The bootstrap role went from 80, 64, and 45 seconds per pass to 18, 37, and 15.
+In the workflow, the same passes took 3:24, 5:58, and 3:12 on 2026-11-18, before
+both changes, and the whole run 37 job-minutes over nine jobs.
+
+The node role applies the stacks' directories, templates, copied files, and
+deletions in four loops, one module execution per item, which took about 70
+seconds of every pass. A host declares absent every path of the stacks it turns
+off, so on a converged host most of those executions confirmed that a path was
+still missing: 77 files and most of the 57 directories on the instance with
+every stack off. One read before each of the two loops that delete now lists the
+declared paths that exist, and the loops run the module for those only, which
+removed the 20 seconds of the file deletions and a few of the directory loop.
+The scenario's `prepare.yml` creates a directory and a file the role declares
+absent, and the verify playbooks of `main` and `home-lab-node` assert that the
+converge removed them, since a fresh instance has nothing to delete (the
+assertion failed in a run with the read returning nothing, 2026-11-19). The
+check is for unscoped runs: a tag-scoped converge deletes the paths of the
+selected stacks only, so the playbook ends early when `ANSIBLE_TEST_TAGS` is
+set.
+
+What remains is about 50 seconds per pass in the three loops that create: each
+template or copied file costs two module executions on an unchanged host (a read
+of the destination and a check of its attributes), which the modules need for
+the per-item results the handlers read. Each of the other tasks costs a fraction
+of a second whatever it does. Neither has a known lever.
+
+A test instance image with the role's packages already installed was considered
+on 2026-11-19 and rejected. The package installs take about 125 seconds of a
+converge on the workstation and 52 in the workflow, but the check pass exists to
+run on an instance without them, as a first check run on a fresh host does, and
+the iteration loop of the operational scripts guide already pays them once per
+set of instances.
 
 ## Copy Jinja templates as they are
 
