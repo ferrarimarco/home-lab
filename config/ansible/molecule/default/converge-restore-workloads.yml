@@ -1,0 +1,11 @@
+---
+# The restore playbook takes its target and what to restore from extra
+# variables, which a play resolves before the inventory's: this wrapper sets
+# them, so the check, converge, and idempotence passes are dry runs of a paths
+# restore of the directory the prepare playbook put in the snapshot.
+- name: Import the restore playbook as a dry run of a paths restore
+  ansible.builtin.import_playbook: ../../playbooks/restore-workloads.yaml
+  vars:
+    restore_hosts: instance
+    restore_paths:
+      - "{{ home_lab_configuration_directory_path }}/restore-test"

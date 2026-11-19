@@ -1,0 +1,49 @@
+---
+# A restore needs what a host has when it is restored: the bootstrap playbook's
+# state trees, the backup role's job script, environment file, and repository,
+# and a snapshot in that repository. The snapshot is taken as the role
+# initializes the repository, by the job script under systemd-run with the
+# job's environment file: the job unit hides /tmp, where the test repository
+# lives, behind its private one.
+- name: Import the prepare playbook of the fresh instances
+  ansible.builtin.import_playbook: prepare.yml
+
+- name: Import the bootstrap playbook
+  ansible.builtin.import_playbook: ../../playbooks/bootstrap.yaml
+
+- name: Import the backup playbook
+  ansible.builtin.import_playbook: ../../playbooks/backup.yaml
+
+- name: Take a snapshot that holds the path the test restores
+  hosts: instance
+  gather_facts: false
+  tasks:
+    - name: Create the directory the test restores
+      ansible.builtin.file:
+        path: "{{ home_lab_configuration_directory_path }}/restore-test"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      become: true
+
+    - name: Write the file the test restores
+      ansible.builtin.copy:
+        content: "as the snapshot holds it\n"
+        dest: "{{ home_lab_configuration_directory_path }}/restore-test/marker"
+        owner: root
+        group: root
+        mode: "0644"
+      become: true
+
+    - name: Back up the state trees
+      ansible.builtin.command: >-
+        systemd-run --wait --pipe --collect --quiet
+        --unit restic-backup-workloads-test-snapshot
+        --property "EnvironmentFile={{ home_lab_configuration_directory_path }}/restic/restic-backup-workloads.env"
+        --property "CacheDirectory=restic"
+        --property "UnsetEnvironment=RESTIC_TEXTFILE_COLLECTOR_DIRECTORY"
+        --setenv RESTIC_ENABLE_BACKUP=true
+        {{ home_lab_configuration_directory_path }}/restic/entrypoint.sh
+      become: true
+      changed_when: true

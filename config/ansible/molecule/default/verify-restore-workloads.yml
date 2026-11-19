@@ -1,0 +1,40 @@
+---
+# The passes before this one are dry runs. Here the file changes after the
+# snapshot, a real restore runs, and the file must hold the snapshot's content
+# again.
+- name: Change the file after the snapshot
+  hosts: instance
+  gather_facts: false
+  tasks:
+    - name: Overwrite the file the test restores
+      ansible.builtin.copy:
+        content: "changed after the snapshot\n"
+        dest: "{{ home_lab_configuration_directory_path }}/restore-test/marker"
+        owner: root
+        group: root
+        mode: "0644"
+      become: true
+
+- name: Import the restore playbook as a real paths restore
+  ansible.builtin.import_playbook: ../../playbooks/restore-workloads.yaml
+  vars:
+    restore_hosts: instance
+    restore_paths:
+      - "{{ home_lab_configuration_directory_path }}/restore-test"
+    restore_apply: true
+
+- name: Check that the restore brought the snapshot's content back
+  hosts: instance
+  gather_facts: false
+  tasks:
+    - name: Read the restored file
+      ansible.builtin.slurp:
+        src: "{{ home_lab_configuration_directory_path }}/restore-test/marker"
+      become: true
+      register: restore_test_marker
+
+    - name: Check the restored content
+      ansible.builtin.assert:
+        that:
+          - restore_test_marker.content | b64decode == "as the snapshot holds it\n"
+        fail_msg: "The file holds: {{ restore_test_marker.content | b64decode }}"

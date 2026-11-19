@@ -139,8 +139,6 @@
         mode: "0600"
       become: true
       changed_when: false
-      tags:
-        - molecule-notest
 
     # Another host's repository is reached through an environment file of its
     # own, with that host's repository and password from the shared vault,
@@ -164,8 +162,6 @@
       changed_when: false
       no_log: true
       when: restore_cross_host | bool
-      tags:
-        - molecule-notest
 
     - name: Restore with the service stopped
       block:
@@ -193,8 +189,6 @@
             index_var: restore_tree_index
             label: "{{ item }}"
           register: restore_runs
-          tags:
-            - molecule-notest
 
       rescue:
         - name: Remember that the restore failed
@@ -208,8 +202,6 @@
           become: true
           changed_when: false
           register: restore_log
-          tags:
-            - molecule-notest
 
         - name: Print the restore log
           ansible.builtin.debug:

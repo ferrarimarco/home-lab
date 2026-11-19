@@ -102,5 +102,6 @@ jobs:
           - monitoring
           - update-os-packages
           - proxmox-node
+          - restore-workloads
           - setup-disks
           - main
