@@ -84,8 +84,52 @@ if [ -n "${ANSIBLE_TEST_DISTRO:-}" ]; then
     exit "${ERR_ANSIBLE_TEST_MISSING_PLAYBOOK}"
   fi
 
+  # Molecule records what it did to the instances (created, prepared,
+  # converged) in its ephemeral directory, which would end with this
+  # container: on the host, an invocation continues from the previous one
+  # (converge, then idempotence or login). Molecule prunes the directory, so
+  # the path is fixed and holds nothing else.
+  ANSIBLE_TEST_MOLECULE_STATE_DIRECTORY="${XDG_CACHE_HOME:-"${HOME}/.cache"}/home-lab/molecule"
+  ANSIBLE_TEST_MOLECULE_EPHEMERAL_DIRECTORY="${ANSIBLE_TEST_MOLECULE_STATE_DIRECTORY}/ephemeral"
+  echo "ANSIBLE_TEST_MOLECULE_EPHEMERAL_DIRECTORY: ${ANSIBLE_TEST_MOLECULE_EPHEMERAL_DIRECTORY}"
+  mkdir -p "${ANSIBLE_TEST_MOLECULE_EPHEMERAL_DIRECTORY}"
+  MOLECULE_EPHEMERAL_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH="/var/lib/molecule"
+
+  # The instances have the same names whatever the checkout, and so does the
+  # record: a file beside it holds the checkout that last used them, and a
+  # command from another checkout would run this one's playbooks on that one's
+  # instances. Only the commands that start by destroying them go through,
+  # and the ones that leave none behind clear the file.
+  ANSIBLE_TEST_MOLECULE_CHECKOUT_FILE_PATH="${ANSIBLE_TEST_MOLECULE_STATE_DIRECTORY}/checkout"
+  ANSIBLE_TEST_COMMAND_DESTROYS_INSTANCES_FIRST="false"
+  ANSIBLE_TEST_COMMAND_LEAVES_NO_INSTANCES="false"
+  case "${1:-}" in
+  "molecule destroy"*)
+    ANSIBLE_TEST_COMMAND_DESTROYS_INSTANCES_FIRST="true"
+    ANSIBLE_TEST_COMMAND_LEAVES_NO_INSTANCES="true"
+    ;;
+  "molecule test"*"--destroy"*)
+    # A test told when to destroy may keep the instances
+    ANSIBLE_TEST_COMMAND_DESTROYS_INSTANCES_FIRST="true"
+    ;;
+  "molecule test"*)
+    ANSIBLE_TEST_COMMAND_DESTROYS_INSTANCES_FIRST="true"
+    ANSIBLE_TEST_COMMAND_LEAVES_NO_INSTANCES="true"
+    ;;
+  esac
+  if [ -f "${ANSIBLE_TEST_MOLECULE_CHECKOUT_FILE_PATH}" ]; then
+    ANSIBLE_TEST_MOLECULE_CHECKOUT_PATH="$(cat "${ANSIBLE_TEST_MOLECULE_CHECKOUT_FILE_PATH}")"
+    if [ "${ANSIBLE_TEST_MOLECULE_CHECKOUT_PATH}" != "${CURRENT_WORKING_DIRECTORY}" ] && [ "${ANSIBLE_TEST_COMMAND_DESTROYS_INSTANCES_FIRST}" != "true" ]; then
+      echo "The Molecule instances were last used from ${ANSIBLE_TEST_MOLECULE_CHECKOUT_PATH}, not from ${CURRENT_WORKING_DIRECTORY}. Run \"molecule destroy\" or a full \"molecule test\" first, from either checkout."
+      exit "${ERR_ANSIBLE_TEST_INSTANCES_OF_ANOTHER_CHECKOUT}"
+    fi
+  fi
+  echo "${CURRENT_WORKING_DIRECTORY}" >"${ANSIBLE_TEST_MOLECULE_CHECKOUT_FILE_PATH}"
+
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_DISTRO=${ANSIBLE_TEST_DISTRO}"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_PLAYBOOK_PATH=${ANSIBLE_TEST_PLAYBOOK_PATH}"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --env MOLECULE_EPHEMERAL_DIRECTORY=${MOLECULE_EPHEMERAL_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH}"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${ANSIBLE_TEST_MOLECULE_EPHEMERAL_DIRECTORY}:${MOLECULE_EPHEMERAL_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH}"
   if [ -n "${ANSIBLE_TEST_TAGS:-}" ]; then
     COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_TAGS=${ANSIBLE_TEST_TAGS}"
   fi
@@ -164,4 +208,11 @@ else
 fi
 
 echo "Running command: ${COMMAND_TO_RUN}"
-eval "${COMMAND_TO_RUN}"
+COMMAND_RETURN_CODE=0
+eval "${COMMAND_TO_RUN}" || COMMAND_RETURN_CODE=$?
+
+if [ "${ANSIBLE_TEST_COMMAND_LEAVES_NO_INSTANCES:-"false"}" = "true" ] && [ "${COMMAND_RETURN_CODE}" -eq 0 ]; then
+  rm -f -- "${ANSIBLE_TEST_MOLECULE_CHECKOUT_FILE_PATH}"
+fi
+
+exit "${COMMAND_RETURN_CODE}"
