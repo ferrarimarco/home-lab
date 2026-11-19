@@ -51,6 +51,13 @@ directories_to_ensure_ownership:
 default_docker_compose_file_name: "compose.yaml"
 default_dockerfile_file_name: "Dockerfile"
 default_prometheus_configuration_file_name: "prometheus.yaml"
+# Prints the paths among its arguments that exist, a dangling symbolic link
+# included, one per line: the read before the tasks that delete the paths
+# declared absent
+existing_paths_listing_script: >-
+  for path in "$@"; do
+  if [ -e "${path}" ] || [ -L "${path}" ]; then printf '%s\n' "${path}"; fi;
+  done
 fail2ban_configuration_directory: "/etc/fail2ban"
 fail2ban_os_services:
   - enabled: true

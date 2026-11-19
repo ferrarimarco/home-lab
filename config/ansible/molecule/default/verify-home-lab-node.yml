@@ -1,0 +1,3 @@
+---
+- name: Import the checks on what the node role deleted
+  ansible.builtin.import_playbook: verify-main.yml

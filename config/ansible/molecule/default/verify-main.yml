@@ -1,0 +1,30 @@
+---
+# The prepare playbook creates a directory and a file that the node role
+# declares absent: after the converge they must be gone, which the idempotence
+# pass cannot tell, since a role that skipped the deletion would skip it twice.
+- name: Check that the node role deleted the paths it declares absent
+  hosts: all
+  gather_facts: false
+  tasks:
+    # A tag-scoped converge deletes the paths of the selected stacks only, and
+    # the two paths belong to stacks a scope may leave out
+    - name: Leave the checks to the unscoped runs
+      ansible.builtin.meta: end_play
+      when: lookup('ansible.builtin.env', 'ANSIBLE_TEST_TAGS') not in ['', 'all']
+
+    - name: Read the paths the prepare playbook created
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      become: true
+      loop:
+        - /etc/ferrarimarco-home-lab/sense-hat-exporter
+        - /usr/local/bin/docker-compose
+      register: node_absent_paths
+
+    - name: Check that the paths are gone
+      ansible.builtin.assert:
+        that:
+          - node_absent_paths.results | selectattr('stat.exists') | list | length == 0
+        fail_msg: >-
+          Still there:
+          {{ node_absent_paths.results | selectattr('stat.exists') | map(attribute='item') | join(', ') }}

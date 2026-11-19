@@ -22,6 +22,19 @@
   become: true
   with_items: "{{ directories_to_ensure_ownership }}"
 
+# A host declares absent every path of the stacks it turns off, and a module
+# run per path made up most of the deletion loops on a converged host, where
+# none of them exists: one read lists the ones that do, and the loops below
+# run the module for those only. The read runs in check mode too, and right
+# before its loop, so it sees what the tasks in between changed.
+- name: List the directories marked for deletion that exist
+  ansible.builtin.command:
+    argv: "{{ ['sh', '-c', existing_paths_listing_script, 'sh'] + (configuration_directories | selectattr('state', 'equalto', 'absent') | map(attribute='path') | list) }}"
+  become: true
+  changed_when: false
+  check_mode: false
+  register: configuration_directories_to_delete
+
 - name: Configure directories
   ansible.builtin.file:
     group: "{{ item.group | default('root') }}"
@@ -30,6 +43,7 @@
     path: "{{ item.path }}"
     state: "{{ item.state }}"
   become: true
+  when: item.state != 'absent' or item.path in configuration_directories_to_delete.stdout_lines
   with_items: "{{ configuration_directories }}"
 
 - name: Copy system-wide, templated configuration files in place
@@ -94,6 +108,19 @@
     - item.state == 'file' or item.state == 'directory'
   with_items: "{{ files_to_configure }}"
 
+# See the read before the directories task
+- name: List the files marked for deletion that exist
+  ansible.builtin.command:
+    argv: "{{ ['sh', '-c', existing_paths_listing_script, 'sh'] + files_to_delete_paths }}"
+  become: true
+  changed_when: false
+  check_mode: false
+  register: files_to_delete
+  vars:
+    files_to_delete_paths: >-
+      {{ (files_to_configure | selectattr('state', 'equalto', 'absent') | selectattr('path', 'defined') | map(attribute='path') | list)
+      + (files_to_configure | selectattr('state', 'equalto', 'absent') | rejectattr('path', 'defined') | map(attribute='dest') | list) }}
+
 # ansible-lint: ignore the "risky file permission" warning because we're deleting
 # files here, so we don't need to set permissions.
 - name: Delete files marked for deletion # noqa: risky-file-permissions
@@ -104,6 +131,7 @@
   register: configured_files_and_directories_result
   when:
     - item.state == 'absent'
+    - (item.path | default(item.dest)) in files_to_delete.stdout_lines
   with_items: "{{ files_to_configure }}"
 
 - name: Include users setup tasks

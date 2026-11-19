@@ -22,3 +22,25 @@
         state: present
         update_cache: true
       become: true
+
+    # The node role runs its deletion module only for the paths declared
+    # absent that exist, and a fresh instance has none: these two, which the
+    # role declares absent on both instances (the directory of a stack neither
+    # enables, a file the Docker stack retired), give the converge something
+    # to delete. The verify playbooks of the playbooks that run the role
+    # assert that it did.
+    - name: Create a directory and a file that the node role declares absent
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: "{{ item.state }}"
+        owner: root
+        group: root
+        mode: "{{ item.mode }}"
+      become: true
+      loop:
+        - path: /etc/ferrarimarco-home-lab/sense-hat-exporter
+          state: directory
+          mode: "0755"
+        - path: /usr/local/bin/docker-compose
+          state: touch
+          mode: "0644"
