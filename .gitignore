@@ -27,6 +27,9 @@ secret.yaml
 home_lab_vault_password_file
 vault.y*ml*
 
+# Secrets backup configuration
+config/secrets-backup/
+
 # Developer credentials
 .github-personal-access-token
 

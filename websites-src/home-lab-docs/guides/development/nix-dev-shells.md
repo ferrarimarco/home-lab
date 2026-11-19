@@ -60,14 +60,16 @@ configuration (`config/nix/treefmt.nix`). See the
 
 ## Operations shell tools
 
-| Tool             | Purpose                                                     | How to invoke                                              |
-| :--------------- | :---------------------------------------------------------- | :--------------------------------------------------------- |
-| `gh`             | Interact with GitHub: CI workflow runs, pull requests.      | Directly. See [GitHub CLI](#github-cli).                   |
-| `ipmitool`       | Control a host through its BMC: power state, sensors.       | Directly. See [IPMI](#ipmi).                               |
-| `jq`             | Parse and filter JSON, such as Terraform outputs.           | Directly.                                                  |
-| `nixos-anywhere` | Install NixOS on hosts that have a `disko.nix` disk layout. | Through `scripts/bootstrap-host.sh`, inside the shell.     |
-| `nixos-rebuild`  | Push a NixOS configuration to a running host over SSH.      | Through `scripts/bootstrap-host.sh`, inside the shell.     |
-| `terraform`      | Provision the infrastructure.                               | Only through `scripts/run-terraform.sh`, inside the shell. |
+| Tool             | Purpose                                                     | How to invoke                                                         |
+| :--------------- | :---------------------------------------------------------- | :-------------------------------------------------------------------- |
+| `gh`             | Interact with GitHub: CI workflow runs, pull requests.      | Directly. See [GitHub CLI](#github-cli).                              |
+| `ipmitool`       | Control a host through its BMC: power state, sensors.       | Directly. See [IPMI](#ipmi).                                          |
+| `jq`             | Parse and filter JSON, such as Terraform outputs.           | Directly.                                                             |
+| `nixos-anywhere` | Install NixOS on hosts that have a `disko.nix` disk layout. | Through `scripts/bootstrap-host.sh`, inside the shell.                |
+| `nixos-rebuild`  | Push a NixOS configuration to a running host over SSH.      | Through `scripts/bootstrap-host.sh`, inside the shell.                |
+| `rclone`         | Reach a restic repository behind a cloud storage remote.    | Through restic. Directly for `rclone config`, which sets up a remote. |
+| `restic`         | Back up the secret files of the checkout.                   | Through `scripts/backup-secrets.sh`, inside the shell.                |
+| `terraform`      | Provision the infrastructure.                               | Only through `scripts/run-terraform.sh`, inside the shell.            |
 
 The [operational scripts guide](./operational-scripts.md) describes the scripts
 that wrap these tools.

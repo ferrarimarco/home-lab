@@ -1916,6 +1916,16 @@ configuration (<code>config/nix/treefmt.nix</code>). See the
 <td style="text-align: left;">Through <code>scripts/bootstrap-host.sh</code>, inside the shell.</td>
 </tr>
 <tr>
+<td style="text-align: left;"><code>rclone</code></td>
+<td style="text-align: left;">Reach a restic repository behind a cloud storage remote.</td>
+<td style="text-align: left;">Through restic. Directly for <code>rclone config</code>, which sets up a remote.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>restic</code></td>
+<td style="text-align: left;">Back up the secret files of the checkout.</td>
+<td style="text-align: left;">Through <code>scripts/backup-secrets.sh</code>, inside the shell.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><code>terraform</code></td>
 <td style="text-align: left;">Provision the infrastructure.</td>
 <td style="text-align: left;">Only through <code>scripts/run-terraform.sh</code>, inside the shell.</td>

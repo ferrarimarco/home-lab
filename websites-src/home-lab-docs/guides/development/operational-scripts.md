@@ -208,6 +208,15 @@ different command inside that environment instead.
   check that it builds a virtual environment from a requirements file and skips
   an up-to-date one; the `Test shell scripts` and
   `Test Python requirements files` CI workflows run it.
+- `test/scripts/backup-secrets-test.sh`: runs a copy of
+  `scripts/backup-secrets.sh` inside a fixture checkout, against local restic
+  repositories, with cases that make its guards fire: a repository that was not
+  initialized, an unchanged set, a restic command that fails at each step, a
+  destination out of reach or pointed at another repository, a working copy or a
+  pack file that differs from the snapshot, a path or a destinations file that
+  is not usable, a Git worktree. No case covers a missing restic. It needs
+  `restic` and `jq` from the `operations` Nix shell; the `Test shell scripts` CI
+  workflow runs it in that shell.
 
 ## Provisioning and configuration
 
@@ -495,6 +504,53 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   ([monitoring operations guide](../operations/monitoring.md)). After every VM
   change, read the apply output for that warning and check the node with
   `qm pending <vmid>`.
+- `scripts/backup-secrets.sh [backup | verify | run <destination> <restic arguments>]`:
+  backs up the secret files of the checkout, all of which Git ignores (the
+  Ansible vault password file and vault files, the Terraform secret variable
+  files and local state, the ESPHome and zigbee2mqtt secrets, the bootstrap
+  private key), to one restic repository per destination. The developer token is
+  left out: it is reissued, not restored. Nothing else holds these files, and
+  the vault holds the passwords of the
+  [lab's own backups](../../architecture/backups.md), so no copy of this set may
+  depend on the lab alone. The script needs `restic` from the `operations` Nix
+  shell (and `rclone` for a repository behind an rclone remote). It runs from
+  the main checkout only and refuses a Git worktree, which holds at most the
+  links to the vault files that a playbook run needs. Its configuration is in
+  `config/secrets-backup/`, which Git ignores as it does the secret files:
+    - `destinations`: one destination per line, a name (lowercase letters,
+      digits, hyphens) followed by the restic repository.
+    - `password`: the password of the repositories, readable by its owner only.
+      Keep a copy that needs neither this workstation nor a repository to read.
+    - `extra-paths` (optional): absolute paths of secret files outside the
+      checkout, one per line. A symbolic link is refused: list the file it
+      names.
+
+    The two lists are part of the set, so a restore brings them back. The
+    password is not: a backup cannot hold the key that opens it.
+
+    The modes:
+    - `backup` (the default) writes a snapshot to every destination that has no
+      record of the current set, and verifies it. The record is a digest of the
+      set and of the repository, kept per destination under
+      `~/.local/state/home-lab-secrets-backup/` and written once a snapshot is
+      verified there, so a run with nothing to back up opens no repository and
+      needs neither restic nor the network. The record is local: it does not see
+      a repository that changed from elsewhere, which `verify` does. A
+      destination that fails does not stop the others: the run exits with a
+      non-zero status after the last one, and the next run tries it again.
+    - `verify` reads every pack file of each repository
+      (`restic check --read-data`), restores the latest snapshot into a
+      temporary directory (under `$XDG_RUNTIME_DIR` when it is set), and
+      compares it with the working copy file by file. `backup` does the same
+      after each snapshot.
+    - `run` passes its arguments to restic for one destination:
+      `scripts/backup-secrets.sh run <destination> snapshots` lists the
+      snapshots, and `run <destination> init` creates a repository, which
+      `backup` never does on its own. The arguments may remove snapshots, so
+      every use of `run` clears the record of its destination, and the next
+      `backup` writes and verifies a snapshot there.
+
+    The script itself never forgets or prunes a snapshot: the set is small.
 
 ## Documentation site
 

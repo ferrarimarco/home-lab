@@ -7,6 +7,8 @@ pkgs.mkShell {
     jq
     nixos-anywhere
     nixos-rebuild
+    rclone
+    restic
     terraform
   ];
 
