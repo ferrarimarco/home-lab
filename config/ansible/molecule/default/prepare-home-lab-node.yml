@@ -1,0 +1,12 @@
+---
+# The node playbook runs on hosts that the bootstrap and container engine
+# playbooks set up before it, and it calls Docker on every host that enables
+# it: on a fresh instance the idempotence pass fails at the first Compose
+# command. The instances get those playbooks here, in a run of their own, so
+# the test is the node playbook alone on a prepared host, without the
+# variables and facts an earlier play of the same run would leave behind.
+- name: Import the prepare playbook of the fresh instances
+  ansible.builtin.import_playbook: prepare.yml
+
+- name: Import the container engine playbook, which imports the bootstrap one
+  ansible.builtin.import_playbook: ../../playbooks/container-engine.yaml

@@ -229,7 +229,10 @@ provisioner:
     tags: ${ANSIBLE_TEST_TAGS:-all}
   playbooks:
     converge: "${ANSIBLE_TEST_PLAYBOOK_PATH}"
-    prepare: prepare.yml
+    # The run script selects the prepare and verify playbooks named after the
+    # playbook under test, when there are any
+    prepare: ${ANSIBLE_TEST_PREPARE_PLAYBOOK_NAME:-prepare.yml}
+    verify: ${ANSIBLE_TEST_VERIFY_PLAYBOOK_NAME:-verify.yml}
 scenario:
   # The default sequence plus a check run on the fresh instances before the
   # converge: the gate every production apply goes through, which has its own

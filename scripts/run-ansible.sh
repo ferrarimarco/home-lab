@@ -77,12 +77,34 @@ if [ -t 0 ]; then
 fi
 
 if [ -n "${ANSIBLE_TEST_DISTRO:-}" ]; then
+  ANSIBLE_TEST_SCENARIO_DIRECTORY_PATH="config/ansible/molecule/default"
   ANSIBLE_TEST_PLAYBOOK_PATH="../../playbooks/${ANSIBLE_TEST_PLAYBOOK_NAME}.yaml"
-  ANSIBLE_TEST_PLAYBOOK_FULL_PATH="config/ansible/molecule/default/${ANSIBLE_TEST_PLAYBOOK_PATH}"
+  ANSIBLE_TEST_PLAYBOOK_FULL_PATH="${ANSIBLE_TEST_SCENARIO_DIRECTORY_PATH}/${ANSIBLE_TEST_PLAYBOOK_PATH}"
   if [ ! -f "${ANSIBLE_TEST_PLAYBOOK_FULL_PATH}" ]; then
     echo "The playbook file does not exist: ${ANSIBLE_TEST_PLAYBOOK_FULL_PATH}"
     exit "${ERR_ANSIBLE_TEST_MISSING_PLAYBOOK}"
   fi
+
+  # The scenario directory can hold playbooks named after the playbook under
+  # test, which replace the scenario's own for that playbook: a prepare
+  # playbook, when it needs more on the instances than a fresh host has (the
+  # playbooks a host got before it, a stand-in for a device); a converge
+  # playbook, which imports it with the extra variables it requires; a verify
+  # playbook.
+  if [ -f "${ANSIBLE_TEST_SCENARIO_DIRECTORY_PATH}/converge-${ANSIBLE_TEST_PLAYBOOK_NAME}.yml" ]; then
+    ANSIBLE_TEST_PLAYBOOK_PATH="converge-${ANSIBLE_TEST_PLAYBOOK_NAME}.yml"
+  fi
+  ANSIBLE_TEST_PREPARE_PLAYBOOK_NAME="prepare.yml"
+  if [ -f "${ANSIBLE_TEST_SCENARIO_DIRECTORY_PATH}/prepare-${ANSIBLE_TEST_PLAYBOOK_NAME}.yml" ]; then
+    ANSIBLE_TEST_PREPARE_PLAYBOOK_NAME="prepare-${ANSIBLE_TEST_PLAYBOOK_NAME}.yml"
+  fi
+  ANSIBLE_TEST_VERIFY_PLAYBOOK_NAME="verify.yml"
+  if [ -f "${ANSIBLE_TEST_SCENARIO_DIRECTORY_PATH}/verify-${ANSIBLE_TEST_PLAYBOOK_NAME}.yml" ]; then
+    ANSIBLE_TEST_VERIFY_PLAYBOOK_NAME="verify-${ANSIBLE_TEST_PLAYBOOK_NAME}.yml"
+  fi
+  echo "ANSIBLE_TEST_PLAYBOOK_PATH: ${ANSIBLE_TEST_PLAYBOOK_PATH}"
+  echo "ANSIBLE_TEST_PREPARE_PLAYBOOK_NAME: ${ANSIBLE_TEST_PREPARE_PLAYBOOK_NAME}"
+  echo "ANSIBLE_TEST_VERIFY_PLAYBOOK_NAME: ${ANSIBLE_TEST_VERIFY_PLAYBOOK_NAME}"
 
   # Molecule records what it did to the instances (created, prepared,
   # converged) in its ephemeral directory, which would end with this
@@ -128,6 +150,8 @@ if [ -n "${ANSIBLE_TEST_DISTRO:-}" ]; then
 
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_DISTRO=${ANSIBLE_TEST_DISTRO}"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_PLAYBOOK_PATH=${ANSIBLE_TEST_PLAYBOOK_PATH}"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_PREPARE_PLAYBOOK_NAME=${ANSIBLE_TEST_PREPARE_PLAYBOOK_NAME}"
+  COMMAND_TO_RUN="${COMMAND_TO_RUN} --env ANSIBLE_TEST_VERIFY_PLAYBOOK_NAME=${ANSIBLE_TEST_VERIFY_PLAYBOOK_NAME}"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} --env MOLECULE_EPHEMERAL_DIRECTORY=${MOLECULE_EPHEMERAL_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH}"
   COMMAND_TO_RUN="${COMMAND_TO_RUN} -v ${ANSIBLE_TEST_MOLECULE_EPHEMERAL_DIRECTORY}:${MOLECULE_EPHEMERAL_DIRECTORY_INSIDE_CONTAINER_MOUNT_PATH}"
   if [ -n "${ANSIBLE_TEST_TAGS:-}" ]; then
