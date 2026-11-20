@@ -427,6 +427,23 @@ templates_to_render:
     os_services_to_restart:
       - systemd-journald
 templates_to_render_after_installing_os_packages: []
+# The origins the tool upgrades on top of its defaults (Debian and Debian
+# security for the release): the release's updates and backports suites, and
+# the repositories of what the host enables. The Proxmox origin has no entry,
+# since the nodes upgrade it by hand.
+unattended_upgrades_origin_patterns:
+  - pattern: "origin=Debian,codename=${distro_codename}-updates"
+    enabled: true
+  - pattern: "origin=Debian Backports,codename=${distro_codename}-backports,label=Debian Backports"
+    enabled: true
+  # The Release file of this repository has no codename: the suite names the
+  # release
+  - pattern: "origin=Docker,archive=${distro_codename},label=Docker CE"
+    enabled: "{{ configure_docker }}"
+  - pattern: "origin=Raspberry Pi Foundation,codename=${distro_codename},label=Raspberry Pi Foundation"
+    enabled: "{{ is_raspberry_pi }}"
+  - pattern: "origin=Tailscale,codename=${distro_codename},label=Tailscale"
+    enabled: "{{ configure_tailscale }}"
 unattended_upgrades_os_services:
   - enabled: true
     service_name: "{{ unattended_upgrades_service_name }}"

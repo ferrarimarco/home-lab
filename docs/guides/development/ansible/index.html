@@ -2377,12 +2377,26 @@ in its group variables (<code>group_vars/home_lab_proxmox_nodes</code>):</p>
   a role variable would win over the group.</li>
 <li><code>security_unattended_upgrades_enabled: true</code>, the role default made explicit.
   The tool's default origins are Debian stable and Debian security for the
-  release; the Proxmox repository is a different origin, so pve-manager, the
-  kernel and ZFS upgrade by hand with <code>apt full-upgrade</code>, the command Proxmox
-  prescribes (<code>apt upgrade</code> can leave its packages partially upgraded, and
-  unattended-upgrades has that command's semantics by design: it holds back any
-  step that would remove a package). The package also installs the kernel hook
-  that sets the reboot-required flag, which the <code>RebootRequired</code> alert reads.</li>
+  release, and the role adds the patterns of
+  <code>unattended_upgrades_origin_patterns</code> in its <code>vars/main.yaml</code>: the release's
+  updates and backports suites on every host, and the Docker, Tailscale, and
+  Raspberry Pi repositories where <code>configure_docker</code>, <code>configure_tailscale</code>, and
+  <code>is_raspberry_pi</code> are set. A repository a new stack adds needs an entry there,
+  or its upgrades wait for the <code>AptUpgradesPending</code> alert. The Proxmox
+  repository has no entry, so pve-manager, the kernel and ZFS upgrade by hand
+  with <code>apt full-upgrade</code>, the command Proxmox prescribes (<code>apt upgrade</code> can
+  leave its packages partially upgraded, and unattended-upgrades has that
+  command's semantics by design: it holds back any step that would remove a
+  package). The same holds for a covered origin on any host: an upgrade that
+  needs a removal stays pending until <code>apt full-upgrade</code> is run by hand, and
+  reaches the alert (on raspberrypi2 the camera libraries of Raspberry Pi OS,
+  whose new library package replaces the installed one, 2026-11-20). An
+  unattended Docker engine upgrade restarts the daemon and containerd under the
+  workloads, which keep running because the daemon is configured with
+  <code>live-restore</code> (hl01 and raspberrypi2 on 2026-11-20, from 29.9.3 to 29.10.0,
+  with every container's start time unchanged). The package also installs the
+  kernel hook that sets the reboot-required flag, which the <code>RebootRequired</code>
+  alert reads.</li>
 </ul>
 <p>The containerized exporters of the monitoring stack (the compose file, its
 directory and its project unit) follow

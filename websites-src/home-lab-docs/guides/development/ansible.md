@@ -427,12 +427,26 @@ in its group variables (`group_vars/home_lab_proxmox_nodes`):
   a role variable would win over the group.
 - `security_unattended_upgrades_enabled: true`, the role default made explicit.
   The tool's default origins are Debian stable and Debian security for the
-  release; the Proxmox repository is a different origin, so pve-manager, the
-  kernel and ZFS upgrade by hand with `apt full-upgrade`, the command Proxmox
-  prescribes (`apt upgrade` can leave its packages partially upgraded, and
-  unattended-upgrades has that command's semantics by design: it holds back any
-  step that would remove a package). The package also installs the kernel hook
-  that sets the reboot-required flag, which the `RebootRequired` alert reads.
+  release, and the role adds the patterns of
+  `unattended_upgrades_origin_patterns` in its `vars/main.yaml`: the release's
+  updates and backports suites on every host, and the Docker, Tailscale, and
+  Raspberry Pi repositories where `configure_docker`, `configure_tailscale`, and
+  `is_raspberry_pi` are set. A repository a new stack adds needs an entry there,
+  or its upgrades wait for the `AptUpgradesPending` alert. The Proxmox
+  repository has no entry, so pve-manager, the kernel and ZFS upgrade by hand
+  with `apt full-upgrade`, the command Proxmox prescribes (`apt upgrade` can
+  leave its packages partially upgraded, and unattended-upgrades has that
+  command's semantics by design: it holds back any step that would remove a
+  package). The same holds for a covered origin on any host: an upgrade that
+  needs a removal stays pending until `apt full-upgrade` is run by hand, and
+  reaches the alert (on raspberrypi2 the camera libraries of Raspberry Pi OS,
+  whose new library package replaces the installed one, 2026-11-20). An
+  unattended Docker engine upgrade restarts the daemon and containerd under the
+  workloads, which keep running because the daemon is configured with
+  `live-restore` (hl01 and raspberrypi2 on 2026-11-20, from 29.9.3 to 29.10.0,
+  with every container's start time unchanged). The package also installs the
+  kernel hook that sets the reboot-required flag, which the `RebootRequired`
+  alert reads.
 
 The containerized exporters of the monitoring stack (the compose file, its
 directory and its project unit) follow

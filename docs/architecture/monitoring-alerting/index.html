@@ -2667,7 +2667,7 @@ with operational experience.</p>
 <td style="text-align: left;">warning</td>
 <td style="text-align: left;"><code>apt_upgrades_pending &gt; 0</code></td>
 <td style="text-align: left;">14 d</td>
-<td style="text-align: left;">Upgrades pending for two weeks from one origin: a third-party repository unattended-upgrades does not cover (Docker, Tailscale) on the Debian hosts, or the Proxmox origin on the Proxmox nodes (pve-manager, the kernel, ZFS), which upgrade by hand with <code>apt full-upgrade</code>; the Debian origins there are covered by unattended-upgrades since the first full node run (pve1 on 2026-11-10). A nudge to read the release notes and upgrade on purpose, not an automatic upgrade.</td>
+<td style="text-align: left;">Upgrades pending for two weeks from one origin that unattended-upgrades does not clear: the Proxmox origin on the Proxmox nodes (pve-manager, the kernel, ZFS), which upgrade it by hand with <code>apt full-upgrade</code>, a repository the node role's origin patterns do not cover, or an upgrade the tool holds back. The patterns add the release's updates and backports suites, and the Docker, Tailscale, and Raspberry Pi repositories of the hosts that enable them, to the tool's Debian defaults (2026-11-20; before, those origins waited for this alert). A nudge to read the release notes and upgrade on purpose, not an automatic upgrade.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>RebootRequired</code></td>

@@ -28,3 +28,36 @@
         fail_msg: >-
           Still there:
           {{ node_absent_paths.results | selectattr('stat.exists') | map(attribute='item') | join(', ') }}
+
+# The node role adds origins to the ones unattended-upgrades covers by default:
+# two on every host, and one for each repository a host enables. The expected
+# lines are written out here, so a rendering apt reads differently fails.
+- name: Check the origins that unattended-upgrades covers
+  hosts: all
+  gather_facts: false
+  vars:
+    unattended_upgrades_expected_origins:
+      - 'Unattended-Upgrade::Origins-Pattern:: "origin=Debian,codename=${distro_codename}-updates";'
+      - 'Unattended-Upgrade::Origins-Pattern:: "origin=Debian Backports,codename=${distro_codename}-backports,label=Debian Backports";'
+    unattended_upgrades_docker_origin: 'Unattended-Upgrade::Origins-Pattern:: "origin=Docker,archive=${distro_codename},label=Docker CE";'
+  tasks:
+    - name: Leave the check to the runs that render the stack
+      ansible.builtin.meta: end_play
+      when:
+        - lookup('ansible.builtin.env', 'ANSIBLE_TEST_TAGS') not in ['', 'all']
+        - "'unattended-upgrades' not in lookup('ansible.builtin.env', 'ANSIBLE_TEST_TAGS').split(',')"
+
+    - name: Read the configuration apt hands to unattended-upgrades
+      ansible.builtin.command: apt-config dump
+      register: unattended_upgrades_apt_configuration
+      changed_when: false
+
+    - name: Check the origins against what each instance enables
+      ansible.builtin.assert:
+        that:
+          - unattended_upgrades_expected_origins | difference(unattended_upgrades_apt_configuration.stdout_lines) | length == 0
+          - (unattended_upgrades_docker_origin in unattended_upgrades_apt_configuration.stdout_lines) == (inventory_hostname == 'instance')
+          - unattended_upgrades_apt_configuration.stdout_lines | select('search', 'origin=(Tailscale|Raspberry Pi Foundation)') | list | length == 0
+        fail_msg: >-
+          The origin patterns apt reads:
+          {{ unattended_upgrades_apt_configuration.stdout_lines | select('search', 'Origins-Pattern') | join(' ') }}

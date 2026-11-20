@@ -54,11 +54,12 @@ groups:
             apt collector is not deployed or its timer stopped, so failed
             updates on it go unnoticed.
       - alert: AptUpgradesPending
-        # On hosts with unattended-upgrades the Debian origins clear within a
-        # day, so only third-party origins (Docker, Tailscale) survive two
-        # weeks; on the Proxmox nodes, which upgrade by hand, every origin
-        # counts. Prometheus restores the for-state across restarts shorter
-        # than its outage tolerance (1h), so the two weeks survive a reload.
+        # The origins unattended-upgrades covers (the node role's patterns)
+        # clear within a day, so what survives two weeks is an origin it does
+        # not cover (the Proxmox one on the nodes, which upgrade it by hand, a
+        # repository the role does not know) or an upgrade it holds back.
+        # Prometheus restores the for-state across restarts shorter than its
+        # outage tolerance (1h), so the two weeks survive a reload.
         expr: apt_upgrades_pending > 0
         for: 14d
         labels:

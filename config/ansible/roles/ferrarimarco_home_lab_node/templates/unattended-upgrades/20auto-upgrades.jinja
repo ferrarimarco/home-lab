@@ -4,3 +4,10 @@ APT::Periodic::Update-Package-Lists "1";
 // Remove what apt autoremove would at the end of each run; unused kernels are
 // already removed by the tool's default
 Unattended-Upgrade::Remove-Unused-Dependencies "true";
+// Added to the origins of the package's own file: apt appends the entries of
+// a list across files
+Unattended-Upgrade::Origins-Pattern {
+{% for origin in unattended_upgrades_origin_patterns | selectattr('enabled') %}
+    "{{ origin.pattern }}";
+{% endfor %}
+};
