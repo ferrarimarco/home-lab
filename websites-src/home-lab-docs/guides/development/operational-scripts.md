@@ -551,7 +551,10 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
       `scripts/run-terraform.sh` (outside its output mode) run it when they exit
       and print its report on standard error when it fails, without changing
       their own exit status; the warning stays silent in a checkout that has no
-      `destinations` file, such as a Git worktree. They do not run the backup.
+      `destinations` file, such as a Git worktree. They do not run the backup:
+      the
+      [backup operations guide](../operations/backup.md#back-up-after-a-change)
+      has the commands.
     - `verify` reads every pack file of each repository
       (`restic check --read-data`), restores the latest snapshot into a
       temporary directory (under `$XDG_RUNTIME_DIR` when it is set), and

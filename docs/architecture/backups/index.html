@@ -399,6 +399,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-secret-files-of-the-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      The secret files of the checkout
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1725,6 +1734,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-secret-files-of-the-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      The secret files of the checkout
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1800,14 +1818,25 @@
 <td style="text-align: left;"><strong>Missing</strong></td>
 <td style="text-align: left;">The repositories exist only on the nas-pve1 share, a single-disk pool; the second copy is a <a href="../#backup">Backup</a> todo item.</td>
 </tr>
+<tr>
+<td style="text-align: left;"><strong>Secret files backup</strong></td>
+<td style="text-align: left;"><strong>Fully Implemented</strong></td>
+<td style="text-align: left;"><code>scripts/backup-secrets.sh</code> writes the gitignored secret files of the checkout to one restic repository per destination outside the lab, and restores each snapshot to compare it with the working copy; <code>test/scripts/backup-secrets-test.sh</code> covers it. First backup written and verified on 2026-11-20. The restore on a blank workstation has not been rehearsed end-to-end (<a href="../#backup">Backup</a> todo item).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Automatic secret files backup</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;">The backup runs when the operator starts it; <code>run-ansible.sh</code> and <code>run-terraform.sh</code> warn on exit about a set without one. The automatic run is a <a href="../#backup">Backup</a> todo item.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="scope">Scope</h2>
 <p>What the backups protect, where the data goes, the decisions behind the layout,
-and what each verification mechanism proves and does not prove. The
-<a href="../../guides/operations/backup/">backup operations guide</a> holds the procedures;
-the <a href="../monitoring-alerting/">Monitoring Alerting specification</a> holds the
-alert rules.</p>
+and what each verification mechanism proves and does not prove. The last section
+covers the secret files of the checkout, which the lab's own backups cannot
+protect. The <a href="../../guides/operations/backup/">backup operations guide</a> holds the
+procedures; the <a href="../monitoring-alerting/">Monitoring Alerting specification</a>
+holds the alert rules.</p>
 <h2 id="what-is-backed-up">What is backed up</h2>
 <p>The Debian hosts (hl01, raspberrypi2) run their workloads as Docker Compose
 stacks whose state lives in two bind-mounted trees per host, the configuration
@@ -2000,6 +2029,54 @@ deliberately small because a full monthly restore would re-read data the pack
 reads already verify, at the cost of the full restore size (17 GB on hl01 in
 October 2026) on a target that has to hold it; its target is a scratch directory
 next to the repository on the share, never the root disk.</p>
+<h2 id="the-secret-files-of-the-checkout">The secret files of the checkout</h2>
+<p>The checkout holds files that Git ignores by policy and that nothing else holds:
+the Ansible vault files and their password file, the Terraform secret variable
+files and local state, and the device secrets. The operator's SSH key pairs sit
+outside the checkout and belong to the same set. The backups above cannot
+protect it: they do not reach the workstation, and the vault holds their
+repository passwords, so restoring the lab starts from this set. No copy of it
+may therefore depend on the lab alone.</p>
+<p><code>scripts/backup-secrets.sh</code> backs the set up from the main checkout, encrypted
+on the workstation by restic, so a destination only ever holds ciphertext. The
+<a href="../../guides/development/operational-scripts/">operational scripts guide</a>
+describes its modes and its configuration, and the
+<a href="../../guides/operations/backup/#the-secret-files-of-the-checkout">backup operations guide</a>
+has the setup and the restore.</p>
+<p>Decisions:</p>
+<ul>
+<li><strong>One repository per destination, each written and verified on its own.</strong> A
+  destination that is out of reach or damaged fails the run without holding the
+  others back, and the next run brings only that one up to date.</li>
+<li><strong>The repository password is the one secret the backup cannot hold.</strong> It lives
+  in the gitignored configuration and in a copy that needs neither the
+  workstation nor a repository to read (a password manager, paper), together
+  with the repository of each destination: the list of destinations is inside
+  the backup.</li>
+<li><strong>Every backup is proven by a restore.</strong> After each snapshot the script reads
+  every pack file, restores the latest snapshot into a temporary directory, and
+  compares it with the working copy file by file, which the size of the set
+  (under 200 KiB in November 2026) makes affordable. Only then does it record
+  the destination as up to date, so an unchanged set costs no repository access.</li>
+<li><strong>No snapshot is forgotten.</strong> The set is small, and an older snapshot is the
+  way back from a bad vault edit.</li>
+<li><strong>Run by hand, with a warning</strong> (2026-11-20). <code>run-ansible.sh</code> and
+  <code>run-terraform.sh</code> (outside its output mode, which changes nothing), the two
+  scripts that change the set, check on exit whether every destination has a
+  record of the current set and print a warning when one does not. The check
+  hashes the files and opens no repository. They do not run the backup: the
+  <a href="../#backup">Backup</a> todo item says what that waits on.</li>
+<li><strong>From the main checkout only.</strong> A Git worktree holds at most the links to the
+  vault files that a playbook run needs, so the script refuses to run there. The
+  warning is silent there too, for a reason of its own: Git ignores the
+  configuration of the backup, so a worktree has no list of destinations to
+  check.</li>
+</ul>
+<p>What this does not cover: nothing reports a set that stays without a backup
+until one of the two scripts runs from the main checkout, so a vault edit made
+from a worktree goes unreported there; and nothing reads a repository between
+two backups, so damage at a destination shows at the next backup or at the next
+<code>verify</code>, not when it happens.</p>
 
 
 

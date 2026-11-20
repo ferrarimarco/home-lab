@@ -1242,6 +1242,48 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-secret-files-of-the-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      The secret files of the checkout
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The secret files of the checkout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-up-a-destination" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set up a destination
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#back-up-after-a-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      Back up after a change
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restore-on-a-blank-workstation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restore on a blank workstation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1865,6 +1907,48 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#the-secret-files-of-the-checkout" class="md-nav__link">
+    <span class="md-ellipsis">
+      The secret files of the checkout
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The secret files of the checkout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-up-a-destination" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set up a destination
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#back-up-after-a-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      Back up after a change
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restore-on-a-blank-workstation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restore on a blank workstation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1888,7 +1972,9 @@
 <p>Procedures for the restic backups of the Debian workload hosts and of the
 Proxmox nodes: inspecting a repository, restoring, running the drill, repairing.
 The <a href="../../../architecture/backups/">Backups specification</a> describes what is
-backed up, where, and what each check proves.</p>
+backed up, where, and what each check proves. The
+<a href="#the-secret-files-of-the-checkout">last section</a> covers the backup of the
+checkout's secret files, which runs on the workstation.</p>
 <h2 id="where-things-are">Where things are</h2>
 <p>Every host runs its restic jobs the same way, through the backup role: the
 Debian restic package, the job script and one root-only environment file per job
@@ -2126,6 +2212,97 @@ failed nightly job) must be repaired before any restore: follow the command's
 instructions (<code>restic repair index</code>, <code>restic repair snapshots</code>) and the
 <a href="https://restic.readthedocs.io/en/stable/077_troubleshooting.html">restic troubleshooting chapter</a>,
 through <code>restic_run</code>.</p>
+<h2 id="the-secret-files-of-the-checkout">The secret files of the checkout</h2>
+<p><code>scripts/backup-secrets.sh</code> backs up the gitignored secret files of the main
+checkout to restic repositories outside the lab; its entry in the
+<a href="../../development/operational-scripts/">operational scripts guide</a> describes the
+modes and the files under <code>config/secrets-backup/</code>, and the
+<a href="../../../architecture/backups/#the-secret-files-of-the-checkout">Backups specification</a>
+the decisions. Every command below runs from the main checkout.</p>
+<h3 id="set-up-a-destination">Set up a destination</h3>
+<ol>
+<li>
+<p>Generate the repository password in a password manager that needs neither the
+   workstation nor the lab, and keep a second copy on paper. Write it as the
+   only line of <code>config/secrets-backup/password</code>, in a directory and a file that
+   only their owner can read:</p>
+<div class="highlight"><pre><span></span><code>install<span class="w"> </span>--directory<span class="w"> </span>--mode<span class="w"> </span><span class="m">700</span><span class="w"> </span>config/secrets-backup
+install<span class="w"> </span>--mode<span class="w"> </span><span class="m">600</span><span class="w"> </span>/dev/null<span class="w"> </span>config/secrets-backup/password
+</code></pre></div>
+</li>
+<li>
+<p>For a repository behind an rclone remote, create the remote with
+   <code>nix develop ./config/nix#operations --command rclone config</code>, with the
+   narrowest scope the provider offers (access to the files rclone created, not
+   to the whole account).</p>
+</li>
+<li>Add a line to <code>config/secrets-backup/destinations</code>, a name and the restic
+   repository, and store the repository beside the password: the list of
+   destinations is inside the backup, so a blank workstation cannot read it
+   there.</li>
+<li>List in <code>config/secrets-backup/extra-paths</code> the secret files outside the
+   checkout, such as the SSH key pairs.</li>
+<li>
+<p>Create the repository, which the backup never does on its own, then run the
+   first backup:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span>scripts/backup-secrets.sh<span class="w"> </span>run<span class="w"> </span>&lt;destination&gt;<span class="w"> </span>init
+nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span>scripts/backup-secrets.sh
+</code></pre></div>
+</li>
+</ol>
+<p>A remote on rclone's built-in OAuth client shares that client's API quota with
+every other rclone user. On 2026-11-20 a first backup of under 200 KiB took 15
+minutes, ten of them on one request that the provider kept answering with
+<code>403 RATE_LIMIT_EXCEEDED</code> until a retry went through: the run is slow, not
+failed, and its log shows the retries.</p>
+<h3 id="back-up-after-a-change">Back up after a change</h3>
+<p><code>scripts/run-ansible.sh</code> and <code>scripts/run-terraform.sh</code> print a warning on exit
+when a destination has no verified backup of the current set, for example after
+a vault edit or an apply that changed the state. They do not run the backup:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># What the warning checks, without restic or the network</span>
+scripts/backup-secrets.sh<span class="w"> </span>status
+
+<span class="c1"># Back up to the destinations that are behind, and verify</span>
+nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span>scripts/backup-secrets.sh
+
+<span class="c1"># Read every repository again and compare it with the working copy</span>
+nix<span class="w"> </span>develop<span class="w"> </span>./config/nix#operations<span class="w"> </span>--command<span class="w"> </span>scripts/backup-secrets.sh<span class="w"> </span>verify
+</code></pre></div>
+<p>Run <code>verify</code> before an event that may need the backup (a workstation
+replacement, a change of the vault password): the record that <code>status</code> reads is
+local and does not see a repository that changed at the destination.</p>
+<h3 id="restore-on-a-blank-workstation">Restore on a blank workstation</h3>
+<p>What it needs from outside the backup: the repository password, the repository
+of one destination, and access to that destination (for an rclone remote, the
+remote created again under the same name).</p>
+<ol>
+<li>Clone the repository and enter the shell with
+   <code>nix develop ./config/nix#operations</code>.</li>
+<li>
+<p>Restore the latest snapshot into an empty directory that only its owner can
+   read, in memory where the system has a runtime directory; restic asks for the
+   password:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">RESTORE_DIRECTORY</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>mktemp<span class="w"> </span>--directory<span class="w"> </span>--tmpdir<span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">XDG_RUNTIME_DIR</span><span class="k">:-</span><span class="p">/tmp</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+restic<span class="w"> </span>--repo<span class="w"> </span>&lt;repository&gt;<span class="w"> </span>restore<span class="w"> </span>latest<span class="w"> </span>--target<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">RESTORE_DIRECTORY</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--verify
+</code></pre></div>
+</li>
+<li>
+<p>The snapshot holds every file under its absolute path at the time of the
+   backup. Copy the <code>config</code> tree of the old checkout over the new one, and the
+   other files (the SSH key pairs) back to their paths; restic restored their
+   modes:</p>
+<div class="highlight"><pre><span></span><code>cp<span class="w"> </span>--archive<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">RESTORE_DIRECTORY</span><span class="si">}</span><span class="s2">/&lt;old checkout path&gt;/config/.&quot;</span><span class="w"> </span>config/
+</code></pre></div>
+</li>
+<li>
+<p>Remove the directory, and write <code>config/secrets-backup/password</code> again as in
+   the setup: the backup does not hold it. Then run <code>scripts/backup-secrets.sh</code>:
+   a checkout at a new path is a new set, and the workstation has no record yet,
+   so the run writes and verifies a snapshot.</p>
+</li>
+</ol>
+<p>The script runs the same restore after every backup, into a directory it removes
+afterwards.</p>
 
 
 

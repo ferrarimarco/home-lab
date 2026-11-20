@@ -2023,7 +2023,7 @@ reference pages beside them, and the todo list for the whole lab.</p>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="backups/"><strong>Backups</strong></a></td>
-<td style="text-align: left;">Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill.</td>
+<td style="text-align: left;">Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill; and the backup of the checkout's secret files, outside the lab.</td>
 <td style="text-align: left;"><strong>Partially Implemented</strong></td>
 </tr>
 <tr>
@@ -2220,6 +2220,17 @@ reliability risks first, then security exposure, then automation):</p>
   stacks and let <code>run-terraform.sh</code> select which to run; check whether the
   <code>bpg/proxmox</code> provider can defer node connectivity until a resource needs
   it.</li>
+<li><strong>Google Cloud environment (2026-11-20)</strong>: no stack declares anything on
+  Google Cloud yet. Add a numbered stack under <code>config/terraform/</code> that
+  creates the project and, where the free tier allows it, caps its quotas
+  (<a href="https://cloud.google.com/docs/quota#capping_usage">capping usage</a>,
+  <a href="https://cloud.google.com/billing/docs/how-to/notify#cap_disable_billing_to_stop_usage">disable billing to stop usage</a>),
+  then a Cloud Storage bucket for the secret files backup, with object
+  versioning or a retention policy, so that a deleted snapshot can be
+  recovered. First step: decide how the stack authenticates (the operator's
+  own credentials, so that a blank workstation needs no key file to reach
+  the bucket) and note that its local state joins the secret files. Blocks:
+  the automatic secret files backup (<a href="#backup">Backup</a>).</li>
 <li>Factor the per-host NixOS VM resources into a shared module (or <code>for_each</code>
   over a host map), so the reference pattern of the
   <a href="proxmox-vm/">VM framework spec</a> is enforced by code rather than by
@@ -2794,6 +2805,23 @@ reliability risks first, then security exposure, then automation):</p>
   When a release with the fix is pinned, start the exporter against a scratch
   repository with no snapshot to confirm, then remove that paragraph from the
   guide. Waits on: the upstream fix.</li>
+<li><strong>Run the secret files backup automatically (2026-11-20)</strong>:
+  <code>scripts/backup-secrets.sh</code> runs by hand, and <code>run-ansible.sh</code> and
+  <code>run-terraform.sh</code> only warn on exit
+  (<a href="backups/#the-secret-files-of-the-checkout">Backups specification</a>),
+  because the first destination is too slow to wait for after every change
+  (<a href="../guides/operations/backup/#set-up-a-destination">measurement</a>). Steps:
+  add a destination that answers in seconds, either the Cloud Storage bucket
+  through restic's own backend or the rclone remote on an OAuth client of its
+  own, both of which live in the Google Cloud project, then have the two scripts
+  run the backup where they warn today. Depends on: the Google Cloud environment
+  item (<a href="#cicd-infrastructure-as-code-and-gitops">CI/CD</a>).</li>
+<li><strong>Rehearse the secret files restore on a blank workstation (2026-11-20)</strong>: the
+  script restores every snapshot it writes, but the
+  <a href="../guides/operations/backup/#restore-on-a-blank-workstation">procedure</a>
+  that starts from a new clone, the password, and the repository has not run
+  end-to-end. Run it in a scratch clone, correct the guide where it differs, and
+  update the status row of the <a href="backups/">Backups specification</a>.</li>
 <li><strong>Second copy of the restic repositories (2026-10-19)</strong>: the per-host
   repositories on the nas-pve1 <code>backups</code> share are the only copy of the Debian
   hosts' state backups, and the share's <code>rpool-sata</code> pool is a single-disk vdev
@@ -3214,8 +3242,7 @@ first step; software alternatives go to
   ebooks, comics, and photos, moved to network storage; media (movies,
   shows, ebooks, comics, game saves, software and drivers); with disk
   encryption: passwords, 2 factor authentication secrets, backup access
-  codes, Ansible secrets (vault files, the bootstrap public key), ESPHome
-  secrets, gateway configuration, photos (RAWs, Lightroom library), GitHub
+  codes, gateway configuration, photos (RAWs, Lightroom library), GitHub
   (private and public repositories and gists), Google accounts data.</li>
 </ul>
 </li>
@@ -3226,14 +3253,6 @@ first step; software alternatives go to
   without measurement is at best a no-op.</li>
 <li>SMB service discovery: enable Samba's WS-Discovery or Avahi for automatic
   share browsing on Windows and macOS clients.</li>
-</ul>
-</li>
-<li>Cloud environment:<ul>
-<li>Configure a cloud environment on Google Cloud: create the resource
-  hierarchy.</li>
-<li>Set quotas to match the caps of the free tier when possible
-  (<a href="https://cloud.google.com/docs/quota#capping_usage">capping usage</a>,
-  <a href="https://cloud.google.com/billing/docs/how-to/notify#cap_disable_billing_to_stop_usage">disable billing to stop usage</a>).</li>
 </ul>
 </li>
 </ul>

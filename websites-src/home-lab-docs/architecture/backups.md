@@ -13,14 +13,17 @@
 | **NixOS state backup**              | **Fully Implemented** | `restic-backup-nas-state` job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour and on 2026-11-04 with the single-flavour role (first backup and drill clean on both days, the former layout removed, exporter target up); applied on pve2 on 2026-11-16 (first backup and drill clean, exporter target up).                                                                                                                                                     |
 | **Media manifest**                  | **Fully Implemented** | Nightly list of the files on the media share (path, size, modification time), written by the `media-manifest` stack of the node role into the runtime tree at the start of every run of the workloads job, whose unit wants the listing and waits for it; an empty listing keeps the last one that listed files, and `MediaManifestShrunk` warns when the count falls below half. Applied on hl01 on 2026-11-18: the first run listed 705 files, and the snapshot taken after it holds the manifest.                                                                          |
 | **Second copy of the repositories** | **Missing**           | The repositories exist only on the nas-pve1 share, a single-disk pool; the second copy is a [Backup](./README.md#backup) todo item.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Secret files backup**             | **Fully Implemented** | `scripts/backup-secrets.sh` writes the gitignored secret files of the checkout to one restic repository per destination outside the lab, and restores each snapshot to compare it with the working copy; `test/scripts/backup-secrets-test.sh` covers it. First backup written and verified on 2026-11-20. The restore on a blank workstation has not been rehearsed end-to-end ([Backup](./README.md#backup) todo item).                                                                                                                                                     |
+| **Automatic secret files backup**   | **Missing**           | The backup runs when the operator starts it; `run-ansible.sh` and `run-terraform.sh` warn on exit about a set without one. The automatic run is a [Backup](./README.md#backup) todo item.                                                                                                                                                                                                                                                                                                                                                                                     |
 
 ## Scope
 
 What the backups protect, where the data goes, the decisions behind the layout,
-and what each verification mechanism proves and does not prove. The
-[backup operations guide](../guides/operations/backup.md) holds the procedures;
-the [Monitoring Alerting specification](./monitoring-alerting.md) holds the
-alert rules.
+and what each verification mechanism proves and does not prove. The last section
+covers the secret files of the checkout, which the lab's own backups cannot
+protect. The [backup operations guide](../guides/operations/backup.md) holds the
+procedures; the [Monitoring Alerting specification](./monitoring-alerting.md)
+holds the alert rules.
 
 ## What is backed up
 
@@ -169,3 +172,55 @@ deliberately small because a full monthly restore would re-read data the pack
 reads already verify, at the cost of the full restore size (17 GB on hl01 in
 October 2026) on a target that has to hold it; its target is a scratch directory
 next to the repository on the share, never the root disk.
+
+## The secret files of the checkout
+
+The checkout holds files that Git ignores by policy and that nothing else holds:
+the Ansible vault files and their password file, the Terraform secret variable
+files and local state, and the device secrets. The operator's SSH key pairs sit
+outside the checkout and belong to the same set. The backups above cannot
+protect it: they do not reach the workstation, and the vault holds their
+repository passwords, so restoring the lab starts from this set. No copy of it
+may therefore depend on the lab alone.
+
+`scripts/backup-secrets.sh` backs the set up from the main checkout, encrypted
+on the workstation by restic, so a destination only ever holds ciphertext. The
+[operational scripts guide](../guides/development/operational-scripts.md)
+describes its modes and its configuration, and the
+[backup operations guide](../guides/operations/backup.md#the-secret-files-of-the-checkout)
+has the setup and the restore.
+
+Decisions:
+
+- **One repository per destination, each written and verified on its own.** A
+  destination that is out of reach or damaged fails the run without holding the
+  others back, and the next run brings only that one up to date.
+- **The repository password is the one secret the backup cannot hold.** It lives
+  in the gitignored configuration and in a copy that needs neither the
+  workstation nor a repository to read (a password manager, paper), together
+  with the repository of each destination: the list of destinations is inside
+  the backup.
+- **Every backup is proven by a restore.** After each snapshot the script reads
+  every pack file, restores the latest snapshot into a temporary directory, and
+  compares it with the working copy file by file, which the size of the set
+  (under 200 KiB in November 2026) makes affordable. Only then does it record
+  the destination as up to date, so an unchanged set costs no repository access.
+- **No snapshot is forgotten.** The set is small, and an older snapshot is the
+  way back from a bad vault edit.
+- **Run by hand, with a warning** (2026-11-20). `run-ansible.sh` and
+  `run-terraform.sh` (outside its output mode, which changes nothing), the two
+  scripts that change the set, check on exit whether every destination has a
+  record of the current set and print a warning when one does not. The check
+  hashes the files and opens no repository. They do not run the backup: the
+  [Backup](./README.md#backup) todo item says what that waits on.
+- **From the main checkout only.** A Git worktree holds at most the links to the
+  vault files that a playbook run needs, so the script refuses to run there. The
+  warning is silent there too, for a reason of its own: Git ignores the
+  configuration of the backup, so a worktree has no list of destinations to
+  check.
+
+What this does not cover: nothing reports a set that stays without a backup
+until one of the two scripts runs from the main checkout, so a vault edit made
+from a worktree goes unreported there; and nothing reads a repository between
+two backups, so damage at a destination shows at the next backup or at the next
+`verify`, not when it happens.

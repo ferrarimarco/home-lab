@@ -2271,7 +2271,10 @@ password is not: a backup cannot hold the key that opens it.</p>
   <code>scripts/run-terraform.sh</code> (outside its output mode) run it when they exit
   and print its report on standard error when it fails, without changing
   their own exit status; the warning stays silent in a checkout that has no
-  <code>destinations</code> file, such as a Git worktree. They do not run the backup.
+  <code>destinations</code> file, such as a Git worktree. They do not run the backup:
+  the
+  <a href="../../operations/backup/#back-up-after-a-change">backup operations guide</a>
+  has the commands.
 - <code>verify</code> reads every pack file of each repository
   (<code>restic check --read-data</code>), restores the latest snapshot into a
   temporary directory (under <code>$XDG_RUNTIME_DIR</code> when it is set), and

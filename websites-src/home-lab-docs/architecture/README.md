@@ -6,17 +6,17 @@ reference pages beside them, and the todo list for the whole lab.
 
 ## Specifications Directory Index
 
-| Specification                                                               | Description                                                                                                                                                                                                                                                         | Current Implementation Status |
-| :-------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------- |
-| [**Home Lab Bootstrapping**](./home-lab-bootstrapping.md)                   | Global VM installation infrastructure: Nix-native custom installer ISO, secure bootstrap key loading with Git-tracking guardrails, and `nixos-anywhere`.                                                                                                            | **Fully Implemented**         |
-| [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                                                                                                                              | **Fully Implemented**         |
-| [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                                                                                                                                        | **Fully Implemented**         |
-| [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.                                                                                                                      | **Fully Implemented**         |
-| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.                                                                                              | **Fully Implemented**         |
-| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.                                                                                       | **Fully Implemented**         |
-| [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi path (proxy DHCP and TFTP) now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer. | **Partially Implemented**     |
-| [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill.                                                   | **Partially Implemented**     |
-| [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                                  | **Fully Implemented**         |
+| Specification                                                               | Description                                                                                                                                                                                                                                                                       | Current Implementation Status |
+| :-------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------- |
+| [**Home Lab Bootstrapping**](./home-lab-bootstrapping.md)                   | Global VM installation infrastructure: Nix-native custom installer ISO, secure bootstrap key loading with Git-tracking guardrails, and `nixos-anywhere`.                                                                                                                          | **Fully Implemented**         |
+| [**NixOS VMs on Proxmox**](./proxmox-vm.md)                                 | Reusable framework for NixOS VMs: the `proxmox-vm` role, host structure with Disko layouts, and the Terraform VM provisioning pattern.                                                                                                                                            | **Fully Implemented**         |
+| [**Declarative Integration Testing**](./declarative-integration-testing.md) | Design of the NixOS test generator framework (`make-test.nix`), dynamic test discovery, and parallel GHA matrix CI pipeline.                                                                                                                                                      | **Fully Implemented**         |
+| [**NixOS LXC Containers on Proxmox**](./proxmox-lxc.md)                     | Reusable framework for NixOS LXC containers: the `proxmox-lxc` role, `system.build.tarball` templates, and the Terraform provisioning pattern.                                                                                                                                    | **Fully Implemented**         |
+| [**NAS LXC Container**](./nas-lxc-container.md)                             | NixOS LXC containers on each Proxmox node exposing host ZFS datasets as SMB shares via bind mounts, plus the Syncthing service. Builds on the `proxmox-lxc` framework.                                                                                                            | **Fully Implemented**         |
+| [**Monitoring Alerting**](./monitoring-alerting.md)                         | Prometheus Alertmanager in the monitoring backend stack: Telegram notification routing, the severity model, the alert rules catalogue, and the highly available backend pair.                                                                                                     | **Fully Implemented**         |
+| [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi path (proxy DHCP and TFTP) now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer.               | **Partially Implemented**     |
+| [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill; and the backup of the checkout's secret files, outside the lab. | **Partially Implemented**     |
+| [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                                                | **Fully Implemented**         |
 
 ## Reference pages
 
@@ -203,6 +203,17 @@ reliability risks first, then security exposure, then automation):
       stacks and let `run-terraform.sh` select which to run; check whether the
       `bpg/proxmox` provider can defer node connectivity until a resource needs
       it.
+    - **Google Cloud environment (2026-11-20)**: no stack declares anything on
+      Google Cloud yet. Add a numbered stack under `config/terraform/` that
+      creates the project and, where the free tier allows it, caps its quotas
+      ([capping usage](https://cloud.google.com/docs/quota#capping_usage),
+      [disable billing to stop usage](https://cloud.google.com/billing/docs/how-to/notify#cap_disable_billing_to_stop_usage)),
+      then a Cloud Storage bucket for the secret files backup, with object
+      versioning or a retention policy, so that a deleted snapshot can be
+      recovered. First step: decide how the stack authenticates (the operator's
+      own credentials, so that a blank workstation needs no key file to reach
+      the bucket) and note that its local state joins the secret files. Blocks:
+      the automatic secret files backup ([Backup](#backup)).
     - Factor the per-host NixOS VM resources into a shared module (or `for_each`
       over a host map), so the reference pattern of the
       [VM framework spec](./proxmox-vm.md) is enforced by code rather than by
@@ -755,6 +766,23 @@ reliability risks first, then security exposure, then automation):
   When a release with the fix is pinned, start the exporter against a scratch
   repository with no snapshot to confirm, then remove that paragraph from the
   guide. Waits on: the upstream fix.
+- **Run the secret files backup automatically (2026-11-20)**:
+  `scripts/backup-secrets.sh` runs by hand, and `run-ansible.sh` and
+  `run-terraform.sh` only warn on exit
+  ([Backups specification](./backups.md#the-secret-files-of-the-checkout)),
+  because the first destination is too slow to wait for after every change
+  ([measurement](../guides/operations/backup.md#set-up-a-destination)). Steps:
+  add a destination that answers in seconds, either the Cloud Storage bucket
+  through restic's own backend or the rclone remote on an OAuth client of its
+  own, both of which live in the Google Cloud project, then have the two scripts
+  run the backup where they warn today. Depends on: the Google Cloud environment
+  item ([CI/CD](#cicd-infrastructure-as-code-and-gitops)).
+- **Rehearse the secret files restore on a blank workstation (2026-11-20)**: the
+  script restores every snapshot it writes, but the
+  [procedure](../guides/operations/backup.md#restore-on-a-blank-workstation)
+  that starts from a new clone, the password, and the repository has not run
+  end-to-end. Run it in a scratch clone, correct the guide where it differs, and
+  update the status row of the [Backups specification](./backups.md).
 - **Second copy of the restic repositories (2026-10-19)**: the per-host
   repositories on the nas-pve1 `backups` share are the only copy of the Debian
   hosts' state backups, and the share's `rpool-sata` pool is a single-disk vdev
@@ -1154,8 +1182,7 @@ first step; software alternatives go to
       ebooks, comics, and photos, moved to network storage; media (movies,
       shows, ebooks, comics, game saves, software and drivers); with disk
       encryption: passwords, 2 factor authentication secrets, backup access
-      codes, Ansible secrets (vault files, the bootstrap public key), ESPHome
-      secrets, gateway configuration, photos (RAWs, Lightroom library), GitHub
+      codes, gateway configuration, photos (RAWs, Lightroom library), GitHub
       (private and public repositories and gists), Google accounts data.
 - NAS:
     - Samba performance tuning: benchmark before adding any tuning to the `nas`
@@ -1164,9 +1191,3 @@ first step; software alternatives go to
       without measurement is at best a no-op.
     - SMB service discovery: enable Samba's WS-Discovery or Avahi for automatic
       share browsing on Windows and macOS clients.
-- Cloud environment:
-    - Configure a cloud environment on Google Cloud: create the resource
-      hierarchy.
-    - Set quotas to match the caps of the free tier when possible
-      ([capping usage](https://cloud.google.com/docs/quota#capping_usage),
-      [disable billing to stop usage](https://cloud.google.com/billing/docs/how-to/notify#cap_disable_billing_to_stop_usage)).

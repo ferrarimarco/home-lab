@@ -3,7 +3,9 @@
 Procedures for the restic backups of the Debian workload hosts and of the
 Proxmox nodes: inspecting a repository, restoring, running the drill, repairing.
 The [Backups specification](../../architecture/backups.md) describes what is
-backed up, where, and what each check proves.
+backed up, where, and what each check proves. The
+[last section](#the-secret-files-of-the-checkout) covers the backup of the
+checkout's secret files, which runs on the workstation.
 
 ## Where things are
 
@@ -285,3 +287,103 @@ failed nightly job) must be repaired before any restore: follow the command's
 instructions (`restic repair index`, `restic repair snapshots`) and the
 [restic troubleshooting chapter](https://restic.readthedocs.io/en/stable/077_troubleshooting.html),
 through `restic_run`.
+
+## The secret files of the checkout
+
+`scripts/backup-secrets.sh` backs up the gitignored secret files of the main
+checkout to restic repositories outside the lab; its entry in the
+[operational scripts guide](../development/operational-scripts.md) describes the
+modes and the files under `config/secrets-backup/`, and the
+[Backups specification](../../architecture/backups.md#the-secret-files-of-the-checkout)
+the decisions. Every command below runs from the main checkout.
+
+### Set up a destination
+
+1. Generate the repository password in a password manager that needs neither the
+   workstation nor the lab, and keep a second copy on paper. Write it as the
+   only line of `config/secrets-backup/password`, in a directory and a file that
+   only their owner can read:
+
+    ```shell
+    install --directory --mode 700 config/secrets-backup
+    install --mode 600 /dev/null config/secrets-backup/password
+    ```
+
+2. For a repository behind an rclone remote, create the remote with
+   `nix develop ./config/nix#operations --command rclone config`, with the
+   narrowest scope the provider offers (access to the files rclone created, not
+   to the whole account).
+3. Add a line to `config/secrets-backup/destinations`, a name and the restic
+   repository, and store the repository beside the password: the list of
+   destinations is inside the backup, so a blank workstation cannot read it
+   there.
+4. List in `config/secrets-backup/extra-paths` the secret files outside the
+   checkout, such as the SSH key pairs.
+5. Create the repository, which the backup never does on its own, then run the
+   first backup:
+
+    ```shell
+    nix develop ./config/nix#operations --command scripts/backup-secrets.sh run <destination> init
+    nix develop ./config/nix#operations --command scripts/backup-secrets.sh
+    ```
+
+A remote on rclone's built-in OAuth client shares that client's API quota with
+every other rclone user. On 2026-11-20 a first backup of under 200 KiB took 15
+minutes, ten of them on one request that the provider kept answering with
+`403 RATE_LIMIT_EXCEEDED` until a retry went through: the run is slow, not
+failed, and its log shows the retries.
+
+### Back up after a change
+
+`scripts/run-ansible.sh` and `scripts/run-terraform.sh` print a warning on exit
+when a destination has no verified backup of the current set, for example after
+a vault edit or an apply that changed the state. They do not run the backup:
+
+```shell
+# What the warning checks, without restic or the network
+scripts/backup-secrets.sh status
+
+# Back up to the destinations that are behind, and verify
+nix develop ./config/nix#operations --command scripts/backup-secrets.sh
+
+# Read every repository again and compare it with the working copy
+nix develop ./config/nix#operations --command scripts/backup-secrets.sh verify
+```
+
+Run `verify` before an event that may need the backup (a workstation
+replacement, a change of the vault password): the record that `status` reads is
+local and does not see a repository that changed at the destination.
+
+### Restore on a blank workstation
+
+What it needs from outside the backup: the repository password, the repository
+of one destination, and access to that destination (for an rclone remote, the
+remote created again under the same name).
+
+1. Clone the repository and enter the shell with
+   `nix develop ./config/nix#operations`.
+2. Restore the latest snapshot into an empty directory that only its owner can
+   read, in memory where the system has a runtime directory; restic asks for the
+   password:
+
+    ```shell
+    RESTORE_DIRECTORY="$(mktemp --directory --tmpdir="${XDG_RUNTIME_DIR:-/tmp}")"
+    restic --repo <repository> restore latest --target "${RESTORE_DIRECTORY}" --verify
+    ```
+
+3. The snapshot holds every file under its absolute path at the time of the
+   backup. Copy the `config` tree of the old checkout over the new one, and the
+   other files (the SSH key pairs) back to their paths; restic restored their
+   modes:
+
+    ```shell
+    cp --archive "${RESTORE_DIRECTORY}/<old checkout path>/config/." config/
+    ```
+
+4. Remove the directory, and write `config/secrets-backup/password` again as in
+   the setup: the backup does not hold it. Then run `scripts/backup-secrets.sh`:
+   a checkout at a new path is a new set, and the workstation has no record yet,
+   so the run writes and verifies a snapshot.
+
+The script runs the same restore after every backup, into a directory it removes
+afterwards.
