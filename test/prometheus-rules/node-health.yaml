@@ -109,7 +109,8 @@ tests:
               description: >-
                 pve1:9100 has had 3 upgrades pending from Docker CE:bookworm
                 for two weeks: unattended-upgrades does not cover that origin,
-                or the host has none. Read the release notes and run the
+                or holds these upgrades back (its log names the reason, such
+                as a removal they need). Read the release notes and run the
                 upgrade on purpose.
 
   - name: RebootRequired fires after 7 days with the reboot-required flag set

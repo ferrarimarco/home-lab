@@ -69,7 +69,8 @@ groups:
           description: >-
             {{ $labels.instance }} has had {{ $value }} upgrades pending from
             {{ $labels.origin }} for two weeks: unattended-upgrades does not
-            cover that origin, or the host has none. Read the release notes
+            cover that origin, or holds these upgrades back (its log names
+            the reason, such as a removal they need). Read the release notes
             and run the upgrade on purpose.
       - alert: RebootRequired
         # unattended-upgrades installs kernels but never reboots; a week is
