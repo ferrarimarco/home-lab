@@ -7,6 +7,12 @@ set -o pipefail
 # shellcheck source=/dev/null
 . "./scripts/common.sh"
 
+# An apply changes the state, which is one of the secret files. The output mode
+# changes nothing, and its callers read what it prints.
+if [[ "${1:-}" != "output" ]]; then
+  trap warn_about_secrets_without_backup EXIT
+fi
+
 declare -a TERRAFORM_SERVICES
 readarray -t TERRAFORM_SERVICES < <(find "${TERRAFORM_DIR_PATH}" -maxdepth 1 -name '[0-9]*' -type d | sort 2>&1)
 

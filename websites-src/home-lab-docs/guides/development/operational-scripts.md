@@ -214,9 +214,11 @@ different command inside that environment instead.
   initialized, an unchanged set, a restic command that fails at each step, a
   destination out of reach or pointed at another repository, a working copy or a
   pack file that differs from the snapshot, a path or a destinations file that
-  is not usable, a Git worktree. No case covers a missing restic. It needs
-  `restic` and `jq` from the `operations` Nix shell; the `Test shell scripts` CI
-  workflow runs it in that shell.
+  is not usable, a Git worktree. A stand-in for the scripts that warn on exit
+  checks that the warning fires for a changed set, stays silent where the backup
+  is not configured, and leaves the exit status alone. No case covers a missing
+  restic. It needs `restic` and `jq` from the `operations` Nix shell; the
+  `Test shell scripts` CI workflow runs it in that shell.
 
 ## Provisioning and configuration
 
@@ -321,7 +323,9 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
     `ANSIBLE_EDIT_VAULT_FILE=true` to edit a vault file, or
     `ANSIBLE_VIEW_VAULT_FILE=true` to view one read-only. Both modes default to
     `inventory/group_vars/all/vault.yaml`; select a different file with
-    `ANSIBLE_VAULT_FILE_PATH` (relative to `config/ansible`). For example, to
+    `ANSIBLE_VAULT_FILE_PATH` (relative to `config/ansible`). An edit changes
+    the secret files: on exit, in any mode, the script warns when they have no
+    backup, as the `scripts/backup-secrets.sh` entry describes. For example, to
     list the key names a vault file defines without exposing secret values:
 
     ```shell
@@ -484,14 +488,17 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   `terraform apply` for each one. Run
   `scripts/run-terraform.sh output <service> [<output-name>]` to print a
   service's outputs as JSON instead. The script needs `terraform` from the
-  `operations` Nix shell. Run it from the main checkout only: the state of each
-  service is a local backend under `config/terraform/environments/backend/local`
-  and the secret variable files sit under `config/terraform/environments`, all
-  gitignored, so a Git worktree has none of them and a run there starts from an
-  empty state. Reviewing and applying in two passes: with stdin closed
-  (`</dev/null`) the stacks without changes complete and the first stack with
-  changes prints its plan and aborts at the approval prompt; after reviewing
-  that plan, a run with a single approval on stdin
+  `operations` Nix shell. An apply changes the state, which is one of the secret
+  files: on exit, outside the output mode, the script warns when they have no
+  backup, as the `scripts/backup-secrets.sh` entry describes. Run it from the
+  main checkout only: the state of each service is a local backend under
+  `config/terraform/environments/backend/local` and the secret variable files
+  sit under `config/terraform/environments`, all gitignored, so a Git worktree
+  has none of them and a run there starts from an empty state. Reviewing and
+  applying in two passes: with stdin closed (`</dev/null`) the stacks without
+  changes complete and the first stack with changes prints its plan and aborts
+  at the approval prompt; after reviewing that plan, a run with a single
+  approval on stdin
   (`printf 'yes\n' | nix develop ./config/nix#operations --command scripts/run-terraform.sh`)
   applies that stack and still aborts at the next stack with changes, so nothing
   later is applied unreviewed. The approved run plans again, so compare its plan
@@ -504,7 +511,7 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   ([monitoring operations guide](../operations/monitoring.md)). After every VM
   change, read the apply output for that warning and check the node with
   `qm pending <vmid>`.
-- `scripts/backup-secrets.sh [backup | verify | run <destination> <restic arguments>]`:
+- `scripts/backup-secrets.sh [backup | status | verify | run <destination> <restic arguments>]`:
   backs up the secret files of the checkout, all of which Git ignores (the
   Ansible vault password file and vault files, the Terraform secret variable
   files and local state, the ESPHome and zigbee2mqtt secrets, the bootstrap
@@ -538,6 +545,13 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
       a repository that changed from elsewhere, which `verify` does. A
       destination that fails does not stop the others: the run exits with a
       non-zero status after the last one, and the next run tries it again.
+    - `status` reads the same records and exits with a non-zero status, naming
+      the destinations, when one has no record of the current set. It needs
+      neither restic nor the network. `scripts/run-ansible.sh` and
+      `scripts/run-terraform.sh` (outside its output mode) run it when they exit
+      and print its report on standard error when it fails, without changing
+      their own exit status; the warning stays silent in a checkout that has no
+      `destinations` file, such as a Git worktree. They do not run the backup.
     - `verify` reads every pack file of each repository
       (`restic check --read-data`), restores the latest snapshot into a
       temporary directory (under `$XDG_RUNTIME_DIR` when it is set), and

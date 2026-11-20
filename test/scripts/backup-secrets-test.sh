@@ -81,6 +81,21 @@ exec "${REAL_RESTIC_PATH}" "$@"
 EOF
 chmod +x "${FAILING_RESTIC_DIRECTORY_PATH}/restic"
 
+# Stands in for a script that warns on exit about a set without a backup, and
+# exits with a status of its own
+EXIT_WARNING_SCRIPT_PATH="${CHECKOUT_PATH}/scripts/exit-warning.sh"
+cat >"${EXIT_WARNING_SCRIPT_PATH}" <<'EOF'
+#!/usr/bin/env bash
+set -o errexit
+set -o nounset
+set -o pipefail
+# shellcheck source=/dev/null
+. "$(dirname "${0}")/common.sh"
+trap warn_about_secrets_without_backup EXIT
+exit 3
+EOF
+chmod +x "${EXIT_WARNING_SCRIPT_PATH}"
+
 fail() {
   echo "FAILED: ${1}"
   echo "Output of the last run:"
@@ -117,6 +132,18 @@ expect_status_with_failing_restic() {
 expect_output() {
   if ! grep --fixed-strings -- "${1}" "${OUTPUT_FILE_PATH}" >/dev/null; then
     fail "the output does not contain: ${1}"
+  fi
+}
+
+# Runs the script that warns on exit, without a working restic, and checks that
+# it keeps its own exit status
+run_exit_warning_script() {
+  SCRIPT_TO_TEST_PATH="${EXIT_WARNING_SCRIPT_PATH}" expect_status_with_failing_restic any 3
+}
+
+expect_no_output() {
+  if [ -s "${OUTPUT_FILE_PATH}" ]; then
+    fail "expected no output"
   fi
 }
 
@@ -168,9 +195,32 @@ echo "Case: an unchanged set needs no restic at all"
 expect_status_with_failing_restic any 0
 expect_output "first: up to date"
 expect_output "second: up to date"
+expect_status_with_failing_restic any 0 status
+expect_output "second: up to date"
+run_exit_warning_script
+expect_no_output
+
+echo "Case: the status mode and the exit warning report a changed set, without restic"
+echo "vault file, edited" >"${VAULT_FILE_PATH}"
+expect_status_with_failing_restic any "${ERR_SECRETS_BACKUP_FAILED}" status
+expect_output "No record of a verified backup of the current secret files at: first second"
+run_exit_warning_script
+expect_output "No record of a verified backup of the current secret files at: first second"
+
+echo "Case: the exit warning goes to the standard error, and a warning that cannot be written leaves the exit status alone"
+EXIT_WARNING_STATUS=0
+"${EXIT_WARNING_SCRIPT_PATH}" >"${OUTPUT_FILE_PATH}" 2>/dev/null || EXIT_WARNING_STATUS="${?}"
+expect_no_output
+if [ "${EXIT_WARNING_STATUS}" -ne 3 ]; then
+  fail "expected status 3, got ${EXIT_WARNING_STATUS}"
+fi
+EXIT_WARNING_STATUS=0
+"${EXIT_WARNING_SCRIPT_PATH}" >"${OUTPUT_FILE_PATH}" 2>&- || EXIT_WARNING_STATUS="${?}"
+if [ "${EXIT_WARNING_STATUS}" -ne 3 ]; then
+  fail "expected status 3 with the standard error closed, got ${EXIT_WARNING_STATUS}"
+fi
 
 echo "Case: a failing backup fails the run"
-echo "vault file, edited" >"${VAULT_FILE_PATH}"
 expect_status_with_failing_restic backup "${ERR_SECRETS_BACKUP_FAILED}"
 expect_output "Failed destinations: first second"
 expect_snapshots "${FIRST_REPOSITORY_PATH}" 1
@@ -211,6 +261,9 @@ expect_output "Failed destinations: second"
 mv "${SECOND_REPOSITORY_PATH}-away" "${SECOND_REPOSITORY_PATH}"
 expect_snapshots "${FIRST_REPOSITORY_PATH}" 6
 expect_snapshots "${SECOND_REPOSITORY_PATH}" 5
+expect_status_with_failing_restic any "${ERR_SECRETS_BACKUP_FAILED}" status
+expect_output "first: up to date"
+expect_output "No record of a verified backup of the current secret files at: second."
 
 echo "Case: the next run brings only the destination that failed up to date"
 expect_status 0
@@ -263,6 +316,13 @@ expect_output "No destination in"
 rm "${DESTINATIONS_FILE_PATH}"
 expect_status "${ERR_SECRETS_BACKUP_FAILED}"
 expect_output "The destinations file does not exist"
+
+echo "Case: the exit warning says nothing where the backup is not configured, and reports a broken configuration"
+run_exit_warning_script
+expect_no_output
+echo "first" >"${DESTINATIONS_FILE_PATH}"
+run_exit_warning_script
+expect_output "Expected a name"
 mv "${DESTINATIONS_FILE_PATH}.saved" "${DESTINATIONS_FILE_PATH}"
 
 echo "Case: a damaged pack file fails verify"

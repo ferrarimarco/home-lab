@@ -15,6 +15,9 @@ echo "Current working directory: ${CURRENT_WORKING_DIRECTORY}"
 # shellcheck source=/dev/null
 . "${SCRIPT_DIRECTORY_PATH}/common.sh"
 
+# A vault edit changes the secret files
+trap warn_about_secrets_without_backup EXIT
+
 ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH="${CURRENT_WORKING_DIRECTORY}/docker/ansible"
 echo "ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH: ${ANSIBLE_CONTAINER_IMAGE_CONTEXT_PATH}"
 

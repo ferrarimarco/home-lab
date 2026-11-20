@@ -12,11 +12,9 @@ shopt -s inherit_errexit
 # gitignored list names, to one restic repository per destination, and proves
 # each backup by restoring it and comparing it with the working copy.
 
-# Ignored by Git, as the secret files are. The two lists are part of the set,
-# so that a restore brings them back; the password cannot be.
-SECRETS_BACKUP_CONFIG_DIRECTORY_PATH="${REPOSITORY_ROOT_PATH}/config/secrets-backup"
-# One destination per line: a name, then the restic repository
-SECRETS_BACKUP_DESTINATIONS_FILE_PATH="${SECRETS_BACKUP_CONFIG_DIRECTORY_PATH}/destinations"
+# The configuration directory and its destinations file are set in common.sh.
+# The two lists are part of the set, so that a restore brings them back; the
+# password cannot be.
 # Optional. One absolute file path per line, for secrets outside the checkout
 SECRETS_BACKUP_EXTRA_PATHS_FILE_PATH="${SECRETS_BACKUP_CONFIG_DIRECTORY_PATH}/extra-paths"
 export RESTIC_PASSWORD_FILE="${SECRETS_BACKUP_CONFIG_DIRECTORY_PATH}/password"
@@ -32,6 +30,7 @@ SECRETS_BACKUP_SENTINEL_FILE_PATH="${REPOSITORY_ROOT_PATH}/config/ansible/home_l
 declare -a SECRET_FILE_PATHS=()
 declare -a DESTINATION_NAMES=()
 declare -A DESTINATION_REPOSITORIES=()
+declare -a PENDING_DESTINATION_NAMES=()
 SECRETS_SET_DIGEST=
 
 # Set from mktemp only: the cleanup deletes what this variable names
@@ -165,6 +164,18 @@ is_destination_up_to_date() {
   [ -f "${digest_file_path}" ] && [ "$(<"${digest_file_path}")" = "$(destination_digest "${1}")" ]
 }
 
+# Collects the destinations that have no record of the current set
+load_pending_destination_names() {
+  local name
+  for name in "${DESTINATION_NAMES[@]}"; do
+    if is_destination_up_to_date "${name}"; then
+      echo "${name}: up to date"
+    else
+      PENDING_DESTINATION_NAMES+=("${name}")
+    fi
+  done
+}
+
 # The callers test the status of the two functions below, which turns errexit
 # off inside them: every step returns its own failure.
 
@@ -238,19 +249,21 @@ case "${MODE}" in
 "backup")
   load_destinations
   load_secret_file_paths
-
-  declare -a PENDING_DESTINATION_NAMES=()
-  for destination_name in "${DESTINATION_NAMES[@]}"; do
-    if is_destination_up_to_date "${destination_name}"; then
-      echo "${destination_name}: up to date"
-    else
-      PENDING_DESTINATION_NAMES+=("${destination_name}")
-    fi
-  done
+  load_pending_destination_names
 
   if [ "${#PENDING_DESTINATION_NAMES[@]}" -gt 0 ]; then
     check_restic_is_available
     run_for_destinations backup_destination "${PENDING_DESTINATION_NAMES[@]}"
+  fi
+  ;;
+"status")
+  load_destinations
+  load_secret_file_paths
+  load_pending_destination_names
+
+  if [ "${#PENDING_DESTINATION_NAMES[@]}" -gt 0 ]; then
+    echo "No record of a verified backup of the current secret files at: ${PENDING_DESTINATION_NAMES[*]}. Run ${0} inside the operations Nix development shell."
+    exit "${ERR_SECRETS_BACKUP_FAILED}"
   fi
   ;;
 "verify")
@@ -272,7 +285,7 @@ case "${MODE}" in
   restic --repo "${DESTINATION_REPOSITORIES["${2}"]}" "${@:3}"
   ;;
 *)
-  echo "Usage: ${0} [backup | verify | run <destination> <restic arguments>]"
+  echo "Usage: ${0} [backup | status | verify | run <destination> <restic arguments>]"
   exit "${ERR_ARGUMENT_EVAL}"
   ;;
 esac

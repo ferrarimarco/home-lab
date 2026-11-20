@@ -32,6 +32,12 @@ TERRAFORM_LOCAL_BACKEND_CONFIG_DIR_PATH="${TERRAFORM_ENVIRONMENTS_DIR_PATH}/back
 # shellcheck disable=SC2034
 NIX_CONFIG_DIR_PATH="${REPOSITORY_ROOT_PATH}/config/nix"
 
+# The configuration of scripts/backup-secrets.sh, ignored by Git as the secret
+# files are
+SECRETS_BACKUP_CONFIG_DIRECTORY_PATH="${REPOSITORY_ROOT_PATH}/config/secrets-backup"
+# One destination per line: a name, then the restic repository
+SECRETS_BACKUP_DESTINATIONS_FILE_PATH="${SECRETS_BACKUP_CONFIG_DIRECTORY_PATH}/destinations"
+
 SUPER_LINTER_FIX_MODE_ENV_FILE_PATH="${REPOSITORY_ROOT_PATH}/config/lint/super-linter-fix-mode.env"
 
 # Super-linter fixers that scripts/format.sh runs directly
@@ -141,6 +147,23 @@ exit_if_container_is_running() {
   if [ -n "$(docker ps --quiet --filter "name=^${CONTAINER_NAME}$")" ]; then
     echo "Another ${RUN_DESCRIPTION} is in progress (container: ${CONTAINER_NAME}). If another session started it, wait for it to finish and run this script again: removing the container ends that run. If you started it and it never finishes by itself (a preview, an open shell), stop it first."
     exit "${ERR_CONTAINER_ALREADY_RUNNING}"
+  fi
+}
+
+# An EXIT trap for the scripts that may change the secret files: reports, on
+# standard error, a set that scripts/backup-secrets.sh has not backed up. It
+# says nothing in a checkout where that backup is not configured (a Git
+# worktree, a fresh clone), and leaves the exit status of the script alone.
+warn_about_secrets_without_backup() {
+  if [ ! -f "${SECRETS_BACKUP_DESTINATIONS_FILE_PATH}" ]; then
+    return 0
+  fi
+
+  local SECRETS_BACKUP_STATUS
+  if ! SECRETS_BACKUP_STATUS="$("${REPOSITORY_ROOT_PATH}/scripts/backup-secrets.sh" status 2>&1)"; then
+    # errexit applies inside a trap: a warning that cannot be written would
+    # replace the exit status
+    echo "${SECRETS_BACKUP_STATUS}" >&2 || true
   fi
 }
 
