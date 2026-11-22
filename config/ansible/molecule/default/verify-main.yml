@@ -31,15 +31,25 @@
 
 # The node role adds origins to the ones unattended-upgrades covers by default:
 # two on every host, and one for each repository a host enables. The expected
-# lines are written out here, so a rendering apt reads differently fails.
+# lines are written out here, so a rendering apt reads differently fails; the
+# flags are the role's, with its defaults, which a play outside the role does
+# not load.
 - name: Check the origins that unattended-upgrades covers
   hosts: all
   gather_facts: false
   vars:
-    unattended_upgrades_expected_origins:
-      - 'Unattended-Upgrade::Origins-Pattern:: "origin=Debian,codename=${distro_codename}-updates";'
-      - 'Unattended-Upgrade::Origins-Pattern:: "origin=Debian Backports,codename=${distro_codename}-backports,label=Debian Backports";'
-    unattended_upgrades_docker_origin: 'Unattended-Upgrade::Origins-Pattern:: "origin=Docker,archive=${distro_codename},label=Docker CE";'
+    unattended_upgrades_expected: "{{ security_unattended_upgrades_enabled | default(true) }}"
+    unattended_upgrades_origins:
+      - line: 'Unattended-Upgrade::Origins-Pattern:: "origin=Debian,codename=${distro_codename}-updates";'
+        expected: "{{ unattended_upgrades_expected }}"
+      - line: 'Unattended-Upgrade::Origins-Pattern:: "origin=Debian Backports,codename=${distro_codename}-backports,label=Debian Backports";'
+        expected: "{{ unattended_upgrades_expected }}"
+      - line: 'Unattended-Upgrade::Origins-Pattern:: "origin=Docker,archive=${distro_codename},label=Docker CE";'
+        expected: "{{ unattended_upgrades_expected and configure_docker | default(false) }}"
+      - line: 'Unattended-Upgrade::Origins-Pattern:: "origin=Raspberry Pi Foundation,codename=${distro_codename},label=Raspberry Pi Foundation";'
+        expected: "{{ unattended_upgrades_expected and is_raspberry_pi | default(false) }}"
+      - line: 'Unattended-Upgrade::Origins-Pattern:: "origin=Tailscale,codename=${distro_codename},label=Tailscale";'
+        expected: "{{ unattended_upgrades_expected and configure_tailscale | default(false) }}"
   tasks:
     - name: Leave the check to the runs that render the stack
       ansible.builtin.meta: end_play
@@ -55,9 +65,10 @@
     - name: Check the origins against what each instance enables
       ansible.builtin.assert:
         that:
-          - unattended_upgrades_expected_origins | difference(unattended_upgrades_apt_configuration.stdout_lines) | length == 0
-          - (unattended_upgrades_docker_origin in unattended_upgrades_apt_configuration.stdout_lines) == (inventory_hostname == 'instance')
-          - unattended_upgrades_apt_configuration.stdout_lines | select('search', 'origin=(Tailscale|Raspberry Pi Foundation)') | list | length == 0
+          - (item.line in unattended_upgrades_apt_configuration.stdout_lines) == (item.expected | bool)
         fail_msg: >-
-          The origin patterns apt reads:
+          Expected {{ item.expected | bool | ternary('', 'no ') }}{{ item.line }} among the origin patterns apt reads:
           {{ unattended_upgrades_apt_configuration.stdout_lines | select('search', 'Origins-Pattern') | join(' ') }}
+      loop: "{{ unattended_upgrades_origins }}"
+      loop_control:
+        label: "{{ item.line }}"
