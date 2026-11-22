@@ -17,6 +17,7 @@ reference pages beside them, and the todo list for the whole lab.
 | [**Network Boot Service**](./network-boot.md)                               | Boot server on hl02 that network-boots any lab host on demand through a per-host toggle: the Raspberry Pi path (proxy DHCP and TFTP) now, x86 PXE deferred, the vendor image over NFS as the first payload, and Raspberry Pi re-provisioning as the first consumer.               | **Partially Implemented**     |
 | [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill; and the backup of the checkout's secret files, outside the lab. | **Partially Implemented**     |
 | [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                                                | **Fully Implemented**         |
+| [**OS Package Upgrades**](./os-package-upgrades.md)                         | One reviewed run of the OS packages playbook that upgrades a Debian host, reboots it when needed, and verifies it: the removal guard, the downtime silences, and the guest and pool checks on the Proxmox nodes.                                                                  | **Partially Implemented**     |
 
 ## Reference pages
 
@@ -325,25 +326,21 @@ reliability risks first, then security exposure, then automation):
 
 ### Host configuration
 
-- **Automate the Proxmox package upgrades, with a human in the loop (decided to
-  design on 2026-11-10)**: the vendor prescribes `apt full-upgrade` and warns
-  that `apt upgrade` can leave a partially upgraded state; unattended-upgrades
-  has the latter's semantics by design (it holds back any step that removes a
-  package), so the node role runs it for the Debian origins only and the Proxmox
-  origin (pve-manager, the kernel, ZFS) stays manual, nudged by
-  `AptUpgradesPending` (191 packages had accumulated on pve1 by 2026-11-10, 34
-  of them security fixes). Candidate shapes: a host timer that refreshes and
-  downloads, then notifies and waits for a human go before the upgrade and the
-  reboot; or a scheduled run of the OS packages playbook from a host that is
-  always on (the control machine suspends). Any shape needs a reboot window, the
-  guest start ordering on pve1 (hl01, hl02, the NAS container, whose
-  `rpool-usb-2` pool had no import unit until the reboot of 2026-11-10 exposed
-  it), the `proxmox-ve` apt hook as the only built-in guard against a removal,
-  and an alert for a run that failed or never happened. The cost side of the
-  rejected automatic variant: unattended removals and hypervisor changes nobody
-  reviews, which the staff position in the
-  [Proxmox forum thread](https://forum.proxmox.com/threads/is-unattended-upgrade-package-safe-to-use.139808/)
-  advises against.
+- **Implement the OS package upgrade run (designed on 2026-11-22)**: the
+  [OS Package Upgrades](./os-package-upgrades.md) spec extends the OS packages
+  playbook so that one reviewed run upgrades, reboots, and verifies a Debian
+  host. In order: the list refresh, the serial processing, and the removal guard
+  with its one-host rule, with a test where each guard fires; the reboot on the
+  flag, with the saved listings and the host and Proxmox checks; the silences,
+  the read of the suppressed alerts, and the expiry; the procedure in the Linux
+  administration notes, with the passages of the Ansible guide on the upgrade by
+  hand rewritten and the planned downtime section of the monitoring guide
+  pointing at the run; the first real runs, pve2 before pve1 (one guest, no
+  monitoring replica); a last read of the guides for passages written meanwhile.
+  The item on the detached dist-upgrade task under
+  [CI/CD, infrastructure-as-code, and GitOps](#cicd-infrastructure-as-code-and-gitops)
+  concerns the same task: until it lands, a second run finishes a run whose
+  controller lost the job.
 - **Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)**:
   pve1 boots a ZFS root through `proxmox-boot-tool` with systemd-boot, which
   keeps every ESP in sync and takes the kernel command line from
