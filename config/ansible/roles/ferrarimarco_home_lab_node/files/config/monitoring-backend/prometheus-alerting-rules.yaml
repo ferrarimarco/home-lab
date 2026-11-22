@@ -54,10 +54,11 @@ groups:
             apt collector is not deployed or its timer stopped, so failed
             updates on it go unnoticed.
       - alert: AptUpgradesPending
-        # The origins unattended-upgrades covers (the node role's patterns)
-        # clear within a day, so what survives two weeks is an origin it does
-        # not cover (the Proxmox one on the nodes, which upgrade it by hand, a
-        # repository the role does not know) or an upgrade it holds back.
+        # The origins unattended-upgrades covers (its defaults and the node
+        # role's patterns) clear within a day, so what survives two weeks is an
+        # origin it does not cover (the Proxmox one on the nodes, which upgrade
+        # it by hand, a repository the role does not know) or an upgrade it
+        # keeps back.
         # Prometheus restores the for-state across restarts shorter than its
         # outage tolerance (1h), so the two weeks survive a reload.
         expr: apt_upgrades_pending > 0
@@ -69,9 +70,9 @@ groups:
           description: >-
             {{ $labels.instance }} has had {{ $value }} upgrades pending from
             {{ $labels.origin }} for two weeks: unattended-upgrades does not
-            cover that origin, or holds these upgrades back (its log names
-            the reason, such as a removal they need). Read the release notes
-            and run the upgrade on purpose.
+            cover that origin, or keeps these upgrades back (its log lists
+            them, and a debug dry run gives the reason, such as a removal they
+            need). Read the release notes and run the upgrade on purpose.
       - alert: RebootRequired
         # unattended-upgrades installs kernels but never reboots; a week is
         # how long an unrebooted kernel is acceptable here, and shorter than

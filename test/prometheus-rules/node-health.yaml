@@ -88,7 +88,7 @@ tests:
   - name: AptUpgradesPending fires after 14 days of pending upgrades from one origin
     interval: 5m
     input_series:
-      - series: 'apt_upgrades_pending{instance="pve1:9100", origin="Docker CE:bookworm", arch="amd64"}'
+      - series: 'apt_upgrades_pending{instance="pve1:9100", origin="Proxmox:trixie/stable", arch="amd64"}'
         values: "3x4032"
       - series: 'apt_upgrades_pending{instance="hl01:9100", origin="Debian:bookworm", arch="amd64"}'
         values: "0x4032"
@@ -102,16 +102,16 @@ tests:
           - exp_labels:
               severity: warning
               instance: pve1:9100
-              origin: "Docker CE:bookworm"
+              origin: "Proxmox:trixie/stable"
               arch: amd64
             exp_annotations:
               summary: "Upgrades pending for two weeks on pve1:9100"
               description: >-
-                pve1:9100 has had 3 upgrades pending from Docker CE:bookworm
+                pve1:9100 has had 3 upgrades pending from Proxmox:trixie/stable
                 for two weeks: unattended-upgrades does not cover that origin,
-                or holds these upgrades back (its log names the reason, such
-                as a removal they need). Read the release notes and run the
-                upgrade on purpose.
+                or keeps these upgrades back (its log lists them, and a debug
+                dry run gives the reason, such as a removal they need). Read
+                the release notes and run the upgrade on purpose.
 
   - name: RebootRequired fires after 7 days with the reboot-required flag set
     interval: 5m
