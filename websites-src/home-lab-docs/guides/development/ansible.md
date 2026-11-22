@@ -444,9 +444,18 @@ in its group variables (`group_vars/home_lab_proxmox_nodes`):
   unattended Docker engine upgrade restarts the daemon and containerd under the
   workloads, which keep running because the daemon is configured with
   `live-restore` (hl01 and raspberrypi2 on 2026-11-20, from 29.9.3 to 29.10.0,
-  with every container's start time unchanged). The package also installs the
-  kernel hook that sets the reboot-required flag, which the `RebootRequired`
-  alert reads.
+  with every container's start time unchanged). Two other origins act on more
+  than packages, with nobody reading the release first: the Raspberry Pi origin
+  carries `rpi-eeprom`, whose new bootloader image the boot-time update service
+  applies at the next reboot, as the
+  [network boot spec](../../architecture/network-boot.md) describes
+  (raspberrypi2 on 2026-11-20, from 28.33 to 28.37, with the 2026-10-30 image
+  reported as available over the 2026-09-23 one), and a Tailscale upgrade
+  restarts `tailscaled` on the host that advertises the subnet routes
+  (raspberrypi2 on 2026-11-20, five seconds after the package was unpacked; the
+  effect on the connections through those routes was not measured). The package
+  also installs the kernel hook that sets the reboot-required flag, which the
+  `RebootRequired` alert reads.
 
 The containerized exporters of the monitoring stack (the compose file, its
 directory and its project unit) follow
