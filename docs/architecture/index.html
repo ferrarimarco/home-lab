@@ -690,6 +690,29 @@
   
   
     <li class="md-nav__item">
+      <a href="photo-library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Design Spec: Photo Library
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="proxmox-lxc/" class="md-nav__link">
         
   
@@ -2059,6 +2082,11 @@ reference pages beside them, and the todo list for the whole lab.</p>
 <td style="text-align: left;">One reviewed run of the OS packages playbook that upgrades a Debian host, reboots it when needed, and verifies it: the removal guard, the downtime silences, and the guest and pool checks on the Proxmox nodes.</td>
 <td style="text-align: left;"><strong>Partially Implemented</strong></td>
 </tr>
+<tr>
+<td style="text-align: left;"><a href="photo-library/"><strong>Photo Library</strong></a></td>
+<td style="text-align: left;">The household's photos and videos in an Immich server on a NixOS container on pve2: the Google Takeout exports and their checks, the phone backup, and the restic copy on pve1.</td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+</tr>
 </tbody>
 </table>
 <h2 id="reference-pages">Reference pages</h2>
@@ -2084,8 +2112,9 @@ with no first step waits in the <a href="#ideas">Ideas</a> subsection until it g
 <p>The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):</p>
 <ul>
-<li>None: the raspberrypi2 re-image of 2026-11-08 and its follow-ups closed on
-  2026-11-09; the next focus is to be chosen from the sections below.</li>
+<li>The NixOS release upgrade (<a href="#host-configuration">Host configuration</a>): the
+  NixOS hosts run a release that is no longer supported.</li>
+<li>The photo library rollout (<a href="#backup">Backup</a>).</li>
 </ul>
 <h3 id="bootstrapping-and-provisioning">Bootstrapping and provisioning</h3>
 <ul>
@@ -2393,6 +2422,19 @@ reliability risks first, then security exposure, then automation):</p>
   <a href="#cicd-infrastructure-as-code-and-gitops">CI/CD, infrastructure-as-code, and GitOps</a>
   concerns the same task: until it lands, a second run finishes a run whose
   controller lost the job.</li>
+<li><strong>NixOS release upgrade (2026-11-23)</strong>: the flake follows <code>nixos-25.11</code>
+  (<code>config/nix/flake.nix</code>), a release that is no longer supported, with a lock
+  that has not moved since April 2026; Dependabot proposed both updates (pull
+  request 2114 for 26.05, closed unmerged; 2186 for the platform inputs, open on
+  2026-11-22). Two steps, each with the flake check, the host integration tests,
+  the deployment through comin, and a read-only verification of hl02 and both
+  NAS containers: first 26.05, after reading its release notes and whether a
+  release may be skipped at all; then 26.11, a week or more after its release,
+  where the Syncthing item under <a href="#nas">NAS</a> follows. Waits on: the NixOS 26.11
+  release (planned for 2026-11-30 in the
+  <a href="https://github.com/NixOS/nixpkgs/issues/567567">release schedule</a>, read on
+  2026-11-23), for the second step. Blocks: the photo library rollout
+  (<a href="#backup">Backup</a>).</li>
 <li><strong>Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)</strong>:
   pve1 boots a ZFS root through <code>proxmox-boot-tool</code> with systemd-boot, which
   keeps every ESP in sync and takes the kernel command line from
@@ -2650,6 +2692,16 @@ reliability risks first, then security exposure, then automation):</p>
   plugs feed several devices each, so every host figure in the
   <a href="../guides/operations/host-power/">host power guide</a> is a difference against
   a shared baseline that moves whenever something else is plugged in.</li>
+<li><strong>Alert on a stale nixpkgs revision (2026-11-23)</strong>: nothing reports a NixOS
+  host whose packages stopped moving, whether because its release reached its
+  end of life or because the pull request that updates the lock was never
+  merged; both held for months before the NixOS release upgrade item
+  (<a href="#host-configuration">Host configuration</a>). First step: export the date of
+  the nixpkgs revision a host was built from as a metric from the NixOS
+  <code>monitoring</code> role, with a warning rule when it is older than 45 days and its
+  firing and non-firing promtool cases. A package that nixpkgs marks as
+  vulnerable needs no rule: it fails the flake check. The next item is the
+  Debian counterpart.</li>
 <li><strong>Alert on obsolete packages (2026-11-18)</strong>: a package that no configured APT
   source provides anymore (the Coral runtime after Google retired its
   repository, leftovers after a release upgrade) gets no updates and raises
@@ -2840,6 +2892,29 @@ reliability risks first, then security exposure, then automation):</p>
   own, both of which live in the Google Cloud project, then have the two scripts
   run the backup where they warn today. Depends on: the Google Cloud environment
   item (<a href="#cicd-infrastructure-as-code-and-gitops">CI/CD</a>).</li>
+<li><strong>Photo library rollout (2026-11-23)</strong>: implement the
+  <a href="photo-library/">Photo Library</a> spec. In order: the staging dataset and
+  its share on nas-pve2; the Google Photos export of each account, one at a
+  time, with the archive checks; the guest, starting with two checks on a
+  scratch container (the module's hardened units start in an unprivileged
+  container, and Immich's database dump runs with the database role the module
+  creates, with the NixOS Postgres backup service as the alternative); the
+  imports and the remaining checks, the files of the other machine included; the
+  phones; the backup job with its share on nas-pve1; the operations guide. The
+  first two steps need no guest. Depends on: the NixOS release upgrade
+  (<a href="#host-configuration">Host configuration</a>), for the guest and what follows.</li>
+<li><strong>Free Google storage before the quota fills (2026-11-23)</strong>: the account that
+  holds most of the photos was at 93% of its quota on 2026-11-23, and Gmail and
+  Drive share that quota with Google Photos. Once the spec's rule allows it (the
+  account's export checks passed and a backup snapshot holds its items), either
+  turn off the Google Photos backup on the phones or delete the oldest years
+  there. Depends on: the photo library rollout.</li>
+<li><strong>Role of the 3 TB disk on pve2 (2026-11-23)</strong>: the disk of the machine that
+  holds the files outside Google Photos moves to pve2 once the rollout has
+  imported and backed them up. It is smaller than the disk behind <code>tank-hdd</code>, so
+  it cannot become its mirror; candidates: a pool of its own for a copy of the
+  photo library on a second disk, or the second copy of the media library below.
+  First step: confirm its size. Depends on: the photo library rollout.</li>
 <li><strong>Rehearse the secret files restore on a blank workstation (2026-11-20)</strong>: the
   script restores every snapshot it writes, but the
   <a href="../guides/operations/backup/#restore-on-a-blank-workstation">procedure</a>
@@ -3119,6 +3194,8 @@ first step; software alternatives go to
 <li>Check the <a href="https://uptimerobot.com/">UptimeRobot</a> configuration.</li>
 <li>Automate Telegram bot creation.</li>
 <li>Set up Loki for log aggregation.</li>
+<li>A phone that stopped backing up to the photo library: the age of the
+  newest upload per Immich account (<a href="photo-library/">Photo Library</a>).</li>
 </ul>
 </li>
 <li>Smart home:<ul>
@@ -3257,7 +3334,11 @@ first step; software alternatives go to
 </li>
 <li>Backup:<ul>
 <li>Cross-host workloads backup, once the destinations exist.</li>
-<li>Immich to copy data from phones to the NAS.</li>
+<li>Photo backup away from home: a tailnet node in the photo guest, as the NAS
+  spec's
+  <a href="nas-lxc-container/#132-placement-rationale">placement rationale</a> has
+  for a host that terminates a tailnet-facing service, and TLS for the
+  server (<a href="photo-library/">Photo Library</a>).</li>
 <li>Storage replication: prefer "one-way replication where the direction
   reverses sometimes" over two-way replication, which is harder to
   implement. Filesystem level: ZFS replication.</li>

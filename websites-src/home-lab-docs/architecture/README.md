@@ -18,6 +18,7 @@ reference pages beside them, and the todo list for the whole lab.
 | [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill; and the backup of the checkout's secret files, outside the lab. | **Partially Implemented**     |
 | [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                                                | **Fully Implemented**         |
 | [**OS Package Upgrades**](./os-package-upgrades.md)                         | One reviewed run of the OS packages playbook that upgrades a Debian host, reboots it when needed, and verifies it: the removal guard, the downtime silences, and the guest and pool checks on the Proxmox nodes.                                                                  | **Partially Implemented**     |
+| [**Photo Library**](./photo-library.md)                                     | The household's photos and videos in an Immich server on a NixOS container on pve2: the Google Takeout exports and their checks, the phone backup, and the restic copy on pve1.                                                                                                   | **Missing**                   |
 
 ## Reference pages
 
@@ -46,8 +47,9 @@ with no first step waits in the [Ideas](#ideas) subsection until it gets one.
 The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):
 
-- None: the raspberrypi2 re-image of 2026-11-08 and its follow-ups closed on
-  2026-11-09; the next focus is to be chosen from the sections below.
+- The NixOS release upgrade ([Host configuration](#host-configuration)): the
+  NixOS hosts run a release that is no longer supported.
+- The photo library rollout ([Backup](#backup)).
 
 ### Bootstrapping and provisioning
 
@@ -341,6 +343,19 @@ reliability risks first, then security exposure, then automation):
   [CI/CD, infrastructure-as-code, and GitOps](#cicd-infrastructure-as-code-and-gitops)
   concerns the same task: until it lands, a second run finishes a run whose
   controller lost the job.
+- **NixOS release upgrade (2026-11-23)**: the flake follows `nixos-25.11`
+  (`config/nix/flake.nix`), a release that is no longer supported, with a lock
+  that has not moved since April 2026; Dependabot proposed both updates (pull
+  request 2114 for 26.05, closed unmerged; 2186 for the platform inputs, open on
+  2026-11-22). Two steps, each with the flake check, the host integration tests,
+  the deployment through comin, and a read-only verification of hl02 and both
+  NAS containers: first 26.05, after reading its release notes and whether a
+  release may be skipped at all; then 26.11, a week or more after its release,
+  where the Syncthing item under [NAS](#nas) follows. Waits on: the NixOS 26.11
+  release (planned for 2026-11-30 in the
+  [release schedule](https://github.com/NixOS/nixpkgs/issues/567567), read on
+  2026-11-23), for the second step. Blocks: the photo library rollout
+  ([Backup](#backup)).
 - **Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)**:
   pve1 boots a ZFS root through `proxmox-boot-tool` with systemd-boot, which
   keeps every ESP in sync and takes the kernel command line from
@@ -586,6 +601,16 @@ reliability risks first, then security exposure, then automation):
   plugs feed several devices each, so every host figure in the
   [host power guide](../guides/operations/host-power.md) is a difference against
   a shared baseline that moves whenever something else is plugged in.
+- **Alert on a stale nixpkgs revision (2026-11-23)**: nothing reports a NixOS
+  host whose packages stopped moving, whether because its release reached its
+  end of life or because the pull request that updates the lock was never
+  merged; both held for months before the NixOS release upgrade item
+  ([Host configuration](#host-configuration)). First step: export the date of
+  the nixpkgs revision a host was built from as a metric from the NixOS
+  `monitoring` role, with a warning rule when it is older than 45 days and its
+  firing and non-firing promtool cases. A package that nixpkgs marks as
+  vulnerable needs no rule: it fails the flake check. The next item is the
+  Debian counterpart.
 - **Alert on obsolete packages (2026-11-18)**: a package that no configured APT
   source provides anymore (the Coral runtime after Google retired its
   repository, leftovers after a release upgrade) gets no updates and raises
@@ -774,6 +799,29 @@ reliability risks first, then security exposure, then automation):
   own, both of which live in the Google Cloud project, then have the two scripts
   run the backup where they warn today. Depends on: the Google Cloud environment
   item ([CI/CD](#cicd-infrastructure-as-code-and-gitops)).
+- **Photo library rollout (2026-11-23)**: implement the
+  [Photo Library](./photo-library.md) spec. In order: the staging dataset and
+  its share on nas-pve2; the Google Photos export of each account, one at a
+  time, with the archive checks; the guest, starting with two checks on a
+  scratch container (the module's hardened units start in an unprivileged
+  container, and Immich's database dump runs with the database role the module
+  creates, with the NixOS Postgres backup service as the alternative); the
+  imports and the remaining checks, the files of the other machine included; the
+  phones; the backup job with its share on nas-pve1; the operations guide. The
+  first two steps need no guest. Depends on: the NixOS release upgrade
+  ([Host configuration](#host-configuration)), for the guest and what follows.
+- **Free Google storage before the quota fills (2026-11-23)**: the account that
+  holds most of the photos was at 93% of its quota on 2026-11-23, and Gmail and
+  Drive share that quota with Google Photos. Once the spec's rule allows it (the
+  account's export checks passed and a backup snapshot holds its items), either
+  turn off the Google Photos backup on the phones or delete the oldest years
+  there. Depends on: the photo library rollout.
+- **Role of the 3 TB disk on pve2 (2026-11-23)**: the disk of the machine that
+  holds the files outside Google Photos moves to pve2 once the rollout has
+  imported and backed them up. It is smaller than the disk behind `tank-hdd`, so
+  it cannot become its mirror; candidates: a pool of its own for a copy of the
+  photo library on a second disk, or the second copy of the media library below.
+  First step: confirm its size. Depends on: the photo library rollout.
 - **Rehearse the secret files restore on a blank workstation (2026-11-20)**: the
   script restores every snapshot it writes, but the
   [procedure](../guides/operations/backup.md#restore-on-a-blank-workstation)
@@ -1042,6 +1090,8 @@ first step; software alternatives go to
     - Check the [UptimeRobot](https://uptimerobot.com/) configuration.
     - Automate Telegram bot creation.
     - Set up Loki for log aggregation.
+    - A phone that stopped backing up to the photo library: the age of the
+      newest upload per Immich account ([Photo Library](./photo-library.md)).
 - Smart home:
     - Frigate: configure the
       [live view to use the high resolution stream](https://docs.frigate.video/configuration/live#setting-stream-for-live-ui);
@@ -1170,7 +1220,11 @@ first step; software alternatives go to
     - Dashboard.
 - Backup:
     - Cross-host workloads backup, once the destinations exist.
-    - Immich to copy data from phones to the NAS.
+    - Photo backup away from home: a tailnet node in the photo guest, as the NAS
+      spec's
+      [placement rationale](./nas-lxc-container.md#132-placement-rationale) has
+      for a host that terminates a tailnet-facing service, and TLS for the
+      server ([Photo Library](./photo-library.md)).
     - Storage replication: prefer "one-way replication where the direction
       reverses sometimes" over two-way replication, which is harder to
       implement. Filesystem level: ZFS replication.
