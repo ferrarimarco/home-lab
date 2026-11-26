@@ -48,7 +48,7 @@ The items being actively worked toward, in priority order (data-loss and
 reliability risks first, then security exposure, then automation):
 
 - The NixOS release upgrade ([Host configuration](#host-configuration)): the
-  NixOS hosts run a release that is no longer supported.
+  second step, to 26.11, waits on its release.
 - The photo library rollout ([Backup](#backup)).
 
 ### Bootstrapping and provisioning
@@ -85,6 +85,13 @@ reliability risks first, then security exposure, then automation):
 
 ### Issues to solve
 
+- **hl02's serial getty fails every ten seconds (2026-11-26)**: the `proxmox-vm`
+  Nix role passes `console=ttyS0` to the kernel and VM 101 has no serial device
+  (`qm config 101` on pve1 lists none), so `serial-getty@ttyS0` restarts in a
+  loop and logs "not a tty" (`journalctl -b -t agetty` on hl02: 1,867 lines on
+  2026-11-26 before the release upgrade of that day). First step: decide between
+  declaring the serial device in the VM's Terraform resource and dropping the
+  console parameter from the role.
 - **Recurring cam-3 ffmpeg VAAPI decode crashes on hl01** (about 11 per hour:
   `Failed to sync surface` then `hwdownload` failures; they persist over RTSP
   TCP, so stream transport corruption is ruled out). Hardware acceleration stays
@@ -352,19 +359,18 @@ reliability risks first, then security exposure, then automation):
   [CI/CD, infrastructure-as-code, and GitOps](#cicd-infrastructure-as-code-and-gitops)
   concerns the same task: until it lands, a second run finishes a run whose
   controller lost the job.
-- **NixOS release upgrade (2026-11-23)**: the flake follows `nixos-25.11`
-  (`config/nix/flake.nix`), a release that is no longer supported, with a lock
-  that has not moved since April 2026; Dependabot proposed both updates (pull
-  request 2114 for 26.05, closed unmerged; 2186 for the platform inputs, open on
-  2026-11-22). Two steps, each with the flake check, the host integration tests,
-  the deployment through comin, and a read-only verification of hl02 and both
-  NAS containers: first 26.05, after reading its release notes and whether a
-  release may be skipped at all; then 26.11, a week or more after its release,
-  where the Syncthing item under [NAS](#nas) follows. Waits on: the NixOS 26.11
-  release (planned for 2026-11-30 in the
+- **NixOS release upgrade (2026-11-26)**: the first of two steps is done: the
+  flake follows `nixos-26.05` and hl02 and both NAS containers run it, as the
+  [Nix development guide](../guides/development/nix.md#upgrade-to-a-new-nixos-release)
+  records together with the procedure. Remaining: the step to 26.11, a week or
+  more after its release, following that procedure; it sets
+  `boot.zfs.forceImportRoot` for the installer image, whose default changes in
+  26.11, and the Syncthing item under [NAS](#nas) follows it. Dependabot's pull
+  request 2186 (the platform inputs) is open and comes first: its deployment
+  also replaces the failed deployment that comin still shows on hl02 and
+  nas-pve1. Waits on: the NixOS 26.11 release (planned for 2026-11-30 in the
   [release schedule](https://github.com/NixOS/nixpkgs/issues/567567), read on
-  2026-11-23), for the second step. Blocks: the photo library rollout
-  ([Backup](#backup)).
+  2026-11-23). Blocks: the photo library rollout ([Backup](#backup)).
 - **Refresh hl01's cloud-init seed at its next planned restart (2026-11-26)**:
   the user data snippet of hl01 on pve1 is older than its template, as the
   Proxmox playbook reports at every run, so a rebuilt hl01 would be provisioned
@@ -627,6 +633,15 @@ reliability risks first, then security exposure, then automation):
   firing and non-firing promtool cases. A package that nixpkgs marks as
   vulnerable needs no rule: it fails the flake check. The next item is the
   Debian counterpart.
+- **Alert when a NixOS host needs a restart (2026-11-26)**: nothing reports a
+  NixOS host that runs a system other than the one it boots next. comin exports
+  `comin_need_to_reboot`, which read 1 on hl02 between its switch to 26.05 and
+  its reboot and 0 after it; the gauge compares kernels, so it stayed 0 on the
+  NAS containers, which needed a restart as well. First step: a warning rule on
+  the gauge, held for some days, with its firing and non-firing promtool cases;
+  then decide what covers the containers, starting from what comin does when a
+  switch inhibitor changes, in the
+  [Nix development guide](../guides/development/nix.md#what-comin-does-with-a-change-that-needs-a-restart).
 - **Alert on obsolete packages (2026-11-18)**: a package that no configured APT
   source provides anymore (the Coral runtime after Google retired its
   repository, leftovers after a release upgrade) gets no updates and raises

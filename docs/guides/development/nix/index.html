@@ -1064,6 +1064,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#upgrade-to-a-new-nixos-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade to a new NixOS release
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Upgrade to a new NixOS release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-comin-does-with-a-change-that-needs-a-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      What comin does with a change that needs a restart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-upgrade-from-2511-to-2605" class="md-nav__link">
+    <span class="md-ellipsis">
+      The upgrade from 25.11 to 26.05
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#nix-commands" class="md-nav__link">
     <span class="md-ellipsis">
       Nix commands
@@ -1747,6 +1780,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#upgrade-to-a-new-nixos-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade to a new NixOS release
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Upgrade to a new NixOS release">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-comin-does-with-a-change-that-needs-a-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      What comin does with a change that needs a restart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-upgrade-from-2511-to-2605" class="md-nav__link">
+    <span class="md-ellipsis">
+      The upgrade from 25.11 to 26.05
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#nix-commands" class="md-nav__link">
     <span class="md-ellipsis">
       Nix commands
@@ -1824,6 +1890,103 @@ the default branch. For more info, see
 <a href="https://github.com/nlewo/comin/blob/main/docs/howtos.md">Comin how-tos</a>.</p>
 <p>If the default branch changes, update <code>config/nix/roles/comin/default.nix</code>
 accordingly.</p>
+<h2 id="upgrade-to-a-new-nixos-release">Upgrade to a new NixOS release</h2>
+<p>A release upgrade moves the <code>nixpkgs</code> input of the flake to the next release
+branch, one release at a time. <code>system.stateVersion</code> stays at its value: it
+records the release whose on-disk layouts a host's data was created with, and
+modules read it to keep those layouts, so raising it upgrades nothing.</p>
+<ol>
+<li>
+<p>Read the "Backward Incompatibilities" section of the release notes against
+   the services the hosts run, and evaluate the flake on the new release before
+   editing anything, from <code>config/nix</code>:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>flake<span class="w"> </span>check<span class="w"> </span>--no-build<span class="w"> </span>--keep-going<span class="w"> </span>--no-write-lock-file<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--override-input<span class="w"> </span>nixpkgs<span class="w"> </span>github:NixOS/nixpkgs/nixos-&lt;release&gt;
+</code></pre></div>
+<p>Run the same command without the override first, as the baseline: the
+<code>minimal-iso</code> and <code>minimal-lxc</code> configurations fail the bootable-system
+assertions on any release, and <code>--no-build</code> fails the hl02 test with "path
+... is not valid" while the mock image it imports is not in the store
+(<code>nix eval --raw .#checks.x86_64-linux.host-hl02-test.drvPath</code> evaluates it
+with the build allowed).</p>
+</li>
+<li>
+<p>Change the release in <code>config/nix/flake.nix</code>, update that input alone
+   (<code>nix flake update nixpkgs --flake ./config/nix</code>), then build one host's
+   system and compare it with the one it replaces:</p>
+<div class="highlight"><pre><span></span><code>nix<span class="w"> </span>build<span class="w"> </span>./config/nix#nixosConfigurations.&lt;host&gt;.config.system.build.toplevel<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--no-link<span class="w"> </span>--print-out-paths
+nix<span class="w"> </span>store<span class="w"> </span>diff-closures<span class="w"> </span>&lt;running<span class="w"> </span>system&gt;<span class="w"> </span>&lt;new<span class="w"> </span>system&gt;
+</code></pre></div>
+<p>The running system is the target of <code>/run/current-system</code> on the host. The
+committed tree builds to the same store path, so the comparison needs no
+copy from the host, and the difference lists every version that moves and
+its download size.</p>
+</li>
+<li>
+<p>Open a pull request: its checks build every host and run the host integration
+   tests, which boot each system from scratch on the new release. The head
+   branch can be the comin testing branch of one host (<code>testing-&lt;host&gt;</code>, cut
+   from the remote default branch), which then activates the commit in test mode
+   while the checks run; restarting that host returns it to its previous system.</p>
+</li>
+<li>Silence the alerts of the hosts as the
+   <a href="../../operations/monitoring/">monitoring guide</a> describes, and push to the
+   default branch. comin on each host builds the system and runs
+   <code>switch-to-configuration switch</code>, which writes the boot entry first and then
+   activates the system in place. It does not restart the host.</li>
+<li>Read each host's switch output (<code>journalctl -u comin.service</code>) and confirm
+   which system the host boots next: the default entry of <code>bootctl list</code> on a
+   VM, the <code>exec</code> line of <code>/sbin/init</code> in a container.</li>
+<li>Restart each host from its Proxmox node (<code>qm reboot &lt;id&gt;</code>,
+   <code>pct reboot &lt;id&gt;</code>), which does not depend on the state of the guest, and
+   verify it: the running and booted systems, the failed units, the errors of
+   the boot (<code>journalctl -b -p err</code>), and the services through their consumers.</li>
+</ol>
+<h3 id="what-comin-does-with-a-change-that-needs-a-restart">What comin does with a change that needs a restart</h3>
+<ul>
+<li>comin deploys the default branch with <code>switch</code> and never restarts a host.
+  <code>comin status</code> prints "Need to reboot: yes", and the exporter sets
+  <code>comin_need_to_reboot</code>, when the kernel of the running system differs from the
+  booted one. A container has no kernel of its own, so neither reports anything
+  there.</li>
+<li>From NixOS 26.05, a system lists its switch inhibitors in a
+  <code>switch-inhibitors</code> file (<code>system.switch.inhibitors</code>), and
+  <code>switch-to-configuration</code> refuses a <code>switch</code> or a <code>test</code> when a value differs
+  between the running system and the new one. comin at the pinned revision reads
+  the same two files and deploys such a change with <code>boot</code> instead of <code>switch</code>
+  (and skips a <code>test</code>), then reports that a reboot is needed until the host runs
+  that system, on a container too. This is from its source: no deployment in
+  this lab has taken that path yet. A running system without the file inhibits
+  nothing, which is the case of every system built from 25.11.</li>
+<li>A failed switch is not retried. The alert gauge <code>comin_last_deployment_failed</code>
+  returns to 0 when comin restarts, while <code>comin status</code> and
+  <code>comin_deployment_info</code> keep the failed record until the next deployment that
+  changes the host.</li>
+</ul>
+<h3 id="the-upgrade-from-2511-to-2605">The upgrade from 25.11 to 26.05</h3>
+<p>Applied on 2026-11-26 to hl02, nas-pve1, and nas-pve2, with no change to the
+configuration. What the run showed:</p>
+<ul>
+<li>26.05 replaces the classic D-Bus daemon with dbus-broker, a change that needs
+  a restart, and the switch from 25.11 runs in place because 25.11 has no switch
+  inhibitors. systemd then asks the running daemon to reload in the way
+  dbus-broker does, gets no answer, and gives up after 90 seconds ("Reload
+  failed for D-Bus System Message Bus"). <code>switch-to-configuration</code> exits with
+  status 4 and comin records a failed deployment, while every other unit is
+  stopped and started as usual and the bus keeps answering.</li>
+<li>The restart brings up dbus-broker. On hl02 it is also the first boot on the
+  new kernel and on the initrd based on systemd, the default from 26.05.</li>
+<li>nas-pve2 was the canary: its test activation failed in the same way, and its
+  later switch from the default branch succeeded, since the reload had already
+  been attempted.</li>
+<li>Syncthing migrated its databases on its first start on the new version, so a
+  return to the previous system needs a copy of its state taken before the
+  switch. Proxmox cannot snapshot a container with bind mount points
+  (<code>pvesh get /nodes/&lt;node&gt;/lxc/&lt;id&gt;/feature --feature snapshot</code> reports
+  <code>hasFeature: 0</code>): the copy is a ZFS snapshot of the container's root dataset
+  and of the node dataset that holds the state directories. This run took none.</li>
+</ul>
 <h2 id="nix-commands">Nix commands</h2>
 <ul>
 <li><code>nix flake metadata &lt;path&gt;</code>: show flake metadata</li>
