@@ -17,7 +17,8 @@
 # instance identifier from their content, so a rewritten snippet makes the
 # VM's next start a new instance, which cloud-init provisions again (the
 # Proxmox administration notes describe what that does). They are rendered
-# only when absent: deleting one renders it again at the next run.
+# only when absent: deleting one renders it again at the next run. The owner
+# and the mode of a snippet that exists are not converged either.
 - name: Render cloud-init network snippets
   ansible.builtin.template:
     src: templates/cloud-init/network.yaml.jinja

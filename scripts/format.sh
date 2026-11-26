@@ -86,8 +86,8 @@ quote_paths() {
 if [ "${#TEXTLINT_TARGETS[@]}" -gt 0 ]; then
   # textlint fails when none of its targets holds a file with one of the
   # extensions it handles, as a directory of YAML files or scripts does. When
-  # the search itself fails (a path that does not exist), textlint runs and
-  # reports the path.
+  # the search itself fails (a Markdown or text file that does not exist, a
+  # directory it cannot read), textlint runs and its error ends the run.
   if ! TEXTLINT_FIRST_FILE="$(find "${TEXTLINT_TARGETS[@]}" -type f -regextype posix-extended -regex '.*\.(txt|text|md|markdown|mdown|mkdn|mkd|mdwn|mkdown|ron)' -print -quit)" || [ -n "${TEXTLINT_FIRST_FILE}" ]; then
     run_formatter "textlint --config /action/lib/.automation/.textlintrc --fix $(quote_paths "${TEXTLINT_TARGETS[@]}")"
   else

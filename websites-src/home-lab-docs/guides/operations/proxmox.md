@@ -84,7 +84,9 @@ the snippets. To read the state of a VM:
 The host keys come back from the host's backup with the SSH identity restore of
 the [backup operations guide](./backup.md), from a snapshot older than the
 start; the units that cloud-init left failed are cleared with
-`systemctl reset-failed`.
+`systemctl reset-failed`. Both were done on hl01 that day (the host keys from
+the snapshot of 01:00 UTC, the units `cloud-config.service` and
+`cloud-init-main.service`).
 
 ## Disable Secure Boot
 

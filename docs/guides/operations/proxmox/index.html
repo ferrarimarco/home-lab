@@ -1887,7 +1887,9 @@ the snippets. To read the state of a VM:</p>
 <p>The host keys come back from the host's backup with the SSH identity restore of
 the <a href="../backup/">backup operations guide</a>, from a snapshot older than the
 start; the units that cloud-init left failed are cleared with
-<code>systemctl reset-failed</code>.</p>
+<code>systemctl reset-failed</code>. Both were done on hl01 that day (the host keys from
+the snapshot of 01:00 UTC, the units <code>cloud-config.service</code> and
+<code>cloud-init-main.service</code>).</p>
 <h2 id="disable-secure-boot">Disable Secure Boot</h2>
 <p>Either enter the UEFI console and disable Secure Boot manually, or delete the
 EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</p>

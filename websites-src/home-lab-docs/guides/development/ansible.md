@@ -689,10 +689,11 @@ includes ansible-lint. Super-linter starts it in `config/ansible`, the
   therefore holds a path relative to `config/lint`.
 - The requirements go to the directory that `ANSIBLE_HOME` names in the
   environment file, inside the linter's container, so every run downloads them
-  from Ansible Galaxy (43 MB, about a minute). Without that setting ansible-lint
-  keeps them in `config/ansible/.ansible`, where the next lint run's other
-  linters read the collections as part of the repository: EditorConfig,
-  Gitleaks, codespell, and Trivy failed on them (2026-11-26).
+  from Ansible Galaxy (43 MB, about a minute), and the lint, in CI as well,
+  fails while Galaxy does not answer. Without that setting ansible-lint keeps
+  them in `config/ansible/.ansible`, where the next lint run's other linters
+  read the collections as part of the repository: EditorConfig, Gitleaks,
+  codespell, and Trivy failed on them (2026-11-26).
 - The configuration skips the rule that asks for the whole role name as the
   prefix of a role's variables, since the roles prefix them with the name
   without its `ferrarimarco_home_lab_` part, and gives a value to the variable
@@ -710,11 +711,13 @@ setting named a path that no longer existed and the linter ran on nothing; then,
 with its configuration in `config/lint`, it ran without the collections and
 skipped seven playbooks that way. After a change to these settings, check that
 the lint summary has the `ANSIBLE` row, and read the linter's own output for
-those lines. Two are expected, both for
-`../../playbooks/restore-workloads.yaml`: ansible-lint checks a playbook that
-another imports without the configured extra variables, and that playbook, which
-the two Molecule wrappers import, has no default for its hosts; it is linted
-under its own name. To run the linter alone, as super-linter does:
+those lines and for the one that names `config/ansible` as the project root:
+when super-linter does not find the configuration file it takes its own default
+without a word, and ansible-lint then names another directory. Two are expected,
+both for `../../playbooks/restore-workloads.yaml`: ansible-lint checks a
+playbook that another imports without the configured extra variables, and that
+playbook, which the two Molecule wrappers import, has no default for its hosts;
+it is linted under its own name. To run the linter alone, as super-linter does:
 
 ```shell
 docker run --rm --entrypoint /bin/bash \

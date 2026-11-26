@@ -34,18 +34,18 @@ tests:
   - name: AptUpdateStale fires when the last apt-get update is older than 2 days
     interval: 1h
     input_series:
-      # The sample value is the time of the last update; the test clock
-      # starts at the Unix epoch, so a 0 value is 3 days old at 3d. The host
-      # booted at the epoch as well.
+      # The sample value is the time of the last update. The test clock starts
+      # at the Unix epoch, and so do the lists and the uptime of the host.
       - series: 'apt_package_cache_timestamp_seconds{instance="hl01:9100"}'
         values: "0x72"
       - series: 'node_boot_time_seconds{instance="hl01:9100"}'
         values: "0x72"
     alert_rule_test:
-      - eval_time: 1d
+      # Exactly two days old: not older than two days yet
+      - eval_time: 2d
         alertname: AptUpdateStale
         exp_alerts: []
-      - eval_time: 3d
+      - eval_time: 49h
         alertname: AptUpdateStale
         exp_alerts:
           - exp_labels:
@@ -62,26 +62,27 @@ tests:
   - name: AptUpdateStale waits for a host that was off to refresh its lists
     interval: 1h
     input_series:
-      # Both hosts are off for three days, boot at 73h (262800 s), and report
-      # lists of the epoch at their first scrape. The first refreshes them at
-      # 82h, which its collector reports from 84h on; the second never does.
+      # Both hosts are off for three days: their first sample is at 72h, where
+      # they boot (259200 s) and report lists of the epoch. The first refreshes
+      # them at 82h (295200 s), which its collector reports from 84h on; the
+      # second never does.
       - series: 'apt_package_cache_timestamp_seconds{instance="caught-up:9100"}'
-        values: "_x72 0x10 295200x19"
+        values: "_x72 0x11 295200x20"
       - series: 'node_boot_time_seconds{instance="caught-up:9100"}'
-        values: "_x72 262800x30"
+        values: "_x72 259200x32"
       - series: 'apt_package_cache_timestamp_seconds{instance="never-refreshed:9100"}'
-        values: "_x72 0x30"
+        values: "_x72 0x32"
       - series: 'node_boot_time_seconds{instance="never-refreshed:9100"}'
-        values: "_x72 262800x30"
+        values: "_x72 259200x32"
     alert_rule_test:
-      - eval_time: 74h
+      - eval_time: 72h
         alertname: AptUpdateStale
         exp_alerts: []
-      # Twelve hours after the boot: the daily job may not have run yet
+      # Exactly thirteen hours of uptime: not more than thirteen yet
       - eval_time: 85h
         alertname: AptUpdateStale
         exp_alerts: []
-      - eval_time: 87h
+      - eval_time: 86h
         alertname: AptUpdateStale
         exp_alerts:
           - exp_labels:
