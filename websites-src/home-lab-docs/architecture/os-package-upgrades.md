@@ -129,7 +129,7 @@ set, whatever set it, and waits for it to answer again for
 `update_os_packages_reboot_timeout` (ten minutes by default). A second run
 therefore finishes a run that was interrupted before its reboot, once apt on the
 host is idle (the
-[Linux administration notes](../guides/operations/linux-administration.md#release-upgrade)
+[Linux administration notes](../guides/operations/linux-administration.md#os-package-upgrade)
 describe how to read a job the play lost), and a run on a host with nothing to
 upgrade performs the reboot that the `RebootRequired` alert asks for. The flag
 is written by the kernel hook of the `unattended-upgrades` package, which the

@@ -2045,10 +2045,13 @@ run ad-hoc checks against it.</p>
   describes the design, the severity model, and the alert rules catalogue.</li>
 </ul>
 <h2 id="alerting">Alerting</h2>
-<p>Alertmanager runs in the monitoring backend Docker Compose stack, with its API
-and UI published host-locally on port 9093 of the monitoring backend host
-(currently raspberrypi2), like the Prometheus API on port 9090. Reach it over
-SSH.</p>
+<p>Alertmanager runs in the monitoring backend Docker Compose stack of each
+monitoring replica (the hosts that set <code>configure_monitoring_backend</code>), with its
+API and UI on port 9093 of the host, like the Prometheus API on port 9090. Both
+listen on every interface (read with <code>ss -ltn</code> on both replicas, 2026-11-26),
+since each replica scrapes the other and sends its alerts to both Alertmanagers,
+and neither API asks for credentials. Reach them over SSH, from the replica
+itself.</p>
 <p>Alerts carry a <code>severity</code> label: <code>critical</code> alerts re-notify about every 4
 hours, <code>warning</code> alerts about every 24 hours. Both route to the same Telegram
 chat.</p>
@@ -2074,6 +2077,11 @@ downtime instead of changing the alert rules:</p>
 matcher loses its quotes and the comment splits at its space.</p>
 <p>List and expire silences with <code>amtool silence query</code> and
 <code>amtool silence expire &lt;id&gt;</code> through the same invocation pattern.</p>
+<p>The reboot that follows an OS package upgrade needs none of this by hand: the OS
+packages playbook adds the silences below on the replica that stays up, under
+the author <code>update-os-packages</code>, and expires them after it verified the host, as
+the <a href="../linux-administration/#os-package-upgrade">Linux administration notes</a>
+describe.</p>
 <p>Size a silence past the alert's own duration, not just past the maintenance:
 <code>UnexpectedReboot</code> fires for an hour after the boot, so a one-hour silence added
 right before a reboot expires in the same minute the alert resolves (hl01,

@@ -1341,6 +1341,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#os-package-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      OS package upgrade
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#release-upgrade" class="md-nav__link">
     <span class="md-ellipsis">
       Release upgrade
@@ -1772,6 +1781,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#os-package-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      OS package upgrade
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#release-upgrade" class="md-nav__link">
     <span class="md-ellipsis">
       Release upgrade
@@ -1870,6 +1888,77 @@ and record it with <code>accept-new</code> when they match.</p>
   <code>apt-get install &lt;package-name&gt;=&lt;package-version-number&gt;</code></li>
 <li>The package update logs are in <code>/var/log/apt/history.log</code></li>
 </ul>
+<h3 id="os-package-upgrade">OS package upgrade</h3>
+<p>One run of the OS packages playbook upgrades a Debian host, reboots it when its
+reboot-required flag is set, and verifies it, as the
+<a href="../../../architecture/os-package-upgrades/">OS package upgrades spec</a> describes;
+its status table says which parts a real host has run. The NixOS hosts upgrade
+through their flake. The <code>AptUpgradesPending</code> and <code>RebootRequired</code> alerts are
+what asks for a run.</p>
+<ol>
+<li>
+<p>Review with a check run, limited to the host or, without the limit, on every
+   Debian host that is on (a host that is off ends the run), with the output in
+   a log outside the repository:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">ADDITIONAL_ANSIBLE_FLAGS</span><span class="o">=</span><span class="s2">&quot;--check --diff --limit &lt;host&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">ANSIBLE_PLAYBOOK_FILE_NAME</span><span class="o">=</span><span class="s2">&quot;update-os-packages.yaml&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>scripts/run-ansible.sh<span class="w"> </span>&gt;<span class="w"> </span>&lt;log<span class="w"> </span>file&gt;<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</code></pre></div>
+<p>Read three things in it: apt's plan, in the diff of the dist-upgrade task;
+the verdict of the removal guard, a failure that a check run reports and
+ignores, with the <code>-e</code> argument that approves the removals it names; and the
+task that reports the reboot-required flag, with the kernel packages of the
+plan.</p>
+</li>
+<li>
+<p>Decide the moment. The real run reboots the host when its flag is set after
+   the upgrade, with no option to skip it: that is the case when the check run
+   shows the flag set or a kernel in the plan. The reboot takes the host down
+   and, on a Proxmox node, its guests, and the probe alerts of the whole lab are
+   silenced until the host is verified, for an hour at most.</p>
+</li>
+<li>Run the same command without <code>--check --diff</code>. A run that approves removals
+   takes one host (<code>--limit &lt;host&gt;</code> and the <code>-e</code> argument of the check run,
+   quoted as the
+   <a href="../../development/operational-scripts/">operational scripts guide</a> describes
+   for extra variables). A run on several hosts takes them one at a time and
+   stops at the first one that fails.</li>
+<li>Read a failure by its task. Every failure after the reboot leaves the host
+   upgraded and rebooted, with the silences on its instances and on the probe
+   alerts expired, so whatever is broken notifies; a second run does not repeat
+   the verification, since the flag is gone.<ul>
+<li>No monitoring replica answers: nothing was silenced or rebooted, and the
+  flag stays set. Check Alertmanager on the replicas, as the
+  <a href="../monitoring/#alerting">monitoring guide</a> describes, and run again.</li>
+<li>The host does not answer within the reboot timeout: follow the
+  <a href="../unresponsive-host/">unresponsive host guide</a>.</li>
+<li>The boot did not finish, or a unit is in the failed state: the failure
+  prints the state or the units.</li>
+<li>A guest or a pool of a Proxmox node is not back: the failure names them;
+  the <a href="../proxmox/">Proxmox administration notes</a> cover a guest that failed
+  its boot-time start.</li>
+<li>The silences hide an alert that was not active before: the failure names
+  it with its labels.</li>
+<li>The host still runs its old kernel although the flag named a newer one:
+  the failure names the kernels. On a Raspberry Pi, check that the firmware
+  package that copies the kernel to the boot partition is installed.</li>
+</ul>
+</li>
+<li>After a run that died (the control machine went away, or the host could not
+   be reached after its reboot), the silences end on their own within their
+   duration. List the ones the run added, whose author is <code>update-os-packages</code>,
+   and expire them by ID to hear the alerts sooner, with the commands of the
+   <a href="../monitoring/#planned-downtime">monitoring guide</a>.</li>
+</ol>
+<p>The dist-upgrade task runs detached from the SSH session, so a dropped
+connection does not interrupt it. The controller can still lose the job (its
+worker died a minute into hl01's release upgrade, and the play kept polling
+without reaching the host; on pve1 on 2026-11-26 the upgrade ended on the host
+at 10:07:38 UTC, 53 seconds after it restarted <code>pve-cluster</code>, and the play only
+went on at 10:15:31): the host-side run is then read from the apt history log
+and from the job's result file under <code>/root/.ansible_async/</code>, and the playbook
+is run again once apt is idle, which finishes whatever remains, the reboot
+included.</p>
 <h3 id="release-upgrade">Release upgrade</h3>
 <p>The playbooks upgrade a Debian host in place to the next release; the host keeps
 its state trees and its container images, and the upgrade costs one reboot. A
@@ -1884,8 +1973,8 @@ instead.</p>
 <li>Secure the pre-change copy: run the host's backup job by hand and confirm its
    snapshot, and for a VM snapshot its root volume on the node
    (<code>zfs snapshot rpool/data/vm-&lt;id&gt;-disk-&lt;n&gt;@pre-&lt;release&gt;</code>), the rollback for
-   a broken upgrade (<code>zfs rollback</code> with the VM stopped). Silence the host's
-   alerts as the <a href="../monitoring/">monitoring operations guide</a> describes.</li>
+   a broken upgrade (<code>zfs rollback</code> with the VM stopped). The run of step 4 adds
+   the silences for its reboot.</li>
 <li>
 <p>Point APT at the new release through the bootstrap playbook, which renders
    the Debian sources from <code>debian_release_force_upgrade</code> instead of the running
@@ -1898,36 +1987,31 @@ runs on the upgraded host; their packages for the old release install on the
 new one in the meantime.</p>
 </li>
 <li>
-<p>Predict the upgrade with a check run of the OS packages playbook limited to
-   the host (<code>--check --diff</code>), and review the removals: a package the new
-   release drops takes its dependents with it. The removal guard of the
-   <a href="../../../architecture/os-package-upgrades/">OS package upgrades spec</a> fails
-   on them and prints the <code>-e</code> argument that names them all. Then run the
-   playbook limited to the host with that argument; its dist-upgrade task runs
-   detached from the SSH session, so a dropped connection does not interrupt it,
-   and the playbook keeps the existing configuration files where the new
-   packages ship changed defaults (the new files land beside them with a
-   <code>.dpkg-dist</code> suffix). The controller can still lose the job (its worker died
-   a minute into hl01's upgrade, and the play kept polling without reaching the
-   host; on pve1 on 2026-11-26 the upgrade ended on the host at 10:07:38 UTC, 53
-   seconds after it restarted <code>pve-cluster</code>, and the play only went on at
-   10:15:31): the host-side run is then read from the apt history log and from
-   the job's result file under <code>/root/.ansible_async/</code>, and the playbook is run
-   again once apt is idle, which finishes whatever remains.</p>
+<p>Upgrade with the <a href="#os-package-upgrade">OS package upgrade</a> procedure, limited
+   to the host. Its check run predicts the upgrade, and the removals need a
+   review: a package the new release drops takes its dependents with it, the
+   removal guard fails on them, and it prints the <code>-e</code> argument that names them
+   all. The real run, with that argument, keeps the existing configuration files
+   where the new packages ship changed defaults (the new files land beside them
+   with a <code>.dpkg-dist</code> suffix); the new kernel sets the reboot-required flag, so
+   the run goes on to reboot and verify the host. The package run itself took
+   three minutes on hl01 for 411 upgraded, 129 new, and 65 removed packages.</p>
+<p>The builds of the out-of-tree kernel modules (DKMS) run during the kernel
+install and fail there, not at boot: a failed build fails the kernel
+package's post-install hook, apt stops with the kernel and headers
+unconfigured, and the run fails at its upgrade task, before any reboot. Fix
+the module source (on hl01 on 2026-11-04, the Coral driver source predated
+the pinned package and lacked the fixes for kernel 6.12: <code>dpkg -i</code> of the
+pinned file unpacked the right source and exited non-zero because the
+headers were still unconfigured, which is expected at that point), then
+<code>dpkg --configure -a</code> configures the pending packages, the module among
+them, and runs the hook again. Run the playbook again afterwards: it
+finishes whatever remains, the reboot included.</p>
 </li>
-<li>Reboot, then verify: the release in <code>/etc/os-release</code>, the running kernel,
-   the boot time, the services from a fresh listing, the mounts, and the
-   out-of-tree kernel modules (<code>dkms status</code>), whose DKMS builds run during the
-   kernel install and fail there, not at boot: a failed build fails the kernel
-   package's post-install hook, apt stops with the kernel and headers
-   unconfigured, and the host keeps booting the old kernel. Fix the module
-   source (on hl01 on 2026-11-04, the Coral driver source predated the pinned
-   package and lacked the fixes for kernel 6.12: <code>dpkg -i</code> of the pinned file
-   unpacked the right source and exited non-zero because the headers were still
-   unconfigured, which is expected at that point), then <code>dpkg --configure -a</code>
-   configures the pending packages, the module among them, and runs the hook
-   again. The package run itself took three minutes on hl01 for 411 upgraded,
-   129 new, and 65 removed packages.</li>
+<li>
+<p>Verify what the run does not: the release in <code>/etc/os-release</code>, the mounts,
+   and the out-of-tree kernel modules (<code>dkms status</code>).</p>
+</li>
 <li>Converge on the new release: the container engine playbook moves the Docker
    source to the new release, and the node playbook surfaces whatever the
    release changed under the roles, check runs first.</li>

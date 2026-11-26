@@ -2454,21 +2454,23 @@ in its group variables (<code>group_vars/home_lab_proxmox_nodes</code>):</p>
   Raspberry Pi repositories where <code>configure_docker</code>, <code>configure_tailscale</code>, and
   <code>is_raspberry_pi</code> are set. A repository a new stack adds needs an entry there,
   or its upgrades wait for the <code>AptUpgradesPending</code> alert. The Proxmox
-  repository has no entry, so pve-manager, the kernel and ZFS upgrade by hand
-  with <code>apt full-upgrade</code>, the command Proxmox prescribes (<code>apt upgrade</code> can
+  repository has no entry, so pve-manager, the kernel and ZFS upgrade through
+  the OS packages playbook, as the
+  <a href="../../operations/linux-administration/#os-package-upgrade">Linux administration notes</a>
+  describe: it runs the full upgrade that Proxmox prescribes (<code>apt upgrade</code> can
   leave its packages partially upgraded, and unattended-upgrades has that
   command's semantics by design: it holds back any step that would remove a
   package). The same holds for a covered origin on any host: an upgrade that
-  needs a removal stays pending until <code>apt full-upgrade</code> is run by hand, and
-  reaches the alert (on raspberrypi2 the camera libraries of Raspberry Pi OS,
-  whose new library package replaces the installed one, 2026-11-20). An
-  unattended Docker engine upgrade restarts the daemon and containerd under the
-  workloads, which keep running because the daemon is configured with
-  <code>live-restore</code> (hl01 and raspberrypi2 on 2026-11-20, from 29.9.3 to 29.10.0,
-  with every container's start time unchanged). Two other origins act on more
-  than packages, with nobody reading the release first: the Raspberry Pi origin
-  carries <code>rpi-eeprom</code>, whose boot-time update service flashes a new bootloader
-  image only onto a bootloader older than the minimum the package sets, as the
+  needs a removal stays pending until that playbook runs, and reaches the alert
+  (on raspberrypi2 the camera libraries of Raspberry Pi OS, whose new library
+  package replaces the installed one, 2026-11-20). An unattended Docker engine
+  upgrade restarts the daemon and containerd under the workloads, which keep
+  running because the daemon is configured with <code>live-restore</code> (hl01 and
+  raspberrypi2 on 2026-11-20, from 29.9.3 to 29.10.0, with every container's
+  start time unchanged). Two other origins act on more than packages, with
+  nobody reading the release first: the Raspberry Pi origin carries
+  <code>rpi-eeprom</code>, whose boot-time update service flashes a new bootloader image
+  only onto a bootloader older than the minimum the package sets, as the
   <a href="../../../architecture/network-boot/">network boot spec</a> describes
   (raspberrypi2 on 2026-11-20, from 28.33 to 28.37, with the 2026-10-30 image
   reported as available over the 2026-09-23 one, which two reboots on 2026-11-26

@@ -245,13 +245,14 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   `backup.yaml` converges the restic jobs of the backup role on every host that
   declares them; `update-os-packages.yaml` dist-upgrades the OS packages of the
   Debian hosts, one host at a time and behind the removal guard of the
-  [OS package upgrades spec](../../architecture/os-package-upgrades.md),
-  including a release upgrade prepared by the bootstrap playbook, as the
-  [Linux administration notes](../operations/linux-administration.md) describe;
-  `gateway-dnsmasq.yaml` converges the DHCP settings of the gateway's dnsmasq
-  (pool bounds, lease time, the DNS option, the LAN domain, and the reservations
-  rendered from the inventory) through the router's NVRAM over SSH, as the
-  [Ansible development guide](./ansible.md) describes: it stays out of
+  [OS package upgrades spec](../../architecture/os-package-upgrades.md), then
+  reboots and verifies a host whose reboot-required flag is set, including a
+  release upgrade prepared by the bootstrap playbook, as the
+  [Linux administration notes](../operations/linux-administration.md#os-package-upgrade)
+  describe; `gateway-dnsmasq.yaml` converges the DHCP settings of the gateway's
+  dnsmasq (pool bounds, lease time, the DNS option, the LAN domain, and the
+  reservations rendered from the inventory) through the router's NVRAM over SSH,
+  as the [Ansible development guide](./ansible.md) describes: it stays out of
   `main.yaml`, since the router is not a lab host, and needs the control
   machine's lab key in the router's authorized keys (Administration, System, in
   the web UI) before its first run; `boot-bare-metal.yaml` powers on the hosts

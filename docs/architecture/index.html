@@ -2368,7 +2368,7 @@ reliability risks first, then security exposure, then automation):</p>
   the backup role runs its jobs), which a lost controller leaves running and
   whose result the next run can read, or make the poll loop fail on an
   unreachable host. The
-  <a href="../guides/operations/linux-administration/#release-upgrade">Linux administration notes</a>
+  <a href="../guides/operations/linux-administration/#os-package-upgrade">Linux administration notes</a>
   have the two occurrences.</li>
 <li>Get the Proxmox VMs data from the inventory instead of the <code>proxmox_vms</code>
   list.</li>
@@ -2437,15 +2437,16 @@ reliability risks first, then security exposure, then automation):</p>
   playbook so that one reviewed run upgrades, reboots, and verifies a Debian
   host; its status table has what landed, the reboot, the silences, and the
   verification included, none of them run on a real host yet. Remaining, in
-  order: the procedure in the Linux administration notes, with the passages of
-  the Ansible guide on the upgrade by hand rewritten and the planned downtime
-  section of the monitoring guide pointing at the run; the first real runs, pve2
-  before pve1 (one guest, no monitoring replica), with a run where each check of
-  the verification must fire; a last read of the guides for passages written
-  meanwhile. The item on the detached dist-upgrade task under
+  order: the first real runs, pve2 before pve1 (one guest, no monitoring
+  replica), following the procedure of the
+  <a href="../guides/operations/linux-administration/#os-package-upgrade">Linux administration notes</a>,
+  with a run where each check of the verification must fire; a last read of that
+  procedure and of the guides for what the runs showed. The item on the detached
+  dist-upgrade task under
   <a href="#cicd-infrastructure-as-code-and-gitops">CI/CD, infrastructure-as-code, and GitOps</a>
   concerns the same task: until it lands, a second run finishes a run whose
-  controller lost the job.</li>
+  controller lost the job. Waits on: a package that sets the reboot-required
+  flag on pve2, or a kernel in the plan of its check run.</li>
 <li><strong>Remove the kernel series that Proxmox no longer protects (2026-11-26)</strong>: a
   node keeps every kernel series it installed, as the
   <a href="../guides/operations/proxmox/#old-kernel-series-stay-installed">Proxmox administration notes</a>

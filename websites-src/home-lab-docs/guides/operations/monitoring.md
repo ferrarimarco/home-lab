@@ -26,10 +26,13 @@ The monitoring stack works as follows:
 
 ## Alerting
 
-Alertmanager runs in the monitoring backend Docker Compose stack, with its API
-and UI published host-locally on port 9093 of the monitoring backend host
-(currently raspberrypi2), like the Prometheus API on port 9090. Reach it over
-SSH.
+Alertmanager runs in the monitoring backend Docker Compose stack of each
+monitoring replica (the hosts that set `configure_monitoring_backend`), with its
+API and UI on port 9093 of the host, like the Prometheus API on port 9090. Both
+listen on every interface (read with `ss -ltn` on both replicas, 2026-11-26),
+since each replica scrapes the other and sends its alerts to both Alertmanagers,
+and neither API asks for credentials. Reach them over SSH, from the replica
+itself.
 
 Alerts carry a `severity` label: `critical` alerts re-notify about every 4
 hours, `warning` alerts about every 24 hours. Both route to the same Telegram
@@ -64,6 +67,12 @@ matcher loses its quotes and the comment splits at its space.
 
 List and expire silences with `amtool silence query` and
 `amtool silence expire <id>` through the same invocation pattern.
+
+The reboot that follows an OS package upgrade needs none of this by hand: the OS
+packages playbook adds the silences below on the replica that stays up, under
+the author `update-os-packages`, and expires them after it verified the host, as
+the [Linux administration notes](./linux-administration.md#os-package-upgrade)
+describe.
 
 Size a silence past the alert's own duration, not just past the maintenance:
 `UnexpectedReboot` fires for an hour after the boot, so a one-hour silence added
