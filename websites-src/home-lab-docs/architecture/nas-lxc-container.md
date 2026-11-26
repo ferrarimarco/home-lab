@@ -729,16 +729,17 @@ this lives in the Ansible layer that already manages the Proxmox nodes:
   pool's member devices differ from the devices in the entry's `topology`, so a
   disk replaced by hand cannot leave a creation command for the wrong devices
   behind. It compares the set of devices, not their arrangement into vdevs, and
-  it fails while a `zpool replace` lists both disks. The
-  `community.general.zpool` module was rejected for the creation and for the
-  comparison: on an existing pool it reconciles the layout with `zpool add` and
-  `zpool remove` for every difference, which turns a stale entry into a change
-  of a live pool, and it has no `attach`, `replace`, or `import`, which a mirror
-  conversion, a disk replacement, and a reinstalled node need (read in its
-  source at community.general 12.6.7, the first 12.x release with the fix of
+  it fails while a `zpool replace` lists both disks or while a member that was
+  absent at import is listed without its path. The `community.general.zpool`
+  module was rejected for the creation and for the comparison: on an existing
+  pool it reconciles the layout with `zpool add` and `zpool remove` for every
+  difference, which turns a stale entry into a change of a live pool, and it has
+  no `attach`, `replace`, or `import`, which a mirror conversion, a disk
+  replacement, and a reinstalled node need (read in its source at
+  community.general 12.5.0; 12.6.7 is the first 12.x release that fixes
   [its comparison of `by-id` paths](https://github.com/ansible-collections/community.general/issues/10744),
-  which only unit tests cover). Every declared pool on `pve1` and `pve2` is a
-  single-disk vdev today, so a disk failure loses the pool's contents; the
+  and only unit tests cover that fix). Every declared pool on `pve1` and `pve2`
+  is a single-disk vdev today, so a disk failure loses the pool's contents; the
   intended layout is mirrored vdevs, and the second copies of what the pools
   hold are tracked with it in the [specs todo list](./README.md#nas). The role
   enables each declared pool's `zfs-import@<pool>` systemd instance, which
