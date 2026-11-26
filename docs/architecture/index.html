@@ -2219,6 +2219,14 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="security">Security</h3>
 <ul>
+<li><strong>The Ansible container trusts every host key it meets (2026-11-26)</strong>: the
+  inventory sets <code>StrictHostKeyChecking=accept-new</code> for every host, and the
+  container of <code>scripts/run-ansible.sh</code> starts without a known hosts file, so
+  each run accepts whatever key a host offers: the runs that followed the
+  regeneration of hl01's host keys connected without a warning, while the
+  control machine's own <code>ssh</code> refused. First step: mount a known hosts file that
+  the control machine keeps into the container, and read what the first run
+  against each host then reports.</li>
 <li><strong>Pin every GitHub Action to a commit SHA</strong>: 4 of the 14 third-party actions
   the workflows use are SHA-pinned, the rest by tag, and
   <code>config/lint/zizmor.yaml</code> ignores the <code>unpinned-uses</code> audit for twelve
@@ -2344,7 +2352,10 @@ reliability risks first, then security exposure, then automation):</p>
   Run the upgrade through a transient systemd unit (<code>systemd-run --wait</code>, as
   the backup role runs its jobs), which a lost controller leaves running and
   whose result the next run can read, or make the poll loop fail on an
-  unreachable host.</li>
+  unreachable host. On 2026-11-26 the play stalled the same way on pve1 and
+  recovered by itself: the upgrade ended on the host at 10:07:38 UTC, 53
+  seconds after it restarted <code>pve-cluster</code>, and the controller opened its
+  next session at 10:15:31.</li>
 <li>Get the Proxmox VMs data from the inventory instead of the <code>proxmox_vms</code>
   list.</li>
 <li>Move the handlers to a dedicated role and reuse it across all playbooks.</li>
@@ -2434,6 +2445,19 @@ reliability risks first, then security exposure, then automation):</p>
   <a href="https://github.com/NixOS/nixpkgs/issues/567567">release schedule</a>, read on
   2026-11-23), for the second step. Blocks: the photo library rollout
   (<a href="#backup">Backup</a>).</li>
+<li><strong>Stop cloud-init from provisioning hl01 again at a start (2026-11-26)</strong>: the
+  Proxmox role renders the VM's cloud-init user data on every run, and a change
+  to it makes the VM's next start a new cloud-init instance. On 2026-11-26, the
+  first start since a render of 2026-11-10, cloud-init regenerated the SSH host
+  keys (restored from the backup, as the
+  <a href="../guides/operations/backup/">backup operations guide</a> describes), rewrote
+  the authorized keys and <code>/etc/hosts</code>, and failed its locale module, which left
+  <code>cloud-config.service</code> and <code>cloud-init-main.service</code> failed. First step:
+  decide in the <a href="proxmox-vm/">Proxmox VM spec</a> whether a provisioned VM
+  keeps cloud-init (disabled after the first boot, or with the SSH identity out
+  of its per-instance modules), then clear the two units (<code>systemctl --failed</code>
+  on hl01). Before a start of the VM, compare the date of its user data snippet
+  on pve1 with the VM's start time.</li>
 <li><strong>Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)</strong>:
   pve1 boots a ZFS root through <code>proxmox-boot-tool</code> with systemd-boot, which
   keeps every ESP in sync and takes the kernel command line from

@@ -2,15 +2,15 @@
 
 ## Implementation Status
 
-| Component / Feature                    | Status                    | Details                                                                                                                                                                                                                                                                        |
-| :------------------------------------- | :------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Upgrade run**                        | **Fully Implemented**     | The detached `dist-upgrade` of the `update-os-packages.yaml` playbook, followed by autoremove and autoclean as steps of their own; the play can lose the job while the host finishes it, as the Linux administration notes describe.                                           |
-| **Review by check run**                | **Partially Implemented** | The check run refreshes the lists and prints apt's plan and the verdict of the removal guard; it does not report the reboot-required flag. Run on pve2 after four days off (2026-11-26); the other hosts not yet run.                                                          |
-| **One host at a time**                 | **Fully Implemented**     | The play is serial and leaves out the NixOS hosts by group; the Molecule job shows a failed host ending the run before the next one, and a check run with pve2 off ended before the next host (2026-11-26).                                                                    |
-| **Removal guard**                      | **Fully Implemented**     | Reads the removals and the purges from apt's simulated plan; the Molecule job has a run where the guard fires, one where the one-host rule fires, a check run that goes on, and an approved run. On a real host it has only passed a plan without removals (pve2, 2026-11-26). |
-| **Reboot on the reboot-required flag** | **Missing**               | The reboot is a manual step after the run.                                                                                                                                                                                                                                     |
-| **Downtime silences**                  | **Missing**               | Added by hand, as the monitoring guide describes.                                                                                                                                                                                                                              |
-| **Post-reboot verification**           | **Missing**               | Done by hand: the host checks on every Debian host, the guests and the pools on the Proxmox nodes.                                                                                                                                                                             |
+| Component / Feature                    | Status                    | Details                                                                                                                                                                                                                                                                           |
+| :------------------------------------- | :------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Upgrade run**                        | **Fully Implemented**     | The detached `dist-upgrade` of the `update-os-packages.yaml` playbook, followed by autoremove and autoclean as steps of their own; the play can lose the job while the host finishes it, as the Linux administration notes describe.                                              |
+| **Review by check run**                | **Partially Implemented** | The check run refreshes the lists and prints apt's plan and the verdict of the removal guard; it does not report the reboot-required flag. Run on the four Debian hosts (2026-11-26), on pve2 after four days off.                                                                |
+| **One host at a time**                 | **Fully Implemented**     | The play is serial and leaves out the NixOS hosts by group; the Molecule job shows a failed host ending the run before the next one. On the real hosts, a check run with pve2 off ended before the next host, and one run took raspberrypi2, pve1, and hl01 in turn (2026-11-26). |
+| **Removal guard**                      | **Fully Implemented**     | Reads the removals and the purges from apt's simulated plan; the Molecule job has a run where the guard fires, one where the one-host rule fires, a check run that goes on, and an approved run. On the real hosts it has only passed plans without removals (2026-11-26).        |
+| **Reboot on the reboot-required flag** | **Missing**               | The reboot is a manual step after the run.                                                                                                                                                                                                                                        |
+| **Downtime silences**                  | **Missing**               | Added by hand, as the monitoring guide describes.                                                                                                                                                                                                                                 |
+| **Post-reboot verification**           | **Missing**               | Done by hand: the host checks on every Debian host, the guests and the pools on the Proxmox nodes.                                                                                                                                                                                |
 
 ## Goal
 
@@ -152,6 +152,11 @@ describes for planned downtime:
   notified.
 - A silence for `UnexpectedReboot` on the same instances for 90 minutes, since
   that alert fires for an hour after the boot.
+- When the host or one of its guests is a monitoring replica, a silence for
+  `PrometheusNotificationsErroring`, by its alert name, for the duration of the
+  reboot plus 20 minutes: the replica that stays up cannot reach the other's
+  Alertmanager, and its alert looks back 15 minutes. Without it the reboot of
+  pve1 notified (2026-11-26); with it the reboot of raspberrypi2 did not.
 
 A run that dies leaves the first two silences to end on their own: for at most
 their duration, a real outage of those instances, or a probe failure anywhere,

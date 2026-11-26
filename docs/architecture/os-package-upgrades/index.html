@@ -1977,17 +1977,17 @@
 <tr>
 <td style="text-align: left;"><strong>Review by check run</strong></td>
 <td style="text-align: left;"><strong>Partially Implemented</strong></td>
-<td style="text-align: left;">The check run refreshes the lists and prints apt's plan and the verdict of the removal guard; it does not report the reboot-required flag. Run on pve2 after four days off (2026-11-26); the other hosts not yet run.</td>
+<td style="text-align: left;">The check run refreshes the lists and prints apt's plan and the verdict of the removal guard; it does not report the reboot-required flag. Run on the four Debian hosts (2026-11-26), on pve2 after four days off.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>One host at a time</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">The play is serial and leaves out the NixOS hosts by group; the Molecule job shows a failed host ending the run before the next one, and a check run with pve2 off ended before the next host (2026-11-26).</td>
+<td style="text-align: left;">The play is serial and leaves out the NixOS hosts by group; the Molecule job shows a failed host ending the run before the next one. On the real hosts, a check run with pve2 off ended before the next host, and one run took raspberrypi2, pve1, and hl01 in turn (2026-11-26).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Removal guard</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;">Reads the removals and the purges from apt's simulated plan; the Molecule job has a run where the guard fires, one where the one-host rule fires, a check run that goes on, and an approved run. On a real host it has only passed a plan without removals (pve2, 2026-11-26).</td>
+<td style="text-align: left;">Reads the removals and the purges from apt's simulated plan; the Molecule job has a run where the guard fires, one where the one-host rule fires, a check run that goes on, and an approved run. On the real hosts it has only passed plans without removals (2026-11-26).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Reboot on the reboot-required flag</strong></td>
@@ -2128,6 +2128,11 @@ describes for planned downtime:</p>
   notified.</li>
 <li>A silence for <code>UnexpectedReboot</code> on the same instances for 90 minutes, since
   that alert fires for an hour after the boot.</li>
+<li>When the host or one of its guests is a monitoring replica, a silence for
+  <code>PrometheusNotificationsErroring</code>, by its alert name, for the duration of the
+  reboot plus 20 minutes: the replica that stays up cannot reach the other's
+  Alertmanager, and its alert looks back 15 minutes. Without it the reboot of
+  pve1 notified (2026-11-26); with it the reboot of raspberrypi2 did not.</li>
 </ul>
 <p>A run that dies leaves the first two silences to end on their own: for at most
 their duration, a real outage of those instances, or a probe failure anywhere,
