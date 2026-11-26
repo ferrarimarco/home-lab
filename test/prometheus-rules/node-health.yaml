@@ -32,14 +32,20 @@ tests:
                 hardware watchdog recovery.
 
   - name: AptUpdateStale fires when the last apt-get update is older than 2 days
-    interval: 1h
+    # Samples within the five minutes an instant query looks back, or the
+    # series has gaps and the hold starts again at every sample
+    interval: 5m
     input_series:
       # The sample value is the time of the last update; the test clock
       # starts at the Unix epoch, so a 0 value is 3 days old at 3d.
       - series: 'apt_package_cache_timestamp_seconds{instance="hl01:9100"}'
-        values: "0x72"
+        values: "0x864"
     alert_rule_test:
       - eval_time: 1d
+        alertname: AptUpdateStale
+        exp_alerts: []
+      # Older than a day for 23 hours: the hold is not over
+      - eval_time: 47h
         alertname: AptUpdateStale
         exp_alerts: []
       - eval_time: 3d
@@ -55,6 +61,37 @@ tests:
                 two days: a source answers errors (a retired repository, an
                 expired key), or the daily job stopped. Security updates stop
                 flowing until it is fixed.
+
+  - name: AptUpdateStale gives a host that was off a day to refresh its lists
+    interval: 5m
+    input_series:
+      # Both hosts are off for three days and report lists of the epoch at
+      # their first scrape, at 73h. The first refreshes them at 82h, which
+      # its collector reports from 84h on; the second never does.
+      - series: 'apt_package_cache_timestamp_seconds{instance="caught-up:9100"}'
+        values: "_x875 0x131 295200x479"
+      - series: 'apt_package_cache_timestamp_seconds{instance="never-refreshed:9100"}'
+        values: "_x875 0x611"
+    alert_rule_test:
+      - eval_time: 74h
+        alertname: AptUpdateStale
+        exp_alerts: []
+      - eval_time: 96h
+        alertname: AptUpdateStale
+        exp_alerts: []
+      - eval_time: 98h
+        alertname: AptUpdateStale
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: never-refreshed:9100
+            exp_annotations:
+              summary: "APT updates failing on never-refreshed:9100"
+              description: >-
+                never-refreshed:9100 has had no successful apt-get update for
+                more than two days: a source answers errors (a retired
+                repository, an expired key), or the daily job stopped. Security
+                updates stop flowing until it is fixed.
 
   - name: AptMetricsMissing fires for a Debian host without apt metrics for 1 hour
     interval: 1m

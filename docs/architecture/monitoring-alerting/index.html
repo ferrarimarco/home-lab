@@ -2697,9 +2697,9 @@ with operational experience.</p>
 <tr>
 <td style="text-align: left;"><code>AptUpdateStale</code></td>
 <td style="text-align: left;">warning</td>
-<td style="text-align: left;"><code>time() - apt_package_cache_timestamp_seconds &gt; 2 * 86400</code></td>
-<td style="text-align: left;">—</td>
-<td style="text-align: left;">The apt collector reports the time of the last successful <code>apt-get update</code> (the roles deploy an apt hook that touches the success stamp, and the current <code>apt_info.py</code> reads it; older versions reported the last attempt). Two missed daily runs mean a dead source or a stopped job; the Coral repository outage of 2026-09-29 went unnoticed for two weeks without this.</td>
+<td style="text-align: left;"><code>time() - apt_package_cache_timestamp_seconds &gt; 86400</code></td>
+<td style="text-align: left;">1d</td>
+<td style="text-align: left;">The apt collector reports the time of the last successful <code>apt-get update</code> (the roles deploy an apt hook that touches the success stamp, and the current <code>apt_info.py</code> reads it; older versions reported the last attempt). Two missed daily runs mean a dead source or a stopped job: a day of age and a day of hold, since a host that was off for days reports old lists at its first scrape and its daily job catches up within twelve hours (pve2 fired at every power-on until 2026-11-26); the Coral repository outage of 2026-09-29 went unnoticed for two weeks without this.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>AptMetricsMissing</code></td>
