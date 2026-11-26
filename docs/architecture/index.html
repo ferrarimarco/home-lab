@@ -2984,7 +2984,8 @@ reliability risks first, then security exposure, then automation):</p>
   remote peer's data). The intended layout is one mirror per pool, which needs a
   second device of at least the same size per pool to protect; <code>zpool attach</code>
   turns a single-disk vdev into a mirror in place, after which the pool's
-  <code>zfs_pools</code> entry records the new topology. The ZFS section of the
+  <code>zfs_pools</code> entry records the new topology (the <code>setup_disks</code> role fails on
+  the node until it does). The ZFS section of the
   <a href="references/#zfs">references page</a> has the articles behind mirrors over
   RAIDZ.</li>
 <li><strong>Tailscale on nas-pve1: declarative device management</strong>: manage the joined

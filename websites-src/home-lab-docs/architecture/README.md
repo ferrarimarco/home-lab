@@ -890,7 +890,8 @@ Related specification: [NAS LXC Container](./nas-lxc-container.md).
   remote peer's data). The intended layout is one mirror per pool, which needs a
   second device of at least the same size per pool to protect; `zpool attach`
   turns a single-disk vdev into a mirror in place, after which the pool's
-  `zfs_pools` entry records the new topology. The ZFS section of the
+  `zfs_pools` entry records the new topology (the `setup_disks` role fails on
+  the node until it does). The ZFS section of the
   [references page](./references.md#zfs) has the articles behind mirrors over
   RAIDZ.
 - **Tailscale on nas-pve1: declarative device management**: manage the joined

@@ -12,15 +12,48 @@
 
 # Pool creation is destructive and device-specific, so it stays a deliberate
 # manual act: the inventory records each pool's topology and the assert fails
-# with the documented creation command when the pool is missing.
+# with the documented commands when the pool is not imported. A pool that its
+# disks already hold needs an import, and creating it again would destroy it,
+# so the message gives the import first.
 - name: Assert that the expected ZFS pools exist
   ansible.builtin.assert:
     that: item.name in zfs_pools_actual.stdout_lines
     fail_msg: >-
-      ZFS pool {{ item.name }} is missing on {{ inventory_hostname }}.
-      Create it manually with:
-      zpool create {{ item.create_options | default('') }} {{ item.name }} {{ item.topology }}
+      ZFS pool {{ item.name }} is not imported on {{ inventory_hostname }}.
+      If its disks already hold it ("zpool import -d /dev/disk/by-id" lists
+      it), import it with "zpool import -d /dev/disk/by-id {{ item.name }}".
+      Create it only on blank disks, with
+      "zpool create {{ item.create_options | default('') }} {{ item.name }} {{ item.topology }}".
   with_items: "{{ zfs_pools | default([]) }}"
+
+# The scripted listing prints the pool on its first line and one line per vdev
+# below it, each starting with a tab and the vdev's path.
+- name: Read the member devices of each ZFS pool
+  ansible.builtin.command: zpool list -v -H -P {{ item.name }}
+  register: zfs_pool_devices_actual
+  changed_when: false
+  check_mode: false
+  become: true
+  with_items: "{{ zfs_pools | default([]) }}"
+
+# A topology entry that no longer names the pool's disks documents a creation
+# command for the wrong devices. Only the set of member devices is compared,
+# not their arrangement into vdevs. ZFS partitions a disk it is given whole and
+# joins the first partition, hence the suffix removed before comparing.
+- name: Assert that the ZFS pool member devices match the inventory
+  ansible.builtin.assert:
+    that: pool_devices_actual == pool_devices_declared
+    fail_msg: >-
+      ZFS pool {{ item.item.name }} on {{ inventory_hostname }} holds
+      {{ pool_devices_actual | join(' ') }}, but the inventory declares
+      {{ pool_devices_declared | join(' ') }}. Align the topology of its
+      zfs_pools entry with the pool before rerunning.
+  vars:
+    pool_devices_actual: "{{ item.stdout_lines | select('match', '^\\t/') | map('regex_replace', '^\\t(\\S+)\\t.*$', '\\1') | map('regex_replace', '-part1$', '') | sort }}"
+    pool_devices_declared: "{{ item.item.topology.split() | select('match', '^/') | sort }}"
+  with_items: "{{ zfs_pool_devices_actual.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
 
 # A pool is imported at boot by its zfs-import@<pool> instance, which runs
 # before zfs-import.target, so zfs-mount.service mounts the pool's datasets

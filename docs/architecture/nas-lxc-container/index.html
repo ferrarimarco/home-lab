@@ -2667,7 +2667,7 @@ Syncthing offsite transport depends on (§13).</p>
 <tr>
 <td style="text-align: left;"><strong>Host Storage Prep (Ansible)</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>setup_disks</code> role: pools asserted with their boot-time import units, datasets and Samba state dir converged (§11).</td>
+<td style="text-align: left;"><code>setup_disks</code> role: pools asserted with their member devices and boot-time import units, datasets and Samba state dir converged (§11).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Host Integration Tests</strong></td>
@@ -3338,20 +3338,33 @@ this lives in the Ansible layer that already manages the Proxmox nodes:</p>
 <li><strong><code>zfs_pools</code> — asserted, never created.</strong> <code>zpool create</code> is destructive and
   device-specific, so pool creation stays a deliberate manual act. Each entry
   records the pool's actual topology (<code>by-id</code> device paths) and creation options
-  (e.g. <code>ashift</code>) as executable documentation; the role fails with the
-  documented <code>zpool create</code> command when the pool is missing. Every declared
-  pool on <code>pve1</code> and <code>pve2</code> is a single-disk vdev today, so a disk failure loses
-  the pool's contents; the intended layout is mirrored vdevs, and the second
-  copies of what the pools hold are tracked with it in the
-  <a href="../#nas">specs todo list</a>. The role enables each declared pool's
-  <code>zfs-import@&lt;pool&gt;</code> systemd instance, which imports the pool before
-  <code>zfs-import.target</code>, so <code>zfs-mount.service</code> mounts its datasets before
-  <code>local-fs.target</code> and the guests that bind them start after (Proxmox's guest
-  start is ordered after <code>local-fs.target</code>); a pool without an instance is
-  imported only when Proxmox activates its storage, seconds after the guests,
-  which is how the <code>nas-pve1</code> container failed its boot-time start on 2026-11-10
-  on <code>rpool-usb-2</code>. The role also fails on an enabled instance whose pool the
-  inventory does not declare.</li>
+  (e.g. <code>ashift</code>) as executable documentation. When the pool is not imported,
+  the role fails with the two documented commands: <code>zpool import</code> for a pool
+  that its disks already hold (a reinstalled node, a disk that was attached
+  late), and <code>zpool create</code> for blank disks only. The role also fails when the
+  pool's member devices differ from the devices in the entry's <code>topology</code>, so a
+  disk replaced by hand cannot leave a creation command for the wrong devices
+  behind. It compares the set of devices, not their arrangement into vdevs, and
+  it fails while a <code>zpool replace</code> lists both disks. The
+  <code>community.general.zpool</code> module was rejected for the creation and for the
+  comparison: on an existing pool it reconciles the layout with <code>zpool add</code> and
+  <code>zpool remove</code> for every difference, which turns a stale entry into a change
+  of a live pool, and it has no <code>attach</code>, <code>replace</code>, or <code>import</code>, which a mirror
+  conversion, a disk replacement, and a reinstalled node need (read in its
+  source at community.general 12.6.7, the first 12.x release with the fix of
+  <a href="https://github.com/ansible-collections/community.general/issues/10744">its comparison of <code>by-id</code> paths</a>,
+  which only unit tests cover). Every declared pool on <code>pve1</code> and <code>pve2</code> is a
+  single-disk vdev today, so a disk failure loses the pool's contents; the
+  intended layout is mirrored vdevs, and the second copies of what the pools
+  hold are tracked with it in the <a href="../#nas">specs todo list</a>. The role
+  enables each declared pool's <code>zfs-import@&lt;pool&gt;</code> systemd instance, which
+  imports the pool before <code>zfs-import.target</code>, so <code>zfs-mount.service</code> mounts its
+  datasets before <code>local-fs.target</code> and the guests that bind them start after
+  (Proxmox's guest start is ordered after <code>local-fs.target</code>); a pool without an
+  instance is imported only when Proxmox activates its storage, seconds after
+  the guests, which is how the <code>nas-pve1</code> container failed its boot-time start
+  on 2026-11-10 on <code>rpool-usb-2</code>. The role also fails on an enabled instance
+  whose pool the inventory does not declare.</li>
 <li><strong>Pools are split by data replaceability</strong> (decided 2026-09-26, pools created
   2026-10-10). On <code>pve1</code>, the 2 TB USB disk is the independent single-disk pool
   <code>rpool-usb-2</code>, for replaceable media only (<code>rpool-usb-2/media</code> backs the
