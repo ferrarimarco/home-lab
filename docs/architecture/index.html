@@ -2159,6 +2159,14 @@ reliability risks first, then security exposure, then automation):</p>
   2026-11-26 before the release upgrade of that day). First step: decide between
   declaring the serial device in the VM's Terraform resource and dropping the
   console parameter from the role.</li>
+<li><strong>hl02 logs a sound driver error at every boot (2026-11-26)</strong>: Proxmox gives
+  every <code>q35</code> VM an audio controller with no codec
+  (<code>/usr/share/qemu-server/pve-q35-4.0.cfg</code> on the node), and the kernel reports
+  it once per boot (<code>journalctl -b -k -p err</code> on hl02:
+  <code>snd_hda_intel ... no codecs found!</code>), on NixOS 25.11 and 26.05 alike. It is
+  harmless and it keeps the list of boot errors from being empty. First step:
+  blacklist the module in the <code>proxmox-vm</code> Nix role and confirm on the next boot
+  that the line is gone.</li>
 <li><strong>Recurring cam-3 ffmpeg VAAPI decode crashes on hl01</strong> (about 11 per hour:
   <code>Failed to sync surface</code> then <code>hwdownload</code> failures; they persist over RTSP
   TCP, so stream transport corruption is ruled out). Hardware acceleration stays
@@ -2992,6 +3000,15 @@ reliability risks first, then security exposure, then automation):</p>
 <h3 id="nas">NAS</h3>
 <p>Related specification: <a href="nas-lxc-container/">NAS LXC Container</a>.</p>
 <ul>
+<li><strong>The NAS containers compete as NetBIOS master browser (2026-11-26)</strong>: the
+  <code>nas</code> Nix role runs <code>nmbd</code> on both containers with the same workgroup and no
+  browser settings, and each logs the other's answer as an error
+  (<code>journalctl -t nmbd -p err</code> on either: "Multiple (2) responses received" for
+  the workgroup, 41 times on nas-pve1 in its boot of 2026-11-26 before the
+  release upgrade). The declared clients mount the shares by DNS name. First
+  step: check whether anything in the lab browses the shares over NetBIOS; if
+  nothing does, disable <code>nmbd</code> in the role, otherwise make one container the
+  preferred master.</li>
 <li><strong>Mirrored vdevs for the ZFS pools (intent recorded 2026-10-18)</strong>: every pool
   declared in <code>zfs_pools</code> on pve1 and pve2 is a single-disk vdev, so a disk
   failure loses the pool's contents (the second copies are <a href="#backup">Backup</a>

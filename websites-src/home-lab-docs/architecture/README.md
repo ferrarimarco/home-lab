@@ -92,6 +92,14 @@ reliability risks first, then security exposure, then automation):
   2026-11-26 before the release upgrade of that day). First step: decide between
   declaring the serial device in the VM's Terraform resource and dropping the
   console parameter from the role.
+- **hl02 logs a sound driver error at every boot (2026-11-26)**: Proxmox gives
+  every `q35` VM an audio controller with no codec
+  (`/usr/share/qemu-server/pve-q35-4.0.cfg` on the node), and the kernel reports
+  it once per boot (`journalctl -b -k -p err` on hl02:
+  `snd_hda_intel ... no codecs found!`), on NixOS 25.11 and 26.05 alike. It is
+  harmless and it keeps the list of boot errors from being empty. First step:
+  blacklist the module in the `proxmox-vm` Nix role and confirm on the next boot
+  that the line is gone.
 - **Recurring cam-3 ffmpeg VAAPI decode crashes on hl01** (about 11 per hour:
   `Failed to sync surface` then `hwdownload` failures; they persist over RTSP
   TCP, so stream transport corruption is ruled out). Hardware acceleration stays
@@ -898,6 +906,15 @@ reliability risks first, then security exposure, then automation):
 
 Related specification: [NAS LXC Container](./nas-lxc-container.md).
 
+- **The NAS containers compete as NetBIOS master browser (2026-11-26)**: the
+  `nas` Nix role runs `nmbd` on both containers with the same workgroup and no
+  browser settings, and each logs the other's answer as an error
+  (`journalctl -t nmbd -p err` on either: "Multiple (2) responses received" for
+  the workgroup, 41 times on nas-pve1 in its boot of 2026-11-26 before the
+  release upgrade). The declared clients mount the shares by DNS name. First
+  step: check whether anything in the lab browses the shares over NetBIOS; if
+  nothing does, disable `nmbd` in the role, otherwise make one container the
+  preferred master.
 - **Mirrored vdevs for the ZFS pools (intent recorded 2026-10-18)**: every pool
   declared in `zfs_pools` on pve1 and pve2 is a single-disk vdev, so a disk
   failure loses the pool's contents (the second copies are [Backup](#backup)
