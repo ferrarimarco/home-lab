@@ -4,3 +4,6 @@
 # value is declared with an empty value. The kernel reads the line at the next
 # boot, so a change reboots the host. Empty: nothing to write.
 proxmox_kernel_command_line_options: {}
+# The public keys that the cloud-init user data of a VM authorizes for its
+# default user: the keys the playbooks log in with.
+cloud_init_instance_ssh_authorized_keys: "{{ lookup('ansible.builtin.file', home_lab_node_ssh_public_key_path).splitlines() }}"

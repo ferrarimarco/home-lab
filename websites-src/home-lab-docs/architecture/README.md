@@ -365,12 +365,6 @@ reliability risks first, then security exposure, then automation):
   [release schedule](https://github.com/NixOS/nixpkgs/issues/567567), read on
   2026-11-23), for the second step. Blocks: the photo library rollout
   ([Backup](#backup)).
-- **Stop cloud-init from provisioning hl01 again at a start (2026-11-26)**: a
-  change to the VM's cloud-init snippets makes its next start a new instance, as
-  the
-  [Proxmox administration notes](../guides/operations/proxmox.md#a-changed-cloud-init-snippet-provisions-the-vm-again)
-  describe. First step: choose between rendering the snippets once and disabling
-  cloud-init on the provisioned VM, and record the choice in those notes.
 - **Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)**:
   pve1 boots a ZFS root through `proxmox-boot-tool` with systemd-boot, which
   keeps every ESP in sync and takes the kernel command line from

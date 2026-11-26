@@ -13,10 +13,16 @@
     - path: "{{ proxmox_raws_directory_path }}"
     - path: "{{ proxmox_snippets_directory_path }}"
 
+# The snippets seed the first boot of a VM. Proxmox derives the cloud-init
+# instance identifier from their content, so a rewritten snippet makes the
+# VM's next start a new instance, which cloud-init provisions again (the
+# Proxmox administration notes describe what that does). They are rendered
+# only when absent: deleting one renders it again at the next run.
 - name: Render cloud-init network snippets
   ansible.builtin.template:
     src: templates/cloud-init/network.yaml.jinja
     dest: "{{ proxmox_snippets_directory_path }}/cloud-init-{{ item.hostname }}-network.yaml"
+    force: false
     owner: root
     group: root
     mode: "0644"
@@ -29,6 +35,7 @@
   ansible.builtin.template:
     src: templates/cloud-init/user-data.yaml.jinja
     dest: "{{ proxmox_snippets_directory_path }}/cloud-init-{{ item.hostname }}-user-data.yaml"
+    force: false
     owner: root
     group: root
     mode: "0644"
@@ -36,6 +43,34 @@
   vars:
     cloud_init_instance_hostname: "{{ item.hostname }}"
   with_items: "{{ proxmox_vms | default([]) }}"
+
+- name: Read the cloud-init snippets
+  ansible.builtin.stat:
+    path: "{{ proxmox_snippets_directory_path }}/cloud-init-{{ item.0.hostname }}-{{ item.1 }}.yaml"
+  become: true
+  register: proxmox_cloud_init_snippets
+  loop: "{{ proxmox_vms | default([]) | product(['network', 'user-data']) | list }}"
+  loop_control:
+    label: "{{ item.0.hostname }} {{ item.1 }}"
+
+# A seed that the inventory or the templates have moved away from stays as it
+# is, and a VM rebuilt from it would get the old data: say so in every run.
+- name: Report the cloud-init snippets that differ from what the role would render now
+  ansible.builtin.debug:
+    msg: >-
+      {{ item.stat.path }} differs from what the role would render now and
+      stays as it is. Delete it before rebuilding the VM, or to provision the
+      VM again at its next start.
+  when:
+    - item.stat.exists
+    - item.stat.checksum != lookup('ansible.builtin.template', 'cloud-init/' ~ item.item.1 ~ '.yaml.jinja', template_vars=proxmox_cloud_init_template_vars) | hash('sha1')
+  vars:
+    proxmox_cloud_init_template_vars:
+      cloud_init_instance_hostname: "{{ item.item.0.hostname }}"
+      cloud_init_instance_mac_address: "{{ item.item.0.default_network_interface_mac_address }}"
+  loop: "{{ proxmox_cloud_init_snippets.results }}"
+  loop_control:
+    label: "{{ item.item.0.hostname }} {{ item.item.1 }}"
 
 - name: Download images and disks
   ansible.builtin.get_url:

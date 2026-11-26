@@ -1,0 +1,30 @@
+---
+# The Proxmox role renders a cloud-init snippet only when it is absent, since
+# a rewritten one makes the VM provision itself again at its next start. This
+# playbook seeds the user data of one of the instance's two VMs before the
+# role runs, so that the verify playbook can tell a kept seed from a rendered
+# one.
+- name: Import the scenario's prepare playbook
+  ansible.builtin.import_playbook: prepare.yml
+
+- name: Seed the user data of a VM
+  hosts: proxmox
+  gather_facts: false
+  tasks:
+    - name: Create the snippets directory
+      ansible.builtin.file:
+        path: /var/lib/vz/snippets
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      become: true
+
+    - name: Write the user data that the role must keep
+      ansible.builtin.copy:
+        content: "seeded before the role ran\n"
+        dest: /var/lib/vz/snippets/cloud-init-seeded-vm-user-data.yaml
+        owner: root
+        group: root
+        mode: "0644"
+      become: true

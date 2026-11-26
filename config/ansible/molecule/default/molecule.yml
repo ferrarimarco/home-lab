@@ -226,6 +226,17 @@ provisioner:
         configure_monitoring_apt: false
         configure_monitoring_sata: false
         monitoring_textfile_collector_directory: /var/lib/prometheus/node-exporter
+        # Two VMs for the cloud-init snippets of the Proxmox role. The prepare
+        # playbook of the proxmox-node job seeds the user data of the first,
+        # which the role must leave as it is; the role renders the others.
+        # The key is set here because the instances have no key file.
+        cloud_init_instance_ssh_authorized_keys:
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMoleculeScenarioPlaceholderKeyNotARealOne00 test
+        proxmox_vms:
+          - hostname: seeded-vm
+            default_network_interface_mac_address: "12:34:56:78:90:b1"
+          - hostname: fresh-vm
+            default_network_interface_mac_address: "12:34:56:78:90:b2"
         # A USB bridge entry, so the monitoring role renders and validates
         # the local drive database; the other instance removes the file
         monitoring_smartmontools_usb_bridges:

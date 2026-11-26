@@ -43,11 +43,31 @@ is the SHA-1 of its user data followed by its network data (read in
 cloud-init drive at every start. cloud-init treats a new identifier as a new
 machine and runs its per-instance modules again: it regenerates the SSH host
 keys, rewrites the authorized keys and `/etc/hosts`, and runs the package
-modules of the user data. The Proxmox role renders the snippets from the
-inventory, so a change that reaches one of them waits for the VM's next start.
+modules of the user data.
+
+The Proxmox role therefore treats the snippets as seeds: it renders one only
+when the file is absent, and reports, in check mode too, a snippet that differs
+from what it would render now. A change to the templates or to the inventory
+reaches a VM in two cases, both started by deleting its snippet on the node and
+running the Proxmox playbook:
+
+- Before the VM is rebuilt, so that the new VM is not provisioned with old data
+  (an authorized key that was rotated since).
+- To provision a running VM again at its next start, on purpose. The user data
+  sets `ssh_deletekeys: false`, so that such a VM keeps its SSH host keys;
+  whether the Debian cloud image carries host keys of its own, which that
+  setting would then keep on a new VM, was not checked: compare the dates of
+  `/etc/ssh/ssh_host_*` with the first boot on a rebuilt VM.
+
+Disabling cloud-init on a provisioned VM (`/etc/cloud/cloud-init.disabled`) was
+the alternative: it also ends the growth of the root filesystem at boot after a
+disk resize. A fixed identifier through a metadata snippet was the other: the
+Terraform provider replaces the VM when that file is set (`ForceNew`, read in
+its source at 0.111.1).
 
 hl01 went through this on 2026-11-26, at the first start since its user data
-changed on 2026-11-10 (the list of authorized keys). To read the state of a VM:
+changed on 2026-11-10 (the list of authorized keys), when the role still rewrote
+the snippets. To read the state of a VM:
 
 - The identifier the next start will use, on the node, against the one the guest
   holds: `cat <user data snippet> <network data snippet> | sha1sum` and

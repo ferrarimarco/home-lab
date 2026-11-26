@@ -2567,6 +2567,13 @@ only when its scope includes <code>untagged</code>.</p>
   turned off (2026-11-19). The Compose stop and start of a stack restore, a
   restore from another host's repository, and the unit restarts stay untested:
   they carry the <code>molecule-notest</code> tag or need a second repository.</li>
+<li><code>proxmox-node</code> has a prepare and a verify playbook for the cloud-init snippets
+  of the Proxmox role, which the role renders only when they are absent, as the
+  <a href="../../operations/proxmox/#a-changed-cloud-init-snippet-provisions-the-vm-again">Proxmox administration notes</a>
+  explain. The scenario declares two VMs for the node-shaped instance; the
+  prepare playbook seeds the user data of the first, and the verify playbook
+  asserts that the seed is intact and what the role rendered for the other. The
+  assertion on the seed failed in a run with the setting removed (2026-11-26).</li>
 <li><code>update-os-packages</code> has a verify playbook for the guards of the
   <a href="../../../architecture/os-package-upgrades/">OS package upgrades spec</a>, which
   must fail a run, and a failed play cannot be caught by the playbook that

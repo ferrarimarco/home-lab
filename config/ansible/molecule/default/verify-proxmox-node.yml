@@ -1,0 +1,37 @@
+---
+# What the passes before this one cannot show: that the role left the seeded
+# user data as it was, and what it rendered for the VM that had none.
+# Molecule passes the test's tag scope to this playbook, and a scope without
+# untagged would skip every assertion: the play has the always tag.
+- name: Check the cloud-init snippets of the Proxmox role
+  hosts: proxmox
+  gather_facts: false
+  tags:
+    - always
+  tasks:
+    - name: Read the snippets
+      ansible.builtin.slurp:
+        src: "/var/lib/vz/snippets/cloud-init-{{ item }}.yaml"
+      become: true
+      register: proxmox_test_snippets
+      loop:
+        - seeded-vm-user-data
+        - seeded-vm-network
+        - fresh-vm-user-data
+        - fresh-vm-network
+
+    - name: Check the seed that was kept and the snippets that were rendered
+      ansible.builtin.assert:
+        that:
+          - proxmox_test_seeded_user_data == "seeded before the role ran\n"
+          - "'macaddress: 12:34:56:78:90:b1' in proxmox_test_seeded_network"
+          - "'hostname: fresh-vm' in proxmox_test_fresh_user_data"
+          - "'ssh_deletekeys: false' in proxmox_test_fresh_user_data"
+          - "'MoleculeScenarioPlaceholderKeyNotARealOne00 test' in proxmox_test_fresh_user_data"
+          - "'locale:' not in proxmox_test_fresh_user_data"
+          - "'macaddress: 12:34:56:78:90:b2' in proxmox_test_fresh_network"
+      vars:
+        proxmox_test_seeded_user_data: "{{ proxmox_test_snippets.results[0].content | b64decode }}"
+        proxmox_test_seeded_network: "{{ proxmox_test_snippets.results[1].content | b64decode }}"
+        proxmox_test_fresh_user_data: "{{ proxmox_test_snippets.results[2].content | b64decode }}"
+        proxmox_test_fresh_network: "{{ proxmox_test_snippets.results[3].content | b64decode }}"
