@@ -59,6 +59,12 @@ An item is work with a next step, and reads as one:
   without which the work cannot be done. An ordering preference (doing one item
   first because it shrinks another) is a plain sentence, not a dependency: a
   preference recorded as a dependency later has to be untangled.
+- When a prerequisite has several steps, both annotations name the step that
+  satisfies the dependency
+  (`Depends on: the NixOS release upgrade, its 26.11 step`, and
+  `Blocks: ..., until its 26.11 step` on the other side): the item's name alone
+  reads as met when its first step lands, while the condition (a version, a
+  feature) lives in the dependent's page.
 - `Waits on:` records what an item waits for outside the list (an upstream
   release, a host event, a measurement window), and names the event in the words
   the change that brings it would use: `Waits on: the raspberrypi2 re-image`,

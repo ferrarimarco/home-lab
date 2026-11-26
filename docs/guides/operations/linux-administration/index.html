@@ -1857,6 +1857,10 @@ as SSH stored it; <code>-f</code> selects a known hosts file other than
 entry for a mismatch. For an unknown host, connect once with
 <code>-o StrictHostKeyChecking=accept-new</code>; for a mismatch, find out why the key
 changed before touching the known hosts file.</p>
+<p>A host whose key was accepted under another name (its short hostname, an
+address) is still unknown under the name in use. Compare the stored key with the
+one the host offers (<code>ssh-keygen -F &lt;other name&gt;</code> against <code>ssh-keyscan &lt;fqdn&gt;</code>),
+and record it with <code>accept-new</code> when they match.</p>
 <h2 id="debian">Debian</h2>
 <h3 id="os-package-management">OS package management</h3>
 <ul>

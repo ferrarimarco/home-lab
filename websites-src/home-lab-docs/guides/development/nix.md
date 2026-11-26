@@ -135,7 +135,8 @@ modules read it to keep those layouts, so raising it upgrades nothing.
 - A failed switch is not retried. The alert gauge `comin_last_deployment_failed`
   returns to 0 when comin restarts, while `comin status` and
   `comin_deployment_info` keep the failed record until the next deployment that
-  changes the host.
+  changes the host. comin's records name the tip of the branch it fetched, which
+  is not always the commit that changed the host's system.
 
 ### The upgrade from 25.11 to 26.05
 

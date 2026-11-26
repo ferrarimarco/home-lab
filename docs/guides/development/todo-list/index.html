@@ -1884,6 +1884,12 @@ host's state, a vault variable, a measurement) names the command that checks it.
   without which the work cannot be done. An ordering preference (doing one item
   first because it shrinks another) is a plain sentence, not a dependency: a
   preference recorded as a dependency later has to be untangled.</li>
+<li>When a prerequisite has several steps, both annotations name the step that
+  satisfies the dependency
+  (<code>Depends on: the NixOS release upgrade, its 26.11 step</code>, and
+  <code>Blocks: ..., until its 26.11 step</code> on the other side): the item's name alone
+  reads as met when its first step lands, while the condition (a version, a
+  feature) lives in the dependent's page.</li>
 <li><code>Waits on:</code> records what an item waits for outside the list (an upstream
   release, a host event, a measurement window), and names the event in the words
   the change that brings it would use: <code>Waits on: the raspberrypi2 re-image</code>,

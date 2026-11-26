@@ -2065,11 +2065,13 @@ configuration gap, not an outage.</p>
 availability alerts by design. Silence them for the duration of the planned
 downtime instead of changing the alert rules:</p>
 <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>pi@raspberrypi2.edge.lab.ferrari.how<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>alertmanager<span class="w"> </span>amtool<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--alertmanager.url<span class="o">=</span>http://localhost:9093<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>silence<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;instance=~\&quot;pve1.*\&quot;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--duration<span class="o">=</span>4h<span class="w"> </span>--author<span class="o">=</span>ferrarimarco<span class="w"> </span>--comment<span class="o">=</span><span class="s2">&quot;Planned maintenance&quot;</span>
+<span class="w">  </span><span class="s1">&#39;docker exec alertmanager amtool \</span>
+<span class="s1">  --alertmanager.url=http://localhost:9093 \</span>
+<span class="s1">  silence add &quot;instance=~\&quot;pve1.*\&quot;&quot; \</span>
+<span class="s1">  --duration=4h --author=ferrarimarco --comment=&quot;Planned maintenance&quot;&#39;</span>
 </code></pre></div>
+<p>The remote command is one quoted string: passed as separate arguments, the
+matcher loses its quotes and the comment splits at its space.</p>
 <p>List and expire silences with <code>amtool silence query</code> and
 <code>amtool silence expire &lt;id&gt;</code> through the same invocation pattern.</p>
 <p>Size a silence past the alert's own duration, not just past the maintenance:

@@ -39,6 +39,11 @@ entry for a mismatch. For an unknown host, connect once with
 `-o StrictHostKeyChecking=accept-new`; for a mismatch, find out why the key
 changed before touching the known hosts file.
 
+A host whose key was accepted under another name (its short hostname, an
+address) is still unknown under the name in use. Compare the stored key with the
+one the host offers (`ssh-keygen -F <other name>` against `ssh-keyscan <fqdn>`),
+and record it with `accept-new` when they match.
+
 ## Debian
 
 ### OS package management

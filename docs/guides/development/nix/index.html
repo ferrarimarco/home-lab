@@ -1962,7 +1962,8 @@ its download size.</p>
 <li>A failed switch is not retried. The alert gauge <code>comin_last_deployment_failed</code>
   returns to 0 when comin restarts, while <code>comin status</code> and
   <code>comin_deployment_info</code> keep the failed record until the next deployment that
-  changes the host.</li>
+  changes the host. comin's records name the tip of the branch it fetched, which
+  is not always the commit that changed the host's system.</li>
 </ul>
 <h3 id="the-upgrade-from-2511-to-2605">The upgrade from 25.11 to 26.05</h3>
 <p>Applied on 2026-11-26 to hl02, nas-pve1, and nas-pve2, with no change to the

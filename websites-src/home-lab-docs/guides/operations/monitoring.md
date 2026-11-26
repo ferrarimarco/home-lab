@@ -53,11 +53,14 @@ downtime instead of changing the alert rules:
 
 ```shell
 ssh pi@raspberrypi2.edge.lab.ferrari.how \
-  docker exec alertmanager amtool \
+  'docker exec alertmanager amtool \
   --alertmanager.url=http://localhost:9093 \
   silence add "instance=~\"pve1.*\"" \
-  --duration=4h --author=ferrarimarco --comment="Planned maintenance"
+  --duration=4h --author=ferrarimarco --comment="Planned maintenance"'
 ```
+
+The remote command is one quoted string: passed as separate arguments, the
+matcher loses its quotes and the comment splits at its space.
 
 List and expire silences with `amtool silence query` and
 `amtool silence expire <id>` through the same invocation pattern.

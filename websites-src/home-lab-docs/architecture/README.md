@@ -378,7 +378,8 @@ reliability risks first, then security exposure, then automation):
   also replaces the failed deployment that comin still shows on hl02 and
   nas-pve1. Waits on: the NixOS 26.11 release (planned for 2026-11-30 in the
   [release schedule](https://github.com/NixOS/nixpkgs/issues/567567), read on
-  2026-11-23). Blocks: the photo library rollout ([Backup](#backup)).
+  2026-11-23). Blocks: the photo library rollout ([Backup](#backup)), until its
+  26.11 step.
 - **Refresh hl01's cloud-init seed at its next planned restart (2026-11-26)**:
   the user data snippet of hl01 on pve1 is older than its template, as the
   Proxmox playbook reports at every run, so a rebuilt hl01 would be provisioned
@@ -848,7 +849,8 @@ reliability risks first, then security exposure, then automation):
   imports and the remaining checks, the files of the other machine included; the
   phones; the backup job with its share on nas-pve1; the operations guide. The
   first two steps need no guest. Depends on: the NixOS release upgrade
-  ([Host configuration](#host-configuration)), for the guest and what follows.
+  ([Host configuration](#host-configuration)), its 26.11 step, for the guest and
+  what follows.
 - **Free Google storage before the quota fills (2026-11-23)**: the account that
   holds most of the photos was at 93% of its quota on 2026-11-23, and Gmail and
   Drive share that quota with Google Photos. Once the spec's rule allows it (the
