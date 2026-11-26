@@ -578,14 +578,19 @@ only when its scope includes `untagged`.
   `ansible-playbook` commands on the controller, with the inventory and the
   configuration that Molecule exports to the playbooks it runs
   (`MOLECULE_INVENTORY_FILE`, `ANSIBLE_CONFIG`). The assertions read the exit
-  status, the output, and the packages on the instance, for four runs: in check
+  status, the output, and the packages on the instance, for six runs: in check
   mode (the failure is reported and the second instance is reviewed; it is the
   first run after the fixture, so the guard fires only when the check run
   refreshes the lists), without an approval (the guard fails the first instance
   and the second never starts), with an approval for both instances (the
-  one-host rule fails the run), and with an approval for one (the upgrade
-  removes the package). With the `debug` callback the task results are on the
-  standard output and the failure messages on the standard error.
+  one-host rule fails the run), with an approval for one (the upgrade removes
+  the package), and two with the reboot-required flag set on the second
+  instance, where stand-ins for `pvesh` and `zpool` answer that the node has no
+  guest and no pool: in check mode (the flag is reported and nothing reboots)
+  and for real (the run fails before the silences and the reboot, since the
+  first instance, the only monitoring replica of the test inventory, runs no
+  Alertmanager). With the `debug` callback the task results are on the standard
+  output and the failure messages on the standard error.
 
 ### The bootstrap role runs once per playbook run
 
@@ -746,9 +751,10 @@ repository, and warns that it cannot decrypt them.
   task of its own that runs in both modes: a check run on a host that was off
   simulates the upgrade against what the repositories hold now (pve2's lists
   were 25 days old on 2026-11-16). With `--diff`, that check run prints apt's
-  simulated upgrade, the removals included, and the verdict of the removal guard
+  simulated upgrade, the removals included, the verdict of the removal guard
   that the [OS package upgrades spec](../../architecture/os-package-upgrades.md)
-  describes: the review a manual `apt full-upgrade --simulate` would give.
+  describes, and the state of the reboot-required flag: the review a manual
+  `apt full-upgrade --simulate` would give, and whether a reboot follows.
 - Design tasks so check mode runs cleanly and truthfully on first runs:
   state-query tasks carry `changed_when: false` and `check_mode: false`, and
   later tasks tolerate resources that an earlier task would have created.

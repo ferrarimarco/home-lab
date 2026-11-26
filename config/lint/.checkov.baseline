@@ -91,6 +91,40 @@
                     ]
                 }
             ]
+        },
+        {
+            "file": "/config/ansible/roles/ferrarimarco_home_lab_update_os_packages/tasks/reboot.yaml",
+            "findings": [
+                {
+                    "resource": "tasks.ansible.builtin.uri.Ask the monitoring replicas that stay up for their status",
+                    "check_ids": [
+                        "CKV2_ANSIBLE_1"
+                    ]
+                },
+                {
+                    "resource": "tasks.ansible.builtin.uri.Read the alerts that are active before the silences",
+                    "check_ids": [
+                        "CKV2_ANSIBLE_1"
+                    ]
+                },
+                {
+                    "resource": "block.Reboot the host behind its silences",
+                    "check_ids": [
+                        "CKV2_ANSIBLE_3"
+                    ]
+                }
+            ]
+        },
+        {
+            "file": "/config/ansible/roles/ferrarimarco_home_lab_update_os_packages/tasks/verify.yaml",
+            "findings": [
+                {
+                    "resource": "tasks.ansible.builtin.uri.Read the alerts that the silences suppress",
+                    "check_ids": [
+                        "CKV2_ANSIBLE_1"
+                    ]
+                }
+            ]
         }
     ]
 }

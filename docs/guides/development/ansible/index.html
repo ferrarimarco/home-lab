@@ -2582,14 +2582,19 @@ only when its scope includes <code>untagged</code>.</p>
   <code>ansible-playbook</code> commands on the controller, with the inventory and the
   configuration that Molecule exports to the playbooks it runs
   (<code>MOLECULE_INVENTORY_FILE</code>, <code>ANSIBLE_CONFIG</code>). The assertions read the exit
-  status, the output, and the packages on the instance, for four runs: in check
+  status, the output, and the packages on the instance, for six runs: in check
   mode (the failure is reported and the second instance is reviewed; it is the
   first run after the fixture, so the guard fires only when the check run
   refreshes the lists), without an approval (the guard fails the first instance
   and the second never starts), with an approval for both instances (the
-  one-host rule fails the run), and with an approval for one (the upgrade
-  removes the package). With the <code>debug</code> callback the task results are on the
-  standard output and the failure messages on the standard error.</li>
+  one-host rule fails the run), with an approval for one (the upgrade removes
+  the package), and two with the reboot-required flag set on the second
+  instance, where stand-ins for <code>pvesh</code> and <code>zpool</code> answer that the node has no
+  guest and no pool: in check mode (the flag is reported and nothing reboots)
+  and for real (the run fails before the silences and the reboot, since the
+  first instance, the only monitoring replica of the test inventory, runs no
+  Alertmanager). With the <code>debug</code> callback the task results are on the standard
+  output and the failure messages on the standard error.</li>
 </ul>
 <h3 id="the-bootstrap-role-runs-once-per-playbook-run">The bootstrap role runs once per playbook run</h3>
 <p>The container engine, Proxmox node, and Coral playbooks import the bootstrap
@@ -2753,9 +2758,10 @@ repository, and warns that it cannot decrypt them.</p>
   task of its own that runs in both modes: a check run on a host that was off
   simulates the upgrade against what the repositories hold now (pve2's lists
   were 25 days old on 2026-11-16). With <code>--diff</code>, that check run prints apt's
-  simulated upgrade, the removals included, and the verdict of the removal guard
+  simulated upgrade, the removals included, the verdict of the removal guard
   that the <a href="../../../architecture/os-package-upgrades/">OS package upgrades spec</a>
-  describes: the review a manual <code>apt full-upgrade --simulate</code> would give.</li>
+  describes, and the state of the reboot-required flag: the review a manual
+  <code>apt full-upgrade --simulate</code> would give, and whether a reboot follows.</li>
 <li>Design tasks so check mode runs cleanly and truthfully on first runs:
   state-query tasks carry <code>changed_when: false</code> and <code>check_mode: false</code>, and
   later tasks tolerate resources that an earlier task would have created.</li>

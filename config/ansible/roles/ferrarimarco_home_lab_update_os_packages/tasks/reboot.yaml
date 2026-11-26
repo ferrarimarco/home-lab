@@ -1,0 +1,119 @@
+---
+# The reboot of a host whose reboot-required flag is set, with the silences
+# and the verification that the OS package upgrades spec describes. Nothing
+# here runs in check mode.
+
+# Three lines: the boot ID, the kernel release, and the kernel version
+- name: Read the boot state before the reboot
+  ansible.builtin.command:
+    argv:
+      - cat
+      - /proc/sys/kernel/random/boot_id
+      - /proc/sys/kernel/osrelease
+      - /proc/sys/kernel/version
+  changed_when: false
+  register: update_os_packages_boot_state_before
+
+- name: List the guests of the node before the reboot
+  ansible.builtin.command:
+    argv: "{{ update_os_packages_guests_command }}"
+  become: true
+  changed_when: false
+  register: update_os_packages_guests_before
+  when: is_proxmox_node | default(false)
+
+- name: List the ZFS pools of the node before the reboot
+  ansible.builtin.command:
+    argv: "{{ update_os_packages_pools_command }}"
+  become: true
+  changed_when: false
+  register: update_os_packages_pools_before
+  when: is_proxmox_node | default(false)
+
+# A replica that cannot be reached would drop this host from the play, and
+# one that does not answer would fail it: the verdict is the next tasks'.
+- name: Ask the monitoring replicas that stay up for their status
+  ansible.builtin.uri:
+    url: "{{ update_os_packages_alertmanager_api_url }}/status"
+  delegate_to: "{{ item }}"
+  loop: "{{ update_os_packages_replica_candidates }}"
+  failed_when: false
+  ignore_unreachable: true
+  register: update_os_packages_replica_probes
+
+- name: Select the monitoring replica that takes the silences
+  ansible.builtin.set_fact:
+    update_os_packages_replica: >-
+      {{ update_os_packages_replica_probes.results | selectattr('status', 'defined')
+      | selectattr('status', 'equalto', 200) | map(attribute='item') | first | default('') }}
+
+- name: Check that a monitoring replica stays up through the reboot
+  ansible.builtin.assert:
+    that:
+      - update_os_packages_replica | length > 0
+    fail_msg: >-
+      No monitoring replica other than {{ update_os_packages_silenced_hosts | join(', ') }} answers on its
+      Alertmanager port
+      (asked: {{ update_os_packages_replica_candidates | join(', ') | default('none', true) }}):
+      the reboot of {{ inventory_hostname }} would go unsilenced, or take the last replica down.
+      Its reboot-required flag stays set.
+
+- name: Read the alerts that are active before the silences
+  ansible.builtin.uri:
+    url: "{{ update_os_packages_alertmanager_api_url }}/alerts"
+  delegate_to: "{{ update_os_packages_replica }}"
+  register: update_os_packages_alerts_before
+
+- name: Reboot the host behind its silences
+  block:
+    - name: Silence the alerts of the reboot
+      ansible.builtin.uri:
+        url: "{{ update_os_packages_alertmanager_api_url }}/silences"
+        method: POST
+        body_format: json
+        body:
+          matchers: "{{ item.matchers }}"
+          startsAt: "{{ '%Y-%m-%dT%H:%M:%SZ' | strftime(update_os_packages_silence_start | int, utc=true) }}"
+          endsAt: >-
+            {{ '%Y-%m-%dT%H:%M:%SZ'
+            | strftime((update_os_packages_silence_start | int) + (item.duration | int), utc=true) }}
+          createdBy: update-os-packages
+          comment: "Reboot of {{ inventory_hostname_short }} after the OS package upgrade"
+      vars:
+        update_os_packages_silence_start: "{{ now(utc=true).timestamp() | int }}"
+      delegate_to: "{{ update_os_packages_replica }}"
+      loop: "{{ update_os_packages_silences | selectattr('enabled') }}"
+      loop_control:
+        label: "{{ item.name }}"
+      changed_when: true
+      register: update_os_packages_silences_added
+
+    - name: Reboot the host
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: "{{ update_os_packages_reboot_timeout }}"
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: whoami
+      become: true
+
+    - name: Verify the host after the reboot
+      ansible.builtin.include_tasks:
+        file: verify.yaml
+
+  # Whether the verification passed or failed, so that whatever is still
+  # broken notifies. A host that cannot be reached leaves the play before
+  # this, and its silences end on their own.
+  always:
+    - name: Expire the silences that end with the verification
+      ansible.builtin.uri:
+        url: "{{ update_os_packages_alertmanager_api_url }}/silence/{{ item.json.silenceID }}"
+        method: DELETE
+      delegate_to: "{{ update_os_packages_replica }}"
+      loop: >-
+        {{ update_os_packages_silences_added.results | default([]) | selectattr('json.silenceID', 'defined')
+        | selectattr('item.expire') }}
+      loop_control:
+        label: "{{ item.item.name }}"
+      changed_when: true

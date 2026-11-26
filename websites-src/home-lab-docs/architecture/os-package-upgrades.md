@@ -2,15 +2,15 @@
 
 ## Implementation Status
 
-| Component / Feature                    | Status                    | Details                                                                                                                                                                                                                                                                           |
-| :------------------------------------- | :------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Upgrade run**                        | **Fully Implemented**     | The detached `dist-upgrade` of the `update-os-packages.yaml` playbook, followed by autoremove and autoclean as steps of their own; the play can lose the job while the host finishes it, as the Linux administration notes describe.                                              |
-| **Review by check run**                | **Partially Implemented** | The check run refreshes the lists and prints apt's plan and the verdict of the removal guard; it does not report the reboot-required flag. Run on the four Debian hosts (2026-11-26), on pve2 after four days off.                                                                |
-| **One host at a time**                 | **Fully Implemented**     | The play is serial and leaves out the NixOS hosts by group; the Molecule job shows a failed host ending the run before the next one. On the real hosts, a check run with pve2 off ended before the next host, and one run took raspberrypi2, pve1, and hl01 in turn (2026-11-26). |
-| **Removal guard**                      | **Fully Implemented**     | Reads the removals and the purges from apt's simulated plan; the Molecule job has a run where the guard fires, one where the one-host rule fires, a check run that goes on, and an approved run. On the real hosts it has only passed plans without removals (2026-11-26).        |
-| **Reboot on the reboot-required flag** | **Missing**               | The reboot is a manual step after the run.                                                                                                                                                                                                                                        |
-| **Downtime silences**                  | **Missing**               | Added by hand, as the monitoring guide describes.                                                                                                                                                                                                                                 |
-| **Post-reboot verification**           | **Missing**               | Done by hand: the host checks on every Debian host, the guests and the pools on the Proxmox nodes.                                                                                                                                                                                |
+| Component / Feature                    | Status                    | Details                                                                                                                                                                                                                                                                                                                             |
+| :------------------------------------- | :------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Upgrade run**                        | **Fully Implemented**     | The detached `dist-upgrade` of the `update-os-packages.yaml` playbook, followed by autoremove and autoclean as steps of their own; the play can lose the job while the host finishes it, as the Linux administration notes describe.                                                                                                |
+| **Review by check run**                | **Fully Implemented**     | The check run refreshes the lists and prints apt's plan, the verdict of the removal guard, and the state of the reboot-required flag with the kernel packages in the plan; the Molecule job has a check run with the flag set. Run on the four Debian hosts (2026-11-26), on pve2 after four days off, before it reported the flag. |
+| **One host at a time**                 | **Fully Implemented**     | The play is serial and leaves out the NixOS hosts by group; the Molecule job shows a failed host ending the run before the next one. On the real hosts, a check run with pve2 off ended before the next host, and one run took raspberrypi2, pve1, and hl01 in turn (2026-11-26).                                                   |
+| **Removal guard**                      | **Fully Implemented**     | Reads the removals and the purges from apt's simulated plan; the Molecule job has a run where the guard fires, one where the one-host rule fires, a check run that goes on, and an approved run. On the real hosts it has only passed plans without removals (2026-11-26).                                                          |
+| **Reboot on the reboot-required flag** | **Partially Implemented** | The run reboots a host whose flag is set, once a monitoring replica that stays up has answered; the Molecule job has a run that fails before the reboot because none does. Not yet run on a real host.                                                                                                                              |
+| **Downtime silences**                  | **Partially Implemented** | Added through the Alertmanager API of the replica that stays up, and the first two expired after the verification. No test covers them: not yet run on a real host.                                                                                                                                                                 |
+| **Post-reboot verification**           | **Partially Implemented** | The boot, unit, guest, pool, alert, and kernel checks. No test covers them: not yet run on a real host.                                                                                                                                                                                                                             |
 
 ## Goal
 
@@ -82,11 +82,12 @@ A check run of the playbook with `--diff` is the review. Like the real run, it
 starts by refreshing the package lists, as a step of its own, so that a host
 that was off is reviewed against what the repositories hold now. It then prints
 apt's simulated plan, the removals included, and the state of the host's
-reboot-required flag. Apart from the lists, it changes nothing (no silence, no
-reboot). A kernel in the plan means a reboot will follow the real run. The real
-run refreshes the lists again, so its plan is newer than the reviewed one by the
-time between the two runs; the removal guard, which simulates after that
-refresh, covers what matters in that gap.
+reboot-required flag, with the kernel packages of the plan. Apart from the
+lists, it changes nothing (no silence, no reboot). A kernel in the plan means a
+reboot will follow the real run. The real run refreshes the lists again, so its
+plan is newer than the reviewed one by the time between the two runs; the
+removal guard, which simulates after that refresh, covers what matters in that
+gap.
 
 ### One host at a time
 
@@ -124,8 +125,10 @@ practical.
 ### Reboot
 
 After the upgrade, the run reboots the host when its reboot-required flag is
-set, whatever set it. A second run therefore finishes a run that was interrupted
-before its reboot, once apt on the host is idle (the
+set, whatever set it, and waits for it to answer again for
+`update_os_packages_reboot_timeout` (ten minutes by default). A second run
+therefore finishes a run that was interrupted before its reboot, once apt on the
+host is idle (the
 [Linux administration notes](../guides/operations/linux-administration.md#release-upgrade)
 describe how to read a job the play lost), and a run on a host with nothing to
 upgrade performs the reboot that the `RebootRequired` alert asks for. The flag
@@ -153,14 +156,15 @@ describes for planned downtime:
 - A silence for `UnexpectedReboot` on the same instances for 90 minutes, since
   that alert fires for an hour after the boot.
 - When the host or one of its guests is a monitoring replica, a silence for
-  `PrometheusNotificationsErroring`, by its alert name, for the duration of the
-  reboot plus 20 minutes: the replica that stays up cannot reach the other's
+  `PrometheusNotificationsErroring`, by its alert name, for the reboot timeout
+  plus 20 minutes: the replica that stays up cannot reach the other's
   Alertmanager, and its alert looks back 15 minutes. Without it the reboot of
   pve1 notified (2026-11-26); with it the reboot of raspberrypi2 did not.
 
-A run that dies leaves the first two silences to end on their own: for at most
-their duration, a real outage of those instances, or a probe failure anywhere,
-is not notified.
+A run that dies leaves the first two silences to end on their own, and so does a
+host that cannot be reached after its reboot, which leaves the play before the
+expiry: for at most their duration, a real outage of those instances, or a probe
+failure anywhere, is not notified.
 
 ### Verification
 
@@ -168,33 +172,45 @@ After the reboot the run fails the host unless all of these hold, each check
 retried until it holds or `update_os_packages_verification_wait` ends (ten
 minutes by default), since the guests start in order after the boot:
 
-- The boot time changed, and no systemd unit is in the failed state.
+- The boot ID changed, the boot finished, and no systemd unit is in the failed
+  state.
 - On a Proxmox node, every guest that was running and every ZFS pool that was
   imported before the reboot is back, compared from the listings saved before
   it.
 - No alert is suppressed by the run's silences other than `UnexpectedReboot` and
-  the alerts that were already active before them, compared from the list saved
-  then; the failure names the new ones.
+  `PrometheusNotificationsErroring`, which fire by design after a reboot (the
+  second looks back longer than the wait), and the alerts that were already
+  active before the silences, compared from the list saved then; the failure
+  names the new ones.
 
-The run reports the running kernel before and after, and fails the host when a
-kernel package was among those that set the reboot-required flag and the running
-kernel did not change: the flag is gone after any reboot, so nothing else
-reports a host that keeps booting its old kernel, as raspberrypi2 did without
-its firmware package (2026-11-26). The broad silence and the probe silence are
-expired at the end of each host's verification, whether it passed or failed, so
-that whatever is still broken notifies.
+The run reports the running kernel before and after, and fails the host when the
+packages that set the reboot-required flag hold a kernel newer than the running
+one, of the same flavor, and the running kernel did not change: the flag is gone
+after any reboot, so nothing else reports a host that keeps booting its old
+kernel, as raspberrypi2 did without its firmware package (2026-11-26). A kernel
+package among those that set the flag is not enough to fail the host: a Proxmox
+node keeps older kernel series installed, as the
+[Proxmox administration notes](../guides/operations/proxmox.md#old-kernel-series-stay-installed)
+explain, and an update to one of them sets the flag while the node goes on
+booting the series it runs. Such an update still costs the node a reboot that
+changes nothing. The broad silence and the probe silence are expired at the end
+of each host's verification, whether it passed or failed, so that whatever is
+still broken notifies.
 
 ## Testing
 
 The Molecule job of the playbook is its only automated test, and its instances
 are containers. It covers the serial processing, the removal guard, and the
 one-host rule for named removals, each guard with a case where it must fire and
-a clean one. An instance cannot reboot and has no monitoring replica, so the
-reboot, the silences, and the verification are exercised by runs on real hosts
-only: their status rows carry that caveat until such a run has shown each of
-them, and each check that can fail a host there (no replica answering, a guest
-or a pool missing after the reboot, a new alert) gets a run where it must fire,
-with the condition injected.
+a clean one, and two runs with the reboot-required flag set on an instance: a
+check run, which reports the flag and reboots nothing, and a real run, which
+fails before the silences and the reboot because the only monitoring replica of
+the test inventory runs no Alertmanager. An instance cannot reboot and no
+replica answers there, so the silences, the reboot, and the verification are
+exercised by runs on real hosts only: their status rows carry that caveat until
+such a run has shown each of them, and each check that can fail a host there (a
+guest or a pool missing after the reboot, a new alert, a kernel that did not
+change) gets a run where it must fire, with the condition injected.
 
 ## Detection
 

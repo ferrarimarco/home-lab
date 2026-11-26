@@ -1,0 +1,134 @@
+---
+# The checks that fail a host after its reboot. Each is retried, since the
+# units and the guests start in order after the boot; a check that names what
+# is missing reads the state in a task that goes on after its last retry and
+# gives the verdict in the next one.
+
+- name: Read the boot state after the reboot
+  ansible.builtin.command:
+    argv:
+      - cat
+      - /proc/sys/kernel/random/boot_id
+      - /proc/sys/kernel/osrelease
+      - /proc/sys/kernel/version
+  changed_when: false
+  register: update_os_packages_boot_state_after
+
+- name: Check that the host booted again
+  ansible.builtin.assert:
+    that:
+      - update_os_packages_boot_state_after.stdout_lines[0] != update_os_packages_boot_state_before.stdout_lines[0]
+    fail_msg: "The boot ID of {{ inventory_hostname }} did not change: the host did not reboot."
+
+# The systemd module starts, stops, and enables units: it does not report the
+# state of the boot
+- name: Wait for the boot to finish # noqa: command-instead-of-module
+  ansible.builtin.command:
+    argv:
+      - systemctl
+      - is-system-running
+  changed_when: false
+  failed_when: false
+  register: update_os_packages_system_state
+  until: update_os_packages_system_state.stdout in ['running', 'degraded']
+  retries: "{{ update_os_packages_verification_retries }}"
+  delay: "{{ update_os_packages_verification_delay }}"
+
+# The systemd module does not list the units in a state. The failure prints
+# the units that are still failed after the last retry.
+- name: Check that no systemd unit is in the failed state # noqa: command-instead-of-module
+  ansible.builtin.command:
+    argv:
+      - systemctl
+      - list-units
+      - --state=failed
+      - --no-legend
+      - --plain
+  changed_when: false
+  register: update_os_packages_failed_units
+  until: update_os_packages_failed_units.stdout_lines | length == 0
+  retries: "{{ update_os_packages_verification_retries }}"
+  delay: "{{ update_os_packages_verification_delay }}"
+
+- name: List the guests of the node after the reboot
+  ansible.builtin.command:
+    argv: "{{ update_os_packages_guests_command }}"
+  become: true
+  changed_when: false
+  ignore_errors: true
+  register: update_os_packages_guests_after
+  until: update_os_packages_guests_running_before | difference(update_os_packages_guests_running_after) | length == 0
+  retries: "{{ update_os_packages_verification_retries }}"
+  delay: "{{ update_os_packages_verification_delay }}"
+  when: is_proxmox_node | default(false)
+
+- name: List the ZFS pools of the node after the reboot
+  ansible.builtin.command:
+    argv: "{{ update_os_packages_pools_command }}"
+  become: true
+  changed_when: false
+  ignore_errors: true
+  register: update_os_packages_pools_after
+  until: >-
+    update_os_packages_pools_before.stdout_lines
+    | difference(update_os_packages_pools_after.stdout_lines | default([])) | length == 0
+  retries: "{{ update_os_packages_verification_retries }}"
+  delay: "{{ update_os_packages_verification_delay }}"
+  when: is_proxmox_node | default(false)
+
+- name: Check that the guests and the pools of the node are back
+  ansible.builtin.assert:
+    that:
+      - update_os_packages_missing_guests | length == 0
+      - update_os_packages_missing_pools | length == 0
+    fail_msg: >-
+      After the reboot of {{ inventory_hostname }}, the guests that were running and are not:
+      {{ update_os_packages_missing_guests | join(', ') | default('none', true) }}.
+      The ZFS pools that were imported and are not:
+      {{ update_os_packages_missing_pools | join(', ') | default('none', true) }}.
+  vars:
+    update_os_packages_missing_guests: >-
+      {{ update_os_packages_guests_running_before | difference(update_os_packages_guests_running_after) }}
+    update_os_packages_missing_pools: >-
+      {{ update_os_packages_pools_before.stdout_lines
+      | difference(update_os_packages_pools_after.stdout_lines | default([])) }}
+  when: is_proxmox_node | default(false)
+
+- name: Read the alerts that the silences suppress
+  ansible.builtin.uri:
+    url: "{{ update_os_packages_alertmanager_api_url }}/alerts?active=false&silenced=true&inhibited=false"
+  delegate_to: "{{ update_os_packages_replica }}"
+  ignore_errors: true
+  register: update_os_packages_alerts_after
+  until: update_os_packages_new_suppressed_alerts | length == 0
+  retries: "{{ update_os_packages_verification_retries }}"
+  delay: "{{ update_os_packages_verification_delay }}"
+
+- name: Check that the silences of the run hide no new alert
+  ansible.builtin.assert:
+    that:
+      - update_os_packages_alerts_after is not failed
+      - update_os_packages_new_suppressed_alerts | length == 0
+    fail_msg: >-
+      The silences of the reboot of {{ inventory_hostname }} suppress alerts that were not active before
+      it, or the replica did not answer:
+      {{ update_os_packages_new_suppressed_alerts | map(attribute='labels')
+      | map('ansible.builtin.dict2items') | map('map', attribute='value') | map('join', ' ')
+      | join('; ') | default('none', true) }}.
+
+# The flag is gone after any reboot, so nothing else reports a host that
+# keeps booting its old kernel.
+- name: Check that the host runs the kernel that set the flag
+  ansible.builtin.assert:
+    that:
+      - >-
+        update_os_packages_newer_kernels | length == 0
+        or update_os_packages_boot_state_after.stdout_lines[1:] != update_os_packages_boot_state_before.stdout_lines[1:]
+    success_msg: >-
+      Kernel before the reboot: {{ update_os_packages_boot_state_before.stdout_lines[1:] | join(' ') }}.
+      After: {{ update_os_packages_boot_state_after.stdout_lines[1:] | join(' ') }}.
+    fail_msg: >-
+      {{ inventory_hostname }} still runs the kernel
+      {{ update_os_packages_boot_state_before.stdout_lines[1:] | join(' ') }}
+      after its reboot, and the packages that set the reboot-required flag hold a newer one:
+      {{ update_os_packages_newer_kernels | join(', ') }}.

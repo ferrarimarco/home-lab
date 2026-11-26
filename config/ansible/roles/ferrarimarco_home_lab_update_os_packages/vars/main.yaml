@@ -1,1 +1,113 @@
 ---
+# The Alertmanager API of a monitoring replica, as the replica itself reaches
+# it: the tasks that call it are delegated to the replica.
+update_os_packages_alertmanager_api_url: "http://localhost:{{ update_os_packages_alertmanager_port }}/api/v2"
+
+update_os_packages_verification_delay: 15
+update_os_packages_verification_retries: >-
+  {{ (update_os_packages_verification_wait | int / update_os_packages_verification_delay) | int }}
+
+# What the reboot takes down: the host and, on a Proxmox node, the guests that
+# its own listing shows as running, by the names the instance labels start
+# with.
+update_os_packages_guests_running_before: >-
+  {{ update_os_packages_guests_before.stdout | default('[]') | from_json
+  | selectattr('node', 'equalto', ansible_hostname) | selectattr('status', 'equalto', 'running')
+  | map(attribute='name') | sort }}
+update_os_packages_guests_running_after: >-
+  {{ update_os_packages_guests_after.stdout | default('[]') | from_json
+  | selectattr('node', 'equalto', ansible_hostname) | selectattr('status', 'equalto', 'running')
+  | map(attribute='name') | sort }}
+update_os_packages_silenced_hosts: "{{ [inventory_hostname_short] + update_os_packages_guests_running_before }}"
+
+# The monitoring replicas of the inventory, and those that stay up through
+# the reboot: neither the host nor one of its guests.
+update_os_packages_replicas: >-
+  {{ groups['all'] | map('extract', hostvars) | selectattr('configure_monitoring_backend', 'defined')
+  | selectattr('configure_monitoring_backend') | map(attribute='inventory_hostname') }}
+update_os_packages_replica_candidates: >-
+  {{ update_os_packages_replicas
+  | reject('match', '^(' ~ update_os_packages_silenced_hosts | join('|') ~ ')([.]|$)') }}
+
+# An instance label is the name of a host, alone, with a port, or inside the
+# URL of a probe target.
+update_os_packages_instance_matcher:
+  name: instance
+  value: "(https?://)?({{ update_os_packages_silenced_hosts | join('|') }})([.:/].*)?"
+  isRegex: true
+  isEqual: true
+
+# The silences of a reboot, as the OS package upgrades spec describes them.
+# The run expires the first two at the end of the verification; the others
+# cover alerts that fire by design after a reboot and end on their own.
+update_os_packages_silences:
+  - name: the alerts of the instances
+    enabled: true
+    expire: true
+    duration: "{{ update_os_packages_silence_duration }}"
+    matchers:
+      - "{{ update_os_packages_instance_matcher }}"
+  - name: the probe alerts
+    enabled: true
+    expire: true
+    duration: "{{ update_os_packages_silence_duration }}"
+    matchers:
+      - name: alertname
+        value: "Blackbox.*|Frigate.*"
+        isRegex: true
+        isEqual: true
+  # The alert fires for an hour after the boot
+  - name: UnexpectedReboot
+    enabled: true
+    expire: false
+    duration: 5400
+    matchers:
+      - name: alertname
+        value: UnexpectedReboot
+        isRegex: false
+        isEqual: true
+      - "{{ update_os_packages_instance_matcher }}"
+  # The replica that stays up cannot reach the Alertmanager of the one that
+  # reboots, and its alert looks back 15 minutes
+  - name: PrometheusNotificationsErroring
+    enabled: "{{ update_os_packages_replicas | length > update_os_packages_replica_candidates | length }}"
+    expire: false
+    duration: "{{ update_os_packages_reboot_timeout | int + 1200 }}"
+    matchers:
+      - name: alertname
+        value: PrometheusNotificationsErroring
+        isRegex: false
+        isEqual: true
+update_os_packages_silence_ids: >-
+  {{ update_os_packages_silences_added.results | default([]) | selectattr('json.silenceID', 'defined')
+  | map(attribute='json.silenceID') }}
+
+# The alerts that the silences of the run suppress, without those that fire
+# by design after a reboot and those that were active before the silences.
+# An alert names every silence that suppresses it: the zip keeps the alerts
+# whose list holds one of the run's.
+update_os_packages_alerts_suppressed_by_the_run: >-
+  {{ update_os_packages_alerts_after.json | default([])
+  | zip(update_os_packages_alerts_after.json | default([]) | map(attribute='status.silencedBy')
+  | map('intersect', update_os_packages_silence_ids))
+  | selectattr('1') | map(attribute='0') }}
+update_os_packages_new_suppressed_alerts: >-
+  {{ update_os_packages_alerts_suppressed_by_the_run
+  | rejectattr('labels.alertname', 'in', ['PrometheusNotificationsErroring', 'UnexpectedReboot'])
+  | rejectattr('fingerprint', 'in', update_os_packages_alerts_before.json | map(attribute='fingerprint')) }}
+
+# The boot state is three lines: the boot ID, the kernel release, and the
+# kernel version, which a rebuild of the same release changes.
+update_os_packages_kernel_release_before: "{{ update_os_packages_boot_state_before.stdout_lines[1] }}"
+
+# The kernel releases, among the packages that set the reboot-required flag,
+# that are newer than the running kernel and of its flavor (the last part of
+# the release): a node keeps older kernel series installed, whose updates set
+# the flag while the node goes on booting the series it runs.
+update_os_packages_newer_kernels: >-
+  {{ update_os_packages_reboot_flag_packages.stdout_lines | default([])
+  | select('match', update_os_packages_kernel_package_pattern)
+  | map('regex_replace', update_os_packages_kernel_package_pattern, '')
+  | map('regex_replace', '-signed$', '')
+  | select('match', '[0-9].*-' ~ update_os_packages_kernel_release_before.split('-') | last ~ '$')
+  | select('ansible.builtin.version', update_os_packages_kernel_release_before, '>') }}

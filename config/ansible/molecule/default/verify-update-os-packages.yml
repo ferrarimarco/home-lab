@@ -1,14 +1,16 @@
 ---
 # What the passes before this one cannot show: the removal guard and the
-# one-host rule firing, a failed host ending the run for the one after it, and
-# a check run that goes on after a guard failure. The fixture puts a removal
-# in the upgrade plan of the first instance, and the playbook runs through
-# ansible-playbook commands on the controller, with the inventory and the
-# configuration Molecule exports, so that the assertions read its exit status
-# and its output: the task results on the standard output, the failure
-# messages on the standard error. Molecule passes the test's tag scope to this
-# playbook, and a scope without untagged would skip every assertion: the play
-# has the always tag.
+# one-host rule firing, a failed host ending the run for the one after it, a
+# check run that goes on after a guard failure, and, with the reboot-required
+# flag set on the second instance, a check run that reports it and a real run
+# that fails before the reboot because no monitoring replica answers. The
+# fixture puts a removal in the upgrade plan of the first instance, and the
+# playbook runs through ansible-playbook commands on the controller, with the
+# inventory and the configuration Molecule exports, so that the assertions
+# read its exit status and its output: the task results on the standard
+# output, the failure messages on the standard error. Molecule passes the
+# test's tag scope to this playbook, and a scope without untagged would skip
+# every assertion: the play has the always tag.
 - name: Check the guards of the OS packages playbook
   hosts: instance
   gather_facts: false
@@ -132,3 +134,76 @@
           - "'hl-test-new 1.0 installed' in update_os_packages_test_approved_state.stdout_lines"
           - "'hl-test-victim 1.0 installed' not in update_os_packages_test_approved_state.stdout_lines"
         fail_msg: "{{ update_os_packages_test_approved_run.stdout }}\n{{ update_os_packages_test_approved_run.stderr }}"
+
+    # The second instance has the shape of a Proxmox node, so the run lists
+    # its guests and its pools before it looks for a replica: the stand-ins
+    # answer that it has none. The first instance is the only monitoring
+    # replica of the inventory, and it runs no Alertmanager.
+    - name: Set the reboot-required flag on the second instance
+      ansible.builtin.copy:
+        dest: "{{ item.dest }}"
+        content: "{{ item.content }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - dest: /run/reboot-required
+          content: ""
+          mode: "0644"
+        - dest: /run/reboot-required.pkgs
+          content: "dbus\nproxmox-kernel-9.9.9-9-pve-signed\n"
+          mode: "0644"
+        - dest: /usr/local/bin/pvesh
+          content: "#!/bin/sh\necho '[]'\n"
+          mode: "0755"
+        - dest: /usr/local/bin/zpool
+          content: "#!/bin/sh\n"
+          mode: "0755"
+      loop_control:
+        label: "{{ item.dest }}"
+      delegate_to: proxmox
+      become: true
+
+    - name: Run the playbook on both instances in check mode with the flag set
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_command + ['--check'] }}"
+      environment: "{{ update_os_packages_test_environment }}"
+      delegate_to: localhost
+      register: update_os_packages_test_flag_check_run
+      changed_when: false
+      failed_when: false
+
+    - name: Check that the check run reported the flag and did not reboot
+      ansible.builtin.assert:
+        that:
+          - update_os_packages_test_flag_check_run.rc == 0
+          - "'The reboot-required flag is not set.' in update_os_packages_test_flag_check_run.stdout"
+          - >-
+            'The reboot-required flag is set by dbus, proxmox-kernel-9.9.9-9-pve-signed.'
+            in update_os_packages_test_flag_check_run.stdout
+          - "'Reboot the host' not in update_os_packages_test_flag_check_run.stdout"
+        fail_msg: "{{ update_os_packages_test_flag_check_run.stdout }}\n{{ update_os_packages_test_flag_check_run.stderr }}"
+
+    - name: Run the playbook on the second instance with the flag set
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_command + ['--limit', 'proxmox'] }}"
+      environment: "{{ update_os_packages_test_environment }}"
+      delegate_to: localhost
+      register: update_os_packages_test_replica_run
+      changed_when: false
+      failed_when: false
+
+    - name: Read the reboot-required flag after the run without a replica
+      ansible.builtin.stat:
+        path: /run/reboot-required
+      delegate_to: proxmox
+      register: update_os_packages_test_replica_flag
+
+    - name: Check that the run failed before the reboot without a replica
+      ansible.builtin.assert:
+        that:
+          - update_os_packages_test_replica_run.rc != 0
+          - "'No monitoring replica other than proxmox answers' in update_os_packages_test_replica_run.stderr"
+          - "'(asked: instance)' in update_os_packages_test_replica_run.stderr"
+          - "'Silence the alerts of the reboot' not in update_os_packages_test_replica_run.stdout"
+          - "'Reboot the host' not in update_os_packages_test_replica_run.stdout"
+          - update_os_packages_test_replica_flag.stat.exists
+        fail_msg: "{{ update_os_packages_test_replica_run.stdout }}\n{{ update_os_packages_test_replica_run.stderr }}"

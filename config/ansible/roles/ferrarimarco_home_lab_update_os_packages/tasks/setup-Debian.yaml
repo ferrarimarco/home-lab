@@ -72,3 +72,46 @@
   ansible.builtin.apt:
     autoclean: true
   become: true
+
+- name: Read the reboot-required flag
+  ansible.builtin.stat:
+    path: /run/reboot-required
+  register: update_os_packages_reboot_flag
+
+# The file is missing when what set the flag does not record its name
+- name: Read the packages that set the reboot-required flag
+  ansible.builtin.command:
+    argv:
+      - cat
+      - /run/reboot-required.pkgs
+  check_mode: false
+  changed_when: false
+  failed_when: false
+  register: update_os_packages_reboot_flag_packages
+  when: update_os_packages_reboot_flag.stat.exists
+
+# A check run does not reboot: this is where it shows that a real run would,
+# for the flag as it is now or for a kernel in the plan, which sets it.
+- name: Report the reboot-required flag
+  ansible.builtin.debug:
+    msg: >-
+      {{ 'The reboot-required flag is set' if update_os_packages_reboot_flag.stat.exists
+      else 'The reboot-required flag is not set' }}{{
+      ' by ' ~ update_os_packages_reboot_flag_packages.stdout_lines | join(', ')
+      if update_os_packages_reboot_flag_packages.stdout_lines | default([]) | length > 0 else '' }}.
+      Kernel packages in the upgrade plan:
+      {{ update_os_packages_planned_kernels | join(', ') | default('none', true) }}.
+  vars:
+    update_os_packages_planned_kernels: >-
+      {{ update_os_packages_simulation.stdout_lines | select('match', '^Inst ') | map('split') | map(attribute=1)
+      | select('match', update_os_packages_kernel_package_pattern) }}
+  changed_when:
+    - ansible_check_mode
+    - update_os_packages_reboot_flag.stat.exists or update_os_packages_planned_kernels | length > 0
+
+- name: Reboot and verify the host
+  ansible.builtin.include_tasks:
+    file: reboot.yaml
+  when:
+    - update_os_packages_reboot_flag.stat.exists
+    - not ansible_check_mode

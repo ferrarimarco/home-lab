@@ -1,1 +1,21 @@
 ---
+# The packages that hold a kernel image, on Debian, Raspberry Pi OS, and
+# Proxmox VE.
+update_os_packages_kernel_package_pattern: "^(linux-image|proxmox-kernel|pve-kernel)-"
+
+# The listings of a Proxmox node that the reboot compares before and after:
+# its guests, as JSON, and the names of its imported ZFS pools.
+update_os_packages_guests_command:
+  - pvesh
+  - get
+  - /cluster/resources
+  - --type
+  - vm
+  - --output-format
+  - json
+update_os_packages_pools_command:
+  - zpool
+  - list
+  - -H
+  - -o
+  - name

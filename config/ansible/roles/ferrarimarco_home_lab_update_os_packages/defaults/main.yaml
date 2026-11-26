@@ -2,3 +2,19 @@
 # The packages that the reviewed upgrade plan of one host may remove, named as
 # the removal guard prints them. Pass them for the run that upgrades that host.
 update_os_packages_allowed_removals: []
+
+# The port of the Alertmanager API on a monitoring replica, which the run
+# calls from the replica itself. It follows the node role's port when the
+# inventory sets one.
+update_os_packages_alertmanager_port: "{{ monitoring_backend_alertmanager_host_port | default(9093) }}"
+
+# How long the run waits for a rebooted host to answer again, in seconds.
+update_os_packages_reboot_timeout: 600
+
+# How long the silences that the run expires after the verification last when
+# it cannot expire them, in seconds.
+update_os_packages_silence_duration: 3600
+
+# How long each check after the reboot is retried before it fails the host,
+# in seconds: the guests of a node start in order after the boot.
+update_os_packages_verification_wait: 600

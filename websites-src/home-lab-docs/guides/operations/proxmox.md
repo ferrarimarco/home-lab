@@ -88,6 +88,41 @@ start; the units that cloud-init left failed are cleared with
 the snapshot of 01:00 UTC, the units `cloud-config.service` and
 `cloud-init-main.service`).
 
+## Old kernel series stay installed
+
+A node keeps every kernel series it ever installed, and `apt autoremove` never
+offers one for removal (pve1 held the 6.5, 6.8, 6.17, and 7.0 series on
+2026-11-26, with pve-manager 9.3.1 and apt 3.0.4). Within a series the removal
+works: the hook `/etc/kernel/postinst.d/proxmox-auto-removal` writes the kernels
+to keep to `/etc/apt/apt.conf.d/76pveconf` as `APT::NeverAutoRemove` patterns
+(the running kernel, the two newest, the two newest series with the newest
+kernel of the older one, and the pinned or manually added ones), and autoremove
+takes the other kernels of a series once its meta-package depends on a newer
+one. That file only protects: nothing removes what it does not name.
+
+Across series, each meta-package (`proxmox-kernel-<series>`) provides
+`wireguard-modules`, which `wireguard-tools` recommends, and
+`libpve-network-perl` recommends `wireguard-tools`, so it is installed on a
+standard node. apt keeps every installed provider of a recommended virtual
+package, so every series stays, with the newest kernel its meta-package depends
+on. The simulation shows the reason for each package:
+
+```shell
+apt-get --simulate autoremove -o Debug::pkgAutoRemove=true 2>&1 | grep proxmox-kernel
+```
+
+A series that stays keeps receiving kernel updates, and each one sets the
+reboot-required flag, since the hook `zzz-proxmox-reboot-required` sets it for
+any installed kernel other than the running one. To remove a series that
+`76pveconf` does not name, purge its meta-package and its kernels by name, and
+read the simulation first: it must list those packages only.
+
+```shell
+apt-get --simulate --no-auto-remove purge proxmox-kernel-<series> proxmox-kernel-<version>-pve-signed
+```
+
+No report of this to Proxmox was found on 2026-11-26.
+
 ## Disable Secure Boot
 
 Either enter the UEFI console and disable Secure Boot manually, or delete the

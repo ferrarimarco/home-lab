@@ -356,17 +356,29 @@ reliability risks first, then security exposure, then automation):
 - **Implement the OS package upgrade run (2026-11-26)**: the
   [OS Package Upgrades](./os-package-upgrades.md) spec extends the OS packages
   playbook so that one reviewed run upgrades, reboots, and verifies a Debian
-  host; its status table has what landed. In order: the reboot on the flag, with
-  the report of the flag in the check run, the saved listings, and the host and
-  Proxmox checks; the silences, the read of the suppressed alerts, and the
-  expiry; the procedure in the Linux administration notes, with the passages of
+  host; its status table has what landed, the reboot, the silences, and the
+  verification included, none of them run on a real host yet. Remaining, in
+  order: the procedure in the Linux administration notes, with the passages of
   the Ansible guide on the upgrade by hand rewritten and the planned downtime
   section of the monitoring guide pointing at the run; the first real runs, pve2
-  before pve1 (one guest, no monitoring replica); a last read of the guides for
-  passages written meanwhile. The item on the detached dist-upgrade task under
+  before pve1 (one guest, no monitoring replica), with a run where each check of
+  the verification must fire; a last read of the guides for passages written
+  meanwhile. The item on the detached dist-upgrade task under
   [CI/CD, infrastructure-as-code, and GitOps](#cicd-infrastructure-as-code-and-gitops)
   concerns the same task: until it lands, a second run finishes a run whose
   controller lost the job.
+- **Remove the kernel series that Proxmox no longer protects (2026-11-26)**: a
+  node keeps every kernel series it installed, as the
+  [Proxmox administration notes](../guides/operations/proxmox.md#old-kernel-series-stay-installed)
+  explain, and an update to one of them costs the node a reboot that changes
+  nothing. First step: a task of the OS packages role that, on a node and after
+  the autoremove, purges the installed kernel packages that
+  `/etc/apt/apt.conf.d/76pveconf` does not name, behind a simulation that fails
+  the host when the purge would take any other package, with a section in the
+  [OS Package Upgrades](./os-package-upgrades.md) spec and a Molecule case. Then
+  report the packaging interaction to Proxmox. The previous series stays by
+  Proxmox's design, so the reboots it causes remain. Check what a node holds
+  with `dpkg-query -W 'proxmox-kernel-*'`.
 - **NixOS release upgrade (2026-11-26)**: the first of two steps is done: the
   flake follows `nixos-26.05` and hl02 and both NAS containers run it, as the
   [Nix development guide](../guides/development/nix.md#upgrade-to-a-new-nixos-release)

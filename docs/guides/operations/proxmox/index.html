@@ -1432,6 +1432,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#old-kernel-series-stay-installed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Old kernel series stay installed
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#disable-secure-boot" class="md-nav__link">
     <span class="md-ellipsis">
       Disable Secure Boot
@@ -1765,6 +1774,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#old-kernel-series-stay-installed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Old kernel series stay installed
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#disable-secure-boot" class="md-nav__link">
     <span class="md-ellipsis">
       Disable Secure Boot
@@ -1890,6 +1908,32 @@ start; the units that cloud-init left failed are cleared with
 <code>systemctl reset-failed</code>. Both were done on hl01 that day (the host keys from
 the snapshot of 01:00 UTC, the units <code>cloud-config.service</code> and
 <code>cloud-init-main.service</code>).</p>
+<h2 id="old-kernel-series-stay-installed">Old kernel series stay installed</h2>
+<p>A node keeps every kernel series it ever installed, and <code>apt autoremove</code> never
+offers one for removal (pve1 held the 6.5, 6.8, 6.17, and 7.0 series on
+2026-11-26, with pve-manager 9.3.1 and apt 3.0.4). Within a series the removal
+works: the hook <code>/etc/kernel/postinst.d/proxmox-auto-removal</code> writes the kernels
+to keep to <code>/etc/apt/apt.conf.d/76pveconf</code> as <code>APT::NeverAutoRemove</code> patterns
+(the running kernel, the two newest, the two newest series with the newest
+kernel of the older one, and the pinned or manually added ones), and autoremove
+takes the other kernels of a series once its meta-package depends on a newer
+one. That file only protects: nothing removes what it does not name.</p>
+<p>Across series, each meta-package (<code>proxmox-kernel-&lt;series&gt;</code>) provides
+<code>wireguard-modules</code>, which <code>wireguard-tools</code> recommends, and
+<code>libpve-network-perl</code> recommends <code>wireguard-tools</code>, so it is installed on a
+standard node. apt keeps every installed provider of a recommended virtual
+package, so every series stays, with the newest kernel its meta-package depends
+on. The simulation shows the reason for each package:</p>
+<div class="highlight"><pre><span></span><code>apt-get<span class="w"> </span>--simulate<span class="w"> </span>autoremove<span class="w"> </span>-o<span class="w"> </span>Debug::pkgAutoRemove<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>proxmox-kernel
+</code></pre></div>
+<p>A series that stays keeps receiving kernel updates, and each one sets the
+reboot-required flag, since the hook <code>zzz-proxmox-reboot-required</code> sets it for
+any installed kernel other than the running one. To remove a series that
+<code>76pveconf</code> does not name, purge its meta-package and its kernels by name, and
+read the simulation first: it must list those packages only.</p>
+<div class="highlight"><pre><span></span><code>apt-get<span class="w"> </span>--simulate<span class="w"> </span>--no-auto-remove<span class="w"> </span>purge<span class="w"> </span>proxmox-kernel-&lt;series&gt;<span class="w"> </span>proxmox-kernel-&lt;version&gt;-pve-signed
+</code></pre></div>
+<p>No report of this to Proxmox was found on 2026-11-26.</p>
 <h2 id="disable-secure-boot">Disable Secure Boot</h2>
 <p>Either enter the UEFI console and disable Secure Boot manually, or delete the
 EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</p>
