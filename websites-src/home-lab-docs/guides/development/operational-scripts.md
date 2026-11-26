@@ -242,7 +242,9 @@ shell. See the [Nix development shells guide](./nix-dev-shells.md).
   `restore-workloads.yaml` restores a stack's state from a restic repository and
   is documented in the [backup operations guide](../operations/backup.md);
   `backup.yaml` converges the restic jobs of the backup role on every host that
-  declares them; `update-os-packages.yaml` dist-upgrades the OS packages,
+  declares them; `update-os-packages.yaml` dist-upgrades the OS packages of the
+  Debian hosts, one host at a time and behind the removal guard of the
+  [OS package upgrades spec](../../architecture/os-package-upgrades.md),
   including a release upgrade prepared by the bootstrap playbook, as the
   [Linux administration notes](../operations/linux-administration.md) describe;
   `gateway-dnsmasq.yaml` converges the DHCP settings of the gateway's dnsmasq

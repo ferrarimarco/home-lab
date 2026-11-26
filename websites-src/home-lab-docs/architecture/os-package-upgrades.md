@@ -2,15 +2,15 @@
 
 ## Implementation Status
 
-| Component / Feature                    | Status                    | Details                                                                                                                                                                  |
-| :------------------------------------- | :------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Upgrade run**                        | **Fully Implemented**     | The detached `dist-upgrade` of the `update-os-packages.yaml` playbook; the play can lose the job while the host finishes it, as the Linux administration notes describe. |
-| **Review by check run**                | **Partially Implemented** | The check run prints apt's plan against the lists the host holds; it neither refreshes them nor reports the reboot-required flag.                                        |
-| **One host at a time**                 | **Missing**               |                                                                                                                                                                          |
-| **Removal guard**                      | **Missing**               |                                                                                                                                                                          |
-| **Reboot on the reboot-required flag** | **Missing**               | The reboot is a manual step after the run.                                                                                                                               |
-| **Downtime silences**                  | **Missing**               | Added by hand, as the monitoring guide describes.                                                                                                                        |
-| **Post-reboot verification**           | **Missing**               | Done by hand: the host checks on every Debian host, the guests and the pools on the Proxmox nodes.                                                                       |
+| Component / Feature                    | Status                    | Details                                                                                                                                                                                                                                                                        |
+| :------------------------------------- | :------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Upgrade run**                        | **Fully Implemented**     | The detached `dist-upgrade` of the `update-os-packages.yaml` playbook, followed by autoremove and autoclean as steps of their own; the play can lose the job while the host finishes it, as the Linux administration notes describe.                                           |
+| **Review by check run**                | **Partially Implemented** | The check run refreshes the lists and prints apt's plan and the verdict of the removal guard; it does not report the reboot-required flag. Run on pve2 after four days off (2026-11-26); the other hosts not yet run.                                                          |
+| **One host at a time**                 | **Fully Implemented**     | The play is serial and leaves out the NixOS hosts by group; the Molecule job shows a failed host ending the run before the next one, and a check run with pve2 off ended before the next host (2026-11-26).                                                                    |
+| **Removal guard**                      | **Fully Implemented**     | Reads the removals and the purges from apt's simulated plan; the Molecule job has a run where the guard fires, one where the one-host rule fires, a check run that goes on, and an approved run. On a real host it has only passed a plan without removals (pve2, 2026-11-26). |
+| **Reboot on the reboot-required flag** | **Missing**               | The reboot is a manual step after the run.                                                                                                                                                                                                                                     |
+| **Downtime silences**                  | **Missing**               | Added by hand, as the monitoring guide describes.                                                                                                                                                                                                                              |
+| **Post-reboot verification**           | **Missing**               | Done by hand: the host checks on every Debian host, the guests and the pools on the Proxmox nodes.                                                                                                                                                                             |
 
 ## Goal
 
@@ -93,9 +93,10 @@ refresh, covers what matters in that gap.
 The play processes its hosts one at a time, and in a real run a host that fails
 stops the run for the ones after it. The two monitoring replicas are never down
 together, and no guest is in the middle of an upgrade while its node reboots. A
-guest and its node in the same run cost the guest two reboots. The play skips
-the hosts that are not Debian (the NixOS hosts of the inventory) instead of
-failing on them.
+guest and its node in the same run cost the guest two reboots. The play leaves
+out the NixOS hosts of the inventory by their group, so a run never contacts
+them. A host that cannot be reached stops the run like a host that fails, in a
+check run as well: a run names the hosts that are on.
 
 ### Removal guard
 
@@ -110,7 +111,15 @@ depends on any more.
 A run that names removals takes one host: it fails before the first host when
 the list is not empty and the play holds more than one, since an approval given
 for one host would pass unread on the others. A check run goes on to the next
-host after a guard failure, so one check run reviews every host.
+host after a guard failure, so one check run reviews every host: it prints the
+failure, counts it as ignored, and exits with success, since its output is the
+review.
+
+The failure names the packages that are not approved and prints the whole list
+of the plan's removals as the argument that approves them. A release upgrade
+goes through the same guard, with no way around it: its plan removes tens of
+packages (65 on hl01's), and the printed argument is what makes naming them
+practical.
 
 ### Reboot
 

@@ -1,6 +1,10 @@
 ---
+# One host at a time, and a host that fails ends the run for the ones after
+# it, as the OS package upgrades spec describes. The NixOS hosts upgrade
+# through their flake.
 - name: Update OS packages
-  hosts: all
+  hosts: all:!home_lab_nix_hosts
+  serial: 1
   gather_facts: true
   roles:
     - role: ferrarimarco_home_lab_update_os_packages

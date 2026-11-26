@@ -2407,18 +2407,17 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="host-configuration">Host configuration</h3>
 <ul>
-<li><strong>Implement the OS package upgrade run (designed on 2026-11-22)</strong>: the
+<li><strong>Implement the OS package upgrade run (2026-11-26)</strong>: the
   <a href="os-package-upgrades/">OS Package Upgrades</a> spec extends the OS packages
   playbook so that one reviewed run upgrades, reboots, and verifies a Debian
-  host. In order: the list refresh, the serial processing, and the removal guard
-  with its one-host rule, with a test where each guard fires; the reboot on the
-  flag, with the saved listings and the host and Proxmox checks; the silences,
-  the read of the suppressed alerts, and the expiry; the procedure in the Linux
-  administration notes, with the passages of the Ansible guide on the upgrade by
-  hand rewritten and the planned downtime section of the monitoring guide
-  pointing at the run; the first real runs, pve2 before pve1 (one guest, no
-  monitoring replica); a last read of the guides for passages written meanwhile.
-  The item on the detached dist-upgrade task under
+  host; its status table has what landed. In order: the reboot on the flag, with
+  the report of the flag in the check run, the saved listings, and the host and
+  Proxmox checks; the silences, the read of the suppressed alerts, and the
+  expiry; the procedure in the Linux administration notes, with the passages of
+  the Ansible guide on the upgrade by hand rewritten and the planned downtime
+  section of the monitoring guide pointing at the run; the first real runs, pve2
+  before pve1 (one guest, no monitoring replica); a last read of the guides for
+  passages written meanwhile. The item on the detached dist-upgrade task under
   <a href="#cicd-infrastructure-as-code-and-gitops">CI/CD, infrastructure-as-code, and GitOps</a>
   concerns the same task: until it lands, a second run finishes a run whose
   controller lost the job.</li>

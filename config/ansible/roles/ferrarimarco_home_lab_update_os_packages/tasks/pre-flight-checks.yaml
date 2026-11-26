@@ -1,1 +1,15 @@
 ---
+# An approval names the removals of one host's plan: on any other host of the
+# same run it would pass unread.
+- name: Check the approved removals
+  ansible.builtin.assert:
+    that:
+      - update_os_packages_allowed_removals is not string
+      - update_os_packages_allowed_removals is not mapping
+      - update_os_packages_allowed_removals is iterable
+      - update_os_packages_allowed_removals | length == 0 or ansible_play_hosts_all | length == 1
+    fail_msg: >-
+      update_os_packages_allowed_removals is a list of package names, and a run
+      that names removals takes one host: this one holds
+      {{ ansible_play_hosts_all | length }} ({{ ansible_play_hosts_all | join(', ') }}).
+      Limit the run to the host whose plan was reviewed.

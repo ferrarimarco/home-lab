@@ -2036,7 +2036,9 @@ shell. See the <a href="../nix-dev-shells/">Nix development shells guide</a>.</p
   <code>restore-workloads.yaml</code> restores a stack's state from a restic repository and
   is documented in the <a href="../../operations/backup/">backup operations guide</a>;
   <code>backup.yaml</code> converges the restic jobs of the backup role on every host that
-  declares them; <code>update-os-packages.yaml</code> dist-upgrades the OS packages,
+  declares them; <code>update-os-packages.yaml</code> dist-upgrades the OS packages of the
+  Debian hosts, one host at a time and behind the removal guard of the
+  <a href="../../../architecture/os-package-upgrades/">OS package upgrades spec</a>,
   including a release upgrade prepared by the bootstrap playbook, as the
   <a href="../../operations/linux-administration/">Linux administration notes</a> describe;
   <code>gateway-dnsmasq.yaml</code> converges the DHCP settings of the gateway's dnsmasq

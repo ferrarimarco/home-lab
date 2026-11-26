@@ -1,16 +1,74 @@
 ---
-# The upgrade runs detached from the SSH session: a release upgrade (the
-# bootstrap role points APT at the next release through
+# The apt module skips the refresh in check mode, so a check run would review
+# the plan against the lists the host already holds: the refresh runs in both
+# modes, as a step of its own.
+- name: Refresh the APT package lists
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  check_mode: false
+  changed_when: false
+
+# The apt module has no way to return the plan without acting on it in a real
+# run.
+- name: Simulate the upgrade without autoremove # noqa: command-instead-of-module
+  ansible.builtin.command:
+    argv:
+      - apt-get
+      - --simulate
+      - --no-auto-remove
+      - --option
+      - DPkg::Lock::Timeout=60
+      - dist-upgrade
+  environment:
+    LC_ALL: C
+  become: true
+  check_mode: false
+  changed_when: false
+  register: update_os_packages_simulation
+
+# A check run reports the failure and goes on, so that one check run reviews
+# every host: with one host at a time, a failed host would end the play.
+- name: Fail when the upgrade removes a package that is not approved
+  ansible.builtin.fail:
+    msg: >-
+      The upgrade of {{ inventory_hostname }} removes packages that
+      update_os_packages_allowed_removals does not name:
+      {{ update_os_packages_unapproved_removals | join(', ') }}.
+      To approve the removals of this plan after reviewing it, limit the run to
+      this host and pass
+      -e '{{ {"update_os_packages_allowed_removals": update_os_packages_planned_removals} | to_json }}'
+  vars:
+    update_os_packages_planned_removals: >-
+      {{ update_os_packages_simulation.stdout_lines | select('match', '^(Remv|Purg) ')
+      | map('split') | map(attribute=1) | list }}
+    update_os_packages_unapproved_removals: >-
+      {{ update_os_packages_planned_removals | difference(update_os_packages_allowed_removals) }}
+  when: update_os_packages_unapproved_removals | length > 0
+  ignore_errors: "{{ ansible_check_mode }}"
+
+# The upgrade and the autoremove run detached from the SSH session: a release
+# upgrade (the bootstrap role points APT at the next release through
 # debian_release_force_upgrade) replaces hundreds of packages over many
 # minutes, and a session dropped in that window would otherwise hang up apt in
 # the middle of a dpkg transaction.
-- name: Update APT package index, dist-upgrade, autoclean, autoremove APT packages
+- name: Dist-upgrade the APT packages
   ansible.builtin.apt:
-    autoclean: true
-    autoremove: true
-    cache_valid_time: "{{ apt_cache_valid_time }}"
-    update_cache: true
     upgrade: dist
   become: true
   async: 3600
   poll: 10
+
+# Outside the removal guard: autoremove takes only packages that were
+# installed automatically and that nothing depends on any more.
+- name: Remove the APT packages that nothing depends on any more
+  ansible.builtin.apt:
+    autoremove: true
+  become: true
+  async: 3600
+  poll: 10
+
+- name: Remove the APT package files that can no longer be downloaded
+  ansible.builtin.apt:
+    autoclean: true
+  become: true

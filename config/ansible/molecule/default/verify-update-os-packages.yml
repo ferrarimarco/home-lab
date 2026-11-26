@@ -1,0 +1,134 @@
+---
+# What the passes before this one cannot show: the removal guard and the
+# one-host rule firing, a failed host ending the run for the one after it, and
+# a check run that goes on after a guard failure. The fixture puts a removal
+# in the upgrade plan of the first instance, and the playbook runs through
+# ansible-playbook commands on the controller, with the inventory and the
+# configuration Molecule exports, so that the assertions read its exit status
+# and its output: the task results on the standard output, the failure
+# messages on the standard error. Molecule passes the test's tag scope to this
+# playbook, and a scope without untagged would skip every assertion: the play
+# has the always tag.
+- name: Check the guards of the OS packages playbook
+  hosts: instance
+  gather_facts: false
+  tags:
+    - always
+  vars:
+    update_os_packages_test_command:
+      - ansible-playbook
+      - --inventory
+      - "{{ lookup('ansible.builtin.env', 'MOLECULE_INVENTORY_FILE') }}"
+      - "{{ lookup('ansible.builtin.env', 'MOLECULE_SCENARIO_DIRECTORY') }}/../../playbooks/update-os-packages.yaml"
+    update_os_packages_test_approval:
+      - --extra-vars
+      - '{"update_os_packages_allowed_removals": ["hl-test-victim"]}'
+    update_os_packages_test_environment:
+      ANSIBLE_FORCE_COLOR: "false"
+    update_os_packages_test_state_command:
+      - dpkg-query
+      - --show
+      - --showformat
+      - '${Package} ${Version} ${db:Status-Status}\n'
+      - hl-test-*
+    update_os_packages_test_pending_state:
+      - hl-test-keep 1.0 installed
+      - hl-test-victim 1.0 installed
+  tasks:
+    - name: Put a removal in the upgrade plan
+      ansible.builtin.script: update-os-packages/removal-fixture.sh
+      become: true
+      changed_when: true
+
+    # The first run after the fixture: the lists of the instance do not hold
+    # the fixture's repository yet, so the guard fires here only when the check
+    # run refreshes them
+    - name: Run the playbook on both instances in check mode
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_command + ['--check'] }}"
+      environment: "{{ update_os_packages_test_environment }}"
+      delegate_to: localhost
+      register: update_os_packages_test_check_run
+      changed_when: false
+      failed_when: false
+
+    - name: Check that the check run reported the failure and went on
+      ansible.builtin.assert:
+        that:
+          - update_os_packages_test_check_run.rc == 0
+          - "'does not name: hl-test-victim.' in update_os_packages_test_check_run.stderr"
+          - "'[proxmox]' in update_os_packages_test_check_run.stdout"
+        fail_msg: "{{ update_os_packages_test_check_run.stdout }}\n{{ update_os_packages_test_check_run.stderr }}"
+
+    - name: Run the playbook on both instances without an approval
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_command }}"
+      environment: "{{ update_os_packages_test_environment }}"
+      delegate_to: localhost
+      register: update_os_packages_test_guard_run
+      changed_when: false
+      failed_when: false
+
+    - name: Read the test packages after the run without an approval
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_state_command }}"
+      register: update_os_packages_test_guard_state
+      changed_when: false
+
+    - name: Check that the guard failed the first instance and ended the run
+      ansible.builtin.assert:
+        that:
+          - update_os_packages_test_guard_run.rc != 0
+          - "'does not name: hl-test-victim.' in update_os_packages_test_guard_run.stderr"
+          - "'[instance]' in update_os_packages_test_guard_run.stdout"
+          - "'[proxmox]' not in update_os_packages_test_guard_run.stdout"
+          - update_os_packages_test_guard_state.stdout_lines == update_os_packages_test_pending_state
+        fail_msg: "{{ update_os_packages_test_guard_run.stdout }}\n{{ update_os_packages_test_guard_run.stderr }}"
+
+    - name: Run the playbook on both instances with an approval
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_command + update_os_packages_test_approval }}"
+      environment: "{{ update_os_packages_test_environment }}"
+      delegate_to: localhost
+      register: update_os_packages_test_one_host_run
+      changed_when: false
+      failed_when: false
+
+    - name: Read the test packages after the run with an approval for two hosts
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_state_command }}"
+      register: update_os_packages_test_one_host_state
+      changed_when: false
+
+    - name: Check that an approval for two hosts failed before the upgrade
+      ansible.builtin.assert:
+        that:
+          - update_os_packages_test_one_host_run.rc != 0
+          - "'a run that names removals takes one host' in update_os_packages_test_one_host_run.stderr"
+          - "'[proxmox]' not in update_os_packages_test_one_host_run.stdout"
+          - update_os_packages_test_one_host_state.stdout_lines == update_os_packages_test_pending_state
+        fail_msg: "{{ update_os_packages_test_one_host_run.stdout }}\n{{ update_os_packages_test_one_host_run.stderr }}"
+
+    - name: Run the playbook on the first instance with an approval
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_command + update_os_packages_test_approval + ['--limit', 'instance'] }}"
+      environment: "{{ update_os_packages_test_environment }}"
+      delegate_to: localhost
+      register: update_os_packages_test_approved_run
+      changed_when: false
+      failed_when: false
+
+    - name: Read the test packages after the approved run
+      ansible.builtin.command:
+        argv: "{{ update_os_packages_test_state_command }}"
+      register: update_os_packages_test_approved_state
+      changed_when: false
+
+    - name: Check that the approved run upgraded and removed the package
+      ansible.builtin.assert:
+        that:
+          - update_os_packages_test_approved_run.rc == 0
+          - "'hl-test-keep 2.0 installed' in update_os_packages_test_approved_state.stdout_lines"
+          - "'hl-test-new 1.0 installed' in update_os_packages_test_approved_state.stdout_lines"
+          - "'hl-test-victim 1.0 installed' not in update_os_packages_test_approved_state.stdout_lines"
+        fail_msg: "{{ update_os_packages_test_approved_run.stdout }}\n{{ update_os_packages_test_approved_run.stderr }}"

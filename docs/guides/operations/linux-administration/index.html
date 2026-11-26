@@ -1894,17 +1894,20 @@ runs on the upgraded host; their packages for the old release install on the
 new one in the meantime.</p>
 </li>
 <li>
-<p>Predict the upgrade on the host (<code>sudo apt full-upgrade --simulate</code>), and
-   review the removals: a package the new release drops takes its dependents
-   with it. Then run the OS packages playbook limited to the host; its
-   dist-upgrade task runs detached from the SSH session, so a dropped connection
-   does not interrupt it, and the playbook keeps the existing configuration
-   files where the new packages ship changed defaults (the new files land beside
-   them with a <code>.dpkg-dist</code> suffix). The controller can still lose the job (its
-   worker died a minute into hl01's upgrade, and the play kept polling without
-   reaching the host): the host-side run is then read from the apt history log
-   and from the job's result file under <code>/root/.ansible_async/</code>, and the
-   playbook is run again once apt is idle, which finishes whatever remains.</p>
+<p>Predict the upgrade with a check run of the OS packages playbook limited to
+   the host (<code>--check --diff</code>), and review the removals: a package the new
+   release drops takes its dependents with it. The removal guard of the
+   <a href="../../../architecture/os-package-upgrades/">OS package upgrades spec</a> fails
+   on them and prints the <code>-e</code> argument that names them all. Then run the
+   playbook limited to the host with that argument; its dist-upgrade task runs
+   detached from the SSH session, so a dropped connection does not interrupt it,
+   and the playbook keeps the existing configuration files where the new
+   packages ship changed defaults (the new files land beside them with a
+   <code>.dpkg-dist</code> suffix). The controller can still lose the job (its worker died
+   a minute into hl01's upgrade, and the play kept polling without reaching the
+   host): the host-side run is then read from the apt history log and from the
+   job's result file under <code>/root/.ansible_async/</code>, and the playbook is run
+   again once apt is idle, which finishes whatever remains.</p>
 </li>
 <li>Reboot, then verify: the release in <code>/etc/os-release</code>, the running kernel,
    the boot time, the services from a fresh listing, the mounts, and the

@@ -1,1 +1,4 @@
 ---
+# The packages that the reviewed upgrade plan of one host may remove, named as
+# the removal guard prints them. Pass them for the run that upgrades that host.
+update_os_packages_allowed_removals: []

@@ -556,6 +556,22 @@ only when its scope includes `untagged`.
   turned off (2026-11-19). The Compose stop and start of a stack restore, a
   restore from another host's repository, and the unit restarts stay untested:
   they carry the `molecule-notest` tag or need a second repository.
+- `update-os-packages` has a verify playbook for the guards of the
+  [OS package upgrades spec](../../architecture/os-package-upgrades.md), which
+  must fail a run, and a failed play cannot be caught by the playbook that
+  imports it. A fixture script puts a removal in the upgrade plan of the first
+  instance (dummy packages in a local repository), and the playbook runs through
+  `ansible-playbook` commands on the controller, with the inventory and the
+  configuration that Molecule exports to the playbooks it runs
+  (`MOLECULE_INVENTORY_FILE`, `ANSIBLE_CONFIG`). The assertions read the exit
+  status, the output, and the packages on the instance, for four runs: in check
+  mode (the failure is reported and the second instance is reviewed; it is the
+  first run after the fixture, so the guard fires only when the check run
+  refreshes the lists), without an approval (the guard fails the first instance
+  and the second never starts), with an approval for both instances (the
+  one-host rule fails the run), and with an approval for one (the upgrade
+  removes the package). With the `debug` callback the task results are on the
+  standard output and the failure messages on the standard error.
 
 ### The bootstrap role runs once per playbook run
 
@@ -654,12 +670,13 @@ and `%]`.
   change, since its HEAD request carries no content to compare. A pin moved
   without a new hash fails the download instead of deploying unverified content.
 - The apt module does not refresh the package lists in check mode (read in its
-  source at ansible-core 2.21), so a check run of the OS packages playbook
-  simulates the upgrade against the lists the host already holds. On a host that
-  was off, or that runs no periodic refresh, run `apt-get update` on it first
-  (pve2's lists were 25 days old on 2026-11-16). With `--diff`, that check run
-  prints apt's simulated upgrade, the removals included: the review a manual
-  `apt full-upgrade --simulate` would give.
+  source at ansible-core 2.21), so the OS packages playbook refreshes them in a
+  task of its own that runs in both modes: a check run on a host that was off
+  simulates the upgrade against what the repositories hold now (pve2's lists
+  were 25 days old on 2026-11-16). With `--diff`, that check run prints apt's
+  simulated upgrade, the removals included, and the verdict of the removal guard
+  that the [OS package upgrades spec](../../architecture/os-package-upgrades.md)
+  describes: the review a manual `apt full-upgrade --simulate` would give.
 - Design tasks so check mode runs cleanly and truthfully on first runs:
   state-query tasks carry `changed_when: false` and `check_mode: false`, and
   later tasks tolerate resources that an earlier task would have created.

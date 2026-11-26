@@ -79,17 +79,20 @@ instead.
     runs on the upgraded host; their packages for the old release install on the
     new one in the meantime.
 
-4. Predict the upgrade on the host (`sudo apt full-upgrade --simulate`), and
-   review the removals: a package the new release drops takes its dependents
-   with it. Then run the OS packages playbook limited to the host; its
-   dist-upgrade task runs detached from the SSH session, so a dropped connection
-   does not interrupt it, and the playbook keeps the existing configuration
-   files where the new packages ship changed defaults (the new files land beside
-   them with a `.dpkg-dist` suffix). The controller can still lose the job (its
-   worker died a minute into hl01's upgrade, and the play kept polling without
-   reaching the host): the host-side run is then read from the apt history log
-   and from the job's result file under `/root/.ansible_async/`, and the
-   playbook is run again once apt is idle, which finishes whatever remains.
+4. Predict the upgrade with a check run of the OS packages playbook limited to
+   the host (`--check --diff`), and review the removals: a package the new
+   release drops takes its dependents with it. The removal guard of the
+   [OS package upgrades spec](../../architecture/os-package-upgrades.md) fails
+   on them and prints the `-e` argument that names them all. Then run the
+   playbook limited to the host with that argument; its dist-upgrade task runs
+   detached from the SSH session, so a dropped connection does not interrupt it,
+   and the playbook keeps the existing configuration files where the new
+   packages ship changed defaults (the new files land beside them with a
+   `.dpkg-dist` suffix). The controller can still lose the job (its worker died
+   a minute into hl01's upgrade, and the play kept polling without reaching the
+   host): the host-side run is then read from the apt history log and from the
+   job's result file under `/root/.ansible_async/`, and the playbook is run
+   again once apt is idle, which finishes whatever remains.
 5. Reboot, then verify: the release in `/etc/os-release`, the running kernel,
    the boot time, the services from a fresh listing, the mounts, and the
    out-of-tree kernel modules (`dkms status`), whose DKMS builds run during the
