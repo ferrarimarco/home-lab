@@ -31,13 +31,13 @@ groups:
       - alert: AptUpdateStale
         # apt_info.py reports the time of the last successful apt-get update
         # (the apt hook and the periodic setting the roles deploy); the daily
-        # job runs once a day, so two missed days mean a dead source. The two
-        # days are one of age and one of hold: a host that was off for days
-        # reports old lists at its first scrape, and the hold, which starts
-        # there, gives its daily job the time to catch up (the job's timer has
-        # a random delay of up to twelve hours).
-        expr: time() - apt_package_cache_timestamp_seconds > 86400
-        for: 1d
+        # job runs once a day, so two missed days mean a dead source. A host
+        # that was off for days reports old lists at its first scrape, hours
+        # before its daily job runs (the job's timer has a random delay of up
+        # to twelve hours), so the rule waits for thirteen hours of uptime.
+        expr: >-
+          time() - apt_package_cache_timestamp_seconds > 2 * 86400
+          and on (instance) time() - node_boot_time_seconds > 13 * 3600
         labels:
           severity: warning
         annotations:
