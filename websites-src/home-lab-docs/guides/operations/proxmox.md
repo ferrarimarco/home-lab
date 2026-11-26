@@ -35,6 +35,37 @@ imported before them, as the
 describes under the host dataset mount points. `pct start <id>` recovers the
 guest.
 
+## A changed cloud-init snippet provisions the VM again
+
+Proxmox gives a VM with custom cloud-init snippets an instance identifier that
+is the SHA-1 of its user data followed by its network data (read in
+`PVE/QemuServer/Cloudinit.pm` of qemu-server 9.2.24), and writes it to the
+cloud-init drive at every start. cloud-init treats a new identifier as a new
+machine and runs its per-instance modules again: it regenerates the SSH host
+keys, rewrites the authorized keys and `/etc/hosts`, and runs the package
+modules of the user data. The Proxmox role renders the snippets from the
+inventory, so a change that reaches one of them waits for the VM's next start.
+
+hl01 went through this on 2026-11-26, at the first start since its user data
+changed on 2026-11-10 (the list of authorized keys). To read the state of a VM:
+
+- The identifier the next start will use, on the node, against the one the guest
+  holds: `cat <user data snippet> <network data snippet> | sha1sum` and
+  `/var/lib/cloud/data/instance-id` in the guest. Equal values mean no new
+  instance. `qm cloudinit dump <id> meta` does not answer this: it hashes the
+  user data Proxmox would generate and ignores the snippets.
+- What changed between two instances: cloud-init keeps the user data of each
+  under `/var/lib/cloud/instances/<identifier>/user-data.txt`.
+- Whether a host that presents new SSH host keys is still the same VM: read the
+  key files through the guest agent
+  (`qm guest exec <id> -- ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`) and
+  compare the fingerprint with the one the address offers.
+
+The host keys come back from the host's backup with the SSH identity restore of
+the [backup operations guide](./backup.md), from a snapshot older than the
+start; the units that cloud-init left failed are cleared with
+`systemctl reset-failed`.
+
 ## Disable Secure Boot
 
 Either enter the UEFI console and disable Secure Boot manually, or delete the

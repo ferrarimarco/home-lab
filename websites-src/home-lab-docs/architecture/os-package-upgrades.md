@@ -176,9 +176,13 @@ minutes by default), since the guests start in order after the boot:
   the alerts that were already active before them, compared from the list saved
   then; the failure names the new ones.
 
-The run reports the running kernel before and after. The broad silence and the
-probe silence are expired at the end of each host's verification, whether it
-passed or failed, so that whatever is still broken notifies.
+The run reports the running kernel before and after, and fails the host when a
+kernel package was among those that set the reboot-required flag and the running
+kernel did not change: the flag is gone after any reboot, so nothing else
+reports a host that keeps booting its old kernel, as raspberrypi2 did without
+its firmware package (2026-11-26). The broad silence and the probe silence are
+expired at the end of each host's verification, whether it passed or failed, so
+that whatever is still broken notifies.
 
 ## Testing
 

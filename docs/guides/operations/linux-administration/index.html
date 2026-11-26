@@ -1905,8 +1905,10 @@ new one in the meantime.</p>
    packages ship changed defaults (the new files land beside them with a
    <code>.dpkg-dist</code> suffix). The controller can still lose the job (its worker died
    a minute into hl01's upgrade, and the play kept polling without reaching the
-   host): the host-side run is then read from the apt history log and from the
-   job's result file under <code>/root/.ansible_async/</code>, and the playbook is run
+   host; on pve1 on 2026-11-26 the upgrade ended on the host at 10:07:38 UTC, 53
+   seconds after it restarted <code>pve-cluster</code>, and the play only went on at
+   10:15:31): the host-side run is then read from the apt history log and from
+   the job's result file under <code>/root/.ansible_async/</code>, and the playbook is run
    again once apt is idle, which finishes whatever remains.</p>
 </li>
 <li>Reboot, then verify: the release in <code>/etc/os-release</code>, the running kernel,

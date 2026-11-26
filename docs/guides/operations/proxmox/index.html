@@ -1423,6 +1423,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-changed-cloud-init-snippet-provisions-the-vm-again" class="md-nav__link">
+    <span class="md-ellipsis">
+      A changed cloud-init snippet provisions the VM again
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#disable-secure-boot" class="md-nav__link">
     <span class="md-ellipsis">
       Disable Secure Boot
@@ -1747,6 +1756,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-changed-cloud-init-snippet-provisions-the-vm-again" class="md-nav__link">
+    <span class="md-ellipsis">
+      A changed cloud-init snippet provisions the VM again
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#disable-secure-boot" class="md-nav__link">
     <span class="md-ellipsis">
       Disable Secure Boot
@@ -1823,6 +1841,34 @@ imported before them, as the
 <a href="../../../architecture/nas-lxc-container/">NAS LXC container specification</a>
 describes under the host dataset mount points. <code>pct start &lt;id&gt;</code> recovers the
 guest.</p>
+<h2 id="a-changed-cloud-init-snippet-provisions-the-vm-again">A changed cloud-init snippet provisions the VM again</h2>
+<p>Proxmox gives a VM with custom cloud-init snippets an instance identifier that
+is the SHA-1 of its user data followed by its network data (read in
+<code>PVE/QemuServer/Cloudinit.pm</code> of qemu-server 9.2.24), and writes it to the
+cloud-init drive at every start. cloud-init treats a new identifier as a new
+machine and runs its per-instance modules again: it regenerates the SSH host
+keys, rewrites the authorized keys and <code>/etc/hosts</code>, and runs the package
+modules of the user data. The Proxmox role renders the snippets from the
+inventory, so a change that reaches one of them waits for the VM's next start.</p>
+<p>hl01 went through this on 2026-11-26, at the first start since its user data
+changed on 2026-11-10 (the list of authorized keys). To read the state of a VM:</p>
+<ul>
+<li>The identifier the next start will use, on the node, against the one the guest
+  holds: <code>cat &lt;user data snippet&gt; &lt;network data snippet&gt; | sha1sum</code> and
+  <code>/var/lib/cloud/data/instance-id</code> in the guest. Equal values mean no new
+  instance. <code>qm cloudinit dump &lt;id&gt; meta</code> does not answer this: it hashes the
+  user data Proxmox would generate and ignores the snippets.</li>
+<li>What changed between two instances: cloud-init keeps the user data of each
+  under <code>/var/lib/cloud/instances/&lt;identifier&gt;/user-data.txt</code>.</li>
+<li>Whether a host that presents new SSH host keys is still the same VM: read the
+  key files through the guest agent
+  (<code>qm guest exec &lt;id&gt; -- ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</code>) and
+  compare the fingerprint with the one the address offers.</li>
+</ul>
+<p>The host keys come back from the host's backup with the SSH identity restore of
+the <a href="../backup/">backup operations guide</a>, from a snapshot older than the
+start; the units that cloud-init left failed are cleared with
+<code>systemctl reset-failed</code>.</p>
 <h2 id="disable-secure-boot">Disable Secure Boot</h2>
 <p>Either enter the UEFI console and disable Secure Boot manually, or delete the
 EFI disk, and recreate it without the <code>pre-enrolled-keys=1</code> option.</p>

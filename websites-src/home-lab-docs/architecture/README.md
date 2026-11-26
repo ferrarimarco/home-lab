@@ -152,12 +152,12 @@ reliability risks first, then security exposure, then automation):
 
 - **The Ansible container trusts every host key it meets (2026-11-26)**: the
   inventory sets `StrictHostKeyChecking=accept-new` for every host, and the
-  container of `scripts/run-ansible.sh` starts without a known hosts file, so
-  each run accepts whatever key a host offers: the runs that followed the
-  regeneration of hl01's host keys connected without a warning, while the
-  control machine's own `ssh` refused. First step: mount a known hosts file that
-  the control machine keeps into the container, and read what the first run
-  against each host then reports.
+  container of `scripts/run-ansible.sh` starts without a known hosts file, so a
+  changed host key passes unnoticed; the rescue run of the
+  [network boot guide](../guides/operations/network-boot.md) disables the check
+  altogether. First step: mount a known hosts file that the control machine
+  keeps into the container, and read what the first run against each host then
+  reports.
 - **Pin every GitHub Action to a commit SHA**: 4 of the 14 third-party actions
   the workflows use are SHA-pinned, the rest by tag, and
   `config/lint/zizmor.yaml` ignores the `unpinned-uses` audit for twelve
@@ -277,10 +277,9 @@ reliability risks first, then security exposure, then automation):
       Run the upgrade through a transient systemd unit (`systemd-run --wait`, as
       the backup role runs its jobs), which a lost controller leaves running and
       whose result the next run can read, or make the poll loop fail on an
-      unreachable host. On 2026-11-26 the play stalled the same way on pve1 and
-      recovered by itself: the upgrade ended on the host at 10:07:38 UTC, 53
-      seconds after it restarted `pve-cluster`, and the controller opened its
-      next session at 10:15:31.
+      unreachable host. The
+      [Linux administration notes](../guides/operations/linux-administration.md#release-upgrade)
+      have the two occurrences.
     - Get the Proxmox VMs data from the inventory instead of the `proxmox_vms`
       list.
     - Move the handlers to a dedicated role and reuse it across all playbooks.
@@ -366,19 +365,12 @@ reliability risks first, then security exposure, then automation):
   [release schedule](https://github.com/NixOS/nixpkgs/issues/567567), read on
   2026-11-23), for the second step. Blocks: the photo library rollout
   ([Backup](#backup)).
-- **Stop cloud-init from provisioning hl01 again at a start (2026-11-26)**: the
-  Proxmox role renders the VM's cloud-init user data on every run, and a change
-  to it makes the VM's next start a new cloud-init instance. On 2026-11-26, the
-  first start since a render of 2026-11-10, cloud-init regenerated the SSH host
-  keys (restored from the backup, as the
-  [backup operations guide](../guides/operations/backup.md) describes), rewrote
-  the authorized keys and `/etc/hosts`, and failed its locale module, which left
-  `cloud-config.service` and `cloud-init-main.service` failed. First step:
-  decide in the [Proxmox VM spec](./proxmox-vm.md) whether a provisioned VM
-  keeps cloud-init (disabled after the first boot, or with the SSH identity out
-  of its per-instance modules), then clear the two units (`systemctl --failed`
-  on hl01). Before a start of the VM, compare the date of its user data snippet
-  on pve1 with the VM's start time.
+- **Stop cloud-init from provisioning hl01 again at a start (2026-11-26)**: a
+  change to the VM's cloud-init snippets makes its next start a new instance, as
+  the
+  [Proxmox administration notes](../guides/operations/proxmox.md#a-changed-cloud-init-snippet-provisions-the-vm-again)
+  describe. First step: choose between rendering the snippets once and disabling
+  cloud-init on the provisioned VM, and record the choice in those notes.
 - **Converge pve2's root filesystem and bootloader with pve1's (2026-10-22)**:
   pve1 boots a ZFS root through `proxmox-boot-tool` with systemd-boot, which
   keeps every ESP in sync and takes the kernel command line from

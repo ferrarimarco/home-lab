@@ -227,9 +227,11 @@ sets (`BOOTLOADER_AUTO_UPDATE_MIN_VERSION`, a release of May 2025 for this board
 in rpi-eeprom 28.38): above it the service logs that it skips the upgrade, and
 the tool goes on reporting the newer image as available. raspberrypi2 runs the
 2026-09-23 release and kept it through two reboots with the 2026-10-30 image
-available (2026-11-26). A newer release is installed by hand, with the procedure
-of the network boot guide. Network boot needs no newer release than the one
-installed.
+available (2026-11-26). A newer release is installed by hand, with
+`sudo rpi-eeprom-update -a` and a reboot: without the `-s` option the tool does
+not apply the minimum. The node role's assertion then shows whether the
+configuration came through, and the network boot guide has the procedure that
+applies it again. Network boot needs no newer release than the one installed.
 
 | Option            | Value         | Reason                                                         |
 | :---------------- | :------------ | :------------------------------------------------------------- |
