@@ -220,10 +220,16 @@ EEPROM runs the 2026-09-23 release (read on 2026-11-06), and the default would
 downgrade it.
 
 Bootloader releases are not this service's job: they come from the operating
-system's `rpi-eeprom` package and the boot-time update service, which applies
-the package's default channel while preserving the EEPROM configuration. The
-re-image to Trixie brings raspberrypi2 a package that matches its installed
-release. Network boot needs no newer release than the one installed.
+system's `rpi-eeprom` package. Its boot-time update service
+(`rpi-eeprom-update -s -a`) flashes the default channel's image, preserving the
+EEPROM configuration, only onto a bootloader older than the minimum the package
+sets (`BOOTLOADER_AUTO_UPDATE_MIN_VERSION`, a release of May 2025 for this board
+in rpi-eeprom 28.38): above it the service logs that it skips the upgrade, and
+the tool goes on reporting the newer image as available. raspberrypi2 runs the
+2026-09-23 release and kept it through two reboots with the 2026-10-30 image
+available (2026-11-26). A newer release is installed by hand, with the procedure
+of the network boot guide. Network boot needs no newer release than the one
+installed.
 
 | Option            | Value         | Reason                                                         |
 | :---------------- | :------------ | :------------------------------------------------------------- |

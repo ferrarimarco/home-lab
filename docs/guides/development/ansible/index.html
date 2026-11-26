@@ -2147,7 +2147,14 @@ set of generic tasks applies that data:</p>
   run on pve1 on 2026-11-10 predicted the removal of Proxmox with it) is found
   at runtime, not at design time. A package apt's sources no longer carry (a
   repository the disabled stack removed) is left out of the simulation, since
-  the removal task treats it as already absent.</p>
+  the removal task treats it as already absent. Before the guard, the removal of
+  <code>rsync</code> purged <code>raspi-firmware</code> from raspberrypi2 on the day of its re-image
+  (2026-11-08): that package's kernel hooks copy a new kernel and its initramfs
+  to the boot partition, so the host kept booting the kernel of its image,
+  through a reboot that cleared the reboot-required flag, until the role
+  declared the package for Raspberry Pi OS (2026-11-26). After a kernel upgrade
+  on a Raspberry Pi, compare <code>uname -r</code> with the newest <code>/boot/vmlinuz-*</code> once
+  it has rebooted.</p>
 </li>
 <li><strong>A missing unit is converged when its state is <code>stopped</code>, or in check mode.</strong>
   The service task lists every selected stack's units, enabled or not, so a
@@ -2460,16 +2467,16 @@ in its group variables (<code>group_vars/home_lab_proxmox_nodes</code>):</p>
   <code>live-restore</code> (hl01 and raspberrypi2 on 2026-11-20, from 29.9.3 to 29.10.0,
   with every container's start time unchanged). Two other origins act on more
   than packages, with nobody reading the release first: the Raspberry Pi origin
-  carries <code>rpi-eeprom</code>, whose new bootloader image the boot-time update service
-  applies at the next reboot, as the
+  carries <code>rpi-eeprom</code>, whose boot-time update service flashes a new bootloader
+  image only onto a bootloader older than the minimum the package sets, as the
   <a href="../../../architecture/network-boot/">network boot spec</a> describes
   (raspberrypi2 on 2026-11-20, from 28.33 to 28.37, with the 2026-10-30 image
-  reported as available over the 2026-09-23 one), and a Tailscale upgrade
-  restarts <code>tailscaled</code> on the host that advertises the subnet routes
-  (raspberrypi2 on 2026-11-20, five seconds after the package was unpacked; the
-  effect on the connections through those routes was not measured). The package
-  also installs the kernel hook that sets the reboot-required flag, which the
-  <code>RebootRequired</code> alert reads.</li>
+  reported as available over the 2026-09-23 one, which two reboots on 2026-11-26
+  left in place), and a Tailscale upgrade restarts <code>tailscaled</code> on the host that
+  advertises the subnet routes (raspberrypi2 on 2026-11-20, five seconds after
+  the package was unpacked; the effect on the connections through those routes
+  was not measured). The package also installs the kernel hook that sets the
+  reboot-required flag, which the <code>RebootRequired</code> alert reads.</li>
 </ul>
 <p>The containerized exporters of the monitoring stack (the compose file, its
 directory and its project unit) follow
