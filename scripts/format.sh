@@ -84,7 +84,13 @@ quote_paths() {
 # of a line leaves the file with formatting issues.
 
 if [ "${#TEXTLINT_TARGETS[@]}" -gt 0 ]; then
-  run_formatter "textlint --config /action/lib/.automation/.textlintrc --fix $(quote_paths "${TEXTLINT_TARGETS[@]}")"
+  # textlint fails when none of its targets holds a file with one of the
+  # extensions it handles, as a directory of YAML files or scripts does
+  if [ -n "$(find "${TEXTLINT_TARGETS[@]}" -type f -regextype posix-extended -regex '.*\.(txt|text|md|markdown|mdown|mkdn|mkd|mdwn|mkdown|ron)' -print -quit)" ]; then
+    run_formatter "textlint --config /action/lib/.automation/.textlintrc --fix $(quote_paths "${TEXTLINT_TARGETS[@]}")"
+  else
+    echo "Skipping textlint: no file it handles in ${TEXTLINT_TARGETS[*]}"
+  fi
 fi
 
 MARKDOWNLINT_EXIT_CODE=0

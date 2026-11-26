@@ -129,7 +129,8 @@ The script runs:
   BASH_EXEC check, on by default in super-linter, fails on a non-executable
   `.sh` file.
 - [textlint](https://textlint.org/) with super-linter's default configuration on
-  Markdown and text files.
+  Markdown and text files. The script skips it when the given paths hold no such
+  file, since textlint fails without one.
 - `terraform fmt -recursive` on Terraform files.
 
 The script runs textlint and markdownlint before Prettier, so that Prettier
