@@ -659,6 +659,44 @@ For example:
 Changes the default variable start and end prefixes from `{{` and `}}` to `[%`
 and `%]`.
 
+## Linting with ansible-lint
+
+The lint run of the [operational scripts guide](./operational-scripts.md)
+includes ansible-lint. Super-linter starts it in `config/ansible`, the
+`ANSIBLE_DIRECTORY` of `config/lint/super-linter.env`, with
+`config/lint/.ansible-lint.yml`:
+
+- ansible-lint takes the directory of its configuration file as the project, so
+  it does not look for roles beside the playbooks: the environment file sets
+  `ANSIBLE_ROLES_PATH` for it, relative to the directory it starts in.
+- The configuration skips the rule that asks for the whole role name as the
+  prefix of a role's variables, since the roles prefix them with the name
+  without its `ferrarimarco_home_lab_` part, and gives a value to the variable
+  that the restore playbook takes its hosts from.
+- A task that keeps a pattern a rule flags carries a `noqa` comment for that
+  rule on its name line, with the reason in the comment above the task.
+- The fix mode of the lint script passes `--fix` to ansible-lint, which rewrote
+  no file in a run on a copy of the tree, with and without findings
+  (ansible-lint 26.8.0, 2026-11-26).
+
+Until 2026-11-26 the directory setting named a path that no longer existed, and
+ansible-lint rejected a key of its configuration file: the linter ran on
+nothing, and the lint summary had no `ANSIBLE` row. After a change to these
+settings, check that the summary has the row, and run the linter alone, as
+super-linter does, to read its findings:
+
+```shell
+docker run --rm --entrypoint /bin/bash \
+  --volume "$(pwd)":/tmp/lint:ro --workdir /tmp/lint/config/ansible \
+  --env HOME=/tmp/home --env-file config/lint/super-linter.env \
+  ghcr.io/super-linter/super-linter:<version> -c \
+  'mkdir -p /tmp/home && git config --global --add safe.directory /tmp/lint \
+  && ansible-lint -c /tmp/lint/config/lint/.ansible-lint.yml'
+```
+
+On the control machine the run also reads the vault files, which are not in the
+repository, and warns that it cannot decrypt them.
+
 ## Check mode conventions
 
 - Always run `--check --diff` (capturing the full output to a log file) and

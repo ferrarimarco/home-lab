@@ -10,6 +10,8 @@
 # The kernel command line is one line of space-separated options. The options
 # the host declares replace the ones of the same name and the rest is kept;
 # the file is written whole so that check mode shows the line it would write.
+# The boot partition is FAT, which stores no owner and no mode: its mount
+# options decide them, so the write declares none.
 - name: Read the kernel command line
   ansible.builtin.command: cat {{ raspberry_pi_kernel_command_line_file_path }}
   changed_when: false
@@ -17,7 +19,7 @@
   register: raspberry_pi_kernel_command_line
   when: raspberry_pi_kernel_command_line_options | length > 0
 
-- name: Write the kernel command line
+- name: Write the kernel command line # noqa: risky-file-permissions
   ansible.builtin.copy:
     content: "{{ (raspberry_pi_kernel_command_line_kept_options + raspberry_pi_kernel_command_line_declared_options) | join(' ') }}\n"
     dest: "{{ raspberry_pi_kernel_command_line_file_path }}"

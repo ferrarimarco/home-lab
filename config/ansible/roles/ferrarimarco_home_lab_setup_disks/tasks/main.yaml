@@ -88,8 +88,9 @@
 
 # The mount module edits fstab and remounts, but systemd keeps the mount units
 # it generated at boot until a reload, so an ordering option such as
-# x-systemd.before only takes effect after it (raspberrypi2, 2026-10-19).
-- name: Reload the systemd daemon after fstab changes
+# x-systemd.before only takes effect after it (raspberrypi2, 2026-10-19). The
+# tasks after this one need the reload, and a handler would run after them.
+- name: Reload the systemd daemon after fstab changes # noqa: no-handler
   ansible.builtin.systemd:
     daemon_reload: true
   become: true
@@ -115,7 +116,8 @@
     - mount-retry.timer
   when: disks_to_mount | default([]) | length > 0
 
-- name: Reload the systemd daemon after installing the mount retry units
+# The next task starts the timer, so the reload cannot wait for a handler
+- name: Reload the systemd daemon after installing the mount retry units # noqa: no-handler
   ansible.builtin.systemd:
     daemon_reload: true
   become: true

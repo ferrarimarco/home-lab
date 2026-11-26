@@ -24,7 +24,7 @@
 
 - name: Decode the manifest contents
   ansible.builtin.set_fact:
-    home_assistant_custom_component_manifest_decoded_contents: "{{ home_assistant_custom_component_manifest_decoded_contents | default({}) | combine( { item.source: item.content | b64decode | from_json } ) }}"
+    home_assistant_custom_component_manifest_decoded_contents: "{{ home_assistant_custom_component_manifest_decoded_contents | default({}) | combine({item.source: item.content | b64decode | from_json}) }}"
   loop: "{{ home_assistant_custom_component_manifest_contents.results }}"
 
 - name: Debug home_assistant_custom_component_manifest_decoded_contents

@@ -16,7 +16,8 @@
       enabling the runtime watchdog.
   when: systemd_runtime_watchdog_seconds | int > 0
 
-- name: Read the current systemd runtime watchdog timeout
+# No module returns a property of the manager
+- name: Read the current systemd runtime watchdog timeout # noqa: command-instead-of-module
   ansible.builtin.command: systemctl show --property RuntimeWatchdogUSec --value
   register: systemd_runtime_watchdog_actual
   changed_when: false
@@ -33,7 +34,9 @@
 # Manager configuration is only re-read on re-execution; daemon-reload is not
 # enough. Re-execution does not restart running services.
 - name: Re-execute systemd to apply the runtime watchdog configuration
-  ansible.builtin.command: systemctl daemon-reexec
+  ansible.builtin.systemd_service:
+    daemon_reexec: true
   become: true
+  # The module reports no change for a re-execution
   changed_when: true
   when: systemd_runtime_watchdog_actual.stdout != systemd_runtime_watchdog_expected

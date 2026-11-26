@@ -7,14 +7,12 @@
     rsync_daemon_templates_to_render: >-
       {{
       rsync_daemon_templates_to_render | default([]) +
-      [{
-      'src': rsync_daemon_templates_source_directory_path + '/' + rsync_daemon_secrets_template_path,
+      [{'src': rsync_daemon_templates_source_directory_path + '/' + rsync_daemon_secrets_template_path,
       'dest': item.secrets_file,
       'mode': '0600',
       'state': configure_rsync_daemon | ternary('file', 'absent'),
       'vars': {'rsync_daemon_auth_users': item.auth_users},
-      'os_services_to_restart': rsync_daemon_os_services_to_restart
-      }]
+      'os_services_to_restart': rsync_daemon_os_services_to_restart}]
       }}
   with_items: "{{ rsync_daemon_modules | default([]) }}"
 

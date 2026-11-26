@@ -1,5 +1,6 @@
 ---
-- ansible.builtin.assert:
+- name: Check that the configuration directory path is defined
+  ansible.builtin.assert:
     that:
       - home_lab_configuration_directory_path is defined
       - home_lab_configuration_directory_path | length > 0
@@ -9,7 +10,8 @@
     success_msg: |
       home_lab_configuration_directory_path is defined and not empty: {{ home_lab_configuration_directory_path | default() }}
 
-- ansible.builtin.assert:
+- name: Check that the runtime directory path is defined
+  ansible.builtin.assert:
     that:
       - home_lab_runtime_directory_path is defined
       - home_lab_runtime_directory_path | length > 0
@@ -19,7 +21,8 @@
     success_msg: |
       home_lab_runtime_directory_path is defined and not empty: {{ home_lab_runtime_directory_path | default() }}
 
-- ansible.builtin.assert:
+- name: Check that the mount path of the workloads backup disk is defined
+  ansible.builtin.assert:
     that:
       - workloads_backup_disk_mount_path is defined
       - workloads_backup_disk_mount_path | length > 0
@@ -29,7 +32,8 @@
     success_msg: |
       workloads_backup_disk_mount_path is defined and not empty: {{ workloads_backup_disk_mount_path | default() }}
 
-- ansible.builtin.assert:
+- name: Check that the list of network interfaces is defined
+  ansible.builtin.assert:
     that:
       - network_interfaces is defined
       - network_interfaces | length > 0
@@ -39,7 +43,7 @@
     success_msg: |
       network_interfaces is defined and not empty: {{ network_interfaces | default() }}
 
-- name: Wait for systemd to complete initialization. # noqa 303
+- name: Wait for systemd to complete initialization. # noqa: command-instead-of-module
   ansible.builtin.command: systemctl is-system-running
   register: systemctl_status
   until: >

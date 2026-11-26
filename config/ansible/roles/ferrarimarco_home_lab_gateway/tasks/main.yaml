@@ -113,4 +113,5 @@
 - name: Write the NVRAM variables that differ, commit them, and restart dnsmasq
   ansible.builtin.raw: >-
     {% for change in gateway_dhcp_nvram_changes %}nvram set {{ change.key }}={{ change.value | quote }} && {% endfor %}nvram commit && service restart_dnsmasq
+  changed_when: true
   when: gateway_dhcp_nvram_changes | length > 0

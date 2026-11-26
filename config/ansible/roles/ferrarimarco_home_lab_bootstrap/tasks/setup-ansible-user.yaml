@@ -8,7 +8,7 @@
     - ansible_password is not defined
     - lock_ansible_user_password
 
-- name: Check if the public keys file ({{ home_lab_node_ssh_public_key_path }}) for SSH exists locally
+- name: Check if the public keys file for SSH exists locally
   # No need to use superuser privileges for this because the file should be
   # available locally to the user running Ansible
   become: false

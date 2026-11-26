@@ -1,6 +1,11 @@
 ---
-parseable: true
+# The restore playbook takes its hosts from an extra variable with no default
+extra_vars:
+  restore_hosts: all
 skip_list:
   - yaml # Don't run yamllint because we run it outside ansible-lint
+  # The roles prefix their variables with the name of the role without its
+  # ferrarimarco_home_lab_ part, and the inventory uses those names
+  - var-naming[no-role-prefix]
 use_default_rules: true
 verbosity: 1

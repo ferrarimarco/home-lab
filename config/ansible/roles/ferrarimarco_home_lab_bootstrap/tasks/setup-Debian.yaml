@@ -1,5 +1,7 @@
 ---
-- name: Setup Debian repositories
+# The types of a repository come from the loop item, which the linter cannot
+# check against the values the module accepts.
+- name: Setup Debian repositories # noqa: args[module]
   ansible.builtin.deb822_repository:
     # This module needs the python3-debian package. This task runs before the
     # role installs OS packages because it supports OS upgrades: it points APT

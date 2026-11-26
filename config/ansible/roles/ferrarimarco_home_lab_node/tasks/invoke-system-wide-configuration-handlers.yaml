@@ -52,7 +52,7 @@
 # deploy exercises the unit the next boot depends on. A finished oneshot keeps
 # its invocation ID, and the journal holds the Compose output under it, which
 # the change detection reads; the sync makes journald write it out first.
-- name: Start Docker Compose services
+- name: Start Docker Compose services # noqa: command-instead-of-module
   changed_when: '"Started" in docker_compose_up_result.stdout or "Started" in docker_compose_up_result.stderr'
   ansible.builtin.shell: >-
     systemctl start {{ docker_compose_up_unit_name }};
@@ -79,9 +79,10 @@
     var: docker_compose_up_result
     verbosity: 1
 
-- name: Initialize the list of the 'just started' Docker Compose services
+# A fact built from the results of a loop, not an action for a handler
+- name: Initialize the list of the 'just started' Docker Compose services # noqa: no-handler
   ansible.builtin.set_fact:
-    started_docker_compose_services: "{{ started_docker_compose_services | default([]) + [ item.item.compose_file_path ] }}"
+    started_docker_compose_services: "{{ started_docker_compose_services | default([]) + [item.item.compose_file_path] }}"
   when:
     - item.changed
   # There are no results when the task that starts the services is skipped

@@ -40,7 +40,7 @@
 # An enabled instance is a symlink in the target's wants directory, which
 # list-unit-files does not list (it prints the template alone); the target's
 # dependencies list every instance wanted by it.
-- name: List the enabled ZFS pool import units
+- name: List the enabled ZFS pool import units # noqa: command-instead-of-module
   ansible.builtin.command: systemctl list-dependencies --plain --no-legend zfs-import.target
   register: zfs_import_units_actual
   changed_when: false
@@ -68,6 +68,7 @@
 - name: Create missing ZFS datasets
   ansible.builtin.command: zfs create -p {{ item.name }}
   become: true
+  changed_when: true
   when: item.name not in zfs_datasets_actual.stdout_lines
   with_items: "{{ zfs_datasets | default([]) }}"
 
