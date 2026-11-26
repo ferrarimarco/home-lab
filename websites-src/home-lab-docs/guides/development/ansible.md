@@ -678,11 +678,21 @@ and `%]`.
 The lint run of the [operational scripts guide](./operational-scripts.md)
 includes ansible-lint. Super-linter starts it in `config/ansible`, the
 `ANSIBLE_DIRECTORY` of `config/lint/super-linter.env`, with
-`config/lint/.ansible-lint.yml`:
+`config/ansible/.ansible-lint.yml`:
 
-- ansible-lint takes the directory of its configuration file as the project, so
-  it does not look for roles beside the playbooks: the environment file sets
-  `ANSIBLE_ROLES_PATH` for it, relative to the directory it starts in.
+- The configuration file is in `config/ansible`, and not with the other linters'
+  files in `config/lint`, because ansible-lint takes the directory of its
+  configuration file as the project. From there it finds the roles beside the
+  playbooks and installs the role and the collections that `requirements.yml`
+  pins, so that it checks the arguments of their modules against the versions
+  the playbooks run with. `ANSIBLE_CONFIG_FILE` in the environment file
+  therefore holds a path relative to `config/lint`.
+- The requirements go to the directory that `ANSIBLE_HOME` names in the
+  environment file, inside the linter's container, so every run downloads them
+  from Ansible Galaxy (43 MB, about a minute). Without that setting ansible-lint
+  keeps them in `config/ansible/.ansible`, where the next lint run's other
+  linters read the collections as part of the repository: EditorConfig,
+  Gitleaks, codespell, and Trivy failed on them (2026-11-26).
 - The configuration skips the rule that asks for the whole role name as the
   prefix of a role's variables, since the roles prefix them with the name
   without its `ferrarimarco_home_lab_` part, and gives a value to the variable
@@ -693,11 +703,18 @@ includes ansible-lint. Super-linter starts it in `config/ansible`, the
   no file in a run on a copy of the tree, with and without findings
   (ansible-lint 26.8.0, 2026-11-26).
 
-Until 2026-11-26 the directory setting named a path that no longer existed, and
-ansible-lint rejected a key of its configuration file: the linter ran on
-nothing, and the lint summary had no `ANSIBLE` row. After a change to these
-settings, check that the summary has the row, and run the linter alone, as
-super-linter does, to read its findings:
+ansible-lint does not fail on a playbook it cannot load: it logs
+`Failed to load <playbook> playbook due to failing syntax check` and goes on, so
+a passing run can have linted less than it seems. Until 2026-11-26 the directory
+setting named a path that no longer existed and the linter ran on nothing; then,
+with its configuration in `config/lint`, it ran without the collections and
+skipped seven playbooks that way. After a change to these settings, check that
+the lint summary has the `ANSIBLE` row, and read the linter's own output for
+those lines. Two are expected, both for
+`../../playbooks/restore-workloads.yaml`: ansible-lint checks a playbook that
+another imports without the configured extra variables, and that playbook, which
+the two Molecule wrappers import, has no default for its hosts; it is linted
+under its own name. To run the linter alone, as super-linter does:
 
 ```shell
 docker run --rm --entrypoint /bin/bash \
@@ -705,7 +722,7 @@ docker run --rm --entrypoint /bin/bash \
   --env HOME=/tmp/home --env-file config/lint/super-linter.env \
   ghcr.io/super-linter/super-linter:<version> -c \
   'mkdir -p /tmp/home && git config --global --add safe.directory /tmp/lint \
-  && ansible-lint -c /tmp/lint/config/lint/.ansible-lint.yml'
+  && ansible-lint -c /tmp/lint/config/ansible/.ansible-lint.yml'
 ```
 
 On the control machine the run also reads the vault files, which are not in the

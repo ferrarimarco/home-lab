@@ -1,4 +1,9 @@
 ---
+# This file is here, and not with the other linters' configuration, because
+# ansible-lint takes its directory as the project: from here it finds the
+# roles and installs the pinned role and collections of requirements.yml
+# (into the ANSIBLE_HOME of the linters' environment file, outside the
+# repository, where the other linters do not read them).
 # The restore playbook takes its hosts from an extra variable with no default
 extra_vars:
   restore_hosts: all
