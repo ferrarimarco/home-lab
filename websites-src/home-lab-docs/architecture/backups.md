@@ -73,7 +73,7 @@ persistence store is a cache that every consumer republishes on reconnect
 The photo library is backed up from pve2, the node that holds its dataset,
 through a `restic-backup-photos` job of the same role. Its set is Immich's media
 location except the two directories of generated content, plus the records
-directory of the staging dataset; the
+dataset of the library; the
 [Photo Library specification](./photo-library.md#copies-and-backup) says why
 each is in the set. The job needs two features of the role, which any other job
 can use:
@@ -84,7 +84,7 @@ can use:
   without any error; with an exclusion, that case costs a larger snapshot. The
   photo job excludes the `thumbs` and `encoded-video` directories of the media
   location. An exclusion by name alone would also drop a directory of that name
-  anywhere in the set, such as an album folder kept in the records directory.
+  anywhere in the set, such as an album folder kept in the records dataset.
 - **A watched file.** A job names a directory and a filename pattern, and at
   each run it exports the modification time of the newest matching file, beside
   its step timestamps. It neither waits for the file nor fails without it. The

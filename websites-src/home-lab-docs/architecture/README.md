@@ -893,27 +893,30 @@ reliability risks first, then security exposure, then automation):
   repositories item below. The first two steps need no guest. Depends on: the
   NixOS release upgrade ([Host configuration](#host-configuration)), its 26.11
   step, for the guest and what follows. Blocks: the Google storage item below,
-  until its deletion check step; the 3 TB disk item below, until its backup job
-  step; the phone backup alert
+  until its deletion check step; the 3 TB disk item below, until its restore
+  rehearsal step; the phone backup alert
   ([Monitoring and alerting](#monitoring-and-alerting)), until its phones step.
 - **Free Google storage before the quota fills (2026-11-27)**: the account that
   holds most of the photos was at 93% of its quota on 2026-11-23, and Gmail and
   Drive share that quota with Google Photos. The phones keep uploading to Google
   Photos, and the [Photo Library](./photo-library.md#what-goes-into-the-library)
-  spec has the rules for deleting there. Steps: delete the sets that pass the
-  spec's deletion check, starting with hand-picked items, the largest videos
-  first; delete sets chosen in bulk only once the offsite copy exists. If the
-  quota fills before the first step is possible, more Google storage is what
-  remains. Depends on: the photo library rollout, its deletion check step; for
-  the bulk deletions, the second copy of the restic repositories.
+  spec has the rules for deleting there. Steps: delete a first set that passed
+  the spec's deletion check and read the account's storage figure, to learn
+  whether the trash of Google Photos counts toward the quota; go on with sets
+  picked item by item, among the largest videos; delete sets chosen in bulk only
+  once the offsite copy exists. If the quota fills before the first step is
+  possible, more Google storage is what remains. Depends on: the photo library
+  rollout, its deletion check step; for the bulk deletions, the second copy of
+  the restic repositories.
 - **Role of the 3 TB disk on pve2 (2026-11-23)**: the disk of the machine that
   holds the files outside Google Photos moves to pve2 once the rollout has
-  imported and backed them up. It is smaller than the disk behind `tank-hdd`, so
-  it cannot become its mirror; candidates: a pool of its own for the photo
-  library's backup repository, which starts on the 1 TB scratch disk
+  imported and backed them up and the restore rehearsal has passed. It is
+  smaller than the disk behind `tank-hdd`, so it cannot become its mirror;
+  candidates: a pool of its own for the photo library's backup repository, which
+  starts on the 1 TB scratch disk
   ([Backups specification](./backups.md#where-the-data-goes)), or the second
   copy of the media library below. First step: confirm its size. Depends on: the
-  photo library rollout, its backup job step.
+  photo library rollout, its restore rehearsal step.
 - **Rehearse the secret files restore on a blank workstation (2026-11-20)**: the
   script restores every snapshot it writes, but the
   [procedure](../guides/operations/backup.md#restore-on-a-blank-workstation)

@@ -2,19 +2,19 @@
 
 ## Implementation Status
 
-| Component / Feature             | Status      | Details                                                                                                                                              |
-| :------------------------------ | :---------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Staging dataset and share**   | **Missing** |                                                                                                                                                      |
-| **Google Photos exports**       | **Missing** | One export per account; none requested yet.                                                                                                          |
-| **Photo guest (`photos-pve2`)** | **Missing** | Waits on the fleet's move to NixOS 26.11 ([Host configuration](./README.md#host-configuration)).                                                     |
-| **Database dump**               | **Missing** | Whether Immich's own dump job runs with the database role the NixOS module creates is unverified ([assumptions](#assumptions-the-rollout-verifies)). |
-| **Imports and export checks**   | **Missing** |                                                                                                                                                      |
-| **Phone backup**                | **Missing** |                                                                                                                                                      |
-| **Library backup job**          | **Missing** | Defined in the [Backups specification](./backups.md); the backup role has neither the exclusion nor the dump age metric yet.                         |
-| **Restore rehearsal**           | **Missing** |                                                                                                                                                      |
-| **Deletion check**              | **Missing** |                                                                                                                                                      |
-| **Offsite copy**                | **Missing** | Waits on the destination of the [Backup](./README.md#backup) todo items.                                                                             |
-| **Monitoring**                  | **Missing** |                                                                                                                                                      |
+| Component / Feature                             | Status      | Details                                                                                                                                              |
+| :---------------------------------------------- | :---------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Staging and records datasets, staging share** | **Missing** |                                                                                                                                                      |
+| **Google Photos exports**                       | **Missing** | One export per account; none requested yet.                                                                                                          |
+| **Photo guest (`photos-pve2`)**                 | **Missing** | Waits on the fleet's move to NixOS 26.11 ([Host configuration](./README.md#host-configuration)).                                                     |
+| **Database dump**                               | **Missing** | Whether Immich's own dump job runs with the database role the NixOS module creates is unverified ([assumptions](#assumptions-the-rollout-verifies)). |
+| **Imports and export checks**                   | **Missing** |                                                                                                                                                      |
+| **Phone backup**                                | **Missing** |                                                                                                                                                      |
+| **Library backup job**                          | **Missing** | Defined in the [Backups specification](./backups.md); the backup role has neither the exclusion nor the dump age metric yet.                         |
+| **Restore rehearsal**                           | **Missing** |                                                                                                                                                      |
+| **Deletion check**                              | **Missing** |                                                                                                                                                      |
+| **Offsite copy**                                | **Missing** | Waits on the destination of the [Backup](./README.md#backup) todo items.                                                                             |
+| **Monitoring**                                  | **Missing** |                                                                                                                                                      |
 
 ## Goal
 
@@ -58,12 +58,16 @@ storage quota. Three rules govern those deletions:
 - A set chosen in bulk, by a criterion (a year, an album that already existed,
   the result of a search) instead of item by item, is not deleted before the
   offsite copy of [Copies and backup](#copies-and-backup) exists: until then,
-  Google Photos is the only copy outside the home of what it holds.
+  Google Photos is the only copy outside the home of what it holds. A set is
+  picked item by item when each of its items was chosen while looking at it; a
+  search or a sort by size may serve to find the candidates.
 - Nothing is deleted before the first restore rehearsal of
   [Copies and backup](#copies-and-backup) has passed.
 
 The files of the other machine are protected in the same way: its disk is not
-reused before their import is checked and a snapshot holds them.
+reused before their import is checked, a snapshot holds them, and the restore
+rehearsal has passed. Google Photos never held them, so until the offsite copy
+exists their only copies are then on two disks of pve2.
 
 Turning the Google Photos backup off on the phones was rejected (2026-11-27). It
 would remove the cases of [Phone backup](#phone-backup) that leave an item in
@@ -152,14 +156,14 @@ Decisions:
 
 ## Storage
 
-| Data                                      | Where                                                         | Replaceable                                                                                  |
-| :---------------------------------------- | :------------------------------------------------------------ | :------------------------------------------------------------------------------------------- |
-| Originals, profile data, database dump    | `tank-hdd/photos`, bind-mounted as Immich's media location    | No                                                                                           |
-| Thumbnails and transcoded videos          | The same dataset                                              | Yes: Immich regenerates them                                                                 |
-| Postgres data directory                   | A state directory on pve2's root disk (NVMe), bind-mounted    | Yes: restored from the dump                                                                  |
-| Machine learning model cache              | The container's root filesystem                               | Yes: downloaded again                                                                        |
-| Takeout archives, files to import         | `tank-hdd/photos-import`, a `photos-import` share on nas-pve2 | Yes, once their checks have passed: the library and the records directory hold their content |
-| Check records, kept files of the archives | The records directory of the same dataset                     | No                                                                                           |
+| Data                                      | Where                                                         | Replaceable                                                                                |
+| :---------------------------------------- | :------------------------------------------------------------ | :----------------------------------------------------------------------------------------- |
+| Originals, profile data, database dump    | `tank-hdd/photos`, bind-mounted as Immich's media location    | No                                                                                         |
+| Thumbnails and transcoded videos          | The same dataset                                              | Yes: Immich regenerates them                                                               |
+| Postgres data directory                   | A state directory on pve2's root disk (NVMe), bind-mounted    | Yes: restored from the dump                                                                |
+| Machine learning model cache              | The container's root filesystem                               | Yes: downloaded again                                                                      |
+| Takeout archives, files to import         | `tank-hdd/photos-import`, a `photos-import` share on nas-pve2 | Yes, once their checks have passed: the library and the records dataset hold their content |
+| Check records, kept files of the archives | `tank-hdd/photos-records`, a dataset that no share exports    | No                                                                                         |
 
 - The database stays off the library's hard disk and off any network share, as
   the Immich requirements ask. The state directory follows the pattern of the
@@ -184,8 +188,13 @@ Decisions:
   the service that parses every upload never sees them. Each account's API key
   is given to the tools when they run and is not stored on the node.
 
-Decision:
+Decisions:
 
+- **The records are not on the staging share.** The staging dataset is exported
+  writable to the clients of its share, and any of them could delete what is,
+  after a deletion in Google Photos, the last record of what it held. The
+  records dataset belongs to the user that runs the checks, and no share exports
+  it.
 - **No staging mount in the guest.** In an unprivileged guest the owner of the
   staging files is an unmapped user, so the guest could read them only if every
   process on the node could, or through an access rule for the guest's mapped
@@ -215,21 +224,25 @@ archive expires in about seven days:
    applies the sidecar files and recreates the albums that have a title, which
    is the tool's default. No option of the tool that drops a file (of a burst,
    of a RAW and JPEG pair) is used. It includes archived items and the media
-   files that have no sidecar, and leaves out trashed items and items shared by
-   a partner. Partner sharing is in use between the household's accounts (stated
-   on 2026-11-27), so the partner's own export is expected to carry such an
-   item, and check 3 confirms it for each one: an item that the partner's
-   library account does not hold is imported into the receiving account. The
-   accounts share with each other in Immich as they do in Google Photos, so each
-   person still sees the items of the partner.
+   files that have no sidecar (`--include-unmatched`), and leaves out trashed
+   items and items shared by a partner (`--include-partner=false`); both options
+   differ from the tool's defaults. The tool is needed for the imports only, so
+   a pinned release is fetched to the node for them, and the release and the
+   checksum of the binary that ran go into the account's record: it is not
+   installed as a managed component. Partner sharing is in use between the
+   household's accounts (stated on 2026-11-27), so the partner's own export is
+   expected to carry such an item, and check 3 confirms it for each one: an item
+   that the partner's library account does not hold is imported into the
+   receiving account. The accounts share with each other in Immich as they do in
+   Google Photos, so each person still sees the items of the partner.
 6. Checks 3 and 5 run, and the results go into the account's record, in the
-   records directory of the staging dataset. Check 3 stays open for the items
-   that a partner shared until the partner's account is imported.
+   records dataset. Check 3 stays open for the items that a partner shared until
+   the partner's account is imported.
 7. Once check 3 is closed, what the library does not hold is extracted from the
-   archives into the same directory: every file that is not a media file, among
+   archives into the same dataset: every file that is not a media file, among
    them the sidecar files, which hold what an import tool may not apply, and
    every media file whose content hash the library does not hold. The library
-   backup job covers the records directory. After this step the archives are no
+   backup job covers the records dataset. After this step the archives are no
    copy of anything: they stay on the staging share while the space allows, and
    no backup holds them.
 
@@ -303,10 +316,12 @@ code of the export checks on a small archive, in this order:
    and equals the count of the items that passed, so nothing was added to the
    album since the export and no failed item is left in it. All the items of the
    album are then deleted in Google Photos, by hand: no Google Photos API
-   deletes an item that the calling application did not create. Nobody empties
-   the trash afterwards, where a deleted item stays for 30 days
-   ([delete photos](https://support.google.com/photos/answer/6128858)), which is
-   the time to undo the deletion.
+   deletes an item that the calling application did not create. The trash, where
+   a deleted item stays for 30 days
+   ([delete photos](https://support.google.com/photos/answer/6128858)), is the
+   way to undo the deletion. Nobody empties it for at least eight days, the time
+   in which the backup job's checks read every pack of the repository once
+   ([Backups specification](./backups.md#what-is-verified-and-what-is-not)).
 
 | Condition                  | Passes when                                                                                                                                                                                     |
 | :------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -321,10 +336,10 @@ therefore rests on a listing of the newest snapshot, with its paths and the dump
 it holds, that a step run as root writes for the check.
 
 An item that fails a condition stays in Google Photos until its cause is found,
-and the result of every run goes into the records directory, with the files of
-the set's archive that step 7 of [Exports and imports](#exports-and-imports)
-keeps: after the deletion, its sidecar files are the last record of what Google
-Photos held.
+and the result of every run goes into the records dataset, with the files of the
+set's archive that step 7 of [Exports and imports](#exports-and-imports) keeps:
+after the deletion, its sidecar files are the last record of what Google Photos
+held.
 
 Limits:
 
@@ -332,12 +347,14 @@ Limits:
   and in the library only if Takeout returns the uploaded bytes, which export
   check 4 measures. If it does not, such an item is matched by its filename,
   capture time, and dimensions, and the record says that its bytes were not
-  compared.
+  compared. Such an item is deleted only after it was compared by eye with the
+  copy in the library.
 - The export of one album does not say which other albums of Google Photos hold
   the item, so the check does not compare album membership.
 - How Takeout delivers a motion photo and an item that was edited in Google
   Photos (one sidecar file or two, one media file or two) is unverified, and it
-  decides how step 3 counts them.
+  decides how step 3 counts them. An item edited in Google Photos stays out of
+  the deletion sets until the rollout has read that from an archive.
 - The operations the check needs from Immich (the lookup of an asset by its
   SHA-1 hash, the asset record with its path, its last update, and its metadata)
   were read in the API specification of Immich's main branch, which is newer
@@ -423,7 +440,10 @@ Decision:
 Immich does not support downgrades: after an upgrade that migrated the database,
 a rollback of the guest's system also needs the dump taken before the upgrade.
 The restore rehearsal of [Copies and backup](#copies-and-backup) therefore
-precedes an upgrade to a new major version.
+precedes an upgrade to a new major version. Every host follows one nixpkgs pin,
+so the guest's Immich version changes only when a NixOS release upgrade or a
+lock update is merged: the rehearsal is a step before merging one that changes
+Immich's major version.
 
 ## Copies and backup
 
@@ -443,8 +463,8 @@ design asks five things of it:
   [backup documentation](https://docs.immich.app/administration/backup-and-restore)
   names the directories that matter: `library`, `upload`, and `profile` for the
   originals, `backups` for the dumps.
-- It also covers the records directory of the staging dataset: the check records
-  and what the archives hold that the library does not.
+- It also covers the records dataset: the check records and what the archives
+  hold that the library does not.
 - It backs up the dumps that the media location holds, and never waits or fails
   for lack of a new one. It starts an hour after the dump, in the order that
   Immich's backup documentation recommends, the database first and the files
