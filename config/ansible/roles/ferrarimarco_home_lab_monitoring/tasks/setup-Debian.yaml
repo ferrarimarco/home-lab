@@ -6,6 +6,12 @@
     state: present
     update_cache: true
   become: true
+  register: monitoring_os_packages_installation
+
+- name: Look for the arguments file of the node exporter
+  ansible.builtin.stat:
+    path: /etc/default/prometheus-node-exporter
+  register: monitoring_node_exporter_arguments_file
 
 # The packaged unit passes the ARGS of this file to the exporter, which leaves
 # out the count of automatic restarts the restart-frequency alert reads
@@ -15,13 +21,12 @@
     regexp: "^ARGS="
     line: 'ARGS="--collector.systemd.enable-restarts-metrics"'
   become: true
-  register: monitoring_node_exporter_arguments
-  # In check mode on a host without the package, the file is one the install
-  # task above only predicts: accept that failure as the prediction, and keep
-  # every other one
-  failed_when:
-    - monitoring_node_exporter_arguments is failed
-    - not (ansible_check_mode and 'does not exist' in monitoring_node_exporter_arguments.msg | default(''))
+  # A check run that predicts the installation has no file to compare the
+  # line with yet. Every other run that finds no file fails here, a check run
+  # included
+  when: >-
+    monitoring_node_exporter_arguments_file.stat.exists
+    or not (ansible_check_mode and monitoring_os_packages_installation is changed)
   notify: Restart the node exporter
 
 - name: Declare the USB bridges smartmontools does not know

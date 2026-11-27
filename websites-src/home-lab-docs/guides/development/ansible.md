@@ -474,9 +474,11 @@ the monitoring role installs: its playbook, `monitoring.yaml`, has no enablement
 flag, so a run is limited to the nodes group (the Debian workload hosts run the
 containerized exporter on the same port). The packaged unit takes its arguments
 from the `ARGS` line of `/etc/default/prometheus-node-exporter`, which the role
-sets to enable the restart counts of the systemd collector, as the compose
-template does for the containerized exporter and the Nix `monitoring` role for
-the NixOS hosts: an exporter configured in a fourth place needs the flag too, or
+owns whole (an argument added by hand on a node is gone at the next run, so
+another argument goes into the role's task) and sets to enable the restart
+counts of the systemd collector, as the compose template does for the
+containerized exporter and the Nix `monitoring` role for the NixOS hosts: an
+exporter configured in a fourth place needs the flag too, or
 `NodeSystemdMetricsMissing` reports it. The kernel command line of the nodes is
 the Proxmox role's: a dictionary of option name to value
 (`proxmox_kernel_command_line_options`, the IOMMU options in the group
