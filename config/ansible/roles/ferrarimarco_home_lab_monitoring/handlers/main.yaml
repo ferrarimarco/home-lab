@@ -3,3 +3,9 @@
   ansible.builtin.apt:
     update_cache: true
   become: true
+
+- name: Restart the node exporter
+  ansible.builtin.systemd_service:
+    name: prometheus-node-exporter
+    state: restarted
+  become: true

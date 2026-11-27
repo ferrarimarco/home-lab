@@ -469,8 +469,16 @@ in its group variables (`group_vars/home_lab_proxmox_nodes`):
 The containerized exporters of the monitoring stack (the compose file, its
 directory and its project unit) follow
 `configure_monitoring and configure_docker`, so a host without Docker gets the
-host-side collectors alone. The kernel command line of the nodes is the Proxmox
-role's: a dictionary of option name to value
+host-side collectors alone. The nodes run Debian's packaged node exporter, which
+the monitoring role installs: its playbook, `monitoring.yaml`, has no enablement
+flag, so a run is limited to the nodes group (the Debian workload hosts run the
+containerized exporter on the same port). The packaged unit takes its arguments
+from the `ARGS` line of `/etc/default/prometheus-node-exporter`, which the role
+sets to enable the restart counts of the systemd collector, as the compose
+template does for the containerized exporter and the Nix `monitoring` role for
+the NixOS hosts: an exporter configured in a fourth place needs the flag too, or
+`NodeSystemdMetricsMissing` reports it. The kernel command line of the nodes is
+the Proxmox role's: a dictionary of option name to value
 (`proxmox_kernel_command_line_options`, the IOMMU options in the group
 variables) merged into the line the host boots with, the declared options
 replacing the ones of the same name and the rest kept, written to

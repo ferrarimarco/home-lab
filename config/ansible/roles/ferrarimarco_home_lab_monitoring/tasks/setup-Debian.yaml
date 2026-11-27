@@ -7,6 +7,23 @@
     update_cache: true
   become: true
 
+# The packaged unit passes the ARGS of this file to the exporter, which leaves
+# out the count of automatic restarts the restart-frequency alert reads
+- name: Enable the restart metrics of the node exporter
+  ansible.builtin.lineinfile:
+    path: /etc/default/prometheus-node-exporter
+    regexp: "^ARGS="
+    line: 'ARGS="--collector.systemd.enable-restarts-metrics"'
+  become: true
+  register: monitoring_node_exporter_arguments
+  # In check mode on a host without the package, the file is one the install
+  # task above only predicts: accept that failure as the prediction, and keep
+  # every other one
+  failed_when:
+    - monitoring_node_exporter_arguments is failed
+    - not (ansible_check_mode and 'does not exist' in monitoring_node_exporter_arguments.msg | default(''))
+  notify: Restart the node exporter
+
 - name: Declare the USB bridges smartmontools does not know
   ansible.builtin.template:
     src: smart_drivedb.h.jinja

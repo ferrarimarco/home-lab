@@ -231,6 +231,9 @@ pkgs.testers.nixosTest {
         # host whose exporter lacks the systemd collector is invisible to
         # those rules.
         machine.succeed("curl -sSf http://localhost:${nodeExporterPort}/metrics | grep '^node_systemd_unit_state' > /dev/null")
+        # The restart-frequency alert reads the restart counts, which the
+        # collector exports only with its restart metrics enabled.
+        machine.succeed("curl -sSf http://localhost:${nodeExporterPort}/metrics | grep '^node_systemd_service_restart_total' > /dev/null")
         print("Node exporter metrics endpoint verified successfully!")
       '';
 

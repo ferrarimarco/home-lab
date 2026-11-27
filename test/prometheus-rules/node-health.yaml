@@ -400,15 +400,25 @@ tests:
                 jobs. A share that fails to mount at boot is not retried until
                 it runs again.
 
-  - name: NodeSystemdMetricsMissing fires for a scraped host without unit states for 1 hour
+  - name: NodeSystemdMetricsMissing fires for a scraped host without unit states or without restart counts for 1 hour
     interval: 1m
     input_series:
       - series: 'up{job="node_exporter", instance="no-collector:9100"}'
         values: "1x61"
-      - series: 'up{job="node_exporter", instance="with-collector:9100"}'
+      - series: 'up{job="node_exporter", instance="no-restart-counts:9100"}'
         values: "1x61"
-      - series: 'node_systemd_unit_state{instance="with-collector:9100", name="sshd.service", state="active", type="notify"}'
+      - series: 'node_systemd_unit_state{instance="no-restart-counts:9100", name="sshd.service", state="active", type="notify"}'
         values: "1x61"
+      - series: 'up{job="node_exporter", instance="no-unit-states:9100"}'
+        values: "1x61"
+      - series: 'node_systemd_service_restart_total{instance="no-unit-states:9100", name="sshd.service"}'
+        values: "0x61"
+      - series: 'up{job="node_exporter", instance="with-both:9100"}'
+        values: "1x61"
+      - series: 'node_systemd_unit_state{instance="with-both:9100", name="sshd.service", state="active", type="notify"}'
+        values: "1x61"
+      - series: 'node_systemd_service_restart_total{instance="with-both:9100", name="sshd.service"}'
+        values: "0x61"
       - series: 'up{job="node_exporter", instance="down:9100"}'
         values: "0x61"
       - series: 'up{job="cadvisor", instance="other-job:8080"}'
@@ -425,12 +435,37 @@ tests:
               instance: no-collector:9100
               job: node_exporter
             exp_annotations:
-              summary: "No systemd unit metrics from no-collector:9100"
+              summary: "Systemd unit metrics missing from no-collector:9100"
               description: >-
                 no-collector:9100 answers the node exporter scrape but
-                exports no unit states: its exporter runs without the systemd
-                collector, or the collector cannot reach the system bus, so
-                failed and restart-looping units on it go unnoticed.
+                exports no unit states or no restart counts: its exporter runs
+                without the systemd collector or without its restart metrics, or
+                the collector cannot reach the system bus, so failed and
+                restart-looping units on it go unnoticed.
+          - exp_labels:
+              severity: warning
+              instance: no-unit-states:9100
+              job: node_exporter
+            exp_annotations:
+              summary: "Systemd unit metrics missing from no-unit-states:9100"
+              description: >-
+                no-unit-states:9100 answers the node exporter scrape but
+                exports no unit states or no restart counts: its exporter runs
+                without the systemd collector or without its restart metrics, or
+                the collector cannot reach the system bus, so failed and
+                restart-looping units on it go unnoticed.
+          - exp_labels:
+              severity: warning
+              instance: no-restart-counts:9100
+              job: node_exporter
+            exp_annotations:
+              summary: "Systemd unit metrics missing from no-restart-counts:9100"
+              description: >-
+                no-restart-counts:9100 answers the node exporter scrape but
+                exports no unit states or no restart counts: its exporter runs
+                without the systemd collector or without its restart metrics, or
+                the collector cannot reach the system bus, so failed and
+                restart-looping units on it go unnoticed.
 
   - name: SystemdUnitFailed fires for a unit failed for 15 minutes
     interval: 1m
@@ -587,4 +622,102 @@ tests:
                 The systemd unit zte-f6005-ont-exporter.service on raspberrypi2:9100
                 has been starting most of the time for 15 minutes or more: it
                 fails on every attempt and its restart policy tries again.
+                Check its journal on the host.
+
+  - name: SystemdUnitRestartingFrequently fires for a unit whose restart count moves in more than three scrapes of an hour for 15 minutes, not for a slower pace or one burst
+    interval: 1m
+    input_series:
+      # Six restarts a minute: the count moves at every scrape.
+      - series: 'node_systemd_service_restart_total{instance="hl02:9100", name="serial-getty@ttyS0.service"}'
+        values: "0+6x100"
+      # One restart every ten minutes: the fourth move lands at 40 minutes.
+      - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="paced.service"}'
+        values: "0x9 1x9 2x9 3x9 4x9 5x9 6x9 7x9 8x9 9x9 10x9"
+      # One restart every twenty minutes: never more than three moves in an hour.
+      - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="slow.service"}'
+        values: "0x19 1x19 2x19 3x19 4x19 5x19"
+      # Fifty restarts between two scrapes, then none: one move.
+      - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="burst.service"}'
+        values: "0x9 50x100"
+    alert_rule_test:
+      - eval_time: 18m
+        alertname: SystemdUnitRestartingFrequently
+        exp_alerts: []
+      - eval_time: 19m
+        alertname: SystemdUnitRestartingFrequently
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: serial-getty@ttyS0.service
+            exp_annotations:
+              summary: "Unit serial-getty@ttyS0.service keeps restarting on hl02:9100"
+              description: >-
+                systemd restarted the unit serial-getty@ttyS0.service on
+                hl02:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+      - eval_time: 54m
+        alertname: SystemdUnitRestartingFrequently
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: serial-getty@ttyS0.service
+            exp_annotations:
+              summary: "Unit serial-getty@ttyS0.service keeps restarting on hl02:9100"
+              description: >-
+                systemd restarted the unit serial-getty@ttyS0.service on
+                hl02:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+      - eval_time: 55m
+        alertname: SystemdUnitRestartingFrequently
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: serial-getty@ttyS0.service
+            exp_annotations:
+              summary: "Unit serial-getty@ttyS0.service keeps restarting on hl02:9100"
+              description: >-
+                systemd restarted the unit serial-getty@ttyS0.service on
+                hl02:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: paced.service
+            exp_annotations:
+              summary: "Unit paced.service keeps restarting on hl01:9100"
+              description: >-
+                systemd restarted the unit paced.service on
+                hl01:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+      - eval_time: 100m
+        alertname: SystemdUnitRestartingFrequently
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: serial-getty@ttyS0.service
+            exp_annotations:
+              summary: "Unit serial-getty@ttyS0.service keeps restarting on hl02:9100"
+              description: >-
+                systemd restarted the unit serial-getty@ttyS0.service on
+                hl02:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: paced.service
+            exp_annotations:
+              summary: "Unit paced.service keeps restarting on hl01:9100"
+              description: >-
+                systemd restarted the unit paced.service on
+                hl01:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
                 Check its journal on the host.

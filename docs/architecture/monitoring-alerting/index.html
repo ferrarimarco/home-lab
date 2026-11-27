@@ -2460,7 +2460,7 @@
 <tr>
 <td style="text-align: left;"><strong>Alert Rules: Unit Tests</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
-<td style="text-align: left;"><code>promtool test rules</code> cases for all 61 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
+<td style="text-align: left;"><code>promtool test rules</code> cases for all 62 rules under <code>test/prometheus-rules/</code>, run in CI from the pinned Prometheus image by the <code>Test Prometheus rules</code> workflow (§9); passing locally and in CI since the 2026-10-21 push.</td>
 </tr>
 </tbody>
 </table>
@@ -2774,9 +2774,9 @@ with operational experience.</p>
 <tr>
 <td style="text-align: left;"><code>NodeSystemdMetricsMissing</code></td>
 <td style="text-align: left;">warning</td>
-<td style="text-align: left;"><code>up{job="node_exporter"} == 1 unless on (instance) count by (instance) (node_systemd_unit_state)</code></td>
+<td style="text-align: left;"><code>up{job="node_exporter"} == 1 unless on (instance) (count by (instance) (node_systemd_unit_state) and count by (instance) (node_systemd_service_restart_total))</code></td>
 <td style="text-align: left;">1 h</td>
-<td style="text-align: left;">The three unit rules below read a series only the systemd collector exports, so an instance without it is invisible to them: hl02's exporter ran without the collector when this rule was written, and its units raised nothing. It also fires when the collector is enabled but cannot reach the system bus. On the <code>AptMetricsMissing</code> pattern.</td>
+<td style="text-align: left;">The four unit rules below read series only the systemd collector exports, the restart counts only with its restart metrics enabled (<code>--collector.systemd.enable-restarts-metrics</code>, which the Nix <code>monitoring</code> role, the monitoring compose template, and the Ansible monitoring role for the packaged exporter of the Proxmox nodes each set), so an instance without either is invisible to some of them: hl02's exporter ran without the collector when this rule was written, and its units raised nothing. It also fires when the collector is enabled but cannot reach the system bus. On the <code>AptMetricsMissing</code> pattern.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>SystemdUnitFailed</code></td>
@@ -2798,6 +2798,13 @@ with operational experience.</p>
 <td style="text-align: left;"><code>avg_over_time(node_systemd_unit_state{state="activating", type!="oneshot", name!~"user@.*"}[30m]) &gt; 0.5</code></td>
 <td style="text-align: left;">15 min</td>
 <td style="text-align: left;">A unit with <code>Restart=</code> never settles in <code>failed</code>: it sits in <code>activating</code> between attempts and runs briefly in between (the ONT exporter was <code>activating</code> for 93 percent of the week before 2026-11-04 and <code>failed</code> for none of it, so its seven-month restart loop raised nothing). A state sampled at one instant resets a plain hold, so the rule averages over a window. The user managers sit in <code>activating</code> for the length of a login on the Debian 11 and Proxmox hosts, and a oneshot unit for its whole run (the backup jobs run for hours): both are excluded.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SystemdUnitRestartingFrequently</code></td>
+<td style="text-align: left;">warning</td>
+<td style="text-align: left;"><code>changes(node_systemd_service_restart_total[1h]) &gt; 3</code></td>
+<td style="text-align: left;">15 min</td>
+<td style="text-align: left;">A unit whose process runs for a while before each exit reads <code>active</code> at nearly every scrape, so the rules above see nothing: the serial getty of both VMs, on a console the VMs had no serial port for, restarted every ten seconds through 2026-11-26 and 2026-11-27, <code>activating</code> in 1.2 percent of the samples on hl01 and in none on hl02. The count of the restarts a unit's <code>Restart=</code> policy made shows such a loop. The rule counts the scrapes that saw the count move: the threshold is exact that way (<code>increase</code> extrapolates three restarts to slightly more than three), and a burst between two scrapes counts once, as does the reset of a reboot. Four restarts spread over an hour raise it, loop or not; a loop paced slower than one restart every fifteen minutes stays under it.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>NodeClockSkewed</code></td>

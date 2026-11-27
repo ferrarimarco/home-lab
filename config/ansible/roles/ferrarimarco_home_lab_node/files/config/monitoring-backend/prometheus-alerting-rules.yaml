@@ -195,20 +195,28 @@ groups:
             its jobs. A share that fails to mount at boot is not retried
             until it runs again.
       - alert: NodeSystemdMetricsMissing
-        # The unit rules below read node_systemd_unit_state, which only the
-        # systemd collector exports: an instance without it is invisible to
-        # them, so its failed and looping units raise nothing.
-        expr: up{job="node_exporter"} == 1 unless on (instance) count by (instance) (node_systemd_unit_state)
+        # The unit rules below read node_systemd_unit_state and
+        # node_systemd_service_restart_total, which only the systemd
+        # collector exports, the second with its restart metrics enabled: an
+        # instance without either is invisible to some of them, so its failed
+        # or looping units raise nothing.
+        expr: >-
+          up{job="node_exporter"} == 1
+          unless on (instance) (
+            count by (instance) (node_systemd_unit_state)
+            and count by (instance) (node_systemd_service_restart_total)
+          )
         for: 1h
         labels:
           severity: warning
         annotations:
-          summary: "No systemd unit metrics from {{ $labels.instance }}"
+          summary: "Systemd unit metrics missing from {{ $labels.instance }}"
           description: >-
             {{ $labels.instance }} answers the node exporter scrape but
-            exports no unit states: its exporter runs without the systemd
-            collector, or the collector cannot reach the system bus, so
-            failed and restart-looping units on it go unnoticed.
+            exports no unit states or no restart counts: its exporter runs
+            without the systemd collector or without its restart metrics, or
+            the collector cannot reach the system bus, so failed and
+            restart-looping units on it go unnoticed.
       - alert: SystemdUnitFailed
         expr: node_systemd_unit_state{state="failed"} == 1
         for: 15m
@@ -254,6 +262,25 @@ groups:
             The systemd unit {{ $labels.name }} on {{ $labels.instance }}
             has been starting most of the time for 15 minutes or more: it
             fails on every attempt and its restart policy tries again.
+            Check its journal on the host.
+      - alert: SystemdUnitRestartingFrequently
+        # A unit whose process runs for a while before each exit reads active
+        # at nearly every scrape, so neither its state nor the share of time
+        # it spends activating shows the loop; the count of the restarts its
+        # Restart= policy made does. The signal is the number of scrapes that
+        # saw the count move, which no burst inflates: more than three in an
+        # hour is a loop, at any pace faster than one restart every fifteen
+        # minutes. A reboot resets the count, which reads as one move.
+        expr: changes(node_systemd_service_restart_total[1h]) > 3
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unit {{ $labels.name }} keeps restarting on {{ $labels.instance }}"
+          description: >-
+            systemd restarted the unit {{ $labels.name }} on
+            {{ $labels.instance }} again and again over the last hour: its
+            process keeps exiting and its restart policy starts it again.
             Check its journal on the host.
       - alert: NodeClockSkewed
         expr: abs(node_timex_offset_seconds) > 0.05

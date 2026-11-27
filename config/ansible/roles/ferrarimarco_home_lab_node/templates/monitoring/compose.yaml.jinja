@@ -6,6 +6,8 @@ services:
     command:
       - "--collector.textfile.directory={{ monitoring_prometheus_node_exporter_textfile_collector_directory }}"
       - "--collector.systemd"
+      # The restart-frequency alert reads the count of automatic restarts
+      - "--collector.systemd.enable-restarts-metrics"
       - "--path.rootfs=/host"
     network_mode: host
     pid: host

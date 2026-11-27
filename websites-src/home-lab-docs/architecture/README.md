@@ -664,6 +664,15 @@ reliability risks first, then security exposure, then automation):
   then decide what covers the containers, starting from what comin does when a
   switch inhibitor changes, in the
   [Nix development guide](../guides/development/nix.md#what-comin-does-with-a-change-that-needs-a-restart).
+- **Unit metrics from the NAS containers (2026-11-27)**: nas-pve1 and nas-pve2
+  run no node exporter, and their inventory group turns their scrape target off
+  (`enable_prometheus_node_exporter_scraping`), so the unit rules of the
+  [monitoring-alerting spec](./monitoring-alerting.md) see none of their units:
+  a failed or restart-looping unit there raises nothing, and
+  `NodeSystemdMetricsMissing` cannot report a host that has no target. First
+  step: import the Nix `monitoring` role in the `nas` role and check which
+  collectors make sense in a container that shares its node's kernel, then turn
+  the scrape target on.
 - **Alert on obsolete packages (2026-11-18)**: a package that no configured APT
   source provides anymore (the Coral runtime after Google retired its
   repository, leftovers after a release upgrade) gets no updates and raises
