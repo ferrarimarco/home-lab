@@ -4,7 +4,7 @@
 
 # backup: the backup role reads this tag as the exporter release its venv
 # installs (restic itself comes from the hosts' Debian packages)
-FROM ngosang/restic-exporter:2.1.2 AS restic-exporter
+FROM ngosang/restic-exporter:2.2.1 AS restic-exporter
 
 # frigate
 FROM ghcr.io/blakeblackshear/frigate:0.18.0 AS frigate
