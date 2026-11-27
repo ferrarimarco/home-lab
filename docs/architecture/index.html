@@ -2152,13 +2152,18 @@ reliability risks first, then security exposure, then automation):</p>
 </ul>
 <h3 id="issues-to-solve">Issues to solve</h3>
 <ul>
-<li><strong>hl02's serial getty fails every ten seconds (2026-11-26)</strong>: the <code>proxmox-vm</code>
-  Nix role passes <code>console=ttyS0</code> to the kernel and VM 101 has no serial device
-  (<code>qm config 101</code> on pve1 lists none), so <code>serial-getty@ttyS0</code> restarts in a
-  loop and logs "not a tty" (<code>journalctl -b -t agetty</code> on hl02: 1,867 lines on
-  2026-11-26 before the release upgrade of that day). First step: decide between
-  declaring the serial device in the VM's Terraform resource and dropping the
-  console parameter from the role.</li>
+<li><strong>The serial getty of hl01 and hl02 restarts every ten seconds (2026-11-27)</strong>:
+  both kernels get <code>console=ttyS0</code> (from the <code>proxmox-vm</code> Nix role on hl02, from
+  the Debian cloud image on hl01) and neither VM has a serial device
+  (<code>qm config 100</code> and <code>qm config 101</code> on pve1), so <code>serial-getty@ttyS0</code> exits
+  and restarts; the <code>SystemdUnitRestartingFrequently</code> row of the
+  <a href="monitoring-alerting/">monitoring-alerting spec</a> has the measurements. The
+  loop stays as the live case of that rule until it has fired for both VMs.
+  Then: declare the serial device in both VMs' Terraform resources, list the
+  changes Proxmox holds for the next start of each VM, restart both behind
+  silences (hl01 hosts a monitoring replica), and confirm that the loop is gone
+  and the alert clears. Waits on: the deployment of hl02's configuration, which
+  brings its exporter the restart counts.</li>
 <li><strong>hl02 logs a sound driver error at every boot (2026-11-26)</strong>: Proxmox gives
   every <code>q35</code> VM an audio controller with no codec
   (<code>/usr/share/qemu-server/pve-q35-4.0.cfg</code> on the node), and the kernel reports

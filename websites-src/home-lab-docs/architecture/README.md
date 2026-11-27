@@ -85,13 +85,18 @@ reliability risks first, then security exposure, then automation):
 
 ### Issues to solve
 
-- **hl02's serial getty fails every ten seconds (2026-11-26)**: the `proxmox-vm`
-  Nix role passes `console=ttyS0` to the kernel and VM 101 has no serial device
-  (`qm config 101` on pve1 lists none), so `serial-getty@ttyS0` restarts in a
-  loop and logs "not a tty" (`journalctl -b -t agetty` on hl02: 1,867 lines on
-  2026-11-26 before the release upgrade of that day). First step: decide between
-  declaring the serial device in the VM's Terraform resource and dropping the
-  console parameter from the role.
+- **The serial getty of hl01 and hl02 restarts every ten seconds (2026-11-27)**:
+  both kernels get `console=ttyS0` (from the `proxmox-vm` Nix role on hl02, from
+  the Debian cloud image on hl01) and neither VM has a serial device
+  (`qm config 100` and `qm config 101` on pve1), so `serial-getty@ttyS0` exits
+  and restarts; the `SystemdUnitRestartingFrequently` row of the
+  [monitoring-alerting spec](./monitoring-alerting.md) has the measurements. The
+  loop stays as the live case of that rule until it has fired for both VMs.
+  Then: declare the serial device in both VMs' Terraform resources, list the
+  changes Proxmox holds for the next start of each VM, restart both behind
+  silences (hl01 hosts a monitoring replica), and confirm that the loop is gone
+  and the alert clears. Waits on: the deployment of hl02's configuration, which
+  brings its exporter the restart counts.
 - **hl02 logs a sound driver error at every boot (2026-11-26)**: Proxmox gives
   every `q35` VM an audio controller with no codec
   (`/usr/share/qemu-server/pve-q35-4.0.cfg` on the node), and the kernel reports

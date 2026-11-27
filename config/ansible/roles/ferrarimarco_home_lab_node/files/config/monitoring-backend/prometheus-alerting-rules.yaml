@@ -268,10 +268,16 @@ groups:
         # at nearly every scrape, so neither its state nor the share of time
         # it spends activating shows the loop; the count of the restarts its
         # Restart= policy made does. The signal is the number of scrapes that
-        # saw the count move, which no burst inflates: more than three in an
-        # hour is a loop, at any pace faster than one restart every fifteen
-        # minutes. A reboot resets the count, which reads as one move.
-        expr: changes(node_systemd_service_restart_total[1h]) > 3
+        # saw the count move, so restarts between two scrapes count once and
+        # a count that goes back to zero counts as one move. More than three
+        # moves in an hour with the last one in the past ten minutes, held
+        # for fifteen, is a loop that restarts at least every nine minutes.
+        # The second clause is what keeps a unit that restarted through a
+        # short outage of a dependency quiet, and what clears the alert ten
+        # minutes after the restarts stop.
+        expr: >-
+          changes(node_systemd_service_restart_total[1h]) > 3
+          and changes(node_systemd_service_restart_total[10m]) > 0
         for: 15m
         labels:
           severity: warning

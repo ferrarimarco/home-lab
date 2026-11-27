@@ -624,21 +624,45 @@ tests:
                 fails on every attempt and its restart policy tries again.
                 Check its journal on the host.
 
-  - name: SystemdUnitRestartingFrequently fires for a unit whose restart count moves in more than three scrapes of an hour for 15 minutes, not for a slower pace or one burst
+  - name: SystemdUnitRestartingFrequently fires for a unit whose restart count moved in more than three scrapes of an hour and in the past 10 minutes, for 15 minutes
     interval: 1m
     input_series:
-      # Six restarts a minute: the count moves at every scrape.
+      # Six restarts a minute: the count moves at every scrape. The host
+      # restarts at 50 minutes: two scrapes are missing and the count starts
+      # over, which neither clears the alert nor restarts its hold (a hold
+      # that started over at 52 minutes would end at 67).
       - series: 'node_systemd_service_restart_total{instance="hl02:9100", name="serial-getty@ttyS0.service"}'
-        values: "0+6x100"
-      # One restart every ten minutes: the fourth move lands at 40 minutes.
+        values: "0+6x49 _x2 0+6x48"
+      # One restart every nine minutes: the fourth move lands at 36 minutes,
+      # and every ten minutes hold a move.
       - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="paced.service"}'
-        values: "0x9 1x9 2x9 3x9 4x9 5x9 6x9 7x9 8x9 9x9 10x9"
-      # One restart every twenty minutes: never more than three moves in an hour.
+        values: "0x8 1x8 2x8 3x8 4x8 5x8 6x8 7x8 8x8 9x8 10x8 11x8"
+      # One restart every ten minutes: between two moves, the past ten
+      # minutes hold none for a scrape, and the hold starts over.
       - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="slow.service"}'
-        values: "0x19 1x19 2x19 3x19 4x19 5x19"
+        values: "0x9 1x9 2x9 3x9 4x9 5x9 6x9 7x9 8x9 9x9 10x9"
       # Fifty restarts between two scrapes, then none: one move.
       - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="burst.service"}'
         values: "0x9 50x100"
+      # One restart a minute through an outage of nine minutes, from 20 to 28
+      # minutes: the fourth move lands at 23 minutes and the last one leaves
+      # the past ten minutes after 36, before the hold ends.
+      - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="outage.service"}'
+        values: "0x19 1+1x8 9x80"
+      # The same through an outage of 21 minutes, from 20 to 40 minutes: the
+      # hold ends at 38 minutes, and the alert clears after 48.
+      - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="long-outage.service"}'
+        values: "0x19 1+1x20 21x70"
+      # Three restarts at 13, 14 and 15 minutes, then one a minute from 71
+      # minutes: the hour that ends at 71 minutes still holds the three, so
+      # the hold starts there and ends at 86.
+      - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="earlier-restarts-inside.service"}'
+        values: "0x12 1+1x2 3x54 4+1x30"
+      # Three restarts at 11, 12 and 13 minutes, then one a minute from 70
+      # minutes: the hour that ends at 70 minutes has lost the first, so the
+      # fourth move is the one at 73 minutes and the hold ends at 88.
+      - series: 'node_systemd_service_restart_total{instance="hl01:9100", name="earlier-restarts-outside.service"}'
+        values: "0x10 1+1x2 3x55 4+1x31"
     alert_rule_test:
       - eval_time: 18m
         alertname: SystemdUnitRestartingFrequently
@@ -657,7 +681,7 @@ tests:
                 hl02:9100 again and again over the last hour: its
                 process keeps exiting and its restart policy starts it again.
                 Check its journal on the host.
-      - eval_time: 54m
+      - eval_time: 48m
         alertname: SystemdUnitRestartingFrequently
         exp_alerts:
           - exp_labels:
@@ -671,7 +695,32 @@ tests:
                 hl02:9100 again and again over the last hour: its
                 process keeps exiting and its restart policy starts it again.
                 Check its journal on the host.
-      - eval_time: 55m
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: long-outage.service
+            exp_annotations:
+              summary: "Unit long-outage.service keeps restarting on hl01:9100"
+              description: >-
+                systemd restarted the unit long-outage.service on
+                hl01:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+      - eval_time: 49m
+        alertname: SystemdUnitRestartingFrequently
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: serial-getty@ttyS0.service
+            exp_annotations:
+              summary: "Unit serial-getty@ttyS0.service keeps restarting on hl02:9100"
+              description: >-
+                systemd restarted the unit serial-getty@ttyS0.service on
+                hl02:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+      - eval_time: 51m
         alertname: SystemdUnitRestartingFrequently
         exp_alerts:
           - exp_labels:
@@ -696,7 +745,7 @@ tests:
                 hl01:9100 again and again over the last hour: its
                 process keeps exiting and its restart policy starts it again.
                 Check its journal on the host.
-      - eval_time: 100m
+      - eval_time: 60m
         alertname: SystemdUnitRestartingFrequently
         exp_alerts:
           - exp_labels:
@@ -718,6 +767,89 @@ tests:
               summary: "Unit paced.service keeps restarting on hl01:9100"
               description: >-
                 systemd restarted the unit paced.service on
+                hl01:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+      - eval_time: 87m
+        alertname: SystemdUnitRestartingFrequently
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: serial-getty@ttyS0.service
+            exp_annotations:
+              summary: "Unit serial-getty@ttyS0.service keeps restarting on hl02:9100"
+              description: >-
+                systemd restarted the unit serial-getty@ttyS0.service on
+                hl02:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: paced.service
+            exp_annotations:
+              summary: "Unit paced.service keeps restarting on hl01:9100"
+              description: >-
+                systemd restarted the unit paced.service on
+                hl01:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: earlier-restarts-inside.service
+            exp_annotations:
+              summary: "Unit earlier-restarts-inside.service keeps restarting on hl01:9100"
+              description: >-
+                systemd restarted the unit earlier-restarts-inside.service on
+                hl01:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+      - eval_time: 88m
+        alertname: SystemdUnitRestartingFrequently
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: hl02:9100
+              name: serial-getty@ttyS0.service
+            exp_annotations:
+              summary: "Unit serial-getty@ttyS0.service keeps restarting on hl02:9100"
+              description: >-
+                systemd restarted the unit serial-getty@ttyS0.service on
+                hl02:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: paced.service
+            exp_annotations:
+              summary: "Unit paced.service keeps restarting on hl01:9100"
+              description: >-
+                systemd restarted the unit paced.service on
+                hl01:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: earlier-restarts-inside.service
+            exp_annotations:
+              summary: "Unit earlier-restarts-inside.service keeps restarting on hl01:9100"
+              description: >-
+                systemd restarted the unit earlier-restarts-inside.service on
+                hl01:9100 again and again over the last hour: its
+                process keeps exiting and its restart policy starts it again.
+                Check its journal on the host.
+          - exp_labels:
+              severity: warning
+              instance: hl01:9100
+              name: earlier-restarts-outside.service
+            exp_annotations:
+              summary: "Unit earlier-restarts-outside.service keeps restarting on hl01:9100"
+              description: >-
+                systemd restarted the unit earlier-restarts-outside.service on
                 hl01:9100 again and again over the last hour: its
                 process keeps exiting and its restart policy starts it again.
                 Check its journal on the host.
