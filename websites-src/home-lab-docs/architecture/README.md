@@ -240,11 +240,16 @@ reliability risks first, then security exposure, then automation):
       own credentials, so that a blank workstation needs no key file to reach
       the bucket) and note that its local state joins the secret files. Blocks:
       the automatic secret files backup ([Backup](#backup)).
-    - Factor the per-host NixOS VM resources into a shared module (or `for_each`
-      over a host map), so the reference pattern of the
-      [VM framework spec](./proxmox-vm.md) is enforced by code rather than by
-      convention; hl02 is the second VM, declared next to hl01 in the workloads
-      stack.
+    - **Terraform modules for the Proxmox VMs and containers (2026-11-27)**: one
+      module for the VMs and one for the containers, so that a setting every
+      guest needs is declared once and the reference patterns of the
+      [VM](./proxmox-vm.md) and [LXC](./proxmox-lxc.md) framework specs are
+      enforced by code rather than by convention; today each fix is repeated in
+      every guest's resource in the workloads stack. First step: list what the
+      resources of the two VMs and of the two containers share and where they
+      differ (hl01 is a cloud-init VM with PCI passthrough, outside the VM
+      framework spec), and decide between a module and a `for_each` over a host
+      map.
 - Tests to implement:
     - Samba config file validation: `testparm -s`.
     - Evaluate `dnsmasq --test` for testing the dnsmasq configuration.
