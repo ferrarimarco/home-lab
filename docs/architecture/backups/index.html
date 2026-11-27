@@ -1855,6 +1855,11 @@
 <td style="text-align: left;"><code>restic-backup-nas-state</code> job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour and on 2026-11-04 with the single-flavour role (first backup and drill clean on both days, the former layout removed, exporter target up); applied on pve2 on 2026-11-16 (first backup and drill clean, exporter target up).</td>
 </tr>
 <tr>
+<td style="text-align: left;"><strong>Photo library backup job</strong></td>
+<td style="text-align: left;"><strong>Missing</strong></td>
+<td style="text-align: left;"><code>restic-backup-photos</code> job of the backup role on pve2, for the <a href="../photo-library/">Photo Library</a>; the role has neither the exclusion nor the guard that the job needs, and the repository's dataset does not exist.</td>
+</tr>
+<tr>
 <td style="text-align: left;"><strong>Media manifest</strong></td>
 <td style="text-align: left;"><strong>Fully Implemented</strong></td>
 <td style="text-align: left;">Nightly list of the files on the media share (path, size, modification time), written by the <code>media-manifest</code> stack of the node role into the runtime tree at the start of every run of the workloads job, whose unit wants the listing and waits for it; an empty listing keeps the last one that listed files, and <code>MediaManifestShrunk</code> warns when the count falls below half. Applied on hl01 on 2026-11-18: the first run listed 705 files, and the snapshot taken after it holds the manifest.</td>
@@ -1925,6 +1930,26 @@ and the topology, which hold secret material (the
 no state of its own: its configuration is the flake, and the broker's
 persistence store is a cache that every consumer republishes on reconnect
 (<a href="../mqtt-broker/">MQTT Broker</a>).</p>
+<p>The photo library is backed up from pve2, the node that holds its dataset,
+through a <code>restic-backup-photos</code> job of the same role. Its set is Immich's media
+location except the two directories of generated content, plus the records
+directory of the staging dataset; the
+<a href="../photo-library/#copies-and-backup">Photo Library specification</a> says why
+each is in the set. The job needs two features of the role, which any other job
+can use:</p>
+<ul>
+<li><strong>An exclusion.</strong> A job backs up a tree except named subdirectories, instead
+  of listing the subdirectories to include. A job that lists them misses a
+  directory that a later version of the application adds, without any error;
+  with an exclusion, that case costs a larger snapshot. The photo job excludes
+  <code>thumbs</code> and <code>encoded-video</code>.</li>
+<li><strong>A guard before the backup.</strong> The job waits up to a bound for a file newer
+  than its previous run in a given directory, and fails without one, before
+  <code>restic backup</code> runs. The photo job waits up to 30 minutes for a database dump
+  in the <code>backups</code> directory of the media location, so no snapshot succeeds with
+  a dump older than the one of the previous snapshot. A job's first run accepts
+  any file.</li>
+</ul>
 <h2 id="where-the-data-goes">Where the data goes</h2>
 <p>Each host owns one restic repository on the nas-pve1 <code>backups</code> share (the
 <code>rpool-sata/backups</code> ZFS dataset on pve1), mounted over CIFS at
@@ -1936,6 +1961,20 @@ job's environment file, readable by root on the host only. Retention keeps seven
 daily snapshots. The repositories have no second copy: losing the share loses
 them (the <a href="../#backup">second copy of the restic repositories</a> is a todo
 item).</p>
+<p>The photo job differs from the other jobs in four ways:</p>
+<ul>
+<li>Its repository is on pve2, on a <code>backups</code> dataset of the <code>tank-hdd-scratch</code>
+  pool: another disk than the library's <code>tank-hdd</code>, in the same host. The pool's
+  disk holds 1 TB, against a library of about 300 GB (stated on 2026-11-23).</li>
+<li>It runs at 03:00, an hour after Immich's default time for the database dump.</li>
+<li>It keeps twelve monthly snapshots beside the seven daily ones.</li>
+<li>Its monthly drill restores the marker file that Immich keeps in the <code>library</code>
+  directory (<code>.immich</code>, which its
+  <a href="https://docs.immich.app/administration/system-integrity">system integrity</a>
+  page describes): every other file of the set is personal, and the drill writes
+  its file unencrypted beside the repository.</li>
+</ul>
+<p>Its password is a vault variable of its own, as for every repository.</p>
 <p>Which jobs a host must run is declared, not inferred from what runs: a host's
 <code>expected_backup_jobs</code> inventory list, or, by default, the restic jobs it
 configures, of either flavour. The monitoring backends render that list as a
@@ -1955,6 +1994,12 @@ coverage.</p>
   a CIFS backend, and would serialize the nightly jobs on the repository lock.
   Revisit when a backend with per-client isolation and append-only mode exists
   (restic's REST server on the NAS would qualify).</li>
+<li><strong>The photo repository is on pve2, not on pve1</strong> (2026-11-27). The
+  <code>rpool-usb-1</code> pool of pve1 would put that copy on another host, behind a
+  network mount on pve2 and on a USB disk, with about 700 GB left on its 900 GB.
+  A second disk of pve2 needs neither. Its cost is that the loss of pve2 as a
+  whole takes the library and its backup together, until the offsite copy of the
+  photo specification exists.</li>
 <li><strong>Repositories are created deliberately, never implicitly.</strong> The job refuses
   to initialize a missing repository; the role initializes one only through a
   dedicated task, after checking that the path is not on the host's root

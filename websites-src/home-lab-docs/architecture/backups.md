@@ -11,6 +11,7 @@
 | **Structural and pack-data checks** | **Fully Implemented** | Exporter `restic check` every 12 hours; the job reads one group of pack files per night, every pack once per cycle.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Restore drill**                   | **Fully Implemented** | Monthly drill of one bounded subtree with `--verify` into a scratch directory next to the repository.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **NixOS state backup**              | **Fully Implemented** | `restic-backup-nas-state` job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour and on 2026-11-04 with the single-flavour role (first backup and drill clean on both days, the former layout removed, exporter target up); applied on pve2 on 2026-11-16 (first backup and drill clean, exporter target up).                                                                                                                                                     |
+| **Photo library backup job**        | **Missing**           | `restic-backup-photos` job of the backup role on pve2, for the [Photo Library](./photo-library.md); the role has neither the exclusion nor the guard that the job needs, and the repository's dataset does not exist.                                                                                                                                                                                                                                                                                                                                                         |
 | **Media manifest**                  | **Fully Implemented** | Nightly list of the files on the media share (path, size, modification time), written by the `media-manifest` stack of the node role into the runtime tree at the start of every run of the workloads job, whose unit wants the listing and waits for it; an empty listing keeps the last one that listed files, and `MediaManifestShrunk` warns when the count falls below half. Applied on hl01 on 2026-11-18: the first run listed 705 files, and the snapshot taken after it holds the manifest.                                                                          |
 | **Second copy of the repositories** | **Missing**           | The repositories exist only on the nas-pve1 share, a single-disk pool; the second copy is a [Backup](./README.md#backup) todo item.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Secret files backup**             | **Fully Implemented** | `scripts/backup-secrets.sh` writes the gitignored secret files of the checkout to one restic repository per destination outside the lab, and restores each snapshot to compare it with the working copy; `test/scripts/backup-secrets-test.sh` covers it. First backup written and verified on 2026-11-20. The restore on a blank workstation has not been rehearsed end-to-end ([Backup](./README.md#backup) todo item).                                                                                                                                                     |
@@ -69,6 +70,26 @@ no state of its own: its configuration is the flake, and the broker's
 persistence store is a cache that every consumer republishes on reconnect
 ([MQTT Broker](./mqtt-broker.md)).
 
+The photo library is backed up from pve2, the node that holds its dataset,
+through a `restic-backup-photos` job of the same role. Its set is Immich's media
+location except the two directories of generated content, plus the records
+directory of the staging dataset; the
+[Photo Library specification](./photo-library.md#copies-and-backup) says why
+each is in the set. The job needs two features of the role, which any other job
+can use:
+
+- **An exclusion.** A job backs up a tree except named subdirectories, instead
+  of listing the subdirectories to include. A job that lists them misses a
+  directory that a later version of the application adds, without any error;
+  with an exclusion, that case costs a larger snapshot. The photo job excludes
+  `thumbs` and `encoded-video`.
+- **A guard before the backup.** The job waits up to a bound for a file newer
+  than its previous run in a given directory, and fails without one, before
+  `restic backup` runs. The photo job waits up to 30 minutes for a database dump
+  in the `backups` directory of the media location, so no snapshot succeeds with
+  a dump older than the one of the previous snapshot. A job's first run accepts
+  any file.
+
 ## Where the data goes
 
 Each host owns one restic repository on the nas-pve1 `backups` share (the
@@ -81,6 +102,21 @@ job's environment file, readable by root on the host only. Retention keeps seven
 daily snapshots. The repositories have no second copy: losing the share loses
 them (the [second copy of the restic repositories](./README.md#backup) is a todo
 item).
+
+The photo job differs from the other jobs in four ways:
+
+- Its repository is on pve2, on a `backups` dataset of the `tank-hdd-scratch`
+  pool: another disk than the library's `tank-hdd`, in the same host. The pool's
+  disk holds 1 TB, against a library of about 300 GB (stated on 2026-11-23).
+- It runs at 03:00, an hour after Immich's default time for the database dump.
+- It keeps twelve monthly snapshots beside the seven daily ones.
+- Its monthly drill restores the marker file that Immich keeps in the `library`
+  directory (`.immich`, which its
+  [system integrity](https://docs.immich.app/administration/system-integrity)
+  page describes): every other file of the set is personal, and the drill writes
+  its file unencrypted beside the repository.
+
+Its password is a vault variable of its own, as for every repository.
 
 Which jobs a host must run is declared, not inferred from what runs: a host's
 `expected_backup_jobs` inventory list, or, by default, the restic jobs it
@@ -102,6 +138,12 @@ Decisions:
   a CIFS backend, and would serialize the nightly jobs on the repository lock.
   Revisit when a backend with per-client isolation and append-only mode exists
   (restic's REST server on the NAS would qualify).
+- **The photo repository is on pve2, not on pve1** (2026-11-27). The
+  `rpool-usb-1` pool of pve1 would put that copy on another host, behind a
+  network mount on pve2 and on a USB disk, with about 700 GB left on its 900 GB.
+  A second disk of pve2 needs neither. Its cost is that the loss of pve2 as a
+  whole takes the library and its backup together, until the offsite copy of the
+  photo specification exists.
 - **Repositories are created deliberately, never implicitly.** The job refuses
   to initialize a missing repository; the role initializes one only through a
   dedicated task, after checking that the path is not on the host's root

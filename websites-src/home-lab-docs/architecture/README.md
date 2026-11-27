@@ -18,7 +18,7 @@ reference pages beside them, and the todo list for the whole lab.
 | [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill; and the backup of the checkout's secret files, outside the lab. | **Partially Implemented**     |
 | [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                                                | **Fully Implemented**         |
 | [**OS Package Upgrades**](./os-package-upgrades.md)                         | One reviewed run of the OS packages playbook that upgrades a Debian host, reboots it when needed, and verifies it: the removal guard, the downtime silences, and the guest and pool checks on the Proxmox nodes.                                                                  | **Partially Implemented**     |
-| [**Photo Library**](./photo-library.md)                                     | The household's photos and videos in an Immich server on a NixOS container on pve2: the Google Takeout exports and their checks, the phone backup, the restic copy on pve1, and the offsite copy.                                                                                 | **Missing**                   |
+| [**Photo Library**](./photo-library.md)                                     | The household's photos and videos in an Immich server on a NixOS container on pve2: the Google Takeout exports and their checks, the phone backup, the restic copy on a second disk of pve2, and the offsite copy.                                                                | **Missing**                   |
 
 ## Reference pages
 
@@ -877,37 +877,42 @@ reliability risks first, then security exposure, then automation):
 - **Photo library rollout (2026-11-23)**: implement the
   [Photo Library](./photo-library.md) spec. In order: the staging dataset and
   its share on nas-pve2; the Google Photos export of each account, one at a
-  time, with the archive checks; the guest, starting with a reading of the
-  module at 26.11 for a secrets file it may ask for and two checks on a scratch
-  container (the module's hardened units start in an unprivileged container, and
-  Immich's database dump runs with the database role the module creates, with
-  the NixOS Postgres backup service as the alternative); the imports and the
-  remaining checks, the files of the other machine included; the phones; the
-  backup job, with the mount of nas-pve1's `backups-usb` share on pve2; the
-  probe and the scrape of the guest; the operations guide. The offsite copy is
-  the second copy of the restic repositories item below. The first two steps
-  need no guest. Depends on: the NixOS release upgrade
+  time, with the archive checks and the phone sample of check 4; the guest,
+  starting with a reading of the module at 26.11 for a secrets file it may ask
+  for and two checks on a scratch container (the module's hardened units start
+  in an unprivileged container, and Immich's database dump runs with the
+  database role the module creates and is written after a start that follows a
+  missed night, with the NixOS Postgres backup service as the alternative); the
+  imports and the remaining checks, the files of the other machine included; the
+  phones; the backup job, with an exclude option and a dump guard in the backup
+  role and its repository on pve2's scratch disk, after a reading of that disk's
+  health counters; the restore rehearsal; the deletion check; the probe and the
+  scrape of the guest; the operations guide. The offsite copy is the second copy
+  of the restic repositories item below. The first two steps need no guest.
+  Depends on: the NixOS release upgrade
   ([Host configuration](#host-configuration)), its 26.11 step, for the guest and
-  what follows. Blocks: the Google storage item and the 3 TB disk item below,
-  until its backup job step; the phone backup alert
-  ([Monitoring and alerting](#monitoring-and-alerting)), until its phones step.
+  what follows. Blocks: the Google storage item below, until its deletion check
+  step; the 3 TB disk item below, until its backup job step; the phone backup
+  alert ([Monitoring and alerting](#monitoring-and-alerting)), until its phones
+  step.
 - **Free Google storage before the quota fills (2026-11-27)**: the account that
   holds most of the photos was at 93% of its quota on 2026-11-23, and Gmail and
   Drive share that quota with Google Photos. The phones keep uploading to Google
   Photos, and the [Photo Library](./photo-library.md#what-goes-into-the-library)
-  spec has the two rules for deleting there. Steps: once the first rule holds
-  for the account, delete hand-picked items, the largest videos first; delete in
-  bulk only once the offsite copy exists. If the quota fills before the first
-  step is possible, more Google storage is what remains. Depends on: the photo
-  library rollout, its backup job step; for the bulk deletions, the second copy
-  of the restic repositories.
+  spec has the rules for deleting there. Steps: delete the sets that pass the
+  spec's deletion check, starting with hand-picked items, the largest videos
+  first; delete sets chosen in bulk only once the offsite copy exists. If the
+  quota fills before the first step is possible, more Google storage is what
+  remains. Depends on: the photo library rollout, its deletion check step; for
+  the bulk deletions, the second copy of the restic repositories.
 - **Role of the 3 TB disk on pve2 (2026-11-23)**: the disk of the machine that
   holds the files outside Google Photos moves to pve2 once the rollout has
   imported and backed them up. It is smaller than the disk behind `tank-hdd`, so
-  it cannot become its mirror; candidates: a pool of its own for a copy of the
-  photo library on a second disk, or the second copy of the media library below.
-  First step: confirm its size. Depends on: the photo library rollout, its
-  backup job step.
+  it cannot become its mirror; candidates: a pool of its own for the photo
+  library's backup repository, which starts on the 1 TB scratch disk
+  ([Backups specification](./backups.md#where-the-data-goes)), or the second
+  copy of the media library below. First step: confirm its size. Depends on: the
+  photo library rollout, its backup job step.
 - **Rehearse the secret files restore on a blank workstation (2026-11-20)**: the
   script restores every snapshot it writes, but the
   [procedure](../guides/operations/backup.md#restore-on-a-blank-workstation)
@@ -923,10 +928,9 @@ reliability risks first, then security exposure, then automation):
   repository (which keeps restic's integrity checks on both copies) or a
   replicated dataset, and extend the verification ladder of the
   [Backups specification](./backups.md) to the copy. The photo library's
-  repository, on another pool of pve1, gets its copy at the same destination: it
-  is the offsite copy of the
-  [Photo Library](./photo-library.md#copies-and-backup) spec. Blocks: the bulk
-  deletions of the Google storage item above.
+  repository, on pve2, gets its copy at the same destination: it is the offsite
+  copy of the [Photo Library](./photo-library.md#copies-and-backup) spec.
+  Blocks: the bulk deletions of the Google storage item above.
 - **Second copy of the media library (2026-10-10)**: the library on
   `rpool-usb-2/media` is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
@@ -942,6 +946,16 @@ reliability risks first, then security exposure, then automation):
   with route re-approval nor `smbpasswd` runs. Both hold secret material; the
   Samba password automation item ([NAS](#nas)) describes a mechanism that keeps
   it out of the repository.
+- **Specify the Google account backup (2026-11-27)**: the lab holds no copy of
+  what the household's Google accounts hold besides the photos, which the
+  [Photo Library](./photo-library.md) spec covers. Write a specification for the
+  rest (mail, Drive, calendar, contacts, and what else an account holds): for
+  each product, Takeout or a tool of its own, how often, where the archives are
+  kept, their retention, and their backup. Photos stays out of these exports,
+  which would otherwise carry the whole library again each time. First step:
+  list the products and their sizes on the Takeout page of each account. The
+  design reuses the staging share and the archive integrity check that the first
+  two steps of the photo library rollout build, so it follows them.
 - Destinations for the second copies:
     - Offsite backup: deploy an offsite host, configure Tailscale, network
       shares, and the backup (repository, schedule, scheduled restic check,
@@ -1332,7 +1346,7 @@ first step; software alternatives go to
       shows, ebooks, comics, game saves, software and drivers); with disk
       encryption: passwords, 2 factor authentication secrets, backup access
       codes, gateway configuration, photos (RAWs, Lightroom library), GitHub
-      (private and public repositories and gists), Google accounts data.
+      (private and public repositories and gists).
 - NAS:
     - Samba performance tuning: benchmark before adding any tuning to the `nas`
       role. Modern Samba enables AIO by default, and the classic knobs interact
