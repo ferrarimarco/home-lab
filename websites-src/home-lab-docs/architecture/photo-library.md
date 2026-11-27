@@ -11,14 +11,15 @@
 | **Imports and export checks**   | **Missing** |                                                                                                                                                           |
 | **Phone backup**                | **Missing** |                                                                                                                                                           |
 | **Library backup job**          | **Missing** |                                                                                                                                                           |
+| **Offsite copy**                | **Missing** | Waits on the destination of the [Backup](./README.md#backup) todo items.                                                                                  |
 | **Monitoring**                  | **Missing** |                                                                                                                                                           |
 
 ## Goal
 
-Hold the household's photos and videos in the lab, in an
+Make the lab the complete repository of the household's photos and videos: an
 [Immich](https://github.com/immich-app/immich) server that the phones back up
-to, with a second copy on another host, and bring in what exists today with
-proof that nothing was lost on the way.
+to, with a second copy on another host and a third outside the home, and bring
+in what exists today with checks that bound what can be lost on the way.
 
 ## Scope
 
@@ -38,11 +39,27 @@ the repository.
   Photos.
 - From then on, what the Android phones capture.
 
-Google Photos keeps what it holds: it becomes one of the copies of everything up
-to the export. Nothing is deleted there before the export checks of the account
-have passed and the library backup job holds a snapshot with the account's
-items. The same rule protects the files of the other machine: its disk is not
+The library is the complete repository, and Google Photos becomes a convenience
+copy (decided on 2026-11-27): the phones keep uploading to it, and it may hold
+less than the library, because items are deleted there to stay within the
+storage quota. Two rules govern those deletions:
+
+- An item is deleted from Google Photos only once the library and a snapshot of
+  the library backup job hold it. For the items of an export, that is once the
+  account's export checks have passed and a snapshot taken after the import
+  exists. An item picked by hand is first found in the library, by its date and
+  by viewing it, and the newest snapshot must be more recent than its upload
+  there.
+- Nothing is deleted in bulk (a year, an album, the result of a search) before
+  the offsite copy of [Copies and backup](#copies-and-backup) exists: until
+  then, Google Photos is the only copy outside the home of what it holds.
+
+The first rule also protects the files of the other machine: its disk is not
 reused before their import is checked and a snapshot holds them.
+
+Turning the Google Photos backup off on the phones was rejected (2026-11-27). It
+would remove the cases of [Phone backup](#phone-backup) that leave an item in
+Google Photos alone, but the household keeps Google Photos for its convenience.
 
 ## Why Google Takeout
 
@@ -84,15 +101,15 @@ opportunity. Whether pve2 runs around the clock stays the open question the
 
 The module needs no secret: with its default local database and cache, both
 reached over Unix sockets, it asks for a secrets file only when the database is
-remote (read in the module at the nixpkgs revision locked on 2026-04-17). The
-Immich accounts and their API keys are created in the web interface and live in
-the database.
+remote (read in the module at the nixpkgs revision of 2026-11-22 that the flake
+locks, on the 26.05 branch). The Immich accounts and their API keys are created
+in the web interface and live in the database.
 
 Decisions:
 
 - **pve2, not pve1.** pve1 had about 1 GB of its 16 GB of memory available on
-  2026-11-22, against Immich's minimum of 6 GB. pve2 had 122 GB free and 3.5 TB
-  free on `tank-hdd`.
+  2026-11-22, against Immich's minimum of 6 GB. pve2 had 122 GB of memory free
+  and 3.5 TB free on `tank-hdd`.
 - **A NixOS module, not the Compose stack.** Docker Compose is the deployment
   upstream supports, and it would run on a Debian host: on hl01, which is on
   pve1, or on a new Debian guest, while the lab's direction is away from Debian
@@ -192,8 +209,10 @@ uploaded bytes of an original-quality item is not documented; this check
 measures it.
 
 What no check covers: an item that Takeout left out together with its sidecar
-and that is on no phone. Only Google Photos still shows it, which is one more
-reason the libraries there stay as they are.
+and that is on no phone. Only Google Photos still shows it. The lookup that
+precedes the deletion of a hand-picked item finds such an item; a bulk deletion
+looks nothing up and removes it, with or without the offsite copy, and no check
+narrows that.
 
 ## Phone backup
 
@@ -209,8 +228,17 @@ reason the libraries there stay as they are.
 - The traffic is plain HTTP on the home network, accepted for this iteration:
   whoever can observe that network can read the uploads and the session. Backup
   away from home and TLS are an idea in the [todo list](./README.md#ideas).
-- The Google Photos backup on the phones is not changed by this design; the
-  [Backup](./README.md#backup) todo items cover the quota.
+- The Google Photos backup stays enabled on the phones, so each phone runs two
+  backup apps, and the [Backup](./README.md#backup) todo items cover the quota.
+  Two cases leave an item in Google Photos and not in the library, where a
+  deletion in Google Photos then loses it. Neither is covered, beyond the lookup
+  that precedes the deletion of a hand-picked item:
+    - The Immich backup of a phone stalls, or pve2 is off, and the file leaves
+      the phone before the Immich app uploads it, for instance when its owner
+      frees the space of what Google Photos has backed up.
+    - An item reaches Google Photos without passing through a backed-up folder
+      of a phone: an upload from a browser, or an item saved from a shared album
+      or from a partner.
 
 ## Versions
 
@@ -231,11 +259,11 @@ a rollback of the guest's system also needs the dump taken before the upgrade.
 
 ## Copies and backup
 
-| Data                              | Copies                                                                                 |
-| :-------------------------------- | :------------------------------------------------------------------------------------- |
-| Items exported from Google Photos | Google Photos; the archives on the staging dataset; the library; the backup repository |
-| Files from the other machine      | The library; the backup repository                                                     |
-| What the phones capture afterward | The phone, until its owner frees the space; the library; the backup repository         |
+| Data                              | Copies                                                                                                                                         |
+| :-------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+| Items exported from Google Photos | Google Photos, for what is not deleted there; the archives on the staging dataset; the library; the backup repository; the offsite copy        |
+| Files from the other machine      | The library; the backup repository; the offsite copy                                                                                           |
+| What the phones capture afterward | The phone, until its owner frees the space; Google Photos, for what is not deleted there; the library; the backup repository; the offsite copy |
 
 The backup is a `restic-backup-photos` job of the backup role on pve2, declared
 and verified like every job of the [Backups specification](./backups.md), which
@@ -245,12 +273,17 @@ holds the verification matrix:
   location, and leaves out the thumbnails and the transcoded videos.
 - Its repository is on pve1's `rpool-usb-1/backups` dataset, the pool that holds
   the lab's valuable data, so the second copy is on another host and another
-  disk. nas-pve1 exports the dataset as a share and pve2 mounts it, the way the
-  Debian hosts mount their repository share.
+  disk. nas-pve1 already exports the dataset as its `backups-usb` share, and
+  pve2 mounts it, the way the Debian hosts mount their repository share.
 - It keeps monthly snapshots for a year beside the daily ones, through the job's
   own forget policy: a deletion or a corruption that Immich propagates is
   noticed late, long after seven daily snapshots have turned over.
 - It runs while pve2 is on.
+
+The offsite copy is a copy of the job's repository at the offsite or cloud
+destination of the [Backup](./README.md#backup) todo items, which name no
+destination yet. It is made and verified like the second copy of the lab's other
+restic repositories, which the same items describe.
 
 Decisions:
 
@@ -258,10 +291,10 @@ Decisions:
   with less work per run, but the repository checks, the pack reads, the restore
   drill, and their alerts exist for restic only, and irreplaceable data is where
   they matter most.
-- **Every copy the lab holds is in one home.** For the items exported from
-  Google Photos, Google is the copy elsewhere. What the phones capture afterward
-  has none until the offsite or cloud destination of the
-  [Backup](./README.md#backup) todo items exists.
+- **A copy outside the home is part of this design.** Google Photos does not
+  count as one, because items are deleted there. Until the offsite copy exists,
+  every copy the lab holds is in one home, and an item deleted from Google
+  Photos has no copy elsewhere.
 
 ## Monitoring
 
@@ -269,11 +302,14 @@ Decisions:
   `http://photos-pve2.edge.lab.ferrari.how:2283/api/server/ping`, which answers
   without authentication with a body containing `"res":"pong"`.
 - The guest imports the `monitoring` role and joins the NixOS containers group
-  of the Ansible inventory, from which the backends derive their scrape targets,
-  so `SystemdUnitFailed` covers the Immich server, the machine learning service,
-  Postgres, and the cache.
+  of the Ansible inventory, from which the backends derive their scrape targets.
+  The group turns the scrape off, because the NAS containers import no
+  `monitoring` role, so the guest's host variables turn it on again with
+  `enable_prometheus_node_exporter_scraping`. `SystemdUnitFailed` then covers
+  the Immich server, the machine learning service, Postgres, and the cache.
 - The backup job's rules and exporter come with its declaration in pve2's
-  `expected_backup_jobs`.
+  `restic_backup_jobs`, from which the set that the coverage alert expects
+  derives.
 
 While pve2 is off, the probe and the backup staleness rules fire, as the node's
 own alerts do; whether a host that is off on purpose keeps them firing is the
@@ -281,5 +317,5 @@ decision the pve2 BMC item of the
 [todo list](./README.md#monitoring-and-alerting) records.
 
 Not covered: a phone that stopped backing up, which Android's battery
-optimization can cause without any error on the server. It is an idea in the
-[todo list](./README.md#ideas).
+optimization can cause without any error on the server. It is an item of the
+[todo list](./README.md#monitoring-and-alerting).

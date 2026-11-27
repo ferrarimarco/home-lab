@@ -2084,7 +2084,7 @@ reference pages beside them, and the todo list for the whole lab.</p>
 </tr>
 <tr>
 <td style="text-align: left;"><a href="photo-library/"><strong>Photo Library</strong></a></td>
-<td style="text-align: left;">The household's photos and videos in an Immich server on a NixOS container on pve2: the Google Takeout exports and their checks, the phone backup, and the restic copy on pve1.</td>
+<td style="text-align: left;">The household's photos and videos in an Immich server on a NixOS container on pve2: the Google Takeout exports and their checks, the phone backup, the restic copy on pve1, and the offsite copy.</td>
 <td style="text-align: left;"><strong>Missing</strong></td>
 </tr>
 </tbody>
@@ -2891,6 +2891,14 @@ reliability risks first, then security exposure, then automation):</p>
   days of the last one: <code>ztef6005ont_login_duration_seconds</code>, which a restart of
   the exporter unit samples, and <code>ztef6005ont_read_duration_seconds</code>, against
   <code>ztef6005ont_uptime_seconds</code>. Waits on: that power cycle.</li>
+<li><strong>Alert on a phone that stopped backing up to the photo library
+  (2026-11-27)</strong>: Android's battery optimization can stop the Immich app with no
+  error on the server, and an item that is then deleted from Google Photos is
+  lost, as the <a href="photo-library/#phone-backup">Photo Library</a> spec explains.
+  First step: read what the deployed Immich version exposes for the newest
+  upload of each account (its API or its metrics), then alert on the age of that
+  upload, with the rule's firing and non-firing promtool cases. Depends on: the
+  photo library rollout (<a href="#backup">Backup</a>), its phones step.</li>
 </ul>
 <h3 id="smart-home">Smart home</h3>
 <ul>
@@ -2948,27 +2956,37 @@ reliability risks first, then security exposure, then automation):</p>
 <li><strong>Photo library rollout (2026-11-23)</strong>: implement the
   <a href="photo-library/">Photo Library</a> spec. In order: the staging dataset and
   its share on nas-pve2; the Google Photos export of each account, one at a
-  time, with the archive checks; the guest, starting with two checks on a
-  scratch container (the module's hardened units start in an unprivileged
-  container, and Immich's database dump runs with the database role the module
-  creates, with the NixOS Postgres backup service as the alternative); the
-  imports and the remaining checks, the files of the other machine included; the
-  phones; the backup job with its share on nas-pve1; the operations guide. The
-  first two steps need no guest. Depends on: the NixOS release upgrade
+  time, with the archive checks; the guest, starting with a reading of the
+  module at 26.11 for a secrets file it may ask for and two checks on a scratch
+  container (the module's hardened units start in an unprivileged container, and
+  Immich's database dump runs with the database role the module creates, with
+  the NixOS Postgres backup service as the alternative); the imports and the
+  remaining checks, the files of the other machine included; the phones; the
+  backup job, with the mount of nas-pve1's <code>backups-usb</code> share on pve2; the
+  probe and the scrape of the guest; the operations guide. The offsite copy is
+  the second copy of the restic repositories item below. The first two steps
+  need no guest. Depends on: the NixOS release upgrade
   (<a href="#host-configuration">Host configuration</a>), its 26.11 step, for the guest and
-  what follows.</li>
-<li><strong>Free Google storage before the quota fills (2026-11-23)</strong>: the account that
+  what follows. Blocks: the Google storage item and the 3 TB disk item below,
+  until its backup job step; the phone backup alert
+  (<a href="#monitoring-and-alerting">Monitoring and alerting</a>), until its phones step.</li>
+<li><strong>Free Google storage before the quota fills (2026-11-27)</strong>: the account that
   holds most of the photos was at 93% of its quota on 2026-11-23, and Gmail and
-  Drive share that quota with Google Photos. Once the spec's rule allows it (the
-  account's export checks passed and a backup snapshot holds its items), either
-  turn off the Google Photos backup on the phones or delete the oldest years
-  there. Depends on: the photo library rollout.</li>
+  Drive share that quota with Google Photos. The phones keep uploading to Google
+  Photos, and the <a href="photo-library/#what-goes-into-the-library">Photo Library</a>
+  spec has the two rules for deleting there. Steps: once the first rule holds
+  for the account, delete hand-picked items, the largest videos first; delete in
+  bulk only once the offsite copy exists. If the quota fills before the first
+  step is possible, more Google storage is what remains. Depends on: the photo
+  library rollout, its backup job step; for the bulk deletions, the second copy
+  of the restic repositories.</li>
 <li><strong>Role of the 3 TB disk on pve2 (2026-11-23)</strong>: the disk of the machine that
   holds the files outside Google Photos moves to pve2 once the rollout has
   imported and backed them up. It is smaller than the disk behind <code>tank-hdd</code>, so
   it cannot become its mirror; candidates: a pool of its own for a copy of the
   photo library on a second disk, or the second copy of the media library below.
-  First step: confirm its size. Depends on: the photo library rollout.</li>
+  First step: confirm its size. Depends on: the photo library rollout, its
+  backup job step.</li>
 <li><strong>Rehearse the secret files restore on a blank workstation (2026-11-20)</strong>: the
   script restores every snapshot it writes, but the
   <a href="../guides/operations/backup/#restore-on-a-blank-workstation">procedure</a>
@@ -2983,7 +3001,11 @@ reliability risks first, then security exposure, then automation):</p>
   copy of the repositories as well, either <code>restic copy</code> into a second
   repository (which keeps restic's integrity checks on both copies) or a
   replicated dataset, and extend the verification ladder of the
-  <a href="backups/">Backups specification</a> to the copy.</li>
+  <a href="backups/">Backups specification</a> to the copy. The photo library's
+  repository, on another pool of pve1, gets its copy at the same destination: it
+  is the offsite copy of the
+  <a href="photo-library/#copies-and-backup">Photo Library</a> spec. Blocks: the bulk
+  deletions of the Google storage item above.</li>
 <li><strong>Second copy of the media library (2026-10-10)</strong>: the library on
   <code>rpool-usb-2/media</code> is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
@@ -3258,8 +3280,6 @@ first step; software alternatives go to
 <li>Check the <a href="https://uptimerobot.com/">UptimeRobot</a> configuration.</li>
 <li>Automate Telegram bot creation.</li>
 <li>Set up Loki for log aggregation.</li>
-<li>A phone that stopped backing up to the photo library: the age of the
-  newest upload per Immich account (<a href="photo-library/">Photo Library</a>).</li>
 </ul>
 </li>
 <li>Smart home:<ul>

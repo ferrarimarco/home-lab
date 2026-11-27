@@ -18,7 +18,7 @@ reference pages beside them, and the todo list for the whole lab.
 | [**Backups**](./backups.md)                                                 | Restic backups of the workload state on the Debian hosts: one repository per host on the NAS share, the declared-coverage model, and the verification ladder from structural checks to the monthly restore drill; and the backup of the checkout's secret files, outside the lab. | **Partially Implemented**     |
 | [**MQTT Broker**](./mqtt-broker.md)                                         | The Mosquitto broker for the smart home workloads as a NixOS module on hl02: the `mosquitto` role, its integration test check, the TCP probe, and the cutover from the raspberrypi2 Compose stack.                                                                                | **Fully Implemented**         |
 | [**OS Package Upgrades**](./os-package-upgrades.md)                         | One reviewed run of the OS packages playbook that upgrades a Debian host, reboots it when needed, and verifies it: the removal guard, the downtime silences, and the guest and pool checks on the Proxmox nodes.                                                                  | **Partially Implemented**     |
-| [**Photo Library**](./photo-library.md)                                     | The household's photos and videos in an Immich server on a NixOS container on pve2: the Google Takeout exports and their checks, the phone backup, and the restic copy on pve1.                                                                                                   | **Missing**                   |
+| [**Photo Library**](./photo-library.md)                                     | The household's photos and videos in an Immich server on a NixOS container on pve2: the Google Takeout exports and their checks, the phone backup, the restic copy on pve1, and the offsite copy.                                                                                 | **Missing**                   |
 
 ## Reference pages
 
@@ -798,6 +798,14 @@ reliability risks first, then security exposure, then automation):
   days of the last one: `ztef6005ont_login_duration_seconds`, which a restart of
   the exporter unit samples, and `ztef6005ont_read_duration_seconds`, against
   `ztef6005ont_uptime_seconds`. Waits on: that power cycle.
+- **Alert on a phone that stopped backing up to the photo library
+  (2026-11-27)**: Android's battery optimization can stop the Immich app with no
+  error on the server, and an item that is then deleted from Google Photos is
+  lost, as the [Photo Library](./photo-library.md#phone-backup) spec explains.
+  First step: read what the deployed Immich version exposes for the newest
+  upload of each account (its API or its metrics), then alert on the age of that
+  upload, with the rule's firing and non-firing promtool cases. Depends on: the
+  photo library rollout ([Backup](#backup)), its phones step.
 
 ### Smart home
 
@@ -855,27 +863,37 @@ reliability risks first, then security exposure, then automation):
 - **Photo library rollout (2026-11-23)**: implement the
   [Photo Library](./photo-library.md) spec. In order: the staging dataset and
   its share on nas-pve2; the Google Photos export of each account, one at a
-  time, with the archive checks; the guest, starting with two checks on a
-  scratch container (the module's hardened units start in an unprivileged
-  container, and Immich's database dump runs with the database role the module
-  creates, with the NixOS Postgres backup service as the alternative); the
-  imports and the remaining checks, the files of the other machine included; the
-  phones; the backup job with its share on nas-pve1; the operations guide. The
-  first two steps need no guest. Depends on: the NixOS release upgrade
+  time, with the archive checks; the guest, starting with a reading of the
+  module at 26.11 for a secrets file it may ask for and two checks on a scratch
+  container (the module's hardened units start in an unprivileged container, and
+  Immich's database dump runs with the database role the module creates, with
+  the NixOS Postgres backup service as the alternative); the imports and the
+  remaining checks, the files of the other machine included; the phones; the
+  backup job, with the mount of nas-pve1's `backups-usb` share on pve2; the
+  probe and the scrape of the guest; the operations guide. The offsite copy is
+  the second copy of the restic repositories item below. The first two steps
+  need no guest. Depends on: the NixOS release upgrade
   ([Host configuration](#host-configuration)), its 26.11 step, for the guest and
-  what follows.
-- **Free Google storage before the quota fills (2026-11-23)**: the account that
+  what follows. Blocks: the Google storage item and the 3 TB disk item below,
+  until its backup job step; the phone backup alert
+  ([Monitoring and alerting](#monitoring-and-alerting)), until its phones step.
+- **Free Google storage before the quota fills (2026-11-27)**: the account that
   holds most of the photos was at 93% of its quota on 2026-11-23, and Gmail and
-  Drive share that quota with Google Photos. Once the spec's rule allows it (the
-  account's export checks passed and a backup snapshot holds its items), either
-  turn off the Google Photos backup on the phones or delete the oldest years
-  there. Depends on: the photo library rollout.
+  Drive share that quota with Google Photos. The phones keep uploading to Google
+  Photos, and the [Photo Library](./photo-library.md#what-goes-into-the-library)
+  spec has the two rules for deleting there. Steps: once the first rule holds
+  for the account, delete hand-picked items, the largest videos first; delete in
+  bulk only once the offsite copy exists. If the quota fills before the first
+  step is possible, more Google storage is what remains. Depends on: the photo
+  library rollout, its backup job step; for the bulk deletions, the second copy
+  of the restic repositories.
 - **Role of the 3 TB disk on pve2 (2026-11-23)**: the disk of the machine that
   holds the files outside Google Photos moves to pve2 once the rollout has
   imported and backed them up. It is smaller than the disk behind `tank-hdd`, so
   it cannot become its mirror; candidates: a pool of its own for a copy of the
   photo library on a second disk, or the second copy of the media library below.
-  First step: confirm its size. Depends on: the photo library rollout.
+  First step: confirm its size. Depends on: the photo library rollout, its
+  backup job step.
 - **Rehearse the secret files restore on a blank workstation (2026-11-20)**: the
   script restores every snapshot it writes, but the
   [procedure](../guides/operations/backup.md#restore-on-a-blank-workstation)
@@ -890,7 +908,11 @@ reliability risks first, then security exposure, then automation):
   copy of the repositories as well, either `restic copy` into a second
   repository (which keeps restic's integrity checks on both copies) or a
   replicated dataset, and extend the verification ladder of the
-  [Backups specification](./backups.md) to the copy.
+  [Backups specification](./backups.md) to the copy. The photo library's
+  repository, on another pool of pve1, gets its copy at the same destination: it
+  is the offsite copy of the
+  [Photo Library](./photo-library.md#copies-and-backup) spec. Blocks: the bulk
+  deletions of the Google storage item above.
 - **Second copy of the media library (2026-10-10)**: the library on
   `rpool-usb-2/media` is a single copy on an aging USB disk, and the previous
   copy died with the raspberrypi2 data disk. Media is replaceable and mostly
@@ -1154,8 +1176,6 @@ first step; software alternatives go to
     - Check the [UptimeRobot](https://uptimerobot.com/) configuration.
     - Automate Telegram bot creation.
     - Set up Loki for log aggregation.
-    - A phone that stopped backing up to the photo library: the age of the
-      newest upload per Immich account ([Photo Library](./photo-library.md)).
 - Smart home:
     - Frigate: configure the
       [live view to use the high resolution stream](https://docs.frigate.video/configuration/live#setting-stream-for-live-ui);
