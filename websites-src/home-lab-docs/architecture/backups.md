@@ -11,7 +11,7 @@
 | **Structural and pack-data checks** | **Fully Implemented** | Exporter `restic check` every 12 hours; the job reads one group of pack files per night, every pack once per cycle.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Restore drill**                   | **Fully Implemented** | Monthly drill of one bounded subtree with `--verify` into a scratch directory next to the repository.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **NixOS state backup**              | **Fully Implemented** | `restic-backup-nas-state` job of the backup role on pve1 (the three NAS state directories) and pve2 (the Samba state); applied on pve1 on 2026-10-27 with the former packaged-binary flavour and on 2026-11-04 with the single-flavour role (first backup and drill clean on both days, the former layout removed, exporter target up); applied on pve2 on 2026-11-16 (first backup and drill clean, exporter target up).                                                                                                                                                     |
-| **Photo library backup job**        | **Missing**           | `restic-backup-photos` job of the backup role on pve2, for the [Photo Library](./photo-library.md); the role has neither the exclusion nor the guard that the job needs, and the repository's dataset does not exist.                                                                                                                                                                                                                                                                                                                                                         |
+| **Photo library backup job**        | **Missing**           | `restic-backup-photos` job of the backup role on pve2, for the [Photo Library](./photo-library.md); the role has neither the exclusion nor the watched file that the job needs, and the repository's dataset does not exist.                                                                                                                                                                                                                                                                                                                                                  |
 | **Media manifest**                  | **Fully Implemented** | Nightly list of the files on the media share (path, size, modification time), written by the `media-manifest` stack of the node role into the runtime tree at the start of every run of the workloads job, whose unit wants the listing and waits for it; an empty listing keeps the last one that listed files, and `MediaManifestShrunk` warns when the count falls below half. Applied on hl01 on 2026-11-18: the first run listed 705 files, and the snapshot taken after it holds the manifest.                                                                          |
 | **Second copy of the repositories** | **Missing**           | The repositories exist only on the nas-pve1 share, a single-disk pool; the second copy is a [Backup](./README.md#backup) todo item.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **Secret files backup**             | **Fully Implemented** | `scripts/backup-secrets.sh` writes the gitignored secret files of the checkout to one restic repository per destination outside the lab, and restores each snapshot to compare it with the working copy; `test/scripts/backup-secrets-test.sh` covers it. First backup written and verified on 2026-11-20. The restore on a blank workstation has not been rehearsed end-to-end ([Backup](./README.md#backup) todo item).                                                                                                                                                     |
@@ -78,17 +78,20 @@ directory of the staging dataset; the
 each is in the set. The job needs two features of the role, which any other job
 can use:
 
-- **An exclusion.** A job backs up a tree except named subdirectories, instead
-  of listing the subdirectories to include. A job that lists them misses a
-  directory that a later version of the application adds, without any error;
-  with an exclusion, that case costs a larger snapshot. The photo job excludes
-  `thumbs` and `encoded-video`.
-- **A guard before the backup.** The job waits up to a bound for a file newer
-  than its previous run in a given directory, and fails without one, before
-  `restic backup` runs. The photo job waits up to 30 minutes for a database dump
-  in the `backups` directory of the media location, so no snapshot succeeds with
-  a dump older than the one of the previous snapshot. A job's first run accepts
-  any file.
+- **An exclusion.** A job backs up a tree except subdirectories given by their
+  absolute paths, instead of listing the subdirectories to include. A job that
+  lists them misses a directory that a later version of the application adds,
+  without any error; with an exclusion, that case costs a larger snapshot. The
+  photo job excludes the `thumbs` and `encoded-video` directories of the media
+  location. An exclusion by name alone would also drop a directory of that name
+  anywhere in the set, such as an album folder kept in the records directory.
+- **A watched file.** A job names a directory and a filename pattern, and at
+  each run it exports the modification time of the newest matching file, beside
+  its step timestamps. It neither waits for the file nor fails without it. The
+  photo job watches the completed database dumps in the `backups` directory of
+  the media location, matched by the name Immich gives a finished dump and never
+  by the one of a dump in progress. A rule, `ResticWatchedFileStale`, warns when
+  the newest is older than three days.
 
 ## Where the data goes
 
@@ -107,9 +110,14 @@ The photo job differs from the other jobs in four ways:
 
 - Its repository is on pve2, on a `backups` dataset of the `tank-hdd-scratch`
   pool: another disk than the library's `tank-hdd`, in the same host. The pool's
-  disk holds 1 TB, against a library of about 300 GB (stated on 2026-11-23).
-- It runs at 03:00, an hour after Immich's default time for the database dump.
-- It keeps twelve monthly snapshots beside the seven daily ones.
+  disk holds 1 TB, against a library of about 300 GB (stated on 2026-11-23). It
+  is the second repository of pve2, beside the one of the node's state job: a
+  repository per job keeps the size and the retention of the photo set apart.
+- It runs at 03:00, an hour after Immich's default time for the database dump,
+  and its monthly drill at 06:00 instead of the default 03:00, so that the two
+  do not start together and wait on the repository lock.
+- It keeps monthly snapshots for a year beside the daily ones of the last week,
+  by adding `--keep-within-monthly 1y` to the default forget policy.
 - Its monthly drill restores the marker file that Immich keeps in the `library`
   directory (`.immich`, which its
   [system integrity](https://docs.immich.app/administration/system-integrity)
@@ -181,20 +189,24 @@ Decisions:
   rebuildable exporter virtual environments. NixOS hosts back up state
   directories only, from the node that holds them, through the
   `restic-backup-nas-state` job, and declare the job whenever a stateful
-  workload lands on one. The restore procedure that proves the rebuild path is
-  in the [backup operations guide](../guides/operations/backup.md).
+  workload lands on one. The photo library's guest follows the same rule with a
+  job of its own, whose set is data and not only state. The restore procedure
+  that proves the rebuild path is in the
+  [backup operations guide](../guides/operations/backup.md).
 
 ## What is verified, and what is not
 
-| Mechanism                                                                                                               | Cadence                                                                     | Proves                                                                                                 | Does not prove                                                           | Reported by                                                     |
-| ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| Coverage (declared jobs versus jobs that reported a run)                                                                | every evaluation                                                            | every host that holds state has its restic job configured and run at least once                        | that the job keeps running (the staleness rules do)                      | `ExpectedBackupMissing`                                         |
-| Backup job                                                                                                              | nightly                                                                     | a new snapshot exists for both trees                                                                   | that the data is readable later                                          | `ResticBackupStale`, `ResticBackupMissing`, `SystemdUnitFailed` |
-| Repository identity                                                                                                     | every run                                                                   | the job opened the repository it is meant to use                                                       | anything about the content                                               | `ResticRepositoryChanged`                                       |
-| Structural check (`restic check`, by the job and by the exporter)                                                       | nightly, every 12 h                                                         | indices, trees, and snapshot references are consistent                                                 | that the pack files hold intact data                                     | `ResticCheckFailed` (exporter), `SystemdUnitFailed` (job)       |
-| Pack data reads (`restic check --read-data-subset=n/t`)                                                                 | one group per night, every pack once per `t` nights (7 by default, per job) | every stored block hashes to what the index says, within `t` nights of being written                   | that a restore works end-to-end                                          | `ResticReadDataCheckStale`, `SystemdUnitFailed`                 |
-| Restore drill (one small secret-free file, `--verify`, file count against the listing, target emptied before and after) | monthly, first Sunday                                                       | the restore path works: binary, password, mount, space guard, files restored with content and metadata | that every subtree restores; that the data is intact (the pack reads do) | `ResticRestoreDrillStale`, `ResticRestoreDrillMissing`          |
-| Full restore                                                                                                            | manual, before an event that depends on it                                  | everything the drill proves, for the whole state set                                                   |                                                                          | the operator, through the services                              |
+| Mechanism                                                                                                               | Cadence                                                                                                   | Proves                                                                                                 | Does not prove                                                           | Reported by                                                     |
+| ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Coverage (declared jobs versus jobs that reported a run)                                                                | every evaluation                                                                                          | every host that holds state has its restic job configured and run at least once                        | that the job keeps running (the staleness rules do)                      | `ExpectedBackupMissing`                                         |
+| Backup job                                                                                                              | nightly                                                                                                   | a new snapshot exists for both trees                                                                   | that the data is readable later                                          | `ResticBackupStale`, `ResticBackupMissing`, `SystemdUnitFailed` |
+| Repository identity                                                                                                     | every run                                                                                                 | the job opened the repository it is meant to use                                                       | anything about the content                                               | `ResticRepositoryChanged`                                       |
+| Structural check (`restic check`, by the job and by the exporter)                                                       | nightly, every 12 h                                                                                       | indices, trees, and snapshot references are consistent                                                 | that the pack files hold intact data                                     | `ResticCheckFailed` (exporter), `SystemdUnitFailed` (job)       |
+| Pack data reads (`restic check --read-data-subset=n/t`)                                                                 | one group per night, every pack once per `t` nights (7 by default, per job)                               | every stored block hashes to what the index says, within `t` nights of being written                   | that a restore works end-to-end                                          | `ResticReadDataCheckStale`, `SystemdUnitFailed`                 |
+| Restore drill (one small secret-free file, `--verify`, file count against the listing, target emptied before and after) | monthly, first Sunday                                                                                     | the restore path works: binary, password, mount, space guard, files restored with content and metadata | that every subtree restores; that the data is intact (the pack reads do) | `ResticRestoreDrillStale`, `ResticRestoreDrillMissing`          |
+| Dump age of the photo job                                                                                               | every run                                                                                                 | the backup set held a completed database dump no older than three days                                 | that the dump restores (the rehearsal does)                              | `ResticWatchedFileStale`                                        |
+| Restore rehearsal of the photo library ([Photo Library](./photo-library.md#copies-and-backup))                          | manual, before the first deletion in Google Photos and before an upgrade of Immich to a new major version | Immich starts from a snapshot's dump with the asset and album counts of each account                   | that every original restores (the pack reads cover their data)           | the operator                                                    |
+| Full restore                                                                                                            | manual, before an event that depends on it                                                                | everything the drill proves, for the whole state set                                                   |                                                                          | the operator, through the services                              |
 
 The freshness rules read the backup step timestamp every job writes after
 `restic backup` succeeded, so a declared job is expected, alerted on when it

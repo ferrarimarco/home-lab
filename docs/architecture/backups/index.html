@@ -1857,7 +1857,7 @@
 <tr>
 <td style="text-align: left;"><strong>Photo library backup job</strong></td>
 <td style="text-align: left;"><strong>Missing</strong></td>
-<td style="text-align: left;"><code>restic-backup-photos</code> job of the backup role on pve2, for the <a href="../photo-library/">Photo Library</a>; the role has neither the exclusion nor the guard that the job needs, and the repository's dataset does not exist.</td>
+<td style="text-align: left;"><code>restic-backup-photos</code> job of the backup role on pve2, for the <a href="../photo-library/">Photo Library</a>; the role has neither the exclusion nor the watched file that the job needs, and the repository's dataset does not exist.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Media manifest</strong></td>
@@ -1938,17 +1938,20 @@ directory of the staging dataset; the
 each is in the set. The job needs two features of the role, which any other job
 can use:</p>
 <ul>
-<li><strong>An exclusion.</strong> A job backs up a tree except named subdirectories, instead
-  of listing the subdirectories to include. A job that lists them misses a
-  directory that a later version of the application adds, without any error;
-  with an exclusion, that case costs a larger snapshot. The photo job excludes
-  <code>thumbs</code> and <code>encoded-video</code>.</li>
-<li><strong>A guard before the backup.</strong> The job waits up to a bound for a file newer
-  than its previous run in a given directory, and fails without one, before
-  <code>restic backup</code> runs. The photo job waits up to 30 minutes for a database dump
-  in the <code>backups</code> directory of the media location, so no snapshot succeeds with
-  a dump older than the one of the previous snapshot. A job's first run accepts
-  any file.</li>
+<li><strong>An exclusion.</strong> A job backs up a tree except subdirectories given by their
+  absolute paths, instead of listing the subdirectories to include. A job that
+  lists them misses a directory that a later version of the application adds,
+  without any error; with an exclusion, that case costs a larger snapshot. The
+  photo job excludes the <code>thumbs</code> and <code>encoded-video</code> directories of the media
+  location. An exclusion by name alone would also drop a directory of that name
+  anywhere in the set, such as an album folder kept in the records directory.</li>
+<li><strong>A watched file.</strong> A job names a directory and a filename pattern, and at
+  each run it exports the modification time of the newest matching file, beside
+  its step timestamps. It neither waits for the file nor fails without it. The
+  photo job watches the completed database dumps in the <code>backups</code> directory of
+  the media location, matched by the name Immich gives a finished dump and never
+  by the one of a dump in progress. A rule, <code>ResticWatchedFileStale</code>, warns when
+  the newest is older than three days.</li>
 </ul>
 <h2 id="where-the-data-goes">Where the data goes</h2>
 <p>Each host owns one restic repository on the nas-pve1 <code>backups</code> share (the
@@ -1965,9 +1968,14 @@ item).</p>
 <ul>
 <li>Its repository is on pve2, on a <code>backups</code> dataset of the <code>tank-hdd-scratch</code>
   pool: another disk than the library's <code>tank-hdd</code>, in the same host. The pool's
-  disk holds 1 TB, against a library of about 300 GB (stated on 2026-11-23).</li>
-<li>It runs at 03:00, an hour after Immich's default time for the database dump.</li>
-<li>It keeps twelve monthly snapshots beside the seven daily ones.</li>
+  disk holds 1 TB, against a library of about 300 GB (stated on 2026-11-23). It
+  is the second repository of pve2, beside the one of the node's state job: a
+  repository per job keeps the size and the retention of the photo set apart.</li>
+<li>It runs at 03:00, an hour after Immich's default time for the database dump,
+  and its monthly drill at 06:00 instead of the default 03:00, so that the two
+  do not start together and wait on the repository lock.</li>
+<li>It keeps monthly snapshots for a year beside the daily ones of the last week,
+  by adding <code>--keep-within-monthly 1y</code> to the default forget policy.</li>
 <li>Its monthly drill restores the marker file that Immich keeps in the <code>library</code>
   directory (<code>.immich</code>, which its
   <a href="https://docs.immich.app/administration/system-integrity">system integrity</a>
@@ -2037,8 +2045,10 @@ coverage.</p>
   rebuildable exporter virtual environments. NixOS hosts back up state
   directories only, from the node that holds them, through the
   <code>restic-backup-nas-state</code> job, and declare the job whenever a stateful
-  workload lands on one. The restore procedure that proves the rebuild path is
-  in the <a href="../../guides/operations/backup/">backup operations guide</a>.</li>
+  workload lands on one. The photo library's guest follows the same rule with a
+  job of its own, whose set is data and not only state. The restore procedure
+  that proves the rebuild path is in the
+  <a href="../../guides/operations/backup/">backup operations guide</a>.</li>
 </ul>
 <h2 id="what-is-verified-and-what-is-not">What is verified, and what is not</h2>
 <table>
@@ -2093,6 +2103,20 @@ coverage.</p>
 <td>the restore path works: binary, password, mount, space guard, files restored with content and metadata</td>
 <td>that every subtree restores; that the data is intact (the pack reads do)</td>
 <td><code>ResticRestoreDrillStale</code>, <code>ResticRestoreDrillMissing</code></td>
+</tr>
+<tr>
+<td>Dump age of the photo job</td>
+<td>every run</td>
+<td>the backup set held a completed database dump no older than three days</td>
+<td>that the dump restores (the rehearsal does)</td>
+<td><code>ResticWatchedFileStale</code></td>
+</tr>
+<tr>
+<td>Restore rehearsal of the photo library (<a href="../photo-library/#copies-and-backup">Photo Library</a>)</td>
+<td>manual, before the first deletion in Google Photos and before an upgrade of Immich to a new major version</td>
+<td>Immich starts from a snapshot's dump with the asset and album counts of each account</td>
+<td>that every original restores (the pack reads cover their data)</td>
+<td>the operator</td>
 </tr>
 <tr>
 <td>Full restore</td>

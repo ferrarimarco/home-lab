@@ -881,26 +881,21 @@ reliability risks first, then security exposure, then automation):
   run the backup where they warn today. Depends on: the Google Cloud environment
   item ([CI/CD](#cicd-infrastructure-as-code-and-gitops)).
 - **Photo library rollout (2026-11-23)**: implement the
-  [Photo Library](./photo-library.md) spec. In order: the staging dataset and
-  its share on nas-pve2; the Google Photos export of each account, one at a
-  time, with the archive checks and the phone sample of check 4; the guest,
-  starting with a reading of the module at 26.11 for a secrets file it may ask
-  for and two checks on a scratch container (the module's hardened units start
-  in an unprivileged container, and Immich's database dump runs with the
-  database role the module creates and is written after a start that follows a
-  missed night, with the NixOS Postgres backup service as the alternative); the
-  imports and the remaining checks, the files of the other machine included; the
-  phones; the backup job, with an exclude option and a dump guard in the backup
-  role and its repository on pve2's scratch disk, after a reading of that disk's
-  health counters; the restore rehearsal; the deletion check; the probe and the
-  scrape of the guest; the operations guide. The offsite copy is the second copy
-  of the restic repositories item below. The first two steps need no guest.
-  Depends on: the NixOS release upgrade
-  ([Host configuration](#host-configuration)), its 26.11 step, for the guest and
-  what follows. Blocks: the Google storage item below, until its deletion check
-  step; the 3 TB disk item below, until its backup job step; the phone backup
-  alert ([Monitoring and alerting](#monitoring-and-alerting)), until its phones
-  step.
+  [Photo Library](./photo-library.md) spec, verifying each of its
+  [assumptions](./photo-library.md#assumptions-the-rollout-verifies) before the
+  step that rests on it. In order: the staging dataset and its share on
+  nas-pve2; the Google Photos export of each account, one at a time, with the
+  archive checks and the phone sample of check 4; the guest, with its probe and
+  its scrape; the backup job, with the exclusion and the watched file in the
+  backup role; the imports and the remaining checks, the files of the other
+  machine included; the restore rehearsal; the phones; the deletion check; the
+  operations guide. The offsite copy is the second copy of the restic
+  repositories item below. The first two steps need no guest. Depends on: the
+  NixOS release upgrade ([Host configuration](#host-configuration)), its 26.11
+  step, for the guest and what follows. Blocks: the Google storage item below,
+  until its deletion check step; the 3 TB disk item below, until its backup job
+  step; the phone backup alert
+  ([Monitoring and alerting](#monitoring-and-alerting)), until its phones step.
 - **Free Google storage before the quota fills (2026-11-27)**: the account that
   holds most of the photos was at 93% of its quota on 2026-11-23, and Gmail and
   Drive share that quota with Google Photos. The phones keep uploading to Google

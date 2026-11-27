@@ -2,19 +2,19 @@
 
 ## Implementation Status
 
-| Component / Feature             | Status      | Details                                                                                                                                                                                             |
-| :------------------------------ | :---------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Staging dataset and share**   | **Missing** |                                                                                                                                                                                                     |
-| **Google Photos exports**       | **Missing** | One export per account; none requested yet.                                                                                                                                                         |
-| **Photo guest (`photos-pve2`)** | **Missing** | Waits on the fleet's move to NixOS 26.11 ([Host configuration](./README.md#host-configuration)).                                                                                                    |
-| **Database dump**               | **Missing** | Whether Immich's own dump job runs with the database role the NixOS module creates, and writes a missed dump after a start, is unverified; the [rollout item](./README.md#backup) names the checks. |
-| **Imports and export checks**   | **Missing** |                                                                                                                                                                                                     |
-| **Phone backup**                | **Missing** |                                                                                                                                                                                                     |
-| **Library backup job**          | **Missing** | Defined in the [Backups specification](./backups.md); the backup role has neither the exclusion nor the guard yet.                                                                                  |
-| **Restore rehearsal**           | **Missing** |                                                                                                                                                                                                     |
-| **Deletion check**              | **Missing** |                                                                                                                                                                                                     |
-| **Offsite copy**                | **Missing** | Waits on the destination of the [Backup](./README.md#backup) todo items.                                                                                                                            |
-| **Monitoring**                  | **Missing** |                                                                                                                                                                                                     |
+| Component / Feature             | Status      | Details                                                                                                                                              |
+| :------------------------------ | :---------- | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Staging dataset and share**   | **Missing** |                                                                                                                                                      |
+| **Google Photos exports**       | **Missing** | One export per account; none requested yet.                                                                                                          |
+| **Photo guest (`photos-pve2`)** | **Missing** | Waits on the fleet's move to NixOS 26.11 ([Host configuration](./README.md#host-configuration)).                                                     |
+| **Database dump**               | **Missing** | Whether Immich's own dump job runs with the database role the NixOS module creates is unverified ([assumptions](#assumptions-the-rollout-verifies)). |
+| **Imports and export checks**   | **Missing** |                                                                                                                                                      |
+| **Phone backup**                | **Missing** |                                                                                                                                                      |
+| **Library backup job**          | **Missing** | Defined in the [Backups specification](./backups.md); the backup role has neither the exclusion nor the dump age metric yet.                         |
+| **Restore rehearsal**           | **Missing** |                                                                                                                                                      |
+| **Deletion check**              | **Missing** |                                                                                                                                                      |
+| **Offsite copy**                | **Missing** | Waits on the destination of the [Backup](./README.md#backup) todo items.                                                                             |
+| **Monitoring**                  | **Missing** |                                                                                                                                                      |
 
 ## Goal
 
@@ -168,8 +168,11 @@ Decisions:
   recreation.
 - A database dump is written every day into the media location, at Immich's
   default of 02:00, so one dataset holds everything a restore needs: the
-  originals and the metadata. A dump that was missed because pve2 was off is
-  written after the next start.
+  originals and the metadata. A night that pve2 spends off writes no dump, since
+  Immich writes it on a schedule only (read in its source on the main branch),
+  and the next snapshot then carries an older one. When the alert of
+  [Monitoring](#monitoring) reports that, the dump moves to an hour at which
+  pve2 is on.
 - The storage template is enabled before the first import, with Immich's default
   layout (`Year/Year-Month-Day/Filename.Extension` under a directory per user),
   so the originals stay readable without Immich and its database.
@@ -216,15 +219,19 @@ archive expires in about seven days:
    a partner. Partner sharing is in use between the household's accounts (stated
    on 2026-11-27), so the partner's own export is expected to carry such an
    item, and check 3 confirms it for each one: an item that the partner's
-   library account does not hold is imported into the receiving account.
-6. Checks 3 to 5 run, and the results go into the account's record, in the
-   records directory of the staging dataset.
-7. What the library does not hold is extracted from the archives into the same
-   directory: every file that is not a media file, among them the sidecar files,
-   which hold what an import tool may not apply, and every media file whose
-   content hash the library does not hold. The library backup job covers the
-   records directory. After this step the archives are no copy of anything: they
-   stay on the staging share while the space allows, and no backup holds them.
+   library account does not hold is imported into the receiving account. The
+   accounts share with each other in Immich as they do in Google Photos, so each
+   person still sees the items of the partner.
+6. Checks 3 and 5 run, and the results go into the account's record, in the
+   records directory of the staging dataset. Check 3 stays open for the items
+   that a partner shared until the partner's account is imported.
+7. Once check 3 is closed, what the library does not hold is extracted from the
+   archives into the same directory: every file that is not a media file, among
+   them the sidecar files, which hold what an import tool may not apply, and
+   every media file whose content hash the library does not hold. The library
+   backup job covers the records directory. After this step the archives are no
+   copy of anything: they stay on the staging share while the space allows, and
+   no backup holds them.
 
 The files from the other machine are copied to the staging share and imported as
 a folder into their owner's account; check 3 applies to them.
@@ -238,8 +245,10 @@ Decision:
 ## Export checks
 
 No single check proves that an export is complete, at full resolution, with its
-metadata. Each account passes these, in order. One script, written with the
-rollout, runs checks 1 to 3 and 5 and writes the record; the
+metadata. Each account passes all five. Checks 1 and 2 and the sample of check 4
+precede the import, checks 3 and 5 follow it, and the rest of check 4 is the
+first backup of the person's phone, which comes last. One script, written with
+the rollout, runs checks 1 to 3 and 5 and writes the record; the
 [deletion check](#deletion-check) runs the same code.
 
 | Check                | Passes when                                                                                                                                                                                                                                                                                                                                                                                         | Does not prove                                     |
@@ -247,7 +256,7 @@ rollout, runs checks 1 to 3 and 5 and writes the record; the
 | 1. Archive integrity | Every part the export page lists is present and every ZIP passes its integrity test                                                                                                                                                                                                                                                                                                                 | That Takeout put every item in the archive         |
 | 2. Pairing           | Every sidecar file has its media file in the archive; the media files with no sidecar are listed                                                                                                                                                                                                                                                                                                    | Anything about an item missing with its sidecar    |
 | 3. Import accounting | Every distinct media file of the archive, by its SHA-1 hash, is an asset of the account outside its trash, or is in the record with the reason it was left out; a partner's item counts as left out only once the partner's account holds its content hash, which waits for that account's import                                                                                                   | That the metadata arrived                          |
-| 4. Byte identity     | A sample of about twenty files copied from each phone, photos and videos, has the content hashes of the archive's files; then the app's first backup uploads nothing captured before the export was requested, and each exception is recorded                                                                                                                                                       | Anything about items that are on no device anymore |
+| 4. Byte identity     | A sample of about twenty files copied from each phone, photos and videos, has the content hashes of the archive's files; then the app's first backup uploads nothing captured before the export was requested that the record does not explain                                                                                                                                                      | Anything about items that are on no device anymore |
 | 5. Metadata          | Every album folder of the archive has an album with its item count in the library, or is listed in the record as a warning, which is where an album without a title appears; the favorites have their count; a sample of items edited in Google Photos shows the edited date, location, and description, and holds a motion photo with its video part and an item whose metadata was edited by hand | That every item's metadata arrived                 |
 
 Check 4 uses the app's deduplication: it computes a checksum of each local file
@@ -264,6 +273,12 @@ second copy beside the one of Takeout. If the sample does not match, no phone is
 enabled and this specification is revised first, since the matching of the
 [deletion check](#deletion-check) depends on the same answer.
 
+The rest of check 4 is read from the library after the phone's first backup: the
+assets of the account that the phone uploaded and that were captured before the
+export was requested. Each one goes into the record with what explains it (a
+folder that Google Photos did not back up, an item that reached Google Photos
+after the export was requested), and one that nothing explains fails the check.
+
 What no check of an export covers: an item that Takeout left out together with
 its sidecar and that is on no phone. Only Google Photos still shows it, and the
 count comparison of the deletion check is what notices it before it is deleted
@@ -274,23 +289,36 @@ there.
 A set of items is deleted from Google Photos only after this check. It runs the
 code of the export checks on a small archive, in this order:
 
-1. The items to delete are put in an album in Google Photos.
+1. The items to delete are put in a new album in Google Photos, made for this
+   set.
 2. That album alone is exported with Takeout and downloaded to the staging
    share, and export checks 1 and 2 run on the archive.
 3. The count of items that the album shows in Google Photos equals the count of
-   items in the archive, so an item that the export left out is noticed.
-4. Every item of the archive passes the three conditions below.
-5. The items that passed are deleted in Google Photos by hand: no Google Photos
-   API deletes an item that the calling application did not create. Nobody
-   empties the trash afterwards, where a deleted item stays for 30 days
+   items in the archive, counted by their sidecar files. A difference stops the
+   whole set until it is explained: it is how an item that the export left out
+   is noticed.
+4. Every item of the archive is tested against the three conditions below. An
+   item that fails one is removed from the album, and stays in Google Photos.
+5. Immediately before the deletion, the count that the album shows is read again
+   and equals the count of the items that passed, so nothing was added to the
+   album since the export and no failed item is left in it. All the items of the
+   album are then deleted in Google Photos, by hand: no Google Photos API
+   deletes an item that the calling application did not create. Nobody empties
+   the trash afterwards, where a deleted item stays for 30 days
    ([delete photos](https://support.google.com/photos/answer/6128858)), which is
    the time to undo the deletion.
 
-| Condition                  | Passes when                                                                                                                    |
-| :------------------------- | :----------------------------------------------------------------------------------------------------------------------------- |
-| The library holds the copy | An asset of the owner's account has the content hash of the archive's file and is not in the trash                             |
-| The metadata is current    | The asset's capture time, location, description, and favorite status equal those of the item's sidecar file                    |
-| A snapshot holds both      | The newest snapshot of the library backup job holds the asset's file, and its dump is more recent than the asset's last update |
+| Condition                  | Passes when                                                                                                                                                                                     |
+| :------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The library holds the copy | An asset has the content hash of the archive's file and is not in the trash, in the library account of the person the item belongs to: the partner's account, for an item that a partner shared |
+| The metadata is current    | The asset's capture time, location, description, and favorite status equal those of the item's sidecar file                                                                                     |
+| A snapshot holds both      | The newest snapshot of the library backup job holds the asset's file, and its dump is more recent than the asset's last update                                                                  |
+
+The check runs as the owner of the staging files, who cannot read the backup
+repository: root alone reads its password
+([Backups specification](./backups.md#where-the-data-goes)). The third condition
+therefore rests on a listing of the newest snapshot, with its paths and the dump
+it holds, that a step run as root writes for the check.
 
 An item that fails a condition stays in Google Photos until its cause is found,
 and the result of every run goes into the records directory, with the files of
@@ -307,7 +335,9 @@ Limits:
   compared.
 - The export of one album does not say which other albums of Google Photos hold
   the item, so the check does not compare album membership.
-- How Takeout delivers an item that was edited in Google Photos is unverified.
+- How Takeout delivers a motion photo and an item that was edited in Google
+  Photos (one sidecar file or two, one media file or two) is unverified, and it
+  decides how step 3 counts them.
 - The operations the check needs from Immich (the lookup of an asset by its
   SHA-1 hash, the asset record with its path, its last update, and its metadata)
   were read in the API specification of Immich's main branch, which is newer
@@ -405,8 +435,8 @@ precedes an upgrade to a new major version.
 
 The backup is a `restic-backup-photos` job of the backup role on pve2. The
 [Backups specification](./backups.md) defines the job (its repository, its
-schedule, its retention, its guard, and its drill) and holds the verification
-matrix. This design asks five things of it:
+schedule, its retention, and its drill) and holds the verification matrix. This
+design asks five things of it:
 
 - It covers the whole media location except the two directories of generated
   content, `thumbs` and `encoded-video`. Immich's
@@ -415,11 +445,12 @@ matrix. This design asks five things of it:
   originals, `backups` for the dumps.
 - It also covers the records directory of the staging dataset: the check records
   and what the archives hold that the library does not.
-- Every snapshot holds a database dump newer than the one of the previous
-  snapshot, so a snapshot never succeeds with metadata older than the last one.
-  The order is the one Immich's backup documentation recommends, the database
-  first and the files second: after a restore, the worst case is a file that the
-  database does not know.
+- It backs up the dumps that the media location holds, and never waits or fails
+  for lack of a new one. It starts an hour after the dump, in the order that
+  Immich's backup documentation recommends, the database first and the files
+  second: after a restore, the worst case is a file that the database does not
+  know. A snapshot can carry a dump that is days old, which costs a restore the
+  metadata changed since that dump, and no original.
 - Its repository is on another disk than the library.
 - It keeps monthly snapshots for a year beside the daily ones: a deletion or a
   corruption that Immich propagates is noticed late, long after seven daily
@@ -453,6 +484,15 @@ Decisions:
   would also measure the restore time at the real size, for about 300 GB of
   scratch space and hours of reading from the repository's disk. The job's
   scheduled checks already read the packs that hold the originals.
+- **No guard on the age of the dump** (2026-11-27). A job that waited for a
+  fresh dump and failed without one was designed and dropped: with no dump, it
+  would also leave the new originals without a backup, which is worse than the
+  stale metadata it prevents. It also needed something to write a dump after
+  every night that pve2 spent off, and each way to do that added a mechanism (a
+  timer with an API key in the guest, a call from the node's job, a dump every
+  hour). The [deletion check](#deletion-check) already refuses a snapshot whose
+  dump is older than an item's last change, so a stale dump delays a deletion
+  and loses nothing.
 - **A copy outside the home is part of this design.** Google Photos does not
   count as one, because items are deleted there. Until the offsite copy exists,
   every copy the lab holds is in one machine, pve2, and an item deleted from
@@ -470,10 +510,16 @@ Decisions:
   of the Ansible inventory, from which the backends derive their scrape targets.
   The group turns the scrape off, because the NAS containers import no
   `monitoring` role, so the guest's host variables turn it on again with
-  `enable_prometheus_node_exporter_scraping`. `SystemdUnitFailed` then covers
-  the Immich server, the machine learning service, Postgres, and the cache.
-- A dump that stopped being written fails the backup job at its next run, which
-  `SystemdUnitFailed` reports on pve2, and `ResticBackupStale` follows.
+  `enable_prometheus_node_exporter_scraping`. The systemd unit rules of the
+  [Monitoring Alerting specification](./monitoring-alerting.md) then cover the
+  Immich server, the machine learning service, Postgres, and the cache. The
+  module restarts the server and the machine learning service when they fail, so
+  a crashing one shows in the restart rules (`SystemdUnitRestartLooping`,
+  `SystemdUnitRestartingFrequently`), not in `SystemdUnitFailed`.
+- A warning when the newest dump that the backup job found is older than three
+  days, through the watched file of the job
+  ([Backups specification](./backups.md#what-is-backed-up)). It tells that dumps
+  stopped, whether Immich's job broke or pve2 is off at the dump's hour.
 - The backup job's rules and exporter come with its declaration in pve2's
   `restic_backup_jobs`, from which the set that the coverage alert expects
   derives.
@@ -486,3 +532,25 @@ decision the pve2 BMC item of the
 Not covered: a phone that stopped backing up, which Android's battery
 optimization can cause without any error on the server. It is an item of the
 [todo list](./README.md#monitoring-and-alerting).
+
+## Assumptions the rollout verifies
+
+The design rests on these, and each is verified before the step that depends on
+it:
+
+- The Immich module of NixOS 26.11 still asks for no secrets file with a local
+  database, as the one of 26.05 does ([Placement](#placement)).
+- The module's hardened units start in an unprivileged container, tried on a
+  scratch container ([Placement](#placement)).
+- Immich's own dump job runs with the database role that the module creates,
+  tried on the same scratch container. The Postgres backup service of NixOS is
+  the alternative.
+- The disk of the `tank-hdd-scratch` pool, which was made for temporary files,
+  is fit to hold the backup repository: its health counters are read before the
+  repository is created.
+- The probe's path, and the operations that the checks need from Immich's API,
+  exist on the deployed version ([Deletion check](#deletion-check)).
+- Takeout returns the bytes that a phone uploaded, which the sample of export
+  check 4 measures.
+- How Takeout delivers a motion photo and an item edited in Google Photos, read
+  from the first archive.
