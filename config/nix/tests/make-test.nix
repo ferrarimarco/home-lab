@@ -216,8 +216,8 @@ pkgs.testers.nixosTest {
 
       # Verify the Prometheus node exporter if it is enabled. The port is
       # derived from the evaluated configuration. The first assertion targets
-      # the metric name prefix; the second names the one collector the unit
-      # alerts depend on.
+      # the metric name prefix; the others name what the unit alerts read from
+      # the systemd collector, its unit states and its restart counts.
       nodeExporterPort = toString node_config.services.prometheus.exporters.node.port;
       nodeExporterCheck = lib.optionalString node_config.services.prometheus.exporters.node.enable ''
         print("--- Verifying Prometheus Node Exporter ---")

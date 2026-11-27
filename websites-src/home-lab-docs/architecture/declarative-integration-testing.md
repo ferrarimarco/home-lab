@@ -64,8 +64,9 @@ The generator dynamically:
       `smbclient` enumeration.
     - If `services.prometheus.exporters.node` is enabled, it waits for
       `prometheus-node-exporter.service` and its configured port, and asserts
-      that the metrics endpoint serves `node_`-prefixed metrics and the unit
-      states of the systemd collector, which the unit alerts read.
+      that the metrics endpoint serves `node_`-prefixed metrics, and the unit
+      states and the restart counts of the systemd collector, which the unit
+      alerts read.
     - If the host declares network boot hosts (the `netboot-server` role), it
       runs the rescue toggle round trip that the
       [Network Boot Service specification](./network-boot.md) describes in its

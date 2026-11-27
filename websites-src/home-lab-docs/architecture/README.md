@@ -253,8 +253,9 @@ reliability risks first, then security exposure, then automation):
       every guest's resource in the workloads stack. First step: list what the
       resources of the two VMs and of the two containers share and where they
       differ (hl01 is a cloud-init VM with PCI passthrough, outside the VM
-      framework spec), and decide between a module and a `for_each` over a host
-      map.
+      framework spec), and decide whether one VM module can serve both. The
+      serial device of the getty item in [Issues to solve](#issues-to-solve) is
+      the current case of a fix repeated per guest.
 - Tests to implement:
     - Samba config file validation: `testparm -s`.
     - Evaluate `dnsmasq --test` for testing the dnsmasq configuration.
